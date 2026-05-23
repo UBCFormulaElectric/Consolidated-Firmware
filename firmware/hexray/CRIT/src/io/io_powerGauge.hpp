@@ -33,5 +33,5 @@ struct led_frame
 };
 static_assert(sizeof(led_frame) == 4);
 
-std::expected<void, ErrorCode> update(std::span<led_frame, LEDS> data);
+result<void> update(std::array<led_frame, LEDS> data);
 } // namespace io::power_gauge

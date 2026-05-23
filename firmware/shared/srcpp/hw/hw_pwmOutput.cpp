@@ -2,7 +2,7 @@
 
 #include "hw_utils.hpp"
 
-std::expected<void, ErrorCode> hw::PwmOutput::start() const
+result<void> hw::PwmOutput::start() const
 {
     if (not started)
     {
@@ -12,12 +12,12 @@ std::expected<void, ErrorCode> hw::PwmOutput::start() const
     return {};
 }
 
-std::expected<void, ErrorCode> hw::PwmOutput::stop() const
+result<void> hw::PwmOutput::stop() const
 {
     return utils::convertHalStatus(HAL_TIM_PWM_Stop(htim, pwm_channel));
 }
 
-std::expected<void, ErrorCode> hw::PwmOutput::setDutyCycle(const float duty_cycle_in) const
+result<void> hw::PwmOutput::setDutyCycle(const float duty_cycle_in) const
 {
     // Constrain duty cycle between 0.0% and 100.0%.
     if (duty_cycle_in < 0.0f || duty_cycle_in > 100.0f)

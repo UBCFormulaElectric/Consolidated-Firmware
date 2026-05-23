@@ -6,7 +6,7 @@
 
 namespace io::seven_seg
 {
-std::expected<void, ErrorCode> write(std::array<digit, DIGITS> &data)
+result<void> write(std::array<digit, DIGITS> &data)
 {
     std::ranges::reverse(data);
     RETURN_IF_ERR_SILENT(seven_seg_device.transmit(std::span{ reinterpret_cast<uint8_t *>(data.data()), data.size() }));
@@ -15,7 +15,7 @@ std::expected<void, ErrorCode> write(std::array<digit, DIGITS> &data)
     return {};
 }
 
-std::expected<void, ErrorCode> setBrightness(const float brightness)
+result<void> setBrightness(const float brightness)
 {
     RETURN_IF_ERR_SILENT(seven_seg_dimming.start());
     RETURN_IF_ERR_SILENT(seven_seg_dimming.setDutyCycle(100 - brightness));

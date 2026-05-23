@@ -23,7 +23,8 @@ static io::leds::color board_status(const bool fault, const bool warning, const 
 
 void init()
 {
-    std::expected<void, ErrorCode> ec = io::leds::update(io::leds::config{
+    // TODO move this to app_leds
+    result<void> ec = io::leds::update(io::leds::config{
         io::leds::color::OFF,
         io::leds::color::OFF,
         io::leds::color::OFF,

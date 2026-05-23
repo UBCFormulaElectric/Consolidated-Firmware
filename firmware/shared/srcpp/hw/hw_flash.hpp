@@ -18,9 +18,9 @@ inline constexpr size_t WORD_BYTES = 4U * sizeof(uint32_t); // 16B
  * @param sector Sector to erase.
  * @return EXIT_CODE_OK on success, EXIT_CODE_ERROR on failure.
  */
-std::expected<void, ErrorCode> eraseSector(uint8_t sector);
+result<void> eraseSector(uint8_t sector);
 
-std::expected<void, ErrorCode> programFlashRetry(uint32_t address, std::span<const std::byte> buffer);
+result<void> programFlashRetry(uint32_t address, std::span<const std::byte> buffer);
 
 /**
  * @brief Write a contiguous buffer to flash.
@@ -30,11 +30,11 @@ std::expected<void, ErrorCode> programFlashRetry(uint32_t address, std::span<con
  * @param buffer Data span to program.
  * @return EXIT_CODE_OK if verified, EXIT_CODE_ERROR otherwise.
  */
-inline std::expected<void, ErrorCode> programFlash(const uint32_t address, const std::span<const std::byte, 16> buffer)
+inline result<void> programFlash(const uint32_t address, const std::span<const std::byte, 16> buffer)
 {
     return programFlashRetry(address, buffer);
 }
-inline std::expected<void, ErrorCode> programFlash(const uint32_t address, const std::span<const std::byte, 32> buffer)
+inline result<void> programFlash(const uint32_t address, const std::span<const std::byte, 32> buffer)
 {
     return programFlashRetry(address, buffer);
 }

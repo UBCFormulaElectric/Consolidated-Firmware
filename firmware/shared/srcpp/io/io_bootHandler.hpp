@@ -14,8 +14,8 @@ inline void processBootRequest(const hw::CanMsg &msg, const uint32_t board_highb
     if (msg.std_id == (board_highbits | BOOT_CAN_START_LOWBITS))
     {
         LOG_INFO("Received CAN message, entering bootloader");
-        hw::bootup::setBootRequest({ .target        = hw::bootup::BootTarget::BOOT_TARGET_BOOTLOADER,
-                                     .context       = hw::bootup::BootContext::BOOT_CONTEXT_NONE,
+        hw::bootup::setBootRequest({ .target        = hw::bootup::BootTarget::BOOTLOADER,
+                                     .context       = hw::bootup::BootContext::NONE,
                                      ._unused       = 0xFFFF,
                                      .context_value = 0 });
 

@@ -83,7 +83,7 @@ namespace imus
 {
     imu imu_rear;
 
-    std::expected<void, ErrorCode> init()
+    result<void> init()
     {
         return imu_rear.init();
     }
@@ -129,12 +129,12 @@ namespace suspension
 
 namespace rPump
 {
-    std::expected<void, ErrorCode> setPercentage(uint8_t value)
+    result<void> setPercentage(uint8_t value)
     {
         return {};
     }
 
-    std::expected<void, ErrorCode> readPercentage(uint8_t &dest)
+    result<void> readPercentage(uint8_t &dest)
     {
         dest = fakes::io::rPump::percentage;
         return {};
