@@ -141,18 +141,21 @@ void jobs_runAdbmsConfigs_tick()
 {
     const io::unique_semaphore s{ spi_bus_lock };
     // TODO handle this properly
-    const auto res = app::segments::config::sync();
+    const auto res             = app::segments::config::sync();
+    bool       all_segments_ok = true;
     for (size_t seg_num = 0; seg_num < NUM_SEGMENTS; seg_num++)
     {
         const auto &seg_res = res[seg_num];
         app::segments::health::setOrReset(seg_num, app::segments::health::ErrorBit::CONFIG, not seg_res);
         if (!seg_res)
         {
+            all_segments_ok = false;
             LOG_ERROR("Failed to sync config on segment %d: %s", seg_num, error_code_to_string(seg_res.error()));
             break;
         }
         if (!seg_res.value())
         {
+            all_segments_ok = false;
             LOG_ERROR("Failed to sync config on segment %d: ADBMS config did not match in-memory config", seg_num);
             break;
         }
@@ -160,7 +163,8 @@ void jobs_runAdbmsConfigs_tick()
     LOG_IF_ERR(io::adbms::clear::cell());
     LOG_IF_ERR(io::adbms::clear::aux());
     LOG_IF_ERR(io::adbms::clear::stat());
-    sync_done.notify();
+    if (all_segments_ok)
+        sync_done.notify();
     LOG_INFO("CONFIG RAN");
 }
 
