@@ -402,7 +402,45 @@ std::expected<AlertStatus, ErrorCode> read_alarm_status()
     return {};
 }
 
+std::expected<std::array<uint16_t, 5>, ErrorCode> get_voltage_UV(uint16_t sub_cmd)
+{
+    CUV cuv{};
+    std::array<uint16_t, 5> parsed_snapshot_voltages{};
+    RETURN_IF_ERR(read_subcommand(sub_cmd, cuv.snapshot_undervoltages));
 
+    parsed_snapshot_voltages[0] =
+        static_cast<uint16_t>((static_cast<uint16_t>(cuv.snapshot_undervoltages[1]) << 8) | cuv.snapshot_undervoltages[0]);
+    parsed_snapshot_voltages[1] =
+        static_cast<uint16_t>((static_cast<uint16_t>(cuv.snapshot_undervoltages[3]) << 8) | cuv.snapshot_undervoltages[2]);
+    parsed_snapshot_voltages[2] =
+        static_cast<uint16_t>((static_cast<uint16_t>(cuv.snapshot_undervoltages[5]) << 8) | cuv.snapshot_undervoltages[4]);
+    parsed_snapshot_voltages[3] =
+        static_cast<uint16_t>((static_cast<uint16_t>(cuv.snapshot_undervoltages[7]) << 8) | cuv.snapshot_undervoltages[6]);
+    parsed_snapshot_voltages[4] =
+        static_cast<uint16_t>((static_cast<uint16_t>(cuv.snapshot_undervoltages[9]) << 8) | cuv.snapshot_undervoltages[8]);
+
+    return parsed_snapshot_voltages;
+}
+
+std::expected<std::array<uint16_t, 5>, ErrorCode> get_voltage_OV(uint16_t sub_cmd)
+{
+    COV cov{};
+    std::array<uint16_t, 5> parsed_snapshot_voltages{};
+    RETURN_IF_ERR(read_subcommand(sub_cmd, cov.snapshot_overvoltages));
+
+    parsed_snapshot_voltages[0] =
+        static_cast<uint16_t>((static_cast<uint16_t>(cov.snapshot_overvoltages[1]) << 8) | cov.snapshot_overvoltages[0]);
+    parsed_snapshot_voltages[1] =
+        static_cast<uint16_t>((static_cast<uint16_t>(cov.snapshot_overvoltages[3]) << 8) | cov.snapshot_overvoltages[2]);
+    parsed_snapshot_voltages[2] =
+        static_cast<uint16_t>((static_cast<uint16_t>(cov.snapshot_overvoltages[5]) << 8) | cov.snapshot_overvoltages[4]);
+    parsed_snapshot_voltages[3] =
+        static_cast<uint16_t>((static_cast<uint16_t>(cov.snapshot_overvoltages[7]) << 8) | cov.snapshot_overvoltages[6]);
+    parsed_snapshot_voltages[4] =
+        static_cast<uint16_t>((static_cast<uint16_t>(cov.snapshot_overvoltages[9]) << 8) | cov.snapshot_overvoltages[8]);
+
+    return parsed_snapshot_voltages;
+}
 /**
  * @brief ISR Handler
  * @param void
@@ -444,39 +482,37 @@ std::expected<void, ErrorCode> init()
     RETURN_IF_ERR(bat_mon.isTargetReady());
 
     // 2.0 Check to see if chip is in DEEPSLEEP
-    uint16_t control_status = 0;
-    RETURN_IF_ERR(command_read_2byte(CMD_CONTROL_STATUS, &control_status));
-    while (control_status & CTRL_STATUS_DEEPSLEEP)
+    ControlStatus control_status{};
+    RETURN_IF_ERR(command_read_2byte(CMD_CONTROL_STATUS, &control_status.raw_value));
+    while (control_status.bits.DEEPSLEEP)
     {
         LOG_WARN("Device in deepsleep mode");
         RETURN_IF_ERR(execute_subcommand(SUBCMD_WAKE_DEEPSLEEP));
-        RETURN_IF_ERR(command_read_2byte(CMD_CONTROL_STATUS, &control_status));
+        RETURN_IF_ERR(command_read_2byte(CMD_CONTROL_STATUS, &control_status.raw_value));
     }
     LOG_INFO("Device is out of deepsleep mode");
 
     // 2.1 Check to see if the device is in SLEEP
-    uint16_t battery_status = 0;
-    RETURN_IF_ERR(command_read_2byte(CMD_BATTERY_STATUS, &battery_status));
-    while (battery_status & BAT_STATUS_SLEEP)
+    BatteryStatus battery_status{};
+    RETURN_IF_ERR(command_read_2byte(CMD_BATTERY_STATUS, &battery_status.raw_value));
+    while (battery_status.bits.SLEEP)
     {
         LOG_WARN("Device in sleep mode");
         RETURN_IF_ERR(execute_subcommand(SUBCMD_WAKE_SLEEP));
-        RETURN_IF_ERR(command_read_2byte(CMD_BATTERY_STATUS, &battery_status));
+        RETURN_IF_ERR(command_read_2byte(CMD_BATTERY_STATUS, &battery_status.raw_value));
     }
     LOG_INFO("Device is out of sleep mode");
 
     // 3. Put the device into CONFIG_UPDATE mode
     RETURN_IF_ERR(execute_subcommand(SUBCMD_SET_CFGUPDATE));
-    constexpr uint16_t BAT_STATUS_CFGUPDATE = (1 << 0);
-
-    uint16_t cfgupdate       = 0;
-    bool     cfgupdate_ready = false;
+    BatteryStatus cfgupdate{};
+    bool          cfgupdate_ready = false;
 
     for (uint32_t attempt = 0; attempt < RETRIES; attempt++)
     {
-        if (command_read_2byte(CMD_BATTERY_STATUS, &cfgupdate).has_value())
+        if (command_read_2byte(CMD_BATTERY_STATUS, &cfgupdate.raw_value).has_value())
         {
-            if ((cfgupdate & BAT_STATUS_CFGUPDATE) != 0)
+            if (cfgupdate.bits.CFGUPDATE)
             {
                 cfgupdate_ready = true;
                 LOG_INFO("Entered CONFIG_UPDATE");

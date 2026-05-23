@@ -1,7 +1,7 @@
 import { LODAwareEnumSeries, LODAwareNumericalSeries } from "@/components/widgets/CanvasChartTypes";
 import { Color } from "chroma-js";
 import type { FC, RefObject } from "react";
-import { EnumSignalMetadata, NumericalSignalMetadata } from "./Signal";
+import { BooleanSignalMetadata, EnumSignalMetadata, NumericalSignalMetadata } from "./Signal";
 
 export type EnumTimelineWidgetSchema = {
     type: "enumTimeline";
@@ -44,7 +44,7 @@ export type BaseWidgetRenderer = {
 
 export type EnumTimelineWidgetData = BaseWidgetRenderer &
     EnumTimelineWidgetSchema & {
-        signals: EnumSignalMetadata[];
+        signals: (EnumSignalMetadata | BooleanSignalMetadata)[];
     };
 
 export type NumericalGraphWidgetData = BaseWidgetRenderer &

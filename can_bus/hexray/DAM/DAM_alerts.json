@@ -9,6 +9,10 @@
     "WatchdogTimeout": {
       "id": 882,
       "description": "Watchdog timeout detected."
+    },
+    "StackOverflow": {
+      "id": 883,
+      "description": "Stack overflow detected."
     }
   },
   "warnings": {},

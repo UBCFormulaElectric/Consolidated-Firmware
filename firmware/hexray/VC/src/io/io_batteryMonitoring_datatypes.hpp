@@ -1,5 +1,6 @@
 
 #pragma once
+#include <array>
 
 // Commands for voltages
 enum class CellReading : uint8_t
@@ -56,16 +57,13 @@ inline constexpr uint32_t RETRIES          = 20;
 
 // DEEPSLEEP/SLEEP Checks
 inline constexpr uint16_t CMD_CONTROL_STATUS    = 0x00;
-inline constexpr uint8_t  CTRL_STATUS_DEEPSLEEP = (1 << 2);
 inline constexpr uint16_t SUBCMD_WAKE_DEEPSLEEP = 0x000E;
 
 inline constexpr uint16_t CMD_BATTERY_STATUS = 0x12;
-inline constexpr uint16_t BAT_STATUS_SLEEP   = (1 << 15);
 inline constexpr uint16_t SUBCMD_WAKE_SLEEP  = 0x009A;
 
 // CONFIG_UPDATE
 inline constexpr uint16_t SUBCMD_SET_CFGUPDATE = 0x0090;
-inline constexpr uint8_t  CFGUPDATE_STATUS     = (1 << 0);
 inline constexpr uint16_t EXIT_CFGUPDATE       = 0x0092;
 
 // CC and Digital Filters
@@ -94,11 +92,14 @@ inline constexpr uint16_t CB_SET_LVL             = 0x0084;
 
 // Protections
 inline constexpr uint16_t REG_PROTECTIONS_A = 0x9261;
-// inline constexpr uint16_t REG_PROTECTIONS_B = 0x9262;
+inline constexpr uint16_t REG_PROTECTIONS_B = 0x9262;
 inline constexpr uint16_t REG_PROTECTIONS_CUV = 0x9275;
 inline constexpr uint16_t REG_PROTECTIONS_COV = 0x9278;
 inline constexpr uint16_t REG_SF_ALERT_MASK_A = 0x926F;
 inline constexpr uint16_t REG_SF_ALERT_MASK_B = 0x9270;
+
+inline constexpr uint16_t CUV_SNAPSHOT = 0x0080;
+inline constexpr uint16_t COV_SNAPSHOT = 0x9270;
 
 // OTP
 inline constexpr uint16_t OTP_WR_CHECK = 0x00A0;
@@ -158,6 +159,43 @@ union AlertStatus
     } bits;
     uint16_t raw_value;
 };
+
+union BatteryStatus
+{
+    struct __attribute__((packed))
+    {
+        uint16_t CFGUPDATE : 1;
+        uint16_t PCHG_MODE : 1;
+        uint16_t SLEEP_EN : 1;
+        uint16_t POR : 1;
+        uint16_t WD : 1;
+        uint16_t COW_CHECK : 1;
+        uint16_t OTPW : 1;
+        uint16_t OTPB : 1;
+        uint16_t SEC0 : 1;
+        uint16_t SEC1 : 1;
+        uint16_t SS : 1;
+        uint16_t FUSE : 1;
+        uint16_t PF : 1;
+        uint16_t SDM : 1;
+        uint16_t RSVD : 1;
+        uint16_t SLEEP : 1;
+    } bits;
+    uint16_t raw_value;
+};
+
+union ControlStatus
+{
+    struct __attribute__((packed))
+    {
+        uint16_t RSVD2 : 8;
+        uint16_t LD_ON : 1;
+        uint16_t LD_TIMEOUT : 1;
+        uint16_t DEEPSLEEP : 1;
+        uint16_t RSVD1 : 5;
+    } bits;
+    uint16_t raw_value;
+};
 union SafetyStatusA
 {
     struct __attribute__((packed))
@@ -186,4 +224,30 @@ union SafetyStatusB
         uint8_t OTF : 1;
     } bits;
     uint8_t raw_status;
+};
+union CUV
+{
+    typedef struct __attribute__((packed))
+    {
+        uint16_t cell1_voltage; // Bytes 0-1
+        uint16_t cell2_voltage; // Bytes 2-3
+        uint16_t cell3_voltage; // Bytes 4-5
+        uint16_t cell4_voltage; // Bytes 6-7
+        uint16_t cell5_voltage; // Bytes 8-9
+        uint16_t reserved[11]; // Bytes 10-31
+    } bytes;
+    std::array<uint8_t, 32> snapshot_undervoltages;
+};
+union COV
+{
+    typedef struct __attribute__((packed))
+    {
+        uint16_t cell1_voltage; // Bytes 0-1
+        uint16_t cell2_voltage; // Bytes 2-3
+        uint16_t cell3_voltage; // Bytes 4-5
+        uint16_t cell4_voltage; // Bytes 6-7
+        uint16_t cell5_voltage; // Bytes 8-9
+        uint16_t reserved[11]; // Bytes 10-31
+    } bytes;
+    std::array<uint8_t, 32> snapshot_overvoltages;
 };
