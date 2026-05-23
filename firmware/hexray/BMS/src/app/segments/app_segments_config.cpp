@@ -189,7 +189,7 @@ void configSync()
         if (absorbAndCheckAllEqual(isConfigEqual(), seg_had_error))
         {
             writeHealthBits();
-            sync_done.notifyIfWaiting();
+            sync_done.notify();
             return;
         }
         dirty = true;
@@ -224,13 +224,11 @@ void configSync()
         NUM_CONFIG_SYNC_TRIES);
 
     writeHealthBits();
-    if (r) sync_done.notifyIfWaiting();
+    if (r) sync_done.notify();
 }
 
 void waitForSync()
 {
-    // Block indefinitely. If configSync never completes, dependent tasks (voltage/aux reads)
-    // must not proceed — running them on an unconfigured chip would produce bogus data.
     sync_done.wait();
 }
 

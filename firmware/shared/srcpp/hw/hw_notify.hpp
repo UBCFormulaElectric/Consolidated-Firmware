@@ -1,25 +1,29 @@
 #pragma once
 #include "FreeRTOS.h"
-#include "task.h"
+#include "event_groups.h"
 #include "util_errorCodes.hpp"
 
 namespace hw::notify
 {
 
-// One task calls wait() to block; another calls notifyIfWaiting() to unblock it
-// Only notifies if a task has registered interest
+// Multi-waiter notification: any number of tasks may call wait(); a single
+// notify() unblocks all of them. The latch is auto-cleared once every
+// pending waiter has unblocked, so the next wait() blocks until the next
+// notify().
 class Notifier
 {
   public:
+    Notifier();
+
     void         wait();
     result<void> waitFor(uint32_t timeout_ms);
 
-    void notifyIfWaiting();
-
-    void notifyIfWaitingFromISR();
+    void notify();
+    void notifyFromISR();
 
   private:
-    volatile TaskHandle_t waitingTask_{ nullptr };
+    StaticEventGroup_t storage_{};
+    EventGroupHandle_t handle_;
 };
 
 } // namespace hw::notify
