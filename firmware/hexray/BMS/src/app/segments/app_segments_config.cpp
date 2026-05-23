@@ -181,7 +181,7 @@ void configSync()
     const auto writeHealthBits = [&]()
     {
         for (size_t seg = 0; seg < NUM_SEGMENTS; seg++)
-            health::setOrReset(seg, health::ErrorBit::Config, seg_had_error[seg]);
+            health::setOrReset(seg, health::ErrorBit::CONFIG, seg_had_error[seg]);
     };
 
     // Fast path: if nothing's marked dirty, double-check the chip still matches in case of a reset.

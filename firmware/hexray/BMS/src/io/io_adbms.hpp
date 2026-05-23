@@ -26,8 +26,9 @@ using RegBuffer = std::array<uint8_t, REG_GROUP_SIZE>;
 
 enum class OpenWireSwitch
 {
-    OddChannels,
-    EvenChannels
+    ODD_CHANNELS,
+    EVEN_CHANNELS,
+    CHANNEL_COUNT
 };
 
 // Configuration Register Group A (Table 55 and 102)

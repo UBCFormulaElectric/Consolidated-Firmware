@@ -1,6 +1,8 @@
 #include "jobs.hpp"
-#include "io/io_adbms.hpp"
 #include "util_errorCodes.hpp"
+
+#include <algorithm>
+#include <ranges>
 
 // app
 #include "app_bmsShdnLoop.hpp"
@@ -32,7 +34,9 @@
 #include "io_time.hpp"
 
 using io::adbms::Cells;
+using io::adbms::OpenWireSwitch;
 using io::adbms::Segments;
+using io::adbms::ThermGpios;
 using io::adbms::Therms;
 
 io::semaphore spi_bus_lock(true);
@@ -131,43 +135,6 @@ void jobs_run1kHz_tick()
     io::can_tx::enqueueOtherPeriodicMsgs(io::time::getCurrentMs());
 }
 
-void jobs_runAdbmsVoltages_tick()
-{
-    app::segments::config::waitForSync();
-
-    result<Cells<result<float>>> voltages;
-    result<Cells<result<bool>>>  owc;
-
-    {
-        const io::unique_semaphore s{ spi_bus_lock };
-        if (const auto res = app::segments::startPoll::cellAdc(); not res)
-        {
-            voltages = std::unexpected(res.error());
-        }
-        else
-        {
-            voltages = app::segments::conversion::cellVoltage();
-        }
-        owc = app::segments::conversion::cellOwc();
-    }
-
-    if (voltages)
-        app::segments::broadcast::cellVoltages(voltages.value());
-    else
-    {
-        // todo fill
-    }
-    if (owc)
-    {
-        const auto owc_ok = app::segments::owc::calculateOWC();
-        app::segments::broadcast::cellOwc(owc.value());
-    }
-    else
-    {
-        // todo fill
-    }
-}
-
 void jobs_runAdbmsConfigs_tick()
 {
     const io::unique_semaphore s{ spi_bus_lock };
@@ -179,23 +146,99 @@ void jobs_runAdbmsConfigs_tick()
     LOG_INFO("CONFIG RAN");
 }
 
+void jobs_runAdbmsVoltages_tick()
+{
+    app::segments::config::waitForSync();
+
+    result<Cells<result<float>>>                                                               voltages;
+    std::array<result<Cells<result<float>>>, static_cast<size_t>(OpenWireSwitch::CHANNEL_COUNT)> owc_voltages;
+
+    {
+        const io::unique_semaphore s{ spi_bus_lock };
+
+        // Cell Voltages Conversion
+        if (const auto res = app::segments::startPoll::cellAdc(); !res)
+        {
+            voltages = std::unexpected(res.error());
+        }
+        else
+        {
+            voltages = app::segments::conversion::cellVoltage();
+        }
+
+        // Cell Open Wire Check Conversion
+        for (const OpenWireSwitch channel : { OpenWireSwitch::ODD_CHANNELS, OpenWireSwitch::EVEN_CHANNELS })
+        {
+            const size_t idx   = static_cast<size_t>(channel);
+            const auto   poll1 = app::segments::startPoll::secondaryCellAdc(channel);
+            const auto   poll2 = app::segments::startPoll::secondaryCellAdc(channel);
+            if (!poll1 || !poll2)
+            {
+                owc_voltages[idx] = std::unexpected((!poll1 ? poll1 : poll2).error());
+            } else {
+                owc_voltages[idx] = app::segments::conversion::cellOwcVoltages(channel);
+            }
+        }
+    }
+
+    // Cell Voltages Broadcast
+    if (!voltages) {
+        app::segments::broadcast::cellVoltagesPollErr();
+    } else {
+        app::segments::broadcast::cellVoltages(voltages.value());
+    }
+
+    // Cell Open Wire Check Broadcast
+    if (std::ranges::any_of(owc_voltages, [](const auto &r) { return !r; })) {
+        app::segments::broadcast::cellOwcPollErr();
+    } else {
+        app::segments::broadcast::cellOwc(app::segments::calculate::cellOwc(owc_voltages));
+    }
+}
+
 void jobs_runAdbmsAux_tick()
 {
     app::segments::config::waitForSync();
 
-    std::pair<Therms<result<float>>, Therms<result<bool>>> therm;
-    Segments<io::adbms::StatusGroupsRes>                   status;
-    Segments<result<float>>                                seg_voltage;
+    std::array<result<ThermGpios<result<float>>>, static_cast<size_t>(app::segments::ThermistorMux::THERMISTOR_MUX_COUNT)> therm_voltages;
+    Segments<result<float>>                                        seg_voltage;
+    Segments<io::adbms::StatusGroupsRes>                           status;
 
     {
         const io::unique_semaphore s{ spi_bus_lock };
-        therm       = app::segments::conversion::thermTempOwc();
+
+        // Thermistor Aux Conversion
+        for (const app::segments::ThermistorMux mux : { app::segments::ThermistorMux::THERMISTOR_MUX_0_7, app::segments::ThermistorMux::THERMISTOR_MUX_8_13 })
+        {
+            const size_t idx   = static_cast<size_t>(mux);
+            const auto   res = app::segments::startPoll::auxAdc(mux);
+            if (!res) {
+                therm_voltages[idx] = std::unexpected(res.error());
+            } else {
+                therm_voltages[idx] = app::segments::conversion::thermVoltage(mux);
+            }
+        }
+
+        // Segment Voltage Conversion
         seg_voltage = app::segments::conversion::segVoltage();
-        status      = app::segments::conversion::status();
+
+        // Status Conversion
+        status = app::segments::conversion::status();
     }
 
-    app::segments::broadcast::thermTemps(therm.first);
-    app::segments::broadcast::thermOwc(therm.second);
-    app::segments::broadcast::status(status);
+    // Thermistor Broadcast
+    if (std::ranges::any_of(therm_voltages, [](const auto &r) { return !r; })) { 
+        app::segments::broadcast::thermTempsPollErr();
+        app::segments::broadcast::thermOwcPollErr();
+    } else {
+        app::segments::broadcast::thermTemps(app::segments::calculate::thermTemps(therm_voltages));
+        app::segments::broadcast::thermOwc(app::segments::calculate::thermOwc(therm_voltages));
+    }
+
+    // Segment Voltage Broadcast
     app::segments::broadcast::segVoltages(seg_voltage);
+
+    // Status Broadcast
+    app::segments::broadcast::status(status);
 }
+

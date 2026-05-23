@@ -252,7 +252,7 @@ void segVoltages(const Segments<result<float>> &seg_voltages)
     BMS_SegmentCommOk_sendAperiodic();
 }
 
-void status(const Segments<io::adbms::StatusGroups> &status)
+void status(const Segments<io::adbms::StatusGroupsRes> &status)
 {
     for (size_t seg = 0U; seg < NUM_SEGMENTS; seg++)
     {
@@ -339,5 +339,25 @@ void cellOwc(const Cells<result<bool>> &owc_results)
     health::setCellOwc(candidate_cell_owc);
 
     io::can_tx::BMS_CellOpenWireCheck_sendAperiodic();
+}
+
+void cellVoltagesPollErr()
+{
+    // TODO: raise/transmit cell-voltage poll-failure signal.
+}
+
+void cellOwcPollErr()
+{
+    // TODO: raise/transmit cell open-wire-check poll-failure signal.
+}
+
+void thermTempsPollErr()
+{
+    // TODO: raise/transmit thermistor-temperature poll-failure signal.
+}
+
+void thermOwcPollErr()
+{
+    // TODO: raise/transmit thermistor open-wire-check poll-failure signal.
 }
 } // namespace app::segments::broadcast

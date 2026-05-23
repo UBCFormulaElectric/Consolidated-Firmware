@@ -1,4 +1,5 @@
 #pragma once
+#include <array>
 #include <expected>
 #include <utility>
 
@@ -62,6 +63,10 @@ namespace broadcast
     void segVoltages(const Segments<result<float>> &seg_voltages);
     void status(const Segments<io::adbms::StatusGroupsRes> &status);
     void cellOwc(const Cells<result<bool>> &owc_results);
+    void cellVoltagesPollErr();
+    void cellOwcPollErr();
+    void thermTempsPollErr();
+    void thermOwcPollErr();
 } // namespace broadcast
 
 // app_segments_health.cpp
@@ -69,15 +74,15 @@ namespace health
 {
     enum class ErrorBit : size_t
     {
-        CellAdcPoll,
-        AuxAdcPoll,
-        OwcAdcPoll,
-        CellVoltage,
-        CellOwc,
-        ThermTemp,
-        SegVoltage,
-        Status,
-        Config,
+        CELL_ADC_POLL,
+        AUX_ADC_POLL,
+        OWC_ADC_POLL,
+        CELL_VOLTAGE,
+        CELL_OWC_VOLTAGE,
+        THERM_VOLTAGE,
+        SEG_VOLTAGE,
+        STATUS,
+        CONFIG,
         NUM_ERROR_BITS
     };
 
@@ -119,10 +124,24 @@ namespace startPoll
 
 namespace conversion
 {
-    Cells<result<float>>                                   cellVoltage();
-    std::pair<Therms<result<float>>, Therms<result<bool>>> thermTempOwc();
-    Segments<result<float>>                                segVoltage();
-    Segments<io::adbms::StatusGroupsRes>                   status();
-    Cells<result<bool>>                                    cellOwc();
+    Cells<result<float>>                 cellVoltage();
+    ThermGpios<result<float>>            thermVoltage(ThermistorMux mux);
+    Segments<result<float>>              segVoltage();
+    Segments<io::adbms::StatusGroupsRes> status();
+    Cells<result<float>>                  cellOwcVoltages(io::adbms::OpenWireSwitch channel);
 } // namespace conversion
+
+// app_segments_calculation.cpp
+namespace calculate
+{
+    Cells<result<bool>> cellOwc(
+        const std::array<result<Cells<result<float>>>, static_cast<size_t>(io::adbms::OpenWireSwitch::CHANNEL_COUNT)>
+            &owc_voltages);
+    Therms<result<float>> thermTemps(
+        const std::array<result<ThermGpios<result<float>>>, static_cast<size_t>(ThermistorMux::THERMISTOR_MUX_COUNT)>
+            &therm_voltages);
+    Therms<result<bool>> thermOwc(
+        const std::array<result<ThermGpios<result<float>>>, static_cast<size_t>(ThermistorMux::THERMISTOR_MUX_COUNT)>
+            &therm_voltages);
+} // namespace calculate
 } // namespace app::segments
