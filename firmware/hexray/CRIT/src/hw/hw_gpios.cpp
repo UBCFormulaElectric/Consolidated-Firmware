@@ -15,9 +15,8 @@ const hw::gpio led_rck(LED_RCK_GPIO_Port, LED_RCK_Pin);
 const hw::gpio seven_seg_rck(_7SEG_RCK_GPIO_Port, _7SEG_RCK_Pin);
 
 #ifndef USE_CHIMERA
-// Rotary GPIO interrupt handler.
 #include "io_rotary.hpp"
-void HAL_GPIO_EXTI_Callback(const uint16_t GPIO_Pin)
+void handler(const uint16_t GPIO_Pin)
 {
     if (GPIO_Pin == rot_a.getPin() || GPIO_Pin == rot_b.getPin())
     {
@@ -27,5 +26,15 @@ void HAL_GPIO_EXTI_Callback(const uint16_t GPIO_Pin)
     {
         io::rotary::push_IRQHandler();
     }
+}
+
+void HAL_GPIO_EXTI_Rising_Callback(const uint16_t GPIO_Pin)
+{
+    handler(GPIO_Pin);
+}
+
+void HAL_GPIO_EXTI_Falling_Callback(const uint16_t GPIO_Pin)
+{
+    handler(GPIO_Pin);
 }
 #endif
