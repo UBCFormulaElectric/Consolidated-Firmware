@@ -208,7 +208,7 @@ Cells<result<bool>> conversion::cellOwc()
         fillWithError(owc_cell, ErrorCode::POLL_INVALID);
         return owc_cell;
     }
-    const Cells<result<uint16_t>> cellpu_raw = io::adbms::read::secondaryCellVoltage();
+    const Cells<result<uint16_t>> cell_even_raw = io::adbms::read::secondaryCellVoltage();
 
     if (!startPoll::secondaryCellAdc(io::adbms::OpenWireSwitch::OddChannels) ||
         !startPoll::secondaryCellAdc(io::adbms::OpenWireSwitch::OddChannels))
@@ -216,7 +216,7 @@ Cells<result<bool>> conversion::cellOwc()
         fillWithError(owc_cell, ErrorCode::POLL_INVALID);
         return owc_cell;
     }
-    const Cells<result<uint16_t>> cellpd_raw = io::adbms::read::secondaryCellVoltage();
+    const Cells<result<uint16_t>> cell_odd_raw = io::adbms::read::secondaryCellVoltage();
 
     constexpr size_t NUM_C_PINS = CELLS_PER_SEGMENT + 1U;
 
@@ -232,20 +232,28 @@ Cells<result<bool>> conversion::cellOwc()
 
         for (size_t cell = 0; cell < CELLS_PER_SEGMENT; cell++)
         {
-            if (!cellpu_raw[seg][cell])
+            if (!cell_even_raw[seg][cell])
             {
-                owc_cell[seg][cell] = std::unexpected(cellpu_raw[seg][cell].error());
+                owc_cell[seg][cell] = std::unexpected(cell_even_raw[seg][cell].error());
                 seg_has_error       = true;
                 continue;
             }
-            if (!cellpd_raw[seg][cell])
+            if (!cell_odd_raw[seg][cell])
             {
-                owc_cell[seg][cell] = std::unexpected(cellpd_raw[seg][cell].error());
+                owc_cell[seg][cell] = std::unexpected(cell_odd_raw[seg][cell].error());
                 seg_has_error       = true;
                 continue;
             }
-            cellpu[cell]      = convertRegToVoltage(cellpu_raw[seg][cell].value());
-            cellpd[cell]      = convertRegToVoltage(cellpd_raw[seg][cell].value());
+
+            if (cell % 2 == 0) {
+                cellpu[cell]      = convertRegToVoltage(cell_even_raw[seg][cell].value());
+                cellpd[cell]      = convertRegToVoltage(cell_odd_raw[seg][cell].value());
+            } else {
+                cellpu[cell]      = convertRegToVoltage(cell_odd_raw[seg][cell].value());
+                cellpd[cell]      = convertRegToVoltage(cell_even_raw[seg][cell].value());
+            }
+            
+
             delta_valid[cell] = true;
         }
 
@@ -278,11 +286,12 @@ Cells<result<bool>> conversion::cellOwc()
             n++;
         }
 
-        if (cellpu_raw[seg][0] && cellpu_raw[seg][0].value() == 0U)
+        if (cell_even_raw[seg][0] && cell_even_raw[seg][0].value() == 0U)
         {
             cpin_open[0] = true;
         }
-        if (cellpd_raw[seg][CELLS_PER_SEGMENT - 1U] && cellpd_raw[seg][CELLS_PER_SEGMENT - 1U].value() == 0U)
+        if (cell_odd_raw[seg][CELLS_PER_SEGMENT - 1U] &&
+            cell_odd_raw[seg][CELLS_PER_SEGMENT - 1U].value() == 0U)
         {
             cpin_open[CELLS_PER_SEGMENT] = true;
         }
