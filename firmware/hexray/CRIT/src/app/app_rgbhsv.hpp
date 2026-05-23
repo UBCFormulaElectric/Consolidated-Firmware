@@ -30,7 +30,7 @@ struct rgb
             hh = 0.0;
         hh /= 60.0;
         const long   i  = static_cast<long>(hh);
-        const double ff = hh - i;
+        const double ff = hh - static_cast<double>(i);
         const double p  = in.v * (1.0 - in.s);
         const double q  = in.v * (1.0 - in.s * ff);
         const double t  = in.v * (1.0 - in.s * (1.0 - ff));
