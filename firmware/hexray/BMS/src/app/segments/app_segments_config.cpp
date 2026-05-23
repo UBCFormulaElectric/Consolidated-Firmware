@@ -2,12 +2,10 @@
 #include "app_segments_internal.hpp"
 #include "io_semaphore.hpp"
 #include "util_retry.hpp"
-#include "hw_notify.hpp"
 
 #include <cassert>
 #include <cstring>
 #include <atomic>
-#include <optional>
 #include <algorithm>
 
 using namespace std;
@@ -94,24 +92,6 @@ result<void> upload()
     RETURN_IF_ERR(io::adbms::write::configReg(segment_config));
     RETURN_IF_ERR(io::adbms::write::pwmReg(pwm_config));
     return {};
-}
-
-/**
- * Folds per-segment equality results into the sticky error accumulator and returns whether every
- * segment is healthy and equal.
- */
-bool absorbAndCheckAllEqual(const io::adbms::Segments<result<bool>> &per_seg, io::adbms::Segments<bool> &seg_had_error)
-{
-    bool all_equal = true;
-    for (size_t seg = 0; seg < NUM_SEGMENTS; seg++)
-    {
-        if (!per_seg[seg] || !per_seg[seg].value())
-        {
-            seg_had_error[seg] = true;
-            all_equal          = false;
-        }
-    }
-    return all_equal;
 }
 } // namespace
 

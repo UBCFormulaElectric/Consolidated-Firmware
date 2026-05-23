@@ -45,7 +45,7 @@ namespace config
     /**
      * Synchronizes the in-memory config with the ADBMS chips.
      */
-    Segments<result<bool>> sync();
+    [[nodiscard]] Segments<result<bool>> sync();
 } // namespace config
 
 // app_segments_balancing.cpp
