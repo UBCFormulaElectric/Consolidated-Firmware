@@ -91,8 +91,8 @@ inline constexpr uint16_t CBSTATUS2              = 0x0086;
 inline constexpr uint16_t CB_SET_LVL             = 0x0084;
 
 // Protections
-inline constexpr uint16_t REG_PROTECTIONS_A = 0x9261;
-inline constexpr uint16_t REG_PROTECTIONS_B = 0x9262;
+inline constexpr uint16_t REG_PROTECTIONS_A   = 0x9261;
+inline constexpr uint16_t REG_PROTECTIONS_B   = 0x9262;
 inline constexpr uint16_t REG_PROTECTIONS_CUV = 0x9275;
 inline constexpr uint16_t REG_PROTECTIONS_COV = 0x9278;
 inline constexpr uint16_t REG_SF_ALERT_MASK_A = 0x926F;
@@ -234,7 +234,7 @@ union CUV
         uint16_t cell3_voltage; // Bytes 4-5
         uint16_t cell4_voltage; // Bytes 6-7
         uint16_t cell5_voltage; // Bytes 8-9
-        uint16_t reserved[11]; // Bytes 10-31
+        uint16_t reserved[11];  // Bytes 10-31
     } bytes;
     std::array<uint8_t, 32> snapshot_undervoltages;
 };
@@ -247,7 +247,7 @@ union COV
         uint16_t cell3_voltage; // Bytes 4-5
         uint16_t cell4_voltage; // Bytes 6-7
         uint16_t cell5_voltage; // Bytes 8-9
-        uint16_t reserved[11]; // Bytes 10-31
+        uint16_t reserved[11];  // Bytes 10-31
     } bytes;
     std::array<uint8_t, 32> snapshot_overvoltages;
 };

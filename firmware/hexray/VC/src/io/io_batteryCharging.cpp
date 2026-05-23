@@ -19,6 +19,6 @@ void charger_disable(void)
 }
 bool check_status(void)
 {
-    return bat_chrg_nSHDN.readPin(); 
+    return bat_chrg_nSHDN.readPin();
 }
 } // namespace io::batteryCharging

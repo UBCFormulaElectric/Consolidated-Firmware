@@ -404,40 +404,40 @@ std::expected<AlertStatus, ErrorCode> read_alarm_status()
 
 std::expected<std::array<uint16_t, 5>, ErrorCode> get_voltage_UV(uint16_t sub_cmd)
 {
-    CUV cuv{};
+    CUV                     cuv{};
     std::array<uint16_t, 5> parsed_snapshot_voltages{};
     RETURN_IF_ERR(read_subcommand(sub_cmd, cuv.snapshot_undervoltages));
 
-    parsed_snapshot_voltages[0] =
-        static_cast<uint16_t>((static_cast<uint16_t>(cuv.snapshot_undervoltages[1]) << 8) | cuv.snapshot_undervoltages[0]);
-    parsed_snapshot_voltages[1] =
-        static_cast<uint16_t>((static_cast<uint16_t>(cuv.snapshot_undervoltages[3]) << 8) | cuv.snapshot_undervoltages[2]);
-    parsed_snapshot_voltages[2] =
-        static_cast<uint16_t>((static_cast<uint16_t>(cuv.snapshot_undervoltages[5]) << 8) | cuv.snapshot_undervoltages[4]);
-    parsed_snapshot_voltages[3] =
-        static_cast<uint16_t>((static_cast<uint16_t>(cuv.snapshot_undervoltages[7]) << 8) | cuv.snapshot_undervoltages[6]);
-    parsed_snapshot_voltages[4] =
-        static_cast<uint16_t>((static_cast<uint16_t>(cuv.snapshot_undervoltages[9]) << 8) | cuv.snapshot_undervoltages[8]);
+    parsed_snapshot_voltages[0] = static_cast<uint16_t>(
+        (static_cast<uint16_t>(cuv.snapshot_undervoltages[1]) << 8) | cuv.snapshot_undervoltages[0]);
+    parsed_snapshot_voltages[1] = static_cast<uint16_t>(
+        (static_cast<uint16_t>(cuv.snapshot_undervoltages[3]) << 8) | cuv.snapshot_undervoltages[2]);
+    parsed_snapshot_voltages[2] = static_cast<uint16_t>(
+        (static_cast<uint16_t>(cuv.snapshot_undervoltages[5]) << 8) | cuv.snapshot_undervoltages[4]);
+    parsed_snapshot_voltages[3] = static_cast<uint16_t>(
+        (static_cast<uint16_t>(cuv.snapshot_undervoltages[7]) << 8) | cuv.snapshot_undervoltages[6]);
+    parsed_snapshot_voltages[4] = static_cast<uint16_t>(
+        (static_cast<uint16_t>(cuv.snapshot_undervoltages[9]) << 8) | cuv.snapshot_undervoltages[8]);
 
     return parsed_snapshot_voltages;
 }
 
 std::expected<std::array<uint16_t, 5>, ErrorCode> get_voltage_OV(uint16_t sub_cmd)
 {
-    COV cov{};
+    COV                     cov{};
     std::array<uint16_t, 5> parsed_snapshot_voltages{};
     RETURN_IF_ERR(read_subcommand(sub_cmd, cov.snapshot_overvoltages));
 
-    parsed_snapshot_voltages[0] =
-        static_cast<uint16_t>((static_cast<uint16_t>(cov.snapshot_overvoltages[1]) << 8) | cov.snapshot_overvoltages[0]);
-    parsed_snapshot_voltages[1] =
-        static_cast<uint16_t>((static_cast<uint16_t>(cov.snapshot_overvoltages[3]) << 8) | cov.snapshot_overvoltages[2]);
-    parsed_snapshot_voltages[2] =
-        static_cast<uint16_t>((static_cast<uint16_t>(cov.snapshot_overvoltages[5]) << 8) | cov.snapshot_overvoltages[4]);
-    parsed_snapshot_voltages[3] =
-        static_cast<uint16_t>((static_cast<uint16_t>(cov.snapshot_overvoltages[7]) << 8) | cov.snapshot_overvoltages[6]);
-    parsed_snapshot_voltages[4] =
-        static_cast<uint16_t>((static_cast<uint16_t>(cov.snapshot_overvoltages[9]) << 8) | cov.snapshot_overvoltages[8]);
+    parsed_snapshot_voltages[0] = static_cast<uint16_t>(
+        (static_cast<uint16_t>(cov.snapshot_overvoltages[1]) << 8) | cov.snapshot_overvoltages[0]);
+    parsed_snapshot_voltages[1] = static_cast<uint16_t>(
+        (static_cast<uint16_t>(cov.snapshot_overvoltages[3]) << 8) | cov.snapshot_overvoltages[2]);
+    parsed_snapshot_voltages[2] = static_cast<uint16_t>(
+        (static_cast<uint16_t>(cov.snapshot_overvoltages[5]) << 8) | cov.snapshot_overvoltages[4]);
+    parsed_snapshot_voltages[3] = static_cast<uint16_t>(
+        (static_cast<uint16_t>(cov.snapshot_overvoltages[7]) << 8) | cov.snapshot_overvoltages[6]);
+    parsed_snapshot_voltages[4] = static_cast<uint16_t>(
+        (static_cast<uint16_t>(cov.snapshot_overvoltages[9]) << 8) | cov.snapshot_overvoltages[8]);
 
     return parsed_snapshot_voltages;
 }

@@ -64,7 +64,9 @@ MaxCell get_max(const std::array<std::expected<float, ErrorCode>, NUM_CELLS> &vo
  * @return uint16_t: the bit mask
  */
 uint16_t get_balance_mask(
-    const std::array<std::expected<float, ErrorCode>, NUM_CELLS> &voltages, const MinCell &min_cell, BalancingPhase phase)
+    const std::array<std::expected<float, ErrorCode>, NUM_CELLS> &voltages,
+    const MinCell                                                &min_cell,
+    BalancingPhase                                                phase)
 {
     uint16_t mask = 0x0000;
 
@@ -227,12 +229,12 @@ std::expected<void, ErrorCode> update()
     const auto cell2_voltage = io::batteryMonitoring::get_voltage_cell(CellReading::CELL2);
     const auto cell3_voltage = io::batteryMonitoring::get_voltage_cell(CellReading::CELL3);
     const auto cell4_voltage = io::batteryMonitoring::get_voltage_cell(CellReading::CELL4);
-    const std::array<std::expected<float, ErrorCode>, NUM_CELLS> cell_voltages = {{
+    const std::array<std::expected<float, ErrorCode>, NUM_CELLS> cell_voltages = { {
         cell1_voltage,
         cell2_voltage,
         cell3_voltage,
         cell4_voltage,
-    }};
+    } };
 
     const auto pack_voltage = io::batteryMonitoring::get_voltage_system(SystemReading::PACK_V);
     const auto load_voltage = io::batteryMonitoring::get_voltage_system(SystemReading::LOAD_V);
@@ -269,8 +271,7 @@ std::expected<void, ErrorCode> update()
         charge_enable ? io::batteryCharging::charger_enable() : io::batteryCharging::charger_disable();
         const bool charger_gpio_status = io::batteryCharging::check_status();
         LOG_INFO(
-            "Charging GPIO: cmd=%u fb=%u",
-            static_cast<unsigned>(charge_enable ? 1u : 0u),
+            "Charging GPIO: cmd=%u fb=%u", static_cast<unsigned>(charge_enable ? 1u : 0u),
             static_cast<unsigned>(charger_gpio_status ? 1u : 0u));
     }
     else
