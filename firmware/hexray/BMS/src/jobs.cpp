@@ -151,21 +151,22 @@ void jobs_runAdbmsConfigs_tick()
         {
             all_segments_ok = false;
             LOG_ERROR("Failed to sync config on segment %d: %s", seg_num, error_code_to_string(seg_res.error()));
-            break;
+            continue;
         }
         if (!seg_res.value())
         {
             all_segments_ok = false;
             LOG_ERROR("Failed to sync config on segment %d: ADBMS config did not match in-memory config", seg_num);
-            break;
         }
     }
     LOG_IF_ERR(io::adbms::clear::cell());
     LOG_IF_ERR(io::adbms::clear::aux());
     LOG_IF_ERR(io::adbms::clear::stat());
     if (all_segments_ok)
+    {
+        LOG_INFO("All configs ok! Notifying...");
         sync_done.notify();
-    LOG_INFO("CONFIG RAN");
+    }
 }
 
 void jobs_runAdbmsVoltages_tick()
@@ -192,9 +193,9 @@ void jobs_runAdbmsVoltages_tick()
         // Cell Open Wire Check Conversion
         for (const OpenWireSwitch channel : { OpenWireSwitch::ODD_CHANNELS, OpenWireSwitch::EVEN_CHANNELS })
         {
-            const size_t idx   = static_cast<size_t>(channel);
-            const auto   poll1 = app::segments::startPoll::secondaryCellAdc(channel);
-            const auto   poll2 = app::segments::startPoll::secondaryCellAdc(channel);
+            const auto idx   = static_cast<size_t>(channel);
+            const auto poll1 = app::segments::startPoll::secondaryCellAdc(channel);
+            const auto poll2 = app::segments::startPoll::secondaryCellAdc(channel);
             if (!poll1 || !poll2)
             {
                 owc_voltages[idx] = std::unexpected((!poll1 ? poll1 : poll2).error());
@@ -245,9 +246,8 @@ void jobs_runAdbmsAux_tick()
         for (const app::segments::ThermistorMux mux :
              { app::segments::ThermistorMux::THERMISTOR_MUX_0_7, app::segments::ThermistorMux::THERMISTOR_MUX_8_13 })
         {
-            const size_t idx = static_cast<size_t>(mux);
-            const auto   res = app::segments::startPoll::auxAdc(mux);
-            if (!res)
+            const auto idx = static_cast<size_t>(mux);
+            if (const auto res = app::segments::startPoll::auxAdc(mux); !res)
             {
                 therm_voltages[idx] = std::unexpected(res.error());
             }

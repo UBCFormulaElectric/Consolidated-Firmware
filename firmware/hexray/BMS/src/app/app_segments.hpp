@@ -96,17 +96,16 @@ namespace health
     bool isOk(size_t seg);
     bool allOk();
 
-    Cells<result<float>> getLatestVoltages();
-    CellParam<float>     getMinCellVoltage();
-    CellParam<float>     getMaxCellVoltage();
-    CellParam<float>     getMaxCellTemperature();
-    bool                 getCellOwc();
-    bool                 getThermOwc();
-
-    void setVoltageStats(const Cells<result<float>> &latest, CellParam<float> min, CellParam<float> max);
-    void setMaxCellTemperature(CellParam<float> max_temp);
-    void setThermOwc(bool any_therm_owc);
-    void setCellOwc(bool any_cell_owc);
+    // Cells<result<float>> getLatestVoltages();
+    // CellParam<float>     getMinCellVoltage();
+    // CellParam<float>     getMaxCellVoltage();
+    // CellParam<float>     getMaxCellTemperature();
+    // bool                 getCellOwc();
+    // bool                 getThermOwc();
+    // void setVoltageStats(const Cells<result<float>> &latest, CellParam<float> min, CellParam<float> max);
+    // void setMaxCellTemperature(CellParam<float> max_temp);
+    // void setThermOwc(bool any_therm_owc);
+    // void setCellOwc(bool any_cell_owc);
 } // namespace health
 
 // app_segments_faults.cpp
