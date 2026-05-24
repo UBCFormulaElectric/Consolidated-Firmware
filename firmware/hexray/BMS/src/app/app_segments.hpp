@@ -95,18 +95,24 @@ namespace health
     void setOrReset(size_t seg, ErrorBit bit, bool has_error);
     bool isOk(size_t seg);
     bool allOk();
-
-    // Cells<result<float>> getLatestVoltages();
-    // CellParam<float>     getMinCellVoltage();
-    // CellParam<float>     getMaxCellVoltage();
-    // CellParam<float>     getMaxCellTemperature();
-    // bool                 getCellOwc();
-    // bool                 getThermOwc();
-    // void setVoltageStats(const Cells<result<float>> &latest, CellParam<float> min, CellParam<float> max);
-    // void setMaxCellTemperature(CellParam<float> max_temp);
-    // void setThermOwc(bool any_therm_owc);
-    // void setCellOwc(bool any_cell_owc);
 } // namespace health
+
+// app_segments_shared.cpp
+namespace shared
+{
+    Cells<result<float>> getLatestVoltages();
+    Cells<result<bool>>  getLatestCellOwc();
+    CellParam<float>     getMinCellVoltage();
+    CellParam<float>     getMaxCellVoltage();
+    CellParam<float>     getMaxCellTemperature();
+    bool                 getCellOwc();
+    bool                 getThermOwc();
+
+    void setVoltageStats(const Cells<result<float>> latest, const CellParam<float> min_voltage, const CellParam<float> max_votlage);
+    void setMaxCellTemperature(const CellParam<float> max_temp);
+    void setThermOwc(const Cells<result<bool>> latest);
+    void setCellOwc(const Cells<result<bool>> latest);
+} // namespace shared
 
 // app_segments_faults.cpp
 // namespace faults

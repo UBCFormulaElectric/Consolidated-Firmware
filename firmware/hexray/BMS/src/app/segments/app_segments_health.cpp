@@ -1,31 +1,16 @@
 #include "app_segments_internal.hpp"
 #include "io_semaphore.hpp"
-#include "io_adbms.hpp"
 #include <array>
 #include <bitset>
 #include <algorithm>
 
 namespace
 {
-using io::adbms::Cells;
-
 constexpr size_t NUM_HEALTH_BITS = static_cast<size_t>(app::segments::health::ErrorBit::NUM_ERROR_BITS);
 
 std::array<std::bitset<NUM_HEALTH_BITS>, MAX_NUM_SEGMENTS> segment_health{};
 // health mutex protects the segment_health array
 io::semaphore health_mutex{ true };
-
-Cells<result<float>>     latest_voltages{};
-app::segments::CellParam latest_min_cell_voltage{ .segment = 0, .cell = 0, .value = 0.0f };
-app::segments::CellParam latest_max_cell_voltage{ .segment = 0, .cell = 0, .value = 0.0f };
-io::semaphore            voltage_lock{ true };
-
-app::segments::CellParam latest_max_cell_temperature{ .segment = 0, .cell = 0, .value = 0.0f };
-bool                     latest_therm_owc = false;
-io::semaphore            temperature_lock{ true };
-
-bool          latest_cell_owc = false;
-io::semaphore cell_owc_lock{ true };
 } // namespace
 
 namespace app::segments::health
@@ -73,68 +58,6 @@ bool allOk()
 {
     const io::unique_semaphore lock{ health_mutex };
     return std::ranges::all_of(segment_health, [](const std::bitset<NUM_HEALTH_BITS> &bs) { return bs.none(); });
-}
-
-Cells<result<float>> getLatestVoltages()
-{
-    const io::unique_semaphore lock{ voltage_lock };
-    return latest_voltages;
-}
-
-CellParam<float> getMinCellVoltage()
-{
-    const io::unique_semaphore lock{ voltage_lock };
-    return latest_min_cell_voltage;
-}
-
-CellParam<float> getMaxCellVoltage()
-{
-    const io::unique_semaphore lock{ voltage_lock };
-    return latest_max_cell_voltage;
-}
-
-CellParam<float> getMaxCellTemperature()
-{
-    const io::unique_semaphore lock{ temperature_lock };
-    return latest_max_cell_temperature;
-}
-
-bool getCellOwc()
-{
-    const io::unique_semaphore lock{ cell_owc_lock };
-    return latest_cell_owc;
-}
-
-bool getThermOwc()
-{
-    const io::unique_semaphore lock{ temperature_lock };
-    return latest_therm_owc;
-}
-
-void setVoltageStats(const Cells<result<float>> &latest, const CellParam<float> min, const CellParam<float> max)
-{
-    const io::unique_semaphore lock{ voltage_lock };
-    latest_voltages         = latest;
-    latest_min_cell_voltage = min;
-    latest_max_cell_voltage = max;
-}
-
-void setMaxCellTemperature(const CellParam<float> max_temp)
-{
-    const io::unique_semaphore lock{ temperature_lock };
-    latest_max_cell_temperature = max_temp;
-}
-
-void setThermOwc(const bool any_therm_owc)
-{
-    const io::unique_semaphore lock{ temperature_lock };
-    latest_therm_owc = any_therm_owc;
-}
-
-void setCellOwc(const bool any_cell_owc)
-{
-    const io::unique_semaphore lock{ cell_owc_lock };
-    latest_cell_owc = any_cell_owc;
 }
 
 } // namespace app::segments::health

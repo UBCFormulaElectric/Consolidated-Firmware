@@ -28,56 +28,63 @@ app::Timer                                                       balance_timer(B
 
 void updateCellsToBalance()
 {
-    // app::segments::Cells<result<float>> cell_voltages    = app::segments::health::getLatestVoltages();
-    // app::segments::CellParam<float>     min_cell_voltage = app::segments::health::getMinCellVoltage();
+    app::segments::Cells<result<float>> cell_voltages    = app::segments::shared::getLatestVoltages();
+    app::segments::CellParam<float>     min_cell_voltage = app::segments::shared::getMinCellVoltage();
+    app::segments::Cells<result<bool>>  cell_owc         = app::segments::shared::getLatestCellOwc();
 
-    // for (uint8_t seg = 0; seg < NUM_SEGMENTS; seg++)
-    // {
-    //     for (uint8_t cell = 0; cell < CELLS_PER_SEGMENT; cell++)
-    //     {
-    //         // Skip cells with failed voltage reads
-    //         if (!cell_voltages[seg][cell])
-    //         {
-    //             discharge_enabled[seg][cell] = false;
-    //             continue;
-    //         }
-    //
-    //         // Never discharge the leader cell unless balancing to target voltage
-    //         if (seg == min_cell_voltage.segment && cell == min_cell_voltage.cell &&
-    //             !app::can_rx::Debug_CellBalancing_OverrideValue_get())
-    //         {
-    //             discharge_enabled[seg][cell] = false;
-    //             continue;
-    //         }
-    //
-    //         // Never discharge below minimum allowed voltage
-    //         if (cell_voltages[seg][cell].value() <= app::segments::convertUVOVToFloat(VUV))
-    //         {
-    //             discharge_enabled[seg][cell] = false;
-    //             continue;
-    //         }
-    //
-    //         const float delta =
-    //             cell_voltages[seg][cell].value() - (app::can_rx::Debug_CellBalancing_OverrideValue_get()
-    //                                                     ? app::can_rx::Debug_CellBalancing_TargetValue_get()
-    //                                                     : min_cell_voltage.value);
-    //
-    //         // Don't dischange below threshold
-    //         if (delta < DISCHARGE_THRESHOLD_V)
-    //         {
-    //             discharge_enabled[seg][cell] = false;
-    //             continue;
-    //         }
-    //
-    //         const float raw_duty = app::can_rx::Debug_CellBalancing_OverrideDutyCycle_get()
-    //                                    ? app::can_rx::Debug_CellBalancing_TargetDutyCycle_get()
-    //                                    : 0.0f;
-    //
-    //         pwm_duty[seg][cell]          = static_cast<uint8_t>(roundf(raw_duty / 100.0f * 15.0f));
-    //         discharge_enabled[seg][cell] = true;
-    //     }
-    // }
-    // app::segments::config::setBalanceConfig(discharge_enabled, pwm_duty, true);
+    for (uint8_t seg = 0; seg < NUM_SEGMENTS; seg++)
+    {
+        for (uint8_t cell = 0; cell < CELLS_PER_SEGMENT; cell++)
+        {
+            // Skip cells with failed voltage reads
+            if (!cell_voltages[seg][cell])
+            {
+                discharge_enabled[seg][cell] = false;
+                continue;
+            }
+
+            // Skip cells with failed owc or owc flagged
+            if (!cell_owc[seg][cell].value_or(false)) {
+                discharge_enabled[seg][cell] = false;
+                continue;
+             }
+
+            // Never discharge the leader cell unless balancing to target voltage
+            if (seg == min_cell_voltage.segment && cell == min_cell_voltage.cell &&
+                !app::can_rx::Debug_CellBalancing_OverrideValue_get())
+            {
+                discharge_enabled[seg][cell] = false;
+                continue;
+            }
+
+            // Never discharge below minimum allowed voltage
+            if (cell_voltages[seg][cell].value() <= app::segments::convertUVOVToFloat(VUV))
+            {
+                discharge_enabled[seg][cell] = false;
+                continue;
+            }
+
+            const float delta =
+                cell_voltages[seg][cell].value() - (app::can_rx::Debug_CellBalancing_OverrideValue_get()
+                                                        ? app::can_rx::Debug_CellBalancing_TargetValue_get()
+                                                        : min_cell_voltage.value);
+
+            // Don't dischange below threshold
+            if (delta < DISCHARGE_THRESHOLD_V)
+            {
+                discharge_enabled[seg][cell] = false;
+                continue;
+            }
+
+            const float raw_duty = app::can_rx::Debug_CellBalancing_OverrideDutyCycle_get()
+                                       ? app::can_rx::Debug_CellBalancing_TargetDutyCycle_get()
+                                       : 0.0f;
+
+            pwm_duty[seg][cell]          = static_cast<uint8_t>(roundf(raw_duty / 100.0f * 15.0f));
+            discharge_enabled[seg][cell] = true;
+        }
+    }
+    app::segments::config::setBalanceConfig(discharge_enabled, pwm_duty, true);
 }
 } // namespace
 
