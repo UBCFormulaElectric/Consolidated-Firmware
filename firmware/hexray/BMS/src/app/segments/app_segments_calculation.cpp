@@ -154,9 +154,7 @@ Therms<result<float>> thermTemps(
 
             const float voltage    = reading.value();
             const float resistance = R_SERIES * (voltage / (V_REF2 - voltage));
-            // const float inv_temp_k = (1.0f / T_NOMINAL) + (1.0f / BETA_COEFF) * std::log(resistance / R_NOMINAL);
-            // out[seg][therm]        = (1.0f / inv_temp_k) - KELVIN_OFFSET;
-            out[seg][therm] = app::therm::ThermistorLUT::resistanceToTemp(resistance);
+            out[seg][therm] = app::therm::adbms_ntc10k_lut.resistanceToTemp(resistance);
         }
     }
     return out;
