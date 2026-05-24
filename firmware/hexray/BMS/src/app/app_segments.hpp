@@ -65,9 +65,6 @@ namespace broadcast
     void segVoltages(const Segments<result<float>> &seg_voltages);
     void status(const Segments<io::adbms::StatusGroupsRes> &status);
     void cellOwc(const Cells<result<bool>> &owc_results, const result<void> &poll_ok);
-    // Broadcasts the per-segment command counter mismatch bitmap from the last
-    // ADBMS read. Sending the message bumps the CAN rolling counter, indicating
-    // which segments mismatched.
     // void cmdCountMismatch();
 } // namespace broadcast
 

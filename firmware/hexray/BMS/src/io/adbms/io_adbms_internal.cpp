@@ -232,8 +232,6 @@ namespace
         }
     }
 
-    // Compare each segment's received cmd_count against the expected value.
-    // Returns a per-segment bitmap of mismatches.
     // Segments<bool> detectCmdCountMismatches(const Segments<RegGroupPayload> &rx)
     // {
     //     Segments<bool> mismatches{};
@@ -244,9 +242,6 @@ namespace
     //     return mismatches;
     // }
 
-    // Recover from a command counter mismatch by issuing RSTCC (which also
-    // resyncs expected_cmd_count to 0 via postTxUpdateCmdCount).
-    // Stores the per-segment mismatch bitmap for the app layer to broadcast.
     // void handleCmdCountMismatches(const Segments<bool> &mismatches)
     // {
     //     last_cmd_count_mismatches = mismatches;
