@@ -92,7 +92,6 @@ def update(configs: List[boards.Board], build_dir: str, is_fd: bool) -> None:
                 total=total,
                 description=description,
                 completed=completed,
-                is_fd=is_fd,
             ),
             ih=intelhex.IntelHex(os.path.join(build_dir, board.path)),
             is_fd=is_fd,
