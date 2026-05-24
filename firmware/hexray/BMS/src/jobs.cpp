@@ -218,9 +218,10 @@ void jobs_runAdbmsAux_tick()
     sync_done.wait();
     LOG_INFO("Starting AUX poll and conversion");
 
-    result<void> therm_voltages_poll_ok;std::array<ThermGpios<result<float>>, 2> therm_voltages;
-    Segments<result<float>>                          seg_voltage;
-    Segments<io::adbms::StatusGroupsRes>             status;
+    result<void>                             therm_voltages_poll_ok;
+    std::array<ThermGpios<result<float>>, 2> therm_voltages;
+    Segments<result<float>>                  seg_voltage;
+    Segments<io::adbms::StatusGroupsRes>     status;
 
 
 
@@ -245,11 +246,11 @@ void jobs_runAdbmsAux_tick()
             spi_bus_lock.take();
             if (const auto res = app::segments::startPoll::auxAdc(); !res)
             {
-                therm_voltages[static_cast<size_t>(mux)] = app::segments::conversion::thermVoltage(mux);
+                therm_voltages_poll_ok = std::unexpected(res.error());
             }
             else if (therm_voltages_poll_ok)
             {
-                therm_voltages_poll_ok = std::unexpected(poll.error());
+                therm_voltages[static_cast<size_t>(mux)] = app::segments::conversion::thermVoltage(mux);
             }
         }
     }
