@@ -60,7 +60,7 @@ result<void> command::pollAuxAdc()
             io::time::delay(POLL_RETRY_DELAY_MS);
             return unexpected(ErrorCode::BUSY);
         },
-        POLL_RETRIES);
+        20);
 }
 
 ThermGpios<result<uint16_t>> read::thermGpioVoltage()

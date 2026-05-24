@@ -52,7 +52,7 @@ result<void> startPoll::cellAdc()
     return {};
 }
 
-result<void> startPoll::auxAdc(const ThermistorMux mux)
+result<void> startPoll::auxAdc()
 {
     if (const auto start = io::adbms::command::startAuxAdc(); !start)
     {

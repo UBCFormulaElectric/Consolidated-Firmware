@@ -132,7 +132,7 @@ void setThermistorConfig(const ThermistorMux mux)
     for (auto &[reg_a, _reg_b] : segment_config)
     {
         reg_a.gpio_1_8  = 0xFF;
-        reg_a.gpio_9_10 = mux == ThermistorMux::THERMISTOR_MUX_0_7 ? 0x02 : 0x03;
+        reg_a.gpio_9_10 = 0x2 | (mux == ThermistorMux::THERMISTOR_MUX_0_7);
     }
     dirty = true;
 }

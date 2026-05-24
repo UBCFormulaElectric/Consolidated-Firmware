@@ -141,7 +141,7 @@ namespace startPoll
 {
     [[nodiscard]] result<void> secondaryCellAdc(io::adbms::OpenWireSwitch owcSwitch);
     [[nodiscard]] result<void> cellAdc();
-    [[nodiscard]] result<void> auxAdc(ThermistorMux mux);
+    [[nodiscard]] result<void> auxAdc();
 } // namespace startPoll
 
 namespace conversion

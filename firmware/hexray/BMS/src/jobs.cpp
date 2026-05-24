@@ -218,29 +218,32 @@ void jobs_runAdbmsAux_tick()
     sync_done.wait();
     LOG_INFO("Starting AUX poll and conversion");
 
-    result<void> therm_voltages_poll_ok;
-    std::array<ThermGpios<result<float>>, static_cast<size_t>(app::segments::ThermistorMux::THERMISTOR_MUX_COUNT)>
-                                         therm_voltages;
-    Segments<result<float>>              seg_voltage;
-    Segments<io::adbms::StatusGroupsRes> status;
+    result<void> therm_voltages_poll_ok;std::array<ThermGpios<result<float>>, 2> therm_voltages;
+    Segments<result<float>>                          seg_voltage;
+    Segments<io::adbms::StatusGroupsRes>             status;
 
-    
-        
+
+
     // Thermistor Aux
     for (const app::segments::ThermistorMux mux :
          { app::segments::ThermistorMux::THERMISTOR_MUX_0_7, app::segments::ThermistorMux::THERMISTOR_MUX_8_13 })
-    { 
+    {
         {
             const io::unique_semaphore s{ spi_bus_lock };
             app::segments::config::setThermistorConfig(mux);
         }
-       
-        sync_done.wait();  
-        
+
+        sync_done.wait();
+
         {
             const io::unique_semaphore s{ spi_bus_lock };
-            const auto poll = app::segments::startPoll::auxAdc(mux);
-            if (poll)
+            const auto idx = static_cast<size_t>(mux);
+            app::segments::config::setThermistorConfig(mux);
+            // TODO tie signals to locks
+            spi_bus_lock.give();
+            sync_done.wait();
+            spi_bus_lock.take();
+            if (const auto res = app::segments::startPoll::auxAdc(); !res)
             {
                 therm_voltages[static_cast<size_t>(mux)] = app::segments::conversion::thermVoltage(mux);
             }
