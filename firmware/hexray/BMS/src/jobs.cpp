@@ -174,7 +174,8 @@ void jobs_runAdbmsVoltages_tick()
     sync_done.wait();
     LOG_INFO("Starting voltage poll and conversion");
 
-    result<Cells<result<float>>>                                                                 voltages;
+    result<Cells<result<float>>> voltages = std::unexpected(
+        ErrorCode::UNIMPLEMENTED); // default to UNKNOWN error until we set it properly in the conversion step
     std::array<result<Cells<result<float>>>, static_cast<size_t>(OpenWireSwitch::CHANNEL_COUNT)> owc_voltages;
 
     {

@@ -6,7 +6,7 @@
 inline constexpr uint8_t  MAX_NUM_SEGMENTS        = 10U;
 inline constexpr uint16_t VUV                     = 0x01A1; // 2.5V
 inline constexpr uint16_t VOV                     = 0x0465; // 4.2V
-inline constexpr float    OW_CELL_DELTA_THRESHOLD = 0.4f;   // 400 mV — ADBMS6830B enhanced OW detection threshold
+inline constexpr float    OW_CELL_DELTA_THRESHOLD = 1.0f;   // 1 V from experience lmao
 
 inline constexpr float V_REF2             = 3.0f;
 inline constexpr float R_SERIES           = 10e3f; // Fixed resistor
