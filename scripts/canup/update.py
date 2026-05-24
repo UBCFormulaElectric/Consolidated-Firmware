@@ -77,13 +77,13 @@ def update(configs: List[boards.Board], build_dir: str, is_fd: bool) -> None:
     # route incoming CAN messages to the appropriate inbox so workers can
     # operate concurrently without stealing each other's replies.
     send_lock = threading.Lock()
-    inbox_map: dict = {}
+    boot_inbox_map: dict = {}
+    app_inbox_map: dict = {}
     bootloaders: List[bootloader.Bootloader] = []
     for board in configs:
         inbox_q: queue.Queue = queue.Queue()
-        # map both boot and app base IDs to the same inbox
-        inbox_map[board.boot_id_range_start] = inbox_q
-        inbox_map[board.app_id_range_start] = inbox_q
+        boot_inbox_map[board.boot_id_range_start] = inbox_q
+        app_inbox_map[board.app_id_range_start] = inbox_q
         b = bootloader.Bootloader(
             bus=bus,
             board=board,
@@ -112,9 +112,10 @@ def update(configs: List[boards.Board], build_dir: str, is_fd: bool) -> None:
                 continue
             if rx is None:
                 continue
-            # compute base id by zeroing low 8 bits (protocol uses low 8 bits for command)
-            base = rx.arbitration_id & ~0xFF
-            q = inbox_map.get(base)
+            q = app_inbox_map.get(rx.arbitration_id)
+            if q is None:
+                # Bootloader replies use the low 8 bits as the command field.
+                q = boot_inbox_map.get(rx.arbitration_id & ~0xFF)
             if q is not None:
                 q.put(rx)
 
@@ -176,41 +177,91 @@ def erase(configs: List[boards.Board], is_fd: bool) -> None:
     # push all boards into bootloader
     num_boards = len(configs)
     steps_task = progress.add_task("Steps")
-    bootloaders = [
-        bootloader.Bootloader(
+    send_lock = threading.Lock()
+    boot_inbox_map: dict = {}
+    app_inbox_map: dict = {}
+    bootloaders: List[bootloader.Bootloader] = []
+    for board in configs:
+        inbox_q: queue.Queue = queue.Queue()
+        boot_inbox_map[board.boot_id_range_start] = inbox_q
+        app_inbox_map[board.app_id_range_start] = inbox_q
+        b = bootloader.Bootloader(
             bus=bus,
             board=board,
             ui_callback=lambda description, total, completed: progress.update(
                 task_id=steps_task,
                 total=total,
                 description=description,
-                completed=completed,
+                completed=completed
             ),
             is_fd=is_fd,
+            inbox=inbox_q,
+            send_lock=send_lock
         )
-        for board in configs
-    ]
+        bootloaders.append(b)
+
+    stop_event = threading.Event()
+
+    def receiver_thread_fn():
+        while not stop_event.is_set():
+            try:
+                rx = bus.recv(timeout=1)
+            except Exception:
+                continue
+            if rx is None:
+                continue
+
+            q = app_inbox_map.get(rx.arbitration_id)
+            if q is None:
+                q = boot_inbox_map.get(rx.arbitration_id & ~0xFF)
+            if q is not None:
+                q.put(rx)
+
+    receiver = threading.Thread(target=receiver_thread_fn, daemon=True)
 
     with Live(Group(status, progress), transient=True) as live:
+        receiver.start()
         all_goto_bootloader(live, bootloaders)
 
         live.console.log(
             f"Erasing with config: [blue bold]{', '.join(board.name for board in configs)}"
         )
-        for b_idx, bootloader_board in enumerate(bootloaders):
-            # TODO do this in parallel
-            status.update(f"Sending board {bootloader_board.board.name} to bootloader")
-            status.update(
-                f"Erasing board [yellow]{b_idx + 1}/{num_boards}[/]: [blue bold]{bootloader_board.board.name}"
-            )
-            bootloader_board.erase()
-            live.console.log(
-                f"[green]{bootloader_board.board.name} erased successfully"
-            )
+
+        exceptions = []
+
+        def worker(bootload_board: bootloader.Bootloader, b_idx: int) -> None:
+            try:
+                status.update(f"Sending board {bootload_board.board.name} to bootloader")
+                status.update(
+                    f"Erasing board [yellow]{b_idx + 1}/{num_boards}[/]: [blue bold]{bootload_board.board.name}"
+                )
+                bootload_board.erase()
+                live.console.log(f"[green]{bootload_board.board.name} erased successfully")
+            except Exception as e:
+                live.console.log(f"[red]Failed to erase {bootload_board.board.name}: {e}")
+                exceptions.append(e)
+
+        with ThreadPoolExecutor(max_workers=len(bootloaders)) as ex:
+            futures = [ex.submit(worker, b, i) for i, b in enumerate(bootloaders)]
+            for f in as_completed(futures):
+                try:
+                    f.result()
+                except Exception:
+                    pass
+
         progress.remove_task(steps_task)
-        live.console.log(
-            f"[bold green]Erase successful ({num_boards} board{'s' if num_boards > 1 else ''} erased)"
-        )
+        if exceptions:
+            live.console.log(f"[red]One or more erases failed ({len(exceptions)} errors)")
+        else:
+            live.console.log(
+                f"[bold green]Erase successful ({num_boards} board{'s' if num_boards > 1 else ''} erased)"
+            )
+
+        stop_event.set()
+        receiver.join(timeout=2)
+
+    if exceptions:
+        raise RuntimeError(f"Erase failed for {len(exceptions)} board(s)")
 
 
 if __name__ == "__main__":

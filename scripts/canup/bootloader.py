@@ -55,7 +55,7 @@ class Bootloader:
         board: boards.Board,
         ui_callback: Callable,
         ih: intelhex.IntelHex = None,
-        timeout: int = 1000,
+        timeout: int = 10,
         is_fd: bool = False,
         inbox: Optional[queue.Queue] = None,
         send_lock: Optional[threading.Lock] = None,
@@ -125,7 +125,8 @@ class Bootloader:
         # TODO add retry protocol
         return (
             self._await_can_msg(
-                lambda msg: msg.arbitration_id == self.board.app_id_range_start + 0,
+                lambda msg: msg.arbitration_id
+                == (self.board.app_id_range_start | MCU_10HZ_STATUS_CAN_ID_LOWBITS),
                 5,
             )
             is not None
@@ -289,7 +290,7 @@ class Bootloader:
             return None
 
         if rx_msg.dlc < 1:
-            raise RuntimeError("Zero Message recieved")
+            raise RuntimeError("Zero Message received")
 
         return rx_msg.data[0]
 
