@@ -140,7 +140,7 @@ static hw::notify::Notifier sync_done;
 void jobs_runAdbmsConfigs_tick()
 {
     const io::unique_semaphore s{ spi_bus_lock };
-    // TODO handle this properly
+
     const auto res             = app::segments::config::sync();
     bool       all_segments_ok = true;
     for (size_t seg_num = 0; seg_num < NUM_SEGMENTS; seg_num++)
@@ -159,6 +159,7 @@ void jobs_runAdbmsConfigs_tick()
             LOG_ERROR("Failed to sync config on segment %d: ADBMS config did not match in-memory config", seg_num);
         }
     }
+    // TODO handle this properly
     LOG_IF_ERR(io::adbms::clear::cell());
     LOG_IF_ERR(io::adbms::clear::aux());
     LOG_IF_ERR(io::adbms::clear::stat());
@@ -174,58 +175,40 @@ void jobs_runAdbmsVoltages_tick()
     sync_done.wait();
     LOG_INFO("Starting voltage poll and conversion");
 
-    result<Cells<result<float>>> voltages = std::unexpected(
-        ErrorCode::UNIMPLEMENTED); // default to UNKNOWN error until we set it properly in the conversion step
-    std::array<result<Cells<result<float>>>, static_cast<size_t>(OpenWireSwitch::CHANNEL_COUNT)> owc_voltages;
+    result<void>         voltages_poll_ok;
+    Cells<result<float>> voltages;
+
+    result<void>                                                                         owc_voltages_poll_ok;
+    std::array<Cells<result<float>>, static_cast<size_t>(OpenWireSwitch::CHANNEL_COUNT)> owc_voltages;
 
     {
         const io::unique_semaphore s{ spi_bus_lock };
 
-        // Cell Voltages Conversion
-        if (const auto res = app::segments::startPoll::cellAdc(); !res)
-        {
-            voltages = std::unexpected(res.error());
-        }
-        else
-        {
+        // Cell Voltages
+        voltages_poll_ok = app::segments::startPoll::cellAdc();
+        if (voltages_poll_ok)
             voltages = app::segments::conversion::cellVoltage();
-        }
 
-        // Cell Open Wire Check Conversion
+        // Cell Open Wire Check
         for (const OpenWireSwitch channel : { OpenWireSwitch::ODD_CHANNELS, OpenWireSwitch::EVEN_CHANNELS })
         {
             const auto poll1 = app::segments::startPoll::secondaryCellAdc(channel);
             const auto poll2 = app::segments::startPoll::secondaryCellAdc(channel);
-            if (!poll1 || !poll2)
-            {
-                owc_voltages[static_cast<size_t>(channel)] = std::unexpected((!poll1 ? poll1 : poll2).error());
-            }
-            else
+            if (poll1 && poll2)
             {
                 owc_voltages[static_cast<size_t>(channel)] = app::segments::conversion::cellOwcVoltages();
+            }
+            else if (owc_voltages_poll_ok)
+            {
+                owc_voltages_poll_ok = std::unexpected((!poll1 ? poll1 : poll2).error());
             }
         }
     }
 
     // Cell Voltages Broadcast
-    if (!voltages)
-    {
-        app::segments::broadcast::cellVoltagesPollErr();
-    }
-    else
-    {
-        app::segments::broadcast::cellVoltages(voltages.value());
-    }
-
+    app::segments::broadcast::cellVoltages(voltages, voltages_poll_ok);
     // Cell Open Wire Check Broadcast
-    if (std::ranges::any_of(owc_voltages, [](const auto &r) { return !r; }))
-    {
-        app::segments::broadcast::cellOwcPollErr();
-    }
-    else
-    {
-        app::segments::broadcast::cellOwc(app::segments::calculate::cellOwc(owc_voltages));
-    }
+    app::segments::broadcast::cellOwc(app::segments::calculate::cellOwc(owc_voltages), owc_voltages_poll_ok);
 }
 
 void jobs_runAdbmsAux_tick()
@@ -233,8 +216,8 @@ void jobs_runAdbmsAux_tick()
     sync_done.wait();
     LOG_INFO("Starting AUX poll and conversion");
 
-    std::array<
-        result<ThermGpios<result<float>>>, static_cast<size_t>(app::segments::ThermistorMux::THERMISTOR_MUX_COUNT)>
+    result<void> therm_voltages_poll_ok;
+    std::array<ThermGpios<result<float>>, static_cast<size_t>(app::segments::ThermistorMux::THERMISTOR_MUX_COUNT)>
                                          therm_voltages;
     Segments<result<float>>              seg_voltage;
     Segments<io::adbms::StatusGroupsRes> status;
@@ -242,39 +225,28 @@ void jobs_runAdbmsAux_tick()
     {
         const io::unique_semaphore s{ spi_bus_lock };
 
-        // Thermistor Aux Conversion
+        // Thermistor Aux
         for (const app::segments::ThermistorMux mux :
              { app::segments::ThermistorMux::THERMISTOR_MUX_0_7, app::segments::ThermistorMux::THERMISTOR_MUX_8_13 })
         {
-            const auto idx = static_cast<size_t>(mux);
-            if (const auto res = app::segments::startPoll::auxAdc(mux); !res)
+            const auto poll = app::segments::startPoll::auxAdc(mux);
+            if (poll)
             {
-                therm_voltages[idx] = std::unexpected(res.error());
+                therm_voltages[static_cast<size_t>(mux)] = app::segments::conversion::thermVoltage(mux);
             }
-            else
+            else if (therm_voltages_poll_ok)
             {
-                therm_voltages[idx] = app::segments::conversion::thermVoltage(mux);
+                therm_voltages_poll_ok = std::unexpected(poll.error());
             }
         }
 
-        // Segment Voltage Conversion
         seg_voltage = app::segments::conversion::segVoltage();
-
-        // Status Conversion
-        status = app::segments::conversion::status();
+        status      = app::segments::conversion::status();
     }
 
     // Thermistor Broadcast
-    if (std::ranges::any_of(therm_voltages, [](const auto &r) { return !r; }))
-    {
-        app::segments::broadcast::thermTempsPollErr();
-        app::segments::broadcast::thermOwcPollErr();
-    }
-    else
-    {
-        app::segments::broadcast::thermTemps(app::segments::calculate::thermTemps(therm_voltages));
-        app::segments::broadcast::thermOwc(app::segments::calculate::thermOwc(therm_voltages));
-    }
+    app::segments::broadcast::thermTemps(app::segments::calculate::thermTemps(therm_voltages), therm_voltages_poll_ok);
+    app::segments::broadcast::thermOwc(app::segments::calculate::thermOwc(therm_voltages), therm_voltages_poll_ok);
 
     // Segment Voltage Broadcast
     app::segments::broadcast::segVoltages(seg_voltage);

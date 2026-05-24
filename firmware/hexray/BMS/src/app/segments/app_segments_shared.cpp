@@ -4,8 +4,8 @@
 
 namespace
 {
-using app::segments::Cells;
 using app::segments::CellParam;
+using app::segments::Cells;
 
 /*
 
@@ -22,9 +22,9 @@ io::semaphore    temperature_lock{ true };
 Cells<result<bool>> latest_cell_owc{};
 io::semaphore       cell_owc_lock{ true };
 
-//idk if this is needed
+// idk if this is needed
 Cells<result<bool>> latest_therm_owc{};
-io::semaphore       therm_owc_lock{ true }; 
+io::semaphore       therm_owc_lock{ true };
 
 } // namespace
 
@@ -61,7 +61,10 @@ CellParam<float> getMaxCellTemperature()
     return latest_max_cell_temperature;
 }
 
-void setVoltageStats(const Cells<result<float>> latest, const CellParam<float> min_voltage, const CellParam<float> max_voltage)
+void setVoltageStats(
+    const Cells<result<float>> latest,
+    const CellParam<float>     min_voltage,
+    const CellParam<float>     max_voltage)
 {
     const io::unique_semaphore lock{ voltage_lock };
     latest_voltages         = latest;

@@ -675,6 +675,184 @@
       }
     }
   },
+  "CellVoltageErrors_Seg0_Seg3": {
+    "msg_id": 458,
+    "cycle_time": null,
+    "allowed_modes": [
+      "DEBUG"
+    ],
+    "description": "Per-cell error codes for cell voltages: Segment 0-3 (INVALID_ARGS = no error)",
+    "signals": {
+      "Seg0_Cell0_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Cell1_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Cell2_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Cell3_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Cell4_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Cell5_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Cell6_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Cell7_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Cell8_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Cell9_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Cell10_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Cell11_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Cell12_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Cell13_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Cell0_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Cell1_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Cell2_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Cell3_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Cell4_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Cell5_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Cell6_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Cell7_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Cell8_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Cell9_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Cell10_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Cell11_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Cell12_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Cell13_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Cell0_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Cell1_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Cell2_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Cell3_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Cell4_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Cell5_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Cell6_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Cell7_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Cell8_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Cell9_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Cell10_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Cell11_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Cell12_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Cell13_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Cell0_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Cell1_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Cell2_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Cell3_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Cell4_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Cell5_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Cell6_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Cell7_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Cell8_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Cell9_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Cell10_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Cell11_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Cell12_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Cell13_VoltageError": {
+        "enum": "ErrorCode"
+      }
+    }
+  },
   "CellVoltages_Seg4_Seg7": {
     "msg_id": 423,
     "cycle_time": null,
@@ -4945,6 +5123,1868 @@
       },
       "Seg9_OSCCHK": {
         "bits": 1
+      }
+    }
+  },
+  "SegmentCMDCNT": {
+    "msg_id": 457,
+    "cycle_time": null,
+    "allowed_modes": [
+      "DEBUG"
+    ],
+    "description": "ADBMS command counter mismatch flags for all segments",
+    "signals": {
+      "Seg0_CMDCNT": {
+        "bits": 1
+      },
+      "Seg1_CMDCNT": {
+        "bits": 1
+      },
+      "Seg2_CMDCNT": {
+        "bits": 1
+      },
+      "Seg3_CMDCNT": {
+        "bits": 1
+      },
+      "Seg4_CMDCNT": {
+        "bits": 1
+      },
+      "Seg5_CMDCNT": {
+        "bits": 1
+      },
+      "Seg6_CMDCNT": {
+        "bits": 1
+      },
+      "Seg7_CMDCNT": {
+        "bits": 1
+      },
+      "Seg8_CMDCNT": {
+        "bits": 1
+      },
+      "Seg9_CMDCNT": {
+        "bits": 1
+      }
+    }
+  },
+  "CellVoltageErrors_Seg4_Seg7": {
+    "msg_id": 459,
+    "cycle_time": null,
+    "allowed_modes": [
+      "DEBUG"
+    ],
+    "description": "Per-cell error codes for cell voltages: Segment 4-7 (INVALID_ARGS = no error)",
+    "signals": {
+      "Seg4_Cell0_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_Cell1_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_Cell2_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_Cell3_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_Cell4_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_Cell5_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_Cell6_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_Cell7_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_Cell8_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_Cell9_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_Cell10_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_Cell11_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_Cell12_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_Cell13_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_Cell0_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_Cell1_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_Cell2_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_Cell3_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_Cell4_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_Cell5_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_Cell6_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_Cell7_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_Cell8_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_Cell9_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_Cell10_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_Cell11_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_Cell12_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_Cell13_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_Cell0_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_Cell1_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_Cell2_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_Cell3_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_Cell4_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_Cell5_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_Cell6_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_Cell7_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_Cell8_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_Cell9_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_Cell10_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_Cell11_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_Cell12_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_Cell13_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_Cell0_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_Cell1_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_Cell2_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_Cell3_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_Cell4_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_Cell5_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_Cell6_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_Cell7_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_Cell8_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_Cell9_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_Cell10_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_Cell11_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_Cell12_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_Cell13_VoltageError": {
+        "enum": "ErrorCode"
+      }
+    }
+  },
+  "CellVoltageErrors_Seg8_Seg9": {
+    "msg_id": 460,
+    "cycle_time": null,
+    "allowed_modes": [
+      "DEBUG"
+    ],
+    "description": "Per-cell error codes for cell voltages: Segment 8-9 (INVALID_ARGS = no error)",
+    "signals": {
+      "Seg8_Cell0_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_Cell1_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_Cell2_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_Cell3_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_Cell4_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_Cell5_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_Cell6_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_Cell7_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_Cell8_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_Cell9_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_Cell10_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_Cell11_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_Cell12_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_Cell13_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_Cell0_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_Cell1_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_Cell2_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_Cell3_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_Cell4_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_Cell5_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_Cell6_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_Cell7_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_Cell8_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_Cell9_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_Cell10_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_Cell11_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_Cell12_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_Cell13_VoltageError": {
+        "enum": "ErrorCode"
+      }
+    }
+  },
+  "CellTempErrors_Seg0_Seg3": {
+    "msg_id": 461,
+    "cycle_time": null,
+    "allowed_modes": [
+      "DEBUG"
+    ],
+    "description": "Per-thermistor error codes for cell temps: Segment 0-3 (INVALID_ARGS = no error)",
+    "signals": {
+      "Seg0_Therm0_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Therm1_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Therm2_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Therm3_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Therm4_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Therm5_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Therm6_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Therm7_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Therm8_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Therm9_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Therm10_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Therm11_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Therm12_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Therm13_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Therm0_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Therm1_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Therm2_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Therm3_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Therm4_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Therm5_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Therm6_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Therm7_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Therm8_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Therm9_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Therm10_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Therm11_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Therm12_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Therm13_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Therm0_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Therm1_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Therm2_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Therm3_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Therm4_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Therm5_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Therm6_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Therm7_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Therm8_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Therm9_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Therm10_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Therm11_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Therm12_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Therm13_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Therm0_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Therm1_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Therm2_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Therm3_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Therm4_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Therm5_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Therm6_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Therm7_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Therm8_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Therm9_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Therm10_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Therm11_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Therm12_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Therm13_TempError": {
+        "enum": "ErrorCode"
+      }
+    }
+  },
+  "CellTempErrors_Seg4_Seg7": {
+    "msg_id": 462,
+    "cycle_time": null,
+    "allowed_modes": [
+      "DEBUG"
+    ],
+    "description": "Per-thermistor error codes for cell temps: Segment 4-7 (INVALID_ARGS = no error)",
+    "signals": {
+      "Seg4_Therm0_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_Therm1_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_Therm2_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_Therm3_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_Therm4_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_Therm5_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_Therm6_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_Therm7_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_Therm8_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_Therm9_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_Therm10_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_Therm11_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_Therm12_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_Therm13_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_Therm0_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_Therm1_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_Therm2_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_Therm3_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_Therm4_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_Therm5_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_Therm6_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_Therm7_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_Therm8_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_Therm9_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_Therm10_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_Therm11_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_Therm12_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_Therm13_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_Therm0_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_Therm1_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_Therm2_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_Therm3_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_Therm4_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_Therm5_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_Therm6_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_Therm7_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_Therm8_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_Therm9_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_Therm10_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_Therm11_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_Therm12_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_Therm13_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_Therm0_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_Therm1_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_Therm2_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_Therm3_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_Therm4_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_Therm5_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_Therm6_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_Therm7_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_Therm8_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_Therm9_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_Therm10_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_Therm11_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_Therm12_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_Therm13_TempError": {
+        "enum": "ErrorCode"
+      }
+    }
+  },
+  "CellTempErrors_Seg8_Seg9": {
+    "msg_id": 463,
+    "cycle_time": null,
+    "allowed_modes": [
+      "DEBUG"
+    ],
+    "description": "Per-thermistor error codes for cell temps: Segment 8-9 (INVALID_ARGS = no error)",
+    "signals": {
+      "Seg8_Therm0_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_Therm1_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_Therm2_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_Therm3_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_Therm4_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_Therm5_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_Therm6_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_Therm7_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_Therm8_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_Therm9_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_Therm10_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_Therm11_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_Therm12_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_Therm13_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_Therm0_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_Therm1_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_Therm2_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_Therm3_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_Therm4_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_Therm5_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_Therm6_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_Therm7_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_Therm8_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_Therm9_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_Therm10_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_Therm11_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_Therm12_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_Therm13_TempError": {
+        "enum": "ErrorCode"
+      }
+    }
+  },
+  "CellOpenWireCheckErrors_Seg0_Seg3": {
+    "msg_id": 464,
+    "cycle_time": null,
+    "allowed_modes": [
+      "DEBUG"
+    ],
+    "description": "Per-cell error codes for OWC: Segment 0-3 (INVALID_ARGS = no error)",
+    "signals": {
+      "Seg0_Cell0_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Cell1_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Cell2_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Cell3_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Cell4_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Cell5_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Cell6_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Cell7_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Cell8_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Cell9_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Cell10_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Cell11_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Cell12_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Cell13_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Cell0_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Cell1_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Cell2_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Cell3_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Cell4_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Cell5_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Cell6_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Cell7_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Cell8_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Cell9_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Cell10_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Cell11_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Cell12_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Cell13_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Cell0_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Cell1_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Cell2_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Cell3_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Cell4_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Cell5_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Cell6_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Cell7_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Cell8_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Cell9_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Cell10_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Cell11_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Cell12_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Cell13_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Cell0_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Cell1_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Cell2_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Cell3_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Cell4_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Cell5_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Cell6_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Cell7_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Cell8_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Cell9_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Cell10_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Cell11_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Cell12_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Cell13_CellOwcError": {
+        "enum": "ErrorCode"
+      }
+    }
+  },
+  "CellOpenWireCheckErrors_Seg4_Seg7": {
+    "msg_id": 465,
+    "cycle_time": null,
+    "allowed_modes": [
+      "DEBUG"
+    ],
+    "description": "Per-cell error codes for OWC: Segment 4-7 (INVALID_ARGS = no error)",
+    "signals": {
+      "Seg4_Cell0_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_Cell1_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_Cell2_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_Cell3_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_Cell4_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_Cell5_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_Cell6_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_Cell7_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_Cell8_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_Cell9_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_Cell10_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_Cell11_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_Cell12_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_Cell13_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_Cell0_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_Cell1_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_Cell2_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_Cell3_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_Cell4_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_Cell5_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_Cell6_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_Cell7_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_Cell8_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_Cell9_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_Cell10_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_Cell11_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_Cell12_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_Cell13_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_Cell0_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_Cell1_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_Cell2_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_Cell3_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_Cell4_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_Cell5_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_Cell6_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_Cell7_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_Cell8_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_Cell9_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_Cell10_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_Cell11_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_Cell12_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_Cell13_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_Cell0_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_Cell1_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_Cell2_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_Cell3_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_Cell4_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_Cell5_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_Cell6_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_Cell7_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_Cell8_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_Cell9_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_Cell10_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_Cell11_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_Cell12_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_Cell13_CellOwcError": {
+        "enum": "ErrorCode"
+      }
+    }
+  },
+  "CellOpenWireCheckErrors_Seg8_Seg9": {
+    "msg_id": 466,
+    "cycle_time": null,
+    "allowed_modes": [
+      "DEBUG"
+    ],
+    "description": "Per-cell error codes for OWC: Segment 8-9 (INVALID_ARGS = no error)",
+    "signals": {
+      "Seg8_Cell0_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_Cell1_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_Cell2_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_Cell3_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_Cell4_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_Cell5_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_Cell6_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_Cell7_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_Cell8_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_Cell9_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_Cell10_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_Cell11_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_Cell12_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_Cell13_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_Cell0_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_Cell1_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_Cell2_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_Cell3_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_Cell4_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_Cell5_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_Cell6_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_Cell7_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_Cell8_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_Cell9_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_Cell10_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_Cell11_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_Cell12_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_Cell13_CellOwcError": {
+        "enum": "ErrorCode"
+      }
+    }
+  },
+  "ThermistorOpenWireCheckErrors_Seg0_Seg3": {
+    "msg_id": 467,
+    "cycle_time": null,
+    "allowed_modes": [
+      "DEBUG"
+    ],
+    "description": "Per-thermistor error codes for thermistor OWC: Segment 0-3 (INVALID_ARGS = no error)",
+    "signals": {
+      "Seg0_Therm0_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Therm1_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Therm2_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Therm3_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Therm4_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Therm5_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Therm6_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Therm7_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Therm8_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Therm9_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Therm10_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Therm11_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Therm12_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Therm13_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Therm0_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Therm1_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Therm2_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Therm3_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Therm4_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Therm5_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Therm6_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Therm7_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Therm8_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Therm9_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Therm10_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Therm11_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Therm12_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Therm13_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Therm0_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Therm1_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Therm2_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Therm3_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Therm4_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Therm5_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Therm6_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Therm7_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Therm8_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Therm9_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Therm10_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Therm11_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Therm12_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Therm13_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Therm0_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Therm1_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Therm2_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Therm3_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Therm4_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Therm5_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Therm6_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Therm7_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Therm8_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Therm9_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Therm10_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Therm11_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Therm12_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Therm13_ThermOwcError": {
+        "enum": "ErrorCode"
+      }
+    }
+  },
+  "ThermistorOpenWireCheckErrors_Seg4_Seg7": {
+    "msg_id": 468,
+    "cycle_time": null,
+    "allowed_modes": [
+      "DEBUG"
+    ],
+    "description": "Per-thermistor error codes for thermistor OWC: Segment 4-7 (INVALID_ARGS = no error)",
+    "signals": {
+      "Seg4_Therm0_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_Therm1_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_Therm2_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_Therm3_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_Therm4_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_Therm5_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_Therm6_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_Therm7_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_Therm8_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_Therm9_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_Therm10_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_Therm11_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_Therm12_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_Therm13_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_Therm0_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_Therm1_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_Therm2_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_Therm3_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_Therm4_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_Therm5_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_Therm6_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_Therm7_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_Therm8_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_Therm9_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_Therm10_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_Therm11_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_Therm12_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_Therm13_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_Therm0_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_Therm1_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_Therm2_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_Therm3_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_Therm4_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_Therm5_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_Therm6_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_Therm7_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_Therm8_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_Therm9_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_Therm10_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_Therm11_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_Therm12_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_Therm13_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_Therm0_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_Therm1_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_Therm2_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_Therm3_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_Therm4_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_Therm5_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_Therm6_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_Therm7_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_Therm8_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_Therm9_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_Therm10_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_Therm11_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_Therm12_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_Therm13_ThermOwcError": {
+        "enum": "ErrorCode"
+      }
+    }
+  },
+  "ThermistorOpenWireCheckErrors_Seg8_Seg9": {
+    "msg_id": 469,
+    "cycle_time": null,
+    "allowed_modes": [
+      "DEBUG"
+    ],
+    "description": "Per-thermistor error codes for thermistor OWC: Segment 8-9 (INVALID_ARGS = no error)",
+    "signals": {
+      "Seg8_Therm0_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_Therm1_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_Therm2_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_Therm3_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_Therm4_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_Therm5_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_Therm6_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_Therm7_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_Therm8_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_Therm9_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_Therm10_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_Therm11_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_Therm12_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_Therm13_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_Therm0_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_Therm1_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_Therm2_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_Therm3_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_Therm4_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_Therm5_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_Therm6_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_Therm7_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_Therm8_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_Therm9_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_Therm10_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_Therm11_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_Therm12_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_Therm13_ThermOwcError": {
+        "enum": "ErrorCode"
+      }
+    }
+  },
+  "SegmentVoltageErrors": {
+    "msg_id": 470,
+    "cycle_time": null,
+    "allowed_modes": [
+      "DEBUG"
+    ],
+    "description": "Per-segment error codes for segment voltages (INVALID_ARGS = no error)",
+    "signals": {
+      "Seg0_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_VoltageError": {
+        "enum": "ErrorCode"
+      }
+    }
+  },
+  "SegmentStatAErrors": {
+    "msg_id": 471,
+    "cycle_time": null,
+    "allowed_modes": [
+      "DEBUG"
+    ],
+    "description": "Per-segment error codes for STATA (INVALID_ARGS = no error)",
+    "signals": {
+      "Seg0_StatAError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_StatAError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_StatAError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_StatAError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_StatAError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_StatAError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_StatAError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_StatAError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_StatAError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_StatAError": {
+        "enum": "ErrorCode"
+      }
+    }
+  },
+  "SegmentStatBErrors": {
+    "msg_id": 472,
+    "cycle_time": null,
+    "allowed_modes": [
+      "DEBUG"
+    ],
+    "description": "Per-segment error codes for STATB (INVALID_ARGS = no error)",
+    "signals": {
+      "Seg0_StatBError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_StatBError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_StatBError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_StatBError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_StatBError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_StatBError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_StatBError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_StatBError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_StatBError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_StatBError": {
+        "enum": "ErrorCode"
+      }
+    }
+  },
+  "SegmentStatCErrors": {
+    "msg_id": 473,
+    "cycle_time": null,
+    "allowed_modes": [
+      "DEBUG"
+    ],
+    "description": "Per-segment error codes for STATC (INVALID_ARGS = no error)",
+    "signals": {
+      "Seg0_StatCError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_StatCError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_StatCError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_StatCError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_StatCError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_StatCError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_StatCError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_StatCError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_StatCError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_StatCError": {
+        "enum": "ErrorCode"
+      }
+    }
+  },
+  "SegmentStatDErrors": {
+    "msg_id": 474,
+    "cycle_time": null,
+    "allowed_modes": [
+      "DEBUG"
+    ],
+    "description": "Per-segment error codes for STATD (INVALID_ARGS = no error)",
+    "signals": {
+      "Seg0_StatDError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_StatDError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_StatDError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_StatDError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_StatDError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_StatDError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_StatDError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_StatDError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_StatDError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_StatDError": {
+        "enum": "ErrorCode"
       }
     }
   }

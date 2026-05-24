@@ -59,16 +59,16 @@ namespace balancing
 // app_segments_broadcast.cpp
 namespace broadcast
 {
-    void cellVoltages(const Cells<result<float>> &voltages);
-    void thermTemps(const Therms<result<float>> &temps);
-    void thermOwc(const Therms<result<bool>> &therm_owc);
+    void cellVoltages(const Cells<result<float>> &voltages, const result<void> &poll_ok);
+    void thermTemps(const Therms<result<float>> &temps, const result<void> &poll_ok);
+    void thermOwc(const Therms<result<bool>> &therm_owc, const result<void> &poll_ok);
     void segVoltages(const Segments<result<float>> &seg_voltages);
     void status(const Segments<io::adbms::StatusGroupsRes> &status);
-    void cellOwc(const Cells<result<bool>> &owc_results);
-    void cellVoltagesPollErr();
-    void cellOwcPollErr();
-    void thermTempsPollErr();
-    void thermOwcPollErr();
+    void cellOwc(const Cells<result<bool>> &owc_results, const result<void> &poll_ok);
+    // Broadcasts the per-segment command counter mismatch bitmap from the last
+    // ADBMS read. Sending the message bumps the CAN rolling counter, indicating
+    // which segments mismatched.
+    // void cmdCountMismatch();
 } // namespace broadcast
 
 // app_segments_health.cpp
@@ -108,7 +108,10 @@ namespace shared
     bool                 getCellOwc();
     bool                 getThermOwc();
 
-    void setVoltageStats(const Cells<result<float>> latest, const CellParam<float> min_voltage, const CellParam<float> max_votlage);
+    void setVoltageStats(
+        const Cells<result<float>> latest,
+        const CellParam<float>     min_voltage,
+        const CellParam<float>     max_votlage);
     void setMaxCellTemperature(const CellParam<float> max_temp);
     void setThermOwc(const Cells<result<bool>> latest);
     void setCellOwc(const Cells<result<bool>> latest);
@@ -141,14 +144,14 @@ namespace conversion
 // app_segments_calculation.cpp
 namespace calculate
 {
-    Cells<result<bool>> cellOwc(
-        const std::array<result<Cells<result<float>>>, static_cast<size_t>(io::adbms::OpenWireSwitch::CHANNEL_COUNT)>
-            &owc_voltages);
-    Therms<result<float>> thermTemps(
-        const std::array<result<ThermGpios<result<float>>>, static_cast<size_t>(ThermistorMux::THERMISTOR_MUX_COUNT)>
-            &therm_voltages);
-    Therms<result<bool>> thermOwc(
-        const std::array<result<ThermGpios<result<float>>>, static_cast<size_t>(ThermistorMux::THERMISTOR_MUX_COUNT)>
-            &therm_voltages);
+    Cells<result<bool>>
+        cellOwc(const std::array<Cells<result<float>>, static_cast<size_t>(io::adbms::OpenWireSwitch::CHANNEL_COUNT)>
+                    &owc_voltages);
+    Therms<result<float>>
+        thermTemps(const std::array<ThermGpios<result<float>>, static_cast<size_t>(ThermistorMux::THERMISTOR_MUX_COUNT)>
+                       &therm_voltages);
+    Therms<result<bool>>
+        thermOwc(const std::array<ThermGpios<result<float>>, static_cast<size_t>(ThermistorMux::THERMISTOR_MUX_COUNT)>
+                     &therm_voltages);
 } // namespace calculate
 } // namespace app::segments

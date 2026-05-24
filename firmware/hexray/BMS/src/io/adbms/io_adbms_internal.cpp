@@ -166,6 +166,7 @@ struct __attribute__((packed)) WriteCmd
 namespace
 {
     Segments<uint8_t> expected_cmd_count{};
+    // Segments<bool>    last_cmd_count_mismatches{};
 
     bool commandIncrements(const uint16_t cmd)
     {
@@ -218,7 +219,7 @@ namespace
      */
     void postTxUpdateCmdCount(const uint16_t cmd)
     {
-        if (cmd == SRST || cmd == RSTCC)
+        if (cmd == RSTCC)
         {
             expected_cmd_count.fill(0);
             return;
@@ -230,12 +231,41 @@ namespace
             cc = (cc == 63U) ? 1U : static_cast<uint8_t>(cc + 1U);
         }
     }
+
+    // Compare each segment's received cmd_count against the expected value.
+    // Returns a per-segment bitmap of mismatches.
+    // Segments<bool> detectCmdCountMismatches(const Segments<RegGroupPayload> &rx)
+    // {
+    //     Segments<bool> mismatches{};
+    //     for (size_t seg = 0U; seg < NUM_SEGMENTS; ++seg)
+    //     {
+    //         mismatches[seg] = rx[seg].cmd_count() != expected_cmd_count[seg];
+    //     }
+    //     return mismatches;
+    // }
+
+    // Recover from a command counter mismatch by issuing RSTCC (which also
+    // resyncs expected_cmd_count to 0 via postTxUpdateCmdCount).
+    // Stores the per-segment mismatch bitmap for the app layer to broadcast.
+    // void handleCmdCountMismatches(const Segments<bool> &mismatches)
+    // {
+    //     last_cmd_count_mismatches = mismatches;
+    //     const bool any            = std::any_of(mismatches.begin(), mismatches.end(), [](bool m) { return m; });
+    //     if (!any)
+    //         return;
+    //     (void)sendCmd(RSTCC);
+    // }
 } // namespace
 
 Segments<uint8_t> getExpectedCmdCount()
 {
     return expected_cmd_count;
 }
+
+// Segments<bool> getCmdCountMismatches()
+// {
+//     return last_cmd_count_mismatches;
+// }
 
 result<void> sendCmd(const uint16_t cmd)
 {
@@ -284,20 +314,14 @@ Segments<result<RegBuffer>> readRegGroup(const uint16_t cmd)
             regs[segment] = unexpected(ErrorCode::CHECKSUM_FAIL);
             continue;
         }
-
-        // TODO integrate command count properly
-        // if (const uint8_t cc_byte = segment_reg_group.cmd_count(); cc_byte != expected_cmd_count[segment])
-        // {
-        //     // Resync so a single dropped/replayed command doesn't cascade.
-        //     LOG_INFO(
-        //         "CMD COUNT MISMATCH ON SEGMENT %d: expected %d but got %d. Resyncing.", segment,
-        //         expected_cmd_count[segment], cc_byte);
-        //     expected_cmd_count[segment] = cc_byte;
-        //     regs[segment]               = unexpected(ErrorCode::CMD_COUNT_MISMATCH);
-        //     continue;
-        // }
         regs[segment] = segment_reg_group.getData();
     }
+
+    // Detect per-segment command counter mismatches and trigger RSTCC recovery.
+    // The app layer reads the mismatch bitmap via getCmdCountMismatches() and
+    // broadcasts the SegmentCMDCNT CAN message.
+    // handleCmdCountMismatches(detectCmdCountMismatches(rx_buffer));
+
     return regs;
 }
 

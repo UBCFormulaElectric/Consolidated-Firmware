@@ -13,9 +13,8 @@ enum class ErrorCode : uint8_t
     UNIMPLEMENTED,
     RETRY_FAILED,
     CHECKSUM_FAIL,
-    CMD_COUNT_MISMATCH,  // ADBMS6830B command counter (idk if this should be here)
-    INVALID_READING,     // sensor returned a sentinel/saturation value (bus likely OK)
-    ERROR_INDETERMINATE, // use this for when you don't know what the exit code is YET
+    INVALID_READING,
+    ERROR_INDETERMINATE,
     POLL_INVALID,
     NUM_EXIT_CODES,
 };
@@ -42,12 +41,12 @@ constexpr const char *error_code_to_string(const ErrorCode code)
             return "Retry failed";
         case ErrorCode::CHECKSUM_FAIL:
             return "Checksum fail";
-        case ErrorCode::CMD_COUNT_MISMATCH:
-            return "Command counter mismatch";
         case ErrorCode::INVALID_READING:
             return "Invalid reading (sentinel value)";
         case ErrorCode::ERROR_INDETERMINATE:
             return "Indeterminate error";
+        case ErrorCode::POLL_INVALID:
+            return "Poll invalid";
         case ErrorCode::NUM_EXIT_CODES:
         default:
             return "Unknown error code";

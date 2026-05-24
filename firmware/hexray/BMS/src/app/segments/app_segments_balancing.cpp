@@ -44,10 +44,11 @@ void updateCellsToBalance()
             }
 
             // Skip cells with failed owc or owc flagged
-            if (!cell_owc[seg][cell].value_or(false)) {
+            if (!cell_owc[seg][cell].value_or(false))
+            {
                 discharge_enabled[seg][cell] = false;
                 continue;
-             }
+            }
 
             // Never discharge the leader cell unless balancing to target voltage
             if (seg == min_cell_voltage.segment && cell == min_cell_voltage.cell &&

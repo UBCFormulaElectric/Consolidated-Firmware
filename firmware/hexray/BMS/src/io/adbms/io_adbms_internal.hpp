@@ -21,6 +21,9 @@ inline constexpr uint16_t WRCFGB = 0x0024U;
 inline constexpr uint16_t RDCFGA = 0x0002U;
 inline constexpr uint16_t RDCFGB = 0x0026U;
 
+// Reset Command Counter
+// inline constexpr uint16_t RSTCC = 0x002EU;
+
 // Cell voltages (C-ADC) — A..E only; 14 cells → Group F unused.
 inline constexpr uint16_t RDCVA = 0x0004U;
 inline constexpr uint16_t RDCVB = 0x0006U;
@@ -88,10 +91,8 @@ inline constexpr uint16_t ADAX2_BASE = 0x0400U;
 inline constexpr uint16_t SNAP   = 0x002DU;
 inline constexpr uint16_t UNSNAP = 0x002FU;
 
-// Counter resets — RSTCC clears the command counter, SRST puts the daisy chain
-// into sleep (which also resets CC to 0 on wake). Both are INC = No.
+// Counter resets — RSTCC clears the command counter
 inline constexpr uint16_t RSTCC = 0x002EU;
-inline constexpr uint16_t SRST  = 0x0027U;
 
 // ADCV and ADSV
 inline constexpr uint16_t RD   = 1U << 8; // redundant C + S ADC
@@ -150,4 +151,8 @@ inline constexpr uint16_t DEFAULT_REGISTER_VALUE = 0x8000;
  * @return Success if the write was acknowledged by the chip, or an error code if the SPI transaction failed
  */
 [[nodiscard]] result<void> writeRegGroup(uint16_t cmd, const array<array<uint8_t, REG_GROUP_SIZE>, NUM_SEGMENTS> &regs);
+
+// Returns a per-segment bitmap of command counter mismatches observed during
+// the last readRegGroup. Cleared/overwritten on each readRegGroup call.
+// Segments<bool> getCmdCountMismatches();
 } // namespace io::adbms

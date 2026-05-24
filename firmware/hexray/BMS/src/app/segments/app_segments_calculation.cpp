@@ -7,28 +7,16 @@
 namespace app::segments::calculate
 {
 Cells<result<bool>> cellOwc(
-    const std::array<result<Cells<result<float>>>, static_cast<size_t>(io::adbms::OpenWireSwitch::CHANNEL_COUNT)>
-        &owc_voltages)
+    const std::array<Cells<result<float>>, static_cast<size_t>(io::adbms::OpenWireSwitch::CHANNEL_COUNT)> &owc_voltages)
 {
     constexpr size_t NUM_C_PINS = CELLS_PER_SEGMENT + 1U;
 
     Cells<result<bool>> owc_cell;
 
-    const auto &odd_res  = owc_voltages[static_cast<size_t>(io::adbms::OpenWireSwitch::ODD_CHANNELS)];
-    const auto &even_res = owc_voltages[static_cast<size_t>(io::adbms::OpenWireSwitch::EVEN_CHANNELS)];
-
-    // If either channel's read failed entirely, propagate the error to every cell.
-    if (!odd_res || !even_res)
-    {
-        const ErrorCode err = !odd_res ? odd_res.error() : even_res.error();
-        for (size_t seg = 0; seg < NUM_SEGMENTS; seg++)
-            for (size_t cell = 0; cell < CELLS_PER_SEGMENT; cell++)
-                owc_cell[seg][cell] = std::unexpected(err);
-        return owc_cell;
-    }
-
-    const Cells<result<float>> &cell_odd_voltage  = odd_res.value();
-    const Cells<result<float>> &cell_even_voltage = even_res.value();
+    const Cells<result<float>> &cell_odd_voltage =
+        owc_voltages[static_cast<size_t>(io::adbms::OpenWireSwitch::ODD_CHANNELS)];
+    const Cells<result<float>> &cell_even_voltage =
+        owc_voltages[static_cast<size_t>(io::adbms::OpenWireSwitch::EVEN_CHANNELS)];
 
     for (size_t seg = 0; seg < NUM_SEGMENTS; seg++)
     {
@@ -117,26 +105,15 @@ Cells<result<bool>> cellOwc(
     return owc_cell;
 }
 
-Therms<result<float>> thermTemps(
-    const std::array<result<ThermGpios<result<float>>>, static_cast<size_t>(ThermistorMux::THERMISTOR_MUX_COUNT)>
-        &therm_voltages)
+Therms<result<float>>
+    thermTemps(const std::array<ThermGpios<result<float>>, static_cast<size_t>(ThermistorMux::THERMISTOR_MUX_COUNT)>
+                   &therm_voltages)
 {
     Therms<result<float>> out;
 
-    const auto &mux_0_7_res  = therm_voltages[static_cast<size_t>(ThermistorMux::THERMISTOR_MUX_0_7)];
-    const auto &mux_8_13_res = therm_voltages[static_cast<size_t>(ThermistorMux::THERMISTOR_MUX_8_13)];
-
-    if (!mux_0_7_res || !mux_8_13_res)
-    {
-        const ErrorCode err = !mux_0_7_res ? mux_0_7_res.error() : mux_8_13_res.error();
-        for (size_t seg = 0; seg < NUM_SEGMENTS; seg++)
-            for (size_t therm = 0; therm < THERMISTORS_PER_SEGMENT; therm++)
-                out[seg][therm] = std::unexpected(err);
-        return out;
-    }
-
-    const ThermGpios<result<float>> &therm_0_7  = mux_0_7_res.value();
-    const ThermGpios<result<float>> &therm_8_13 = mux_8_13_res.value();
+    const ThermGpios<result<float>> &therm_0_7 = therm_voltages[static_cast<size_t>(ThermistorMux::THERMISTOR_MUX_0_7)];
+    const ThermGpios<result<float>> &therm_8_13 =
+        therm_voltages[static_cast<size_t>(ThermistorMux::THERMISTOR_MUX_8_13)];
 
     for (size_t seg = 0; seg < NUM_SEGMENTS; seg++)
     {
@@ -160,26 +137,15 @@ Therms<result<float>> thermTemps(
     return out;
 }
 
-Therms<result<bool>> thermOwc(
-    const std::array<result<ThermGpios<result<float>>>, static_cast<size_t>(ThermistorMux::THERMISTOR_MUX_COUNT)>
-        &therm_voltages)
+Therms<result<bool>>
+    thermOwc(const std::array<ThermGpios<result<float>>, static_cast<size_t>(ThermistorMux::THERMISTOR_MUX_COUNT)>
+                 &therm_voltages)
 {
     Therms<result<bool>> out;
 
-    const auto &mux_0_7_res  = therm_voltages[static_cast<size_t>(ThermistorMux::THERMISTOR_MUX_0_7)];
-    const auto &mux_8_13_res = therm_voltages[static_cast<size_t>(ThermistorMux::THERMISTOR_MUX_8_13)];
-
-    if (!mux_0_7_res || !mux_8_13_res)
-    {
-        const ErrorCode err = !mux_0_7_res ? mux_0_7_res.error() : mux_8_13_res.error();
-        for (size_t seg = 0; seg < NUM_SEGMENTS; seg++)
-            for (size_t therm = 0; therm < THERMISTORS_PER_SEGMENT; therm++)
-                out[seg][therm] = std::unexpected(err);
-        return out;
-    }
-
-    const ThermGpios<result<float>> &therm_0_7  = mux_0_7_res.value();
-    const ThermGpios<result<float>> &therm_8_13 = mux_8_13_res.value();
+    const ThermGpios<result<float>> &therm_0_7 = therm_voltages[static_cast<size_t>(ThermistorMux::THERMISTOR_MUX_0_7)];
+    const ThermGpios<result<float>> &therm_8_13 =
+        therm_voltages[static_cast<size_t>(ThermistorMux::THERMISTOR_MUX_8_13)];
 
     for (size_t seg = 0; seg < NUM_SEGMENTS; seg++)
     {
