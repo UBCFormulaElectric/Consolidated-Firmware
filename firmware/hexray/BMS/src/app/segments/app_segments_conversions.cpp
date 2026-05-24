@@ -121,7 +121,6 @@ ThermGpios<result<float>> conversion::thermVoltage(const ThermistorMux mux)
     return out_therm;
 }
 
-
 Segments<result<float>> conversion::segVoltage()
 {
     const Segments<result<uint16_t>> seg_voltage = io::adbms::read::segVoltage();
@@ -159,9 +158,9 @@ Segments<io::adbms::StatusGroupsRes> conversion::status()
     return status;
 }
 
-Cells<result<float>> conversion::cellOwcVoltages(io::adbms::OpenWireSwitch channel)
+Cells<result<float>> conversion::cellOwcVoltages()
 {
-    Cells<result<float>> out_cell_owc;
+    Cells<result<float>>          out_cell_owc;
     const Cells<result<uint16_t>> cell_owc_voltage = io::adbms::read::secondaryCellVoltage();
 
     for (size_t seg = 0; seg < NUM_SEGMENTS; seg++)
@@ -172,8 +171,10 @@ Cells<result<float>> conversion::cellOwcVoltages(io::adbms::OpenWireSwitch chann
             if (!cell_owc_voltage[seg][cell])
             {
                 out_cell_owc[seg][cell] = std::unexpected(cell_owc_voltage[seg][cell].error());
-                seg_has_error       = true;
-            } else {
+                seg_has_error           = true;
+            }
+            else
+            {
                 out_cell_owc[seg][cell] = convertRegToVoltage(cell_owc_voltage[seg][cell].value());
             }
         }

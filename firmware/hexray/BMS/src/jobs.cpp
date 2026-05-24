@@ -193,16 +193,15 @@ void jobs_runAdbmsVoltages_tick()
         // Cell Open Wire Check Conversion
         for (const OpenWireSwitch channel : { OpenWireSwitch::ODD_CHANNELS, OpenWireSwitch::EVEN_CHANNELS })
         {
-            const auto idx   = static_cast<size_t>(channel);
             const auto poll1 = app::segments::startPoll::secondaryCellAdc(channel);
             const auto poll2 = app::segments::startPoll::secondaryCellAdc(channel);
             if (!poll1 || !poll2)
             {
-                owc_voltages[idx] = std::unexpected((!poll1 ? poll1 : poll2).error());
+                owc_voltages[static_cast<size_t>(channel)] = std::unexpected((!poll1 ? poll1 : poll2).error());
             }
             else
             {
-                owc_voltages[idx] = app::segments::conversion::cellOwcVoltages(channel);
+                owc_voltages[static_cast<size_t>(channel)] = app::segments::conversion::cellOwcVoltages();
             }
         }
     }

@@ -129,7 +129,7 @@ namespace conversion
     ThermGpios<result<float>>            thermVoltage(ThermistorMux mux);
     Segments<result<float>>              segVoltage();
     Segments<io::adbms::StatusGroupsRes> status();
-    Cells<result<float>>                 cellOwcVoltages(io::adbms::OpenWireSwitch channel);
+    Cells<result<float>>                 cellOwcVoltages();
 } // namespace conversion
 
 // app_segments_calculation.cpp

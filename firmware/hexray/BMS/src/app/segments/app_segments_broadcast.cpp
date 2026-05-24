@@ -149,7 +149,7 @@ void cellVoltages(const Cells<result<float>> &voltages)
         comm_ok_buffer[seg] = health::isOk(seg);
     }
 
-    health::setVoltageStats(voltages, candidate_min_cell_voltage, candidate_max_cell_voltage);
+    // health::setVoltageStats(voltages, candidate_min_cell_voltage, candidate_max_cell_voltage);
 
     using namespace io::can_tx;
     BMS_CellVoltages_Seg0_Seg3_sendAperiodic();
@@ -183,7 +183,7 @@ void thermTemps(const Therms<result<float>> &temps)
         comm_ok_buffer[seg] = health::isOk(seg);
     }
 
-    health::setMaxCellTemperature(candidate_max_cell_temp);
+    // health::setMaxCellTemperature(candidate_max_cell_temp);
 
     using namespace io::can_tx;
     BMS_CellTemps_Seg0_Seg3_sendAperiodic();
@@ -194,18 +194,18 @@ void thermTemps(const Therms<result<float>> &temps)
 
 void thermOwc(const Therms<result<bool>> &therm_owc)
 {
-    bool candidate_therm_owc = false;
+    // bool candidate_therm_owc = false;
     for (size_t seg = 0U; seg < NUM_SEGMENTS; seg++)
     {
         for (size_t therm = 0U; therm < THERMISTORS_PER_SEGMENT; therm++)
         {
             const bool ok                                        = therm_owc[seg][therm].value_or(true);
             therm_owc_ok_buffer[seg * CELLS_PER_SEGMENT + therm] = ok;
-            if (!ok)
-                candidate_therm_owc = true;
+            // if (!ok)
+            // candidate_therm_owc = true;
         }
     }
-    health::setThermOwc(candidate_therm_owc);
+    // health::setThermOwc(candidate_therm_owc);
 
     io::can_tx::BMS_ThermistorOpenWireCheck_sendAperiodic();
 }
@@ -323,7 +323,7 @@ void status(const Segments<io::adbms::StatusGroupsRes> &status)
 
 void cellOwc(const Cells<result<bool>> &owc_results)
 {
-    bool candidate_cell_owc = false;
+    // bool candidate_cell_owc = false;
 
     for (size_t seg = 0U; seg < NUM_SEGMENTS; seg++)
     {
@@ -331,12 +331,12 @@ void cellOwc(const Cells<result<bool>> &owc_results)
         {
             const bool ok                                      = owc_results[seg][cell].value_or(true);
             cell_owc_ok_buffer[seg * CELLS_PER_SEGMENT + cell] = ok;
-            if (!ok)
-                candidate_cell_owc = true;
+            // if (!ok)
+            //     candidate_cell_owc = true;
         }
     }
 
-    health::setCellOwc(candidate_cell_owc);
+    // health::setCellOwc(candidate_cell_owc);
 
     io::can_tx::BMS_CellOpenWireCheck_sendAperiodic();
 }

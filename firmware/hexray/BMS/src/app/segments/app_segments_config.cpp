@@ -164,8 +164,8 @@ Segments<result<bool>> sync()
                 // Daisy-chain SPI failure: leaves every segment in an unknown state.
                 return unexpected(up.error());
             }
-
-            if (const Segments<result<bool>> per_seg = isConfigEqual(); ranges::any_of(
+            const Segments<result<bool>> per_seg = isConfigEqual();
+            if (ranges::any_of(
                     per_seg,
                     [](const result<bool> &seg_ok_res) -> bool { return not(seg_ok_res and seg_ok_res.value()); }))
             {
@@ -176,7 +176,7 @@ Segments<result<bool>> sync()
                 return unexpected(ErrorCode::RETRY_FAILED); // no error, only 1+ bool = false
             }
             dirty = false;
-            return {};
+            return per_seg;
         },
         NUM_CONFIG_SYNC_TRIES);
 
