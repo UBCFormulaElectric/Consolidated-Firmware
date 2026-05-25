@@ -32,5 +32,5 @@ struct MaxCell
 };
 namespace app::batteryMonitoring
 {
-std::expected<void, ErrorCode> update();
+result<void> update();
 }

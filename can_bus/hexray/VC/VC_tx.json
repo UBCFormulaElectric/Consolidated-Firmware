@@ -765,49 +765,49 @@
       },
       "ChannelOneCurrent": {
         "resolution": 0.1,
-        "min": 0.0,
+        "min": -25.0,
         "max": 25.0,
         "unit": "A"
       },
       "ChannelTwoCurrent": {
         "resolution": 0.1,
-        "min": 0.0,
+        "min": -25.0,
         "max": 25.0,
         "unit": "A"
       },
       "ChannelThreeCurrent": {
         "resolution": 0.1,
-        "min": 0.0,
+        "min": -25.0,
         "max": 25.0,
         "unit": "A"
       },
       "ChannelFourCurrent": {
         "resolution": 0.1,
-        "min": 0.0,
+        "min": -25.0,
         "max": 25.0,
         "unit": "A"
       },
       "ChannelOnePower": {
         "resolution": 0.1,
-        "min": 0.0,
+        "min": -800.0,
         "max": 800.0,
         "unit": "W"
       },
       "ChannelTwoPower": {
         "resolution": 0.1,
-        "min": 0.0,
+        "min": -800.0,
         "max": 800.0,
         "unit": "W"
       },
       "ChannelThreePower": {
         "resolution": 0.1,
-        "min": 0.0,
+        "min": -800.0,
         "max": 800.0,
         "unit": "W"
       },
       "ChannelFourPower": {
         "resolution": 0.1,
-        "min": 0.0,
+        "min": -800.0,
         "max": 800.0,
         "unit": "W"
       },

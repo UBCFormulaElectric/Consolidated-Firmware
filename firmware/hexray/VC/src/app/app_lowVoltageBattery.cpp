@@ -35,7 +35,7 @@ constexpr std::array<CellBalance_BitMask, NUM_CELLS> CELL_BALANCE_MAP = {
  * @param voltages Array of cell voltages as floats
  * @return MinCell (value and index)
  */
-MinCell get_min(const std::array<std::expected<float, ErrorCode>, NUM_CELLS> &voltages)
+MinCell get_min(const std::array<result<float>, NUM_CELLS> &voltages)
 {
     MinCell min = { 0, std::numeric_limits<float>::max() };
 
@@ -46,7 +46,7 @@ MinCell get_min(const std::array<std::expected<float, ErrorCode>, NUM_CELLS> &vo
     }
     return min;
 }
-MaxCell get_max(const std::array<std::expected<float, ErrorCode>, NUM_CELLS> &voltages)
+MaxCell get_max(const std::array<result<float>, NUM_CELLS> &voltages)
 {
     MaxCell max = { 0, 0.0f };
 
@@ -64,9 +64,9 @@ MaxCell get_max(const std::array<std::expected<float, ErrorCode>, NUM_CELLS> &vo
  * @return uint16_t: the bit mask
  */
 uint16_t get_balance_mask(
-    const std::array<std::expected<float, ErrorCode>, NUM_CELLS> &voltages,
-    const MinCell                                                &min_cell,
-    BalancingPhase                                                phase)
+    const std::array<result<float>, NUM_CELLS> &voltages,
+    const MinCell                              &min_cell,
+    BalancingPhase                              phase)
 {
     uint16_t mask = 0x0000;
 
@@ -121,8 +121,7 @@ bool should_charge(float pack_voltage, MaxCell max_cell, MinCell min_cell)
     return charge_state == ChargeState::CHARGING;
 }
 
-[[maybe_unused]] std::expected<void, ErrorCode>
-    balancing_tick(const std::array<std::expected<float, ErrorCode>, NUM_CELLS> &voltages, const MinCell &min_cell)
+result<void> balancing_tick(const std::array<result<float>, NUM_CELLS> &voltages, const MinCell &min_cell)
 {
     switch (balance_state)
     {
@@ -165,7 +164,7 @@ bool should_charge(float pack_voltage, MaxCell max_cell, MinCell min_cell)
 
 namespace app::batteryMonitoring
 {
-std::expected<void, ErrorCode> update()
+result<void> update()
 {
     // 1. Initialize
     static bool init_done = false;
@@ -229,7 +228,7 @@ std::expected<void, ErrorCode> update()
     const auto cell2_voltage = io::batteryMonitoring::get_voltage_cell(CellReading::CELL2);
     const auto cell3_voltage = io::batteryMonitoring::get_voltage_cell(CellReading::CELL3);
     const auto cell4_voltage = io::batteryMonitoring::get_voltage_cell(CellReading::CELL4);
-    const std::array<std::expected<float, ErrorCode>, NUM_CELLS> cell_voltages = { {
+    const std::array<result<float>, NUM_CELLS> cell_voltages = { {
         cell1_voltage,
         cell2_voltage,
         cell3_voltage,

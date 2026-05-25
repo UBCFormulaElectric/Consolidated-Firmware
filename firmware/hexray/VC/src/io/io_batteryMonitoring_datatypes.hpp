@@ -3,6 +3,9 @@
 #include <array>
 
 // Commands for voltages
+/**
+ * @brief The commands for reading the voltages of the 4 cells
+ */
 enum class CellReading : uint8_t
 {
     CELL1 = 0x14,
@@ -10,6 +13,11 @@ enum class CellReading : uint8_t
     CELL3 = 0x1A,
     CELL4 = 0x1C
 };
+/**
+ * @brief
+ * PACK voltage is cell stack state
+ * LOAD voltage is after the FETS (don't rlly have this year), reading this confirms voltage is delivered past the IC
+ */
 enum SystemReading : uint8_t
 {
     PACK_V = 0x36,
@@ -77,18 +85,22 @@ inline constexpr uint16_t SUBCMD_DASTATUS5            = 0x0075;
 inline constexpr uint16_t SUBCMD_GET_INEGRATED_CHARGE = 0x0076;
 
 // Cell Balancing
-inline constexpr uint16_t CMD_TEMPERATURE_IC     = 0x68;
-inline constexpr uint16_t BALANCE_CFG            = 0x9335;
-inline constexpr uint16_t MAX_IC_TEMP            = 0x9338;
-inline constexpr uint16_t CELL_BALANCE_INTERVAL  = 0x9339; // 20 seconds default
-inline constexpr uint16_t MAX_CELLS_BALANCING    = 0x933A;
-inline constexpr uint16_t CELL_BALANCE_MIN_V     = 0x933F;
-inline constexpr uint16_t CELL_BALANCE_MIN_DELTA = 0x9341;
-inline constexpr uint16_t CELL_BALANCE_STOP_V    = 0x9342;
-inline constexpr uint16_t CB_ACTIVE_CELLS        = 0x0083;
-inline constexpr uint16_t CBSTATUS1              = 0x0085;
-inline constexpr uint16_t CBSTATUS2              = 0x0086;
-inline constexpr uint16_t CB_SET_LVL             = 0x0084;
+inline constexpr uint16_t CMD_TEMPERATURE_IC          = 0x68;
+inline constexpr uint16_t BALANCE_CFG                 = 0x9335;
+inline constexpr uint16_t MIN_CELL_TEMP               = 0x9336;
+inline constexpr uint16_t MAX_CELL_TEMP               = 0x9337;
+inline constexpr uint16_t MAX_IC_TEMP                 = 0x9338;
+inline constexpr uint16_t CELL_BALANCE_INTERVAL       = 0x9339; // 20 seconds default
+inline constexpr uint16_t MAX_CELLS_BALANCING         = 0x933A;
+inline constexpr uint16_t CELL_BALANCE_MIN_V_CHRG     = 0x933B;
+inline constexpr uint16_t CELL_BALANCE_MIN_V_DEL_CHRG = 0x933D;
+inline constexpr uint16_t CELL_BALANCE_MIN_V          = 0x933F;
+inline constexpr uint16_t CELL_BALANCE_MIN_DELTA      = 0x9341;
+inline constexpr uint16_t CELL_BALANCE_STOP_V         = 0x9342;
+inline constexpr uint16_t CB_ACTIVE_CELLS             = 0x0083;
+inline constexpr uint16_t CBSTATUS1                   = 0x0085;
+inline constexpr uint16_t CBSTATUS2                   = 0x0086;
+inline constexpr uint16_t CB_SET_LVL                  = 0x0084;
 
 // Protections
 inline constexpr uint16_t REG_PROTECTIONS_A   = 0x9261;
@@ -158,6 +170,7 @@ union AlertStatus
         uint16_t SSBC : 1; // This bit is set when a bit is set in Safety Status B() or Safety Status C().
     } bits;
     uint16_t raw_value;
+    static_assert(sizeof(bits) == sizeof(raw_value));
 };
 
 union BatteryStatus
@@ -182,6 +195,7 @@ union BatteryStatus
         uint16_t SLEEP : 1;
     } bits;
     uint16_t raw_value;
+    static_assert(sizeof(bits) == sizeof(raw_value));
 };
 
 union ControlStatus
@@ -195,6 +209,7 @@ union ControlStatus
         uint16_t RSVD1 : 5;
     } bits;
     uint16_t raw_value;
+    static_assert(sizeof(bits) == sizeof(raw_value));
 };
 union SafetyStatusA
 {
@@ -209,6 +224,7 @@ union SafetyStatusA
         uint8_t SCD : 1;  // Short Circuit in Discharge
     } bits;               // alerts associated with the battery chip
     uint8_t raw_status;
+    static_assert(sizeof(bits) == sizeof(raw_status));
 };
 union SafetyStatusB
 {
@@ -224,6 +240,7 @@ union SafetyStatusB
         uint8_t OTF : 1;
     } bits;
     uint8_t raw_status;
+    static_assert(sizeof(bits) == sizeof(raw_status));
 };
 union CUV
 {

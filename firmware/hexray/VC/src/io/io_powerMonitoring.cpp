@@ -31,7 +31,7 @@ constexpr float CH_ON_MINV = 5;
 
 // lsb scaling
 constexpr float VBUS_LSB = 4.88e-4f;
-constexpr float VSENSE_LSB(1.5259e-6f / 0.003f);
+constexpr float VSENSE_LSB(3.0518e-6f / 0.003f); // bipolar
 
 // formula for power
 constexpr float POWER_LSB = VBUS_LSB * VSENSE_LSB;
@@ -63,12 +63,11 @@ result<void> init()
 
     // 2) Config: CTRL: 1024 SPS continuous, all CH enabled, ALERT1 enabled.
     uint16_t               ctrl       = 0x0000; // 0b0000000000000000
-    std::array<uint8_t, 2> ctrl_bytes = { { (uint8_t)(ctrl >> 8), (uint8_t)(ctrl & 0xFF) } };
+    std::array<uint8_t, 2> ctrl_bytes = { { static_cast<uint8_t>(ctrl >> 8), static_cast<uint8_t>(ctrl & 0xFF) } };
     RETURN_IF_ERR(write_register(REG_CTRL, ctrl_bytes));
 
-    /*NOTE: the next two are already the default, configuration should be unneccsary*/
     // 3) FSR defaults
-    std::array<uint8_t, 2> fsr = { { 0, 0 } };
+    std::array<uint8_t, 2> fsr = { { 0x55, 0x00 } };
     RETURN_IF_ERR(write_register(REG_NEG_PWR_FSR, fsr));
 
     // 4) ENABLE VBUS AND VSENSE, all channels
@@ -84,9 +83,10 @@ result<void> init()
     uint16_t overvoltage  = 0x6E66;
     uint16_t undervoltage = 0x519A;
 
-    std::array<const uint8_t, 2> overvoltage_bytes = { { (uint8_t)(overvoltage >> 8), (uint8_t)(overvoltage & 0xFF) } };
-    std::array<const uint8_t, 2> undervoltage_bytes = { { (uint8_t)(undervoltage >> 8),
-                                                          (uint8_t)(undervoltage & 0xFF) } };
+    std::array<const uint8_t, 2> overvoltage_bytes  = { { static_cast<uint8_t>(overvoltage >> 8),
+                                                          static_cast<uint8_t>(overvoltage & 0xFF) } };
+    std::array<const uint8_t, 2> undervoltage_bytes = { { static_cast<uint8_t>(undervoltage >> 8),
+                                                          static_cast<uint8_t>(undervoltage & 0xFF) } };
 
     for (uint8_t i = 0; i < CHANNEL_NUM; i++)
     {
@@ -117,40 +117,40 @@ result<void> init()
 result<float> read_voltage(Channel ch)
 {
     std::array<uint8_t, 2> buf;
-    uint8_t                reg = (uint8_t)(REG_VBUS + (ch - 1));
+    uint8_t                reg = static_cast<uint8_t>(REG_VBUS + (ch - 1));
     RETURN_IF_ERR(read_register(reg, buf));
 
     // msb first
-    uint16_t raw = (uint16_t)((buf[0] << 8) | buf[1]);
+    uint16_t raw = static_cast<uint16_t>((buf[0] << 8) | buf[1]);
     return (raw * VBUS_LSB);
 }
 
 result<float> read_current(Channel ch)
 {
     std::array<uint8_t, 2> buf;
-    uint8_t                reg = (uint8_t)(REG_VSENSE + (ch - 1));
+    uint8_t                reg = static_cast<uint16_t>(REG_VSENSE + (ch - 1));
     RETURN_IF_ERR(read_register(reg, buf));
 
-    // MSB first
-    uint16_t raw = (uint16_t)((buf[0] << 8) | buf[1]);
+    // MSB first, signed for bidirectional mode
+    int16_t raw = static_cast<uint16_t>((buf[0] << 8) | buf[1]);
     return (raw * VSENSE_LSB);
 }
 
 result<float> read_power(Channel ch)
 {
     std::array<uint8_t, 4> buf;
-    uint8_t                reg = (uint8_t)(REG_VPOWERN + (ch - 1));
+    uint8_t                reg = static_cast<uint8_t>(REG_VPOWERN + (ch - 1));
 
     RETURN_IF_ERR(read_register(reg, buf));
 
     // MSB first
-    uint32_t raw30 =
-        (((uint32_t)buf[0]) << 24) | (((uint32_t)buf[1]) << 16) | (((uint32_t)buf[2]) << 8) | ((uint32_t)buf[3]);
+    int32_t raw = (static_cast<uint32_t>(buf[0]) << 24) | (static_cast<uint32_t>(buf[1]) << 16) |
+                  (static_cast<uint32_t>(buf[2]) << 8) | (static_cast<uint32_t>(buf[3]));
 
-    // unimplemented first two bits
-    raw30 &= 0x3FFFFFFFU;
+    // clear bits 31:30 garbage, sign extend from bit 29
+    raw = (raw << 2) >> 2;
 
-    return ((float)raw30 * POWER_LSB);
+    return ((float)raw * POWER_LSB);
 }
 
 result<uint8_t> read_alert_status()

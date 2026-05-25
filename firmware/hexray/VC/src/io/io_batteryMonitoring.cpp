@@ -18,53 +18,53 @@ namespace io::batteryMonitoring
 static volatile bool alert_pending = false;
 
 // Static function declarations
-static std::expected<void, ErrorCode> read_register(uint16_t reg, std::span<uint8_t> data);
-static std::expected<void, ErrorCode> write_register(uint16_t reg, std::span<uint8_t> data);
+static result<void> read_register(uint16_t reg, std::span<uint8_t> data);
+static result<void> write_register(uint16_t reg, std::span<uint8_t> data);
 
-static std::expected<void, ErrorCode> command_read_byte(uint8_t command_addr, uint8_t *data);
-static std::expected<void, ErrorCode> command_write_byte(uint8_t command_addr, uint8_t data);
-static std::expected<void, ErrorCode> command_read_2byte(uint8_t command_addr, uint16_t *data);
-static std::expected<void, ErrorCode> command_write_2byte(uint8_t command_addr, uint16_t data);
+static result<void> command_read_byte(uint8_t command_addr, uint8_t *data);
+static result<void> command_write_byte(uint8_t command_addr, uint8_t data);
+static result<void> command_read_2byte(uint8_t command_addr, uint16_t *data);
+static result<void> command_write_2byte(uint8_t command_addr, uint16_t data);
 
-static std::expected<void, ErrorCode> read_subcommand(uint16_t sub_cmd, std::span<uint8_t> data);
-static std::expected<void, ErrorCode> write_subcommand(uint16_t sub_cmd, std::span<uint8_t> data);
-static std::expected<void, ErrorCode> execute_subcommand(uint16_t sub_cmd);
+static result<void> read_subcommand(uint16_t sub_cmd, std::span<uint8_t> data);
+static result<void> write_subcommand(uint16_t sub_cmd, std::span<uint8_t> data);
+static result<void> execute_subcommand(uint16_t sub_cmd);
 
-static std::expected<void, ErrorCode> balancing_init();
-static std::expected<void, ErrorCode> protection_init();
-static std::expected<void, ErrorCode> fets_init();
+static result<void> balancing_init();
+static result<void> protection_init();
+static result<void> fets_init();
 
 /* -------------------- Helpers ------------------------- */
-static std::expected<void, ErrorCode> read_register(uint16_t reg, std::span<uint8_t> data)
+static result<void> read_register(uint16_t reg, std::span<uint8_t> data)
 {
     auto result = util::retry([&]() { return bat_mon.memoryRead(reg, data); }, 5);
     return result;
 }
-static std::expected<void, ErrorCode> write_register(uint16_t reg, std::span<uint8_t> data)
+static result<void> write_register(uint16_t reg, std::span<uint8_t> data)
 {
     auto result = util::retry([&]() { return bat_mon.memoryWrite(reg, data); }, 5);
     return result;
 }
 /* -------------------- Commands ------------------------- */
-static std::expected<void, ErrorCode> command_read_byte(uint8_t command_addr, uint8_t *data)
+static result<void> command_read_byte(uint8_t command_addr, uint8_t *data)
 {
     *data = 0;
     RETURN_IF_ERR_SILENT(read_register(command_addr, std::span(data, 1)));
     return {};
 }
-[[maybe_unused]] static std::expected<void, ErrorCode> command_write_byte(uint8_t command_addr, uint8_t data)
+[[maybe_unused]] static result<void> command_write_byte(uint8_t command_addr, uint8_t data)
 {
     RETURN_IF_ERR_SILENT(write_register(command_addr, std::span(&data, 1)));
     return {};
 }
-static std::expected<void, ErrorCode> command_read_2byte(uint8_t command_addr, uint16_t *data)
+static result<void> command_read_2byte(uint8_t command_addr, uint16_t *data)
 {
     uint8_t rx_buffer[2] = { 0, 0 };
     RETURN_IF_ERR(read_register(command_addr, std::span(rx_buffer, 2)));
     *data = static_cast<uint16_t>((rx_buffer[1] << 8) | rx_buffer[0]);
     return {};
 }
-static std::expected<void, ErrorCode> command_write_2byte(uint8_t command_addr, uint16_t data)
+static result<void> command_write_2byte(uint8_t command_addr, uint16_t data)
 {
     uint8_t tx_buffer[2];
     tx_buffer[0] = static_cast<uint8_t>(data & 0xFF);
@@ -74,7 +74,7 @@ static std::expected<void, ErrorCode> command_write_2byte(uint8_t command_addr, 
 }
 /* -------------------- Subcommands ------------------------- */
 // NOTE: Data memory access is conducted in a similar fashion to subcommands, use these helpers for data memory
-[[maybe_unused]] std::expected<void, ErrorCode> read_subcommand(uint16_t sub_cmd, std::span<uint8_t> data)
+[[maybe_unused]] result<void> read_subcommand(uint16_t sub_cmd, std::span<uint8_t> data)
 {
     if (data.size() > 32u)
     {
@@ -149,7 +149,7 @@ static std::expected<void, ErrorCode> command_write_2byte(uint8_t command_addr, 
 
     return {};
 }
-static std::expected<void, ErrorCode> write_subcommand(uint16_t sub_cmd, std::span<uint8_t> data)
+static result<void> write_subcommand(uint16_t sub_cmd, std::span<uint8_t> data)
 {
     // The transfer buffer is 32 bytes max
     if (data.size() > 32u)
@@ -189,7 +189,7 @@ static std::expected<void, ErrorCode> write_subcommand(uint16_t sub_cmd, std::sp
 
     return {};
 }
-static std::expected<void, ErrorCode> execute_subcommand(uint16_t sub_cmd)
+static result<void> execute_subcommand(uint16_t sub_cmd)
 {
     uint8_t low_byte  = static_cast<uint8_t>(sub_cmd & 0x00FF);
     uint8_t high_byte = static_cast<uint8_t>(sub_cmd >> 8);
@@ -204,7 +204,7 @@ static std::expected<void, ErrorCode> execute_subcommand(uint16_t sub_cmd)
  * @param CellReading The cell you want to read (ie: CellReading::CELL1)
  * @return The voltage on success, erorcode if messed up
  */
-std::expected<float, ErrorCode> get_voltage_cell(CellReading cell)
+result<float> get_voltage_cell(CellReading cell)
 {
     uint16_t cell_voltage = 0;
     RETURN_IF_ERR(command_read_2byte((uint8_t)cell, &cell_voltage));
@@ -215,7 +215,7 @@ std::expected<float, ErrorCode> get_voltage_cell(CellReading cell)
  * @param SystemReading The thing u want to read (ie: SystemReding::Pack)
  * @return The voltage on success, erorcode if messed up
  */
-std::expected<float, ErrorCode> get_voltage_system(SystemReading system)
+result<float> get_voltage_system(SystemReading system)
 {
     uint16_t system_voltage = 0;
     RETURN_IF_ERR(command_read_2byte(system, &system_voltage));
@@ -228,7 +228,7 @@ std::expected<float, ErrorCode> get_voltage_system(SystemReading system)
  * @param void
  * @return float value of current
  */
-std::expected<float, ErrorCode> get_current()
+result<float> get_current()
 {
     uint16_t raw_current = 0;
     RETURN_IF_ERR(command_read_2byte(CMD_GETCURRENT, &raw_current));
@@ -238,7 +238,7 @@ std::expected<float, ErrorCode> get_current()
 
 /* -------------------- Charge Readings ------------------------- */
 // I'm not 100% sure about the purpose of this yet, ik its important for SOC but idk past that
-std::expected<uint64_t, ErrorCode> get_integrated_charge()
+result<uint64_t> get_integrated_charge()
 {
     std::array<uint8_t, 8> integrated_charge;
     RETURN_IF_ERR(read_subcommand(SUBCMD_GET_INEGRATED_CHARGE, integrated_charge));
@@ -253,7 +253,7 @@ std::expected<uint64_t, ErrorCode> get_integrated_charge()
  * @param void
  * @return float value of current
  */
-std::expected<float, ErrorCode> get_temperatureIC()
+result<float> get_temperatureIC()
 {
     uint16_t raw_temp = 0;
     RETURN_IF_ERR(command_read_2byte(CMD_TEMPERATURE_IC, &raw_temp));
@@ -266,7 +266,7 @@ std::expected<float, ErrorCode> get_temperatureIC()
  * (Sections 10.1 and 10.2, pg. 75)
  * @param void
  */
-[[maybe_unused]] static std::expected<void, ErrorCode> balancing_init()
+[[maybe_unused]] static result<void> balancing_init()
 {
     uint8_t cell_balancing = 0x00;
     RETURN_IF_ERR(write_subcommand(BALANCE_CFG, std::span<uint8_t>(&cell_balancing, 1)));
@@ -301,7 +301,7 @@ std::expected<float, ErrorCode> get_temperatureIC()
  * @brief Related to manual cell balancing, sending a subcommand to manually balance.
  * @param cell the cell you wish you balance (etc: CellBalance_BitMask::CELL1)
  */
-std::expected<void, ErrorCode> send_balancing_subcommand(CellBalance_BitMask cell)
+result<void> send_balancing_subcommand(CellBalance_BitMask cell)
 {
     std::array<uint8_t, 2> cell_to_balance = { { (uint8_t)((uint16_t)cell & 0xFF), (uint8_t)((uint16_t)cell >> 8) } };
     RETURN_IF_ERR(write_subcommand(CB_ACTIVE_CELLS, cell_to_balance));
@@ -312,7 +312,7 @@ std::expected<void, ErrorCode> send_balancing_subcommand(CellBalance_BitMask cel
  * @param void
  * @return uint16_t a mask of the cells that are being balanced.
  */
-std::expected<uint16_t, ErrorCode> read_balancing_subcommand()
+result<uint16_t> read_balancing_subcommand()
 {
     std::array<uint8_t, 2> buf = { { 0, 0 } };
     const auto             err = read_subcommand(CB_ACTIVE_CELLS, buf);
@@ -325,14 +325,14 @@ std::expected<uint16_t, ErrorCode> read_balancing_subcommand()
  * @brief Manually balances every cell that is over a certain voltage
  * @param threshold_mV the threshold in mV you want to surpass
  */
-std::expected<void, ErrorCode> send_balancing_above_threshold(uint16_t threshold_mV)
+result<void> send_balancing_above_threshold(uint16_t threshold_mV)
 {
     std::array<uint8_t, 2> payload = { { static_cast<uint8_t>(threshold_mV & 0xFF),
                                          static_cast<uint8_t>((threshold_mV >> 8) & 0xFF) } };
     RETURN_IF_ERR(write_subcommand(0x0084, payload));
     return {};
 }
-std::expected<void, ErrorCode> stop_balancing_subcommand()
+result<void> stop_balancing_subcommand()
 {
     std::array<uint8_t, 2> cell_to_balance = { { 0x00, 0x00 } };
     RETURN_IF_ERR(write_subcommand(CB_ACTIVE_CELLS, cell_to_balance));
@@ -341,7 +341,7 @@ std::expected<void, ErrorCode> stop_balancing_subcommand()
 
 /* -------------------- Read Status/Alarm Registers ------------------------- */
 
-std::expected<int16_t, ErrorCode> read_currentcc1()
+result<int16_t> read_currentcc1()
 {
     std::array<uint8_t, 32> buf{};
     RETURN_IF_ERR(read_subcommand(0x0075, buf));
@@ -351,14 +351,14 @@ std::expected<int16_t, ErrorCode> read_currentcc1()
     return cc1;
 }
 
-std::expected<uint16_t, ErrorCode> read_balacing_time_seconds()
+result<uint16_t> balacing_time_elapsed()
 {
     std::array<uint8_t, 2> buf = { { 0, 0 } };
     RETURN_IF_ERR(read_subcommand(CBSTATUS1, buf));
     return static_cast<uint16_t>(static_cast<uint16_t>(buf[0]) | (static_cast<uint16_t>(buf[1]) << 8));
 }
 
-std::expected<AlertStatus, ErrorCode> read_alarm_status()
+result<AlertStatus> read_alarm_status()
 {
     AlertStatus status{};
     RETURN_IF_ERR(command_read_2byte(CMD_ALARM_STATUS, &status.raw_value));
@@ -369,7 +369,7 @@ std::expected<AlertStatus, ErrorCode> read_alarm_status()
  * @brief Initializing Protections
  * @param void
  */
-[[unused]] static std::expected<void, ErrorCode> protection_init()
+[[maybe_unused]] static result<void> protection_init()
 {
     // 1. ALERT Pin Configuration
     uint8_t alert = 0x82; // maybe 0x02
@@ -402,7 +402,7 @@ std::expected<AlertStatus, ErrorCode> read_alarm_status()
     return {};
 }
 
-std::expected<std::array<uint16_t, 5>, ErrorCode> get_voltage_UV(uint16_t sub_cmd)
+result<std::array<uint16_t, 5>> get_voltage_UV(uint16_t sub_cmd)
 {
     CUV                     cuv{};
     std::array<uint16_t, 5> parsed_snapshot_voltages{};
@@ -422,7 +422,7 @@ std::expected<std::array<uint16_t, 5>, ErrorCode> get_voltage_UV(uint16_t sub_cm
     return parsed_snapshot_voltages;
 }
 
-std::expected<std::array<uint16_t, 5>, ErrorCode> get_voltage_OV(uint16_t sub_cmd)
+result<std::array<uint16_t, 5>> get_voltage_OV(uint16_t sub_cmd)
 {
     COV                     cov{};
     std::array<uint16_t, 5> parsed_snapshot_voltages{};
@@ -451,41 +451,50 @@ void alert_handler()
 }
 bool consume_alert_pending()
 {
+    taskENTER_CRITICAL();
     const bool was_pending = alert_pending;
     alert_pending          = false;
+    taskEXIT_CRITICAL();
     return was_pending;
 }
 
-std::expected<SafetyStatusA, ErrorCode> get_safety_alert_a()
+result<SafetyStatusA> get_safety_alert_a()
 {
     SafetyStatusA status{};
     RETURN_IF_ERR(command_read_byte(CMD_SAFETY_STATUS_A, &status.raw_status));
     return status;
 }
-std::expected<SafetyStatusB, ErrorCode> get_safety_alert_b()
+result<SafetyStatusB> get_safety_alert_b()
 {
     SafetyStatusB status{};
     RETURN_IF_ERR(command_read_byte(CMD_SAFETY_STATUS_B, &status.raw_status));
     return status;
 }
 
-std::expected<void, ErrorCode> fets_init()
+[[maybe_unused]] result<void> fets_init()
 {
     RETURN_IF_ERR(execute_subcommand(SUBCMD_ALL_FETS_ON)); // 0x0096
     LOG_INFO("FETs enabled");
     return {};
 }
 
-std::expected<void, ErrorCode> init()
+result<void> init()
 {
     // 1. Is chip responsive
     RETURN_IF_ERR(bat_mon.isTargetReady());
 
     // 2.0 Check to see if chip is in DEEPSLEEP
     ControlStatus control_status{};
+    uint32_t      deepsleep_attempt = 0;
     RETURN_IF_ERR(command_read_2byte(CMD_CONTROL_STATUS, &control_status.raw_value));
     while (control_status.bits.DEEPSLEEP)
     {
+        if (deepsleep_attempt >= RETRIES)
+        {
+            LOG_ERROR("Failed to wake device from deepsleep");
+            return std::unexpected(ErrorCode::TIMEOUT);
+            deepsleep_attempt++;
+        }
         LOG_WARN("Device in deepsleep mode");
         RETURN_IF_ERR(execute_subcommand(SUBCMD_WAKE_DEEPSLEEP));
         RETURN_IF_ERR(command_read_2byte(CMD_CONTROL_STATUS, &control_status.raw_value));
@@ -494,9 +503,16 @@ std::expected<void, ErrorCode> init()
 
     // 2.1 Check to see if the device is in SLEEP
     BatteryStatus battery_status{};
+    uint32_t      sleep_attempt = 0;
     RETURN_IF_ERR(command_read_2byte(CMD_BATTERY_STATUS, &battery_status.raw_value));
     while (battery_status.bits.SLEEP)
     {
+        if (sleep_attempt >= RETRIES)
+        {
+            LOG_ERROR("Failed to wake device from sleep");
+            return std::unexpected(ErrorCode::TIMEOUT);
+            sleep_attempt++;
+        }
         LOG_WARN("Device in sleep mode");
         RETURN_IF_ERR(execute_subcommand(SUBCMD_WAKE_SLEEP));
         RETURN_IF_ERR(command_read_2byte(CMD_BATTERY_STATUS, &battery_status.raw_value));
@@ -545,25 +561,7 @@ std::expected<void, ErrorCode> init()
     // 5. Must do this because init will need to be called whenever GLVMS has been switched off
     RETURN_IF_ERR(execute_subcommand(SUBCMD_RESETCHARGEACCUM));
 
-    fets_init();
-
-    return {};
-}
-
-std::expected<void, ErrorCode> get_Ttemperature()
-{
-    uint16_t int_temp = 0;
-    RETURN_IF_ERR(command_read_2byte(0x68, &int_temp));
-    uint16_t CFETOFF_temp = 0;
-    RETURN_IF_ERR(command_read_2byte(0x6A, &CFETOFF_temp));
-    uint16_t DFETOFF_temp = 0;
-    RETURN_IF_ERR(command_read_2byte(0x6C, &DFETOFF_temp));
-    uint16_t ALERT_temp = 0;
-    RETURN_IF_ERR(command_read_2byte(0x6E, &ALERT_temp));
-    uint16_t TS1_temp = 0;
-    RETURN_IF_ERR(command_read_2byte(0x70, &TS1_temp));
-    uint16_t TS2_temp = 0;
-    RETURN_IF_ERR(command_read_2byte(0x72, &TS2_temp));
+    // fets_init();
 
     return {};
 }
