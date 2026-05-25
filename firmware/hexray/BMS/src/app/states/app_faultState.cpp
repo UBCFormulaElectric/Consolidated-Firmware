@@ -3,7 +3,6 @@
 #include "io_irs.hpp"
 #include "io_faultLatch.hpp"
 #include "app_canTx.hpp"
-#include "app_canAlerts.hpp"
 
 namespace app::states
 {
@@ -20,19 +19,11 @@ namespace faultState
 
     static void runOnTick100Hz()
     {
-#ifdef TARGET_HV_SUPPLY
-        const bool acc_fault_cleared = true;
-#else
-        // TODO: Change back if we ever get to segments again
-        // const bool acc_fault_cleared = !app::segments::checkFaults();
-        const bool acc_fault_cleared = true;
-#endif
-
-        // const bool precharge_ok = !app_precharge_limitExceeded(); // Optional condition
-
-        const bool bms_fault_cleared = bms_ok_latch.getLatchedStatus() == io::FaultLatch::FaultLatchState::OK;
-
-        if (acc_fault_cleared && bms_fault_cleared)
+        // bms_ok_latch is hardware-latched: once tripped it stays FAULT until externally
+        // reset, and alerts::tick() in jobs.cpp re-trips it every cycle a segment fault
+        // is active. So the latch returning OK is the single source of truth for "the
+        // segment/ADBMS fault has cleared and the operator has acknowledged it."
+        if (bms_ok_latch.getLatchedStatus() == io::FaultLatch::FaultLatchState::OK)
         {
             app::StateMachine::set_next_state(&init_state);
         }

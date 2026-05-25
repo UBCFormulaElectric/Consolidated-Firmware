@@ -126,12 +126,15 @@ namespace shared
     void setSegmentVoltageStats(const Segments<result<float>> latest);
 } // namespace shared
 
-// app_segments_faults.cpp
-// namespace faults
-// {
-//     bool checkWarnings();
-//     bool checkFaults();
-// } // namespace faults
+// app_segments_alerts.cpp
+namespace alerts
+{
+    void init();
+    // Evaluates all warning/fault/info conditions through their debounce timers and
+    // calls the matching app::can_alerts setters. Returns true iff at least one
+    // fault entry is currently firing — drive bms_ok_latch off this directly.
+    bool tick();
+} // namespace alerts
 
 // app_segments_conversions.cpp
 namespace startPoll

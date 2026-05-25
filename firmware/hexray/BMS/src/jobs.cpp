@@ -66,6 +66,7 @@ void jobs_init()
     app::can_tx::BMS_Heartbeat_set(true);
 
     app::precharge::init();
+    app::segments::alerts::init();
 
     app::StateMachine::init(&app::states::init_state);
     app::can_tx::BMS_Heartbeat_set(true);
@@ -98,11 +99,8 @@ void jobs_run100Hz_tick()
     // Charger connection status
     app::can_tx::BMS_ChargerConnectedType_set(io::charger::getConnectionStatus());
 
-    // Fault Latches
     using FaultLatchState = io::FaultLatch::FaultLatchState;
-    // app::segments::faults::checkWarnings();
-    // const bool acc_fault = app::segments::faults::checkFaults();
-    const bool acc_fault = false;
+    const bool acc_fault  = app::segments::alerts::tick();
     bms_ok_latch.setCurrentStatus(acc_fault ? FaultLatchState::FAULT : FaultLatchState::OK);
     app::latches::broadcast();
 

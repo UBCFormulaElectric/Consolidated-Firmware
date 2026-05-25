@@ -2,33 +2,21 @@
   "warnings_id": 401,
   "warnings_counts_id": 403,
   "warnings": {
-    "CellUndervoltage": {
+    "CellUnderVoltage": {
       "id": 446,
-      "description": "Cell is critically undervoltage"
+      "description": "Cell is undervoltage"
     },
-    "CellOvervoltage": {
+    "CellOverVoltage": {
       "id": 447,
-      "description": "Cell is critically overvoltage"
+      "description": "Cell is overvoltage"
     },
-    "CellOvertemp": {
+    "CellOverTemp": {
       "id": 448,
-      "description": "Cell is critically overtemp"
-    },
-    "CellOpenWire": {
-      "id": 449,
-      "description": "Open wire detected on cell voltage sense line"
-    },
-    "ModuleCommunicationError": {
-      "id": 450,
-      "description": "Failed to communicate with ADBMS modules."
+      "description": "Cell is overtemp"
     },
     "TsOvercurrent": {
       "id": 451,
       "description": "Tractive system overcurrent detected"
-    },
-    "ThermOpenWire": {
-      "id": 957,
-      "description": "Open wire detected on a thermistor sense line"
     }
   },
   "faults_id": 402,
@@ -36,23 +24,23 @@
   "faults": {
     "CellUndervoltage": {
       "id": 452,
-      "description": "Cell is undervoltage"
+      "description": "Cell is critically undervoltage"
     },
     "CellOvervoltage": {
       "id": 453,
-      "description": "Cell is overvoltage"
+      "description": "Cell is critically overvoltage"
     },
     "CellOvertemp": {
       "id": 454,
-      "description": "Cell is overtemp"
+      "description": "Cell is critically overtemp"
     },
     "CellOpenWire": {
       "id": 455,
       "description": "Open wire detected on cell voltage sense line"
     },
-    "ModuleCommunicationError": {
-      "id": 456,
-      "description": "Failed to communicate with ADBMS modules."
+    "HealthError": {
+      "id": 450,
+      "description": "Errorcode raised in ADBMS code"
     },
     "ImdLatched": {
       "id": 457,
@@ -89,6 +77,10 @@
     "MissingVCHeartbeat": {
       "id": 464,
       "description": "Missing VC heartbeat signal"
+    },
+    "ThermOpenWire": {
+      "id": 957,
+      "description": "Open wire detected on a thermistor sense line"
     }
   }
 }
