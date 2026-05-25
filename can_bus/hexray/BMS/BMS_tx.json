@@ -165,172 +165,6 @@
       }
     }
   },
-  "CellVoltageStats": {
-    "msg_id": 419,
-    "cycle_time": 100,
-    "description": "Min/max cell voltage with segment + cell index",
-    "signals": {
-      "MinCellVoltage": { "resolution": 0.001, "min": 0, "max": 5, "unit": "V" },
-      "MinCellVoltageSegment": { "resolution": 1, "min": 0, "max": 9 },
-      "MinCellVoltageCell": { "resolution": 1, "min": 0, "max": 13 },
-      "MaxCellVoltage": { "resolution": 0.001, "min": 0, "max": 5, "unit": "V" },
-      "MaxCellVoltageSegment": { "resolution": 1, "min": 0, "max": 9 },
-      "MaxCellVoltageCell": { "resolution": 1, "min": 0, "max": 13 }
-    }
-  },
-  "CellTempStats": {
-    "msg_id": 420,
-    "cycle_time": 100,
-    "description": "Min/max cell temperature with segment + thermistor index",
-    "signals": {
-      "MinCellTemp": { "resolution": 0.1, "min": -20, "max": 100, "unit": "degC" },
-      "MinCellTempSegment": { "resolution": 1, "min": 0, "max": 9 },
-      "MinCellTempCell": { "resolution": 1, "min": 0, "max": 13 },
-      "MaxCellTemp": { "resolution": 0.1, "min": -20, "max": 100, "unit": "degC" },
-      "MaxCellTempSegment": { "resolution": 1, "min": 0, "max": 9 },
-      "MaxCellTempCell": { "resolution": 1, "min": 0, "max": 13 }
-    }
-  },
-  "SegmentVoltageStats": {
-    "msg_id": 421,
-    "cycle_time": 100,
-    "description": "Min/max segment voltage with segment index",
-    "signals": {
-      "MinSegmentVoltage": { "resolution": 0.01, "min": 0, "max": 65, "unit": "V" },
-      "MinSegmentVoltageSegment": { "resolution": 1, "min": 0, "max": 9 },
-      "MaxSegmentVoltage": { "resolution": 0.01, "min": 0, "max": 65, "unit": "V" },
-      "MaxSegmentVoltageSegment": { "resolution": 1, "min": 0, "max": 9 }
-    }
-  },
-  "SegmentHealthErrors": {
-    "msg_id": 475,
-    "cycle_time": null,
-    "description": "Per-segment health error bits (9 bits per segment, 10 segments). True = error set.",
-    "signals": {
-      "Seg0_CellAdcPoll": { "bits": 1 },
-      "Seg0_AuxAdcPoll": { "bits": 1 },
-      "Seg0_OwcAdcPoll": { "bits": 1 },
-      "Seg0_CellVoltage": { "bits": 1 },
-      "Seg0_CellOwcVoltage": { "bits": 1 },
-      "Seg0_ThermVoltage": { "bits": 1 },
-      "Seg0_SegVoltage": { "bits": 1 },
-      "Seg0_Status": { "bits": 1 },
-      "Seg0_Config": { "bits": 1 },
-      "Seg1_CellAdcPoll": { "bits": 1 },
-      "Seg1_AuxAdcPoll": { "bits": 1 },
-      "Seg1_OwcAdcPoll": { "bits": 1 },
-      "Seg1_CellVoltage": { "bits": 1 },
-      "Seg1_CellOwcVoltage": { "bits": 1 },
-      "Seg1_ThermVoltage": { "bits": 1 },
-      "Seg1_SegVoltage": { "bits": 1 },
-      "Seg1_Status": { "bits": 1 },
-      "Seg1_Config": { "bits": 1 },
-      "Seg2_CellAdcPoll": { "bits": 1 },
-      "Seg2_AuxAdcPoll": { "bits": 1 },
-      "Seg2_OwcAdcPoll": { "bits": 1 },
-      "Seg2_CellVoltage": { "bits": 1 },
-      "Seg2_CellOwcVoltage": { "bits": 1 },
-      "Seg2_ThermVoltage": { "bits": 1 },
-      "Seg2_SegVoltage": { "bits": 1 },
-      "Seg2_Status": { "bits": 1 },
-      "Seg2_Config": { "bits": 1 },
-      "Seg3_CellAdcPoll": { "bits": 1 },
-      "Seg3_AuxAdcPoll": { "bits": 1 },
-      "Seg3_OwcAdcPoll": { "bits": 1 },
-      "Seg3_CellVoltage": { "bits": 1 },
-      "Seg3_CellOwcVoltage": { "bits": 1 },
-      "Seg3_ThermVoltage": { "bits": 1 },
-      "Seg3_SegVoltage": { "bits": 1 },
-      "Seg3_Status": { "bits": 1 },
-      "Seg3_Config": { "bits": 1 },
-      "Seg4_CellAdcPoll": { "bits": 1 },
-      "Seg4_AuxAdcPoll": { "bits": 1 },
-      "Seg4_OwcAdcPoll": { "bits": 1 },
-      "Seg4_CellVoltage": { "bits": 1 },
-      "Seg4_CellOwcVoltage": { "bits": 1 },
-      "Seg4_ThermVoltage": { "bits": 1 },
-      "Seg4_SegVoltage": { "bits": 1 },
-      "Seg4_Status": { "bits": 1 },
-      "Seg4_Config": { "bits": 1 },
-      "Seg5_CellAdcPoll": { "bits": 1 },
-      "Seg5_AuxAdcPoll": { "bits": 1 },
-      "Seg5_OwcAdcPoll": { "bits": 1 },
-      "Seg5_CellVoltage": { "bits": 1 },
-      "Seg5_CellOwcVoltage": { "bits": 1 },
-      "Seg5_ThermVoltage": { "bits": 1 },
-      "Seg5_SegVoltage": { "bits": 1 },
-      "Seg5_Status": { "bits": 1 },
-      "Seg5_Config": { "bits": 1 },
-      "Seg6_CellAdcPoll": { "bits": 1 },
-      "Seg6_AuxAdcPoll": { "bits": 1 },
-      "Seg6_OwcAdcPoll": { "bits": 1 },
-      "Seg6_CellVoltage": { "bits": 1 },
-      "Seg6_CellOwcVoltage": { "bits": 1 },
-      "Seg6_ThermVoltage": { "bits": 1 },
-      "Seg6_SegVoltage": { "bits": 1 },
-      "Seg6_Status": { "bits": 1 },
-      "Seg6_Config": { "bits": 1 },
-      "Seg7_CellAdcPoll": { "bits": 1 },
-      "Seg7_AuxAdcPoll": { "bits": 1 },
-      "Seg7_OwcAdcPoll": { "bits": 1 },
-      "Seg7_CellVoltage": { "bits": 1 },
-      "Seg7_CellOwcVoltage": { "bits": 1 },
-      "Seg7_ThermVoltage": { "bits": 1 },
-      "Seg7_SegVoltage": { "bits": 1 },
-      "Seg7_Status": { "bits": 1 },
-      "Seg7_Config": { "bits": 1 },
-      "Seg8_CellAdcPoll": { "bits": 1 },
-      "Seg8_AuxAdcPoll": { "bits": 1 },
-      "Seg8_OwcAdcPoll": { "bits": 1 },
-      "Seg8_CellVoltage": { "bits": 1 },
-      "Seg8_CellOwcVoltage": { "bits": 1 },
-      "Seg8_ThermVoltage": { "bits": 1 },
-      "Seg8_SegVoltage": { "bits": 1 },
-      "Seg8_Status": { "bits": 1 },
-      "Seg8_Config": { "bits": 1 },
-      "Seg9_CellAdcPoll": { "bits": 1 },
-      "Seg9_AuxAdcPoll": { "bits": 1 },
-      "Seg9_OwcAdcPoll": { "bits": 1 },
-      "Seg9_CellVoltage": { "bits": 1 },
-      "Seg9_CellOwcVoltage": { "bits": 1 },
-      "Seg9_ThermVoltage": { "bits": 1 },
-      "Seg9_SegVoltage": { "bits": 1 },
-      "Seg9_Status": { "bits": 1 },
-      "Seg9_Config": { "bits": 1 }
-    }
-  },
-  "ElconControls": {
-    "msg_id": 403105268,
-    "cycle_time": 1000,
-    "description": "Control parameters for Elcon charger communication",
-    "signals": {
-      "MaxChargingVoltage": {
-        "start_bit": 0,
-        "bits": 16,
-        "min": 0,
-        "max": 10000,
-        "scale": 0.1,
-        "offset": 0,
-        "unit": "V",
-        "big_endian": true
-      },
-      "MaxChargingCurrent": {
-        "start_bit": 16,
-        "bits": 16,
-        "min": 0,
-        "max": 1000,
-        "scale": 0.1,
-        "offset": 0,
-        "unit": "A",
-        "big_endian": true
-      },
-      "StopCharging": {
-        "start_bit": 32,
-        "bits": 1,
-        "start_value": 1
-      }
-    }
-  },
   "HvBatteryProperties": {
     "msg_id": 415,
     "cycle_time": 1000,
@@ -425,6 +259,113 @@
       },
       "DischargePowerLimitCondition": {
         "enum": "DischargePowerLimitCondition"
+      }
+    }
+  },
+  "CellVoltageStats": {
+    "msg_id": 419,
+    "cycle_time": 100,
+    "description": "Min/max cell voltage with segment + cell index",
+    "signals": {
+      "MinCellVoltage": {
+        "resolution": 0.001,
+        "min": 0,
+        "max": 5,
+        "unit": "V"
+      },
+      "MinCellVoltageSegment": {
+        "resolution": 1,
+        "min": 0,
+        "max": 9
+      },
+      "MinCellVoltageCell": {
+        "resolution": 1,
+        "min": 0,
+        "max": 13
+      },
+      "MaxCellVoltage": {
+        "resolution": 0.001,
+        "min": 0,
+        "max": 5,
+        "unit": "V"
+      },
+      "MaxCellVoltageSegment": {
+        "resolution": 1,
+        "min": 0,
+        "max": 9
+      },
+      "MaxCellVoltageCell": {
+        "resolution": 1,
+        "min": 0,
+        "max": 13
+      }
+    }
+  },
+  "CellTempStats": {
+    "msg_id": 420,
+    "cycle_time": 100,
+    "description": "Min/max cell temperature with segment + thermistor index",
+    "signals": {
+      "MinCellTemp": {
+        "resolution": 0.1,
+        "min": -20,
+        "max": 100,
+        "unit": "degC"
+      },
+      "MinCellTempSegment": {
+        "resolution": 1,
+        "min": 0,
+        "max": 9
+      },
+      "MinCellTempCell": {
+        "resolution": 1,
+        "min": 0,
+        "max": 13
+      },
+      "MaxCellTemp": {
+        "resolution": 0.1,
+        "min": -20,
+        "max": 100,
+        "unit": "degC"
+      },
+      "MaxCellTempSegment": {
+        "resolution": 1,
+        "min": 0,
+        "max": 9
+      },
+      "MaxCellTempCell": {
+        "resolution": 1,
+        "min": 0,
+        "max": 13
+      }
+    }
+  },
+  "SegmentVoltageStats": {
+    "msg_id": 421,
+    "cycle_time": 100,
+    "description": "Min/max segment voltage with segment index",
+    "signals": {
+      "MinSegmentVoltage": {
+        "resolution": 0.01,
+        "min": 0,
+        "max": 65,
+        "unit": "V"
+      },
+      "MinSegmentVoltageSegment": {
+        "resolution": 1,
+        "min": 0,
+        "max": 9
+      },
+      "MaxSegmentVoltage": {
+        "resolution": 0.01,
+        "min": 0,
+        "max": 65,
+        "unit": "V"
+      },
+      "MaxSegmentVoltageSegment": {
+        "resolution": 1,
+        "min": 0,
+        "max": 9
       }
     }
   },
@@ -771,184 +712,6 @@
         "min": -0.1,
         "max": 5,
         "unit": "V"
-      }
-    }
-  },
-  "CellVoltageErrors_Seg0_Seg3": {
-    "msg_id": 458,
-    "cycle_time": null,
-    "allowed_modes": [
-      "DEBUG"
-    ],
-    "description": "Per-cell error codes for cell voltages: Segment 0-3 (INVALID_ARGS = no error)",
-    "signals": {
-      "Seg0_Cell0_VoltageError": {
-        "enum": "ErrorCode"
-      },
-      "Seg0_Cell1_VoltageError": {
-        "enum": "ErrorCode"
-      },
-      "Seg0_Cell2_VoltageError": {
-        "enum": "ErrorCode"
-      },
-      "Seg0_Cell3_VoltageError": {
-        "enum": "ErrorCode"
-      },
-      "Seg0_Cell4_VoltageError": {
-        "enum": "ErrorCode"
-      },
-      "Seg0_Cell5_VoltageError": {
-        "enum": "ErrorCode"
-      },
-      "Seg0_Cell6_VoltageError": {
-        "enum": "ErrorCode"
-      },
-      "Seg0_Cell7_VoltageError": {
-        "enum": "ErrorCode"
-      },
-      "Seg0_Cell8_VoltageError": {
-        "enum": "ErrorCode"
-      },
-      "Seg0_Cell9_VoltageError": {
-        "enum": "ErrorCode"
-      },
-      "Seg0_Cell10_VoltageError": {
-        "enum": "ErrorCode"
-      },
-      "Seg0_Cell11_VoltageError": {
-        "enum": "ErrorCode"
-      },
-      "Seg0_Cell12_VoltageError": {
-        "enum": "ErrorCode"
-      },
-      "Seg0_Cell13_VoltageError": {
-        "enum": "ErrorCode"
-      },
-      "Seg1_Cell0_VoltageError": {
-        "enum": "ErrorCode"
-      },
-      "Seg1_Cell1_VoltageError": {
-        "enum": "ErrorCode"
-      },
-      "Seg1_Cell2_VoltageError": {
-        "enum": "ErrorCode"
-      },
-      "Seg1_Cell3_VoltageError": {
-        "enum": "ErrorCode"
-      },
-      "Seg1_Cell4_VoltageError": {
-        "enum": "ErrorCode"
-      },
-      "Seg1_Cell5_VoltageError": {
-        "enum": "ErrorCode"
-      },
-      "Seg1_Cell6_VoltageError": {
-        "enum": "ErrorCode"
-      },
-      "Seg1_Cell7_VoltageError": {
-        "enum": "ErrorCode"
-      },
-      "Seg1_Cell8_VoltageError": {
-        "enum": "ErrorCode"
-      },
-      "Seg1_Cell9_VoltageError": {
-        "enum": "ErrorCode"
-      },
-      "Seg1_Cell10_VoltageError": {
-        "enum": "ErrorCode"
-      },
-      "Seg1_Cell11_VoltageError": {
-        "enum": "ErrorCode"
-      },
-      "Seg1_Cell12_VoltageError": {
-        "enum": "ErrorCode"
-      },
-      "Seg1_Cell13_VoltageError": {
-        "enum": "ErrorCode"
-      },
-      "Seg2_Cell0_VoltageError": {
-        "enum": "ErrorCode"
-      },
-      "Seg2_Cell1_VoltageError": {
-        "enum": "ErrorCode"
-      },
-      "Seg2_Cell2_VoltageError": {
-        "enum": "ErrorCode"
-      },
-      "Seg2_Cell3_VoltageError": {
-        "enum": "ErrorCode"
-      },
-      "Seg2_Cell4_VoltageError": {
-        "enum": "ErrorCode"
-      },
-      "Seg2_Cell5_VoltageError": {
-        "enum": "ErrorCode"
-      },
-      "Seg2_Cell6_VoltageError": {
-        "enum": "ErrorCode"
-      },
-      "Seg2_Cell7_VoltageError": {
-        "enum": "ErrorCode"
-      },
-      "Seg2_Cell8_VoltageError": {
-        "enum": "ErrorCode"
-      },
-      "Seg2_Cell9_VoltageError": {
-        "enum": "ErrorCode"
-      },
-      "Seg2_Cell10_VoltageError": {
-        "enum": "ErrorCode"
-      },
-      "Seg2_Cell11_VoltageError": {
-        "enum": "ErrorCode"
-      },
-      "Seg2_Cell12_VoltageError": {
-        "enum": "ErrorCode"
-      },
-      "Seg2_Cell13_VoltageError": {
-        "enum": "ErrorCode"
-      },
-      "Seg3_Cell0_VoltageError": {
-        "enum": "ErrorCode"
-      },
-      "Seg3_Cell1_VoltageError": {
-        "enum": "ErrorCode"
-      },
-      "Seg3_Cell2_VoltageError": {
-        "enum": "ErrorCode"
-      },
-      "Seg3_Cell3_VoltageError": {
-        "enum": "ErrorCode"
-      },
-      "Seg3_Cell4_VoltageError": {
-        "enum": "ErrorCode"
-      },
-      "Seg3_Cell5_VoltageError": {
-        "enum": "ErrorCode"
-      },
-      "Seg3_Cell6_VoltageError": {
-        "enum": "ErrorCode"
-      },
-      "Seg3_Cell7_VoltageError": {
-        "enum": "ErrorCode"
-      },
-      "Seg3_Cell8_VoltageError": {
-        "enum": "ErrorCode"
-      },
-      "Seg3_Cell9_VoltageError": {
-        "enum": "ErrorCode"
-      },
-      "Seg3_Cell10_VoltageError": {
-        "enum": "ErrorCode"
-      },
-      "Seg3_Cell11_VoltageError": {
-        "enum": "ErrorCode"
-      },
-      "Seg3_Cell12_VoltageError": {
-        "enum": "ErrorCode"
-      },
-      "Seg3_Cell13_VoltageError": {
-        "enum": "ErrorCode"
       }
     }
   },
@@ -3572,6 +3335,126 @@
       }
     }
   },
+  "SegmentVA_OV": {
+    "msg_id": 440,
+    "cycle_time": null,
+    "allowed_modes": [
+      "DEBUG"
+    ],
+    "description": "Analog supply OV flags for all segments",
+    "signals": {
+      "Seg0_VA_OV": {
+        "bits": 1
+      },
+      "Seg1_VA_OV": {
+        "bits": 1
+      },
+      "Seg2_VA_OV": {
+        "bits": 1
+      },
+      "Seg3_VA_OV": {
+        "bits": 1
+      },
+      "Seg4_VA_OV": {
+        "bits": 1
+      },
+      "Seg5_VA_OV": {
+        "bits": 1
+      },
+      "Seg6_VA_OV": {
+        "bits": 1
+      },
+      "Seg7_VA_OV": {
+        "bits": 1
+      },
+      "Seg8_VA_OV": {
+        "bits": 1
+      },
+      "Seg9_VA_OV": {
+        "bits": 1
+      }
+    }
+  },
+  "SegmentVA_UV": {
+    "msg_id": 441,
+    "cycle_time": null,
+    "allowed_modes": [
+      "DEBUG"
+    ],
+    "description": "Analog supply UV flags for all segments",
+    "signals": {
+      "Seg0_VA_UV": {
+        "bits": 1
+      },
+      "Seg1_VA_UV": {
+        "bits": 1
+      },
+      "Seg2_VA_UV": {
+        "bits": 1
+      },
+      "Seg3_VA_UV": {
+        "bits": 1
+      },
+      "Seg4_VA_UV": {
+        "bits": 1
+      },
+      "Seg5_VA_UV": {
+        "bits": 1
+      },
+      "Seg6_VA_UV": {
+        "bits": 1
+      },
+      "Seg7_VA_UV": {
+        "bits": 1
+      },
+      "Seg8_VA_UV": {
+        "bits": 1
+      },
+      "Seg9_VA_UV": {
+        "bits": 1
+      }
+    }
+  },
+  "SegmentVD_OV": {
+    "msg_id": 442,
+    "cycle_time": null,
+    "allowed_modes": [
+      "DEBUG"
+    ],
+    "description": "Digital supply OV flags for all segments",
+    "signals": {
+      "Seg0_VD_OV": {
+        "bits": 1
+      },
+      "Seg1_VD_OV": {
+        "bits": 1
+      },
+      "Seg2_VD_OV": {
+        "bits": 1
+      },
+      "Seg3_VD_OV": {
+        "bits": 1
+      },
+      "Seg4_VD_OV": {
+        "bits": 1
+      },
+      "Seg5_VD_OV": {
+        "bits": 1
+      },
+      "Seg6_VD_OV": {
+        "bits": 1
+      },
+      "Seg7_VD_OV": {
+        "bits": 1
+      },
+      "Seg8_VD_OV": {
+        "bits": 1
+      },
+      "Seg9_VD_OV": {
+        "bits": 1
+      }
+    }
+  },
   "CellOverVoltage": {
     "msg_id": 443,
     "cycle_time": null,
@@ -4665,126 +4548,6 @@
       }
     }
   },
-  "SegmentVA_OV": {
-    "msg_id": 440,
-    "cycle_time": null,
-    "allowed_modes": [
-      "DEBUG"
-    ],
-    "description": "Analog supply OV flags for all segments",
-    "signals": {
-      "Seg0_VA_OV": {
-        "bits": 1
-      },
-      "Seg1_VA_OV": {
-        "bits": 1
-      },
-      "Seg2_VA_OV": {
-        "bits": 1
-      },
-      "Seg3_VA_OV": {
-        "bits": 1
-      },
-      "Seg4_VA_OV": {
-        "bits": 1
-      },
-      "Seg5_VA_OV": {
-        "bits": 1
-      },
-      "Seg6_VA_OV": {
-        "bits": 1
-      },
-      "Seg7_VA_OV": {
-        "bits": 1
-      },
-      "Seg8_VA_OV": {
-        "bits": 1
-      },
-      "Seg9_VA_OV": {
-        "bits": 1
-      }
-    }
-  },
-  "SegmentVA_UV": {
-    "msg_id": 441,
-    "cycle_time": null,
-    "allowed_modes": [
-      "DEBUG"
-    ],
-    "description": "Analog supply UV flags for all segments",
-    "signals": {
-      "Seg0_VA_UV": {
-        "bits": 1
-      },
-      "Seg1_VA_UV": {
-        "bits": 1
-      },
-      "Seg2_VA_UV": {
-        "bits": 1
-      },
-      "Seg3_VA_UV": {
-        "bits": 1
-      },
-      "Seg4_VA_UV": {
-        "bits": 1
-      },
-      "Seg5_VA_UV": {
-        "bits": 1
-      },
-      "Seg6_VA_UV": {
-        "bits": 1
-      },
-      "Seg7_VA_UV": {
-        "bits": 1
-      },
-      "Seg8_VA_UV": {
-        "bits": 1
-      },
-      "Seg9_VA_UV": {
-        "bits": 1
-      }
-    }
-  },
-  "SegmentVD_OV": {
-    "msg_id": 442,
-    "cycle_time": null,
-    "allowed_modes": [
-      "DEBUG"
-    ],
-    "description": "Digital supply OV flags for all segments",
-    "signals": {
-      "Seg0_VD_OV": {
-        "bits": 1
-      },
-      "Seg1_VD_OV": {
-        "bits": 1
-      },
-      "Seg2_VD_OV": {
-        "bits": 1
-      },
-      "Seg3_VD_OV": {
-        "bits": 1
-      },
-      "Seg4_VD_OV": {
-        "bits": 1
-      },
-      "Seg5_VD_OV": {
-        "bits": 1
-      },
-      "Seg6_VD_OV": {
-        "bits": 1
-      },
-      "Seg7_VD_OV": {
-        "bits": 1
-      },
-      "Seg8_VD_OV": {
-        "bits": 1
-      },
-      "Seg9_VD_OV": {
-        "bits": 1
-      }
-    }
-  },
   "SegmentVD_UV": {
     "msg_id": 447,
     "cycle_time": null,
@@ -5222,6 +4985,184 @@
       },
       "Seg9_CMDCNT": {
         "bits": 1
+      }
+    }
+  },
+  "CellVoltageErrors_Seg0_Seg3": {
+    "msg_id": 458,
+    "cycle_time": null,
+    "allowed_modes": [
+      "DEBUG"
+    ],
+    "description": "Per-cell error codes for cell voltages: Segment 0-3 (INVALID_ARGS = no error)",
+    "signals": {
+      "Seg0_Cell0_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Cell1_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Cell2_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Cell3_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Cell4_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Cell5_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Cell6_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Cell7_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Cell8_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Cell9_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Cell10_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Cell11_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Cell12_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Cell13_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Cell0_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Cell1_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Cell2_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Cell3_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Cell4_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Cell5_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Cell6_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Cell7_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Cell8_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Cell9_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Cell10_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Cell11_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Cell12_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Cell13_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Cell0_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Cell1_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Cell2_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Cell3_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Cell4_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Cell5_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Cell6_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Cell7_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Cell8_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Cell9_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Cell10_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Cell11_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Cell12_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Cell13_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Cell0_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Cell1_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Cell2_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Cell3_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Cell4_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Cell5_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Cell6_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Cell7_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Cell8_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Cell9_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Cell10_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Cell11_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Cell12_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Cell13_VoltageError": {
+        "enum": "ErrorCode"
       }
     }
   },
@@ -7044,6 +6985,315 @@
       },
       "Seg9_StatDError": {
         "enum": "ErrorCode"
+      }
+    }
+  },
+  "SegmentHealthErrors": {
+    "msg_id": 475,
+    "cycle_time": null,
+    "description": "Per-segment health error bits (9 bits per segment, 10 segments). True = error set.",
+    "signals": {
+      "Seg0_CellAdcPoll": {
+        "bits": 1
+      },
+      "Seg0_AuxAdcPoll": {
+        "bits": 1
+      },
+      "Seg0_OwcAdcPoll": {
+        "bits": 1
+      },
+      "Seg0_CellVoltage": {
+        "bits": 1
+      },
+      "Seg0_CellOwcVoltage": {
+        "bits": 1
+      },
+      "Seg0_ThermVoltage": {
+        "bits": 1
+      },
+      "Seg0_SegVoltage": {
+        "bits": 1
+      },
+      "Seg0_Status": {
+        "bits": 1
+      },
+      "Seg0_Config": {
+        "bits": 1
+      },
+      "Seg1_CellAdcPoll": {
+        "bits": 1
+      },
+      "Seg1_AuxAdcPoll": {
+        "bits": 1
+      },
+      "Seg1_OwcAdcPoll": {
+        "bits": 1
+      },
+      "Seg1_CellVoltage": {
+        "bits": 1
+      },
+      "Seg1_CellOwcVoltage": {
+        "bits": 1
+      },
+      "Seg1_ThermVoltage": {
+        "bits": 1
+      },
+      "Seg1_SegVoltage": {
+        "bits": 1
+      },
+      "Seg1_Status": {
+        "bits": 1
+      },
+      "Seg1_Config": {
+        "bits": 1
+      },
+      "Seg2_CellAdcPoll": {
+        "bits": 1
+      },
+      "Seg2_AuxAdcPoll": {
+        "bits": 1
+      },
+      "Seg2_OwcAdcPoll": {
+        "bits": 1
+      },
+      "Seg2_CellVoltage": {
+        "bits": 1
+      },
+      "Seg2_CellOwcVoltage": {
+        "bits": 1
+      },
+      "Seg2_ThermVoltage": {
+        "bits": 1
+      },
+      "Seg2_SegVoltage": {
+        "bits": 1
+      },
+      "Seg2_Status": {
+        "bits": 1
+      },
+      "Seg2_Config": {
+        "bits": 1
+      },
+      "Seg3_CellAdcPoll": {
+        "bits": 1
+      },
+      "Seg3_AuxAdcPoll": {
+        "bits": 1
+      },
+      "Seg3_OwcAdcPoll": {
+        "bits": 1
+      },
+      "Seg3_CellVoltage": {
+        "bits": 1
+      },
+      "Seg3_CellOwcVoltage": {
+        "bits": 1
+      },
+      "Seg3_ThermVoltage": {
+        "bits": 1
+      },
+      "Seg3_SegVoltage": {
+        "bits": 1
+      },
+      "Seg3_Status": {
+        "bits": 1
+      },
+      "Seg3_Config": {
+        "bits": 1
+      },
+      "Seg4_CellAdcPoll": {
+        "bits": 1
+      },
+      "Seg4_AuxAdcPoll": {
+        "bits": 1
+      },
+      "Seg4_OwcAdcPoll": {
+        "bits": 1
+      },
+      "Seg4_CellVoltage": {
+        "bits": 1
+      },
+      "Seg4_CellOwcVoltage": {
+        "bits": 1
+      },
+      "Seg4_ThermVoltage": {
+        "bits": 1
+      },
+      "Seg4_SegVoltage": {
+        "bits": 1
+      },
+      "Seg4_Status": {
+        "bits": 1
+      },
+      "Seg4_Config": {
+        "bits": 1
+      },
+      "Seg5_CellAdcPoll": {
+        "bits": 1
+      },
+      "Seg5_AuxAdcPoll": {
+        "bits": 1
+      },
+      "Seg5_OwcAdcPoll": {
+        "bits": 1
+      },
+      "Seg5_CellVoltage": {
+        "bits": 1
+      },
+      "Seg5_CellOwcVoltage": {
+        "bits": 1
+      },
+      "Seg5_ThermVoltage": {
+        "bits": 1
+      },
+      "Seg5_SegVoltage": {
+        "bits": 1
+      },
+      "Seg5_Status": {
+        "bits": 1
+      },
+      "Seg5_Config": {
+        "bits": 1
+      },
+      "Seg6_CellAdcPoll": {
+        "bits": 1
+      },
+      "Seg6_AuxAdcPoll": {
+        "bits": 1
+      },
+      "Seg6_OwcAdcPoll": {
+        "bits": 1
+      },
+      "Seg6_CellVoltage": {
+        "bits": 1
+      },
+      "Seg6_CellOwcVoltage": {
+        "bits": 1
+      },
+      "Seg6_ThermVoltage": {
+        "bits": 1
+      },
+      "Seg6_SegVoltage": {
+        "bits": 1
+      },
+      "Seg6_Status": {
+        "bits": 1
+      },
+      "Seg6_Config": {
+        "bits": 1
+      },
+      "Seg7_CellAdcPoll": {
+        "bits": 1
+      },
+      "Seg7_AuxAdcPoll": {
+        "bits": 1
+      },
+      "Seg7_OwcAdcPoll": {
+        "bits": 1
+      },
+      "Seg7_CellVoltage": {
+        "bits": 1
+      },
+      "Seg7_CellOwcVoltage": {
+        "bits": 1
+      },
+      "Seg7_ThermVoltage": {
+        "bits": 1
+      },
+      "Seg7_SegVoltage": {
+        "bits": 1
+      },
+      "Seg7_Status": {
+        "bits": 1
+      },
+      "Seg7_Config": {
+        "bits": 1
+      },
+      "Seg8_CellAdcPoll": {
+        "bits": 1
+      },
+      "Seg8_AuxAdcPoll": {
+        "bits": 1
+      },
+      "Seg8_OwcAdcPoll": {
+        "bits": 1
+      },
+      "Seg8_CellVoltage": {
+        "bits": 1
+      },
+      "Seg8_CellOwcVoltage": {
+        "bits": 1
+      },
+      "Seg8_ThermVoltage": {
+        "bits": 1
+      },
+      "Seg8_SegVoltage": {
+        "bits": 1
+      },
+      "Seg8_Status": {
+        "bits": 1
+      },
+      "Seg8_Config": {
+        "bits": 1
+      },
+      "Seg9_CellAdcPoll": {
+        "bits": 1
+      },
+      "Seg9_AuxAdcPoll": {
+        "bits": 1
+      },
+      "Seg9_OwcAdcPoll": {
+        "bits": 1
+      },
+      "Seg9_CellVoltage": {
+        "bits": 1
+      },
+      "Seg9_CellOwcVoltage": {
+        "bits": 1
+      },
+      "Seg9_ThermVoltage": {
+        "bits": 1
+      },
+      "Seg9_SegVoltage": {
+        "bits": 1
+      },
+      "Seg9_Status": {
+        "bits": 1
+      },
+      "Seg9_Config": {
+        "bits": 1
+      }
+    }
+  },
+  "ElconControls": {
+    "msg_id": 403105268,
+    "cycle_time": 1000,
+    "description": "Control parameters for Elcon charger communication",
+    "signals": {
+      "MaxChargingVoltage": {
+        "start_bit": 0,
+        "bits": 16,
+        "min": 0,
+        "max": 10000,
+        "scale": 0.1,
+        "offset": 0,
+        "unit": "V",
+        "big_endian": true
+      },
+      "MaxChargingCurrent": {
+        "start_bit": 16,
+        "bits": 16,
+        "min": 0,
+        "max": 1000,
+        "scale": 0.1,
+        "offset": 0,
+        "unit": "A",
+        "big_endian": true
+      },
+      "StopCharging": {
+        "start_bit": 32,
+        "bits": 1,
+        "start_value": 1
       }
     }
   }
