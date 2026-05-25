@@ -13,7 +13,7 @@
 #include "io_canQueues.hpp"
 #include "io_time.hpp"
 #include "io_canRx.hpp"
-#include "io_filesystem.hpp"
+#include "io_filesystems.hpp"
 
 #include "hw_adcs.hpp"
 #include "hw_watchdog.hpp"
@@ -25,6 +25,8 @@
 #include "hw_bootup.hpp"
 #include "hw_pwms.hpp"
 #include "hw_runTimeStat.hpp"
+
+#include <climits>
 
 constexpr size_t         TASK_COUNT = 5;
 [[noreturn]] static void tasks_run1Hz(void *arg);
@@ -82,8 +84,11 @@ void tasks_run1Hz(void *arg)
         jobs_run1Hz_tick();
 
         const float min_soc_percent = app::soc::getMinSocPercent();
-        uint32_t soc_tenths = app::socStorage::convertSocToTenths(min_soc_percent);
-        xTaskNotify((TaskHandle_t)TaskSdCard.id(), soc_tenths, eSetValueWithOverwrite);
+
+        if (auto soc_tenths = app::socStorage::convertSocToTenths(min_soc_percent); soc_tenths.has_value())
+        {
+            xTaskNotify((TaskHandle_t)TaskSdCard.id(), *soc_tenths, eSetValueWithOverwrite);
+        }
 
         watchdog1hz.checkIn();
         runtimeMonitor.checkin();
@@ -224,7 +229,7 @@ void tasks_init()
     fdcan1.init();
     fdcan2.init();
 
-    if (const auto result = io::FileSystem::init(); !result)
+    if (const auto result = fs.init(); !result)
     {
         LOG_ERROR("Failed to initialize filesystem");
     }

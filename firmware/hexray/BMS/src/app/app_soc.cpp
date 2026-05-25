@@ -12,13 +12,13 @@
 
 namespace
 {
-constexpr double MS_TO_S = 0.001;
-constexpr double AH_TO_COULOMBS  = 3600.0;
+constexpr double MS_TO_S        = 0.001;
+constexpr double AH_TO_COULOMBS = 3600.0;
 
 constexpr uint32_t V_TO_SOC_LUT_SIZE = 201U;
 constexpr float    LUT_BASE_SOC      = 0.0f;
 
-constexpr double    STATE_OF_HEALTH = 1.0f;
+constexpr double STATE_OF_HEALTH = 1.0f;
 // TODO: Replace with cell capacity and cells in parallel constants in app_segments once that's finished
 constexpr double SERIES_ELEMENT_FULL_CHARGE_C = 3.0 * AH_TO_COULOMBS * 4.0 * STATE_OF_HEALTH;
 
@@ -118,9 +118,10 @@ namespace app::soc
 {
 void init()
 {
-    if (const auto saved_soc_percent = app::socStorage::readSocFromSd(); saved_soc_percent && IS_IN_RANGE(0.0f, 100.0f, saved_soc_percent))
+    if (const auto saved_soc_percent = app::socStorage::readSocFromSd();
+        saved_soc_percent && IS_IN_RANGE(0.0f, 100.0f, *saved_soc_percent))
     {
-        soc_charge_c = static_cast<double>(saved_soc_percent) / 100.0 * SERIES_ELEMENT_FULL_CHARGE_C;
+        soc_charge_c = static_cast<double>(*saved_soc_percent) / 100.0 * SERIES_ELEMENT_FULL_CHARGE_C;
         soc_is_dirty = false;
     }
     else

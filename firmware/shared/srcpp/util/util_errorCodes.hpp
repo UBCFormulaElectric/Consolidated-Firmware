@@ -15,6 +15,8 @@ enum class ErrorCode
     CHECKSUM_FAIL,
     ERROR_INDETERMINATE, // use this for when you don't know what the exit code is YET
     NUM_EXIT_CODES,
+    WRITE_FAILED,
+    READ_FAILED
 };
 
 template <typename T> using result = std::expected<T, ErrorCode>;
@@ -41,6 +43,10 @@ constexpr const char *error_code_to_string(const ErrorCode code)
             return "Checksum fail";
         case ErrorCode::ERROR_INDETERMINATE:
             return "Indeterminate error";
+        case ErrorCode::WRITE_FAILED:
+            return "Write operation failed";
+        case ErrorCode::READ_FAILED:
+            return "Read operation failed";
         case ErrorCode::NUM_EXIT_CODES:
         default:
             return "Unknown error code";

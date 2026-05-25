@@ -3,13 +3,13 @@
 #include "main.h"
 #include "hw_gpios.hpp"
 
-hw::SdCard sd1(&hsd1, 1000U, sd_cd);
+hw::SdCard sd1(hsd1, 1000U, sd_cd);
 
 namespace hw
 {
-const SdCard &getSdFromHandle(SD_HandleTypeDef *hsd)
+const SdCard &getSdFromHandle(const SD_HandleTypeDef *hsd)
 {
-    if (hsd == sd1.getHsd())
+    if (hsd == &sd1.getHsd())
     {
         return sd1;
     }

@@ -3,10 +3,8 @@
 #include <cstdint>
 #include <expected>
 
-extern "C"
-{
-#include "io_fileSystem.h"
-}
+#include "io_filesystem.hpp"
+#include "util_errorCodes.hpp"
 
 namespace app::socStorage
 {
@@ -24,12 +22,12 @@ bool isAvailable();
 /**
  * @brief Read SoC value from SD storage.
  */
-std::expected<float, FileSystemError> readSocFromSd();
+std::expected<float, ErrorCode> readSocFromSd();
 
 /**
  * @brief Write SoC value to SD storage.
  */
-std::expected<void, FileSystemError> writeSocToSd(float soc_percent);
+std::expected<void, ErrorCode> writeSocToSd(float soc_percent);
 
 /**
  * @brief Get the last SoC value written to SD card in tenths of a percent.
