@@ -2,7 +2,6 @@
 #include "io_semaphore.hpp"
 #include <array>
 #include <bitset>
-#include <algorithm>
 
 namespace
 {
@@ -16,23 +15,11 @@ io::semaphore health_mutex{ true };
 namespace app::segments::health
 {
 
-void reset(const size_t seg, ErrorBit bit)
-{
-    const io::unique_semaphore lock{ health_mutex };
-    segment_health[seg].reset(static_cast<size_t>(bit));
-}
-
 void resetAll(ErrorBit bit)
 {
     const io::unique_semaphore lock{ health_mutex };
     for (auto &bs : segment_health)
         bs.reset(static_cast<size_t>(bit));
-}
-
-void set(const size_t seg, ErrorBit bit)
-{
-    const io::unique_semaphore lock{ health_mutex };
-    segment_health[seg].set(static_cast<size_t>(bit));
 }
 
 void setAll(ErrorBit bit)
@@ -48,16 +35,10 @@ void setOrReset(const size_t seg, ErrorBit bit, bool has_error)
     segment_health[seg].set(static_cast<size_t>(bit), has_error);
 }
 
-bool isOk(const size_t seg)
+bool getError(const size_t seg, ErrorBit bit)
 {
     const io::unique_semaphore lock{ health_mutex };
-    return segment_health[seg].none();
-}
-
-bool allOk()
-{
-    const io::unique_semaphore lock{ health_mutex };
-    return std::ranges::all_of(segment_health, [](const std::bitset<NUM_HEALTH_BITS> &bs) { return bs.none(); });
+    return segment_health[seg].test(static_cast<size_t>(bit));
 }
 
 } // namespace app::segments::health

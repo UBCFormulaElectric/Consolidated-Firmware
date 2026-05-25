@@ -176,7 +176,7 @@ void jobs_runAdbmsVoltages_tick()
     LOG_INFO("Starting voltage poll and conversion");
 
     result<void>         voltages_poll_ok;
-    Cells<result<float>> voltages;
+    Cells<result<float>> cell_voltages;
 
     result<void>                                                                         owc_voltages_poll_ok;
     std::array<Cells<result<float>>, static_cast<size_t>(OpenWireSwitch::CHANNEL_COUNT)> owc_voltages;
@@ -187,7 +187,7 @@ void jobs_runAdbmsVoltages_tick()
         // Cell Voltages
         voltages_poll_ok = app::segments::startPoll::cellAdc();
         if (voltages_poll_ok)
-            voltages = app::segments::conversion::cellVoltage();
+            cell_voltages = app::segments::conversion::cellVoltage();
 
         // Cell Open Wire Check
         for (const OpenWireSwitch channel : { OpenWireSwitch::ODD_CHANNELS, OpenWireSwitch::EVEN_CHANNELS })
@@ -205,10 +205,14 @@ void jobs_runAdbmsVoltages_tick()
         }
     }
 
-    // Cell Voltages Broadcast
-    app::segments::broadcast::cellVoltages(voltages, voltages_poll_ok);
-    // Cell Open Wire Check Broadcast
-    app::segments::broadcast::cellOwc(app::segments::calculate::cellOwc(owc_voltages), owc_voltages_poll_ok);
+    const Cells<result<bool>> cell_owc = app::segments::calculate::cellOwc(owc_voltages);
+
+    app::segments::shared::setVoltageStats(cell_voltages, cell_owc);
+
+    app::segments::broadcast::voltageStats();
+    app::segments::broadcast::segmentHealthError();
+    app::segments::broadcast::debug::cellVoltages(cell_voltages, voltages_poll_ok);
+    app::segments::broadcast::debug::cellOwc(cell_owc, owc_voltages_poll_ok);
 }
 
 void jobs_runAdbmsAux_tick()
@@ -244,13 +248,15 @@ void jobs_runAdbmsAux_tick()
         status      = app::segments::conversion::status();
     }
 
-    // Thermistor Broadcast
-    app::segments::broadcast::thermTemps(app::segments::calculate::thermTemps(therm_voltages), therm_voltages_poll_ok);
-    app::segments::broadcast::thermOwc(app::segments::calculate::thermOwc(therm_voltages), therm_voltages_poll_ok);
-
-    // Segment Voltage Broadcast
-    app::segments::broadcast::segVoltages(seg_voltage);
-
-    // Status Broadcast
-    app::segments::broadcast::status(status);
+    const Therms<result<float>> therm_temps = app::segments::calculate::thermTemps(therm_voltages);
+    const Therms<result<bool>> therm_owc = app::segments::calculate::thermOwc(therm_voltages);
+    
+    app::segments::shared::setTemperatureStats(therm_temps, therm_owc);
+ 
+    app::segments::broadcast::temperatureStats();
+    app::segments::broadcast::segmentHealthError();
+    app::segments::broadcast::debug::thermTemps(therm_temps, therm_voltages_poll_ok);
+    app::segments::broadcast::debug::thermOwc(therm_owc, therm_voltages_poll_ok);
+    app::segments::broadcast::debug::segVoltages(seg_voltage);
+    app::segments::broadcast::debug::status(status);
 }

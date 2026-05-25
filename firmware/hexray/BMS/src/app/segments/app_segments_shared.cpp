@@ -1,4 +1,5 @@
 // Holds the latest segment readings so other parts of BMS (alerts, balancing) can read them.
+#include <limits>
 #include "app_segments_internal.hpp"
 #include "io_semaphore.hpp"
 
@@ -6,25 +7,34 @@ namespace
 {
 using app::segments::CellParam;
 using app::segments::Cells;
+using app::segments::SegmentParam;
+using app::segments::Segments;
+using app::segments::Therms;
 
 /*
 
 */
 
 Cells<result<float>> latest_voltages{};
-CellParam<float>     latest_min_cell_voltage{ .segment = 0, .cell = 0, .value = 0.0f };
-CellParam<float>     latest_max_cell_voltage{ .segment = 0, .cell = 0, .value = 0.0f };
+CellParam<float>     latest_min_cell_voltage{};
+CellParam<float>     latest_max_cell_voltage{};
 io::semaphore        voltage_lock{ true };
 
-CellParam<float> latest_max_cell_temperature{ .segment = 0, .cell = 0, .value = 0.0f };
-io::semaphore    temperature_lock{ true };
+Therms<result<float>> latest_temperatures{};
+CellParam<float>      latest_max_therm_temperature{};
+CellParam<float>      latest_min_therm_temperature{};
+io::semaphore         temperature_lock{ true };
 
 Cells<result<bool>> latest_cell_owc{};
 io::semaphore       cell_owc_lock{ true };
 
-// idk if this is needed
-Cells<result<bool>> latest_therm_owc{};
-io::semaphore       therm_owc_lock{ true };
+Therms<result<bool>> latest_therm_owc{};
+io::semaphore        therm_owc_lock{ true };
+
+Segments<result<float>> latest_segment_voltages{};
+SegmentParam<float>     latest_max_segment_voltage{};
+SegmentParam<float>     latest_min_segment_voltage{};
+io::semaphore           segment_voltage_lock{ true };
 
 } // namespace
 
@@ -35,12 +45,6 @@ Cells<result<float>> getLatestVoltages()
 {
     const io::unique_semaphore lock{ voltage_lock };
     return latest_voltages;
-}
-
-Cells<result<bool>> getLatestCellOwc()
-{
-    const io::unique_semaphore lock{ cell_owc_lock };
-    return latest_cell_owc;
 }
 
 CellParam<float> getMinCellVoltage()
@@ -55,39 +59,134 @@ CellParam<float> getMaxCellVoltage()
     return latest_max_cell_voltage;
 }
 
+Therms<result<float>> getLatestTemperatures()
+{
+    const io::unique_semaphore lock{ temperature_lock };
+    return latest_temperatures;
+}
+
+CellParam<float> getMinCellTemperature()
+{
+    const io::unique_semaphore lock{ temperature_lock };
+    return latest_min_therm_temperature;
+}
+
 CellParam<float> getMaxCellTemperature()
 {
     const io::unique_semaphore lock{ temperature_lock };
-    return latest_max_cell_temperature;
+    return latest_max_therm_temperature;
 }
 
-void setVoltageStats(
-    const Cells<result<float>> latest,
-    const CellParam<float>     min_voltage,
-    const CellParam<float>     max_voltage)
-{
-    const io::unique_semaphore lock{ voltage_lock };
-    latest_voltages         = latest;
-    latest_min_cell_voltage = min_voltage;
-    latest_max_cell_voltage = max_voltage;
-}
-
-void setTemperatureStats(const CellParam<float> max_temp)
-{
-    const io::unique_semaphore lock{ temperature_lock };
-    latest_max_cell_temperature = max_temp;
-}
-
-void setThermOwc(const Cells<result<bool>> latest)
-{
-    const io::unique_semaphore lock{ therm_owc_lock };
-    latest_therm_owc = latest;
-}
-
-void setCellOwc(const Cells<result<bool>> latest)
+Cells<result<bool>> getLatestCellOwc()
 {
     const io::unique_semaphore lock{ cell_owc_lock };
-    latest_cell_owc = latest;
+    return latest_cell_owc;
+}
+
+Therms<result<bool>> getLatestThermOwc()
+{
+    const io::unique_semaphore lock{ therm_owc_lock };
+    return latest_therm_owc;
+}
+
+Segments<result<float>> getLatestSegmentVoltages()
+{
+    const io::unique_semaphore lock{ segment_voltage_lock };
+    return latest_segment_voltages;
+}
+
+SegmentParam<float> getMinSegmentVoltage()
+{
+    const io::unique_semaphore lock{ segment_voltage_lock };
+    return latest_min_segment_voltage;
+}
+
+SegmentParam<float> getMaxSegmentVoltage()
+{
+    const io::unique_semaphore lock{ segment_voltage_lock };
+    return latest_max_segment_voltage;
+}
+
+void setVoltageStats(const Cells<result<float>> latest, const Cells<result<bool>> owc)
+{
+    {
+        const io::unique_semaphore lock{ cell_owc_lock };
+        latest_cell_owc = owc;
+    }
+
+    const io::unique_semaphore lock{ voltage_lock };
+    latest_voltages = latest;
+
+    CellParam<float> min{ .segment = 0, .cell = 0, .value = std::numeric_limits<float>::infinity() };
+    CellParam<float> max{ .segment = 0, .cell = 0, .value = -std::numeric_limits<float>::infinity() };
+    for (uint8_t seg = 0; seg < NUM_SEGMENTS; ++seg)
+    {
+        for (uint8_t cell = 0; cell < CELLS_PER_SEGMENT; ++cell)
+        {
+            const result<float> &v = latest[seg][cell];
+            if (!v)
+            {
+                continue;
+            }
+            const CellParam<float> cp{ .segment = seg, .cell = cell, .value = v.value() };
+            min = std::min(min, cp);
+            max = std::max(max, cp);
+        }
+    }
+    latest_min_cell_voltage = min;
+    latest_max_cell_voltage = max;
+}
+
+void setTemperatureStats(const Therms<result<float>> latest, const Therms<result<bool>> owc)
+{
+    {
+        const io::unique_semaphore lock{ therm_owc_lock };
+        latest_therm_owc = owc;
+    }
+
+    const io::unique_semaphore lock{ temperature_lock };
+    latest_temperatures = latest;
+
+    CellParam<float> min{ .segment = 0, .cell = 0, .value = std::numeric_limits<float>::infinity() };
+    CellParam<float> max{ .segment = 0, .cell = 0, .value = -std::numeric_limits<float>::infinity() };
+    for (uint8_t seg = 0; seg < NUM_SEGMENTS; ++seg)
+    {
+        for (uint8_t therm = 0; therm < THERMISTORS_PER_SEGMENT; ++therm)
+        {
+            const result<float> &t = latest[seg][therm];
+            if (!t)
+            {
+                continue;
+            }
+            const CellParam<float> cp{ .segment = seg, .cell = therm, .value = t.value() };
+            min = std::min(min, cp);
+            max = std::max(max, cp);
+        }
+    }
+    latest_min_therm_temperature = min;
+    latest_max_therm_temperature = max;
+}
+
+void setSegmentVoltageStats(const Segments<result<float>> latest)
+{
+    const io::unique_semaphore lock{ segment_voltage_lock };
+    latest_segment_voltages = latest;
+
+    SegmentParam<float> min{ .segment = 0, .value = std::numeric_limits<float>::infinity() };
+    SegmentParam<float> max{ .segment = 0, .value = -std::numeric_limits<float>::infinity() };
+    for (uint8_t seg = 0; seg < NUM_SEGMENTS; ++seg)
+    {
+        const result<float> &v = latest[seg];
+        if (!v)
+        {
+            continue;
+        }
+        const SegmentParam<float> sp{ .segment = seg, .value = v.value() };
+        min = std::min(min, sp);
+        max = std::max(max, sp);
+    }
+    latest_min_segment_voltage = min;
+    latest_max_segment_voltage = max;
 }
 
 } // namespace app::segments::shared

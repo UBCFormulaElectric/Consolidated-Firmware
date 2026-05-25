@@ -37,6 +37,14 @@ template <typename T> struct CellParam
     auto    operator<=>(const CellParam &other) const { return value <=> other.value; };
 };
 
+// Identifies one segment and its latest measured values.
+template <typename T> struct SegmentParam
+{
+    uint8_t segment;
+    T       value;
+    auto    operator<=>(const SegmentParam &other) const { return value <=> other.value; };
+};
+
 // app_segments_config.cpp
 namespace config
 {
@@ -59,12 +67,19 @@ namespace balancing
 // app_segments_broadcast.cpp
 namespace broadcast
 {
-    void cellVoltages(const Cells<result<float>> &voltages, const result<void> &poll_ok);
-    void thermTemps(const Therms<result<float>> &temps, const result<void> &poll_ok);
-    void thermOwc(const Therms<result<bool>> &therm_owc, const result<void> &poll_ok);
-    void segVoltages(const Segments<result<float>> &seg_voltages);
-    void status(const Segments<io::adbms::StatusGroupsRes> &status);
-    void cellOwc(const Cells<result<bool>> &owc_results, const result<void> &poll_ok);
+    namespace debug
+    {
+        void cellVoltages(const Cells<result<float>> &voltages, const result<void> &poll_ok);
+        void thermTemps(const Therms<result<float>> &temps, const result<void> &poll_ok);
+        void thermOwc(const Therms<result<bool>> &therm_owc, const result<void> &poll_ok);
+        void segVoltages(const Segments<result<float>> &seg_voltages);
+        void status(const Segments<io::adbms::StatusGroupsRes> &status);
+        void cellOwc(const Cells<result<bool>> &owc_results, const result<void> &poll_ok);
+    } // namespace debug
+    void segmentHealthError();
+    void voltageStats();
+    void temperatureStats();
+    void segmentVoltageStats();
     // void cmdCountMismatch();
 } // namespace broadcast
 
@@ -85,33 +100,30 @@ namespace health
         NUM_ERROR_BITS
     };
 
-    void reset(size_t seg, ErrorBit bit);
     void resetAll(ErrorBit bit);
-    void set(size_t seg, ErrorBit bit);
     void setAll(ErrorBit bit);
     void setOrReset(size_t seg, ErrorBit bit, bool has_error);
-    bool isOk(size_t seg);
-    bool allOk();
+    bool getError(size_t seg, ErrorBit bit);
 } // namespace health
 
 // app_segments_shared.cpp
 namespace shared
 {
-    Cells<result<float>> getLatestVoltages();
-    Cells<result<bool>>  getLatestCellOwc();
-    CellParam<float>     getMinCellVoltage();
-    CellParam<float>     getMaxCellVoltage();
-    CellParam<float>     getMaxCellTemperature();
-    bool                 getCellOwc();
-    bool                 getThermOwc();
+    Cells<result<float>>    getLatestVoltages();
+    CellParam<float>        getMinCellVoltage();
+    CellParam<float>        getMaxCellVoltage();
+    Therms<result<float>>   getLatestTemperatures();
+    CellParam<float>        getMinCellTemperature();
+    CellParam<float>        getMaxCellTemperature();
+    Cells<result<bool>>     getLatestCellOwc();
+    Therms<result<bool>>    getLatestThermOwc();
+    Segments<result<float>> getLatestSegmentVoltages();
+    SegmentParam<float>     getMinSegmentVoltage();
+    SegmentParam<float>     getMaxSegmentVoltage();
 
-    void setVoltageStats(
-        const Cells<result<float>> latest,
-        const CellParam<float>     min_voltage,
-        const CellParam<float>     max_votlage);
-    void setMaxCellTemperature(const CellParam<float> max_temp);
-    void setThermOwc(const Cells<result<bool>> latest);
-    void setCellOwc(const Cells<result<bool>> latest);
+    void setVoltageStats(const Cells<result<float>> latest, const Cells<result<bool>> owc);
+    void setTemperatureStats(const Therms<result<float>> latest, const Therms<result<bool>> owc);
+    void setSegmentVoltageStats(const Segments<result<float>> latest);
 } // namespace shared
 
 // app_segments_faults.cpp
