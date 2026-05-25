@@ -8,7 +8,7 @@ extern "C" _Noreturn void vApplicationStackOverflowHook(TaskHandle_t xTask, sign
 {
     LOG_ERROR("Stack overflow detected in task %s, resetting...", pcTaskName);
 
-#ifndef NO_BOOTLOADER
+#ifdef BOOTLOAD
     TaskStatus_t status;
     vTaskGetInfo(xTask, &status, pdFALSE, eRunning);
     const hw::bootup::BootRequest request = { .target        = hw::bootup::BootTarget::APP,
