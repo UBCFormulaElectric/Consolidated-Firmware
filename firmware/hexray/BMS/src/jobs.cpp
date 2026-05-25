@@ -247,10 +247,10 @@ void jobs_runAdbmsAux_tick()
     }
 
     const Therms<result<float>> therm_temps = app::segments::calculate::thermTemps(therm_voltages);
-    const Therms<result<bool>> therm_owc = app::segments::calculate::thermOwc(therm_voltages);
-    
+    const Therms<result<bool>>  therm_owc   = app::segments::calculate::thermOwc(therm_voltages);
+
     app::segments::shared::setTemperatureStats(therm_temps, therm_owc);
- 
+
     app::segments::broadcast::temperatureStats();
     app::segments::broadcast::segmentHealthError();
     app::segments::broadcast::debug::thermTemps(therm_temps, therm_voltages_poll_ok);

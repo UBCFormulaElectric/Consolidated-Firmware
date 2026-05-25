@@ -35,24 +35,52 @@ float maxTempLimit(float base_limit)
     return charging ? std::min(base_limit, MAX_CELL_CHARGE_TEMP_DEGC) : base_limit;
 }
 
-bool minCellUnder(float threshold) { return app::segments::shared::getMinCellVoltage().value < threshold; }
-bool maxCellOver(float threshold) { return app::segments::shared::getMaxCellVoltage().value > threshold; }
-bool maxTempOver(float threshold) { return app::segments::shared::getMaxCellTemperature().value > maxTempLimit(threshold); }
+bool minCellUnder(float threshold)
+{
+    return app::segments::shared::getMinCellVoltage().value < threshold;
+}
+bool maxCellOver(float threshold)
+{
+    return app::segments::shared::getMaxCellVoltage().value > threshold;
+}
+bool maxTempOver(float threshold)
+{
+    return app::segments::shared::getMaxCellTemperature().value > maxTempLimit(threshold);
+}
 
-bool isCellUnderVoltageWarn() { return minCellUnder(V_WARN_LOW); }
-bool isCellOverVoltageWarn()  { return maxCellOver(V_WARN_HIGH); }
-bool isCellOverTempWarn()     { return maxTempOver(T_WARN_HIGH); }
+bool isCellUnderVoltageWarn()
+{
+    return minCellUnder(V_WARN_LOW);
+}
+bool isCellOverVoltageWarn()
+{
+    return maxCellOver(V_WARN_HIGH);
+}
+bool isCellOverTempWarn()
+{
+    return maxTempOver(T_WARN_HIGH);
+}
 
-bool isCellUndervoltageFault() { return minCellUnder(V_FAULT_LOW); }
-bool isCellOvervoltageFault()  { return maxCellOver(V_FAULT_HIGH); }
-bool isCellOvertempFault()     { return maxTempOver(T_FAULT_HIGH); }
+bool isCellUndervoltageFault()
+{
+    return minCellUnder(V_FAULT_LOW);
+}
+bool isCellOvervoltageFault()
+{
+    return maxCellOver(V_FAULT_HIGH);
+}
+bool isCellOvertempFault()
+{
+    return maxTempOver(T_FAULT_HIGH);
+}
 
 bool anyCellOpenWire()
 {
     const auto cells = app::segments::shared::getLatestCellOwc();
     for (const auto &segment : cells)
         for (const auto &cell : segment)
-            if (cell.has_value() && !cell.value()) return true;
+            if (cell.has_value() && !cell.value())
+                return true;
     return false;
 }
 
@@ -61,7 +89,8 @@ bool anyThermOpenWire()
     const auto therms = app::segments::shared::getLatestThermOwc();
     for (const auto &segment : therms)
         for (const auto &therm : segment)
-            if (therm.has_value() && !therm.value()) return true;
+            if (therm.has_value() && !therm.value())
+                return true;
     return false;
 }
 
@@ -69,7 +98,8 @@ bool anyHealthError()
 {
     for (size_t seg = 0; seg < NUM_SEGMENTS; ++seg)
         for (size_t b = 0; b < static_cast<size_t>(ErrorBit::NUM_ERROR_BITS); ++b)
-            if (app::segments::health::getError(seg, static_cast<ErrorBit>(b))) return true;
+            if (app::segments::health::getError(seg, static_cast<ErrorBit>(b)))
+                return true;
     return false;
 }
 
@@ -77,21 +107,21 @@ struct Entry
 {
     bool (*condition)();
     void (*setter)(bool);
-    Timer  timer;
+    Timer timer;
 };
 
 Entry warning_entries[] = {
     { &isCellUnderVoltageWarn, &app::can_alerts::warnings::CellUnderVoltage_set, Timer{ WARN_DEBOUNCE_MS } },
-    { &isCellOverVoltageWarn,  &app::can_alerts::warnings::CellOverVoltage_set,  Timer{ WARN_DEBOUNCE_MS } },
-    { &isCellOverTempWarn,     &app::can_alerts::warnings::CellOverTemp_set,     Timer{ WARN_DEBOUNCE_MS } },
+    { &isCellOverVoltageWarn, &app::can_alerts::warnings::CellOverVoltage_set, Timer{ WARN_DEBOUNCE_MS } },
+    { &isCellOverTempWarn, &app::can_alerts::warnings::CellOverTemp_set, Timer{ WARN_DEBOUNCE_MS } },
 };
 
 Entry fault_entries[] = {
     { &isCellUndervoltageFault, &app::can_alerts::faults::CellUndervoltage_set, Timer{ FAULT_V_DEBOUNCE_MS } },
-    { &isCellOvervoltageFault,  &app::can_alerts::faults::CellOvervoltage_set,  Timer{ FAULT_V_DEBOUNCE_MS } },
-    { &isCellOvertempFault,     &app::can_alerts::faults::CellOvertemp_set,     Timer{ FAULT_T_DEBOUNCE_MS } },
-    { &anyCellOpenWire,         &app::can_alerts::faults::CellOpenWire_set,     Timer{ FAULT_OWC_DEBOUNCE_MS } },
-    { &anyHealthError,          &app::can_alerts::faults::HealthError_set,      Timer{ FAULT_HEALTH_DEBOUNCE_MS } },
+    { &isCellOvervoltageFault, &app::can_alerts::faults::CellOvervoltage_set, Timer{ FAULT_V_DEBOUNCE_MS } },
+    { &isCellOvertempFault, &app::can_alerts::faults::CellOvertemp_set, Timer{ FAULT_T_DEBOUNCE_MS } },
+    { &anyCellOpenWire, &app::can_alerts::faults::CellOpenWire_set, Timer{ FAULT_OWC_DEBOUNCE_MS } },
+    { &anyHealthError, &app::can_alerts::faults::HealthError_set, Timer{ FAULT_HEALTH_DEBOUNCE_MS } },
 };
 
 Entry info_entries[] = {
@@ -133,7 +163,8 @@ void init()
 
 bool tick()
 {
-    if (startup_blanking.updateAndGetState() != Timer::TimerState::EXPIRED) return false;
+    if (startup_blanking.updateAndGetState() != Timer::TimerState::EXPIRED)
+        return false;
 
     runEntries(warning_entries, std::size(warning_entries));
     const bool fault_active = runEntries(fault_entries, std::size(fault_entries));

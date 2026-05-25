@@ -131,7 +131,7 @@ Therms<result<float>>
 
             const float voltage    = reading.value();
             const float resistance = R_SERIES * (voltage / (V_REF2 - voltage));
-            out[seg][therm] = app::therm::adbms_ntc10k_lut.resistanceToTemp(resistance);
+            out[seg][therm]        = app::therm::adbms_ntc10k_lut.resistanceToTemp(resistance);
         }
     }
     return out;
