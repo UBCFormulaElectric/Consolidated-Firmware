@@ -1,6 +1,6 @@
 #include "io_notify.hpp"
 
-namespace hw::notify
+namespace io::notify
 {
 
 static constexpr EventBits_t NOTIFY_BIT = 1u << 0;
@@ -24,4 +24,4 @@ void Notifier::notifyFromISR() const
     portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }
 
-} // namespace hw::notify
+} // namespace io::notify
