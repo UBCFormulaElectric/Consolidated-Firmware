@@ -300,7 +300,7 @@ namespace debug
             segment_oscchk_buffer[seg]  = c.oscchk;
 
             // STATD — cell N UV at bit 2N, OV at bit 2N+1
-            const auto covuv_bit = [&d](unsigned n) { return static_cast<bool>((d.covuv >> n) & 1U); };
+            const auto covuv_bit = [&d](const size_t n) { return static_cast<bool>((d.covuv >> n) & 1U); };
             for (size_t cell = 0U; cell < CELLS_PER_SEGMENT; cell++)
             {
                 cell_uv_buffer[seg * CELLS_PER_SEGMENT + cell] = covuv_bit(2U * cell);

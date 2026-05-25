@@ -2,6 +2,7 @@
 #include "io_log.hpp"
 #include <expected>
 #include <source_location>
+#include <cstdint>
 
 enum class ErrorCode : uint8_t
 {

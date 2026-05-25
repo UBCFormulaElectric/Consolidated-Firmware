@@ -32,6 +32,7 @@
 #include "io_faultLatch.hpp"
 #include "io_semaphore.hpp"
 #include "io_time.hpp"
+#include "io_notify.hpp"
 
 using io::adbms::Cells;
 using io::adbms::OpenWireSwitch;
@@ -134,7 +135,7 @@ void jobs_run1kHz_tick()
     io::can_tx::enqueueOtherPeriodicMsgs(io::time::getCurrentMs());
 }
 
-static hw::notify::Notifier sync_done;
+static io::notify::Notifier sync_done;
 
 void jobs_runAdbmsConfigs_tick()
 {

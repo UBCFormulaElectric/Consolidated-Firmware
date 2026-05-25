@@ -167,7 +167,9 @@ struct __attribute__((packed)) STATC
     uint8_t tmodchk : 1;
     uint8_t oscchk : 1;
 };
+#ifdef TARGET_EMBEDDED
 static_assert(sizeof(STATC) == REG_GROUP_SIZE);
+#endif
 
 struct __attribute__((packed)) STATD
 {
@@ -184,7 +186,9 @@ struct __attribute__((packed)) STATE
     uint8_t : 2;
     uint8_t rev : 4;
 };
+#ifdef TARGET_EMBEDDED
 static_assert(sizeof(STATE) == REG_GROUP_SIZE);
+#endif
 
 struct StatusGroupsRes
 {

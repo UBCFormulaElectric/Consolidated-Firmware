@@ -4,7 +4,7 @@
 #include "event_groups.h"
 #endif
 
-namespace hw::notify
+namespace io::notify
 {
 
 // Multi-waiter notification: any number of tasks may call wait(); a single
@@ -28,4 +28,4 @@ class Notifier
 #endif
 };
 
-} // namespace hw::notify
+} // namespace io::notify
