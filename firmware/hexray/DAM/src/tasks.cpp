@@ -284,8 +284,8 @@ void tasks_runCanRx(void *arg)
 static void DAM_StartAllTasks()
 {
     Task100Hz.start();
-    // TaskCanTx.start();
-    // TaskCanRx.start();
+    TaskCanTx.start();
+    TaskCanRx.start();
     Task1kHz.start();
     Task1Hz.start();
     TaskLogging.start();
