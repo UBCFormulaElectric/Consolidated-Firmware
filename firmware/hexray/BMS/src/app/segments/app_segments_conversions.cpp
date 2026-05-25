@@ -54,7 +54,6 @@ result<void> startPoll::cellAdc()
 
 result<void> startPoll::auxAdc(const ThermistorMux mux)
 {
-    config::setThermistorConfig(mux);
     if (const auto start = io::adbms::command::startAuxAdc(); !start)
     {
         health::setAll(health::ErrorBit::AUX_ADC_POLL);

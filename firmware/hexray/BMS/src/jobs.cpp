@@ -224,13 +224,21 @@ void jobs_runAdbmsAux_tick()
     Segments<result<float>>              seg_voltage;
     Segments<io::adbms::StatusGroupsRes> status;
 
-    {
-        const io::unique_semaphore s{ spi_bus_lock };
-
-        // Thermistor Aux
-        for (const app::segments::ThermistorMux mux :
-             { app::segments::ThermistorMux::THERMISTOR_MUX_0_7, app::segments::ThermistorMux::THERMISTOR_MUX_8_13 })
+    
+        
+    // Thermistor Aux
+    for (const app::segments::ThermistorMux mux :
+         { app::segments::ThermistorMux::THERMISTOR_MUX_0_7, app::segments::ThermistorMux::THERMISTOR_MUX_8_13 })
+    { 
         {
+            const io::unique_semaphore s{ spi_bus_lock };
+            app::segments::config::setThermistorConfig(mux);
+        }
+       
+        sync_done.wait();  
+        
+        {
+            const io::unique_semaphore s{ spi_bus_lock };
             const auto poll = app::segments::startPoll::auxAdc(mux);
             if (poll)
             {
@@ -241,7 +249,10 @@ void jobs_runAdbmsAux_tick()
                 therm_voltages_poll_ok = std::unexpected(poll.error());
             }
         }
+    }
 
+    {
+        const io::unique_semaphore s{ spi_bus_lock };
         seg_voltage = app::segments::conversion::segVoltage();
         status      = app::segments::conversion::status();
     }

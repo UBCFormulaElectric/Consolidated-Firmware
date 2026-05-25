@@ -10,7 +10,7 @@
 // Minimum conversion times
 inline constexpr uint8_t CELL_CONV_TIME_MS           = 1U;
 inline constexpr uint8_t SECONDARY_CELL_CONV_TIME_MS = 8U;
-inline constexpr uint8_t AUX_CONV_TIME_MS            = 1U;
+inline constexpr uint8_t AUX_CONV_TIME_MS            = 5U;
 
 namespace app::segments
 {

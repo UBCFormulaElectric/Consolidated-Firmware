@@ -113,7 +113,7 @@ inline constexpr uint16_t CH0 = 1U << 0;
 
 // Poll commands return a packed readiness bitmap
 inline constexpr uint32_t POLL_STATUS_READY   = __builtin_bswap32(0xFFFFFFFFU >> (2 * NUM_SEGMENTS));
-inline constexpr uint8_t  POLL_RETRIES        = 5U;
+inline constexpr uint8_t  POLL_RETRIES        = 10U;
 inline constexpr uint8_t  POLL_RETRY_DELAY_MS = 1U;
 
 inline constexpr uint16_t DEFAULT_REGISTER_VALUE = 0x8000;
