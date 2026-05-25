@@ -72,7 +72,7 @@ async fn main() {
     let can_db = Arc::new(load_can_database().expect("Could not init Can db"));
 
     // health check
-    let health_check = HealthCheck::new();
+    let mut health_check = HealthCheck::new();
     
     // start tasks
     spawn_task(
@@ -133,7 +133,7 @@ async fn main() {
                         shutdown_rx_clone,
                         hc_tx_clone,
                         can_queue_tx_clone,
-                        client_out_msg_rx_clone
+                        client_out_msg_rx_clone,
                     ),
                 );
             }
@@ -191,6 +191,9 @@ async fn main() {
                         println!("Restarting {task:?} in {TASK_RESTART_DELAY_MS}ms...");
                         sleep(Duration::from_millis(TASK_RESTART_DELAY_MS)).await;
                         serial_spawner(&mut tasks);
+                        if health_check.wait_for_health_check(Task::SerialHandler).await.is_ok() {
+                            println!("{}", green(format!("{task:?} successfully restarted.")));
+                        }
                     }
                     _ => {}
                 }

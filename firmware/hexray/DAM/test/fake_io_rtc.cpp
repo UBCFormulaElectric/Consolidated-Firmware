@@ -7,9 +7,9 @@ namespace io::rtc
 
 // Non-static so the test-only `fakes::rtc` helpers below can reach them.
 // Only this TU defines io::rtc symbols in the test build, so no link conflict.
-Time g_time{ 0, 0, 0, 999 };
+Time g_time{ 0, 0, 0, 1023 };
 Date g_date{ 4, 1, 1, 0 }; // 2000-01-01, Thursday (weekday=4 in ISO with Mon=1 doesn't fit; fake doesn't care)
-Time g_last_set_time{ 0, 0, 0, 999 };
+Time g_last_set_time{ 0, 0, 0, 1023 };
 Date g_last_set_date{ 4, 1, 1, 0 };
 bool g_last_set_called = false;
 
@@ -85,9 +85,9 @@ bool wasSetCalled()
 
 void reset()
 {
-    io::rtc::g_time            = io::rtc::Time(0, 0, 0, 999);
+    io::rtc::g_time            = io::rtc::Time(0, 0, 0, 1023);
     io::rtc::g_date            = io::rtc::Date(4, 1, 1, 0);
-    io::rtc::g_last_set_time   = io::rtc::Time(0, 0, 0, 999);
+    io::rtc::g_last_set_time   = io::rtc::Time(0, 0, 0, 1023);
     io::rtc::g_last_set_date   = io::rtc::Date(4, 1, 1, 0);
     io::rtc::g_last_set_called = false;
 }

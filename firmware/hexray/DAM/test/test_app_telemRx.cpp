@@ -119,7 +119,7 @@ TEST_F(TelemRxTest, SlewsRtcToNextSecondBoundary)
     EXPECT_EQ(last.hours, 0u);
     EXPECT_EQ(last.minutes, 0u);
     EXPECT_EQ(last.seconds, 1u);
-    EXPECT_EQ(last.subseconds, 999u); // PREDIV_S => "0 ms into this second"
+    EXPECT_EQ(last.subseconds, 1023u); // subseconds == PREDIV_S means "0 ms into this second"
 }
 
 TEST_F(TelemRxTest, SlewSetsRtcExactlyOnBoundaryWhenAlreadyAligned)
@@ -137,7 +137,7 @@ TEST_F(TelemRxTest, SlewSetsRtcExactlyOnBoundaryWhenAlreadyAligned)
     EXPECT_EQ(last.hours, 12u);
     EXPECT_EQ(last.minutes, 0u);
     EXPECT_EQ(last.seconds, 1u);
-    EXPECT_EQ(last.subseconds, 999u);
+    EXPECT_EQ(last.subseconds, 1023u);
 }
 
 TEST_F(TelemRxTest, ConsumesValidFrameAndUpdatesTimestamps)
