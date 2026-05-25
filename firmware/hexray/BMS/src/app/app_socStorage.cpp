@@ -31,11 +31,6 @@ constexpr bool isValidSocTenths(const uint32_t soc_tenths)
     return soc_tenths > 0U && soc_tenths < 1000U;
 }
 
-// bool requireStorageReady()
-// {
-//     return soc_storage_ready;
-// }
-
 std::expected<void, ErrorCode> read(float &saved_soc_percent)
 {
     saved_soc_percent = -1.0f;
@@ -71,11 +66,6 @@ void init()
 {
     soc_storage_ready = false;
 
-    // if (!fs.checkMount())
-    // {
-    //     LOG_ERROR("SoC storage unavailable: failed to initialize filesystem");
-    //     return;
-    // }
     if (auto open_result = fs.open(SOC_STORAGE_PATH))
     {
         soc_fd = *open_result;
