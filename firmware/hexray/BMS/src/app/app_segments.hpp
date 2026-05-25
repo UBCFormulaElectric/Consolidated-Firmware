@@ -8,9 +8,9 @@
 #include "hw_notify.hpp"
 
 // Minimum conversion times
-inline constexpr uint8_t CELL_CONV_TIME_MS           = 1U;// TEST THIS SMTH SKEACHY GOING ON
-inline constexpr uint8_t SECONDARY_CELL_CONV_TIME_MS = 8U;// TEST THIS SMTH SKEACHY GOING ON
-inline constexpr uint8_t AUX_CONV_TIME_MS            = 15U;// TEST THIS SMTH SKEACHY GOING ON
+inline constexpr uint8_t CELL_CONV_TIME_MS           = 1U;  // TEST THIS SMTH SKEACHY GOING ON
+inline constexpr uint8_t SECONDARY_CELL_CONV_TIME_MS = 8U;  // TEST THIS SMTH SKEACHY GOING ON
+inline constexpr uint8_t AUX_CONV_TIME_MS            = 15U; // TEST THIS SMTH SKEACHY GOING ON
 
 namespace app::segments
 {

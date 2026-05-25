@@ -55,7 +55,9 @@ result<void> command::pollAuxAdc()
         [&attempt]() -> result<void>
         {
             ++attempt;
-            LOG_INFO("pollAuxAdc retry attempt %lu/%lu", static_cast<unsigned long>(attempt), static_cast<unsigned long>(POLL_RETRIES));
+            LOG_INFO(
+                "pollAuxAdc retry attempt %lu/%lu", static_cast<unsigned long>(attempt),
+                static_cast<unsigned long>(POLL_RETRIES));
             const auto rx_res = poll(PLAUX);
             if (!rx_res)
                 return unexpected(rx_res.error());

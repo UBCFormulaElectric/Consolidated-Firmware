@@ -238,7 +238,7 @@ void jobs_runAdbmsAux_tick()
 
         {
             const io::unique_semaphore s{ spi_bus_lock };
-            const auto idx = static_cast<size_t>(mux);
+            const auto                 idx = static_cast<size_t>(mux);
             app::segments::config::setThermistorConfig(mux);
             // TODO tie signals to locks
             spi_bus_lock.give();
@@ -257,8 +257,9 @@ void jobs_runAdbmsAux_tick()
 
     {
         const io::unique_semaphore s{ spi_bus_lock };
-        seg_voltages = app::segments::conversion::segVoltage(); //this reports wrong value possibly reg-> float conversion is wrong
-        status      = app::segments::conversion::status();
+        seg_voltages = app::segments::conversion::segVoltage(); // this reports wrong value possibly reg-> float
+                                                                // conversion is wrong
+        status = app::segments::conversion::status();
     }
 
     const Therms<result<float>> therm_temps = app::segments::calculate::thermTemps(therm_voltages);

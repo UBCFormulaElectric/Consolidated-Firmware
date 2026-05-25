@@ -112,9 +112,10 @@ inline constexpr uint16_t CH1 = 1U << 1;
 inline constexpr uint16_t CH0 = 1U << 0;
 
 // Poll commands return a packed readiness bitmap
-inline constexpr uint32_t POLL_STATUS_READY   = __builtin_bswap32(0xFFFFFFFFU >> (2 * NUM_SEGMENTS)); // TEST THIS SMTH SKEACHY GOING ON
-inline constexpr uint8_t  POLL_RETRIES        = 20U;// TEST THIS SMTH SKEACHY GOING ON
-inline constexpr uint8_t  POLL_RETRY_DELAY_MS = 3U;// TEST THIS SMTH SKEACHY GOING ON
+inline constexpr uint32_t POLL_STATUS_READY =
+    __builtin_bswap32(0xFFFFFFFFU >> (2 * NUM_SEGMENTS)); // TEST THIS SMTH SKEACHY GOING ON
+inline constexpr uint8_t POLL_RETRIES        = 20U;       // TEST THIS SMTH SKEACHY GOING ON
+inline constexpr uint8_t POLL_RETRY_DELAY_MS = 3U;        // TEST THIS SMTH SKEACHY GOING ON
 
 inline constexpr uint16_t DEFAULT_REGISTER_VALUE = 0x8000;
 
