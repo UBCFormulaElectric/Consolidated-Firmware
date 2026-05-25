@@ -2,9 +2,8 @@
 #include "io_log.hpp"
 #include <expected>
 #include <source_location>
-#include <cstdint>
 
-enum class ErrorCode : uint8_t
+enum class ErrorCode
 {
     INVALID_ARGS = 0,
     OUT_OF_RANGE,
