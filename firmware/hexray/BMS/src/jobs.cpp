@@ -64,6 +64,7 @@ void jobs_init()
     app::can_tx::BMS_Hash_set(GIT_COMMIT_HASH);
     app::can_tx::BMS_Clean_set(GIT_COMMIT_CLEAN);
     app::can_tx::BMS_Heartbeat_set(true);
+    io::can_tx::BMS_Bootup_sendAperiodic();
 
     app::precharge::init();
     app::segments::alerts::init();

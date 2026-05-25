@@ -1,6 +1,8 @@
 {
-  "warnings_id": 401,
-  "warnings_counts_id": 403,
+  "faults_id": 401,
+  "warnings_id": 402,
+  "faults_counts_id": 403,
+  "warnings_counts_id": 404,
   "warnings": {
     "CellUnderVoltage": {
       "id": 446,
@@ -19,8 +21,6 @@
       "description": "Tractive system overcurrent detected"
     }
   },
-  "faults_id": 402,
-  "faults_counts_id": 404,
   "faults": {
     "CellUndervoltage": {
       "id": 452,

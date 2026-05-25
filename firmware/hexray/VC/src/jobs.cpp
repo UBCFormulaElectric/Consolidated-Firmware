@@ -3,8 +3,10 @@
 #include "app_canUtils.hpp"
 #include "app_jsoncan.hpp"
 #include "app_heartbeatMonitors.hpp"
+#include "app_canTx.hpp"
 #include "app_canRx.hpp"
 #include "app_powerMonitoring.hpp"
+#include "app_commitInfo.hpp"
 
 #include "io_canMsg.hpp"
 #include "io_canTx.hpp"
@@ -37,6 +39,12 @@ void jobs_init()
     io::can_tx::enableMode_InvCAN(app::can_utils::InvCANMode::INVCAN_MODE_DEFAULT, true);
 
     io::can_reroute::init(fdcan_tx, invcan_tx);
+
+    app::can_tx::VC_Hash_set(GIT_COMMIT_HASH);
+    app::can_tx::VC_Clean_set(GIT_COMMIT_CLEAN);
+    app::can_tx::VC_Heartbeat_set(true);
+
+    io::can_tx::VC_Bootup_sendAperiodic();
 }
 void jobs_run1Hz_tick() {}
 void jobs_run100Hz_tick()

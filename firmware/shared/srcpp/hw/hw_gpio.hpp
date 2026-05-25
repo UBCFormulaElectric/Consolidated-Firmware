@@ -1,7 +1,5 @@
 #pragma once
-#ifdef TARGET_EMBEDDED
 #include "hw_hal.hpp"
-#endif
 
 namespace hw
 {
