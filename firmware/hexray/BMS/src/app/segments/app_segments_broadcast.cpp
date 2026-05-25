@@ -88,7 +88,7 @@ BroadcastBuffer<bool, MAX_NUM_SEGMENTS * CELLS_PER_SEGMENT, tx::BMS_ThermistorOp
 
 // Error-code companion buffers. INVALID_ARGS (= 0) means no error.
 using CanErr                  = app::can_utils::ErrorCode;
-constexpr CanErr CAN_ERR_NONE = CanErr::INVALID_ARGS;
+constexpr CanErr CAN_ERR_NONE = CanErr::ERROR_CODE_INVALID_ARGS;
 constexpr CanErr toCanErr(const ErrorCode e)
 {
     return static_cast<CanErr>(static_cast<uint8_t>(e));

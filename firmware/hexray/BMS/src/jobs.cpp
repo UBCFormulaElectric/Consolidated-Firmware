@@ -218,12 +218,11 @@ void jobs_runAdbmsAux_tick()
     sync_done.wait();
     LOG_INFO("Starting AUX poll and conversion");
 
-    result<void>                             therm_voltages_poll_ok;
-    std::array<ThermGpios<result<float>>, 2> therm_voltages;
-    Segments<result<float>>                  seg_voltage;
-    Segments<io::adbms::StatusGroupsRes>     status;
-
-
+    result<void> therm_voltages_poll_ok;
+    std::array<ThermGpios<result<float>>, static_cast<size_t>(app::segments::ThermistorMux::THERMISTOR_MUX_COUNT)>
+                                         therm_voltages;
+    Segments<result<float>>              seg_voltages;
+    Segments<io::adbms::StatusGroupsRes> status;
 
     // Thermistor Aux
     for (const app::segments::ThermistorMux mux :
@@ -257,7 +256,7 @@ void jobs_runAdbmsAux_tick()
 
     {
         const io::unique_semaphore s{ spi_bus_lock };
-        seg_voltage = app::segments::conversion::segVoltage();
+        seg_voltages = app::segments::conversion::segVoltage(); //this reports wrong value possibly reg-> float conversion is wrong
         status      = app::segments::conversion::status();
     }
 
@@ -265,11 +264,13 @@ void jobs_runAdbmsAux_tick()
     const Therms<result<bool>>  therm_owc   = app::segments::calculate::thermOwc(therm_voltages);
 
     app::segments::shared::setTemperatureStats(therm_temps, therm_owc);
+    app::segments::shared::setSegmentVoltageStats(seg_voltages);
 
     app::segments::broadcast::temperatureStats();
+    app::segments::broadcast::segmentVoltageStats();
     app::segments::broadcast::segmentHealthError();
     app::segments::broadcast::debug::thermTemps(therm_temps, therm_voltages_poll_ok);
     app::segments::broadcast::debug::thermOwc(therm_owc, therm_voltages_poll_ok);
-    app::segments::broadcast::debug::segVoltages(seg_voltage);
+    app::segments::broadcast::debug::segVoltages(seg_voltages);
     app::segments::broadcast::debug::status(status);
 }

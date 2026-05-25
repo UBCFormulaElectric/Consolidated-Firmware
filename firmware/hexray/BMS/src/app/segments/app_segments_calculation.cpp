@@ -162,7 +162,7 @@ Therms<result<bool>>
             }
 
             // TODO: calibrate OW_THERM_THRESHOLD (currently 2.8V).
-            out[seg][therm] = reading.value() > OW_THERM_THRESHOLD;
+            out[seg][therm] = reading.value() < OW_THERM_THRESHOLD;
         }
     }
     return out;

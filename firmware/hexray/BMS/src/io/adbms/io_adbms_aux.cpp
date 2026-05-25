@@ -1,5 +1,6 @@
 #include "io_adbms_internal.hpp"
 #include "io_adbms.hpp"
+#include "io_log.hpp"
 #include "io_time.hpp"
 #include "util_errorCodes.hpp"
 #include "util_retry.hpp"
@@ -49,9 +50,12 @@ result<void> command::startAuxAdc()
 
 result<void> command::pollAuxAdc()
 {
+    uint32_t attempt = 0;
     return util::retry(
-        []() -> result<void>
+        [&attempt]() -> result<void>
         {
+            ++attempt;
+            LOG_INFO("pollAuxAdc retry attempt %lu/%lu", static_cast<unsigned long>(attempt), static_cast<unsigned long>(POLL_RETRIES));
             const auto rx_res = poll(PLAUX);
             if (!rx_res)
                 return unexpected(rx_res.error());
