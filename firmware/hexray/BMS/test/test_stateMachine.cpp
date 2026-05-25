@@ -1,6 +1,6 @@
 #include "test_fakes.hpp"
 #include "test_BMSBase.hpp"
-#include "states/app_states.hpp"
+#include "app_states.hpp"
 #include "app_precharge.hpp"
 #include "app_irs.hpp"
 #include "io_time.hpp"
@@ -209,17 +209,17 @@ TEST_F(BmsStateMachineTest, enter_balance)
 {
     ASSERT_STATE_EQ(init_state);
     fakes::irs::setNegativeState(ContactorState::CONTACTOR_STATE_CLOSED);
-    app::can_rx::Debug_CellBalancingRequest_update(true);
+    app::can_rx::Debug_CellBalancing_Request_update(true);
     LetTimePass(20);
 
     ASSERT_STATE_EQ(balancing_state);
-    EXPECT_TRUE(app::can_rx::Debug_CellBalancingRequest_get());
+    EXPECT_TRUE(app::can_rx::Debug_CellBalancing_Request_get());
 }
 
 TEST_F(BmsStateMachineTest, exit_balance)
 {
     app::StateMachine::set_current_state(&balancing_state);
-    app::can_rx::Debug_CellBalancingRequest_update(false);
+    app::can_rx::Debug_CellBalancing_Request_update(false);
     LetTimePass(20);
 
     ASSERT_STATE_EQ(init_state);
@@ -228,12 +228,12 @@ TEST_F(BmsStateMachineTest, exit_balance)
 TEST_F(BmsStateMachineTest, exits_balance_when_negative_opens_and_clears_request_on_exit)
 {
     app::StateMachine::set_current_state(&balancing_state);
-    app::can_rx::Debug_CellBalancingRequest_update(true);
+    app::can_rx::Debug_CellBalancing_Request_update(true);
     fakes::irs::setNegativeState(ContactorState::CONTACTOR_STATE_OPEN);
     LetTimePass(20);
 
     ASSERT_STATE_EQ(init_state);
-    EXPECT_FALSE(app::can_rx::Debug_CellBalancingRequest_get());
+    EXPECT_FALSE(app::can_rx::Debug_CellBalancing_Request_get());
 }
 
 // Init-PrechargeCharge tests

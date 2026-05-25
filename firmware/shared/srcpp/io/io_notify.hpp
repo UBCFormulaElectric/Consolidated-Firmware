@@ -1,7 +1,8 @@
 #pragma once
+#ifdef TARGET_EMBEDDED
 #include "FreeRTOS.h"
 #include "event_groups.h"
-#include "util_errorCodes.hpp"
+#endif
 
 namespace hw::notify
 {
@@ -20,9 +21,11 @@ class Notifier
     void notify() const;
     void notifyFromISR() const;
 
+#ifdef TARGET_EMBEDDED
   private:
     StaticEventGroup_t storage_{};
     EventGroupHandle_t handle_;
+#endif
 };
 
 } // namespace hw::notify
