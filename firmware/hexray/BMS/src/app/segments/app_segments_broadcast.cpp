@@ -88,7 +88,7 @@ BroadcastBuffer<bool, MAX_NUM_SEGMENTS * CELLS_PER_SEGMENT, tx::BMS_ThermistorOp
 
 // Error-code companion buffers. INVALID_ARGS (= 0) means no error.
 using CanErr                  = app::can_utils::ErrorCode;
-constexpr CanErr CAN_ERR_NONE = CanErr::ERROR_CODE_INVALID_ARGS;
+constexpr auto   CAN_ERR_NONE = CanErr::ERROR_CODE_INVALID_ARGS;
 constexpr CanErr toCanErr(const ErrorCode e)
 {
     return static_cast<CanErr>(static_cast<uint8_t>(e));
@@ -347,7 +347,7 @@ namespace debug
 
 void segmentHealthError()
 {
-    using app::segments::health::ErrorBit;
+    using health::ErrorBit;
     for (size_t seg = 0U; seg < MAX_NUM_SEGMENTS; seg++)
     {
         for (size_t bit = 0U; bit < NUM_HEALTH_BITS; bit++)
@@ -362,36 +362,36 @@ void segmentHealthError()
 
 void voltageStats()
 {
-    const auto min = app::segments::shared::getMinCellVoltage();
-    const auto max = app::segments::shared::getMaxCellVoltage();
-    app::can_tx::BMS_MinCellVoltage_set(min.value);
-    app::can_tx::BMS_MinCellVoltageSegment_set(min.segment);
-    app::can_tx::BMS_MinCellVoltageCell_set(min.cell);
-    app::can_tx::BMS_MaxCellVoltage_set(max.value);
-    app::can_tx::BMS_MaxCellVoltageSegment_set(max.segment);
-    app::can_tx::BMS_MaxCellVoltageCell_set(max.cell);
+    const auto [min_seg, min_cell, min_voltage] = shared::getMinCellVoltage();
+    const auto [max_seg, max_cell, max_voltage] = shared::getMaxCellVoltage();
+    can_tx::BMS_MinCellVoltage_set(min_voltage);
+    can_tx::BMS_MinCellVoltageSegment_set(min_seg);
+    can_tx::BMS_MinCellVoltageCell_set(min_cell);
+    can_tx::BMS_MaxCellVoltage_set(max_voltage);
+    can_tx::BMS_MaxCellVoltageSegment_set(max_seg);
+    can_tx::BMS_MaxCellVoltageCell_set(max_cell);
 }
 
 void temperatureStats()
 {
-    const auto min = app::segments::shared::getMinCellTemperature();
-    const auto max = app::segments::shared::getMaxCellTemperature();
-    app::can_tx::BMS_MinCellTemp_set(min.value);
-    app::can_tx::BMS_MinCellTempSegment_set(min.segment);
-    app::can_tx::BMS_MinCellTempCell_set(min.cell);
-    app::can_tx::BMS_MaxCellTemp_set(max.value);
-    app::can_tx::BMS_MaxCellTempSegment_set(max.segment);
-    app::can_tx::BMS_MaxCellTempCell_set(max.cell);
+    const auto [min_seg, min_cell, min_temp] = shared::getMinCellTemperature();
+    const auto [max_seg, max_cell, max_temp] = shared::getMaxCellTemperature();
+    can_tx::BMS_MinCellTemp_set(min_temp);
+    can_tx::BMS_MinCellTempSegment_set(min_seg);
+    can_tx::BMS_MinCellTempCell_set(min_cell);
+    can_tx::BMS_MaxCellTemp_set(max_temp);
+    can_tx::BMS_MaxCellTempSegment_set(max_seg);
+    can_tx::BMS_MaxCellTempCell_set(max_cell);
 }
 
 void segmentVoltageStats()
 {
-    const auto min = app::segments::shared::getMinSegmentVoltage();
-    const auto max = app::segments::shared::getMaxSegmentVoltage();
-    app::can_tx::BMS_MinSegmentVoltage_set(min.value);
-    app::can_tx::BMS_MinSegmentVoltageSegment_set(min.segment);
-    app::can_tx::BMS_MaxSegmentVoltage_set(max.value);
-    app::can_tx::BMS_MaxSegmentVoltageSegment_set(max.segment);
+    const auto [min_seg, min_seg_voltage] = shared::getMinSegmentVoltage();
+    const auto [max_seg, max_seg_voltage] = shared::getMaxSegmentVoltage();
+    can_tx::BMS_MinSegmentVoltage_set(min_seg_voltage);
+    can_tx::BMS_MinSegmentVoltageSegment_set(min_seg);
+    can_tx::BMS_MaxSegmentVoltage_set(max_seg_voltage);
+    can_tx::BMS_MaxSegmentVoltageSegment_set(max_seg);
 }
 
 } // namespace app::segments::broadcast

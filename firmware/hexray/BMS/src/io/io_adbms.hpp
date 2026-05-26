@@ -135,9 +135,9 @@ static_assert(sizeof(STATA) == REG_GROUP_SIZE);
 
 struct __attribute__((packed)) STATB
 {
-    uint16_t vd;
-    uint16_t va;
-    uint16_t vres;
+    int16_t vd;
+    int16_t va;
+    int16_t vres;
 };
 static_assert(sizeof(STATB) == REG_GROUP_SIZE);
 
