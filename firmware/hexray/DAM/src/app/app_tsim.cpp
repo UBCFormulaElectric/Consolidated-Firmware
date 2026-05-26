@@ -22,11 +22,42 @@ namespace
     app::Timer bootup_ignore_timer(BOOTUP_IGNORE_TIME_MS);
     TsimColor  curr_color = TsimColor::OFF;
     TsimColor  next_color = TsimColor::RED;
+
+    static void apply_tsim_color(const TsimColor color)
+    {
+        switch (color)
+        {
+            case TsimColor::OFF:
+                io::tsim::set_off();
+                break;
+            case TsimColor::RED:
+                io::tsim::set_red();
+                break;
+            case TsimColor::GREEN:
+                io::tsim::set_green();
+                break;
+            default:
+                io::tsim::set_off();
+                break;
+        }
+    }
+
+    static void apply_toggle_transition(
+        TsimColor      &curr,
+        TsimColor      &next,
+        const TsimColor output_color,
+        const TsimColor next_after_output)
+    {
+        apply_tsim_color(output_color);
+        curr = output_color;
+        next = next_after_output;
+        toggle_timer.restart();
+    }
 } // namespace
 
 void init()
 {
-    io::tsim::set_off();
+    apply_tsim_color(TsimColor::OFF);
     curr_color = TsimColor::OFF;
     next_color = TsimColor::RED;
     toggle_timer.stop();
@@ -36,14 +67,13 @@ void init()
 void tick()
 {
     const bool ignore_fault_on_bootup = bootup_ignore_timer.updateAndGetState() == app::Timer::TimerState::RUNNING;
-    const bool bms_ok                 = app::can_rx::BMS_BmsLatchOk_get();
-    const bool imd_ok                 = app::can_rx::BMS_ImdLatchOk_get();
-    const bool bspd_ok                = app::can_rx::BMS_BspdLatchOk_get();
-    const bool no_fault               = (bms_ok && imd_ok && bspd_ok) || ignore_fault_on_bootup;
+    const bool no_fault               = (app::can_rx::BMS_BmsLatchOk_get() && app::can_rx::BMS_ImdLatchOk_get() &&
+                           app::can_rx::BMS_BspdLatchOk_get()) ||
+                          ignore_fault_on_bootup;
 
     if (no_fault)
     {
-        io::tsim::set_green();
+        apply_tsim_color(TsimColor::GREEN);
         curr_color = TsimColor::GREEN;
         toggle_timer.stop();
         return;
@@ -52,32 +82,20 @@ void tick()
     switch (toggle_timer.updateAndGetState())
     {
         case app::Timer::TimerState::IDLE:
-            io::tsim::set_red();
-            curr_color = TsimColor::RED;
-            next_color = TsimColor::OFF;
-            toggle_timer.restart();
+            apply_toggle_transition(curr_color, next_color, TsimColor::RED, TsimColor::OFF);
             break;
         case app::Timer::TimerState::EXPIRED:
             if (curr_color == TsimColor::OFF && next_color == TsimColor::RED)
             {
-                io::tsim::set_red();
-                curr_color = TsimColor::RED;
-                next_color = TsimColor::OFF;
-                toggle_timer.restart();
+                apply_toggle_transition(curr_color, next_color, TsimColor::RED, TsimColor::OFF);
             }
             else if (curr_color == TsimColor::RED && next_color == TsimColor::OFF)
             {
-                io::tsim::set_off();
-                curr_color = TsimColor::OFF;
-                next_color = TsimColor::RED;
-                toggle_timer.restart();
+                apply_toggle_transition(curr_color, next_color, TsimColor::OFF, TsimColor::RED);
             }
             else
             {
-                io::tsim::set_red();
-                curr_color = TsimColor::RED;
-                next_color = TsimColor::OFF;
-                toggle_timer.restart();
+                apply_toggle_transition(curr_color, next_color, TsimColor::RED, TsimColor::OFF);
             }
             break;
         case app::Timer::TimerState::RUNNING:
