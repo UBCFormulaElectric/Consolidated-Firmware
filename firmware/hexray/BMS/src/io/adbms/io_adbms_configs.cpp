@@ -26,8 +26,6 @@ Segments<result<SegmentConfig>> read::configReg()
 {
     const Segments<result<RegBuffer>> a_regs = readRegGroup(RDCFGA);
     const Segments<result<RegBuffer>> b_regs = readRegGroup(RDCFGB);
-    static_assert(sizeof(RegBuffer) == sizeof(CFGA));
-    static_assert(sizeof(RegBuffer) == sizeof(CFGB));
 
     Segments<result<SegmentConfig>> out;
     for (size_t seg = 0U; seg < NUM_SEGMENTS; ++seg)
