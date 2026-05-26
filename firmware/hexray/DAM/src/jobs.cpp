@@ -4,15 +4,14 @@
 #include "io_log.hpp"
 
 #include "app_bootcount.hpp"
+#include "app_buzzer.hpp"
 #include "app_canTx.hpp"
-#include "app_canRx.hpp"
 #include "app_canUtils.hpp"
 #include "app_canDataCapture.hpp"
 #include "app_jsoncan.hpp"
 #include "app_heartbeatMonitors.hpp"
 #include "app_commitInfo.hpp"
 #include "app_epochClock.hpp"
-#include "app_timer.hpp"
 
 #include "io_canMsg.hpp"
 #include "io_canQueues.hpp"
@@ -24,7 +23,6 @@
 #include "io_time.hpp"
 #include "io_fileSystems.hpp"
 
-#include "io_buzzer.hpp"
 #include "io_canLogging.hpp"
 #include "util_errorCodes.hpp"
 
@@ -32,10 +30,9 @@
 // priv namespace for the logfs vars
 namespace
 {
-auto       LOG_PATH = "/log.bin";
-uint32_t   log_fd   = 0;
-bool       log_open = false;
-app::Timer buzzer_pulse{ 1000 };
+auto     LOG_PATH = "/log.bin";
+uint32_t log_fd   = 0;
+bool     log_open = false;
 } // namespace
 
 void jobs_init()
@@ -77,6 +74,7 @@ void jobs_init()
     app::can_tx::DAM_Heartbeat_set(true);
     io::can_tx::DAM_Bootup_sendAperiodic();
     app::epochClock::logDateTime("Boot RTC time (GMT)");
+    app::buzzer::init();
 }
 
 void jobs_initLogFs()
@@ -155,19 +153,7 @@ void jobs_run100Hz_tick()
         // NTP markers go over UART only; the SD log is raw CAN frames only.
     }
 
-    const bool vc_drive_state = app::can_rx::VC_State_get() == app::can_utils::VCState::VC_DRIVE_STATE;
-
-    switch (buzzer_pulse.runIfCondition(vc_drive_state))
-    {
-        case app::Timer::TimerState::RUNNING:
-            io::buzzer::enable();
-            break;
-        case app::Timer::TimerState::IDLE:
-        case app::Timer::TimerState::EXPIRED:
-        default:
-            io::buzzer::disable();
-            break;
-    }
+    app::buzzer::tick();
 
     hb_monitor.checkIn();
     hb_monitor.broadcastFaults();
