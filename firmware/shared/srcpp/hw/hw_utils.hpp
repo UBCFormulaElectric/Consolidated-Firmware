@@ -14,7 +14,7 @@
 
 namespace hw::utils
 {
-inline std::expected<void, ErrorCode> convertHalStatus(const HAL_StatusTypeDef status)
+inline result<void> convertHalStatus(const HAL_StatusTypeDef status)
 {
     switch (status)
     {

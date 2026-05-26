@@ -8,7 +8,7 @@
 namespace hw
 {
 /* Setters for private fields */
-void SdCard::onTxTransactionCompleteFromISR() const
+void SdCard::onTransactionCompleteFromISR() const
 {
     // dma_tx_completed = value;
     // TODO signaling to blocked here
@@ -18,18 +18,8 @@ void SdCard::onTxTransactionCompleteFromISR() const
     vTaskNotifyGiveFromISR(taskInProgress, &higherPriorityTaskWoken);
     portYIELD_FROM_ISR(higherPriorityTaskWoken);
 }
-void SdCard::onRxTransactionCompleteFromISR() const
-{
-    // dma_rx_completed = value;
-    // TODO signaling to blocked here
-}
 
-// void hw::Uart::onTransactionCompleteFromISR() const
-// {
-//
-// }
-
-std::expected<void, ErrorCode> SdCard::waitForNotification(const uint32_t timeoutMs) const
+result<void> SdCard::waitForNotification(const uint32_t timeoutMs) const
 {
     const uint32_t num_notifications = ulTaskNotifyTake(pdTRUE, timeoutMs);
     taskInProgress                   = nullptr;
@@ -44,7 +34,7 @@ std::expected<void, ErrorCode> SdCard::waitForNotification(const uint32_t timeou
     return {};
 }
 
-std::expected<void, ErrorCode> SdCard::read(std::span<uint8_t> pdata, const uint32_t block_addr) const
+result<void> SdCard::read(std::span<uint8_t> pdata, const uint32_t block_addr) const
 {
     if (pdata.size() < HW_DEVICE_SECTOR_SIZE || pdata.size() % HW_DEVICE_SECTOR_SIZE != 0)
         return std::unexpected(ErrorCode::ERROR);
@@ -52,12 +42,38 @@ std::expected<void, ErrorCode> SdCard::read(std::span<uint8_t> pdata, const uint
     CHECK_SD_PRESENT();
     while (HAL_SD_GetCardState(&_hsd) != HAL_SD_CARD_TRANSFER)
         ;
-    return hw::utils::convertHalStatus(
-        HAL_SD_ReadBlocks(&_hsd, pdata.data(), block_addr, pdata.size() / HW_DEVICE_SECTOR_SIZE, _timeout));
+
+    if (osKernelGetState() != taskSCHEDULER_RUNNING || xPortIsInsideInterrupt())
+    {
+        // If kernel hasn't started, there's no current task to block, so just do a non-async polling transaction.
+        const result<void> st = utils::convertHalStatus(
+            HAL_SD_ReadBlocks(&_hsd, pdata.data(), block_addr, pdata.size() / HW_DEVICE_SECTOR_SIZE, _timeout));
+        return st;
+    }
+
+    if (taskInProgress != nullptr)
+    {
+        // There is a task currently in progress!
+        return std::unexpected(ErrorCode::BUSY);
+    }
+
+    // Save current task before starting a SD transaction.
+    taskInProgress = xTaskGetCurrentTaskHandle();
+
+    result<void> exit = utils::convertHalStatus(
+        HAL_SD_ReadBlocks_IT(&_hsd, pdata.data(), block_addr, pdata.size() / HW_DEVICE_SECTOR_SIZE));
+    if (not exit.has_value())
+    {
+        // Mark this transaction as no longer in progress.
+        taskInProgress = nullptr;
+        return exit;
+    }
+
+    exit = waitForNotification(_timeout);
+    return exit;
 }
 
-std::expected<void, ErrorCode>
-    SdCard::readOffset(const std::span<uint8_t> pdata, const uint32_t block_addr, const uint32_t offset) const
+result<void> SdCard::readOffset(const std::span<uint8_t> pdata, const uint32_t block_addr, const uint32_t offset) const
 {
     CHECK_SD_PRESENT();
     if (not OFFSET_SIZE_VALID(offset, pdata.size())) // easy case
@@ -65,7 +81,7 @@ std::expected<void, ErrorCode>
     return read(pdata, block_addr + offset / HW_DEVICE_SECTOR_SIZE);
 }
 
-std::expected<void, ErrorCode> SdCard::write(const std::span<uint8_t> pdata, const uint32_t block_addr) const
+result<void> SdCard::write(const std::span<uint8_t> pdata, const uint32_t block_addr) const
 {
     if (pdata.size() < HW_DEVICE_SECTOR_SIZE || pdata.size() % HW_DEVICE_SECTOR_SIZE != 0)
         return std::unexpected(ErrorCode::ERROR);
@@ -77,7 +93,7 @@ std::expected<void, ErrorCode> SdCard::write(const std::span<uint8_t> pdata, con
     if (osKernelGetState() != taskSCHEDULER_RUNNING || xPortIsInsideInterrupt())
     {
         // If kernel hasn't started, there's no current task to block, so just do a non-async polling transaction.
-        const std::expected<void, ErrorCode> st = utils::convertHalStatus(
+        const result<void> st = utils::convertHalStatus(
             HAL_SD_WriteBlocks(&_hsd, pdata.data(), block_addr, pdata.size() / HW_DEVICE_SECTOR_SIZE, _timeout));
         return st;
     }
@@ -91,7 +107,7 @@ std::expected<void, ErrorCode> SdCard::write(const std::span<uint8_t> pdata, con
     // Save current task before starting a SD transaction.
     taskInProgress = xTaskGetCurrentTaskHandle();
 
-    std::expected<void, ErrorCode> exit = utils::convertHalStatus(
+    result<void> exit = utils::convertHalStatus(
         HAL_SD_WriteBlocks_IT(&_hsd, pdata.data(), block_addr, pdata.size() / HW_DEVICE_SECTOR_SIZE));
     if (not exit.has_value())
     {
@@ -104,8 +120,7 @@ std::expected<void, ErrorCode> SdCard::write(const std::span<uint8_t> pdata, con
     return exit;
 }
 
-std::expected<void, ErrorCode>
-    SdCard::writeOffset(const std::span<uint8_t> pdata, const uint32_t block_addr, const uint32_t offset) const
+result<void> SdCard::writeOffset(const std::span<uint8_t> pdata, const uint32_t block_addr, const uint32_t offset) const
 {
     if (pdata.empty())
         return {};
@@ -116,7 +131,7 @@ std::expected<void, ErrorCode>
     return write(pdata, block_addr + offset / HW_DEVICE_SECTOR_SIZE);
 }
 
-std::expected<void, ErrorCode> SdCard::erase(const uint32_t start_addr, const uint32_t end_addr) const
+result<void> SdCard::erase(const uint32_t start_addr, const uint32_t end_addr) const
 {
     CHECK_SD_PRESENT();
     while (HAL_SD_GetCardState(&_hsd) != HAL_SD_CARD_TRANSFER)
@@ -125,7 +140,7 @@ std::expected<void, ErrorCode> SdCard::erase(const uint32_t start_addr, const ui
     return hw::utils::convertHalStatus(HAL_SD_Erase(&_hsd, start_addr, end_addr));
 }
 
-std::expected<void, ErrorCode> SdCard::writeDma(const std::span<uint8_t> pdata, const uint32_t block_addr) const
+result<void> SdCard::writeDma(const std::span<uint8_t> pdata, const uint32_t block_addr) const
 {
     if (pdata.size() < HW_DEVICE_SECTOR_SIZE || pdata.size() % HW_DEVICE_SECTOR_SIZE != 0)
         return std::unexpected(ErrorCode::ERROR);
@@ -151,27 +166,26 @@ extern "C"
     void HAL_SD_TxCpltCallback(SD_HandleTypeDef *hsd)
     {
         const hw::SdCard &sd = hw::getSdFromHandle(hsd);
-        sd.onTxTransactionCompleteFromISR();
+        sd.onTransactionCompleteFromISR();
     }
 
     void HAL_SD_RxCpltCallback(SD_HandleTypeDef *hsd)
     {
         const hw::SdCard &sd = hw::getSdFromHandle(hsd);
-        sd.onRxTransactionCompleteFromISR();
+        sd.onTransactionCompleteFromISR();
     }
 
     void HAL_SD_ErrorCallback(SD_HandleTypeDef *hsd)
     {
         const hw::SdCard &sd = hw::getSdFromHandle(hsd);
         // TODO set error
-        sd.onRxTransactionCompleteFromISR();
-        sd.onTxTransactionCompleteFromISR();
+        LOG_ERROR("error: 0x%lX, %s", HAL_SD_GetError(&sd.getHsd()), sd.getErrorString());
     }
 
     void HAL_SD_AbortCallback(SD_HandleTypeDef *hsd)
     {
         const hw::SdCard &sd = hw::getSdFromHandle(hsd);
         // TODO set error
-        sd.onTxTransactionCompleteFromISR();
+        LOG_INFO("aborted");
     }
 } // extern C

@@ -24,6 +24,7 @@ class PwmOutput
     uint32_t           pwm_channel;
     mutable float      duty_cycle;   // Duty cycle as a percent (0.0 to 100.0)
     float              frequency_hz; // Desired PWM frequency
+    mutable bool       started = false;
 
   public:
     consteval explicit PwmOutput(
@@ -37,18 +38,18 @@ class PwmOutput
     /**
      * @brief Start the PWM output.
      */
-    std::expected<void, ErrorCode> start() const;
+    result<void> start() const;
 
     /**
      * @brief Stop the PWM output.
      */
-    std::expected<void, ErrorCode> stop() const;
+    result<void> stop() const;
 
     /**
      * @brief Set the duty cycle of the PWM output.
      * @param duty_cycle_in The duty cycle as a percent (0.0 to 100.0).
      */
-    std::expected<void, ErrorCode> setDutyCycle(float duty_cycle_in) const;
+    result<void> setDutyCycle(float duty_cycle_in) const;
 
     /**
      * @brief Set the frequency of the PWM output.

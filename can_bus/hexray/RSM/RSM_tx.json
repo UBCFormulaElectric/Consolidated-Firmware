@@ -24,21 +24,21 @@
         "enum": "CanResetReason"
       },
       "StackOverflowTask": {
-        "bits": 8
+        "bits": 32
       },
       "WatchdogTimeoutTask": {
-        "bits": 8
+        "bits": 32
       }
     }
   },
   "Bootup": {
-    "msg_id": 799,
+    "msg_id": 708,
     "cycle_time": null,
     "description": "Async bootup message!",
     "signals": {}
   },
   "CommitInfo": {
-    "msg_id": 708,
+    "msg_id": 709,
     "cycle_time": 100,
     "description": "RSM Commit Info",
     "signals": {
@@ -47,18 +47,6 @@
       },
       "Clean": {
         "bits": 1
-      }
-    }
-  },
-  "Coolant": {
-    "msg_id": 709,
-    "cycle_time": 1000,
-    "signals": {
-      "CoolantFlowRate": {
-        "resolution": 0.1,
-        "min": 0,
-        "max": 100,
-        "unit": "L/min"
       }
     }
   },
@@ -156,29 +144,16 @@
       }
     }
   },
-  "RearPumpPercentage" : {
-    "msg_id": 714, 
+  "RearPumpPercentage": {
+    "msg_id": 714,
     "cycle_time": 1000,
     "description": "Rear pump information",
-    "signals" : {
-      "RPumpPercentage" : {
+    "signals": {
+      "RPumpPercentage": {
         "resolution": 1,
         "min": 0,
         "max": 100,
         "unit": "%"
-      }
-    }
-  },
-  "TireSensor" : {
-    "msg_id": 798,
-    "cycle_time" : 100,
-    "description" :" Tire sensor information",
-    "signals" : {
-      "TireTemperature" : {
-        "resolution": 0.1,
-        "min": -20,
-        "max": 200,
-        "unit": "°C"
       }
     }
   },
@@ -288,6 +263,31 @@
         "min": 0,
         "max": 100,
         "unit": "%"
+      }
+    }
+  },
+  "Coolant": {
+    "msg_id": 717,
+    "cycle_time": 1000,
+    "signals": {
+      "CoolantFlowRate": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "L/min"
+      }
+    }
+  },
+  "TireSensor": {
+    "msg_id": 798,
+    "cycle_time": 100,
+    "description": "Tire sensor information",
+    "signals": {
+      "TireTemperature": {
+        "resolution": 0.1,
+        "min": -20,
+        "max": 200,
+        "unit": "°C"
       }
     }
   }

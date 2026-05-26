@@ -9,9 +9,9 @@ namespace io::telemUart
 {
 
 #ifdef TARGET_EMBEDDED
-[[nodiscard]] std::expected<void, ErrorCode> transmit(std::span<const uint8_t> tx_data);
+[[nodiscard]] result<void> transmit(std::span<const uint8_t> tx_data);
 #else
-[[nodiscard]] inline std::expected<void, ErrorCode> transmit(std::span<const uint8_t> tx_data)
+[[nodiscard]] inline result<void> transmit(std::span<const uint8_t> tx_data)
 {
     (void)tx_data;
     return {};
