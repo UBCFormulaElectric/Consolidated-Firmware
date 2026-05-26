@@ -35,12 +35,11 @@ void init()
 
 void tick()
 {
-    const bool ignore_fault_on_bootup =
-        bootup_ignore_timer.updateAndGetState() == app::Timer::TimerState::RUNNING;
-    const bool bms_ok  = app::can_rx::BMS_BmsLatchOk_get();
-    const bool imd_ok  = app::can_rx::BMS_ImdLatchOk_get();
-    const bool bspd_ok = app::can_rx::BMS_BspdLatchOk_get();
-    const bool no_fault = (bms_ok && imd_ok && bspd_ok) || ignore_fault_on_bootup;
+    const bool ignore_fault_on_bootup = bootup_ignore_timer.updateAndGetState() == app::Timer::TimerState::RUNNING;
+    const bool bms_ok                 = app::can_rx::BMS_BmsLatchOk_get();
+    const bool imd_ok                 = app::can_rx::BMS_ImdLatchOk_get();
+    const bool bspd_ok                = app::can_rx::BMS_BspdLatchOk_get();
+    const bool no_fault               = (bms_ok && imd_ok && bspd_ok) || ignore_fault_on_bootup;
 
     if (no_fault)
     {

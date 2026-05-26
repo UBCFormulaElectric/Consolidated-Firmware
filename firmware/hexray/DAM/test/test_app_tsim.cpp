@@ -8,9 +8,9 @@
 
 namespace
 {
-constexpr uint32_t kTickPeriodMs    = 10;     // 100 Hz
-constexpr uint32_t kToggleMs        = 150;    // matches RED_TOGGLE_TIME_MS in app_tsim.cpp
-constexpr uint32_t kBootupIgnoreMs  = 3000;   // matches BOOTUP_IGNORE_TIME_MS
+constexpr uint32_t kTickPeriodMs   = 10;   // 100 Hz
+constexpr uint32_t kToggleMs       = 150;  // matches RED_TOGGLE_TIME_MS in app_tsim.cpp
+constexpr uint32_t kBootupIgnoreMs = 3000; // matches BOOTUP_IGNORE_TIME_MS
 
 uint32_t s_test_time_ms = 0;
 
