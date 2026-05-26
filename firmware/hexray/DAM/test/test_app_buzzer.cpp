@@ -29,8 +29,7 @@ void advance(uint32_t ms)
 void setDriveState(bool in_drive)
 {
     app::can_rx::VC_State_update(
-        in_drive ? app::can_utils::VCState::VC_DRIVE_STATE
-                 : app::can_utils::VCState::VC_INIT_STATE);
+        in_drive ? app::can_utils::VCState::VC_DRIVE_STATE : app::can_utils::VCState::VC_INIT_STATE);
 }
 
 class AppBuzzer : public ::testing::Test

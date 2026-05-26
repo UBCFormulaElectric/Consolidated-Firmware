@@ -23,9 +23,7 @@ void init()
 
 void tick()
 {
-    // const bool vc_drive_state =
-    //     app::can_rx::VC_State_get() == app::can_utils::VCState::VC_DRIVE_STATE;
-    const bool vc_drive_state = true;
+    const bool vc_drive_state = app::can_rx::VC_State_get() == app::can_utils::VCState::VC_DRIVE_STATE;
 
     switch (pulse_timer.runIfCondition(vc_drive_state))
     {
