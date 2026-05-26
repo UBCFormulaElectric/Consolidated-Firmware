@@ -156,13 +156,13 @@ void jobs_run100Hz_tick()
     hb_monitor.checkIn();
     hb_monitor.broadcastFaults();
 
-    // io::can_tx::enqueue100HzMsgs();
+    io::can_tx::enqueue100HzMsgs();
 
     app::tsim::tick();
 }
 void jobs_run1kHz_tick()
 {
-    // io::can_tx::enqueueOtherPeriodicMsgs(io::time::getCurrentMs());
+    io::can_tx::enqueueOtherPeriodicMsgs(io::time::getCurrentMs());
 }
 void jobs_runLogging_tick()
 {
