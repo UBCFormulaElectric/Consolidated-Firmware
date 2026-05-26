@@ -122,6 +122,13 @@ int main(void)
     MX_TIM7_Init();
     /* USER CODE BEGIN 2 */
     tasks_init();
+
+    // RTC smooth calibration. Compensates for the LSE crystal running fast due to
+    // under-spec load capacitance on the board (4.3 pF caps where ~8 pF are needed
+    // for the 7 pF crystal). Measured drift: ~78 ppm fast → CALM ≈ 82.
+    // Setting lives in backup domain so persists with VBAT; setting it each boot
+    // is idempotent.
+    HAL_RTCEx_SetSmoothCalib(&hrtc, RTC_SMOOTHCALIB_PERIOD_32SEC, RTC_SMOOTHCALIB_PLUSPULSES_RESET, 82);
     /* USER CODE END 2 */
 
     /* Infinite loop */
