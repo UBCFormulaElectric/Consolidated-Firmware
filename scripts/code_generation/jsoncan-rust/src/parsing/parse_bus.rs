@@ -22,12 +22,11 @@ struct BusSchema {
     forwarders: Vec<BusForwarderSchema>,
     buses: Vec<BusDataSchema>,
     loggers: Option<Vec<String>>,
-    data_capture_nodes: Option<Vec<String>>,
 }
 
 pub fn parse_bus_data(
     can_data_dir: &String,
-) -> (Vec<CanBus>, Vec<BusForwarder>, Vec<String>, Vec<String>) {
+) -> (Vec<CanBus>, Vec<BusForwarder>, Vec<String>) {
     let file_path = format!("{}/bus.json", can_data_dir);
     let file_content = std::fs::read_to_string(file_path).expect(&format!(
         "Failed to read bus.json in CAN data directory {}",
@@ -66,7 +65,5 @@ pub fn parse_bus_data(
         None => Vec::new(),
     };
 
-    let data_capture_nodes = json_bus.data_capture_nodes.unwrap_or_default();
-
-    return (busses, forwarders, logger_node_names, data_capture_nodes);
+    return (busses, forwarders, logger_node_names);
 }

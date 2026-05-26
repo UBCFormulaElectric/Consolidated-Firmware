@@ -26,9 +26,11 @@ impl AppCanDataCaptureModule {
         Self {
             messages: can_db.get_all_msgs().expect("Failed to get all messages"),
             enabled: can_db
-                .data_capture_nodes
+                .nodes
                 .iter()
-                .any(|n| n == node_name),
+                .find(|n| n.name == node_name)
+                .map(|n| n.collects_data)
+                .unwrap_or(false),
         }
     }
 }

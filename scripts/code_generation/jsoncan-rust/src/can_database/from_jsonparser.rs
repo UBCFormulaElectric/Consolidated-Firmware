@@ -74,7 +74,6 @@ impl CanDatabase {
             parser.buses,
             parser.forwarding,
             parser.shared_enums,
-            parser.data_capture_nodes,
         )?;
 
         // stupid ahh lifetime hacks
