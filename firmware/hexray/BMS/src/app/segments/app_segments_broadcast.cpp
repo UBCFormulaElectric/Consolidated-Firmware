@@ -86,9 +86,7 @@ BroadcastBuffer<bool, MAX_NUM_SEGMENTS * CELLS_PER_SEGMENT, tx::BMS_CellOpenWire
 BroadcastBuffer<bool, MAX_NUM_SEGMENTS * CELLS_PER_SEGMENT, tx::BMS_ThermistorOpenWireCheck_sendAperiodic>
     therm_owc_ok_buffer(app::can_tx::BMS_ThermistorOpenWireCheck_getData());
 
-// Error-code companion buffers. INVALID_ARGS (= 0) means no error.
-using CanErr                  = app::can_utils::ErrorCode;
-constexpr auto   CAN_ERR_NONE = CanErr::ERROR_CODE_INVALID_ARGS;
+using CanErr = app::can_utils::ErrorCode;
 constexpr CanErr toCanErr(const ErrorCode e)
 {
     return static_cast<CanErr>(static_cast<uint8_t>(e));
@@ -136,7 +134,6 @@ CellBroadcaster<
 
 BroadcastBuffer<CanErr, MAX_NUM_SEGMENTS, tx::BMS_SegmentVoltageErrors_sendAperiodic>
     segment_voltage_error_buffer(app::can_tx::BMS_SegmentVoltageErrors_getData());
-
 BroadcastBuffer<CanErr, MAX_NUM_SEGMENTS, tx::BMS_SegmentStatAErrors_sendAperiodic>
     segment_stat_a_error_buffer(app::can_tx::BMS_SegmentStatAErrors_getData());
 BroadcastBuffer<CanErr, MAX_NUM_SEGMENTS, tx::BMS_SegmentStatBErrors_sendAperiodic>
@@ -168,7 +165,15 @@ namespace debug
             {
                 const auto &r                         = voltages[seg][cell];
                 cell_voltage_setters[seg][cell]       = r.value_or(-0.1f);
-                cell_voltage_error_setters[seg][cell] = r ? CAN_ERR_NONE : toCanErr(r.error());
+                cell_voltage_error_setters[seg][cell] = r ? app::can_utils::ErrorCode::NO_ERROR : toCanErr(r.error());
+            }
+        }
+        for (size_t seg = NUM_SEGMENTS; seg < MAX_NUM_SEGMENTS; seg++)
+        {
+            for (size_t cell = 0U; cell < CELLS_PER_SEGMENT; cell++)
+            {
+                cell_voltage_setters[seg][cell]       = -0.1f;
+                cell_voltage_error_setters[seg][cell] = app::can_utils::ErrorCode::NO_SEGMENT_DEFINED;
             }
         }
         cell_voltage_setters.send();
@@ -191,7 +196,15 @@ namespace debug
             {
                 const auto &r                                      = owc_results[seg][cell];
                 cell_owc_ok_buffer[seg * CELLS_PER_SEGMENT + cell] = r.value_or(true);
-                cell_owc_error_setters[seg][cell]                  = r ? CAN_ERR_NONE : toCanErr(r.error());
+                cell_owc_error_setters[seg][cell]                  = r ? app::can_utils::ErrorCode::NO_ERROR : toCanErr(r.error());
+            }
+        }
+        for (size_t seg = NUM_SEGMENTS; seg < MAX_NUM_SEGMENTS; seg++)
+        {
+            for (size_t cell = 0U; cell < CELLS_PER_SEGMENT; cell++)
+            {
+                cell_owc_ok_buffer[seg * CELLS_PER_SEGMENT + cell] = true;
+                cell_owc_error_setters[seg][cell]                  = app::can_utils::ErrorCode::NO_SEGMENT_DEFINED;
             }
         }
         cell_owc_ok_buffer.send();
@@ -214,7 +227,15 @@ namespace debug
             {
                 const auto &r                              = temps[seg][therm];
                 cell_temperature_setters[seg][therm]       = r.value_or(-0.1f);
-                cell_temperature_error_setters[seg][therm] = r ? CAN_ERR_NONE : toCanErr(r.error());
+                cell_temperature_error_setters[seg][therm] = r ? app::can_utils::ErrorCode::NO_ERROR : toCanErr(r.error());
+            }
+        }
+        for (size_t seg = NUM_SEGMENTS; seg < MAX_NUM_SEGMENTS; seg++)
+        {
+            for (size_t therm = 0U; therm < THERMISTORS_PER_SEGMENT; therm++)
+            {
+                cell_temperature_setters[seg][therm]       = -0.1f;
+                cell_temperature_error_setters[seg][therm] = app::can_utils::ErrorCode::NO_SEGMENT_DEFINED;
             }
         }
         cell_temperature_setters.send();
@@ -237,7 +258,15 @@ namespace debug
             {
                 const auto &r                                        = therm_owc[seg][therm];
                 therm_owc_ok_buffer[seg * CELLS_PER_SEGMENT + therm] = r.value_or(true);
-                therm_owc_error_setters[seg][therm]                  = r ? CAN_ERR_NONE : toCanErr(r.error());
+                therm_owc_error_setters[seg][therm]                  = r ? app::can_utils::ErrorCode::NO_ERROR : toCanErr(r.error());
+            }
+        }
+        for (size_t seg = NUM_SEGMENTS; seg < MAX_NUM_SEGMENTS; seg++)
+        {
+            for (size_t therm = 0U; therm < THERMISTORS_PER_SEGMENT; therm++)
+            {
+                therm_owc_ok_buffer[seg * CELLS_PER_SEGMENT + therm] = true;
+                therm_owc_error_setters[seg][therm]                  = app::can_utils::ErrorCode::NO_SEGMENT_DEFINED;
             }
         }
         therm_owc_ok_buffer.send();
@@ -250,7 +279,12 @@ namespace debug
         {
             const auto &r                     = seg_voltages[seg];
             segment_voltage_buffer[seg]       = r.value_or(-0.1f);
-            segment_voltage_error_buffer[seg] = r ? CAN_ERR_NONE : toCanErr(r.error());
+            segment_voltage_error_buffer[seg] = r ? app::can_utils::ErrorCode::NO_ERROR : toCanErr(r.error());
+        }
+        for (size_t seg = NUM_SEGMENTS; seg < MAX_NUM_SEGMENTS; seg++)
+        {
+            segment_voltage_buffer[seg]       = -0.1f;
+            segment_voltage_error_buffer[seg] = app::can_utils::ErrorCode::NO_SEGMENT_DEFINED;
         }
         segment_voltage_buffer.send();
         segment_voltage_error_buffer.send();
@@ -270,10 +304,10 @@ namespace debug
             const STATC c      = stat_c.value_or(STATC{});
             const STATD d      = stat_d.value_or(STATD{});
 
-            segment_stat_a_error_buffer[seg] = stat_a ? CAN_ERR_NONE : toCanErr(stat_a.error());
-            segment_stat_b_error_buffer[seg] = stat_b ? CAN_ERR_NONE : toCanErr(stat_b.error());
-            segment_stat_c_error_buffer[seg] = stat_c ? CAN_ERR_NONE : toCanErr(stat_c.error());
-            segment_stat_d_error_buffer[seg] = stat_d ? CAN_ERR_NONE : toCanErr(stat_d.error());
+            segment_stat_a_error_buffer[seg] = stat_a ? app::can_utils::ErrorCode::NO_ERROR : toCanErr(stat_a.error());
+            segment_stat_b_error_buffer[seg] = stat_b ? app::can_utils::ErrorCode::NO_ERROR : toCanErr(stat_b.error());
+            segment_stat_c_error_buffer[seg] = stat_c ? app::can_utils::ErrorCode::NO_ERROR : toCanErr(stat_c.error());
+            segment_stat_d_error_buffer[seg] = stat_d ? app::can_utils::ErrorCode::NO_ERROR : toCanErr(stat_d.error());
 
             // STATA
             segment_vref2_buffer[seg] = stat_a ? convertRegToVoltage(stat_a->vref2) : -0.1f;
@@ -305,6 +339,39 @@ namespace debug
             {
                 cell_uv_buffer[seg * CELLS_PER_SEGMENT + cell] = covuv_bit(2U * cell);
                 cell_ov_buffer[seg * CELLS_PER_SEGMENT + cell] = covuv_bit(2U * cell + 1U);
+            }
+        }
+
+        for (size_t seg = NUM_SEGMENTS; seg < MAX_NUM_SEGMENTS; seg++)
+        {
+            segment_stat_a_error_buffer[seg] = app::can_utils::ErrorCode::NO_SEGMENT_DEFINED;
+            segment_stat_b_error_buffer[seg] = app::can_utils::ErrorCode::NO_SEGMENT_DEFINED;
+            segment_stat_c_error_buffer[seg] = app::can_utils::ErrorCode::NO_SEGMENT_DEFINED;
+            segment_stat_d_error_buffer[seg] = app::can_utils::ErrorCode::NO_SEGMENT_DEFINED;
+
+            segment_vref2_buffer[seg]   = -0.1f;
+            segment_itmp_buffer[seg]    = -0.1f;
+            segment_vd_buffer[seg]      = -0.1f;
+            segment_va_buffer[seg]      = -0.1f;
+            segment_vres_buffer[seg]    = -0.1f;
+            segment_va_ov_buffer[seg]   = false;
+            segment_va_uv_buffer[seg]   = false;
+            segment_vd_ov_buffer[seg]   = false;
+            segment_vd_uv_buffer[seg]   = false;
+            segment_ced_buffer[seg]     = false;
+            segment_cmed_buffer[seg]    = false;
+            segment_sed_buffer[seg]     = false;
+            segment_smed_buffer[seg]    = false;
+            segment_vde_buffer[seg]     = false;
+            segment_vdel_buffer[seg]    = false;
+            segment_thsd_buffer[seg]    = false;
+            segment_tmodchk_buffer[seg] = false;
+            segment_oscchk_buffer[seg]  = false;
+
+            for (size_t cell = 0U; cell < CELLS_PER_SEGMENT; cell++)
+            {
+                cell_uv_buffer[seg * CELLS_PER_SEGMENT + cell] = false;
+                cell_ov_buffer[seg * CELLS_PER_SEGMENT + cell] = false;
             }
         }
 
