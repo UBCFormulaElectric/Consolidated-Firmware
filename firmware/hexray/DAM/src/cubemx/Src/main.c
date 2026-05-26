@@ -98,9 +98,6 @@ int main(void)
     HAL_Init();
 
     /* USER CODE BEGIN Init */
-#ifndef WATCHDOG_DISABLED
-    __HAL_DBGMCU_FREEZE_IWDG();
-#endif
     /* USER CODE END Init */
 
     /* Configure the system clock */
