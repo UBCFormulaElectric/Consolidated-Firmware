@@ -245,7 +245,7 @@ void jobs_runAdbmsAux_tick()
             }
             else if (therm_voltages_poll_ok)
             {
-                therm_voltages[static_cast<size_t>(mux)] = app::segments::conversion::thermVoltage(mux);
+                therm_voltages[static_cast<size_t>(mux)] = app::segments::conversion::thermVoltage();
             }
         }
     }

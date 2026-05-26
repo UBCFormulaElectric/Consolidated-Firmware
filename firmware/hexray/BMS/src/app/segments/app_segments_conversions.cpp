@@ -122,7 +122,7 @@ ThermGpios<result<float>> conversion::thermVoltage()
 
 Segments<result<float>> conversion::segVoltage()
 {
-    const Segments<result<uint16_t>> seg_voltage = io::adbms::read::segVoltage();
+    const Segments<result<int16_t>> seg_voltage = io::adbms::read::segVoltage();
 
     Segments<result<float>> out_voltage;
     for (size_t seg = 0; seg < NUM_SEGMENTS; seg++)
@@ -135,7 +135,7 @@ Segments<result<float>> conversion::segVoltage()
         }
         else
         {
-            out_voltage[seg] = convertRegToVoltage(seg_voltage[seg].value());
+            out_voltage[seg] = 25 * convertRegToVoltage(seg_voltage[seg].value());
         }
 
         health::setOrReset(seg, health::ErrorBit::SEG_VOLTAGE, seg_has_error);

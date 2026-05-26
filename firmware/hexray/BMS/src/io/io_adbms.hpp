@@ -228,7 +228,7 @@ namespace read
      * @return
      */
     [[nodiscard]] Cells<result<int16_t>>      secondaryCellVoltage();
-    [[nodiscard]] Segments<result<uint16_t>>  segVoltage();
+    [[nodiscard]] Segments<result<int16_t>>   segVoltage();
     [[nodiscard]] ThermGpios<result<int16_t>> thermGpioVoltage();
     [[nodiscard]] Segments<StatusGroupsRes>   status();
 } // namespace read

@@ -108,9 +108,9 @@ ThermGpios<result<int16_t>> read::thermGpioVoltage()
     return cell_temp_regs;
 }
 
-Segments<result<uint16_t>> read::segVoltage()
+Segments<result<int16_t>> read::segVoltage()
 {
-    Segments<result<uint16_t>> segment_voltage_regs{};
+    Segments<result<int16_t>> segment_voltage_regs{};
 
     const Segments<result<RegBuffer>> raw_seg_voltage = readRegGroup(RDAUXD);
     for (size_t seg = 0U; seg < NUM_SEGMENTS; seg++)
