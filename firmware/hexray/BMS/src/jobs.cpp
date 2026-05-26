@@ -239,12 +239,6 @@ void jobs_runAdbmsAux_tick()
 
         {
             const io::unique_semaphore s{ spi_bus_lock };
-            const auto                 idx = static_cast<size_t>(mux);
-            app::segments::config::setThermistorConfig(mux);
-            // TODO tie signals to locks
-            spi_bus_lock.give();
-            sync_done.wait();
-            spi_bus_lock.take();
             if (const auto res = app::segments::startPoll::auxAdc(); !res)
             {
                 therm_voltages_poll_ok = std::unexpected(res.error());

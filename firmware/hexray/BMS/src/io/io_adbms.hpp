@@ -222,15 +222,15 @@ namespace read
      * Reads C-ADCs
      * @return
      */
-    [[nodiscard]] Cells<result<uint16_t>> cellVoltage();
+    [[nodiscard]] Cells<result<int16_t>> cellVoltage();
     /**
      * Reads S-ADCs
      * @return
      */
-    [[nodiscard]] Cells<result<uint16_t>>      secondaryCellVoltage();
-    [[nodiscard]] Segments<result<uint16_t>>   segVoltage();
-    [[nodiscard]] ThermGpios<result<uint16_t>> thermGpioVoltage();
-    [[nodiscard]] Segments<StatusGroupsRes>    status();
+    [[nodiscard]] Cells<result<int16_t>>      secondaryCellVoltage();
+    [[nodiscard]] Segments<result<uint16_t>>  segVoltage();
+    [[nodiscard]] ThermGpios<result<int16_t>> thermGpioVoltage();
+    [[nodiscard]] Segments<StatusGroupsRes>   status();
 } // namespace read
 
 namespace command

@@ -71,8 +71,8 @@ result<void> startPoll::auxAdc()
 
 Cells<result<float>> conversion::cellVoltage()
 {
-    Cells<result<float>>          out_voltage;
-    const Cells<result<uint16_t>> cell_voltage = io::adbms::read::cellVoltage();
+    Cells<result<float>>         out_voltage;
+    const Cells<result<int16_t>> cell_voltage = io::adbms::read::cellVoltage();
 
     for (size_t seg = 0; seg < NUM_SEGMENTS; seg++)
     {
@@ -95,10 +95,10 @@ Cells<result<float>> conversion::cellVoltage()
     return out_voltage;
 }
 
-ThermGpios<result<float>> conversion::thermVoltage(const ThermistorMux mux)
+ThermGpios<result<float>> conversion::thermVoltage()
 {
-    ThermGpios<result<float>>          out_therm;
-    const ThermGpios<result<uint16_t>> therm_voltage = io::adbms::read::thermGpioVoltage();
+    ThermGpios<result<float>>         out_therm;
+    const ThermGpios<result<int16_t>> therm_voltage = io::adbms::read::thermGpioVoltage();
 
     for (size_t seg = 0; seg < NUM_SEGMENTS; seg++)
     {
@@ -159,8 +159,8 @@ Segments<io::adbms::StatusGroupsRes> conversion::status()
 
 Cells<result<float>> conversion::cellOwcVoltages()
 {
-    Cells<result<float>>          out_cell_owc;
-    const Cells<result<uint16_t>> cell_owc_voltage = io::adbms::read::secondaryCellVoltage();
+    Cells<result<float>>         out_cell_owc;
+    const Cells<result<int16_t>> cell_owc_voltage = io::adbms::read::secondaryCellVoltage();
 
     for (size_t seg = 0; seg < NUM_SEGMENTS; seg++)
     {

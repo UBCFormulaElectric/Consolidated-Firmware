@@ -146,7 +146,7 @@ namespace startPoll
 namespace conversion
 {
     Cells<result<float>>                 cellVoltage();
-    ThermGpios<result<float>>            thermVoltage(ThermistorMux mux);
+    ThermGpios<result<float>>            thermVoltage();
     Segments<result<float>>              segVoltage();
     Segments<io::adbms::StatusGroupsRes> status();
     Cells<result<float>>                 cellOwcVoltages();

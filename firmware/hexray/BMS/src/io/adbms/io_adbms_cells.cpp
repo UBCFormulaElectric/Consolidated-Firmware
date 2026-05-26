@@ -64,9 +64,9 @@ result<void> command::pollSecondaryCellsAdc()
         POLL_RETRIES);
 }
 
-Cells<result<uint16_t>> read::cellVoltage()
+Cells<result<int16_t>> read::cellVoltage()
 {
-    Cells<result<uint16_t>>                        cell_voltage_regs{};
+    Cells<result<int16_t>>                         cell_voltage_regs{};
     constexpr array<uint16_t, NUM_VOLT_REG_GROUPS> cell_voltage_reg_groups{ { RDCVA, RDCVB, RDCVC, RDCVD, RDCVE } };
 
     for (size_t group = 0U; group < NUM_VOLT_REG_GROUPS; group++)
@@ -142,9 +142,9 @@ Cells<result<uint16_t>> read::cellVoltage()
 //     return filtered_cell_voltage_regs;
 // }
 
-Cells<result<uint16_t>> read::secondaryCellVoltage()
+Cells<result<int16_t>> read::secondaryCellVoltage()
 {
-    Cells<result<uint16_t>>                        cell_voltage_regs{};
+    Cells<result<int16_t>>                         cell_voltage_regs{};
     constexpr array<uint16_t, NUM_VOLT_REG_GROUPS> cell_voltage_reg_groups{ { RDSVA, RDSVB, RDSVC, RDSVD, RDSVE } };
 
     for (size_t group = 0U; group < NUM_VOLT_REG_GROUPS; group++)

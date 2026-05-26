@@ -25,7 +25,7 @@ constexpr float convertUVOVToFloat(const uint16_t hex)
     return (hex * 16 * 150e-6f + 1.5f);
 }
 
-constexpr float convertRegToVoltage(const uint16_t reg)
+constexpr float convertRegToVoltage(const int16_t reg)
 {
     return static_cast<float>(reg) * 150e-6f + 1.5f;
 }
