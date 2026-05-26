@@ -277,7 +277,7 @@ namespace debug
 
             // STATA
             segment_vref2_buffer[seg] = stat_a ? convertRegToVoltage(stat_a->vref2) : -0.1f;
-            segment_itmp_buffer[seg]  = stat_a ? convertRegToVoltage(stat_a->itmp) : -0.1f;
+            segment_itmp_buffer[seg]  = stat_a ? (convertRegToVoltage(stat_a->itmp) / 7.5e-3f - 273.0f) : -0.1f;
 
             // STATB
             segment_vd_buffer[seg]   = stat_b ? convertRegToVoltage(stat_b->vd) : -0.1f;

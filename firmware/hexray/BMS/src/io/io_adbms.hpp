@@ -127,8 +127,8 @@ struct PWMConfig
 
 struct __attribute__((packed)) STATA
 {
-    uint16_t vref2;
-    uint16_t itmp;
+    int16_t  vref2;
+    int16_t  itmp;
     uint16_t reserved;
 };
 static_assert(sizeof(STATA) == REG_GROUP_SIZE);
