@@ -5,7 +5,7 @@ import { getQueryClient } from "@/lib/contexts/getQueryClient";
 import { listSDCardsQueryOptions } from "@/lib/hooks/useListSDCards";
 import { sdCardFilesQueryOptions } from "@/lib/hooks/useSDCardFiles";
 
-export default async function HomePage() {
+export default async function SDDumpPage() {
   const queryClient = getQueryClient();
 
   const sdCards = await queryClient.fetchQuery(listSDCardsQueryOptions()).catch(() => null);
@@ -17,10 +17,7 @@ export default async function HomePage() {
   }
 
   return (
-    <div
-      className="px-14 gap-8 min-h-screen flex flex-col pb-20 overflow-hidden"
-      style={{ height: "100vh" }}
-    >
+    <div className="px-14 gap-8 h-screen flex flex-col pb-20 overflow-hidden">
       <div className="pt-20 w-screen" />
       <span className="text-3xl font-bold">Dump SD Card</span>
       <span className="text-sm text-gray-500">

@@ -108,7 +108,7 @@ const SDCardFileNavigator = (props: SDCardFileNavigatorProps) => {
   const files = !sdCard || availableFiles.error ? null : (availableFiles.data ?? null);
 
   return (
-    <div className="w-full h-full flex flex-row gap-8" style={{ height: "100%" }}>
+    <div className="w-full h-full flex flex-row gap-8">
       <SDCardFileList
         files={files}
         selectedFiles={selectedFiles}

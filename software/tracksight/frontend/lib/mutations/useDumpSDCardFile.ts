@@ -22,7 +22,6 @@ export class DumpSDCardFileError extends Error {
 const useDumpSDCardFile = () => {
   return useMutation({
         mutationFn: async (body: { drive: string; file: string; overwrite?: boolean }) => {
-            console.log(body);
             const response = await fetch(`${API_BASE_URL}/api/${SD_CARD_API_VERSION}/sd/dump`, {
                 body: JSON.stringify(body),
                 headers: {
