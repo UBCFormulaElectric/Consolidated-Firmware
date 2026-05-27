@@ -6,7 +6,6 @@ use influxdb2::FromDataPoint;
 use jsoncan_rust::can_database::CanMessage;
 use serde::{Deserialize, Serialize};
 use regex::Regex;
-use serde_json::from_str;
 use tokio::{select, time::sleep};
 
 use crate::{config::CONFIG, dprintln, tasks::{can_data::influx_util::InfluxSignalSource, client_api::{AppState, signal_tile::{InfluxSignalRow, get_signals}}}, utils::{rfc3339_to_utc, rfc3339_to_utc_str}};
@@ -173,6 +172,14 @@ struct SourceQuery {
     pub source: Option<String>,
 }
 
+fn parse_source(source: &str) -> Option<InfluxSignalSource> {
+    match source {
+        "radio" => Some(InfluxSignalSource::Radio),
+        "sd_card" | "sdcard" => Some(InfluxSignalSource::SdCard),
+        _ => None,
+    }
+}
+
 /**
  * Gets signal values, timestamp, and name.
  * Format date as RFC3339 (i.e. YYYY-MM-DDTHH:mm:ssZ or YYYY-MM-DDTHH:mm:ss[+-]OO:oo)
@@ -197,7 +204,7 @@ async fn signal_tiles(
     
     let source_enum = match source {
         Some(s) => {
-            if let Ok(e) = from_str(&s) {
+            if let Some(e) = parse_source(&s) {
                 e
             } else {
                 return (StatusCode::BAD_REQUEST, "Bad source!".to_string());
@@ -250,11 +257,10 @@ async fn signal_sessions(
             return (StatusCode::BAD_REQUEST, "Bad date format, should be RFC3339 format".to_string());
         };
 
-
     let source_str = match source {
         Some(s) => {
-            if let Ok(_) = from_str::<InfluxSignalSource>(&s) {
-                s
+            if let Some(source) = parse_source(&s) {
+                source.to_string()
             } else {
                 return (StatusCode::BAD_REQUEST, "Bad source!".to_string());
             }
