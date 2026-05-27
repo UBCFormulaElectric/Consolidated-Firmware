@@ -241,7 +241,7 @@ static constexpr float accel_sensitivity = []
     }
 }();
 
-static constexpr float gyro_sensitivity = []()
+static constexpr float gyro_sensitivity = []
 {
     switch (gyro_scale)
     {

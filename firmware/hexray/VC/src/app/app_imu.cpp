@@ -6,6 +6,7 @@
 namespace app::imus
 {
 using namespace app::can_alerts;
+using namespace io::imus;
 
 void init()
 {

@@ -8,9 +8,8 @@
 
 #include "io_time.hpp"
 #include "io_canQueues.hpp"
-#include "hw_can.hpp"
-#include "hw_gpio.hpp"
 #include "io_canRx.hpp"
+#include "io_imu.hpp"
 
 #include "hw_adcs.hpp"
 #include "hw_cans.hpp"
@@ -21,10 +20,13 @@
 #include "hw_watchdog.hpp"
 #include "hw_resetReason.hpp"
 #include "hw_runTimeStat.hpp"
+#include "hw_can.hpp"
+#include "hw_gpio.hpp"
 
 [[noreturn]] static void tasks_run1Hz(void *arg);
 [[noreturn]] static void tasks_run100Hz(void *arg);
 [[noreturn]] static void tasks_run1kHz(void *arg);
+[[noreturn]] static void tasks_runImu(void *arg);
 [[noreturn]] static void tasks_runCan1Tx(void *arg);
 [[noreturn]] static void tasks_runCan2Tx(void *arg);
 [[noreturn]] static void tasks_runCanRx(void *arg);
@@ -35,6 +37,7 @@ constexpr size_t                                   TASK_COUNT = 7;
 static hw::rtos::StaticTask::StaticTaskStack<8096> Task100HzStack;
 static hw::rtos::StaticTask::StaticTaskStack<512>  Task1kHzStack;
 static hw::rtos::StaticTask::StaticTaskStack<512>  Task1HzStack;
+static hw::rtos::StaticTask::StaticTaskStack<512>  TaskImuStack;
 static hw::rtos::StaticTask::StaticTaskStack<512>  TaskCanRxStack;
 static hw::rtos::StaticTask::StaticTaskStack<512>  TaskCan1TxStack;
 static hw::rtos::StaticTask::StaticTaskStack<512>  TaskCan2TxStack;
@@ -46,8 +49,8 @@ static hw::rtos::StaticTask Task1Hz(osPriorityAboveNormal, "Task1Hz", tasks_run1
 static hw::rtos::StaticTask TaskCanRx(osPriorityNormal, "TaskCanRx", tasks_runCanRx, TaskCanRxStack);
 static hw::rtos::StaticTask TaskCan1Tx(osPriorityNormal, "TaskCanTx", tasks_runCan1Tx, TaskCan1TxStack);
 static hw::rtos::StaticTask TaskCan2Tx(osPriorityNormal, "TaskCanTx", tasks_runCan2Tx, TaskCan2TxStack);
-static hw::rtos::StaticTask
-    TaskPowerMonitoring(osPriorityNormal, "TaskPowerMonitoring", tasks_powerMonitoring, TaskPowerMonitoringStack);
+static hw::rtos::StaticTask TaskPowerMonitoring(osPriorityNormal, "TaskPowerMonitoring", tasks_powerMonitoring, TaskPowerMonitoringStack);
+static hw::rtos::StaticTask TaskImu(osPriorityNormal, "TaskImu", tasks_runImu, TaskImuStack);
 
 static hw::watchdog::monitor<TASK_COUNT> monitor{
     hiwdg1,
@@ -101,7 +104,25 @@ void tasks_run1kHz(void *arg)
         osDelayUntil(start_ticks);
     }
 }
+void tasks_runImu(void *arg)
+{
+    constexpr uint32_t             period_ms                = 10U;
+    constexpr uint32_t             watchdog_grace_period_ms = 2U;
+    hw::watchdog::instance &watchdogImu = monitor.spawn_instance(period_ms + watchdog_grace_period_ms);
 
+    jobs_initImu();
+
+    uint32_t start_ticks = osKernelGetTickCount();
+    forever
+    {
+        jobs_runImu_tick();
+
+        watchdogImu.checkIn();
+
+        start_ticks += period_ms;
+        osDelayUntil(start_ticks);
+    }
+}
 void tasks_runCan1Tx(void *arg)
 {
     forever
