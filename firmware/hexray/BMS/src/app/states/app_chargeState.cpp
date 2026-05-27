@@ -18,15 +18,16 @@
 namespace
 {
 // Per-cell charge thresholds
-constexpr float CELL_V_TAPER_START   = 4.10f; // V
-constexpr float CELL_V_TERMINATE     = 4.18f; // V
-constexpr float CELL_V_MAX_CHARGE    = 4.20f; // V
-constexpr float CELL_TEMP_MAX_CHARGE = 45.0f; // C
-constexpr float I_TERMINATE_A        = 1.0f;  // A
+constexpr float CELL_V_TAPER_START = 4.10f; // V
+constexpr float CELL_V_TERMINATE   = 4.18f; // V
+constexpr float CELL_V_MAX_CHARGE  = 4.20f; // V
+constexpr float I_TERMINATE_A      = 1.0f;  // A
 
-// N_CELLS_SERIES = N_SEGMENTS * N_CELLS_PER_SEGMENT
-constexpr uint8_t N_CELLS_SERIES   = 5 * 28;
-constexpr float   PACK_VOLTAGE_MAX = N_CELLS_SERIES * CELL_V_MAX_CHARGE;
+// Pack-level target commanded to the Elcon
+// TODO: Replace with actual pack voltage when segments is ready.
+// constexpr float PACK_VOLTAGE_MAX = static_cast<float>(io::adbms::NUM_SEGMENTS) *
+// static_cast<float>(io::adbms::CELLS_PER_SEGMENT) * CELL_V_MAX_CHARGE;
+constexpr float PACK_VOLTAGE_MAX = 140.0f * CELL_V_MAX_CHARGE;
 
 constexpr float CHARGER_EFFICIENCY = 0.93f; // average DC-side efficiency of the Elcon
 constexpr float MAX_DC_CURRENT     = 12.0f; // 1C standard limit of DC input current to the pack
