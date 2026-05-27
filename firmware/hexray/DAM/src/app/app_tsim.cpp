@@ -62,11 +62,12 @@ void init()
 
 void tick()
 {
-    const bool ignore_fault_on_bootup = bootup_ignore_timer.updateAndGetState() == app::Timer::TimerState::RUNNING;
-    const bool no_fault               = (app::can_rx::BMS_BmsLatchOk_get() && app::can_rx::BMS_ImdLatchOk_get() &&
-                           app::can_rx::BMS_BspdLatchOk_get());
+    const bool ignore_bms_latch_faults_during_bootup =
+        bootup_ignore_timer.updateAndGetState() == app::Timer::TimerState::RUNNING;
+    const bool no_fault =
+        (app::can_rx::BMS_BmsLatchOk_get() && app::can_rx::BMS_ImdLatchOk_get() && app::can_rx::BMS_BspdLatchOk_get());
 
-    if (no_fault || ignore_fault_on_bootup)
+    if (no_fault || ignore_bms_latch_faults_during_bootup)
     {
         apply_tsim_color(TsimColor::GREEN);
         curr_color = TsimColor::GREEN;
