@@ -3,6 +3,7 @@
 #include "app_canRx.hpp"
 #include "app_timer.hpp"
 #include "io_tsim.hpp"
+#include <cstdint>
 
 namespace app::tsim
 {
