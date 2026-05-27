@@ -1,5 +1,6 @@
 #include "io_tsim.hpp"
 #include "io_tsimFake.hpp"
+#include <cstdint>
 
 namespace
 {
