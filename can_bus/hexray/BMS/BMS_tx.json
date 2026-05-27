@@ -4957,34 +4957,34 @@
     "description": "ADBMS command counter mismatch flags for all segments",
     "signals": {
       "Seg0_CMDCNT": {
-        "bits": 1
+        "bits": 4
       },
       "Seg1_CMDCNT": {
-        "bits": 1
+        "bits": 4
       },
       "Seg2_CMDCNT": {
-        "bits": 1
+        "bits": 4
       },
       "Seg3_CMDCNT": {
-        "bits": 1
+        "bits": 4
       },
       "Seg4_CMDCNT": {
-        "bits": 1
+        "bits": 4
       },
       "Seg5_CMDCNT": {
-        "bits": 1
+        "bits": 4
       },
       "Seg6_CMDCNT": {
-        "bits": 1
+        "bits": 4
       },
       "Seg7_CMDCNT": {
-        "bits": 1
+        "bits": 4
       },
       "Seg8_CMDCNT": {
-        "bits": 1
+        "bits": 4
       },
       "Seg9_CMDCNT": {
-        "bits": 1
+        "bits": 4
       }
     }
   },

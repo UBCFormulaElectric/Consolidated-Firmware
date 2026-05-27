@@ -15,8 +15,8 @@ namespace tx = io::can_tx;
 constexpr size_t NUM_HEALTH_BITS = static_cast<size_t>(app::segments::health::ErrorBit::NUM_ERROR_BITS);
 BroadcastBuffer<bool, MAX_NUM_SEGMENTS * NUM_HEALTH_BITS, tx::BMS_SegmentHealthErrors_sendAperiodic>
     segment_health_errors_buffer(app::can_tx::BMS_SegmentHealthErrors_getData());
-// BroadcastBuffer<bool, MAX_NUM_SEGMENTS, tx::BMS_SegmentCMDCNT_sendAperiodic> segment_cmdcnt_buffer(
-//     app::can_tx::BMS_SegmentCMDCNT_getData());
+BroadcastBuffer<uint8_t, MAX_NUM_SEGMENTS, tx::BMS_SegmentCMDCNT_sendAperiodic>
+    segment_cmdcnt_buffer(app::can_tx::BMS_SegmentCMDCNT_getData());
 
 // Debug Messages
 CellBroadcaster<
@@ -196,7 +196,7 @@ namespace debug
             {
                 const auto &r                                      = owc_results[seg][cell];
                 cell_owc_ok_buffer[seg * CELLS_PER_SEGMENT + cell] = r.value_or(true);
-                cell_owc_error_setters[seg][cell]                  = r ? app::can_utils::ErrorCode::NO_ERROR : toCanErr(r.error());
+                cell_owc_error_setters[seg][cell] = r ? app::can_utils::ErrorCode::NO_ERROR : toCanErr(r.error());
             }
         }
         for (size_t seg = NUM_SEGMENTS; seg < MAX_NUM_SEGMENTS; seg++)
@@ -225,9 +225,10 @@ namespace debug
         {
             for (size_t therm = 0U; therm < THERMISTORS_PER_SEGMENT; therm++)
             {
-                const auto &r                              = temps[seg][therm];
-                cell_temperature_setters[seg][therm]       = r.value_or(-0.1f);
-                cell_temperature_error_setters[seg][therm] = r ? app::can_utils::ErrorCode::NO_ERROR : toCanErr(r.error());
+                const auto &r                        = temps[seg][therm];
+                cell_temperature_setters[seg][therm] = r.value_or(-0.1f);
+                cell_temperature_error_setters[seg][therm] =
+                    r ? app::can_utils::ErrorCode::NO_ERROR : toCanErr(r.error());
             }
         }
         for (size_t seg = NUM_SEGMENTS; seg < MAX_NUM_SEGMENTS; seg++)
@@ -258,7 +259,7 @@ namespace debug
             {
                 const auto &r                                        = therm_owc[seg][therm];
                 therm_owc_ok_buffer[seg * CELLS_PER_SEGMENT + therm] = r.value_or(true);
-                therm_owc_error_setters[seg][therm]                  = r ? app::can_utils::ErrorCode::NO_ERROR : toCanErr(r.error());
+                therm_owc_error_setters[seg][therm] = r ? app::can_utils::ErrorCode::NO_ERROR : toCanErr(r.error());
             }
         }
         for (size_t seg = NUM_SEGMENTS; seg < MAX_NUM_SEGMENTS; seg++)
@@ -402,15 +403,15 @@ namespace debug
     }
 } // namespace debug
 
-// void cmdCountMismatch()
-// {
-//     const auto mismatches = io::adbms::getCmdCountMismatches();
-//     for (size_t seg = 0U; seg < NUM_SEGMENTS; seg++)
-//     {
-//         segment_cmdcnt_buffer[seg] = mismatches[seg];
-//     }
-//     segment_cmdcnt_buffer.send();
-// }
+void cmdCountMismatch()
+{
+    const Segments<uint8_t> mismatches = io::adbms::getCmdCountMismatches();
+    for (size_t seg = 0U; seg < NUM_SEGMENTS; seg++)
+    {
+        segment_cmdcnt_buffer[seg] = mismatches[seg];
+    }
+    segment_cmdcnt_buffer.send();
+}
 
 void segmentHealthError()
 {

@@ -79,7 +79,7 @@ namespace broadcast
     void voltageStats();
     void temperatureStats();
     void segmentVoltageStats();
-    // void cmdCountMismatch();
+    void cmdCountMismatch();
 } // namespace broadcast
 
 // app_segments_health.cpp

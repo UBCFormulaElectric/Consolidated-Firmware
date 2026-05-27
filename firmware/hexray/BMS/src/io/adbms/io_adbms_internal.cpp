@@ -167,7 +167,7 @@ struct __attribute__((packed)) WriteCmd
 namespace
 {
     Segments<uint8_t> expected_cmd_count{};
-    Segments<bool>    last_cmd_count_mismatches{};
+    Segments<uint8_t> last_cmd_count_mismatches{};
 
     bool commandIncrements(const uint16_t cmd)
     {
@@ -238,14 +238,20 @@ namespace
         Segments<bool> mismatches{};
         for (size_t seg = 0U; seg < NUM_SEGMENTS; ++seg)
         {
-            mismatches[seg] = rx[seg].cmd_count() != expected_cmd_count[seg];
+            const auto a = rx[seg].cmd_count();
+            const auto b = expected_cmd_count[seg];
+            LOG_INFO("Segment %u: cmd count = %u, expected = %u", seg, a, b);
+            mismatches[seg] = a != b;
         }
         return mismatches;
     }
 
     void handleCmdCountMismatches(const Segments<bool> &mismatches)
     {
-        last_cmd_count_mismatches = mismatches;
+        for (size_t i = 0; i < NUM_SEGMENTS; ++i)
+        {
+            last_cmd_count_mismatches[i] += mismatches[i];
+        }
         if (!ranges::any_of(mismatches, [](const bool m) { return m; }))
             return;
         (void)sendCmd(RSTCC);
@@ -257,7 +263,7 @@ Segments<uint8_t> getExpectedCmdCount()
     return expected_cmd_count;
 }
 
-Segments<bool> getCmdCountMismatches()
+Segments<uint8_t> getCmdCountMismatches()
 {
     return last_cmd_count_mismatches;
 }

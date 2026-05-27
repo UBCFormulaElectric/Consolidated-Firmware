@@ -163,6 +163,7 @@ void jobs_runAdbmsConfigs_tick()
     LOG_IF_ERR(io::adbms::clear::cell());
     LOG_IF_ERR(io::adbms::clear::aux());
     LOG_IF_ERR(io::adbms::clear::stat());
+    app::segments::broadcast::cmdCountMismatch();
     if (all_segments_ok)
     {
         LOG_INFO("All configs ok! Notifying...");
