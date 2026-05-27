@@ -36,6 +36,10 @@ void jobs_init()
     app::can_tx::FSM_Heartbeat_set(true);
     io::can_tx::FSM_Bootup_sendAperiodic();
 }
+void jobs_initImu()
+{
+    app::imu::init();
+}
 void jobs_run1Hz_tick()
 {
     app::apps::broadcast();
@@ -56,3 +60,7 @@ void jobs_run1kHz_tick()
 {
     io::can_tx::enqueueOtherPeriodicMsgs(io::time::getCurrentMs());
 }
+ void jobs_runImu_tick()
+ {
+    app::imu::broadcast();
+ }

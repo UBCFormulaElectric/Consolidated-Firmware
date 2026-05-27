@@ -47,10 +47,10 @@ static hw::rtos::StaticTask Task100Hz(osPriorityHigh, "Task100Hz", tasks_run100H
 static hw::rtos::StaticTask Task1kHz(osPriorityRealtime, "Task1kHz", tasks_run1kHz, Task1kHzStack);
 static hw::rtos::StaticTask Task1Hz(osPriorityAboveNormal, "Task1Hz", tasks_run1Hz, Task1HzStack);
 static hw::rtos::StaticTask TaskCanRx(osPriorityNormal, "TaskCanRx", tasks_runCanRx, TaskCanRxStack);
+static hw::rtos::StaticTask TaskImu(osPriorityHigh, "TaskImu", tasks_runImu, TaskImuStack);
 static hw::rtos::StaticTask TaskCan1Tx(osPriorityNormal, "TaskCanTx", tasks_runCan1Tx, TaskCan1TxStack);
 static hw::rtos::StaticTask TaskCan2Tx(osPriorityNormal, "TaskCanTx", tasks_runCan2Tx, TaskCan2TxStack);
 static hw::rtos::StaticTask TaskPowerMonitoring(osPriorityNormal, "TaskPowerMonitoring", tasks_powerMonitoring, TaskPowerMonitoringStack);
-static hw::rtos::StaticTask TaskImu(osPriorityNormal, "TaskImu", tasks_runImu, TaskImuStack);
 
 static hw::watchdog::monitor<TASK_COUNT> monitor{
     hiwdg1,
