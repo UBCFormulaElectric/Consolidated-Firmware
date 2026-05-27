@@ -42,15 +42,11 @@ namespace
         }
     }
 
-    static void apply_toggle_transition(
-        TsimColor      &curr,
-        TsimColor      &next,
-        const TsimColor output_color,
-        const TsimColor next_after_output)
+    static void apply_toggle_transition(const TsimColor output_color, const TsimColor next_after_output)
     {
         apply_tsim_color(output_color);
-        curr = output_color;
-        next = next_after_output;
+        curr_color = output_color;
+        next_color = next_after_output;
         toggle_timer.restart();
     }
 } // namespace
@@ -82,20 +78,20 @@ void tick()
     switch (toggle_timer.updateAndGetState())
     {
         case app::Timer::TimerState::IDLE:
-            apply_toggle_transition(curr_color, next_color, TsimColor::RED, TsimColor::OFF);
+            apply_toggle_transition(TsimColor::RED, TsimColor::OFF);
             break;
         case app::Timer::TimerState::EXPIRED:
             if (curr_color == TsimColor::OFF && next_color == TsimColor::RED)
             {
-                apply_toggle_transition(curr_color, next_color, TsimColor::RED, TsimColor::OFF);
+                apply_toggle_transition(TsimColor::RED, TsimColor::OFF);
             }
             else if (curr_color == TsimColor::RED && next_color == TsimColor::OFF)
             {
-                apply_toggle_transition(curr_color, next_color, TsimColor::OFF, TsimColor::RED);
+                apply_toggle_transition(TsimColor::OFF, TsimColor::RED);
             }
             else
             {
-                apply_toggle_transition(curr_color, next_color, TsimColor::RED, TsimColor::OFF);
+                apply_toggle_transition(TsimColor::RED, TsimColor::OFF);
             }
             break;
         case app::Timer::TimerState::RUNNING:
