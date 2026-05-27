@@ -23,8 +23,6 @@ namespace io::adbms
 inline constexpr uint8_t REG_GROUP_SIZE = 6;
 
 using RegBuffer = std::array<uint8_t, REG_GROUP_SIZE>;
-static_assert(sizeof(RegBuffer) == sizeof(CFGA));
-static_assert(sizeof(RegBuffer) == sizeof(CFGB));
 
 enum class OpenWireSwitch
 {
@@ -60,7 +58,7 @@ struct __attribute__((packed)) CFGA
     bool operator==(const CFGA &cfga) const = default;
 };
 static_assert(sizeof(CFGA) == REG_GROUP_SIZE);
-
+static_assert(sizeof(RegBuffer) == sizeof(CFGA));
 
 // Configuration Register Group B (Table 56 and 103)
 struct __attribute__((packed)) CFGB
@@ -82,6 +80,7 @@ struct __attribute__((packed)) CFGB
     bool    operator==(const CFGB &cfgb) const = default;
 };
 static_assert(sizeof(CFGB) == REG_GROUP_SIZE);
+static_assert(sizeof(RegBuffer) == sizeof(CFGB));
 
 struct SegmentConfig
 {

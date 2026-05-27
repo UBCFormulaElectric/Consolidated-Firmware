@@ -4,6 +4,7 @@
 #include "hw_spis.hpp"
 
 #include <cstring>
+#include <algorithm>
 
 using namespace std;
 
@@ -166,7 +167,7 @@ struct __attribute__((packed)) WriteCmd
 namespace
 {
     Segments<uint8_t> expected_cmd_count{};
-    // Segments<bool>    last_cmd_count_mismatches{};
+    Segments<bool>    last_cmd_count_mismatches{};
 
     bool commandIncrements(const uint16_t cmd)
     {
@@ -232,24 +233,23 @@ namespace
         }
     }
 
-    // Segments<bool> detectCmdCountMismatches(const Segments<RegGroupPayload> &rx)
-    // {
-    //     Segments<bool> mismatches{};
-    //     for (size_t seg = 0U; seg < NUM_SEGMENTS; ++seg)
-    //     {
-    //         mismatches[seg] = rx[seg].cmd_count() != expected_cmd_count[seg];
-    //     }
-    //     return mismatches;
-    // }
+    Segments<bool> detectCmdCountMismatches(const Segments<RegGroupPayload> &rx)
+    {
+        Segments<bool> mismatches{};
+        for (size_t seg = 0U; seg < NUM_SEGMENTS; ++seg)
+        {
+            mismatches[seg] = rx[seg].cmd_count() != expected_cmd_count[seg];
+        }
+        return mismatches;
+    }
 
-    // void handleCmdCountMismatches(const Segments<bool> &mismatches)
-    // {
-    //     last_cmd_count_mismatches = mismatches;
-    //     const bool any            = std::any_of(mismatches.begin(), mismatches.end(), [](bool m) { return m; });
-    //     if (!any)
-    //         return;
-    //     (void)sendCmd(RSTCC);
-    // }
+    void handleCmdCountMismatches(const Segments<bool> &mismatches)
+    {
+        last_cmd_count_mismatches = mismatches;
+        if (!ranges::any_of(mismatches, [](const bool m) { return m; }))
+            return;
+        (void)sendCmd(RSTCC);
+    }
 } // namespace
 
 Segments<uint8_t> getExpectedCmdCount()
@@ -257,10 +257,10 @@ Segments<uint8_t> getExpectedCmdCount()
     return expected_cmd_count;
 }
 
-// Segments<bool> getCmdCountMismatches()
-// {
-//     return last_cmd_count_mismatches;
-// }
+Segments<bool> getCmdCountMismatches()
+{
+    return last_cmd_count_mismatches;
+}
 
 result<void> sendCmd(const uint16_t cmd)
 {
@@ -315,7 +315,7 @@ Segments<result<RegBuffer>> readRegGroup(const uint16_t cmd)
     // Detect per-segment command counter mismatches and trigger RSTCC recovery.
     // The app layer reads the mismatch bitmap via getCmdCountMismatches() and
     // broadcasts the SegmentCMDCNT CAN message.
-    // handleCmdCountMismatches(detectCmdCountMismatches(rx_buffer));
+    handleCmdCountMismatches(detectCmdCountMismatches(rx_buffer));
 
     return regs;
 }
