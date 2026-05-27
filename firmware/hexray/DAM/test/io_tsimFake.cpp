@@ -41,7 +41,7 @@ Color lastColor()
     return s_last_color;
 }
 
-unsigned int callCount()
+uint32_t callCount()
 {
     return s_call_count;
 }
