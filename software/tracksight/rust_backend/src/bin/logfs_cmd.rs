@@ -142,17 +142,17 @@ fn main() {
                     match l.cat(&path) {
                         Ok((metadata, data)) => {
                             println!("metadata ({} bytes): {:02X?}", metadata.len(), metadata);
-                            // Metadata layout (see firmware/logfs/python/logfs/can_logger.py):
-                            // second, minute, hour, day, weekday, month, year-2000.
-                            if metadata.len() >= 7 {
+                            // Metadata layout (firmware/hexray/DAM/src/app/app_sd.cpp):
+                            // month, day, year-2000, hours, minutes, seconds.
+                            if metadata.len() >= 6 {
                                 println!(
                                     "start timestamp: {:04}-{:02}-{:02} {:02}:{:02}:{:02}",
-                                    2000 + metadata[6] as u32,
-                                    metadata[5], metadata[3],
-                                    metadata[2], metadata[1], metadata[0],
+                                    2000 + metadata[2] as u32,
+                                    metadata[0], metadata[1],
+                                    metadata[3], metadata[4], metadata[5],
                                 );
                             }
-                            println!("data ({} bytes): {:?}", data.len(), String::from_utf8(data).unwrap_or_default());
+                            println!("data ({} bytes): {:02X?}", data.len(), data);
                         }
                         Err(e) => eprintln!("Error opening file: {}", e),
                     }

@@ -130,22 +130,38 @@ pub async fn dump_sd_file(
     Ok(())
 }
 
-/// Parse the 7-byte metadata block written at logging start. Layout (LE):
-/// `second, minute, hour, day, weekday, month, year-2000`. Returns the start
-/// time as milliseconds since the Unix epoch. `weekday` is ignored. Mirrors
-/// `Decoder._decode_start_timestamp` in `firmware/logfs/python/logfs/can_logger.py`.
+/// Parse the metadata block the firmware writes at logging start into the start
+/// time as milliseconds since the Unix epoch.
+///
+/// Current format (hexray DAM firmware) is 6 bytes: `month, day, year, hours,
+/// minutes, seconds`, where `year` is 0-99 representing 2000-2099. Source of
+/// truth: `update_metadata()` in `firmware/hexray/DAM/src/app/app_sd.cpp` and the
+/// `Date`/`Time` fields in `firmware/hexray/DAM/src/io/io_rtc.hpp`.
 pub fn decode_start_timestamp_ms(metadata: &[u8]) -> Option<i64> {
-    if metadata.len() < 7 {
+    if metadata.len() < 6 {
         return None;
     }
-    let (second, minute, hour, day, month, year) = (
-        metadata[0] as u32,
-        metadata[1] as u32,
-        metadata[2] as u32,
-        metadata[3] as u32,
-        metadata[5] as u32,
-        2000 + metadata[6] as i32,
-    );
+    let month = metadata[0] as u32;
+    let day = metadata[1] as u32;
+    let year = 2000 + metadata[2] as i32;
+    let hour = metadata[3] as u32;
+    let minute = metadata[4] as u32;
+    let second = metadata[5] as u32;
+
+    // LEGACY (old Python logfs, 7 bytes): `second, minute, hour, day, weekday,
+    // month, year-2000` (`weekday` ignored), see
+    // `firmware/logfs/python/logfs/can_logger.py`. The firmware no longer writes
+    // this layout; kept here only as a reference and can be removed once we are
+    // sure no old (Python-written) cards need to be read.
+    //
+    // let second = metadata[0] as u32;
+    // let minute = metadata[1] as u32;
+    // let hour   = metadata[2] as u32;
+    // let day    = metadata[3] as u32;
+    // // metadata[4] = weekday (unused)
+    // let month  = metadata[5] as u32;
+    // let year   = 2000 + metadata[6] as i32;
+
     NaiveDate::from_ymd_opt(year, month, day)?
         .and_hms_opt(hour, minute, second)
         .map(|dt| dt.and_utc().timestamp_millis())
@@ -233,8 +249,8 @@ mod tests {
     use super::*;
 
     fn metadata(second: u8, minute: u8, hour: u8, day: u8, month: u8, year_off: u8) -> Vec<u8> {
-        // second, minute, hour, day, weekday, month, year-2000
-        vec![second, minute, hour, day, 0, month, year_off]
+        // hexray DAM layout: month, day, year-2000, hours, minutes, seconds
+        vec![month, day, year_off, hour, minute, second]
     }
 
     /// Encode one message exactly as the firmware does, with a valid CRC8.
