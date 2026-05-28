@@ -98,9 +98,6 @@ int main(void)
     HAL_Init();
 
     /* USER CODE BEGIN Init */
-#ifndef WATCHDOG_DISABLED
-    __HAL_DBGMCU_FREEZE_IWDG();
-#endif
     /* USER CODE END Init */
 
     /* Configure the system clock */
@@ -125,10 +122,11 @@ int main(void)
 
     // RTC smooth calibration. Compensates for the LSE crystal running fast due to
     // under-spec load capacitance on the board (4.3 pF caps where ~8 pF are needed
-    // for the 7 pF crystal). Measured drift: ~78 ppm fast → CALM ≈ 82.
+    // for the 7 pF crystal). Initial measurement: ~78 ppm fast → CALM 82. After
+    // calibration, residual drift was ~31 ppm fast → bumped to CALM 115.
     // Setting lives in backup domain so persists with VBAT; setting it each boot
     // is idempotent.
-    HAL_RTCEx_SetSmoothCalib(&hrtc, RTC_SMOOTHCALIB_PERIOD_32SEC, RTC_SMOOTHCALIB_PLUSPULSES_RESET, 82);
+    HAL_RTCEx_SetSmoothCalib(&hrtc, RTC_SMOOTHCALIB_PERIOD_32SEC, RTC_SMOOTHCALIB_PLUSPULSES_RESET, 115);
     /* USER CODE END 2 */
 
     /* Infinite loop */
