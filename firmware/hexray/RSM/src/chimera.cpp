@@ -151,3 +151,11 @@ char USBD_PRODUCT_STRING_FS[] = "rsm";
     osKernelStart();
     forever {}
 }
+
+void tasks_handle_arr_rollover_callback(TIM_HandleTypeDef *htim)
+{
+    if (htim == &imd_pwm_input.get_timer_handle())
+    {
+        flow_meter_config.increment_arrRolloverCount();
+    }
+}
