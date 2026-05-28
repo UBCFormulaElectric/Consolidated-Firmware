@@ -192,7 +192,7 @@ const renderAlertTimeline = (
     const isOffLeftEdge = alert.startTime < leftEdge;
 
     const endTime = alert.endTime ?? liveTime;
-    
+
     // NOTE(evan): The rounding instantly going away jumps out at ur eyes so 
     //             smoothe it it doesn't look good if u stare at it but because it
     //             doesn't jump out you shouldn't see it most of the time.
@@ -236,7 +236,7 @@ const renderAlertTimeline = (
 
   if (!hover || hover.alertIndex >= state.length) return;
   const alert = state[hover.alertIndex];
-  
+
   if (alert.streamIndex >= slipStreamLanes) return;
 
   const laneY = alert.streamIndex * (heightPerLane + laneGap);
@@ -252,9 +252,9 @@ const renderAlertTimeline = (
   const textWidth = ctx.measureText(alert.signal).width;
   const tooltipWidth = textWidth + TOOLTIP_PADDING_X * 2;
   const tooltipHeight = 14 + TOOLTIP_PADDING_Y * 2;
-  
+
   const isAboveTooltip = laneY + heightPerLane + tooltipHeight + TOOLTIP_TRIANGLE_SIZE + TOOLTIP_GAP > bottom;
-  
+
   const triangleTop = isAboveTooltip ? laneY - TOOLTIP_GAP : barBottom + TOOLTIP_GAP;
   const tooltipTop = isAboveTooltip ? triangleTop - TOOLTIP_TRIANGLE_SIZE : triangleTop + TOOLTIP_TRIANGLE_SIZE;
 
@@ -430,7 +430,52 @@ function AlertTimeline() {
       clearInterval(intervalId);
     };
   }, [data.current]);
-  
+
+  useEffect(() => {
+    const wrapper = wrapperRef.current;
+    if (!wrapper) return;
+
+    const findScrollableAncestor = (el: HTMLElement | null): HTMLElement | Window => {
+      let node = el?.parentElement ?? null;
+
+      while (node) {
+        if (node === document.body) break;
+
+        const style = getComputedStyle(node);
+        const overflowY = style.overflowY;
+
+        const canScroll = (overflowY === "auto" || overflowY === "scroll" || overflowY === "overlay") && node.scrollHeight > node.clientHeight;
+
+        if (canScroll) return node;
+
+        node = node.parentElement;
+      }
+      return window;
+    };
+
+    const handleWheel = (e: WheelEvent) => {
+      const deltaY = e.deltaY;
+      if (deltaY === 0) return;
+
+      const atTop = wrapper.scrollTop <= 0;
+      const atBottom = wrapper.scrollTop + wrapper.clientHeight >= wrapper.scrollHeight - 1;
+
+      const wouldChain = (deltaY < 0 && atTop) || (deltaY > 0 && atBottom);
+      if (!wouldChain) return;
+
+      e.preventDefault();
+
+      const ancestor = findScrollableAncestor(wrapper);
+      ancestor.scrollBy({ top: deltaY });
+    };
+
+    wrapper.addEventListener("wheel", handleWheel, { passive: false });
+
+    return () => {
+      wrapper.removeEventListener("wheel", handleWheel);
+    };
+  }, []);
+
   const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current;
     if (!canvas) {
