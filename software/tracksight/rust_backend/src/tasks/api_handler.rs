@@ -40,7 +40,7 @@ pub async fn run_api_handler(
         .unwrap_or_fail_health_check(&health_check_tx, Task::ApiHandler).await;
 
     let service_type = "_http._tcp.local.";
-    let instance_name = "server";
+    let instance_name = "telem";
 
     let service_info = ServiceInfo::new(
         service_type,
