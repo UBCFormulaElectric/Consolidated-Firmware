@@ -6,9 +6,9 @@ namespace app::sd
 {
 namespace
 {
-auto     LOG_PATH = "/log.bin";
-uint32_t log_fd   = 0;
-bool     log_open = false;
+    auto     LOG_PATH = "/log.bin";
+    uint32_t log_fd   = 0;
+    bool     log_open = false;
 } // namespace
 
 void init_fs()
@@ -56,7 +56,7 @@ void update_metadata()
     raw[5] = rtc_time.value().seconds;
 
     const std::span<const uint8_t> metadata_buf(raw.data(), raw.size());
-    auto err = fs.writeMetadata(log_fd, metadata_buf);
+    auto                           err = fs.writeMetadata(log_fd, metadata_buf);
 
     if (!err.has_value())
         LOG_ERROR("Failed to write time to file metadata: %d", static_cast<int>(err.error()));

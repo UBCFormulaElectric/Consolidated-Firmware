@@ -92,7 +92,7 @@ namespace
                     LOG_ERROR("telemRx: NTP handleFrameAndTuneRtc failed");
                     return;
                 }
-    
+
                 app::sd::update_metadata();
                 break;
             }
