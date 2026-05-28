@@ -12,6 +12,7 @@
 #include "app_heartbeatMonitors.hpp"
 #include "app_commitInfo.hpp"
 #include "app_epochClock.hpp"
+#include "app_sd.hpp"
 
 #include "io_canMsg.hpp"
 #include "io_canQueues.hpp"
@@ -27,13 +28,6 @@
 #include "util_errorCodes.hpp"
 
 #include <span>
-// priv namespace for the logfs vars
-namespace
-{
-auto     LOG_PATH = "/log.bin";
-uint32_t log_fd   = 0;
-bool     log_open = false;
-} // namespace
 
 void jobs_init()
 {
@@ -107,36 +101,20 @@ void jobs_initLogFs()
     //     }
     // }
 
-    if (const auto err = fs.init(); not err)
-    {
-        LOG_ERROR("Failed to init filesystem: %d", static_cast<int>(err.error()));
-    }
-    else
-    {
-        LOG_INFO("we init fine");
-    }
-    // TODO Add metadata handling for rtc and ntped time when applicable
-
-    if (const auto r = fs.open(LOG_PATH); r)
-    {
-        log_fd   = r.value();
-        log_open = true;
-    }
-    else
-    {
-        LOG_ERROR("Failed to open %s: %d", LOG_PATH, static_cast<int>(r.error()));
-    }
+    app::sd::init_fs();
+    app::sd::update_metadata();
 
     if (const auto err = app::bootcount::update(fs); !err)
     {
         LOG_ERROR("Failed to update bootcount: %d", static_cast<int>(err.error()));
-    };
+    }
 }
+
 void jobs_run1Hz_tick()
 {
-    if (log_open)
+    if (app::sd::isLogOpen())
     {
-        if (const auto err = fs.sync(log_fd); !err)
+        if (const auto err = fs.sync(app::sd::getLogFd()); !err)
         {
             LOG_ERROR("Log sync failed: %d", static_cast<int>(err.error()));
         }
@@ -167,13 +145,13 @@ void jobs_run1kHz_tick()
 void jobs_runLogging_tick()
 {
     const auto msg = log_queue.pop();
-    if (!msg || !log_open)
+    if (!msg || !app::sd::isLogOpen())
         return;
 
     io::canLogging::EncodeBuf buf;
     const size_t              n = io::canLogging::encode(msg.value(), buf);
 
-    if (const auto err = fs.write(log_fd, { buf.data(), n }, n); !err)
+    if (const auto err = fs.write(app::sd::getLogFd(), { buf.data(), n }, n); !err)
     {
         LOG_ERROR("Log write failed: %d", static_cast<int>(err.error()));
     }
