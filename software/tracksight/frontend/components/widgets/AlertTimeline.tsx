@@ -9,6 +9,7 @@ import { render_hover_line } from "./render";
 const INITIAL_SLIP_STREAM_LANES = 5;
 const MAX_SLIP_STREAM_LANES = 5;
 const SLIP_STREAM_GAP = 5;
+const SLIP_STREAM_LANE_HEIGHT = 32;
 const PROCESSING_INTERVAL_MS = 1;
 const SLIP_STREAM_ROUNDING_RADIUS = 8;
 const SLIP_STREAM_ROUNDING_SPEED = 0.5;
@@ -22,6 +23,8 @@ const TOOLTIP_GAP = 2;
 const TOOLTIP_COLOR = "#000000ac";
 const TOOLTIP_TEXT_COLOR = "white";
 const TOOLTIP_BORDER_COLOR = "black";
+
+const containerHeightForLanes = (lanes: number) => (lanes + 1) * SLIP_STREAM_LANE_HEIGHT + lanes * SLIP_STREAM_GAP;
 
 type HoverInfo = {
   alertIndex: number;
@@ -128,7 +131,7 @@ const hitTestAlerts = (
 
   const { x: mouseX, y: mouseY } = mousePos;
   const laneGap = SLIP_STREAM_GAP;
-  const heightPerLane = (height - (slipStreamLanes - 1) * laneGap) / slipStreamLanes;
+  const heightPerLane = SLIP_STREAM_LANE_HEIGHT;
   const pixelsPerMs = width / (rightEdge - leftEdge);
 
   for (let i = state.length - 1; i >= 0; i--) {
@@ -136,7 +139,7 @@ const hitTestAlerts = (
     if (alert.streamIndex >= slipStreamLanes) continue;
     if (alert.endTime && alert.endTime < leftEdge) continue;
 
-    const laneY = alert.streamIndex * (heightPerLane + laneGap);
+    const laneY = (alert.streamIndex + 1) * (heightPerLane + laneGap);
     if (mouseY < laneY || mouseY > laneY + heightPerLane) continue;
 
     const alertStartX = alert.startTime < leftEdge ? 0 : (alert.startTime - leftEdge) * pixelsPerMs;
@@ -172,7 +175,7 @@ const renderAlertTimeline = (
   ctx.clearRect(0, 0, width, height);
 
   const laneGap = SLIP_STREAM_GAP;
-  const heightPerLane = (height - (slipStreamLanes - 1) * laneGap) / slipStreamLanes;
+  const heightPerLane = SLIP_STREAM_LANE_HEIGHT;
 
   const pixelsPerMillisecond = width / (rightEdge - leftEdge);
 
@@ -180,7 +183,7 @@ const renderAlertTimeline = (
     if (alert.streamIndex >= slipStreamLanes) return;
     if (alert.endTime && alert.endTime < leftEdge) return;
 
-    const laneY = alert.streamIndex * (heightPerLane + laneGap);
+    const laneY = (alert.streamIndex + 1) * (heightPerLane + laneGap);
 
     const isStartBeforeView = alert.startTime < leftEdge;
 
@@ -239,7 +242,7 @@ const renderAlertTimeline = (
 
   if (alert.streamIndex >= slipStreamLanes) return;
 
-  const laneY = alert.streamIndex * (heightPerLane + laneGap);
+  const laneY = (alert.streamIndex + 1) * (heightPerLane + laneGap);
   const alertStartX = alert.startTime < leftEdge ? 0 : (alert.startTime - leftEdge) * pixelsPerMillisecond;
   const alertEndX = alert.endTime ? (alert.endTime - leftEdge) * pixelsPerMillisecond : (liveTime - leftEdge) * pixelsPerMillisecond;
   const visibleStartX = Math.max(alertStartX, 0);
@@ -413,9 +416,7 @@ function AlertTimeline() {
       );
 
       if (scrollableRef.current) {
-        const newHeight = slipStreamLanes.current * 32 + (slipStreamLanes.current - 1) * SLIP_STREAM_GAP;
-
-        scrollableRef.current.style.height = `${newHeight}px`;
+        scrollableRef.current.style.height = `${containerHeightForLanes(slipStreamLanes.current)}px`;
       }
 
       renderState.current = newRenderState;
@@ -501,14 +502,14 @@ function AlertTimeline() {
       <div className="overflow-y-scroll scrollbar-hidden overscroll-none"
         ref={wrapperRef}
         style={{
-          maxHeight: `${MAX_SLIP_STREAM_LANES * 32 + (MAX_SLIP_STREAM_LANES - 1) * SLIP_STREAM_GAP}px`,
+          maxHeight: `${containerHeightForLanes(MAX_SLIP_STREAM_LANES)}px`,
         }}
       >
         <div
           className="relative flex w-full"
           ref={scrollableRef}
           style={{
-            height: `${INITIAL_SLIP_STREAM_LANES * 32}px`,
+            height: `${containerHeightForLanes(INITIAL_SLIP_STREAM_LANES)}px`,
           }}
         >
           <canvas
