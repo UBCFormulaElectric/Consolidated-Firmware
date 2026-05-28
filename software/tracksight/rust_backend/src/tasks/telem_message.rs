@@ -63,7 +63,6 @@ pub enum TelemetryOutgoingMessage {
 
 impl TelemetryOutgoingMessage {
     pub const MAGIC: [u8; 2] = [0xcc, 0x33];
-
-    pub const NTP_TRIGGER_BYTE: u8 = 0x00;
     pub const NTP_RESPONSE_BYTE: u8 = 0x01;
+    pub const NTP_TRIGGER_BYTE: u8 = 0x02;
 }
