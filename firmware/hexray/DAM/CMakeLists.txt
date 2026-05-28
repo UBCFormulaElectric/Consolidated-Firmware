@@ -35,6 +35,7 @@ set(IO_SHARED_SRCS
         "${SHARED_IO_INCLUDE_DIR_CPP}/io_filesystem.cpp"
         "${SHARED_IO_INCLUDE_DIR_CPP}/io_canLogging.cpp"
 )
+set(IO_SHARED_SRCS_TEST "${SHARED_IO_INCLUDE_DIR_CPP}/io_filesystem.cpp")
 set(IO_INCLUDE_DIRS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io"
         "${SHARED_IO_INCLUDE_DIR}" "${SHARED_IO_INCLUDE_DIR_CPP}"
@@ -169,7 +170,7 @@ elseif ("${TARGET}" STREQUAL "test")
     set(IO_TEST_SRCS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_telemMessage.cpp"
 )
-    set(SRCS ${APP_SRCS} ${APP_SHARED_SRCS} ${TEST_SRCS} ${FAKE_SRCS} ${IO_TEST_SRCS} ${IO_SHARED_SRCS})
+    set(SRCS ${APP_SRCS} ${APP_SHARED_SRCS} ${TEST_SRCS} ${FAKE_SRCS} ${IO_TEST_SRCS} ${IO_SHARED_SRCS_TEST})
     set(INCLUDE_DIRS
             ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${HW_INCLUDE_DIRS}
             ${SHARED_FAKES_DIR_CPP} ${SYSTEM_INCLUDE_DIRS}
