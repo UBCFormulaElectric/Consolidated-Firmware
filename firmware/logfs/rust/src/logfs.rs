@@ -120,13 +120,17 @@ impl LogFsFile {
                 }
             }
             None => {
-                // Reset the iterator by reading 0 bytes from end
+                // Reset the iterator by reading 0 bytes from end. `logfs_read`
+                // does CHECK_ARG(buf) and rejects a null pointer with
+                // LOGFS_ERR_INVALID_ARG, so pass a valid (non-null) buffer even
+                // though zero bytes are read.
                 let mut num_read: u32 = 0;
+                let mut dummy = [0u8; 1];
                 let err = unsafe {
                     logfs_read(
                         self.fs,
                         &mut self.file,
-                        std::ptr::null_mut(),
+                        dummy.as_mut_ptr() as *mut _,
                         0,
                         LogFsReadFlags_LOGFS_READ_END,
                         &mut num_read,
