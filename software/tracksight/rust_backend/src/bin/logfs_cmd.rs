@@ -139,8 +139,21 @@ fn main() {
                 if let Some(ref mut l) = logfs {
                     let file_name = args[0];
                     let path = format!("{}/{}", dir_to_path(&curr_dir), file_name);
-                    match l.cat(&path, None) {
-                        Ok(data) => println!("{:?}", String::from_utf8(data).unwrap_or_default()),
+                    match l.cat(&path) {
+                        Ok((metadata, data)) => {
+                            println!("metadata ({} bytes): {:02X?}", metadata.len(), metadata);
+                            // Metadata layout (see firmware/logfs/python/logfs/can_logger.py):
+                            // second, minute, hour, day, weekday, month, year-2000.
+                            if metadata.len() >= 7 {
+                                println!(
+                                    "start timestamp: {:04}-{:02}-{:02} {:02}:{:02}:{:02}",
+                                    2000 + metadata[6] as u32,
+                                    metadata[5], metadata[3],
+                                    metadata[2], metadata[1], metadata[0],
+                                );
+                            }
+                            println!("data ({} bytes): {:?}", data.len(), String::from_utf8(data).unwrap_or_default());
+                        }
                         Err(e) => eprintln!("Error opening file: {}", e),
                     }
                 } else {
