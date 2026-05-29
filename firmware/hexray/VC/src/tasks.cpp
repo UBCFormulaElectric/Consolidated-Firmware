@@ -199,6 +199,7 @@ static void VC_StartAllTasks()
     Task100Hz.start();
     Task1kHz.start();
     Task1Hz.start();
+    TaskImu.start();
     TaskCanRx.start();
     TaskCan1Tx.start();
     TaskCan2Tx.start();

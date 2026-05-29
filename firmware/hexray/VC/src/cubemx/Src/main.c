@@ -182,23 +182,20 @@ void SystemClock_Config(void)
     /** Initializes the RCC Oscillators according to the specified parameters
      * in the RCC_OscInitTypeDef structure.
      */
-    RCC_OscInitStruct.OscillatorType =
-        RCC_OSCILLATORTYPE_HSI48 | RCC_OSCILLATORTYPE_CSI | RCC_OSCILLATORTYPE_LSI | RCC_OSCILLATORTYPE_HSE;
-    RCC_OscInitStruct.HSEState            = RCC_HSE_ON;
-    RCC_OscInitStruct.LSIState            = RCC_LSI_ON;
-    RCC_OscInitStruct.HSI48State          = RCC_HSI48_ON;
-    RCC_OscInitStruct.CSIState            = RCC_CSI_ON;
-    RCC_OscInitStruct.CSICalibrationValue = 16;
-    RCC_OscInitStruct.PLL.PLLState        = RCC_PLL_ON;
-    RCC_OscInitStruct.PLL.PLLSource       = RCC_PLLSOURCE_HSE;
-    RCC_OscInitStruct.PLL.PLLM            = 1;
-    RCC_OscInitStruct.PLL.PLLN            = 31;
-    RCC_OscInitStruct.PLL.PLLP            = 1;
-    RCC_OscInitStruct.PLL.PLLQ            = 1;
-    RCC_OscInitStruct.PLL.PLLR            = 2;
-    RCC_OscInitStruct.PLL.PLLRGE          = RCC_PLL1VCIRANGE_3;
-    RCC_OscInitStruct.PLL.PLLVCOSEL       = RCC_PLL1VCOWIDE;
-    RCC_OscInitStruct.PLL.PLLFRACN        = 2048;
+    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI48 | RCC_OSCILLATORTYPE_LSI | RCC_OSCILLATORTYPE_HSE;
+    RCC_OscInitStruct.HSEState       = RCC_HSE_ON;
+    RCC_OscInitStruct.LSIState       = RCC_LSI_ON;
+    RCC_OscInitStruct.HSI48State     = RCC_HSI48_ON;
+    RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_ON;
+    RCC_OscInitStruct.PLL.PLLSource  = RCC_PLLSOURCE_HSE;
+    RCC_OscInitStruct.PLL.PLLM       = 1;
+    RCC_OscInitStruct.PLL.PLLN       = 31;
+    RCC_OscInitStruct.PLL.PLLP       = 1;
+    RCC_OscInitStruct.PLL.PLLQ       = 1;
+    RCC_OscInitStruct.PLL.PLLR       = 2;
+    RCC_OscInitStruct.PLL.PLLRGE     = RCC_PLL1VCIRANGE_3;
+    RCC_OscInitStruct.PLL.PLLVCOSEL  = RCC_PLL1VCOWIDE;
+    RCC_OscInitStruct.PLL.PLLFRACN   = 2048;
     if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
     {
         Error_Handler();
@@ -241,7 +238,7 @@ void PeriphCommonClock_Config(void)
     PeriphClkInitStruct.PLL2.PLL2RGE         = RCC_PLL2VCIRANGE_3;
     PeriphClkInitStruct.PLL2.PLL2VCOSEL      = RCC_PLL2VCOWIDE;
     PeriphClkInitStruct.PLL2.PLL2FRACN       = 0;
-    PeriphClkInitStruct.CkperClockSelection  = RCC_CLKPSOURCE_CSI;
+    PeriphClkInitStruct.CkperClockSelection  = RCC_CLKPSOURCE_HSE;
     PeriphClkInitStruct.FdcanClockSelection  = RCC_FDCANCLKSOURCE_PLL2;
     PeriphClkInitStruct.AdcClockSelection    = RCC_ADCCLKSOURCE_PLL2;
     if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
@@ -719,10 +716,10 @@ static void MX_SPI1_Init(void)
     hspi1.Instance                        = SPI1;
     hspi1.Init.Mode                       = SPI_MODE_MASTER;
     hspi1.Init.Direction                  = SPI_DIRECTION_2LINES;
-    hspi1.Init.DataSize                   = SPI_DATASIZE_4BIT;
+    hspi1.Init.DataSize                   = SPI_DATASIZE_8BIT;
     hspi1.Init.CLKPolarity                = SPI_POLARITY_LOW;
     hspi1.Init.CLKPhase                   = SPI_PHASE_1EDGE;
-    hspi1.Init.NSS                        = SPI_NSS_SOFT;
+    hspi1.Init.NSS                        = SPI_NSS_HARD_OUTPUT;
     hspi1.Init.BaudRatePrescaler          = SPI_BAUDRATEPRESCALER_2;
     hspi1.Init.FirstBit                   = SPI_FIRSTBIT_MSB;
     hspi1.Init.TIMode                     = SPI_TIMODE_DISABLE;
