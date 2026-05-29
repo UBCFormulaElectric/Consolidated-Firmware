@@ -6,8 +6,6 @@
 #include <cassert>
 #include <cmath>
 
-using namespace hw::adc;
-
 // Percent error used to compensate for resistor errors. Determined from testing with the HW
 // TODO: Test with HW to determine compensation
 namespace io::ts
@@ -97,7 +95,7 @@ float getVoltage(void)
 
 float getCurrentHighResolution()
 {
-    const float cs_in_1 = MAX(ts_isense_75a.getVoltage(), 0.0f) * TSI_TO_CSIN;
+    const float cs_in_1 = MAX(ts_isense_50a.getVoltage(), 0.0f) * TSI_TO_CSIN;
     const float high_res_current = (cs_in_1 - OFFSET_V) / HIGH_RES_SENS_VA;
 
     // Error Calibration for High Resolution Current Sensor (based on calibration data)
@@ -117,7 +115,7 @@ float getCurrentHighResolution()
 
 float getCurrentLowResolution()
 {
-    const float cs_in_2 = MAX(ts_isense_500a.getVoltage(), 0.0f) * TSI_TO_CSIN;
+    const float cs_in_2 = MAX(ts_isense_400a.getVoltage(), 0.0f) * TSI_TO_CSIN;
     const float low_res_current = (cs_in_2 - OFFSET_V) / HIGH_RES_SENS_VA;
 
     // Error Calibration for Low Resolution Current Sensor (based on calibration data)
