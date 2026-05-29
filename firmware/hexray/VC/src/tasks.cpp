@@ -50,7 +50,8 @@ static hw::rtos::StaticTask TaskCanRx(osPriorityNormal, "TaskCanRx", tasks_runCa
 static hw::rtos::StaticTask TaskImu(osPriorityHigh, "TaskImu", tasks_runImu, TaskImuStack);
 static hw::rtos::StaticTask TaskCan1Tx(osPriorityNormal, "TaskCanTx", tasks_runCan1Tx, TaskCan1TxStack);
 static hw::rtos::StaticTask TaskCan2Tx(osPriorityNormal, "TaskCanTx", tasks_runCan2Tx, TaskCan2TxStack);
-static hw::rtos::StaticTask TaskPowerMonitoring(osPriorityNormal, "TaskPowerMonitoring", tasks_powerMonitoring, TaskPowerMonitoringStack);
+static hw::rtos::StaticTask
+    TaskPowerMonitoring(osPriorityNormal, "TaskPowerMonitoring", tasks_powerMonitoring, TaskPowerMonitoringStack);
 
 static hw::watchdog::monitor<TASK_COUNT> monitor{
     hiwdg1,
@@ -106,9 +107,9 @@ void tasks_run1kHz(void *arg)
 }
 void tasks_runImu(void *arg)
 {
-    constexpr uint32_t             period_ms                = 10U;
-    constexpr uint32_t             watchdog_grace_period_ms = 2U;
-    hw::watchdog::instance &watchdogImu = monitor.spawn_instance(period_ms + watchdog_grace_period_ms);
+    constexpr uint32_t      period_ms                = 10U;
+    constexpr uint32_t      watchdog_grace_period_ms = 2U;
+    hw::watchdog::instance &watchdogImu              = monitor.spawn_instance(period_ms + watchdog_grace_period_ms);
 
     jobs_initImu();
 

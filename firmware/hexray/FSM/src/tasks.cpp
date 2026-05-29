@@ -27,7 +27,6 @@ constexpr size_t         TASK_COUNT = 5;
 [[noreturn]] static void tasks_runCanTx(void *arg);
 [[noreturn]] static void tasks_runCanRx(void *arg);
 
-
 // Define the task with StaticTask template class
 static hw::rtos::StaticTask::StaticTaskStack<512> Task1kHzStack;
 static hw::rtos::StaticTask::StaticTaskStack<512> Task100HzStack;
@@ -139,9 +138,9 @@ void tasks_run1kHz(void *arg)
 }
 void tasks_runImu(void *arg)
 {
-    constexpr uint32_t             period_ms                = 10U;
-    constexpr uint32_t             watchdog_grace_period_ms = 2U;
-    hw::watchdog::instance &watchdogImu = monitor.spawn_instance(period_ms + watchdog_grace_period_ms);
+    constexpr uint32_t      period_ms                = 10U;
+    constexpr uint32_t      watchdog_grace_period_ms = 2U;
+    hw::watchdog::instance &watchdogImu              = monitor.spawn_instance(period_ms + watchdog_grace_period_ms);
 
     jobs_initImu();
 

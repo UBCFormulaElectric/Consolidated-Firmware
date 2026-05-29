@@ -378,16 +378,11 @@ result<void> imu::init() const
     }
 
     std::array<const uint8_t, 20> tx_config = { {
-        PWR_MGMT_2,     std::bit_cast<uint8_t>(pwr_mgmt2),
-        INT_ENABLE,     std::bit_cast<uint8_t>(int_enable),
-        SMPLRT_DIV,     std::bit_cast<uint8_t>(smplrt_div),
-        CONFIG,         std::bit_cast<uint8_t>(config),
-        GYRO_CONFIG,    std::bit_cast<uint8_t>(gyro_config),
-        ACCEL_CONFIG,   std::bit_cast<uint8_t>(accel_config),
-        ACCEL_CONFIG_2, std::bit_cast<uint8_t>(accel_config2),
-        LP_MODE_CONFIG, std::bit_cast<uint8_t>(lp_mode_config),
-        INT_PIN_CONFIG, std::bit_cast<uint8_t>(int_pin_config),
-        FIFO_EN,        std::bit_cast<uint8_t>(fifo_en),
+        PWR_MGMT_2,     std::bit_cast<uint8_t>(pwr_mgmt2),      INT_ENABLE,     std::bit_cast<uint8_t>(int_enable),
+        SMPLRT_DIV,     std::bit_cast<uint8_t>(smplrt_div),     CONFIG,         std::bit_cast<uint8_t>(config),
+        GYRO_CONFIG,    std::bit_cast<uint8_t>(gyro_config),    ACCEL_CONFIG,   std::bit_cast<uint8_t>(accel_config),
+        ACCEL_CONFIG_2, std::bit_cast<uint8_t>(accel_config2),  LP_MODE_CONFIG, std::bit_cast<uint8_t>(lp_mode_config),
+        INT_PIN_CONFIG, std::bit_cast<uint8_t>(int_pin_config), FIFO_EN,        std::bit_cast<uint8_t>(fifo_en),
     } };
 
     for (std::size_t i = 0; i < tx_config.size(); i += 2)

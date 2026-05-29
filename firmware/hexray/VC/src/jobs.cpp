@@ -65,7 +65,7 @@ void jobs_run1kHz_tick()
 }
 void jobs_runImu_tick()
 {
-    io::imus::init();
+    app::imus::broadcast();
 }
 void jobs_runPowerMonitoring_tick()
 {

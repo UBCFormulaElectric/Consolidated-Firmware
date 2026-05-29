@@ -3,7 +3,9 @@
 
 namespace io::imus
 {
-imu imu_front(hw::spi::imu_spi, ImuFilterConfig{ .enable_gyro_dlpf = true, .gyro_dlpf_cutoff = GyroDlpfConfig::BW_20HZ_NOISE_31HZ });
+imu imu_front(
+    hw::spi::imu_spi,
+    ImuFilterConfig{ .enable_gyro_dlpf = true, .gyro_dlpf_cutoff = GyroDlpfConfig::BW_20HZ_NOISE_31HZ });
 
 result<void> init()
 {

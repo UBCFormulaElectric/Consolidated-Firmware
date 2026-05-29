@@ -60,7 +60,7 @@ void jobs_run1kHz_tick()
 {
     io::can_tx::enqueueOtherPeriodicMsgs(io::time::getCurrentMs());
 }
- void jobs_runImu_tick()
- {
+void jobs_runImu_tick()
+{
     app::imu::broadcast();
- }
+}
