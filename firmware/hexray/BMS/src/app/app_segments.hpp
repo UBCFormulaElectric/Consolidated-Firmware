@@ -103,6 +103,7 @@ namespace health
     void setAll(ErrorBit bit);
     void setOrReset(size_t seg, ErrorBit bit, bool has_error);
     bool getError(size_t seg, ErrorBit bit);
+    bool getAnyError(size_t seg);
 } // namespace health
 
 // app_segments_shared.cpp

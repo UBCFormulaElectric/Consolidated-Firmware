@@ -79,7 +79,7 @@ bool anyCellOpenWire()
     const auto cells = app::segments::shared::getLatestCellOwc();
     for (const auto &segment : cells)
         for (const auto &cell : segment)
-            if (cell.has_value() && !cell.value())
+            if (cell.has_value() && cell.value())
                 return true;
     return false;
 }
@@ -89,7 +89,7 @@ bool anyThermOpenWire()
     const auto therms = app::segments::shared::getLatestThermOwc();
     for (const auto &segment : therms)
         for (const auto &therm : segment)
-            if (therm.has_value() && !therm.value())
+            if (therm.has_value() && therm.value())
                 return true;
     return false;
 }
@@ -97,9 +97,8 @@ bool anyThermOpenWire()
 bool anyHealthError()
 {
     for (size_t seg = 0; seg < NUM_SEGMENTS; ++seg)
-        for (size_t b = 0; b < static_cast<size_t>(ErrorBit::NUM_ERROR_BITS); ++b)
-            if (app::segments::health::getError(seg, static_cast<ErrorBit>(b)))
-                return true;
+       if (app::segments::health::getAnyError(seg))
+            return true;
     return false;
 }
 

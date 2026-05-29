@@ -5,7 +5,7 @@
 
 namespace
 {
-constexpr size_t NUM_HEALTH_BITS = static_cast<size_t>(app::segments::health::ErrorBit::NUM_ERROR_BITS);
+inline constexpr size_t NUM_HEALTH_BITS = static_cast<size_t>(app::segments::health::ErrorBit::NUM_ERROR_BITS);
 
 std::array<std::bitset<NUM_HEALTH_BITS>, MAX_NUM_SEGMENTS> segment_health{};
 // health mutex protects the segment_health array
@@ -39,6 +39,11 @@ bool getError(const size_t seg, ErrorBit bit)
 {
     const io::unique_semaphore lock{ health_mutex };
     return segment_health[seg].test(static_cast<size_t>(bit));
+}
+
+bool getAnyError(const size_t seg) {
+    const io::unique_semaphore lock{ health_mutex };
+    return segment_health[seg].any();
 }
 
 } // namespace app::segments::health
