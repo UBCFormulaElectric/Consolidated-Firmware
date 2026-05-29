@@ -39,27 +39,27 @@ namespace io::powerMonitoring
 {
 static result<void> read_register(uint16_t reg, std::span<uint8_t> data)
 {
-    auto result = util::retry([&]() { return pwr_pump.memoryRead(reg, data); }, 5);
+    auto result = util::retry([&]() { return pwr_mon.memoryRead(reg, data); }, 5);
     return result;
 }
 
 static result<void> write_register(uint16_t reg, std::span<const uint8_t> data)
 {
-    auto result = util::retry([&]() { return pwr_pump.memoryWrite(reg, data); }, 5);
+    auto result = util::retry([&]() { return pwr_mon.memoryWrite(reg, data); }, 5);
     return result;
 }
 
 result<void> refresh()
 {
     const uint8_t cmd    = REG_REFRESH;
-    auto          result = util::retry([&]() { return pwr_pump.transmit(std::span{ &cmd, 1 }); }, 3);
+    auto          result = util::retry([&]() { return pwr_mon.transmit(std::span{ &cmd, 1 }); }, 3);
     return result;
 }
 
 result<void> init()
 {
     // 1) Check if peripheral is ready
-    RETURN_IF_ERR(util::retry([&]() { return pwr_pump.isTargetReady(); }, 5));
+    RETURN_IF_ERR(util::retry([&]() { return pwr_mon.isTargetReady(); }, 5));
 
     // 2) Config: CTRL: 1024 SPS continuous, all CH enabled, ALERT1 enabled.
     uint16_t               ctrl       = 0x0000; // 0b0000000000000000

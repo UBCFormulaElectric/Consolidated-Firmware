@@ -465,6 +465,7 @@ result<SafetyStatusA> get_safety_alert_a()
     return status;
 }
 result<SafetyStatusB> get_safety_alert_b()
+
 {
     SafetyStatusB status{};
     RETURN_IF_ERR(command_read_byte(CMD_SAFETY_STATUS_B, &status.raw_status));
@@ -482,7 +483,9 @@ result<void> init()
 {
     // 1. Is chip responsive
     RETURN_IF_ERR(bat_mon.isTargetReady());
-
+    RETURN_IF_ERR(pwr_mon.isTargetReady());
+    RETURN_IF_ERR(pump.isTargetReady());
+    
     // 2.0 Check to see if chip is in DEEPSLEEP
     ControlStatus control_status{};
     uint32_t      deepsleep_attempt = 0;
