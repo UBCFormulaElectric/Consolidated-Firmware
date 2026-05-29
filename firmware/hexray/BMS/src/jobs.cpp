@@ -141,8 +141,8 @@ void jobs_runAdbmsConfigs_tick()
 {
     const io::unique_semaphore s{ spi_bus_lock };
 
-    const auto res             = app::segments::config::sync();
-    bool       all_segments_ok = true;
+    const Segments<result<bool>> res             = app::segments::config::sync();
+    bool                         all_segments_ok = true;
     for (size_t seg_num = 0; seg_num < NUM_SEGMENTS; seg_num++)
     {
         const auto &seg_res = res[seg_num];

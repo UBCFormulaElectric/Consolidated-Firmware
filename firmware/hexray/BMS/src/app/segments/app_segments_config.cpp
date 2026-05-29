@@ -156,36 +156,25 @@ Segments<result<bool>> sync()
     // Slow path: write config to the chip and verify, retrying up to NUM_CONFIG_SYNC_TRIES times.
     // The retry result is discarded — per-segment errors are recorded in seg_had_error and
     // reflected in the Config health bit.
-    const result<Segments<result<bool>>> r = util::retry(
-        [&]() -> result<Segments<result<bool>>>
-        {
-            if (const result<void> up = upload(); !up)
-            {
-                // Daisy-chain SPI failure: leaves every segment in an unknown state.
-                return unexpected(up.error());
-            }
-            const Segments<result<bool>> per_seg = isConfigEqual();
-            if (ranges::any_of(
-                    per_seg,
-                    [](const result<bool> &seg_ok_res) -> bool { return not(seg_ok_res and seg_ok_res.value()); }))
-            {
-                // comes here if 1+ segments are not equal, or failed to read back (e.g., due to a CHECKSUM_FAIL)
-                for (size_t seg = 0; seg < NUM_SEGMENTS; seg++) // if there is an error, report that
-                    if (!per_seg[seg])
-                        return std::unexpected(per_seg[seg].error());
-                return unexpected(ErrorCode::RETRY_FAILED); // no error, only 1+ bool = false
-            }
-            dirty = false;
-            return per_seg;
-        },
-        NUM_CONFIG_SYNC_TRIES);
-
-    if (not r)
+    Segments<result<bool>> per_seg;
+    for (size_t attempt = 0; attempt < NUM_CONFIG_SYNC_TRIES; ++attempt)
     {
-        Segments<result<bool>> failed{};
-        failed.fill(unexpected(r.error()));
-        return failed;
+        if (const result<void> up = upload(); !up)
+        {
+            // Daisy-chain SPI failure: leaves every segment in an unknown state.
+            per_seg.fill(unexpected(up.error()));
+            continue;
+        }
+        per_seg = isConfigEqual();
+        if (ranges::any_of(
+                per_seg, [](const result<bool> &seg_ok_res) -> bool { return not(seg_ok_res and seg_ok_res.value()); }))
+        {
+            // comes here if 1+ segments are not equal, or failed to read back (e.g., due to a CHECKSUM_FAIL)
+            continue;
+        }
+        dirty = false;
+        break;
     }
-    return r.value();
+    return per_seg;
 }
 } // namespace app::segments::config

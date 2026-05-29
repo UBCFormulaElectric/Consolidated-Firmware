@@ -240,7 +240,7 @@ namespace
         {
             const auto a = rx[seg].cmd_count();
             const auto b = expected_cmd_count[seg];
-            LOG_INFO("Segment %u: cmd count = %u, expected = %u", seg, a, b);
+            // LOG_INFO("Segment %u: cmd count = %u, expected = %u", seg, a, b);
             mismatches[seg] = a != b;
         }
         return mismatches;
