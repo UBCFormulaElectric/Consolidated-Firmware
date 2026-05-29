@@ -20,15 +20,15 @@ constexpr float R_ERROR_COMPENSATION = 1.0f;
 
 // // Current Sensor error calibration parameters (based on experimental data)
 // // TODO: Rerun sensor calibration with new mounting
-// constexpr float OUTPUT1_DISCHARGING_ERROR_SLOPE  = 0.5028f;
-// constexpr float OUTPUT1_DISCHARGING_ERROR_OFFSET = -0.0894f;
-// constexpr float OUTPUT1_CHARGING_ERROR_SLOPE     = 0.5045f;
-// constexpr float OUTPUT1_CHARGING_ERROR_OFFSET    = -0.2677f;
+constexpr float OUTPUT1_DISCHARGING_ERROR_SLOPE  = 0.5028f;
+constexpr float OUTPUT1_DISCHARGING_ERROR_OFFSET = -0.0894f;
+constexpr float OUTPUT1_CHARGING_ERROR_SLOPE     = 0.5045f;
+constexpr float OUTPUT1_CHARGING_ERROR_OFFSET    = -0.2677f;
 
-// constexpr float OUTPUT2_DISCHARGING_ERROR_SLOPE  = 0.2417f;
-// constexpr float OUTPUT2_DISCHARGING_ERROR_OFFSET = 2.3634f;
-// constexpr float OUTPUT2_CHARGING_ERROR_SLOPE     = 0.2324f;
-// constexpr float OUTPUT2_CHARGING_ERROR_OFFSET    = 2.4038f;
+constexpr float OUTPUT2_DISCHARGING_ERROR_SLOPE  = 0.2417f;
+constexpr float OUTPUT2_DISCHARGING_ERROR_OFFSET = 2.3634f;
+constexpr float OUTPUT2_CHARGING_ERROR_SLOPE     = 0.2324f;
+constexpr float OUTPUT2_CHARGING_ERROR_OFFSET    = 2.4038f;
 
 
 // TS Current Sensing

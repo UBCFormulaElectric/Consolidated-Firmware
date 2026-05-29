@@ -18,21 +18,11 @@ MIN_POINTS = 2
 CSV_PATH = "current_calibration_both.csv"
 EPSILON = 1e-9
 
-# Hardware constants — must match io_tractiveSystem.cpp
-_LOW_SIDE_R = 33e3
-_HIGH_SIDE_R = 60.4e3
-TSI_TO_CSIN = (_LOW_SIDE_R + _HIGH_SIDE_R) / _HIGH_SIDE_R
-OFFSET_V = 2.5
-HIGH_RES_SENS_VA = 26.7e-3
-CURRENT_THRESHOLD = -0.2  # boundary between discharging and charging regimes (A)
-
-
 @dataclass(frozen=True)
 class SensorConfig:
     name: str
     adc_channel: str
     output_label: str  # C++ constant prefix, e.g. "OUTPUT1"
-
 
 @dataclass(frozen=True)
 class CalibrationPoint:
