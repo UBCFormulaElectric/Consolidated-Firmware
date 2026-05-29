@@ -36,17 +36,24 @@ result<void> command::owcCells(const OpenWireSwitch owcSwitch)
 
 result<void> command::pollCellsAdc()
 {
+    uint32_t attempt = 0;
     return util::retry(
-        []() -> result<void>
+        [&attempt]() -> result<void>
         {
+            ++attempt;
+            LOG_INFO(
+                "pollCellAdc retry attempt %lu/%lu", static_cast<unsigned long>(attempt),
+                static_cast<unsigned long>(POLL_RETRIES));
             const auto rx_res = poll(PLCADC);
-            RETURN_IF_ERR_SILENT(rx_res);
-            if (rx_res.value().to_ulong() == POLL_STATUS_READY)
+            if (!rx_res)
+                return unexpected(rx_res.error());
+            const auto POLL_RES = rx_res.value().to_ulong();
+            if (POLL_RES == POLL_STATUS_READY)
                 return {};
             io::time::delay(POLL_RETRY_DELAY_MS);
-            return unexpected(ErrorCode::POLL_INVALID);
+            return unexpected(ErrorCode::BUSY);
         },
-        POLL_RETRIES);
+        20);
 }
 
 result<void> command::pollSecondaryCellsAdc()
