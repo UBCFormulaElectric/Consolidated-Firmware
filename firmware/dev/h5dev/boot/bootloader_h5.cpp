@@ -1,9 +1,10 @@
 #include "bootloader.hpp"
 #include "bootloader.h"
 #include "main.h"
-#include <hw_can.hpp>
+#include "hw_can.hpp"
 #include "hw_rtosTaskHandler.hpp"
 #include "bootloader_h5.hpp"
+#include "app_commitInfo.hpp"
 
 static_assert(sizeof(hw::CanMsg) == 72);
 io::queue<hw::CanMsg, 256> boot_can_tx_queue{ "CanTxQueue" };
@@ -32,23 +33,36 @@ class H5DevBootConfig : public bootloader::config
             boot_can_tx_queue,
             boot_can_rx_queue,
             board_highbits,
-            git_commit_has_val,
-            git_commit_clean_val){};
+            GIT_COMMIT_HASH,
+            GIT_COMMIT_CLEAN){};
 } h5devboot_config;
 
-void bootloader_preInit(void)
+void bootloader_preInit()
 {
     bootloader::preInit();
 }
 
-static hw::rtos::StaticTask<1024>
-    TaskRunInterface(osPriorityRealtime, "TaskChimera", [](void *) { bootloader::runInterfaceTask(h5devboot_config); });
-static hw::rtos::StaticTask<1024>
-    TaskRunTickTask(osPriorityRealtime, "TaskChimera", [](void *) { bootloader::runTickTask(h5devboot_config); });
-static hw::rtos::StaticTask<1024>
-    TaskRunCanTx(osPriorityRealtime, "TaskChimera", [](void *) { bootloader::runCanTxTask(h5devboot_config); });
+static hw::rtos::StaticTask::StaticTaskStack<1024> TaskRunInterfaceStack;
+static hw::rtos::StaticTask::StaticTaskStack<1024> TaskRunTickTaskStack;
+static hw::rtos::StaticTask::StaticTaskStack<1024> TaskRunCanTxStack;
 
-[[noreturn]] void bootloader_init(void)
+static hw::rtos::StaticTask TaskRunInterface(
+    osPriorityRealtime,
+    "TaskChimera",
+    [](void *) { bootloader::runInterfaceTask(h5devboot_config); },
+    TaskRunInterfaceStack);
+static hw::rtos::StaticTask TaskRunTickTask(
+    osPriorityRealtime,
+    "TaskChimera",
+    [](void *) { bootloader::runTickTask(h5devboot_config); },
+    TaskRunTickTaskStack);
+static hw::rtos::StaticTask TaskRunCanTx(
+    osPriorityRealtime,
+    "TaskChimera",
+    [](void *) { bootloader::runCanTxTask(h5devboot_config); },
+    TaskRunCanTxStack);
+
+[[noreturn]] void bootloader_init()
 {
     HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_SET);
     bootloader::init(h5devboot_config);

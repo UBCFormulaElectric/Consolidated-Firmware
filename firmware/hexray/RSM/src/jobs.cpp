@@ -6,14 +6,18 @@
 #include "app_jsoncan.hpp"
 #include "app_suspension.hpp"
 #include "app_tireTemp.hpp"
-#include <app_canUtils.hpp>
+#include "app_pumpControl.hpp"
+#include "app_canUtils.hpp"
+#include "app_canTx.hpp"
+#include "app_heartbeatMonitors.hpp"
+#include "app_commitInfo.hpp"
 
 #include "io_canQueues.hpp"
 #include "io_imus.hpp"
+#include "io_brakeLight.hpp"
 #include "io_time.hpp"
 #include "io_canMsg.hpp"
-#include <io_canRx.hpp>
-#include <io_canTx.hpp>
+#include "io_canTx.hpp"
 
 void jobs_init()
 {
@@ -27,6 +31,11 @@ void jobs_init()
         });
     io::can_tx::enableMode_FDCAN(app::can_utils::FDCANMode::FDCAN_MODE_DEFAULT, true);
     app::imu::init();
+
+    app::can_tx::RSM_Hash_set(GIT_COMMIT_HASH);
+    app::can_tx::RSM_Clean_set(GIT_COMMIT_CLEAN);
+    app::can_tx::RSM_Heartbeat_set(true);
+    io::can_tx::RSM_Bootup_sendAperiodic();
 }
 void jobs_run1Hz_tick() {}
 void jobs_run100Hz_tick()
@@ -36,6 +45,11 @@ void jobs_run100Hz_tick()
     app::suspension::broadcast();
     app::tireTemp::broadcast();
     app::coolant::broadcast();
+    app::pumpControl::broadcast();
+
+    hb_monitor.checkIn();
+    hb_monitor.broadcastFaults();
+
     io::can_tx::enqueue100HzMsgs();
 }
 void jobs_run1kHz_tick()

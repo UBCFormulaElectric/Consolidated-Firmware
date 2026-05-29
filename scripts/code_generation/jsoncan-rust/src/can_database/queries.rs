@@ -148,7 +148,14 @@ impl CanDatabase {
 
         match s.query_row([message_name], |row| row.get(0)) {
             Ok(msg_id) => Ok(msg_id),
-            Err(e) => Err(CanDBError::SqlLiteError(e)),
+            Err(e) => {
+                match e {
+                    rusqlite::Error::QueryReturnedNoRows => {
+                        Err(CanDBError::MessageNotFound {msg_name: message_name.into()})
+                    },
+                    _ => Err(CanDBError::SqlLiteError(e))
+                }
+            },
         }
     }
 
@@ -239,28 +246,6 @@ impl CanDatabase {
             signal_map.insert(signal.name.clone(), signal);
         }
 
-        let mut data_uint: u64 = 0;
-
-        for decoded_signal in signals {
-            let signal = match signal_map.get(&decoded_signal.name) {
-                Some(s) => s,
-                None => {
-                    eprintln!(
-                        "Signal named '{}' is not defined for message '{}'.",
-                        decoded_signal.name, msg.name
-                    );
-                    continue;
-                }
-            };
-
-            let raw_value = ((decoded_signal.value - signal.offset) / signal.scale).floor() as i64;
-
-            let bitmask = (1u64 << signal.bits) - 1;
-            let data_shifted = ((raw_value as u64) & bitmask) << signal.start_bit;
-
-            data_uint |= data_shifted;
-        }
-
         let mut max_bit = 0;
         for signal in &msg.signals {
             let end_bit = signal.start_bit + signal.bits;
@@ -282,8 +267,33 @@ impl CanDatabase {
         }
 
         let mut data_bytes = vec![0u8; dlc];
-        for i in 0..dlc {
-            data_bytes[i] = ((data_uint >> (8 * i)) & 0xFF) as u8;
+
+        for decoded_signal in signals {
+            let signal = match signal_map.get(&decoded_signal.name) {
+                Some(s) => s,
+                None => {
+                    eprintln!(
+                        "Signal named '{}' is not defined for message '{}'.",
+                        decoded_signal.name, msg.name
+                    );
+                    continue;
+                }
+            };
+
+            let raw_value = ((decoded_signal.value - signal.offset) / signal.scale).floor() as i64;
+            let nbits = signal.bits as usize;
+            let bitmask: u64 = if nbits >= 64 { u64::MAX } else { (1u64 << nbits) - 1 };
+            let val = (raw_value as u64) & bitmask;
+
+            for i in 0..nbits {
+                let bit = ((val >> i) & 1) as u8;
+                let bit_idx = signal.start_bit as usize + i;
+                let byte_idx = bit_idx / 8;
+                let bit_in_byte = bit_idx % 8;
+                if byte_idx < data_bytes.len() {
+                    data_bytes[byte_idx] |= bit << bit_in_byte;
+                }
+            }
         }
 
         Ok((msg.id, data_bytes))
@@ -300,22 +310,26 @@ impl CanDatabase {
 
         let mut decoded_signals: Vec<DecodedSignal> = Vec::new();
 
-        let mut buf = [0u8; 4];
-        let len = data.len().min(4);
-        buf[..len].copy_from_slice(&data[..len]);
-
-        let data_uint = u32::from_le_bytes(buf);
-
         for signal in msgs.signals {
-            // Extract the bits representing the current signal.
-            let data_shifted = data_uint as u64 >> signal.start_bit;
+            // Extract the bits representing the current signal from the raw byte payload.
+            // Supports payloads up to 64 bytes (CAN-FD) and signal widths up to 64 bits.
+            let nbits = signal.bits as usize;
+            let start = signal.start_bit as usize;
+            let mut val: u64 = 0;
+            for i in 0..nbits.min(64) {
+                let bit_idx = start + i;
+                let byte_idx = bit_idx / 8;
+                let bit_in_byte = bit_idx % 8;
+                if byte_idx < data.len() {
+                    let bit = ((data[byte_idx] >> bit_in_byte) & 1) as u64;
+                    val |= bit << i;
+                }
+            }
 
-            let bitmask = (1u64 << signal.bits) - 1;
             let raw_value = {
-                let val = data_shifted & bitmask;
                 // Handle signed values via 2's complement
-                if signal.signed && (val & (1 << (signal.bits - 1)) != 0) {
-                    val - (1 << signal.bits)
+                if signal.signed && nbits > 0 && nbits < 64 && (val & (1u64 << (nbits - 1)) != 0) {
+                    val.wrapping_sub(1u64 << nbits)
                 } else {
                     val
                 }
@@ -329,7 +343,7 @@ impl CanDatabase {
             let decoded = DecodedSignal {
                 name: signal.name,
                 value: scaled_value,
-                timestamp: timestamp,
+                timestamp,
                 unit: signal.unit,
                 label: signal.enum_name.as_deref().and_then(|enum_name| {
                     self.get_enum(enum_name).and_then(|can_enum| {

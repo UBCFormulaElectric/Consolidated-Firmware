@@ -1,26 +1,32 @@
 #include "jobs.hpp"
 
+#include "app_canTx.hpp"
 #include "app_jsoncan.hpp"
 #include "io_canQueues.hpp"
 #include "io_canTx.hpp"
-#include "io_canRx.hpp"
-#include "io_log.hpp"
 #include "efuse/io_efuse_TI_TPS28.hpp"
 #include "hw_gpio.hpp"
 #include "hw_adc.hpp"
-#include <io_canMsg.hpp>
+#include "io_canMsg.hpp"
 #include <util_errorCodes.hpp>
+#include "io_math.hpp"
+#include <cmath>
+
 #include "main.h"
+
+#include "SEGGER_SYSVIEW.h"
 
 using namespace hw;
 using namespace io;
 
-const Gpio                      efuse_en{ EFUSE_EN_GPIO_Port, EFUSE_EN_Pin };
-const Gpio                      efuse_pgood{ EFUSE_PGOOD_GPIO_Port, EFUSE_PGOOD_Pin };
-const size_t                    NUM_ADC_CHANNELS = 1U;
-const AdcChip<NUM_ADC_CHANNELS> adc1{ &hadc1, &htim3 };
-const Adc                       efuse_i_sns(adc1.getChannel(0));
-TI_TPS28_Efuse                  efuse(efuse_en, efuse_i_sns, efuse_pgood);
+const gpio                          efuse_en{ EFUSE_EN_GPIO_Port, EFUSE_EN_Pin };
+const gpio                          efuse_pgood{ EFUSE_PGOOD_GPIO_Port, EFUSE_PGOOD_Pin };
+constexpr size_t                    NUM_ADC_CHANNELS = 1U;
+constexpr adcchip<NUM_ADC_CHANNELS> adc1{ hadc1, htim3 };
+constexpr adc                       efuse_i_sns(adc1.getChannel(0));
+TI_TPS28_Efuse                      efuse(efuse_en, efuse_i_sns, efuse_pgood);
+
+static float angle = 0.0f;
 
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
 {
@@ -43,10 +49,23 @@ void jobs_run1Hz_tick() {}
 
 void jobs_run100Hz_tick()
 {
-    float current = efuse.getChannelCurrent() / 1.720f;
-    bool  ok      = efuse.ok();
+    // float current = efuse.getChannelCurrent() / 1.720f;
+    // bool  ok      = efuse.ok();
 
     // LOG_INFO("CURRENT: %d", (int)(current * 100000));
+    SEGGER_SYSVIEW_MarkStart(1U);
+    auto ccos_result = io::math::ccos(angle);
+    SEGGER_SYSVIEW_MarkStop(1U);
+    SEGGER_SYSVIEW_MarkStart(2U);
+    float libc_cos_result = std::cosf(angle);
+    SEGGER_SYSVIEW_MarkStop(2U);
+    float cos_diff = std::abs(ccos_result.value_or(0.0f) - libc_cos_result);
+
+    auto  csin_result     = io::math::csin(angle);
+    float libc_sin_result = std::sinf(angle);
+    float sin_diff        = std::abs(csin_result.value_or(0.0f) - libc_sin_result);
+
+    angle += M_PI_F / 180.0f;
 }
 
 void jobs_run1kHz_tick() {}

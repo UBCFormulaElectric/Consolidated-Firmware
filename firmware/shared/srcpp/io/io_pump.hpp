@@ -9,24 +9,24 @@
 
 namespace io
 {
-class Pump
+class pump
 {
   public:
 #ifdef TARGET_EMBEDDED
-    constexpr explicit Pump(const Potentiometer &pot, bool invert, Efuse &efuse)
+    constexpr explicit pump(const Potentiometer &pot, bool invert, const Efuse &efuse)
       : pot_{ pot }, invert_{ invert }, efuse_{ efuse }
     {
     }
 #elif defined(TARGET_TEST)
-    constexpr explicit Pump() {}
+    constexpr explicit pump() {}
 #endif
 
-    std::expected<void, ErrorCode>    setPercentage(uint8_t percentage) const;
-    std::expected<uint8_t, ErrorCode> getPercentage() const;
-    std::expected<void, ErrorCode>    enable(bool enable) const;
-    std::expected<bool, ErrorCode>    isEnabled() const;
-    std::expected<bool, ErrorCode>    ok() const;
-    std::expected<bool, ErrorCode>    isReady() const;
+    result<void>    setPercentage(uint8_t percentage) const;
+    result<uint8_t> getPercentage() const;
+    result<void>    enable(bool enable) const;
+    result<bool>    isEnabled() const;
+    result<bool>    ok() const;
+    result<bool>    isReady() const;
 
   private:
     static constexpr uint8_t logicalToHw(bool invert, uint8_t percent)
@@ -42,7 +42,7 @@ class Pump
 #ifdef TARGET_EMBEDDED
     const Potentiometer &pot_;
     bool                 invert_;
-    Efuse               &efuse_;
+    const Efuse         &efuse_;
 #endif
 };
 } // namespace io

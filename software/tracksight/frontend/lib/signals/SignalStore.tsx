@@ -1,11 +1,11 @@
-import { AlertSeries, EnumSeries, NumericalSeries } from "@/components/widgets/CanvasChartTypes";
+import { AlertSeries, LODAwareEnumSeries, LODAwareNumericalSeries, NumericalSeries } from "@/components/widgets/CanvasChartTypes";
 import { SignalMetadata, SignalType } from "../types/Signal";
 import { SeriesData } from "../seriesData";
 
 export type SignalStoreReturnType<T extends SignalMetadata> = T["type"] extends SignalType.ENUM
-  ? EnumSeries
+  ? LODAwareEnumSeries
   : T["type"] extends SignalType.NUMERICAL
-  ? NumericalSeries
+  ? LODAwareNumericalSeries
   : T["type"] extends SignalType.ALERT
   ? NumericalSeries
   : never
@@ -19,12 +19,16 @@ type SignalStorageEntry = {
       storeType: SignalType.ALERT
     }
     | {
-      data: NumericalSeries
+      data: LODAwareNumericalSeries
       storeType: SignalType.NUMERICAL
     }
     | {
-      data: EnumSeries
+      data: LODAwareEnumSeries
       storeType: SignalType.ENUM
+    }
+    | {
+      data: LODAwareEnumSeries
+      storeType: SignalType.BOOLEAN
     }
   )
 
@@ -82,21 +86,32 @@ abstract class SignalStore {
           ...storageBase,
           data: {
             enumValuesToNames: {},
-            data: [],
-            timestamps: [],
             label: signal.name,
-          } satisfies EnumSeries,
+            lods: [{
+              sampleIntervalMs: 0, data: [], timestamps: []
+            }]
+          } satisfies LODAwareEnumSeries,
           storeType: SignalType.ENUM
         } satisfies SignalStorageEntry
+        break;
+      case SignalType.BOOLEAN:
+        this.storage[signal.name] = {
+          ...storageBase,
+          data: {
+            enumValuesToNames: { },
+            label: signal.name,
+            lods: [{ sampleIntervalMs: 0, data: [], timestamps: [] }],
+          } satisfies LODAwareEnumSeries,
+          storeType: SignalType.BOOLEAN,
+        };
         break;
       case SignalType.NUMERICAL:
         this.storage[signal.name] = {
           ...storageBase,
           data: {
-            data: new SeriesData(),
-            timestamps: [],
             label: signal.name,
-          } satisfies NumericalSeries,
+            lods: [{ sampleIntervalMs: 0, data: new SeriesData(), timestamps: [] }],
+          } satisfies LODAwareNumericalSeries,
           storeType: SignalType.NUMERICAL,
         }
         break;
@@ -159,6 +174,24 @@ abstract class SignalStore {
     this.storage[signalName].error = error;
   }
 
+  addDataPointAtLOD(signalName: string, lod: number, sampleIntervalMs: number, timestamp: number, value: number): void {
+    const entry = this.storage[signalName];
+
+    if (!entry || entry.storeType === SignalType.ALERT) return;
+
+    while (entry.data.lods.length <= lod) {
+      if (entry.storeType === SignalType.ENUM || entry.storeType === SignalType.BOOLEAN) {
+        entry.data.lods.push({ sampleIntervalMs: 0, data: [], timestamps: [] });
+      } else {
+        entry.data.lods.push({ sampleIntervalMs: 0, data: new SeriesData(), timestamps: [] });
+      }
+    }
+
+    entry.data.lods[lod].sampleIntervalMs = sampleIntervalMs;
+    entry.data.lods[lod].data.push(value);
+    entry.data.lods[lod].timestamps.push(timestamp);
+  }
+
   addDataPoint(signalName: string, timestamp: number, value: number): void {
     this.updateWithTimestamp(timestamp);
     const entry = this.storage[signalName];
@@ -167,12 +200,13 @@ abstract class SignalStore {
 
     switch (entry.storeType) {
       case SignalType.ENUM:
-        entry.data.data.push(value);
-        entry.data.timestamps.push(timestamp);
+      case SignalType.BOOLEAN:
+        entry.data.lods[0].data.push(value);
+        entry.data.lods[0].timestamps.push(timestamp);
         break;
       case SignalType.NUMERICAL:
-        entry.data.data.push(value);
-        entry.data.timestamps.push(timestamp);
+        entry.data.lods[0].data.push(value);
+        entry.data.lods[0].timestamps.push(timestamp);
         break;
     }
   }

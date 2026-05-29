@@ -2,31 +2,29 @@
 #include "app_canTx.hpp"
 #include "io_imus.hpp"
 #include "io_pumpControl.hpp"
-#include "io_efuses.hpp"
 #include "io_sbgEllipse.hpp"
 #include "io_powerMonitoring.hpp"
-#include "io_vcShdn.hpp"
 #include "io_shdnLoopNode.hpp"
 #include "io_efuse_TI_TPS25.hpp"
 #include "io_efuse_TI_TPS28.hpp"
 
-io::Imu            IMU1;
-io::Imu            IMU2;
-io::Imu            IMU3;
-io::Pump           rr_pump;
-io::Pump           rl_pump;
-io::TI_TPS28_Efuse f_inv_efuse;
-io::TI_TPS28_Efuse r_inv_efuse;
-io::TI_TPS28_Efuse bms_efuse;
-io::TI_TPS28_Efuse rsm_efuse;
+io::imu                  IMU1;
+io::imu                  IMU2;
+io::imu                  IMU3;
+const io::pump           rr_pump;
+const io::pump           rl_pump;
+const io::TI_TPS28_Efuse f_inv_efuse;
+const io::TI_TPS28_Efuse r_inv_efuse;
+const io::TI_TPS28_Efuse bms_efuse;
+const io::TI_TPS28_Efuse rsm_efuse;
 // app::Timer         timer{};
 
-io::TI_TPS28_Efuse dam_efuse;
-io::TI_TPS28_Efuse front_efuse;
-io::TI_TPS28_Efuse l_rad_fan_efuse;
-io::TI_TPS28_Efuse r_rad_fan_efuse;
-io::TI_TPS25_Efuse rl_pump_efuse;
-io::TI_TPS25_Efuse rr_pump_efuse;
+const io::TI_TPS28_Efuse dam_efuse;
+const io::TI_TPS28_Efuse front_efuse;
+const io::TI_TPS28_Efuse l_rad_fan_efuse;
+const io::TI_TPS28_Efuse r_rad_fan_efuse;
+const io::TI_TPS25_Efuse rl_pump_efuse;
+const io::TI_TPS25_Efuse rr_pump_efuse;
 
 const io::shdn::node tsms_node(false, app::can_tx::VC_TSMSOKStatus_set);
 const io::shdn::node inertia_stop_node(false, app::can_tx::VC_InertiaSwitch_set);
@@ -36,7 +34,7 @@ namespace io // Define the mocked functions here
 {
 namespace imus
 {
-    std::expected<void, ErrorCode> initAll()
+    result<void> initAll()
     {
         if (auto result = IMU1.init(); not result)
         {
@@ -88,22 +86,37 @@ namespace sbgEllipse
 
 namespace powerMonitoring
 {
-    float read_power(unsigned char)
+    result<float> read_power(Channel)
     {
         return 0.0f;
     }
-    float read_current(unsigned char)
+    result<float> read_current(Channel)
     {
         return 0.0f;
     }
-    float read_voltage(unsigned char)
+    result<float> read_voltage(Channel)
     {
         return 0.0f;
     }
-    void refresh() {}
-    bool init()
+    result<void> refresh()
     {
-        return true;
+        return {};
+    }
+    result<void> init()
+    {
+        return {};
+    }
+    result<void> monitor_power_inputs()
+    {
+        return {};
+    }
+    result<uint8_t> read_alert_status()
+    {
+        return 0u;
+    }
+    result<bool> is_alert_asserted()
+    {
+        return false;
     }
 } // namespace powerMonitoring
 namespace imus

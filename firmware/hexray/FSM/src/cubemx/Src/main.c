@@ -48,9 +48,12 @@ DMA_HandleTypeDef handle_GPDMA1_Channel0;
 
 FDCAN_HandleTypeDef hfdcan1;
 
+IWDG_HandleTypeDef hiwdg;
+
 SPI_HandleTypeDef hspi1;
 
 TIM_HandleTypeDef htim2;
+TIM_HandleTypeDef htim7;
 
 PCD_HandleTypeDef hpcd_USB_DRD_FS;
 
@@ -68,6 +71,8 @@ static void MX_FDCAN1_Init(void);
 static void MX_USB_PCD_Init(void);
 static void MX_SPI1_Init(void);
 static void MX_TIM2_Init(void);
+static void MX_IWDG_Init(void);
+static void MX_TIM7_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -114,6 +119,8 @@ int main(void)
     MX_USB_PCD_Init();
     MX_SPI1_Init();
     MX_TIM2_Init();
+    MX_IWDG_Init();
+    MX_TIM7_Init();
     /* USER CODE BEGIN 2 */
     tasks_init();
     /* USER CODE END 2 */
@@ -377,6 +384,34 @@ static void MX_GPDMA1_Init(void)
 }
 
 /**
+ * @brief IWDG Initialization Function
+ * @param None
+ * @retval None
+ */
+static void MX_IWDG_Init(void)
+{
+    /* USER CODE BEGIN IWDG_Init 0 */
+
+    /* USER CODE END IWDG_Init 0 */
+
+    /* USER CODE BEGIN IWDG_Init 1 */
+#ifndef WATCHDOG_DISABLED
+    /* USER CODE END IWDG_Init 1 */
+    hiwdg.Instance       = IWDG;
+    hiwdg.Init.Prescaler = IWDG_PRESCALER_4;
+    hiwdg.Init.Window    = 4095;
+    hiwdg.Init.Reload    = LSI_FREQUENCY / IWDG_PRESCALER / IWDG_RESET_FREQUENCY;
+    hiwdg.Init.EWI       = 0;
+    if (HAL_IWDG_Init(&hiwdg) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /* USER CODE BEGIN IWDG_Init 2 */
+#endif
+    /* USER CODE END IWDG_Init 2 */
+}
+
+/**
  * @brief SPI1 Initialization Function
  * @param None
  * @retval None
@@ -463,6 +498,42 @@ static void MX_TIM2_Init(void)
     /* USER CODE BEGIN TIM2_Init 2 */
 
     /* USER CODE END TIM2_Init 2 */
+}
+
+/**
+ * @brief TIM7 Initialization Function
+ * @param None
+ * @retval None
+ */
+static void MX_TIM7_Init(void)
+{
+    /* USER CODE BEGIN TIM7_Init 0 */
+
+    /* USER CODE END TIM7_Init 0 */
+
+    TIM_MasterConfigTypeDef sMasterConfig = { 0 };
+
+    /* USER CODE BEGIN TIM7_Init 1 */
+
+    /* USER CODE END TIM7_Init 1 */
+    htim7.Instance               = TIM7;
+    htim7.Init.Prescaler         = 10 - 1;
+    htim7.Init.CounterMode       = TIM_COUNTERMODE_UP;
+    htim7.Init.Period            = 959;
+    htim7.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+    if (HAL_TIM_Base_Init(&htim7) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+    sMasterConfig.MasterSlaveMode     = TIM_MASTERSLAVEMODE_DISABLE;
+    if (HAL_TIMEx_MasterConfigSynchronization(&htim7, &sMasterConfig) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /* USER CODE BEGIN TIM7_Init 2 */
+
+    /* USER CODE END TIM7_Init 2 */
 }
 
 /**
@@ -585,7 +656,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
         HAL_IncTick();
     }
     /* USER CODE BEGIN Callback 1 */
-
+    tasks_tim_callback(htim);
     /* USER CODE END Callback 1 */
 }
 

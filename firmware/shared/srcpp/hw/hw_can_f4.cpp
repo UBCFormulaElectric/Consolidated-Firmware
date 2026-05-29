@@ -5,6 +5,7 @@
 #include <task.h>
 
 #include "hw_utils.hpp"
+#include "hw_error.hpp"
 #include "io_log.hpp"
 #include "io_time.hpp"
 
@@ -40,7 +41,7 @@ static constexpr uint32_t MASKMODE_16_BIT_MASK_OPEN = INIT_MASKMODE_16BIT_FiRx(0
 namespace hw
 {
 
-std::expected<void, ErrorCode> can::tx(const CAN_TxHeaderTypeDef &tx_header, const CanMsg &msg) const
+result<void> can::tx(const CAN_TxHeaderTypeDef &tx_header, const CanMsg &msg) const
 {
     // Spin until a TX mailbox becomes available.
     for (uint32_t poll_count = 0; HAL_CAN_GetTxMailboxesFreeLevel(hcan) == 0U;)
@@ -63,7 +64,7 @@ std::expected<void, ErrorCode> can::tx(const CAN_TxHeaderTypeDef &tx_header, con
 
     // Indicates the mailbox used for transmission, not currently used.
     uint32_t mailbox = 0;
-    return hw_utils_convertHalStatus(HAL_CAN_AddTxMessage(hcan, &tx_header, msg.data.data(), &mailbox));
+    return hw::utils::convertHalStatus(HAL_CAN_AddTxMessage(hcan, &tx_header, msg.data.data(), &mailbox));
 }
 
 void can::init() const
@@ -106,7 +107,7 @@ void can::deinit() const
 
 // NOTE this design assumes that there is only one task calling this function
 
-std::expected<void, ErrorCode> can::can_transmit(const CanMsg &msg) const
+result<void> can::can_transmit(const CanMsg &msg) const
 {
     assert(ready);
     CAN_TxHeaderTypeDef tx_header;
@@ -129,13 +130,13 @@ std::expected<void, ErrorCode> can::can_transmit(const CanMsg &msg) const
     return tx(tx_header, msg);
 }
 
-std::expected<CanMsg, ErrorCode> can::receive(const uint32_t rx_fifo) const
+result<CanMsg> can::receive(const uint32_t rx_fifo) const
 {
     assert(ready);
     CAN_RxHeaderTypeDef header;
 
     CanMsg msg;
-    RETURN_IF_ERR(hw_utils_convertHalStatus(HAL_CAN_GetRxMessage(hcan, rx_fifo, &header, msg.data.data())));
+    RETURN_IF_ERR(hw::utils::convertHalStatus(HAL_CAN_GetRxMessage(hcan, rx_fifo, &header, msg.data.data())));
 
     // Copy metadata from HAL's CAN message struct into our custom CAN
     // message struct
@@ -148,7 +149,7 @@ std::expected<CanMsg, ErrorCode> can::receive(const uint32_t rx_fifo) const
             msg.std_id = header.ExtId;
             break;
         default:
-            assert(false);
+            Error_Handler();
     }
     msg.dlc = header.DLC;
 

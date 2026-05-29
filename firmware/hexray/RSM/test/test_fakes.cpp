@@ -57,6 +57,15 @@ namespace suspension
     }
 } // namespace suspension
 
+namespace rPump
+{
+    static uint8_t percentage = 0;
+
+    void set_readPercentage(const uint8_t value)
+    {
+        percentage = value;
+    }
+} // namespace rPump
 namespace tireTemp
 {
     static float temperature = 0.0f;
@@ -72,9 +81,9 @@ namespace io
 {
 namespace imus
 {
-    Imu imu_rear;
+    imu imu_rear;
 
-    std::expected<void, ErrorCode> init()
+    result<void> init()
     {
         return imu_rear.init();
     }
@@ -120,8 +129,14 @@ namespace suspension
 
 namespace rPump
 {
-    std::expected<void, ErrorCode> setPercentage(uint8_t value)
+    result<void> setPercentage(uint8_t value)
     {
+        return {};
+    }
+
+    result<void> readPercentage(uint8_t &dest)
+    {
+        dest = fakes::io::rPump::percentage;
         return {};
     }
 } // namespace rPump

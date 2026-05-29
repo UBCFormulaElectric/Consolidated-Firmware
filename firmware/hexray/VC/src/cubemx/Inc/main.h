@@ -53,6 +53,8 @@ extern "C"
     extern TIM_HandleTypeDef   htim3;
     extern UART_HandleTypeDef  huart8;
     extern PCD_HandleTypeDef   hpcd_USB_OTG_HS;
+    extern IWDG_HandleTypeDef  hiwdg1;
+    extern FMAC_HandleTypeDef  hfmac;
 
     /* USER CODE END EC */
 
@@ -69,6 +71,9 @@ extern "C"
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define LSI_FREQUENCY 32000
+#define IWDG_RESET_FREQUENCY 5
+#define IWDG_PRESCALER 4
 #define IMU_CS1_Pin GPIO_PIN_2
 #define IMU_CS1_GPIO_Port GPIOE
 #define IMU_CS2_Pin GPIO_PIN_3
@@ -77,10 +82,13 @@ extern "C"
 #define IMU_CS3_GPIO_Port GPIOE
 #define IMU_INT1_Pin GPIO_PIN_5
 #define IMU_INT1_GPIO_Port GPIOE
+#define IMU_INT1_EXTI_IRQn EXTI9_5_IRQn
 #define IMU_INT2_Pin GPIO_PIN_6
 #define IMU_INT2_GPIO_Port GPIOE
+#define IMU_INT2_EXTI_IRQn EXTI9_5_IRQn
 #define IMU_INT3_Pin GPIO_PIN_13
 #define IMU_INT3_GPIO_Port GPIOC
+#define IMU_INT3_EXTI_IRQn EXTI15_10_IRQn
 #define OSC32_IN_Pin GPIO_PIN_14
 #define OSC32_IN_GPIO_Port GPIOC
 #define OSC32_OUT_Pin GPIO_PIN_15
@@ -143,6 +151,7 @@ extern "C"
 #define BMS_EN_GPIO_Port GPIOB
 #define BAT_MTR_nALERT_Pin GPIO_PIN_12
 #define BAT_MTR_nALERT_GPIO_Port GPIOB
+#define BAT_MTR_nALERT_EXTI_IRQn EXTI15_10_IRQn
 #define RPI_SCLK_Pin GPIO_PIN_13
 #define RPI_SCLK_GPIO_Port GPIOB
 #define RPI_MISO_Pin GPIO_PIN_14

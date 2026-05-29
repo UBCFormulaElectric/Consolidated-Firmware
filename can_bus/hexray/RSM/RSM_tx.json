@@ -12,7 +12,7 @@
   "Debug": {
     "msg_id": 707,
     "cycle_time": 1000,
-    "description": "VC Debug Signals",
+    "description": "RSM Debug Signals",
     "signals": {
       "TxOverflowCount": {
         "bits": 16
@@ -24,15 +24,21 @@
         "enum": "CanResetReason"
       },
       "StackOverflowTask": {
-        "bits": 8
+        "bits": 32
       },
       "WatchdogTimeoutTask": {
-        "bits": 8
+        "bits": 32
       }
     }
   },
-  "CommitInfo": {
+  "Bootup": {
     "msg_id": 708,
+    "cycle_time": null,
+    "description": "Async bootup message!",
+    "signals": {}
+  },
+  "CommitInfo": {
+    "msg_id": 709,
     "cycle_time": 100,
     "description": "RSM Commit Info",
     "signals": {
@@ -41,18 +47,6 @@
       },
       "Clean": {
         "bits": 1
-      }
-    }
-  },
-  "Coolant": {
-    "msg_id": 709,
-    "cycle_time": 1000,
-    "signals": {
-      "CoolantFlowRate": {
-        "resolution": 0.1,
-        "min": 0,
-        "max": 100,
-        "unit": "L/min"
       }
     }
   },
@@ -144,18 +138,146 @@
       }
     }
   },
-  "Bootup": {
-    "msg_id": 799,
-    "cycle_time": null,
-    "description": "Async bootup message!",
-    "signals": {}
-  },
-  "TireSensor" : {
+  "RearPumpPercentage": {
     "msg_id": 714,
-    "cycle_time" : 100,
-    "description" :" Tire sensor information",
-    "signals" : {
-      "TireTemperature" : {
+    "cycle_time": 1000,
+    "description": "Rear pump information",
+    "signals": {
+      "RPumpPercentage": {
+        "resolution": 1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      }
+    }
+  },
+  "CPUDataLogInfo": {
+    "msg_id": 716,
+    "cycle_time": 100,
+    "description": "RSM cpu and stack information",
+    "signals": {
+      "CoreCpuUsageMax": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "CoreCpuUsage": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRun1HzCpuUsageMax": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRun1HzCpuUsage": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRun1HzStackUsage": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRun100HzCpuUsageMax": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRun100HzCpuUsage": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRun100HzStackUsage": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRun1kHzCpuUsageMax": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRun1kHzCpuUsage": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRun1kHzStackUsage": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRunCanTxCpuUsageMax": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRunCanTxCpuUsage": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRunCanTxStackUsage": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRunCanRxCpuUsageMax": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRunCanRxCpuUsage": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRunCanRxStackUsage": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      }
+    }
+  },
+  "Coolant": {
+    "msg_id": 717,
+    "cycle_time": 1000,
+    "signals": {
+      "CoolantFlowRate": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "L/min"
+      }
+    }
+  },
+  "TireSensor": {
+    "msg_id": 798,
+    "cycle_time": 100,
+    "description": "Tire sensor information",
+    "signals": {
+      "TireTemperature": {
         "resolution": 0.1,
         "min": -20,
         "max": 200,

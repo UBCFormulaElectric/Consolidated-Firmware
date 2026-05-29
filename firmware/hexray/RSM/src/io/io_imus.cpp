@@ -3,9 +3,9 @@
 
 namespace io::imus
 {
-Imu imu_rear(hw::spi::imu_sd);
+imu imu_rear(hw::spi::imu_sd);
 
-std::expected<void, ErrorCode> init()
+result<void> init()
 {
     return imu_rear.init();
 }

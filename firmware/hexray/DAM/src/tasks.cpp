@@ -2,96 +2,221 @@
 #include "main.h"
 #include "jobs.hpp"
 
+#include "FreeRTOS.h"
+#include "task.h"
+
 #include "app_jsoncan.hpp"
+#include "app_canTx.hpp"
+#include "app_canAlerts.hpp"
+#include "app_canDataCapture.hpp"
+#include "app_epochClock.hpp"
+#include "app_ntp.hpp"
+#include "app_telemRx.hpp"
 
-#include "io_time.hpp"
+#include "io_canQueues.hpp"
+#include "io_canRx.hpp"
+#include "io_log.hpp"
+#include "io_logQueue.hpp"
 #include "io_telemMessage.hpp"
-#include "io_canQueues.hpp"
-#include "io_canQueues.hpp"
-#include <io_canRx.hpp>
-
-#include "hw_hardFaultHandler.hpp"
-#include "hw_rtosTaskHandler.hpp"
 #include "io_telemQueue.hpp"
+#include "io_telemRx.hpp"
+#include "io_time.hpp"
 
-#include <span>
-
-extern "C"
-{
-#include "io_rtc.h"
-}
-
-// static IoRtcTime boot_time{};
+#include "hw_bootup.hpp"
 #include "hw_cans.hpp"
+#include "hw_gpios.hpp"
+#include "hw_hardFaultHandler.hpp"
+#include "hw_resetReason.hpp"
+#include "hw_rtosTaskHandler.hpp"
+#include "hw_runTimeStat.hpp"
+#include "hw_sds.hpp"
+#include "hw_uarts.hpp"
+#include "hw_watchdog.hpp"
 
-[[noreturn]] static void tasks_run1Hz(void *arg)
+constexpr size_t         TASK_COUNT = 8;
+[[noreturn]] static void tasks_run1Hz(void *arg);
+[[noreturn]] static void tasks_run100Hz(void *arg);
+[[noreturn]] static void tasks_run1kHz(void *arg);
+[[noreturn]] static void tasks_runLogging(void *arg);
+[[noreturn]] static void tasks_runTelemTx(void *arg);
+[[noreturn]] static void tasks_runTelemRx(void *arg);
+[[noreturn]] static void tasks_runTelemParse(void *arg);
+[[noreturn]] static void tasks_runCanTx(void *arg);
+[[noreturn]] static void tasks_runCanRx(void *arg);
+
+// Define the task with StaticTask Class
+static hw::rtos::StaticTask::StaticTaskStack<8096> Task100HzStack;
+static hw::rtos::StaticTask::StaticTaskStack<512>  TaskCanTxStack;
+static hw::rtos::StaticTask::StaticTaskStack<512>  TaskCanRxStack;
+static hw::rtos::StaticTask::StaticTaskStack<512>  Task1kHzStack;
+static hw::rtos::StaticTask::StaticTaskStack<512>  Task1HzStack;
+static hw::rtos::StaticTask::StaticTaskStack<1024> TaskLoggingStack;
+static hw::rtos::StaticTask::StaticTaskStack<512>  TaskTelemStack;
+static hw::rtos::StaticTask::StaticTaskStack<512>  TaskTelemRxStack;
+static hw::rtos::StaticTask::StaticTaskStack<512>  TaskTelemParseStack;
+static hw::rtos::StaticTask::StaticTaskStack<512>  TaskTelemTxStack;
+
+static hw::rtos::StaticTask Task100Hz(osPriorityRealtime, "Task100Hz", tasks_run100Hz, Task100HzStack);
+static hw::rtos::StaticTask TaskCanTx(osPriorityAboveNormal, "TaskCanTx", tasks_runCanTx, TaskCanTxStack);
+static hw::rtos::StaticTask TaskCanRx(osPriorityHigh, "TaskCanRx", tasks_runCanRx, TaskCanRxStack);
+static hw::rtos::StaticTask Task1kHz(osPriorityBelowNormal, "Task1kHz", tasks_run1kHz, Task1kHzStack);
+static hw::rtos::StaticTask Task1Hz(osPriorityBelowNormal, "Task1Hz", tasks_run1Hz, Task1HzStack);
+static hw::rtos::StaticTask TaskLogging(
+    osPriorityNormal,
+    "TaskLogging",
+    tasks_runLogging,
+    TaskLoggingStack); // yooooo this prio is too high lmao
+static hw::rtos::StaticTask TaskTelemRx(osPriorityHigh, "TaskTelemRx", tasks_runTelemRx, TaskTelemRxStack);
+static hw::rtos::StaticTask
+    TaskTelemParse(osPriorityBelowNormal, "TaskTelemParse", tasks_runTelemParse, TaskTelemParseStack);
+static hw::rtos::StaticTask TaskTelemTx(osPriorityHigh, "TaskTelemTx", tasks_runTelemTx, TaskTelemTxStack);
+
+static hw::watchdog::monitor<TASK_COUNT> monitor{
+    hiwdg,
+    [](const hw::watchdog::instance &i) { LOG_ERROR("Watchdog timeout detected in task %d", i.task_id); },
+};
+
+void tasks_run1Hz(void *arg)
 {
-    const uint32_t period_ms = 1000U;
+    constexpr uint32_t      period_ms                = 1000U;
+    constexpr uint32_t      watchdog_grace_period_ms = 50U;
+    hw::watchdog::instance &watchdog1hz              = monitor.spawn_instance(period_ms + watchdog_grace_period_ms);
 
     uint32_t start_ticks = osKernelGetTickCount();
     forever
     {
         jobs_run1Hz_tick();
+
+        watchdog1hz.checkIn();
+
         start_ticks += period_ms;
         io::time::delayUntil(start_ticks);
         osDelayUntil(start_ticks);
     }
 }
+
 [[noreturn]] static void tasks_run100Hz(void *arg)
 {
-    const uint32_t period_ms = 10U;
+    constexpr uint32_t      period_ms                = 10U;
+    constexpr uint32_t      watchdog_grace_period_ms = 2U;
+    hw::watchdog::instance &watchdog100hz            = monitor.spawn_instance(period_ms + watchdog_grace_period_ms);
 
     uint32_t start_ticks = osKernelGetTickCount();
     forever
     {
         jobs_run100Hz_tick();
+
+        watchdog100hz.checkIn();
+
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
     }
 }
-[[noreturn]] static void tasks_run1kHz(void *arg)
+void tasks_run1kHz(void *arg)
 {
-    const uint32_t period_ms = 1U;
+    constexpr uint32_t      period_ms                = 1U;
+    constexpr uint32_t      watchdog_grace_period_ms = 1U;
+    hw::watchdog::instance &watchdog1khz             = monitor.spawn_instance(period_ms + watchdog_grace_period_ms);
 
     uint32_t start_ticks = osKernelGetTickCount();
     forever
     {
-        HAL_IWDG_Refresh(&hiwdg);
         jobs_run1kHz_tick();
+
+        watchdog1khz.checkIn();
+        monitor.checkForTimeouts();
+
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
     }
 }
 
-[[noreturn]] static void tasks_runLogging(void *arg)
+void tasks_runLogging(void *arg)
 {
-    osDelayUntil(osWaitForever);
+    // Debug but we need these to upgrade to 4b since we need to init in 1b bus width!
+    // LOG_INFO("hsd1 state: %s", sd1.getCardStateString());
+    LOG_IF_ERR(sd1.upgrade_buswidth());
+    // LOG_INFO("upgraded buswidth");
+    LOG_IF_ERR(sd1.update_speed());
+    // LOG_INFO("upgraded speed");
+    jobs_initLogFs();
     forever
     {
         jobs_runLogging_tick();
     }
 }
-[[noreturn]] static void tasks_runTelem(void *arg)
+[[noreturn]] static void tasks_runTelemTx(void *arg)
 {
-    // const io::telemMessage::BaseTimeRegMsg base_time_msg(boot_time);
-    // LOG_IF_ERR(_900k_uart.transmitPoll(
-    //     std::span<const uint8_t>{ reinterpret_cast<const uint8_t *>(&base_time_msg), sizeof(base_time_msg) }));
-
     forever
     {
-        jobs_runTelem_tick();
+        const auto result = telem_tx_queue.pop();
+        if (not result)
+        {
+            LOG_ERROR("Failed to pop telem TX message: %d", static_cast<int>(result.error()));
+            continue;
+        }
+
+        const auto &entry = result.value();
+
+        if (std::holds_alternative<io::telemMessage::NTPMsg>(entry))
+        {
+            if (!app::ntp::tryBeginAndCaptureT0())
+            {
+                LOG_WARN("NTP: dismissing TX, already in progress or RTC unavailable");
+                continue;
+            }
+        }
+
+        const auto  bytes     = std::visit([](const auto &m) { return m.asBytes(); }, entry);
+        const auto  tx_result = _900k_uart.transmit(bytes);
+        const auto *can_msg   = std::get_if<io::telemMessage::TelemCanMsg>(&entry);
+        if (not tx_result)
+        {
+            LOG_ERROR("Failed to transmit telem message: %d", static_cast<int>(tx_result.error()));
+        }
+        else if (can_msg != nullptr)
+        {
+            // LOG_INFO("UART telem sent: type=CAN can_id=0x%03lX", static_cast<unsigned long>(can_msg->msg.can_id));
+        }
+        else if (std::holds_alternative<io::telemMessage::NTPMsg>(entry))
+        {
+            LOG_INFO("UART telem sent: type=NTP");
+        }
     }
 }
-[[noreturn]] static void tasks_runTelemRx(void *arg)
+void tasks_runTelemRx(void *arg)
 {
-    osDelayUntil(osWaitForever);
+    // ReceiveToIdle arms the peripheral for the whole buffer in one HAL call,
+    // then returns whatever bytes arrived once the line idles (or the buffer
+    // fills / half-fills). 64 bytes is several frames worth of headroom at
+    // 57600 baud without delaying ingest — a single idle gap of ~1 byte time
+    // (~174 us) already wakes the task.
+    constexpr auto                        telemRxChunkSize = 64U;
+    std::array<uint8_t, telemRxChunkSize> scratch{};
     forever
     {
-        jobs_runTelemRx();
+        const auto rx_result = io::telemRx::read(scratch);
+        if (!rx_result)
+        {
+            LOG_ERROR("read() failed with error: %d", static_cast<int>(rx_result.error()));
+            continue;
+        }
+        app::telemRx::ingest(*rx_result);
+        xTaskNotifyGive(static_cast<TaskHandle_t>(TaskTelemParse.id()));
     }
 }
 
-[[noreturn]] static void tasks_runCanTx(void *arg)
+void tasks_runTelemParse(void *arg)
+{
+    forever
+    {
+        // Block until TaskTelemRx pushes new bytes into the ring. pdTRUE
+        (void)ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
+        app::telemRx::drain();
+    }
+}
+
+void tasks_runCanTx(void *arg)
 {
     forever
     {
@@ -100,15 +225,12 @@ extern "C"
             continue;
         if (const auto &m = msg.value(); m.bus == app::can_utils::BusEnum::Bus_FDCAN)
         {
-            const auto res = hw::can::fdcan1.fdcan_transmit(hw::CanMsg{
+            const auto res = fdcan1.fdcan_transmit(hw::CanMsg{
                 m.std_id,
                 m.dlc,
                 m.data,
             });
-            if (not res)
-            {
-                LOG_ERROR("fdcan1.fdcan_transmit(...) exited with an error: %d", static_cast<int>(res.error()));
-            }
+            LOG_IF_ERR(res);
         }
         else
         {
@@ -116,41 +238,65 @@ extern "C"
         }
     }
 }
-[[noreturn]] static void tasks_runCanRx(void *arg)
+void tasks_runCanRx(void *arg)
 {
     forever
     {
         const auto msg = can_rx_queue.pop();
         if (not msg)
             continue;
-        io::can_rx::updateRxTableWithMessage(app::jsoncan::copyFromCanMsg(msg.value()));
+        const auto    &can_msg = msg.value();
+        const uint32_t now_ms  = io::time::getCurrentMs();
+        // LOG_INFO("Received CAN msg with ID: 0x%03lX", static_cast<unsigned long>(can_msg.std_id));
+        // SKIP THE FILTER WITH THIS CHUNK, TEMPORARY GET RED OF THIS!
+        // const auto e = app::epochClock::getEpochMs();
+        // if (e)
+        // {
+        //     (void)telem_tx_queue.push(io::telemMessage::TelemCanMsg(can_msg, *e));
+        // }
+
+        io::can_rx::updateRxTableWithMessage(app::jsoncan::copyFromCanMsg(can_msg));
+        if (app::can_data_capture::needsTelem(can_msg.std_id, now_ms))
+        {
+            // Telem timestamps go straight into InfluxDB as Unix epoch ms,
+            // so they must come from the RTC, not the boot-monotonic clock.
+            const auto epoch_ms = app::epochClock::getEpochMs();
+            if (epoch_ms)
+            {
+                (void)telem_tx_queue.push(io::telemMessage::TelemCanMsg(can_msg, *epoch_ms));
+            }
+            else
+            {
+                LOG_WARN(
+                    "telem RX timestamp unavailable, dropping CAN 0x%03lX", static_cast<unsigned long>(can_msg.std_id));
+            }
+        }
+        if (app::can_data_capture::needsLog(can_msg.std_id, now_ms))
+        {
+            // Log the raw CAN frame. Framing/CRC happen in jobs_runLogging_tick
+            // so the on-disk layout matches the shared Quintuna format and can
+            // be decoded by firmware/logfs/python/logfs/can_logger.py.
+            (void)log_queue.push(can_msg);
+        }
     }
 }
 
-// Define the task with StaticTask Class
-static hw::rtos::StaticTask<8096> Task100Hz(osPriorityRealtime, "Task100Hz", tasks_run100Hz);
-static hw::rtos::StaticTask<512>  TaskCanTx(osPriorityAboveNormal, "TaskCanTx", tasks_runCanTx);
-static hw::rtos::StaticTask<512>  TaskCanRx(osPriorityHigh, "TaskCanRx", tasks_runCanRx);
-static hw::rtos::StaticTask<512>  Task1kHz(osPriorityBelowNormal, "Task1kHz", tasks_run1kHz);
-static hw::rtos::StaticTask<512>  Task1Hz(osPriorityBelowNormal, "Task1Hz", tasks_run1Hz);
-static hw::rtos::StaticTask<1024> TaskLogging(osPriorityHigh, "TaskLogging", tasks_runLogging);
-static hw::rtos::StaticTask<512>  TaskTelem(osPriorityHigh, "TaskTelem", tasks_runTelem);
-static hw::rtos::StaticTask<512>  TaskTelemRx(osPriorityHigh, "TaskTelemRx", tasks_runTelemRx);
-
-void DAM_StartAllTasks()
+static void DAM_StartAllTasks()
 {
     Task100Hz.start();
     TaskCanTx.start();
     TaskCanRx.start();
     Task1kHz.start();
     Task1Hz.start();
-    // TaskLogging.start();
-    // TaskTelem.start();
-    // TaskTelemRx.start();
+    TaskLogging.start();
+    TaskTelemTx.start();
+    TaskTelemRx.start();
+    TaskTelemParse.start();
 }
 
 void tasks_preInit()
 {
+    hw::bootup::enableInterruptsForApp();
     hw_hardFaultHandler_init();
 }
 
@@ -158,7 +304,42 @@ void tasks_init()
 {
     SEGGER_SYSVIEW_Conf();
 
-    hw::can::fdcan1.init();
+#ifndef WATCHDOG_DISABLED
+    __HAL_DBGMCU_FREEZE_IWDG();
+#endif
+
+    fdcan1.init();
+
+    const ResetReason reason = hw::resetReason::get();
+    app::can_tx::DAM_ResetReason_set(static_cast<app::can_utils::CanResetReason>(reason));
+    if (reason == RESET_REASON_WATCHDOG)
+    {
+        LOG_WARN("Detected watchdog timeout on the previous boot cycle!");
+        app::can_alerts::infos::WatchdogTimeout_set(true);
+    }
+
+    if (hw::bootup::BootRequest boot_request = hw::bootup::getBootRequest();
+        boot_request.context != hw::bootup::BootContext::NONE)
+    {
+        // Check for stack overflow on a previous boot cycle and populate CAN alert.
+        if (boot_request.context == hw::bootup::BootContext::OVERFLOW)
+        {
+            LOG_WARN("Detected stack overflow on the previous boot cycle!");
+            app::can_alerts::infos::StackOverflow_set(true);
+            app::can_tx::DAM_StackOverflowTask_set(boot_request.context_value);
+        }
+        else if (boot_request.context == hw::bootup::BootContext::WATCHDOG_TIMEOUT)
+        {
+            // If the software driver detected a watchdog timeout the context should be set.
+            app::can_alerts::infos::WatchdogTimeout_set(true);
+            app::can_tx::DAM_WatchdogTimeoutTask_set(boot_request.context_value);
+        }
+
+        // Clear stack overflow bootup.
+        boot_request.context       = hw::bootup::BootContext::NONE;
+        boot_request.context_value = 0;
+        hw::bootup::setBootRequest(boot_request);
+    }
 
     osKernelInitialize();
     jobs_init();

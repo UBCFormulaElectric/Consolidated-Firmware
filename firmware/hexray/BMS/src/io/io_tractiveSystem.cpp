@@ -83,9 +83,8 @@ float getVoltage(void)
     // TODO: Test differential ADC for voltage measurement
     const float ts_vsense_P = ts_vsense_p.getVoltage();
     const float ts_vsense_N = ts_vsense_n.getVoltage();
-    const float ts_vsense   = ts_vsense_P - ts_vsense_N;
 
-    if (ts_vsense < 0.0f)
+    if (const float ts_vsense = ts_vsense_P - ts_vsense_N; ts_vsense < 0.0f)
     {
         return 0.0f;
     }
@@ -96,7 +95,7 @@ float getVoltage(void)
     }
 }
 
-float getCurrentHighResolution(void)
+float getCurrentHighResolution()
 {
     const float cs_in_1 = MAX(ts_isense_75a.getVoltage(), 0.0f) * TSI_TO_CSIN;
     const float high_res_current = (cs_in_1 - OFFSET_V) / HIGH_RES_SENS_VA;
@@ -116,7 +115,7 @@ float getCurrentHighResolution(void)
     return -(high_res_current + high_res_curr_calibration);
 }
 
-float getCurrentLowResolution(void)
+float getCurrentLowResolution()
 {
     const float cs_in_2 = MAX(ts_isense_500a.getVoltage(), 0.0f) * TSI_TO_CSIN;
     const float low_res_current = (cs_in_2 - OFFSET_V) / HIGH_RES_SENS_VA;
@@ -135,12 +134,12 @@ float getCurrentLowResolution(void)
     return -(low_res_current + low_res_curr_calibration);
 }
 
-bool getVoltageSnsDiagState(void)
+bool getVoltageSnsDiagState()
 {
     return diag_ts.readPin();
 }
 
-bool getCurrentSnsDiagState(void)
+bool getCurrentSnsDiagState()
 {
     return ts_isense_ocsc_ok.readPin();
 }

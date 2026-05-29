@@ -162,7 +162,7 @@ struct ImuFifoConfig
 
 namespace io
 {
-class Imu
+class imu
 {
   public:
     struct AccelData
@@ -176,7 +176,7 @@ class Imu
 
   private:
 #ifdef TARGET_EMBEDDED
-    const hw::spi::SpiDevice &imu_spi_handle;
+    const hw::spi::device &imu_spi_handle;
 #endif
 
     ImuFilterConfig filter_config;
@@ -187,30 +187,30 @@ class Imu
 
   public:
 #ifdef TARGET_EMBEDDED
-    constexpr explicit Imu(
-        const hw::spi::SpiDevice &in_imu_spi_handle,
-        const ImuFilterConfig    &in_filter_config = ImuFilterConfig{})
+    constexpr explicit imu(
+        const hw::spi::device &in_imu_spi_handle,
+        const ImuFilterConfig &in_filter_config = ImuFilterConfig{})
       : imu_spi_handle(in_imu_spi_handle), filter_config(in_filter_config)
     {
     }
 #elif TARGET_TEST
-    constexpr explicit Imu() {}
+    constexpr explicit imu() {}
 #endif
 
-    [[nodiscard]] std::expected<void, ErrorCode> init() const;
+    [[nodiscard]] result<void> init() const;
 
-    std::expected<float, ErrorCode> getAccelX() const;
-    std::expected<float, ErrorCode> getAccelY() const;
-    std::expected<float, ErrorCode> getAccelZ() const;
+    result<float> getAccelX() const;
+    result<float> getAccelY() const;
+    result<float> getAccelZ() const;
 
-    std::expected<float, ErrorCode> getGyroX() const;
-    std::expected<float, ErrorCode> getGyroY() const;
-    std::expected<float, ErrorCode> getGyroZ() const;
+    result<float> getGyroX() const;
+    result<float> getGyroY() const;
+    result<float> getGyroZ() const;
 
-    std::expected<float, ErrorCode> getTemp() const;
+    result<float> getTemp() const;
 
-    std::expected<AccelData, ErrorCode> getAccelAll() const;
-    std::expected<GyroData, ErrorCode>  getGyroAll() const;
+    result<AccelData> getAccelAll() const;
+    result<GyroData>  getGyroAll() const;
 
 #ifdef TARGET_TEST
     mutable bool  initialized   = false;

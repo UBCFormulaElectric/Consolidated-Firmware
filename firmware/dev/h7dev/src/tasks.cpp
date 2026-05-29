@@ -12,7 +12,7 @@
 #include "main.h"
 #include <assert.h>
 #include <cmsis_os2.h>
-#include <io_canMsg.hpp>
+#include "io_canMsg.hpp"
 
 [[noreturn]] static void tasks_default(void *args)
 {
@@ -36,17 +36,21 @@
     forever
     {
         const io::CanMsg msg = can_tx_queue.pop().value();
-        hw::can::fdcan1.can_transmit(hw::CanMsg{
+        LOG_IF_ERR(hw::can::fdcan1.can_transmit(hw::CanMsg{
             msg.std_id,
             msg.dlc,
             msg.data,
-        });
+        }));
     }
 }
 
-static hw::rtos::StaticTask<512> TaskCanRx(osPriorityBelowNormal, "TaskCanRx", tasks_canRx);
-static hw::rtos::StaticTask<512> TaskCanTx(osPriorityBelowNormal, "TaskCanTx", tasks_canTx);
-static hw::rtos::StaticTask<512> TaskDefault(osPriorityAboveNormal, "TaskDefault", tasks_default);
+static hw::rtos::StaticTask::StaticTaskStack<512> TaskCanRxStack;
+static hw::rtos::StaticTask::StaticTaskStack<512> TaskCanTxStack;
+static hw::rtos::StaticTask::StaticTaskStack<512> TaskDefaultStack;
+
+static hw::rtos::StaticTask TaskCanRx(osPriorityBelowNormal, "TaskCanRx", tasks_canRx, TaskCanRxStack);
+static hw::rtos::StaticTask TaskCanTx(osPriorityBelowNormal, "TaskCanTx", tasks_canTx, TaskCanTxStack);
+static hw::rtos::StaticTask TaskDefault(osPriorityAboveNormal, "TaskDefault", tasks_default, TaskDefaultStack);
 
 [[noreturn]] void tasks_init()
 {

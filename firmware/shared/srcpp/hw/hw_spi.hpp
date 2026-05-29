@@ -17,12 +17,12 @@ extern "C"
 
 namespace hw::spi
 {
-class SpiDevice;
+class device;
 
-class SpiBus
+class bus
 {
   public:
-    constexpr explicit SpiBus(SPI_HandleTypeDef &handle_in) : handle(handle_in) {}
+    constexpr explicit bus(SPI_HandleTypeDef &handle_in) : handle(handle_in) {}
     SPI_HandleTypeDef &handle;
 
     /**
@@ -38,16 +38,16 @@ class SpiBus
     SPI_HandleTypeDef &getHandle() const { return handle; }
 
   private:
-    friend class SpiDevice;
+    friend class device;
 
     mutable TaskHandle_t taskInProgress{ nullptr }; // Task currently performing a transaction.
 };
 
-class SpiDevice
+class device
 {
   public:
-    constexpr SpiDevice(const SpiBus &bus_in, const std::optional<Gpio> nss_in, const uint32_t timeoutMs_in)
-      : bus(bus_in), nss(nss_in), timeoutMs(timeoutMs_in)
+    constexpr device(const bus &bus_in, const std::optional<gpio> &nss_in, const uint32_t timeoutMs_in)
+      : parent_bus(bus_in), nss(nss_in), timeoutMs(timeoutMs_in)
     {
         if (nss.has_value())
         {
@@ -60,14 +60,14 @@ class SpiDevice
      * @param tx Buffer containing the data to transmit.
      * @return EXIT_CODE_OK if transmission succeeded, otherwise an error code.
      */
-    [[nodiscard]] std::expected<void, ErrorCode> transmit(std::span<const uint8_t> tx) const;
+    [[nodiscard]] result<void> transmit(std::span<const uint8_t> tx) const;
 
     /**
      * @brief Receive data from the SPI device.
      * @param rx Buffer to store received data.
      * @return EXIT_CODE_OK if reception succeeded, otherwise an error code.
      */
-    [[nodiscard]] std::expected<void, ErrorCode> receive(std::span<uint8_t> rx) const;
+    [[nodiscard]] result<void> receive(std::span<uint8_t> rx) const;
 
     /**
      * @brief Transmit and then receive data over SPI while keeping NSS asserted.
@@ -76,12 +76,11 @@ class SpiDevice
      * @param rx Buffer to store received data after transmission.
      * @return EXIT_CODE_OK if the operation succeeded, otherwise an error code.
      */
-    [[nodiscard]] std::expected<void, ErrorCode>
-        transmitThenReceive(std::span<const uint8_t> tx, std::span<uint8_t> rx) const;
+    [[nodiscard]] result<void> transmitThenReceive(std::span<const uint8_t> tx, std::span<uint8_t> rx) const;
 
   private:
-    const SpiBus             &bus;
-    const std::optional<Gpio> nss;
+    const bus                &parent_bus;
+    const std::optional<gpio> nss;
     uint32_t                  timeoutMs;
 
     void enableNss() const;
@@ -90,7 +89,7 @@ class SpiDevice
     /**
      * @return idk
      */
-    [[nodiscard]] std::expected<void, ErrorCode> waitForNotification() const;
+    [[nodiscard]] result<void> waitForNotification() const;
 };
 
 /**
@@ -98,6 +97,6 @@ class SpiDevice
  * @param handle Pointer to the HAL SPI handle.
  * @return Reference to the associated SpiBus object.
  */
-[[nodiscard]] const SpiBus &getBusFromHandle(const SPI_HandleTypeDef *handle);
+[[nodiscard]] const bus &getBusFromHandle(const SPI_HandleTypeDef *handle);
 
 } // namespace hw::spi

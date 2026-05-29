@@ -1,36 +1,26 @@
 option(JSONCAN_BINARY_GENERATE "Whether to generate JSONCAN binary during CMake configuration. If set to false, it will assume that the cppcodegen executable is on PATH" ON)
 IF (${JSONCAN_BINARY_GENERATE})
     set(JSONCAN_EXECUTABLE ${SCRIPTS_DIR}/code_generation/jsoncan-rust/target/release/cppcodegen${EXECUTABLE_SUFFIX})
-    set(JSONCAN_EXECUTABLE_OUTPUT ${SCRIPTS_DIR}/code_generation/jsoncan-rust/target/release/cppcodegen${EXECUTABLE_SUFFIX})
     file(GLOB_RECURSE CAN_JSON_RUST_SRCS
             ${SCRIPTS_DIR}/code_generation/jsoncan-rust/src/*.rs
             ${SCRIPTS_DIR}/code_generation/jsoncan-rust/src/*.j2
     )
     add_custom_command(
-            OUTPUT ${JSONCAN_EXECUTABLE_OUTPUT}
+            OUTPUT ${JSONCAN_EXECUTABLE}
             COMMAND cargo build --release --bin cppcodegen
             WORKING_DIRECTORY ${SCRIPTS_DIR}/code_generation/jsoncan-rust
             DEPENDS ${CAN_JSON_RUST_SRCS}
             COMMENT "Building JSONCAN code generator"
     )
     # stupid fuckass method
-    add_custom_target(jsoncan_codegen_target DEPENDS ${JSONCAN_EXECUTABLE_OUTPUT})
+    add_custom_target(jsoncan_codegen_target DEPENDS ${JSONCAN_EXECUTABLE})
     set(JSONCAN_EXECUTABLE_BUILD_TARGET jsoncan_codegen_target)
 ELSE ()
     set(JSONCAN_EXECUTABLE cppcodegen${EXECUTABLE_SUFFIX})
     set(JSONCAN_EXECUTABLE_BUILD_TARGET "")
 ENDIF ()
-message("  📚 [jsoncan.cmake] JSONCAN executable set to ${JSONCAN_EXECUTABLE} with build target ${JSONCAN_EXECUTABLE_BUILD_TARGET}")
+message("  📚 [jsoncan.cmake] JSONCAN executable set to ${JSONCAN_EXECUTABLE}")
 
-# Inputs
-# JSONCAN_PY_BOARD - Python board name
-# OUTPUT_DIR - Output directory
-# USE_IO - Whether to generate IO files
-# CAR - Car name
-#
-# Returns
-# CAN_SRCS - List of generated source files
-# CAN_INCLUDE_DIRS - List of include directories
 message("  📚 [jsoncan.cmake] Registering function jsoncan_sources_cpp()")
 function(jsoncan_sources_cpp JSONCAN_PY_BOARD OUTPUT_DIR USE_IO DBC_OUTPUT CAN_JSON_DIR)
     file(RELATIVE_PATH OUTPUT_DIR_RELATIVE ${CMAKE_SOURCE_DIR} ${OUTPUT_DIR})
@@ -55,7 +45,7 @@ function(jsoncan_sources_cpp JSONCAN_PY_BOARD OUTPUT_DIR USE_IO DBC_OUTPUT CAN_J
     file(GLOB_RECURSE CAN_JSON_SRCS ${CAN_JSON_DIR}/*.json)
 
     IF (${JSONCAN_BINARY_GENERATE})
-        set(JSONCAN_DEPS ${CAN_JSON_SRCS} ${JSONCAN_EXECUTABLE_BUILD_TARGET})
+        set(JSONCAN_DEPS ${CAN_JSON_SRCS} ${JSONCAN_EXECUTABLE_BUILD_TARGET} ${CAN_JSON_RUST_SRCS})
     ELSE ()
         set(JSONCAN_DEPS ${CAN_JSON_SRCS})
     ENDIF ()

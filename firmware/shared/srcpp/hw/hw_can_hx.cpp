@@ -17,7 +17,7 @@
 #include "stm32h5xx_hal_fdcan.h"
 #endif
 
-std::expected<void, ErrorCode> hw::fdcan::tx(FDCAN_TxHeaderTypeDef &tx_header, const CanMsg &msg) const
+result<void> hw::fdcan::tx(FDCAN_TxHeaderTypeDef &tx_header, const CanMsg &msg) const
 {
     for (uint32_t poll = 0; HAL_FDCAN_GetTxFifoFreeLevel(hfdcan) == 0U;)
     {
@@ -35,7 +35,7 @@ std::expected<void, ErrorCode> hw::fdcan::tx(FDCAN_TxHeaderTypeDef &tx_header, c
         UNUSED(num_notifs);
         transmit_task = nullptr;
     }
-    return hw_utils_convertHalStatus(HAL_FDCAN_AddMessageToTxFifoQ(hfdcan, &tx_header, msg.data.data()));
+    return hw::utils::convertHalStatus(HAL_FDCAN_AddMessageToTxFifoQ(hfdcan, &tx_header, msg.data.data()));
 }
 void hw::fdcan::init() const
 {
@@ -55,17 +55,17 @@ void hw::fdcan::init() const
     filter.RxBufferIndex    = 0;
 #endif
 
-    const auto configure_filter_status = hw_utils_convertHalStatus(HAL_FDCAN_ConfigFilter(hfdcan, &filter));
+    const auto configure_filter_status = hw::utils::convertHalStatus(HAL_FDCAN_ConfigFilter(hfdcan, &filter));
     assert(configure_filter_status.has_value());
 
     // Configure interrupt mode for CAN peripheral.
-    const auto configure_notis_ok = hw_utils_convertHalStatus(HAL_FDCAN_ActivateNotification(
+    const auto configure_notis_ok = hw::utils::convertHalStatus(HAL_FDCAN_ActivateNotification(
         hfdcan, FDCAN_IT_RX_FIFO0_NEW_MESSAGE | FDCAN_IT_RX_FIFO1_NEW_MESSAGE | FDCAN_IT_BUS_OFF | FDCAN_IT_TX_COMPLETE,
         FDCAN_TX_BUFFER0));
     assert(configure_notis_ok.has_value());
 
     // Start the FDCAN peripheral.
-    const auto start_status = hw_utils_convertHalStatus(HAL_FDCAN_Start(hfdcan));
+    const auto start_status = hw::utils::convertHalStatus(HAL_FDCAN_Start(hfdcan));
     assert(start_status.has_value());
     ready = true;
 }
@@ -76,7 +76,7 @@ void hw::fdcan::deinit() const
     assert(HAL_FDCAN_DeInit(hfdcan) == HAL_OK);
 }
 
-std::expected<void, ErrorCode> hw::fdcan::can_transmit(const CanMsg &msg) const
+result<void> hw::fdcan::can_transmit(const CanMsg &msg) const
 {
     assert(ready);
     FDCAN_TxHeaderTypeDef tx_header;
@@ -96,7 +96,7 @@ std::expected<void, ErrorCode> hw::fdcan::can_transmit(const CanMsg &msg) const
     return tx(tx_header, msg);
 }
 
-std::expected<void, ErrorCode> hw::fdcan::fdcan_transmit(const CanMsg &msg) const
+result<void> hw::fdcan::fdcan_transmit(const CanMsg &msg) const
 {
     assert(ready);
 
@@ -151,25 +151,36 @@ std::expected<void, ErrorCode> hw::fdcan::fdcan_transmit(const CanMsg &msg) cons
     return tx(tx_header, msg);
 }
 
-std::expected<hw::CanMsg, ErrorCode> hw::fdcan::receive(const uint32_t rx_fifo) const
+result<hw::CanMsg> hw::fdcan::receive(const uint32_t rx_fifo) const
 {
     assert(ready);
     FDCAN_RxHeaderTypeDef header;
 
     CanMsg msg{};
-    RETURN_IF_ERR(hw_utils_convertHalStatus(HAL_FDCAN_GetRxMessage(hfdcan, rx_fifo, &header, msg.data.data())));
+    RETURN_IF_ERR(hw::utils::convertHalStatus(HAL_FDCAN_GetRxMessage(hfdcan, rx_fifo, &header, msg.data.data())));
 
     // Copy metadata from HAL's CAN message struct into our custom CAN
     // message struct
     msg.std_id = header.Identifier;
-    msg.dlc    = header.DataLength >> 16; // Data length code needs to be un-shifted by 16 bits.
+#if defined(STM32H733xx)
+    msg.dlc = header.DataLength >> 16; // Data length code needs to be un-shifted by 16 bits.
+#elif defined(STM32H562xx)
+    msg.dlc = header.DataLength;
+#endif
 
     return msg;
 }
 
 CFUNC void HAL_FDCAN_ErrorStatusCallback(FDCAN_HandleTypeDef *hfdcan, const uint32_t ErrorStatusITs)
 {
-    LOG_INFO("FDCAN error detected: %x", ErrorStatusITs);
+    if ((ErrorStatusITs & FDCAN_IT_ERROR_PASSIVE) != RESET)
+    {
+        LOG_INFO("FDCAN is in error passive state!");
+    }
+    if ((ErrorStatusITs & FDCAN_IT_ERROR_WARNING) != RESET)
+    {
+        LOG_WARN("FDCAN is in error warning state!");
+    }
     if ((ErrorStatusITs & FDCAN_IT_BUS_OFF) != RESET)
     {
         FDCAN_ProtocolStatusTypeDef protocolStatus;
@@ -177,11 +188,12 @@ CFUNC void HAL_FDCAN_ErrorStatusCallback(FDCAN_HandleTypeDef *hfdcan, const uint
         if (protocolStatus.BusOff)
         {
             LOG_ERROR("FDCAN is in BUS OFF state!");
+            CLEAR_BIT(hfdcan->Instance->CCCR, FDCAN_CCCR_INIT);
         }
     }
 }
 
-static std::expected<void, ErrorCode> handleCallback(const FDCAN_HandleTypeDef *hfdcan, const uint8_t fifo)
+static result<void> handleCallback(const FDCAN_HandleTypeDef *hfdcan, const uint8_t fifo)
 {
     const hw::fdcan &handle = hw::fdcan_getHandle(hfdcan);
 

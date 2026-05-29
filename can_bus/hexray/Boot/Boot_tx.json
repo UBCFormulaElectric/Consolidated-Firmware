@@ -1,86 +1,4 @@
 {
-  "VC_Status": {
-    "msg_id": 134217728,
-    "cycle_time": 100,
-    "signals": {
-      "VC_Hash": {
-        "bits": 32
-      },
-      "VC_Clean": {
-        "bits": 1
-      },
-      "VC_Status": {
-        "enum": "BootStatus"
-      }
-    }
-  },
-  "VC_SignalStart": {
-    "msg_id": 134217729,
-    "cycle_time": null,
-    "description": "Signals the start of a flashing sequence for VC",
-    "signals": {}
-  },
-  "VC_SignalStartACK": {
-    "msg_id": 134217730,
-    "cycle_time": null,
-    "description": "Acknowledges the receipt of a VC_SignalStart",
-    "signals": {}
-  },
-  "VC_UpdateGOTOAppCmd": {
-    "msg_id": 134217731,
-    "cycle_time": null,
-    "description": "Tells the VC to jump to the application",
-    "signals": {}
-  },
-  "VC_EraseSectorCmd": {
-    "msg_id": 134217732,
-    "cycle_time": null,
-    "description": "Designates which sector to erase",
-    "signals": {
-      "VC_Erase_Sector": {
-        "bits": 8
-      }
-    }
-  },
-  "VC_EraseSectorCompleteCmd": {
-    "msg_id": 134217733,
-    "cycle_time": null,
-    "description": "Acknowledges the completion of a sector erase",
-    "signals": {}
-  },
-  "VC_ProgramIdCmd": {
-    "msg_id": 134217734,
-    "cycle_time": null,
-    "description": "Contains the data to program into the VC",
-    "signals": {
-      "VC_Program_Data_High": {
-        "bits": 32
-      },
-      "VC_Program_Data_Low": {
-        "bits": 32
-      }
-    }
-  },
-  "VC_VerifyIdCmd": {
-    "msg_id": 134217735,
-    "cycle_time": null,
-    "signals": {}
-  },
-  "VC_AppValidity": {
-    "msg_id": 134217736,
-    "cycle_time": null,
-    "signals": {
-      "VC_App_Validity": {
-        "enum": "BootStatus"
-      }
-    }
-  },
-  "VC_GOTOBootCmd": {
-    "msg_id": 134217737,
-    "cycle_time": null,
-    "description": "Tells the VC to jump to the bootloader",
-    "signals": {}
-  },
   "BMS_Status": {
     "msg_id": 67108864,
     "cycle_time": 100,
@@ -163,86 +81,168 @@
     "description": "Tells the BMS to jump to the bootloader",
     "signals": {}
   },
-  "RSM_Status": {
-    "msg_id": 335544320,
+  "VC_Status": {
+    "msg_id": 134217728,
     "cycle_time": 100,
     "signals": {
-      "RSM_Hash": {
+      "VC_Hash": {
         "bits": 32
       },
-      "RSM_Clean": {
+      "VC_Clean": {
         "bits": 1
       },
-      "RSM_Status": {
+      "VC_Status": {
         "enum": "BootStatus"
       }
     }
   },
-  "RSM_SignalStart": {
-    "msg_id": 335544321,
+  "VC_SignalStart": {
+    "msg_id": 134217729,
     "cycle_time": null,
-    "description": "Signals the start of a flashing sequence for RSM",
+    "description": "Signals the start of a flashing sequence for VC",
     "signals": {}
   },
-  "RSM_SignalStartACK": {
-    "msg_id": 335544322,
+  "VC_SignalStartACK": {
+    "msg_id": 134217730,
     "cycle_time": null,
-    "description": "Acknowledges the receipt of a RSM_SignalStart",
+    "description": "Acknowledges the receipt of a VC_SignalStart",
     "signals": {}
   },
-  "RSM_UpdateGOTOAppCmd": {
-    "msg_id": 335544323,
+  "VC_UpdateGOTOAppCmd": {
+    "msg_id": 134217731,
     "cycle_time": null,
-    "description": "Tells the RSM to jump to the application",
+    "description": "Tells the VC to jump to the application",
     "signals": {}
   },
-  "RSM_EraseSectorCmd": {
-    "msg_id": 335544324,
+  "VC_EraseSectorCmd": {
+    "msg_id": 134217732,
     "cycle_time": null,
     "description": "Designates which sector to erase",
     "signals": {
-      "RSM_Erase_Sector": {
+      "VC_Erase_Sector": {
         "bits": 8
       }
     }
   },
-  "RSM_EraseSectorCompleteCmd": {
-    "msg_id": 335544325,
+  "VC_EraseSectorCompleteCmd": {
+    "msg_id": 134217733,
     "cycle_time": null,
     "description": "Acknowledges the completion of a sector erase",
     "signals": {}
   },
-  "RSM_ProgramIdCmd": {
-    "msg_id": 335544326,
+  "VC_ProgramIdCmd": {
+    "msg_id": 134217734,
     "cycle_time": null,
-    "description": "Contains the data to program into the RSM",
+    "description": "Contains the data to program into the VC",
     "signals": {
-      "RSM_Program_Data_High": {
+      "VC_Program_Data_High": {
         "bits": 32
       },
-      "RSM_Program_Data_Low": {
+      "VC_Program_Data_Low": {
         "bits": 32
       }
     }
   },
-  "RSM_VerifyIdCmd": {
-    "msg_id": 335544327,
+  "VC_VerifyIdCmd": {
+    "msg_id": 134217735,
     "cycle_time": null,
     "signals": {}
   },
-  "RSM_AppValidity": {
-    "msg_id": 335544328,
+  "VC_AppValidity": {
+    "msg_id": 134217736,
     "cycle_time": null,
     "signals": {
-      "RSM_App_Validity": {
+      "VC_App_Validity": {
         "enum": "BootStatus"
       }
     }
   },
-  "RSM_GOTOBootCmd": {
-    "msg_id": 335544329,
+  "VC_GOTOBootCmd": {
+    "msg_id": 134217737,
     "cycle_time": null,
-    "description": "Tells the RSM to jump to the bootloader",
+    "description": "Tells the VC to jump to the bootloader",
+    "signals": {}
+  },
+  "DAM_Status": {
+    "msg_id": 201326592,
+    "cycle_time": 100,
+    "signals": {
+      "DAM_Hash": {
+        "bits": 32
+      },
+      "DAM_Clean": {
+        "bits": 1
+      },
+      "DAM_Status": {
+        "enum": "BootStatus"
+      }
+    }
+  },
+  "DAM_SignalStart": {
+    "msg_id": 201326593,
+    "cycle_time": null,
+    "description": "Signals the start of a flashing sequence for DAM",
+    "signals": {}
+  },
+  "DAM_SignalStartACK": {
+    "msg_id": 201326594,
+    "cycle_time": null,
+    "description": "Acknowledges the receipt of a DAM_SignalStart",
+    "signals": {}
+  },
+  "DAM_UpdateGOTOAppCmd": {
+    "msg_id": 201326595,
+    "cycle_time": null,
+    "description": "Tells the DAM to jump to the application",
+    "signals": {}
+  },
+  "DAM_EraseSectorCmd": {
+    "msg_id": 201326596,
+    "cycle_time": null,
+    "description": "Designates which sector to erase",
+    "signals": {
+      "DAM_Erase_Sector": {
+        "bits": 8
+      }
+    }
+  },
+  "DAM_EraseSectorCompleteCmd": {
+    "msg_id": 201326597,
+    "cycle_time": null,
+    "description": "Acknowledges the completion of a sector erase",
+    "signals": {}
+  },
+  "DAM_ProgramIdCmd": {
+    "msg_id": 201326598,
+    "cycle_time": null,
+    "description": "Contains the data to program into the DAM",
+    "signals": {
+      "DAM_Program_Data_High": {
+        "bits": 32
+      },
+      "DAM_Program_Data_Low": {
+        "bits": 32
+      }
+    }
+  },
+  "DAM_VerifyIdCmd": {
+    "msg_id": 201326599,
+    "cycle_time": null,
+    "signals": {}
+  },
+  "DAM_AppValidity": {
+    "msg_id": 201326600,
+    "cycle_time": null,
+    "signals": {
+      "DAM_App_Validity": {
+        "enum": "BootStatus"
+      }
+    }
+  },
+  "DAM_GOTOBootCmd": {
+    "msg_id": 201326601,
+    "cycle_time": null,
+    "description": "Tells the DAM to jump to the bootloader",
     "signals": {}
   },
   "FSM_Status": {
@@ -327,6 +327,100 @@
     "description": "Tells the FSM to jump to the bootloader",
     "signals": {}
   },
+  "FSM_EraseSectorFailed": {
+    "msg_id": 268435466,
+    "cycle_time": null,
+    "description": "Tells the FSM to jump to the bootloader",
+    "signals": {}
+  },
+  "FSM_ProgramSectorFailed": {
+    "msg_id": 268435467,
+    "cycle_time": null,
+    "description": "Tells the FSM to jump to the bootloader",
+    "signals": {}
+  },
+  "RSM_Status": {
+    "msg_id": 335544320,
+    "cycle_time": 100,
+    "signals": {
+      "RSM_Hash": {
+        "bits": 32
+      },
+      "RSM_Clean": {
+        "bits": 1
+      },
+      "RSM_Status": {
+        "enum": "BootStatus"
+      }
+    }
+  },
+  "RSM_SignalStart": {
+    "msg_id": 335544321,
+    "cycle_time": null,
+    "description": "Signals the start of a flashing sequence for RSM",
+    "signals": {}
+  },
+  "RSM_SignalStartACK": {
+    "msg_id": 335544322,
+    "cycle_time": null,
+    "description": "Acknowledges the receipt of a RSM_SignalStart",
+    "signals": {}
+  },
+  "RSM_UpdateGOTOAppCmd": {
+    "msg_id": 335544323,
+    "cycle_time": null,
+    "description": "Tells the RSM to jump to the application",
+    "signals": {}
+  },
+  "RSM_EraseSectorCmd": {
+    "msg_id": 335544324,
+    "cycle_time": null,
+    "description": "Designates which sector to erase",
+    "signals": {
+      "RSM_Erase_Sector": {
+        "bits": 8
+      }
+    }
+  },
+  "RSM_EraseSectorCompleteCmd": {
+    "msg_id": 335544325,
+    "cycle_time": null,
+    "description": "Acknowledges the completion of a sector erase",
+    "signals": {}
+  },
+  "RSM_ProgramIdCmd": {
+    "msg_id": 335544326,
+    "cycle_time": null,
+    "description": "Contains the data to program into the RSM",
+    "signals": {
+      "RSM_Program_Data_High": {
+        "bits": 32
+      },
+      "RSM_Program_Data_Low": {
+        "bits": 32
+      }
+    }
+  },
+  "RSM_VerifyIdCmd": {
+    "msg_id": 335544327,
+    "cycle_time": null,
+    "signals": {}
+  },
+  "RSM_AppValidity": {
+    "msg_id": 335544328,
+    "cycle_time": null,
+    "signals": {
+      "RSM_App_Validity": {
+        "enum": "BootStatus"
+      }
+    }
+  },
+  "RSM_GOTOBootCmd": {
+    "msg_id": 335544329,
+    "cycle_time": null,
+    "description": "Tells the RSM to jump to the bootloader",
+    "signals": {}
+  },
   "CRIT_Status": {
     "msg_id": 402653184,
     "cycle_time": 100,
@@ -407,88 +501,6 @@
     "msg_id": 402653193,
     "cycle_time": null,
     "description": "Tells the CRIT to jump to the bootloader",
-    "signals": {}
-  },
-  "DAM_Status": {
-    "msg_id": 201326592,
-    "cycle_time": 100,
-    "signals": {
-      "DAM_Hash": {
-        "bits": 32
-      },
-      "DAM_Clean": {
-        "bits": 1
-      },
-      "DAM_Status": {
-        "enum": "BootStatus"
-      }
-    }
-  },
-  "DAM_SignalStart": {
-    "msg_id": 201326593,
-    "cycle_time": null,
-    "description": "Signals the start of a flashing sequence for DAM",
-    "signals": {}
-  },
-  "DAM_SignalStartACK": {
-    "msg_id": 201326594,
-    "cycle_time": null,
-    "description": "Acknowledges the receipt of a DAM_SignalStart",
-    "signals": {}
-  },
-  "DAM_UpdateGOTOAppCmd": {
-    "msg_id": 201326595,
-    "cycle_time": null,
-    "description": "Tells the DAM to jump to the application",
-    "signals": {}
-  },
-  "DAM_EraseSectorCmd": {
-    "msg_id": 201326596,
-    "cycle_time": null,
-    "description": "Designates which sector to erase",
-    "signals": {
-      "DAM_Erase_Sector": {
-        "bits": 8
-      }
-    }
-  },
-  "DAM_EraseSectorCompleteCmd": {
-    "msg_id": 201326597,
-    "cycle_time": null,
-    "description": "Acknowledges the completion of a sector erase",
-    "signals": {}
-  },
-  "DAM_ProgramIdCmd": {
-    "msg_id": 201326598,
-    "cycle_time": null,
-    "description": "Contains the data to program into the DAM",
-    "signals": {
-      "DAM_Program_Data_High": {
-        "bits": 32
-      },
-      "DAM_Program_Data_Low": {
-        "bits": 32
-      }
-    }
-  },
-  "DAM_VerifyIdCmd": {
-    "msg_id": 201326599,
-    "cycle_time": null,
-    "signals": {}
-  },
-  "DAM_AppValidity": {
-    "msg_id": 201326600,
-    "cycle_time": null,
-    "signals": {
-      "DAM_App_Validity": {
-        "enum": "BootStatus"
-      }
-    }
-  },
-  "DAM_GOTOBootCmd": {
-    "msg_id": 201326601,
-    "cycle_time": null,
-    "description": "Tells the DAM to jump to the bootloader",
     "signals": {}
   }
 }

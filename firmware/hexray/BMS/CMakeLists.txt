@@ -10,7 +10,7 @@ set(SYSTEM_SRCS ${JOBS_SRC} ${TASKS_SRC})
 set(SYSTEM_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src" "${CMAKE_CURRENT_SOURCE_DIR}/boot")
 
 file(GLOB_RECURSE APP_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/app/*.cpp")
-list(APPEND APP_SRCS
+set(APP_SHARED_SRCS
         "${SHARED_APP_INCLUDE_DIR_CPP}/app_timer.cpp"
         "${SHARED_APP_INCLUDE_DIR_CPP}/app_stateMachine.cpp"
         "${SHARED_APP_INCLUDE_DIR_CPP}/app_math.cpp"
@@ -21,8 +21,7 @@ set(APP_INCLUDE_DIRS
 )
 
 file(GLOB_RECURSE IO_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/io/*.cpp")
-
-list(APPEND IO_SRCS
+set(IO_SHARED_SRCS
         "${SHARED_IO_INCLUDE_DIR_CPP}/io_time.cpp"
         "${SHARED_IO_INCLUDE_DIR_CPP}/io_shdnLoopNode.cpp"
 )
@@ -32,20 +31,16 @@ set(IO_INCLUDE_DIRS
 )
 
 file(GLOB_RECURSE HW_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.cpp")
-list(APPEND HW_SRCS
+set(HW_SHARED_SRCS
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_error.cpp"
-        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_gpio.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_hardFaultHandler.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_usb.cpp"
-        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_i2c.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_spi.cpp"
-        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_pwmInput.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_pwmOutput.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_can_hx.cpp"
-        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_assert.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_bootup.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_resetReason.cpp"
-        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_freeRtosConfigs.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_bootup.cpp"
 )
 set(HW_INCLUDE_DIRS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"
@@ -53,8 +48,16 @@ set(HW_INCLUDE_DIRS
 )
 
 # chimera sources
-set(CHIMERA_SRCS ${HW_SRCS} "${CMAKE_CURRENT_SOURCE_DIR}/src/chimera.cpp")
-list(FILTER CHIMERA_SRCS EXCLUDE REGEX ".*(hw_cans|hw_can_hx)\\.cpp")
+set(CHIMERA_SRCS
+        ${HW_SRCS}
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_error.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_hardFaultHandler.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_usb.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_spi.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_pwmOutput.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_can_hx.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/chimera.cpp"
+)
 set(CHIMERA_INCLUDE_DIRS ${HW_INCLUDE_DIRS})
 
 if ("${TARGET}" STREQUAL "binary")
@@ -64,10 +67,10 @@ if ("${TARGET}" STREQUAL "binary")
     set(ARM_CORE "cm7")
     if ("${BOOTLOAD}" STREQUAL "ON")
         set(LINKER_SCRIPT "${LINKER_DIR}/stm32h733vgtx/stm32h733vgtx_app.ld")
-    else() 
+    else ()
         set(LINKER_SCRIPT "${LINKER_DIR}/stm32h733vgtx/stm32h733vgtx_app_only.ld")
-    endif()
-    set(SRCS ${APP_SRCS} ${IO_SRCS} ${HW_SRCS} ${SYSTEM_SRCS})
+    endif ()
+    set(SRCS ${APP_SRCS} ${APP_SHARED_SRCS} ${IO_SRCS} ${IO_SHARED_SRCS} ${HW_SRCS} ${HW_SHARED_SRCS} ${SYSTEM_SRCS})
     set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${HW_INCLUDE_DIRS} ${SHARED_UTIL_INCLUDE_DIR} ${SYSTEM_INCLUDE_DIRS} ${CUBEMX_INCLUDE_DIRS})
 
     embedded_binary(
@@ -126,8 +129,6 @@ if ("${TARGET}" STREQUAL "binary")
     # JSONCAN
     jsoncan_embedded_library_cpp(BMS hexray "${CMAKE_CURRENT_BINARY_DIR}" ${ARM_CORE})
 
-    
-
     # CommitInfo
     commit_info_library(
             "hexray_BMS_app.elf"
@@ -140,8 +141,8 @@ if ("${TARGET}" STREQUAL "binary")
 
     add_chimera_stm32h7("hexray_BMS_chimera" "${CHIMERA_SRCS}" "${CHIMERA_INCLUDE_DIRS}" "hexray_chimera_v2_proto_cm7")
     target_link_libraries("hexray_BMS_chimera.elf" PRIVATE "hexray_BMS_stm32")
-     
-    if ("${BOOTLOAD}" STREQUAL "ON") 
+
+    if ("${BOOTLOAD}" STREQUAL "ON")
         file(GLOB BOOT_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/boot/*.cpp")
         file(GLOB BOOT_CUBEMX_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Src/*.c")
         set(BOOT_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/boot" "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Inc")
@@ -167,13 +168,13 @@ if ("${TARGET}" STREQUAL "binary")
 elseif ("${TARGET}" STREQUAL "test")
     file(GLOB_RECURSE TEST_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp")
     set(FAKE_SRCS
-        #     "${SHARED_FAKES_DIR_CPP}/io_canQueue.cpp"
-        #     "${SHARED_FAKES_DIR_CPP}/io_semaphore.cpp"
-        #     "${SHARED_FAKES_DIR_CPP}/io_timer.cpp"
+            #     "${SHARED_FAKES_DIR_CPP}/io_canQueue.cpp"
+            #     "${SHARED_FAKES_DIR_CPP}/io_semaphore.cpp"
+            #     "${SHARED_FAKES_DIR_CPP}/io_timer.cpp"
             "${SHARED_FAKES_DIR_CPP}/io_shdnLoopNode.cpp"
             "${SHARED_FAKES_DIR_CPP}/io_time.cpp"
     )
-    set(SRCS ${APP_SRCS} ${JOBS_SRC} ${TEST_SRCS} ${FAKE_SRCS})
+    set(SRCS ${APP_SRCS} ${APP_SHARED_SRCS} ${JOBS_SRC} ${TEST_SRCS} ${FAKE_SRCS})
     set(INCLUDE_DIRS
             "${CMAKE_CURRENT_SOURCE_DIR}/test"
             ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${TEST_INCLUDE_DIRS} ${SYSTEM_INCLUDE_DIRS} ${SHARED_UTIL_INCLUDE_DIR_CPP} ${SHARED_FAKES_DIR}
@@ -184,7 +185,7 @@ elseif ("${TARGET}" STREQUAL "test")
             "${INCLUDE_DIRS}"
     )
 
-    add_compile_definitions("hexray_BMS_test" PRIVATE STM32h763Rx)
+    add_compile_definitions("hexray_BMS_test" PRIVATE STM32H763Rx)
 
     # JSONCAN
     jsoncan_library_cpp(BMS hexray "${CMAKE_CURRENT_BINARY_DIR}")
