@@ -42,7 +42,7 @@ extern "C"
 
     /* Exported constants --------------------------------------------------------*/
     /* USER CODE BEGIN EC */
-    extern TIM_HandleTypeDef htim7;
+    extern TIM_HandleTypeDef   htim7;
     extern ADC_HandleTypeDef   hadc1;
     extern DMA_NodeTypeDef     Node_GPDMA1_Channel0;
     extern DMA_QListTypeDef    List_GPDMA1_Channel0;
@@ -54,7 +54,7 @@ extern "C"
     extern TIM_HandleTypeDef   htim3;
     extern PCD_HandleTypeDef   hpcd_USB_DRD_FS;
     extern IWDG_HandleTypeDef  hiwdg;
-    extern TIM_HandleTypeDef htim7;
+    extern TIM_HandleTypeDef   htim7;
     /* USER CODE END EC */
 
     /* Exported macro ------------------------------------------------------------*/
