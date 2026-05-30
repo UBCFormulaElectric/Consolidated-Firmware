@@ -180,6 +180,8 @@ if ("${TARGET}" STREQUAL "binary")
 elseif ("${TARGET}" STREQUAL "test")
     file(GLOB_RECURSE TEST_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp")
     set(SRCS ${APP_SRCS} ${APP_SHARED_SRCS} ${JOBS_SRC} ${TEST_SRCS}
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_batteryMonitoring.cpp"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_batteryCharging.cpp"
             "${SHARED_FAKES_DIR_CPP}/io_imu.cpp"
             "${SHARED_FAKES_DIR_CPP}/io_time.cpp"
             "${SHARED_FAKES_DIR_CPP}/io_pump.cpp"

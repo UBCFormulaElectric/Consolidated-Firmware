@@ -162,8 +162,8 @@ class VCChimeraConfig : public chimera_v2::config
                 return std::cref(pwr_mon);
             case vc_I2cNetName_I2C_PUMP:
                 return std::cref(pump);
-            default:
             case vc_I2cNetName_I2C_NET_NAME_UNSPECIFIED:
+            default:
                 LOG_INFO("Chimera: Unspecified I2C net name");
                 return std::nullopt;
         }
