@@ -5,6 +5,7 @@
 #include "app_jsoncan.hpp"
 #include "app_canTx.hpp"
 #include "app_canAlerts.hpp"
+#include "app_lowVoltageBattery.hpp"
 
 #include "io_time.hpp"
 #include "io_canQueues.hpp"
@@ -167,6 +168,7 @@ void tasks_runCanRx(void *arg)
     static uint32_t         start_ticks = 0;
     start_ticks                         = osKernelGetTickCount();
 
+    app::batteryMonitoring::init();
     for (;;)
     {
         jobs_runBatteryMonitoring_tick();

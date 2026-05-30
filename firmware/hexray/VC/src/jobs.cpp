@@ -51,15 +51,15 @@ void jobs_init()
 void jobs_run1Hz_tick() {}
 void jobs_run100Hz_tick()
 {
-    /*io::can_tx::enqueue100HzMsgs();
+    io::can_tx::enqueue100HzMsgs();
     const uint32_t k = app::can_rx::BMS_ChargePowerLimit_get();
-    LOG_INFO("%d", k);*/
+    LOG_INFO("%d", k);
     hb_monitor.checkIn();
     hb_monitor.broadcastFaults();
 }
 void jobs_run1kHz_tick()
 {
-    // io::can_tx::enqueueOtherPeriodicMsgs(io::time::getCurrentMs());
+    io::can_tx::enqueueOtherPeriodicMsgs(io::time::getCurrentMs());
 }
 void jobs_runBatteryMonitoring_tick()
 {

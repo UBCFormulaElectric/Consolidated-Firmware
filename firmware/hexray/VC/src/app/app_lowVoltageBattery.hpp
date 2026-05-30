@@ -32,5 +32,6 @@ struct MaxCell
 };
 namespace app::batteryMonitoring
 {
+result<void> init();
 result<void> update();
-}
+} // namespace app::batteryMonitoring

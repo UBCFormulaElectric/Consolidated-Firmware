@@ -485,7 +485,7 @@ result<void> init()
     RETURN_IF_ERR(bat_mon.isTargetReady());
     RETURN_IF_ERR(pwr_mon.isTargetReady());
     RETURN_IF_ERR(pump.isTargetReady());
-    
+
     // 2.0 Check to see if chip is in DEEPSLEEP
     ControlStatus control_status{};
     uint32_t      deepsleep_attempt = 0;

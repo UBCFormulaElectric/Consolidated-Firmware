@@ -164,9 +164,8 @@ result<void> balancing_tick(const std::array<result<float>, NUM_CELLS> &voltages
 
 namespace app::batteryMonitoring
 {
-result<void> update()
+result<void> init()
 {
-    // 1. Initialize
     static bool init_done = false;
 
     if (!init_done)
@@ -177,8 +176,11 @@ result<void> update()
         if (!init_done)
             return std::unexpected(ErrorCode::ERROR);
     }
-
-    // 2. Check for fault
+    return {};
+}
+result<void> update()
+{
+    // 1. Check for fault
     const auto safetyA_status = io::batteryMonitoring::get_safety_alert_a();
     const auto safetyB_status = io::batteryMonitoring::get_safety_alert_b();
 
