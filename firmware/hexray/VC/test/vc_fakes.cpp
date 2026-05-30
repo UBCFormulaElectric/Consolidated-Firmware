@@ -92,9 +92,7 @@ namespace batteryMonitoring
     {
         return std::array<uint16_t, 5>{};
     }
-    void alert_handler()
-    {
-    }
+    void alert_handler() {}
     bool consume_alert_pending()
     {
         return false;
@@ -110,12 +108,8 @@ namespace batteryMonitoring
 } // namespace batteryMonitoring
 namespace batteryCharging
 {
-    void charger_enable(void)
-    {
-    }
-    void charger_disable(void)
-    {
-    }
+    void charger_enable(void) {}
+    void charger_disable(void) {}
     bool check_status(void)
     {
         return false;
