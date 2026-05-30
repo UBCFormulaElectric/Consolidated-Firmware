@@ -84,8 +84,8 @@ static hw::runtimeStat::monitor<TASK_COUNT> runtimeMonitor{
             app::can_tx::DAM_TaskRunCanRxStackUsage_set },
           { TaskCanTx, app::can_tx::DAM_TaskRunCanTxCpuUsage_set, app::can_tx::DAM_TaskRunCanTxCpuUsageMax_set,
             app::can_tx::DAM_TaskRunCanTxStackUsage_set },
-          { TaskCanTx, app::can_tx::DAM_TaskRunPowerMonitoringCpuUsage_set, app::can_tx::DAM_TaskRunPowerMonitoringCpuUsageMax_set,
-            app::can_tx::DAM_TaskRunRunPowerMonitoringStackUsage_set },
+          { TaskCanTx, app::can_tx::DAM_TaskRunTaskLoggingCpuUsage_set, app::can_tx::DAM_TaskRunTaskLoggingCpuUsageMax_set,
+            app::can_tx::DAM_TaskRunRunTaskLoggingStackUsage_set },
           { TaskCanTx, app::can_tx::DAM_TaskRunLoggingCpuUsage_set, app::can_tx::DAM_TaskRunLoggingCpuUsageMax_set,
             app::can_tx::DAM_TaskRunLoggingStackUsage_set} },
         // Battery Monitoring and IMU...

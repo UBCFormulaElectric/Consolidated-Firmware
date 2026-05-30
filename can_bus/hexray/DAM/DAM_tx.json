@@ -164,7 +164,25 @@
         "max": 100,
         "unit": "%"
       },
-      "TaskRunCanRxStackUsage": {
+      "TaskRunTaskLoggingStackUsage": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRunTaskTelemRxStackUsage": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRunTaskTelemParseStackUsage": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRunTaskTelemTxStackUsage": {
         "resolution": 0.1,
         "min": 0,
         "max": 100,
