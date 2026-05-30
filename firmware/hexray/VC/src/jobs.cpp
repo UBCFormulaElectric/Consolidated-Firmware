@@ -6,8 +6,10 @@
 #include "app_heartbeatMonitors.hpp"
 #include "app_canRx.hpp"
 #include "app_powerMonitoring.hpp"
-
+#include "app/states/app_states.hpp"
 #include "app_stateMachine.hpp"
+#include "app_timer.hpp"
+
 #include "io_canMsg.hpp"
 #include "io_canTx.hpp"
 #include "io_canQueues.hpp"
@@ -28,6 +30,9 @@ static void invcan_tx(const JsonCanMsg &tx_msg)
     LOG_IF_ERR(invcan_tx_queue.push(msg));
 }
 
+static constexpr uint32_t AIR_MINUS_OPEN_DEBOUNCE_MS = 100U;
+static app::Timer        air_minus_open_debounce_timer{ AIR_MINUS_OPEN_DEBOUNCE_MS };
+
 void jobs_init()
 {
     fdcan_tx_queue.init();
@@ -43,13 +48,35 @@ void jobs_init()
 void jobs_run1Hz_tick() {}
 void jobs_run100Hz_tick()
 {
+    hb_monitor.checkIn();
+    hb_monitor.broadcastFaults();
     app::powerManager::efuseProtocolTick_100Hz();
+
+    if (app::can_alerts::AnyBoardHasFault())
+    {
+        app::StateMachine::set_next_state(&app::states::fault_state);
+    }
+
     app::StateMachine::tick100Hz();
+
+    const app::Timer::TimerState air_minus_open_debounced = air_minus_open_debounce_timer.runIfCondition(
+        app::can_rx::BMS_IrNegative_get() == app::can_utils::ContactorState::CONTACTOR_STATE_OPEN);
+    switch (air_minus_open_debounced)
+    {
+        case app::Timer::TimerState::IDLE:
+            break;
+        case app::Timer::TimerState::RUNNING:
+            break;
+        case app::Timer::TimerState::EXPIRED:
+            app::StateMachine::set_next_state(&app::states::init_state);
+            break;
+        default:
+            break;
+    }
+
     io::can_tx::enqueue100HzMsgs();
     const uint32_t k = app::can_rx::BMS_ChargePowerLimit_get();
     LOG_INFO("%d", k);
-    hb_monitor.checkIn();
-    hb_monitor.broadcastFaults();
 }
 void jobs_run1kHz_tick()
 {
