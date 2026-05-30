@@ -31,7 +31,7 @@
 [[noreturn]] static void tasks_powerMonitoring(void *arg);
 
 // Define the task with StaticTask Class
-constexpr size_t                                   TASK_COUNT = 7;
+constexpr size_t                                   TASK_COUNT = 9; // IMU, Batt Mon, Power Mon
 static hw::rtos::StaticTask::StaticTaskStack<8096> Task100HzStack;
 static hw::rtos::StaticTask::StaticTaskStack<512>  Task1kHzStack;
 static hw::rtos::StaticTask::StaticTaskStack<512>  Task1HzStack;
@@ -48,6 +48,25 @@ static hw::rtos::StaticTask TaskCan1Tx(osPriorityNormal, "TaskCanTx", tasks_runC
 static hw::rtos::StaticTask TaskCan2Tx(osPriorityNormal, "TaskCanTx", tasks_runCan2Tx, TaskCan2TxStack);
 static hw::rtos::StaticTask
     TaskPowerMonitoring(osPriorityNormal, "TaskPowerMonitoring", tasks_powerMonitoring, TaskPowerMonitoringStack);
+
+static hw::runtimeStat::monitor<TASK_COUNT> runtimeMonitor{
+    { app::can_tx::VC_CoreCpuUsage_set, app::can_tx::VC_CoreCpuUsageMax_set },
+    {
+        { { Task1kHz, app::can_tx::VC_TaskRun1kHzCpuUsage_set, app::can_tx::VC_TaskRun1kHzCpuUsageMax_set,
+            app::can_tx::VC_TaskRun1kHzStackUsage_set },
+          { Task1Hz, app::can_tx::VC_TaskRun1HzCpuUsage_set, app::can_tx::VC_TaskRun1HzCpuUsageMax_set,
+            app::can_tx::VC_TaskRun1HzStackUsage_set },
+          { Task100Hz, app::can_tx::VC_TaskRun100HzCpuUsage_set, app::can_tx::VC_TaskRun100HzCpuUsageMax_set,
+            app::can_tx::VC_TaskRun100HzStackUsage_set },
+          { TaskCanRx, app::can_tx::VC_TaskRunCanRxCpuUsage_set, app::can_tx::VC_TaskRunCanRxCpuUsageMax_set,
+            app::can_tx::VC_TaskRunCanRxStackUsage_set },
+          { TaskCanTx, app::can_tx::VC_TaskRunCanTxCpuUsage_set, app::can_tx::VC_TaskRunCanTxCpuUsageMax_set,
+            app::can_tx::VC_TaskRunCanTxStackUsage_set },
+          { TaskCanTx, app::can_tx::VC_TaskRunPowerMonitoringCpuUsage_set, app::can_tx::VC_TaskRunPowerMonitoringCpuUsageMax_set,
+            app::can_tx::VC_TaskRunPowerMonitoringStackUsage_set } },
+        // Battery Monitoring and IMU...
+    },
+};
 
 static hw::watchdog::monitor<TASK_COUNT> monitor{
     hiwdg1,

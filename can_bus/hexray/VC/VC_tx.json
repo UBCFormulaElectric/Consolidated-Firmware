@@ -979,6 +979,24 @@
         "min": 0,
         "max": 100,
         "unit": "%"
+      }, 
+      "TaskRunPowerMonitoringCpuUsageMax": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRunPowerMonitoringCpuUsage": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRunPowerMonitoringStackUsage": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
       }
     }
   },

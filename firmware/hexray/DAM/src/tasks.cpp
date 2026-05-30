@@ -71,6 +71,27 @@ static hw::rtos::StaticTask
     TaskTelemParse(osPriorityBelowNormal, "TaskTelemParse", tasks_runTelemParse, TaskTelemParseStack);
 static hw::rtos::StaticTask TaskTelemTx(osPriorityHigh, "TaskTelemTx", tasks_runTelemTx, TaskTelemTxStack);
 
+static hw::runtimeStat::monitor<TASK_COUNT> runtimeMonitor{
+    { app::can_tx::DAM_CoreCpuUsage_set, app::can_tx::DAM_CoreCpuUsageMax_set },
+    {
+        { { Task1kHz, app::can_tx::DAM_TaskRun1kHzCpuUsage_set, app::can_tx::DAM_TaskRun1kHzCpuUsageMax_set,
+            app::can_tx::DAM_TaskRun1kHzStackUsage_set },
+          { Task1Hz, app::can_tx::DAM_TaskRun1HzCpuUsage_set, app::can_tx::DAM_TaskRun1HzCpuUsageMax_set,
+            app::can_tx::DAM_TaskRun1HzStackUsage_set },
+          { Task100Hz, app::can_tx::DAM_TaskRun100HzCpuUsage_set, app::can_tx::DAM_TaskRun100HzCpuUsageMax_set,
+            app::can_tx::DAM_TaskRun100HzStackUsage_set },
+          { TaskCanRx, app::can_tx::DAM_TaskRunCanRxCpuUsage_set, app::can_tx::DAM_TaskRunCanRxCpuUsageMax_set,
+            app::can_tx::DAM_TaskRunCanRxStackUsage_set },
+          { TaskCanTx, app::can_tx::DAM_TaskRunCanTxCpuUsage_set, app::can_tx::DAM_TaskRunCanTxCpuUsageMax_set,
+            app::can_tx::DAM_TaskRunCanTxStackUsage_set },
+          { TaskCanTx, app::can_tx::DAM_TaskRunPowerMonitoringCpuUsage_set, app::can_tx::DAM_TaskRunPowerMonitoringCpuUsageMax_set,
+            app::can_tx::DAM_TaskRunRunPowerMonitoringStackUsage_set },
+          { TaskCanTx, app::can_tx::DAM_TaskRunLoggingCpuUsage_set, app::can_tx::DAM_TaskRunLoggingCpuUsageMax_set,
+            app::can_tx::DAM_TaskRunLoggingStackUsage_set} },
+        // Battery Monitoring and IMU...
+    },
+};
+
 static hw::watchdog::monitor<TASK_COUNT> monitor{
     hiwdg,
     [](const hw::watchdog::instance &i) { LOG_ERROR("Watchdog timeout detected in task %d", i.task_id); },

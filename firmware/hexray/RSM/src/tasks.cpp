@@ -18,8 +18,8 @@
 #include "main.h"
 #include "hw_watchdog.hpp"
 #include "hw_resetReason.hpp"
-
 #include "hw_bootup.hpp"
+#include "hw_runTimeStat.hpp"
 
 constexpr size_t         TASK_COUNT = 5;
 [[noreturn]] static void tasks_run1Hz(void *arg);
@@ -40,6 +40,22 @@ static hw::rtos::StaticTask Task100Hz(osPriorityHigh, "Task100Hz", tasks_run100H
 static hw::rtos::StaticTask Task1Hz(osPriorityAboveNormal, "Task1Hz", tasks_run1Hz, Task1HzStack);
 static hw::rtos::StaticTask TaskCanTx(osPriorityNormal, "TaskCanTx", tasks_runCanTx, TaskCanTxStack);
 static hw::rtos::StaticTask TaskCanRx(osPriorityLow, "TaskCanRx", tasks_runCanRx, TaskCanRxStack);
+
+static hw::runtimeStat::monitor<TASK_COUNT> runtimeMonitor{
+    { app::can_tx::RSM_CoreCpuUsage_set, app::can_tx::RSM_CoreCpuUsageMax_set },
+    {
+        { { Task1kHz, app::can_tx::RSM_TaskRun1kHzCpuUsage_set, app::can_tx::RSM_TaskRun1kHzCpuUsageMax_set,
+            app::can_tx::RSM_TaskRun1kHzStackUsage_set },
+          { Task1Hz, app::can_tx::RSM_TaskRun1HzCpuUsage_set, app::can_tx::RSM_TaskRun1HzCpuUsageMax_set,
+            app::can_tx::RSM_TaskRun1HzStackUsage_set },
+          { Task100Hz, app::can_tx::RSM_TaskRun100HzCpuUsage_set, app::can_tx::RSM_TaskRun100HzCpuUsageMax_set,
+            app::can_tx::RSM_TaskRun100HzStackUsage_set },
+          { TaskCanRx, app::can_tx::RSM_TaskRunCanRxCpuUsage_set, app::can_tx::RSM_TaskRunCanRxCpuUsageMax_set,
+            app::can_tx::RSM_TaskRunCanRxStackUsage_set },
+          { TaskCanTx, app::can_tx::RSM_TaskRunCanTxCpuUsage_set, app::can_tx::RSM_TaskRunCanTxCpuUsageMax_set,
+            app::can_tx::RSM_TaskRunCanTxStackUsage_set } },
+    },
+};
 
 static hw::watchdog::monitor<TASK_COUNT> monitor{
     hiwdg,
