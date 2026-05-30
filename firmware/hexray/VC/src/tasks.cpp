@@ -232,7 +232,7 @@ void tasks_init()
     dam_en.writePin(true);
     rsm_en.writePin(true);
     front_en.writePin(true);
-    bms_en.writePin(true);
+    bms_en.writePin(false);
     ResetReason reason = hw::resetReason::get();
     app::can_tx::VC_ResetReason_set(static_cast<app::can_utils::CanResetReason>(reason));
     if (reason == RESET_REASON_WATCHDOG)

@@ -49,11 +49,12 @@ void jobs_init()
 void jobs_run1Hz_tick() {}
 void jobs_run100Hz_tick()
 {
-    io::can_tx::enqueue100HzMsgs();
     const uint32_t k = app::can_rx::BMS_ChargePowerLimit_get();
     LOG_INFO("%d", k);
     hb_monitor.checkIn();
     hb_monitor.broadcastFaults();
+
+    io::can_tx::enqueue100HzMsgs();
 }
 void jobs_run1kHz_tick()
 {
@@ -61,5 +62,5 @@ void jobs_run1kHz_tick()
 }
 void jobs_runPowerMonitoring_tick()
 {
-    app::powerMonitoring::update();
+    LOG_IF_ERR(app::powerMonitoring::update());
 }

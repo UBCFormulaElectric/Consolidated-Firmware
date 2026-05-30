@@ -144,6 +144,7 @@ void jobs_run1Hz_tick()
             LOG_ERROR("Log sync failed: %d", static_cast<int>(err.error()));
         }
     }
+    io::can_tx::enqueue1HzMsgs();
 }
 void jobs_run100Hz_tick()
 {
