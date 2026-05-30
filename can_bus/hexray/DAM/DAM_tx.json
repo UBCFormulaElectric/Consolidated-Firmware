@@ -164,25 +164,79 @@
         "max": 100,
         "unit": "%"
       },
-      "TaskRunTaskLoggingStackUsage": {
+      "TaskRunCanRxStackUsage": {
         "resolution": 0.1,
         "min": 0,
         "max": 100,
         "unit": "%"
       },
-      "TaskRunTaskTelemRxStackUsage": {
+      "TaskRunLoggingCpuUsageMax": {
         "resolution": 0.1,
         "min": 0,
         "max": 100,
         "unit": "%"
       },
-      "TaskRunTaskTelemParseStackUsage": {
+      "TaskRunLoggingCpuUsage": {
         "resolution": 0.1,
         "min": 0,
         "max": 100,
         "unit": "%"
       },
-      "TaskRunTaskTelemTxStackUsage": {
+      "TaskRunLoggingStackUsage": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRunTelemRxCpuUsageMax": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRunTelemRxCpuUsage": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRunTelemRxStackUsage": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRunTelemTxCpuUsageMax": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRunTelemTxCpuUsage": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRunTelemTxStackUsage": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRunTelemParseCpuUsageMax": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRunTelemParseCpuUsage": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRunTelemParseStackUsage": {
         "resolution": 0.1,
         "min": 0,
         "max": 100,

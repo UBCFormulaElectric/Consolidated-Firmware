@@ -33,7 +33,7 @@
 #include "hw_uarts.hpp"
 #include "hw_watchdog.hpp"
 
-constexpr size_t         TASK_COUNT = 8;
+constexpr size_t         TASK_COUNT = 9;
 [[noreturn]] static void tasks_run1Hz(void *arg);
 [[noreturn]] static void tasks_run100Hz(void *arg);
 [[noreturn]] static void tasks_run1kHz(void *arg);
@@ -84,11 +84,14 @@ static hw::runtimeStat::monitor<TASK_COUNT> runtimeMonitor{
             app::can_tx::DAM_TaskRunCanRxStackUsage_set },
           { TaskCanTx, app::can_tx::DAM_TaskRunCanTxCpuUsage_set, app::can_tx::DAM_TaskRunCanTxCpuUsageMax_set,
             app::can_tx::DAM_TaskRunCanTxStackUsage_set },
-          { TaskCanTx, app::can_tx::DAM_TaskRunTaskLoggingCpuUsage_set, app::can_tx::DAM_TaskRunTaskLoggingCpuUsageMax_set,
-            app::can_tx::DAM_TaskRunRunTaskLoggingStackUsage_set },
           { TaskCanTx, app::can_tx::DAM_TaskRunLoggingCpuUsage_set, app::can_tx::DAM_TaskRunLoggingCpuUsageMax_set,
-            app::can_tx::DAM_TaskRunLoggingStackUsage_set} },
-        // Battery Monitoring and IMU...
+            app::can_tx::DAM_TaskRunLoggingStackUsage_set },
+          { TaskCanTx, app::can_tx::DAM_TaskRunTelemRxCpuUsage_set, app::can_tx::DAM_TaskRunTelemRxCpuUsageMax_set,
+            app::can_tx::DAM_TaskRunTelemRxStackUsage_set },
+          { TaskCanTx, app::can_tx::DAM_TaskRunTelemTxCpuUsage_set, app::can_tx::DAM_TaskRunTelemTxCpuUsageMax_set,
+            app::can_tx::DAM_TaskRunTelemTxStackUsage_set },
+          { TaskCanTx, app::can_tx::DAM_TaskRunTelemParseCpuUsage_set,
+            app::can_tx::DAM_TaskRunTelemParseCpuUsageMax_set, app::can_tx::DAM_TaskRunTelemParseStackUsage_set } },
     },
 };
 
@@ -108,6 +111,7 @@ void tasks_run1Hz(void *arg)
     {
         jobs_run1Hz_tick();
 
+        runtimeMonitor.checkin();
         watchdog1hz.checkIn();
 
         start_ticks += period_ms;
@@ -330,6 +334,7 @@ void tasks_init()
 #endif
 
     fdcan1.init();
+    hw::runtimeStat::init(htim7);
 
     const ResetReason reason = hw::resetReason::get();
     app::can_tx::DAM_ResetReason_set(static_cast<app::can_utils::CanResetReason>(reason));
@@ -367,4 +372,14 @@ void tasks_init()
     DAM_StartAllTasks();
     osKernelStart();
     forever {}
+}
+
+void tasks_tim_callback(const TIM_HandleTypeDef *tim)
+{
+#ifndef USE_CHIMERA
+    if (tim == &htim7)
+    {
+        hw::runtimeStat::inc();
+    }
+#endif
 }

@@ -31,7 +31,7 @@
 [[noreturn]] static void tasks_powerMonitoring(void *arg);
 
 // Define the task with StaticTask Class
-constexpr size_t                                   TASK_COUNT = 9; // IMU, Batt Mon, Power Mon
+constexpr size_t                                   TASK_COUNT = 7; // IMU, Batt Mon, Power Mon ADD
 static hw::rtos::StaticTask::StaticTaskStack<8096> Task100HzStack;
 static hw::rtos::StaticTask::StaticTaskStack<512>  Task1kHzStack;
 static hw::rtos::StaticTask::StaticTaskStack<512>  Task1HzStack;
@@ -86,6 +86,7 @@ void tasks_run1Hz(void *arg)
     {
         jobs_run1Hz_tick();
         watchdog1hz.checkIn();
+        runtimeMonitor.checkin();
         start_ticks += period_ms;
         io::time::delayUntil(start_ticks);
         osDelayUntil(start_ticks);
@@ -221,6 +222,7 @@ void tasks_init()
     LOG_INFO("VC Reset!");
     osKernelInitialize();
     jobs_init();
+    hw::runtimeStat::init(htim7);
     fdcan1.init();
     invcan.init();
 
@@ -266,4 +268,14 @@ void tasks_init()
     VC_StartAllTasks();
     osKernelStart();
     forever {}
+}
+
+void tasks_tim_callback(const TIM_HandleTypeDef *tim)
+{
+#ifndef USE_CHIMERA
+    if (tim == &htim7)
+    {
+        hw::runtimeStat::inc();
+    }
+#endif
 }
