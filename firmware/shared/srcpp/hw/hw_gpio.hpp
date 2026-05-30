@@ -1,10 +1,5 @@
 #pragma once
-#ifdef TARGET_EMBEDDED
-extern "C"
-{
 #include "hw_hal.hpp"
-}
-#endif
 
 namespace hw
 {

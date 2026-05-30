@@ -30,8 +30,8 @@
  */
 #include "io_log.hpp"
 #include "hw_error.hpp"
+#include "hw_bootup.hpp"
 
-#include <cassert>
 #include <cmsis_os.h>
 #include <array>
 #include <optional>
@@ -137,6 +137,25 @@ template <size_t WATCHDOG_INSTANCES> class monitor
                 }
                 else
                 {
+                    TaskStatus_t status;
+                    vTaskGetInfo(instance->task_id, &status, pdFALSE, eRunning);
+
+                    LOG_ERROR(
+                        "Software watchdog detected a timeout in a task, letting hardware watchdog reset the MCU (task "
+                        "= "
+                        "%s, "
+                        "id = %d)",
+                        pcTaskGetTaskName(instance->task_id), status.xTaskNumber);
+
+#ifndef NO_BOOTLOADER
+                    const bootup::BootRequest request = {
+                        .target        = bootup::BootTarget::APP,
+                        .context       = bootup::BootContext::WATCHDOG_TIMEOUT,
+                        ._unused       = 0xffff,
+                        .context_value = status.xTaskNumber,
+                    };
+                    bootup::setBootRequest(request);
+#endif
                     timeout_detected = true;
                     if (timeout_callback != nullptr)
                     {

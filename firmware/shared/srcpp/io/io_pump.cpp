@@ -3,13 +3,13 @@
 
 namespace io
 {
-std::expected<void, ErrorCode> Pump::setPercentage(uint8_t percent) const
+result<void> Pump::setPercentage(uint8_t percent) const
 {
     const uint8_t hw_percent = logicalToHw(invert_, percent);
     return pot_.writePercentage(hw_percent);
 }
 
-std::expected<uint8_t, ErrorCode> Pump::getPercentage() const
+result<uint8_t> Pump::getPercentage() const
 {
     uint8_t hw_percent = 0u;
     if (auto status = pot_.readPercentage(hw_percent); !status)
@@ -20,23 +20,23 @@ std::expected<uint8_t, ErrorCode> Pump::getPercentage() const
     return hwToLogical(invert_, hw_percent);
 }
 
-std::expected<void, ErrorCode> Pump::enable(bool enable) const
+result<void> Pump::enable(bool enable) const
 {
     efuse_.setChannel(enable);
     return {};
 }
 
-std::expected<bool, ErrorCode> Pump::isEnabled() const
+result<bool> Pump::isEnabled() const
 {
     return efuse_.isChannelEnabled();
 }
 
-std::expected<bool, ErrorCode> Pump::ok() const
+result<bool> Pump::ok() const
 {
     return efuse_.ok();
 }
 
-std::expected<bool, ErrorCode> Pump::isReady() const
+result<bool> Pump::isReady() const
 {
     auto healthy = ok();
     if (!healthy)

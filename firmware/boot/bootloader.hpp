@@ -77,7 +77,7 @@ class config
 
     virtual void boardSpecific_tick(){};
 
-    virtual std::expected<void, ErrorCode> boardSpecific_program(const uint32_t address, const uint64_t data)
+    virtual result<void> boardSpecific_program(const uint32_t address, const uint64_t data)
     {
         const uint32_t buffer_idx = address % hw::flash::WORD_BYTES;
         std::memcpy(&program_buffer[buffer_idx], &data, sizeof(data));

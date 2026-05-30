@@ -1,7 +1,7 @@
+#include "app_brightness.hpp"
 #include "app_screens.hpp"
 #include "io_sevenSeg.hpp"
 #include "app_canRx.hpp"
-#include "io_sevenSeg.hpp"
 
 // /*********************** Function Definitions ***************************/
 static void init_update()
@@ -142,6 +142,7 @@ static void init_update()
             // leave all segments blank
             break;
     }
+
     LOG_IF_ERR(io::seven_seg::write(data_buffer));
 }
 

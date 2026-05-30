@@ -203,7 +203,7 @@ namespace imus
 
 namespace powerMonitoring
 {
-    std::expected<float, ErrorCode> read_power(Channel ch)
+    result<float> read_power(Channel ch)
     {
         std::expected<float, ErrorCode> result{ std::unexpected(ErrorCode::INVALID_ARGS) };
         switch (ch)
@@ -221,7 +221,7 @@ namespace powerMonitoring
         }
         return result;
     }
-    std::expected<float, ErrorCode> read_current(Channel ch)
+    result<float> read_current(Channel ch)
     {
         std::expected<float, ErrorCode> result{ std::unexpected(ErrorCode::INVALID_ARGS) };
         switch (ch)
@@ -239,7 +239,7 @@ namespace powerMonitoring
         }
         return result;
     }
-    std::expected<float, ErrorCode> read_voltage(Channel ch)
+    result<float> read_voltage(Channel ch)
     {
         std::expected<float, ErrorCode> result{ std::unexpected(ErrorCode::INVALID_ARGS) };
         switch (ch)
@@ -257,23 +257,23 @@ namespace powerMonitoring
         }
         return result;
     }
-    std::expected<void, ErrorCode> refresh()
+    result<void> refresh()
     {
         return {};
     }
-    std::expected<void, ErrorCode> init()
+    result<void> init()
     {
         return {};
     }
-    std::expected<void, ErrorCode> monitor_power_inputs()
+    result<void> monitor_power_inputs()
     {
         return {};
     }
-    std::expected<uint8_t, ErrorCode> read_alert_status()
+    result<uint8_t> read_alert_status()
     {
         return 0u;
     }
-    std::expected<bool, ErrorCode> is_alert_asserted()
+    result<bool> is_alert_asserted()
     {
         return false;
     }

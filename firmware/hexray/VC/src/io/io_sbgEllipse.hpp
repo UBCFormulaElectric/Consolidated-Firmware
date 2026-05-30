@@ -77,7 +77,7 @@ struct SensorData
     uint32_t           ekf_solution_status;
 };
 
-std::expected<void, ErrorCode> init();
+result<void> init();
 
 /*
  * Parse all logs which are currently residing in the UART RX buffer.
