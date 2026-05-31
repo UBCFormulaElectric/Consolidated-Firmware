@@ -19,6 +19,8 @@ static ShutdownNode get_first_shutdown()
         return ShutdownNode::HV_P_ILCK;
     if (!app::can_rx::BMS_HVNShdnOKStatus_get())
         return ShutdownNode::HV_N_ILCK;
+    if (!app::can_rx::BMS_MSDShdnOKStatus_get())
+        return ShutdownNode::MSD_SHDN_ILCK;
     if (!app::can_tx::VC_MSDOrEMeterOKStatus_get())
         return ShutdownNode::MSD_EMETER_ILCK;
     if (!app::can_rx::RSM_RearLeftMotorInterlock_get())
