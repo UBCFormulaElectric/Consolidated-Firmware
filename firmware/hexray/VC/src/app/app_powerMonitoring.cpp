@@ -68,10 +68,10 @@ std::expected<void, ErrorCode> update()
     app::can_tx::VC_CHANNEL3_POWER_VALID_set(ch3_power_valid);
     app::can_tx::VC_CHANNEL4_POWER_VALID_set(ch4_power_valid);
 
-    app::can_tx::VC_ChannelOneVoltage_set(ch1_voltage.value_or(0.0f));
-    app::can_tx::VC_ChannelTwoVoltage_set(ch2_voltage.value_or(0.0f));
-    app::can_tx::VC_ChannelThreeVoltage_set(ch3_voltage.value_or(0.0f));
-    app::can_tx::VC_ChannelFourVoltage_set(ch4_voltage.value_or(0.0f));
+    app::can_tx::VC_PcmChannelVoltage_set(ch1_voltage.value_or(0.0f));
+    app::can_tx::VC_ExtChannelVoltage_set(ch2_voltage.value_or(0.0f));
+    app::can_tx::VC_VbatChannelVoltage_set(ch3_voltage.value_or(0.0f));
+    app::can_tx::VC_BoostChannelVoltage_set(ch4_voltage.value_or(0.0f));
 
     app::can_tx::VC_ChannelOneCurrent_set(ch1_current.value_or(0.0f));
     app::can_tx::VC_ChannelTwoCurrent_set(ch2_current.value_or(0.0f));

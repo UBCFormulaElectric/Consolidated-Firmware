@@ -30,8 +30,8 @@ void app_powerMonitoring_update(void)
         io_powerMonitoring_read_power(CH1, &ch1_power);
         io_powerMonitoring_read_power(CH2, &ch2_power);
 
-        app_canTx_VC_ChannelOneVoltage_set(ch1_voltage);
-        app_canTx_VC_ChannelTwoVoltage_set(ch2_voltage);
+        app_canTx_VC_PcmChannelVoltage_set(ch1_voltage);
+        app_canTx_VC_ExtChannelVoltage_set(ch2_voltage);
         app_canTx_VC_ChannelOneCurrent_set(ch1_current);
         app_canTx_VC_ChannelTwoCurrent_set(ch2_current);
         app_canTx_VC_ChannelOnePower_set(ch1_power);

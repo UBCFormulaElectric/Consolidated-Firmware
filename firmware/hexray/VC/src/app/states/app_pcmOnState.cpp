@@ -65,7 +65,7 @@ namespace pcmOnState
 
     static void runOnTick100Hz(void)
     {
-        const float pcm_curr_voltage = app::can_tx::VC_ChannelOneVoltage_get();
+        const float pcm_curr_voltage = app::can_tx::VC_PcmChannelVoltage_get();
         switch (pcm_retry_states)
         {
             case PCM_ON_STATE:

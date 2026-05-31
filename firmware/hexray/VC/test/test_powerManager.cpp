@@ -60,7 +60,7 @@ TEST_F(VCPowerManagerTest, test_sequencingStateMachine)
 
     // close ir negative
     app::can_rx::BMS_IrNegative_update(ContactorState::CONTACTOR_STATE_CLOSED);
-    LetTimePass(100);
+    //LetTimePass(10);
     ASSERT_STATE_EQ(app::states::inverterOn_state);
     check_efuses(false, false, false, false, true, true, true, true, true, true);
 
@@ -81,7 +81,7 @@ TEST_F(VCPowerManagerTest, test_sequencingStateMachine)
     check_efuses(false, false, false, false, true, true, true, true, true, true);
 
     // todo whatever gets us out of PCM on state
-    app::can_tx::VC_ChannelOneVoltage_set(24.0f);
+    app::can_tx::VC_PcmChannelVoltage_set(24.0f);
     LetTimePass(1000);
     ASSERT_STATE_EQ(app::states::hvInit_state);
     check_efuses(true, true, true, true, true, true, true, true, true, true);

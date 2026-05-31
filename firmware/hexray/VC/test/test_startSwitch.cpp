@@ -14,8 +14,11 @@ class VCStartSwitchTest : public VCBaseTest
 // Testing when theres a rising edge from off to on
 TEST_F(VCStartSwitchTest, test_rising_edge_from_off_to_on)
 {
+    app::can_rx::CRIT_StartButton_update(app::can_utils::SwitchState::OFF);
+    LetTimePass(10);
     ASSERT_FALSE(app::startSwitch::hasRisingEdge());
     app::can_rx::CRIT_StartButton_update(app::can_utils::SwitchState::ON);
+    //LetTimePass(10);
     ASSERT_TRUE(app::startSwitch::hasRisingEdge());
 }
 
@@ -23,5 +26,6 @@ TEST_F(VCStartSwitchTest, test_rising_edge_from_off_to_on)
 TEST_F(VCStartSwitchTest, test_no_rising_edge)
 {
     app::can_rx::CRIT_StartButton_update(app::can_utils::SwitchState::ON);
+    LetTimePass(10);
     ASSERT_FALSE(app::startSwitch::hasRisingEdge());
 }
