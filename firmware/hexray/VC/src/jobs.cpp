@@ -79,9 +79,9 @@ void jobs_run100Hz_tick()
             break;
     }
 
-    app::StateMachine::tick100Hz();
     app::inverter::FaultCheck();
-
+    app::StateMachine::tick100Hz();
+    
     io::can_tx::enqueue100HzMsgs();
     hb_monitor.checkIn();
     hb_monitor.broadcastFaults();

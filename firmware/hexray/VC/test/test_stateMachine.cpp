@@ -8,10 +8,6 @@
 #include "io_pcm.hpp"
 #include "states/app_states.hpp"
 
-class VCStateMachineTest : public VCBaseTest
-{
-};
-
 using namespace app::can_utils;
 
 static void SetStateWithEntry(const app::State *state)
@@ -52,6 +48,87 @@ static void SetAllInverterErrors(const bool faulted)
     app::can_rx::INVRL_bError_update(faulted);
     app::can_rx::INVRR_bError_update(faulted);
 }
+
+static void ResetCanMessages()
+{
+    app::can_rx::clear_board_rx_table(CanNode::BMS_NODE);
+    app::can_rx::clear_board_rx_table(CanNode::RSM_NODE);
+    app::can_rx::clear_board_rx_table(CanNode::FSM_NODE);
+    app::can_rx::clear_board_rx_table(CanNode::CRIT_NODE);
+    app::can_rx::clear_board_rx_table(CanNode::DAM_NODE);
+
+    SetAllSystemReady(false);
+    SetAllQuitDcOn(false);
+    SetAllQuitInverterOn(false);
+    SetAllInverterErrors(false);
+    app::can_rx::INVFL_ErrorInfo_update(0u);
+
+    app::can_tx::VC_ChannelOneVoltage_set(0.0f);
+    app::can_tx::VC_PcmRetryCount_set(0u);
+    app::can_tx::VC_Info_PcmUnderVoltage_set(false);
+    app::can_tx::VC_Info_InverterRetry_set(false);
+    app::can_tx::VC_Fault_InvLockoutFault_set(false);
+    app::can_tx::VC_INVFLbDcOn_set(false);
+    app::can_tx::VC_INVFRbDcOn_set(false);
+    app::can_tx::VC_INVRLbDcOn_set(false);
+    app::can_tx::VC_INVRRbDcOn_set(false);
+    app::can_tx::VC_INVFLbEnable_set(false);
+    app::can_tx::VC_INVFRbEnable_set(false);
+    app::can_tx::VC_INVRLbEnable_set(false);
+    app::can_tx::VC_INVRRbEnable_set(false);
+    app::can_tx::VC_INVFLbInverterOn_set(false);
+    app::can_tx::VC_INVFRbInverterOn_set(false);
+    app::can_tx::VC_INVRLbInverterOn_set(false);
+    app::can_tx::VC_INVRRbInverterOn_set(false);
+    app::can_tx::VC_INVFLbErrorReset_set(false);
+    app::can_tx::VC_INVFRbErrorReset_set(false);
+    app::can_tx::VC_INVRLbErrorReset_set(false);
+    app::can_tx::VC_INVRRbErrorReset_set(false);
+    app::can_tx::VC_INVFLTorqueSetpoint_set(0);
+    app::can_tx::VC_INVFRTorqueSetpoint_set(0);
+    app::can_tx::VC_INVRLTorqueSetpoint_set(0);
+    app::can_tx::VC_INVRRTorqueSetpoint_set(0);
+    app::can_tx::VC_INVFLTorqueLimitNegative_set(0);
+    app::can_tx::VC_INVFRTorqueLimitNegative_set(0);
+    app::can_tx::VC_INVRLTorqueLimitNegative_set(0);
+    app::can_tx::VC_INVRRTorqueLimitNegative_set(0);
+    app::can_tx::VC_INVFLTorqueLimitPositive_set(0);
+    app::can_tx::VC_INVFRTorqueLimitPositive_set(0);
+    app::can_tx::VC_INVRLTorqueLimitPositive_set(0);
+    app::can_tx::VC_INVRRTorqueLimitPositive_set(0);
+
+    app::can_alerts::infos::InverterRetry_set(false);
+    app::can_alerts::warnings::FrontLeftInverterFault_set(false);
+}
+
+class VCStateMachineTest : public VCBaseTest
+{
+    void board_setup() override
+    {
+        suppress_heartbeat = false;
+
+        register_task(jobs_run1Hz_tick, 1000);
+        register_task(
+            [this]
+            {
+                if (suppress_heartbeat)
+                {
+                    app::can_rx::RSM_Heartbeat_update(true);
+                    app::can_rx::BMS_Heartbeat_update(true);
+                    app::can_rx::DAM_Heartbeat_update(true);
+                    app::can_rx::FSM_Heartbeat_update(true);
+                    app::can_rx::CRIT_Heartbeat_update(true);
+                }
+                jobs_run100Hz_tick();
+            },
+            10);
+
+        register_task(jobs_run1kHz_tick, 1);
+
+        jobs_init();
+        ResetCanMessages();
+    }
+};
 
 TEST_F(VCStateMachineTest, InitToInverterOnTransition)
 {
@@ -345,6 +422,7 @@ TEST_F(VCStateMachineTest, InverterFaultLockoutTransitionsToFault)
 TEST_F(VCStateMachineTest, InverterRetryTwoFaultsInARow)
 {
     SetStateWithEntry(&app::states::bmsOn_state);
+    app::can_rx::INVFL_ErrorInfo_update(0u);
 
     app::can_rx::INVFL_bError_update(true);
     LetTimePass(10);

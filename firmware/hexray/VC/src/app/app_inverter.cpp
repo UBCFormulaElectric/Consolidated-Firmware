@@ -212,6 +212,11 @@ void app::inverter::FaultCheck(void)
 {
     const app::State *curr = app::StateMachine::get_current_state();
 
+    if (!lockout())
+    {
+        app::can_tx::VC_Fault_InvLockoutFault_set(false);
+    }
+
     if (!inverter_status() || curr == &app::states::inverter_fault_handling_state)
     {
         return;
