@@ -12,12 +12,12 @@ namespace app::imus
 {
 struct VCImuResults
 {
-    std::expected<float, ErrorCode> accel_x_res;
-    std::expected<float, ErrorCode> accel_y_res;
-    std::expected<float, ErrorCode> accel_z_res;
-    std::expected<float, ErrorCode> gyro_x_res;
-    std::expected<float, ErrorCode> gyro_y_res;
-    std::expected<float, ErrorCode> gyro_z_res;
+    result<float> accel_x_res;
+    result<float> accel_y_res;
+    result<float> accel_z_res;
+    result<float> gyro_x_res;
+    result<float> gyro_y_res;
+    result<float> gyro_z_res;
 
     inline constexpr bool hasFault()
     {
@@ -27,14 +27,14 @@ struct VCImuResults
     }
 };
 
-void                            init();
-void                            broadcast();
-std::expected<float, ErrorCode> getAccelX();
-std::expected<float, ErrorCode> getAccelY();
-std::expected<float, ErrorCode> getAccelZ();
-std::expected<float, ErrorCode> getGyroX();
-std::expected<float, ErrorCode> getGyroY();
-std::expected<float, ErrorCode> getGyroZ();
-bool                            getAllInitsFailed();
+void          init();
+void          broadcast();
+result<float> getAccelX();
+result<float> getAccelY();
+result<float> getAccelZ();
+result<float> getGyroX();
+result<float> getGyroY();
+result<float> getGyroZ();
+bool          initSuccess();
 // TODO: transformation matrix to reorient IMU to vehicle body frame (do for FSM and RSM as well)
 } // namespace app::imus
