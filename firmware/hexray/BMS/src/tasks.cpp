@@ -132,7 +132,7 @@ void tasks_runCanTx(void *arg)
 
         if (m.bus == app::can_utils::BusEnum::Bus_charger)
         {
-            std::expected<void, ErrorCode> res;
+            result<void> res;
             if (can_msg.dlc > 8)
                 res = fdcan1.fdcan_transmit(can_msg);
             else
@@ -203,16 +203,16 @@ void tasks_init()
     }
 
     if (hw::bootup::BootRequest boot_request = hw::bootup::getBootRequest();
-        boot_request.context != hw::bootup::BootContext::BOOT_CONTEXT_NONE)
+        boot_request.context != hw::bootup::BootContext::NONE)
     {
         // Check for stack overflow on a previous boot cycle and populate CAN alert.
-        if (boot_request.context == hw::bootup::BootContext::BOOT_CONTEXT_STACK_OVERFLOW)
+        if (boot_request.context == hw::bootup::BootContext::OVERFLOW)
         {
             LOG_WARN("Detected stack overflow on the previous boot cycle!");
             app::can_alerts::infos::StackOverflow_set(true);
             app::can_tx::BMS_StackOverflowTask_set(boot_request.context_value);
         }
-        else if (boot_request.context == hw::bootup::BootContext::BOOT_CONTEXT_WATCHDOG_TIMEOUT)
+        else if (boot_request.context == hw::bootup::BootContext::WATCHDOG_TIMEOUT)
         {
             // If the software driver detected a watchdog timeout the context should be set.
             app::can_alerts::infos::WatchdogTimeout_set(true);
@@ -220,7 +220,7 @@ void tasks_init()
         }
 
         // Clear stack overflow bootup.
-        boot_request.context       = hw::bootup::BootContext::BOOT_CONTEXT_NONE;
+        boot_request.context       = hw::bootup::BootContext::NONE;
         boot_request.context_value = 0;
         hw::bootup::setBootRequest(boot_request);
     }

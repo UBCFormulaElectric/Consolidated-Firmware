@@ -7,6 +7,7 @@ import { ChartLayout, LODAwareNumericalSeries, LODAwareSeries } from "./CanvasCh
 // utils
 import { bisect } from "@/lib/bisect";
 import { EnumTimelineWidgetData, NumericalGraphWidgetData, WidgetData } from "@/lib/types/Widget";
+import { isEnumSignalMetadata } from "@/lib/types/Signal";
 
 // TODO reduce to bisect right
 // first enum index where the enum's end time (timestamps[i+1]) >= targetTime
@@ -111,12 +112,14 @@ function render_enum(
     // const legendY = CHART_PADDING.top;
     // const allEnumValues = new Set<string>();
 
+    const hoverValues: Array<{ name: string; value: string }> = [];
+
     let currentStripY = CHART_PADDING.top + LEGEND_HEIGHT;
     for (let series_idx = 0; series_idx < widgetConfig.signals.length; series_idx++) {
         const series = widgetConfig.data[series_idx];
         const selectedLOD = series.lods[selectLOD(series, visibleEndTime - visibleStartTime, width)];
         const { data: seriesData, timestamps: seriesTimestamps } = selectedLOD;
-        const signalConfig = signalConfigByName.get(series.label);
+        const signalMetadata = signalConfigByName.get(series.label);
         const isHovered = hoveredSignal?.current === series.label;
 
         context.fillStyle = "#000000";
@@ -159,13 +162,38 @@ function render_enum(
             context.strokeRect(CHART_PADDING.left, currentStripY, width - CHART_PADDING.left - CHART_PADDING.right, ENUM_STRIP_HEIGHT);
         }
 
+        if (hoverTime !== null && seriesTimestamps.length > 0) {
+            const idx = binarySearchForFirstEnumIndex(seriesTimestamps, hoverTime);
+            let closestIdx = idx;
+
+            if (idx >= seriesTimestamps.length) {
+                closestIdx = seriesTimestamps.length - 1;
+            } else if (idx > 0) {
+                const diffLeft = Math.abs(seriesTimestamps[idx - 1] - hoverTime);
+                const diffRight = Math.abs(seriesTimestamps[idx] - hoverTime);
+                closestIdx = diffLeft < diffRight ? idx - 1 : idx;
+            }
+
+            const value = seriesData[closestIdx];
+            const hoverValue = signalMetadata ? (
+                isEnumSignalMetadata(signalMetadata)
+                    ? Object.entries(signalMetadata?.enum_signal?.enum_values || {}).find(([_, v]) => v === value)?.[0]
+                    : ["false", "true"][value] || null)
+                : null;
+
+            hoverValues.push({
+                name: signalMetadata?.name || "Unknown Signal",
+                value: hoverValue !== null ? String(hoverValue) : "N/A",
+            });
+        } else {
+            hoverValues.push({ name: signalMetadata?.name || "N/A", value: "N/A" });
+        }
+
         // move to the next strip
         currentStripY += ENUM_STRIP_HEIGHT + ENUM_STRIP_GAP;
     }
 
-    // move to the next strip
-    currentStripY += ENUM_STRIP_HEIGHT + ENUM_STRIP_GAP;
-    return [];
+    return hoverValues;
 }
 
 function render_numerical(context: CanvasRenderingContext2D, width: number, chartWidth: number, chartHeight: number, numericalTop: number, widgetConfig: NumericalGraphWidgetData, visibleStartTime: number, visibleEndTime: number, timeToX: (time: number) => number, hoverTime: number | null, hoveredSignal: RefObject<string | null> | undefined): Array<{ name: string; value: string }> | null {
@@ -329,7 +357,7 @@ export function render_tooltip(
 ) {
     const xPosition = timeToX(hoverTime);
 
-    if (xPosition < CHART_PADDING.left ||xPosition > width - CHART_PADDING.right) {
+    if (xPosition < CHART_PADDING.left || xPosition > width - CHART_PADDING.right) {
         return;
     }
 
@@ -343,7 +371,7 @@ export function render_tooltip(
     context.lineWidth = 1;
     context.beginPath();
     context.moveTo(xPosition, includeTopPaddingInOffset ? CHART_PADDING.top : 0);
-    context.lineTo(xPosition, includeTopPaddingInOffset ? height - CHART_PADDING.bottom : height); 
+    context.lineTo(xPosition, includeTopPaddingInOffset ? height - CHART_PADDING.bottom : height);
     context.stroke();
     context.setLineDash([]);
 

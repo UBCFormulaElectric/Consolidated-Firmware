@@ -220,6 +220,11 @@ void app::inverter::FaultCheck(void)
 {
     const app::State *curr = app::StateMachine::get_current_state();
 
+    if (!lockout())
+    {
+        app::can_tx::VC_Fault_InvLockoutFault_set(false);
+    }
+
     if (!inverter_status() || curr == &app::states::inverter_fault_handling_state)
     {
         return;
@@ -235,7 +240,7 @@ void app::inverter::FaultCheck(void)
         state_to_recover_after_fault = const_cast<app::State *>(curr);
     }
 
-    LOG_INFO("inverter state in appinv %s", state_to_recover_after_fault->name);
+    // LOG_INFO("inverter state in appinv %s", state_to_recover_after_fault->name);
     app::StateMachine::set_next_state(&app::states::inverter_fault_handling_state);
 }
 

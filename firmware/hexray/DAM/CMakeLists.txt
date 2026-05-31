@@ -21,6 +21,8 @@ file(GLOB_RECURSE APP_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/ap
 set(APP_SHARED_SRCS
         "${SHARED_APP_INCLUDE_DIR_CPP}/app_bootcount.cpp"
         "${SHARED_APP_INCLUDE_DIR_CPP}/app_timer.cpp"
+        "${SHARED_APP_INCLUDE_DIR_CPP}/app_crc32.cpp"
+        "${SHARED_APP_INCLUDE_DIR_CPP}/app_crc8.cpp"
 )
 set(APP_INCLUDE_DIRS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/app"
@@ -31,6 +33,7 @@ file(GLOB_RECURSE IO_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/io/
 set(IO_SHARED_SRCS
         "${SHARED_IO_INCLUDE_DIR_CPP}/io_time.cpp"
         "${SHARED_IO_INCLUDE_DIR_CPP}/io_filesystem.cpp"
+        "${SHARED_IO_INCLUDE_DIR_CPP}/io_canLogging.cpp"
 )
 set(IO_INCLUDE_DIRS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io"
@@ -86,6 +89,7 @@ if ("${TARGET}" STREQUAL "binary")
             "stm32h5xx_hal.c"
             "stm32h5xx_hal_rcc.c"
             "stm32h5xx_hal_rcc_ex.c"
+            "stm32h5xx_hal_pwr.c"
             "stm32h5xx_hal_pwr_ex.c"
             "stm32h5xx_hal_cortex.c"
             "stm32h5xx_hal_exti.c"
@@ -161,9 +165,11 @@ elseif ("${TARGET}" STREQUAL "test")
     file(GLOB_RECURSE TEST_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp")
     set(FAKE_SRCS
             "${SHARED_FAKES_DIR_CPP}/io_time.cpp"
-            "${CMAKE_CURRENT_SOURCE_DIR}/test/fake_io_crc.cpp"
     )
-    set(SRCS ${APP_SRCS} ${APP_SHARED_SRCS} ${JOBS_SRC} ${TEST_SRCS} ${FAKE_SRCS})
+    set(IO_TEST_SRCS
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_telemMessage.cpp"
+)
+    set(SRCS ${APP_SRCS} ${APP_SHARED_SRCS} ${TEST_SRCS} ${FAKE_SRCS} ${IO_TEST_SRCS})
     set(INCLUDE_DIRS
             ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${HW_INCLUDE_DIRS}
             ${SHARED_FAKES_DIR_CPP} ${SYSTEM_INCLUDE_DIRS}

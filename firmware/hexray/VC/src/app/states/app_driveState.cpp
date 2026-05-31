@@ -17,19 +17,18 @@ using namespace app::inverter;
 using namespace app::powerManager;
 using namespace app::tv::datatypes::torque_limits;
 
-// TODO: Why does this need to be a struct??? we can just pass the reference of the array
 static const app::powerManager::PowerManagerConfig power_manager_state = { .efuse_configs = { {
-                                                                                       { true, 200, 5 }, // rr_pump
-                                                                                       { true, 200, 5 }, // rl_pump
-                                                                                       { true, 200, 5 }, // r_rad_fan
-                                                                                       { true, 200, 5 }, // l_rad_fan
-                                                                                       { true, 0, 5 },   // f_inv
-                                                                                       { true, 0, 5 },   // r_inv
-                                                                                       { true, 0, 5 },   // rsm
-                                                                                       { true, 0, 5 },   // bms
-                                                                                       { true, 0, 5 },   // dam
-                                                                                       { true, 0, 5 },   // front
-                                                                                   } } };
+                                                                               { true, 200, 5 }, // rr_pump
+                                                                               { true, 200, 5 }, // rl_pump
+                                                                               { true, 200, 5 }, // r_rad_fan
+                                                                               { true, 200, 5 }, // l_rad_fan
+                                                                               { true, 0, 5 },   // f_inv
+                                                                               { true, 0, 5 },   // r_inv
+                                                                               { true, 0, 5 },   // rsm
+                                                                               { true, 0, 5 },   // bms
+                                                                               { true, 0, 5 },   // dam
+                                                                               { true, 0, 5 },   // front
+                                                                           } } };
 
 static volatile float apps = 0.0f;
 

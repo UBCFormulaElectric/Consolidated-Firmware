@@ -158,21 +158,33 @@ void tasks_init()
 
     adcchipsInit();
     can1.init();
-    if (const ResetReason reason = hw::resetReason::get(); reason == RESET_REASON_WATCHDOG)
+    const ResetReason reason = hw::resetReason::get();
+    app::can_tx::RSM_ResetReason_set(static_cast<app::can_utils::CanResetReason>(reason));
+    if (reason == RESET_REASON_WATCHDOG)
     {
         LOG_WARN("Detected watchdog timeout on the previous boot cycle!");
         app::can_alerts::infos::WatchdogTimeout_set(true);
     }
 
     if (hw::bootup::BootRequest boot_request = hw::bootup::getBootRequest();
-        boot_request.context != hw::bootup::BootContext::BOOT_CONTEXT_NONE)
+        boot_request.context != hw::bootup::BootContext::NONE)
     {
-        if (boot_request.context == hw::bootup::BootContext::BOOT_CONTEXT_STACK_OVERFLOW)
+        // Check for stack overflow on a previous boot cycle and populate CAN alert.
+        if (boot_request.context == hw::bootup::BootContext::OVERFLOW)
         {
             LOG_WARN("Detected stack overflow on the previous boot cycle!");
+            app::can_alerts::infos::StackOverflow_set(true);
+            app::can_tx::RSM_StackOverflowTask_set(boot_request.context_value);
+        }
+        else if (boot_request.context == hw::bootup::BootContext::WATCHDOG_TIMEOUT)
+        {
+            // If the software driver detected a watchdog timeout the context should be set.
+            app::can_alerts::infos::WatchdogTimeout_set(true);
+            app::can_tx::RSM_WatchdogTimeoutTask_set(boot_request.context_value);
         }
 
-        boot_request.context       = hw::bootup::BootContext::BOOT_CONTEXT_NONE;
+        // Clear stack overflow bootup.
+        boot_request.context       = hw::bootup::BootContext::NONE;
         boot_request.context_value = 0;
         hw::bootup::setBootRequest(boot_request);
     }

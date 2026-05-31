@@ -21,6 +21,6 @@ bool start_get()
 }
 bool telem_mark_get()
 {
-    return telem_sig.readPin();
+    return not telem_sig.readPin();
 }
 } // namespace io::switches

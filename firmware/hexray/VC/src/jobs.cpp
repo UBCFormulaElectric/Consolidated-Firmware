@@ -1,13 +1,18 @@
 #include "jobs.hpp"
 
+#include "app/app_inverter.hpp"
 #include "app/app_powerManager.hpp"
 #include "app_canUtils.hpp"
 #include "app_jsoncan.hpp"
 #include "app_heartbeatMonitors.hpp"
+#include "app_canTx.hpp"
 #include "app_canRx.hpp"
 #include "app_powerMonitoring.hpp"
-
+#include "app/states/app_states.hpp"
 #include "app_stateMachine.hpp"
+#include "app_timer.hpp"
+#include "app_commitInfo.hpp"
+
 #include "io_canMsg.hpp"
 #include "io_canTx.hpp"
 #include "io_canQueues.hpp"
@@ -28,6 +33,9 @@ static void invcan_tx(const JsonCanMsg &tx_msg)
     LOG_IF_ERR(invcan_tx_queue.push(msg));
 }
 
+static constexpr uint32_t AIR_MINUS_OPEN_DEBOUNCE_MS = 100U;
+static app::Timer         air_minus_open_debounce_timer{ AIR_MINUS_OPEN_DEBOUNCE_MS };
+
 void jobs_init()
 {
     fdcan_tx_queue.init();
@@ -39,15 +47,42 @@ void jobs_init()
     io::can_tx::enableMode_InvCAN(app::can_utils::InvCANMode::INVCAN_MODE_DEFAULT, true);
 
     io::can_reroute::init(fdcan_tx, invcan_tx);
+
+    app::can_tx::VC_Hash_set(GIT_COMMIT_HASH);
+    app::can_tx::VC_Clean_set(GIT_COMMIT_CLEAN);
+    app::can_tx::VC_Heartbeat_set(true);
+
+    io::can_tx::VC_Bootup_sendAperiodic();
 }
 void jobs_run1Hz_tick() {}
 void jobs_run100Hz_tick()
 {
     app::powerManager::efuseProtocolTick_100Hz();
+
+    if (app::can_alerts::AnyBoardHasFault())
+    {
+        app::StateMachine::set_next_state(&app::states::fault_state);
+    }
+
+    const app::Timer::TimerState air_minus_open_debounced = air_minus_open_debounce_timer.runIfCondition(
+        app::can_rx::BMS_IrNegative_get() == app::can_utils::ContactorState::CONTACTOR_STATE_OPEN);
+    switch (air_minus_open_debounced)
+    {
+        case app::Timer::TimerState::IDLE:
+            break;
+        case app::Timer::TimerState::RUNNING:
+            break;
+        case app::Timer::TimerState::EXPIRED:
+            app::StateMachine::set_next_state(&app::states::init_state);
+            break;
+        default:
+            break;
+    }
+
+    app::inverter::FaultCheck();
     app::StateMachine::tick100Hz();
+
     io::can_tx::enqueue100HzMsgs();
-    const uint32_t k = app::can_rx::BMS_ChargePowerLimit_get();
-    LOG_INFO("%d", k);
     hb_monitor.checkIn();
     hb_monitor.broadcastFaults();
 }
