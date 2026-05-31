@@ -20,7 +20,7 @@ constexpr hw::PwmInput imd_pwm_input(
     TIM1_AUTO_RELOAD_REG,
     TIM1_RESET_MODE,
     TIM1_PWM_MIN_FREQUENCY,
-    TIM1_IC_PRESCALER,  // CAUTION: Two sources of truth, one user constant in cubemx and one setting in cubemx.
+    TIM1_IC_PRESCALER, // CAUTION: Two sources of truth, one user constant in cubemx and one setting in cubemx.
     TIM1_ACTIVE_ARR_THRESHOLD);
 
 /* * EVSE PWM Input
