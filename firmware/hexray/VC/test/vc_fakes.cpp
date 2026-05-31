@@ -179,7 +179,7 @@ namespace pcm
 {
     void set(const bool enable)
     {
-        fakes::io::pcm::enable_pin = true;
+        fakes::io::pcm::enable_pin = enable;
     }
 
     bool enabled()

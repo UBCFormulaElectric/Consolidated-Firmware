@@ -1007,5 +1007,16 @@
         "bits": 32
       }
     }
+  },
+  "PCM": {
+    "msg_id": 562,
+    "cycle_time": 100,
+    "signals": {
+      "PcmRetryCount": {
+        "min": 0,
+        "max": 5,
+        "resolution": 1
+      }
+    }
   }
 }

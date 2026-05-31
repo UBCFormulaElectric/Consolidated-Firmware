@@ -1,5 +1,6 @@
 #include "jobs.hpp"
 
+#include "app/app_inverter.hpp"
 #include "app/app_powerManager.hpp"
 #include "app_canUtils.hpp"
 #include "app_jsoncan.hpp"
@@ -63,8 +64,6 @@ void jobs_run100Hz_tick()
         app::StateMachine::set_next_state(&app::states::fault_state);
     }
 
-    app::StateMachine::tick100Hz();
-
     const app::Timer::TimerState air_minus_open_debounced = air_minus_open_debounce_timer.runIfCondition(
         app::can_rx::BMS_IrNegative_get() == app::can_utils::ContactorState::CONTACTOR_STATE_OPEN);
     switch (air_minus_open_debounced)
@@ -80,9 +79,10 @@ void jobs_run100Hz_tick()
             break;
     }
 
+    app::StateMachine::tick100Hz();
+    app::inverter::FaultCheck();
+
     io::can_tx::enqueue100HzMsgs();
-    const uint32_t k = app::can_rx::BMS_ChargePowerLimit_get();
-    LOG_INFO("%d", k);
     hb_monitor.checkIn();
     hb_monitor.broadcastFaults();
 }
