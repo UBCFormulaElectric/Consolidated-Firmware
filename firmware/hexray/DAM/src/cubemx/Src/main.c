@@ -98,9 +98,6 @@ int main(void)
     HAL_Init();
 
     /* USER CODE BEGIN Init */
-#ifndef WATCHDOG_DISABLED
-    __HAL_DBGMCU_FREEZE_IWDG();
-#endif
     /* USER CODE END Init */
 
     /* Configure the system clock */
@@ -122,6 +119,14 @@ int main(void)
     MX_TIM7_Init();
     /* USER CODE BEGIN 2 */
     tasks_init();
+
+    // RTC smooth calibration. Compensates for the LSE crystal running fast due to
+    // under-spec load capacitance on the board (4.3 pF caps where ~8 pF are needed
+    // for the 7 pF crystal). Initial measurement: ~78 ppm fast → CALM 82. After
+    // calibration, residual drift was ~31 ppm fast → bumped to CALM 115.
+    // Setting lives in backup domain so persists with VBAT; setting it each boot
+    // is idempotent.
+    HAL_RTCEx_SetSmoothCalib(&hrtc, RTC_SMOOTHCALIB_PERIOD_32SEC, RTC_SMOOTHCALIB_PLUSPULSES_RESET, 115);
     /* USER CODE END 2 */
 
     /* Infinite loop */
@@ -152,23 +157,31 @@ void SystemClock_Config(void)
     {
     }
 
+    /** Configure LSE Drive Capability
+     *  Warning : Only applied when the LSE is disabled.
+     */
+    HAL_PWR_EnableBkUpAccess();
+    __HAL_RCC_LSEDRIVE_CONFIG(RCC_LSEDRIVE_LOW);
+
     /** Initializes the RCC Oscillators according to the specified parameters
      * in the RCC_OscInitTypeDef structure.
      */
-    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI48 | RCC_OSCILLATORTYPE_LSI | RCC_OSCILLATORTYPE_HSE;
-    RCC_OscInitStruct.HSEState       = RCC_HSE_ON;
-    RCC_OscInitStruct.LSIState       = RCC_LSI_ON;
-    RCC_OscInitStruct.HSI48State     = RCC_HSI48_ON;
-    RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_ON;
-    RCC_OscInitStruct.PLL.PLLSource  = RCC_PLL1_SOURCE_HSE;
-    RCC_OscInitStruct.PLL.PLLM       = 1;
-    RCC_OscInitStruct.PLL.PLLN       = 62;
-    RCC_OscInitStruct.PLL.PLLP       = 2;
-    RCC_OscInitStruct.PLL.PLLQ       = 2;
-    RCC_OscInitStruct.PLL.PLLR       = 2;
-    RCC_OscInitStruct.PLL.PLLRGE     = RCC_PLL1_VCIRANGE_3;
-    RCC_OscInitStruct.PLL.PLLVCOSEL  = RCC_PLL1_VCORANGE_WIDE;
-    RCC_OscInitStruct.PLL.PLLFRACN   = 4096;
+    RCC_OscInitStruct.OscillatorType =
+        RCC_OSCILLATORTYPE_HSI48 | RCC_OSCILLATORTYPE_LSI | RCC_OSCILLATORTYPE_HSE | RCC_OSCILLATORTYPE_LSE;
+    RCC_OscInitStruct.HSEState      = RCC_HSE_ON;
+    RCC_OscInitStruct.LSEState      = RCC_LSE_ON;
+    RCC_OscInitStruct.LSIState      = RCC_LSI_ON;
+    RCC_OscInitStruct.HSI48State    = RCC_HSI48_ON;
+    RCC_OscInitStruct.PLL.PLLState  = RCC_PLL_ON;
+    RCC_OscInitStruct.PLL.PLLSource = RCC_PLL1_SOURCE_HSE;
+    RCC_OscInitStruct.PLL.PLLM      = 1;
+    RCC_OscInitStruct.PLL.PLLN      = 62;
+    RCC_OscInitStruct.PLL.PLLP      = 2;
+    RCC_OscInitStruct.PLL.PLLQ      = 2;
+    RCC_OscInitStruct.PLL.PLLR      = 2;
+    RCC_OscInitStruct.PLL.PLLRGE    = RCC_PLL1_VCIRANGE_3;
+    RCC_OscInitStruct.PLL.PLLVCOSEL = RCC_PLL1_VCORANGE_WIDE;
+    RCC_OscInitStruct.PLL.PLLFRACN  = 4096;
     if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
     {
         Error_Handler();
@@ -317,7 +330,7 @@ static void MX_RTC_Init(void)
     hrtc.Instance            = RTC;
     hrtc.Init.HourFormat     = RTC_HOURFORMAT_24;
     hrtc.Init.AsynchPrediv   = 31;
-    hrtc.Init.SynchPrediv    = 999;
+    hrtc.Init.SynchPrediv    = 1023;
     hrtc.Init.OutPut         = RTC_OUTPUT_DISABLE;
     hrtc.Init.OutPutRemap    = RTC_OUTPUT_REMAP_NONE;
     hrtc.Init.OutPutPolarity = RTC_OUTPUT_POLARITY_HIGH;
@@ -337,7 +350,7 @@ static void MX_RTC_Init(void)
         Error_Handler();
     }
 
-/* USER CODE BEGIN Check_RTC_BKUP */
+    /* USER CODE BEGIN Check_RTC_BKUP */
 #define RTC_BKP_MAGIC 0xCAFEBABEu
     if (HAL_RTCEx_BKUPRead(&hrtc, RTC_BKP_DR0) != RTC_BKP_MAGIC)
     {
