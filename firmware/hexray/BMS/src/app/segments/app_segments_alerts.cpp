@@ -96,6 +96,7 @@ bool anyThermOpenWire()
 
 bool anyHealthError()
 {
+    io::unique_semaphore s {health_lock};
     for (size_t seg = 0; seg < NUM_SEGMENTS; ++seg)
        if (app::segments::health::getAnyError(seg))
             return true;

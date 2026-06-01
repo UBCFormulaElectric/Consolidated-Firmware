@@ -40,12 +40,17 @@ using io::adbms::Segments;
 using io::adbms::ThermGpios;
 using io::adbms::Therms;
 
-io::semaphore spi_bus_lock(false);
+io::semaphore spi_bus_lock(true, 0x90210);
 
 static void jsoncan_transmit_func(const JsonCanMsg &tx_msg)
 {
     const io::CanMsg msg = app::jsoncan::copyToCanMsg(tx_msg);
-    LOG_IF_ERR(can_tx_queue.push(msg));
+    const auto       res = can_tx_queue.push(msg);
+    LOG_IF_ERR(res);
+    if (not res)
+    {
+        LOG_ERROR("failed on can id %d", tx_msg.std_id);
+    }
 }
 
 static void charger_transmit_func(const JsonCanMsg &tx_msg)
@@ -143,28 +148,37 @@ void jobs_runAdbmsConfigs_tick()
 
     const Segments<result<bool>> res             = app::segments::config::sync();
     bool                         all_segments_ok = true;
-    for (size_t seg_num = 0; seg_num < NUM_SEGMENTS; seg_num++)
     {
-        const auto &seg_res = res[seg_num];
-        app::segments::health::setOrReset(seg_num, app::segments::health::ErrorBit::CONFIG, not seg_res);
-        if (!seg_res)
+        const io::unique_semaphore h{ health_lock };
+        for (size_t seg_num = 0; seg_num < NUM_SEGMENTS; seg_num++)
         {
-            all_segments_ok = false;
-            LOG_ERROR("Failed to sync config on segment %d: %s", seg_num, error_code_to_string(seg_res.error()));
-            continue;
-        }
-        if (!seg_res.value())
-        {
-            all_segments_ok = false;
-            LOG_ERROR("Failed to sync config on segment %d: ADBMS config did not match in-memory config", seg_num);
+            const auto &seg_res = res[seg_num];
+            app::segments::health::setOrReset(seg_num, app::segments::health::ErrorBit::CONFIG, not seg_res);
+            if (!seg_res)
+            {
+                all_segments_ok = false;
+                LOG_ERROR("Failed to sync config on segment %d: %s", seg_num, error_code_to_string(seg_res.error()));
+                continue;
+            }
+            if (!seg_res.value())
+            {
+                all_segments_ok = false;
+                LOG_ERROR("Failed to sync config on segment %d: ADBMS config did not match in-memory config", seg_num);
+            }
         }
     }
     // TODO handle this properly
     LOG_IF_ERR(io::adbms::clear::cell());
     LOG_IF_ERR(io::adbms::clear::aux());
     LOG_IF_ERR(io::adbms::clear::stat());
-    app::segments::broadcast::segmentHealthError();
+
+    {
+        const io::unique_semaphore h{ health_lock };
+        app::segments::broadcast::segmentHealthError();
+    }
+
     app::segments::broadcast::cmdCountMismatch();
+
     if (all_segments_ok)
     {
         LOG_INFO("All configs ok! Notifying...");
@@ -185,6 +199,7 @@ void jobs_runAdbmsVoltages_tick()
 
     {
         const io::unique_semaphore s{ spi_bus_lock };
+        const io::unique_semaphore h{ health_lock };
 
         // Cell Voltages
         voltages_poll_ok = app::segments::startPoll::cellAdc();
@@ -212,7 +227,12 @@ void jobs_runAdbmsVoltages_tick()
     app::segments::shared::setVoltageStats(cell_voltages, cell_owc);
 
     app::segments::broadcast::voltageStats();
-    app::segments::broadcast::segmentHealthError();
+
+    {
+        io::unique_semaphore h{ health_lock };
+        app::segments::broadcast::segmentHealthError();
+    }
+
     app::segments::broadcast::debug::cellVoltages(cell_voltages, voltages_poll_ok);
     app::segments::broadcast::debug::cellOwc(cell_owc, owc_voltages_poll_ok);
 }
@@ -232,15 +252,14 @@ void jobs_runAdbmsAux_tick()
     for (const app::segments::ThermistorMux mux :
          { app::segments::ThermistorMux::THERMISTOR_MUX_0_7, app::segments::ThermistorMux::THERMISTOR_MUX_8_13 })
     {
-        {
-            const io::unique_semaphore s{ spi_bus_lock };
-            app::segments::config::setThermistorConfig(mux);
-        }
+        app::segments::config::setThermistorConfig(mux);
 
         sync_done.wait();
 
         {
             const io::unique_semaphore s{ spi_bus_lock };
+            const io::unique_semaphore h{ health_lock };
+
             if (const auto res = app::segments::startPoll::auxAdc(); !res)
             {
                 therm_voltages_poll_ok = std::unexpected(res.error());
@@ -254,9 +273,10 @@ void jobs_runAdbmsAux_tick()
 
     {
         const io::unique_semaphore s{ spi_bus_lock };
-        seg_voltages = app::segments::conversion::segVoltage(); // this reports wrong value possibly reg-> float
-                                                                // conversion is wrong
-        status = app::segments::conversion::status();
+        const io::unique_semaphore h{ health_lock };
+
+        seg_voltages = app::segments::conversion::segVoltage();
+        status       = app::segments::conversion::status();
     }
 
     const Therms<result<float>> therm_temps = app::segments::calculate::thermTemps(therm_voltages);
@@ -267,7 +287,10 @@ void jobs_runAdbmsAux_tick()
 
     app::segments::broadcast::temperatureStats();
     app::segments::broadcast::segmentVoltageStats();
-    app::segments::broadcast::segmentHealthError();
+    {
+        io::unique_semaphore h{ health_lock };
+        app::segments::broadcast::segmentHealthError();
+    }
     app::segments::broadcast::debug::thermTemps(therm_temps, therm_voltages_poll_ok);
     app::segments::broadcast::debug::thermOwc(therm_owc, therm_voltages_poll_ok);
     app::segments::broadcast::debug::segVoltages(seg_voltages);

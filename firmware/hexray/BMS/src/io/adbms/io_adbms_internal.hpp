@@ -151,7 +151,7 @@ inline constexpr uint16_t DEFAULT_REGISTER_VALUE = 0x8000;
  * values are
  * @return Success if the write was acknowledged by the chip, or an error code if the SPI transaction failed
  */
-[[nodiscard]] result<void> writeRegGroup(uint16_t cmd, const array<array<uint8_t, REG_GROUP_SIZE>, NUM_SEGMENTS> &regs);
+[[nodiscard]] result<void> writeRegGroup(uint16_t cmd, array<array<uint8_t, REG_GROUP_SIZE>, NUM_SEGMENTS> &regs);
 
 // Returns a per-segment bitmap of command counter mismatches observed during
 // the last readRegGroup. Cleared/overwritten on each readRegGroup call.

@@ -49,7 +49,7 @@ static hw::rtos::StaticTask TaskCanTx(osPriorityBelowNormal, "TaskCanTx", tasks_
 static hw::rtos::StaticTask
     TaskAdbmsVoltages(osPriorityNormal, "TaskAdbmsVoltages", tasks_runAdbmsVoltages, TaskAdbmsVoltagesStack);
 static hw::rtos::StaticTask
-    TaskAdbmsConfigs(osPriorityNormal, "TaskAdbmsConfigs", tasks_runAdbmsConfigs, TaskAdbmsConfigsStack);
+    TaskAdbmsConfigs(osPriorityHigh, "TaskAdbmsConfigs", tasks_runAdbmsConfigs, TaskAdbmsConfigsStack);
 static hw::rtos::StaticTask TaskAdbmsAux(osPriorityNormal, "TaskAdbmsAux", tasks_runAdbmsAux, TaskAdbmsAuxStack);
 
 // static hw::runtimeStat::monitor<TASK_COUNT> runtimeMonitor(

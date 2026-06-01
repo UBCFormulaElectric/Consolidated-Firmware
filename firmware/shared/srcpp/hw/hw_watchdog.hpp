@@ -75,7 +75,7 @@ template <size_t WATCHDOG_INSTANCES> class monitor
 
   public:
     constexpr explicit monitor(IWDG_HandleTypeDef &handle_in, void (*timeout_callback_in)(const instance &) = nullptr)
-      : handle(handle_in), timeout_callback(timeout_callback_in){};
+      : handle(handle_in), timeout_callback(timeout_callback_in) {};
 
     /**
      * Note that this function must be called from the task being monitored.

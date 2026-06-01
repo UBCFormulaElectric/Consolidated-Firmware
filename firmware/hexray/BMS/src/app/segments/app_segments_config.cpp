@@ -45,7 +45,7 @@ std::array<io::adbms::SegmentConfig, NUM_SEGMENTS> segment_config = createSegmen
 std::array<io::adbms::PWMConfig, NUM_SEGMENTS>     pwm_config     = createPwmConfig();
 bool                                               dirty          = true;
 
-io::semaphore config_data_lock{ true }; // protects the segment_config and pwm_config arrays, and dirty bit
+io::semaphore config_data_lock{ true, 0x6767 }; // protects the segment_config and pwm_config arrays, and dirty bit
 
 /**
  * @return per-segment equality status. For each segment: value()==true if the ADBMS config matches

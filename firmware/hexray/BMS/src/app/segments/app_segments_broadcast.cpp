@@ -415,14 +415,13 @@ void cmdCountMismatch()
 
 void segmentHealthError()
 {
-    using health::ErrorBit;
     for (size_t seg = 0U; seg < MAX_NUM_SEGMENTS; seg++)
     {
         for (size_t bit = 0U; bit < NUM_HEALTH_BITS; bit++)
         {
             const size_t idx = seg * NUM_HEALTH_BITS + bit;
             segment_health_errors_buffer[idx] =
-                (seg < NUM_SEGMENTS) && app::segments::health::getError(seg, static_cast<ErrorBit>(bit));
+                (seg < NUM_SEGMENTS) && app::segments::health::getError(seg, static_cast<health::ErrorBit>(bit));
         }
     }
     segment_health_errors_buffer.send();

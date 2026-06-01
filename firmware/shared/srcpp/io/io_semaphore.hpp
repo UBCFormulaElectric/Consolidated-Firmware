@@ -13,8 +13,10 @@ namespace io
 {
 class semaphore
 {
+    uint32_t _sysview_id;
+
   public:
-    explicit semaphore(bool priority_inheritance_protocol_on);
+    explicit semaphore(bool priority_inheritance_protocol_on, const uint32_t sysview_id = 0);
 
     void take(uint32_t timeout = std::numeric_limits<uint32_t>::max()) const;
     void give() const;

@@ -299,7 +299,7 @@ Segments<result<RegBuffer>> readRegGroup(const uint16_t cmd)
     const Cmd                   tx_cmd{ cmd };
     Segments<RegGroupPayload>   rx_buffer;
 
-    if (const auto comm_status = adbms_spi_ls.transmitThenReceiveDma(
+    if (const auto comm_status = adbms_spi_ls.transmitThenReceive(
             tx_cmd.into_span(), { reinterpret_cast<uint8_t *>(rx_buffer.data()), sizeof(rx_buffer) });
         !comm_status)
     {
@@ -326,8 +326,9 @@ Segments<result<RegBuffer>> readRegGroup(const uint16_t cmd)
     return regs;
 }
 
-result<void> writeRegGroup(const uint16_t cmd, const Segments<RegBuffer> &regs)
+result<void> writeRegGroup(const uint16_t cmd, Segments<RegBuffer> &regs)
 {
+    std::reverse(regs.begin(), regs.end());
     WriteCmd   tx_buffer(cmd, regs);
     const auto status = adbms_spi_ls.transmit(tx_buffer.into_span());
     if (status)

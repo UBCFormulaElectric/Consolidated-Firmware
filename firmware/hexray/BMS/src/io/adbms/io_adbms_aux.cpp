@@ -21,7 +21,7 @@ namespace io::adbms
 // check this
 result<void> clear::aux()
 {
-    constexpr Segments<RegBuffer> clr_regs{};
+    Segments<RegBuffer> clr_regs{};
     RETURN_IF_ERR(sendCmd(CLRAUX));
     RETURN_IF_ERR(writeRegGroup(CLRFLAG, clr_regs));
     RETURN_IF_ERR(writeRegGroup(CLOVUV, clr_regs));
@@ -31,7 +31,7 @@ result<void> clear::aux()
 // check this
 result<void> clear::stat()
 {
-    constexpr Segments<RegBuffer> clr_regs = []()
+    Segments<RegBuffer> clr_regs = []()
     {
         Segments<RegBuffer> r{};
         for (auto &seg : r)

@@ -5,11 +5,15 @@
 
 #include "util_errorCodes.hpp"
 #include "io_adbms.hpp"
+#include "io_semaphore.hpp"
 
 // Minimum conversion times
 inline constexpr uint8_t CELL_CONV_TIME_MS           = 1U;  // TEST THIS SMTH SKEACHY GOING ON
 inline constexpr uint8_t SECONDARY_CELL_CONV_TIME_MS = 8U;  // TEST THIS SMTH SKEACHY GOING ON
 inline constexpr uint8_t AUX_CONV_TIME_MS            = 15U; // TEST THIS SMTH SKEACHY GOING ON
+
+extern io::semaphore spi_bus_lock;
+extern io::semaphore health_lock;
 
 namespace app::segments
 {
