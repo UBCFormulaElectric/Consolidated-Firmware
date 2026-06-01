@@ -130,6 +130,35 @@ namespace io
         uint8_t                        overflow_count = 0;
         uint32_t                       com_status     = 0;
         uint16_t                       general_status = 0;
+        bool                           initialized    = false;
+        result<void>                   init_status    = {};
+
+        void reset_init()
+        {
+            initialized = false;
+        }
+        void imu_status_set(bool status)
+        {
+            init_status = status ? std::expected<void, ErrorCode>{} : std::unexpected(ErrorCode::TIMEOUT);
+        }
+
+        bool get_init()
+        {
+            return initialized;
+        }
+
+        result<void> init()
+        {
+            if (init_status.has_value())
+            {
+                initialized = true;
+                return {};
+            }
+            else
+            {
+                return std::unexpected(init_status.error());
+            }
+        }
 
         void setAttitude(float roll, float pitch, float yaw)
         {
@@ -281,6 +310,11 @@ namespace powerMonitoring
 
 namespace sbgEllipse
 {
+    result<void> init()
+    {
+        return fakes::io::sbgEllipse::init();
+    }
+
     const io::sbgEllipse::Attitude getEkfEulerAngles()
     {
         return fakes::io::sbgEllipse::attitude;

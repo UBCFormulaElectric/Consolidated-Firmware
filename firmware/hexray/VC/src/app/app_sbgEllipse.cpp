@@ -9,9 +9,9 @@
 
 namespace app::sbgEllipse
 {
-static can_utils::VcEkfStatus         ekf_solution_mode = can_utils::VcEkfStatus::UNINITIALIZED;
-static constexpr int                  NUM_VC_EKF_STATUS_CHOICES{ 5 };
-static std::expected<void, ErrorCode> sbg_init_ok = std::unexpected(ErrorCode::ERROR);
+static can_utils::VcEkfStatus ekf_solution_mode = can_utils::VcEkfStatus::UNINITIALIZED;
+static constexpr int          NUM_VC_EKF_STATUS_CHOICES{ 5 };
+static result<void>           sbg_init_ok = std::unexpected(ErrorCode::ERROR);
 
 void init()
 {

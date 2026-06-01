@@ -216,7 +216,7 @@ class imu
     mutable bool  initialized   = false;
     mutable float _accel_x_fake = 0.0f, _accel_y_fake = 0.0f, _accel_z_fake = 0.0f, _gyro_x_fake = 0.0f,
                   _gyro_y_fake = 0.0f, _gyro_z_fake = 0.0f;
-    mutable std::expected<void, ErrorCode> init_status = {};
+    mutable result<void> init_status = {};
 
     void reset_init();
     bool get_init() const;
