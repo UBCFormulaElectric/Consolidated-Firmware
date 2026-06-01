@@ -52,6 +52,7 @@ struct Handle
     }
 };
 
+void inverter_enable_toggle(bool fl, bool fr, bool rl, bool rr);
 void set_torque_limit_negative(float fl_Nm, float fr_Nm, float rl_Nm, float rr_Nm);
 void set_torque_limit_positive(float fl_Nm, float fr_Nm, float rl_Nm, float rr_Nm);
 void send_torque(float fl_Nm, float fr_Nm, float rl_Nm, float rr_Nm);

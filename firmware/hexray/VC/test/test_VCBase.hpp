@@ -37,23 +37,23 @@ class VCBaseTest : public EcuTestBase
     }
     void board_teardown() override {}
 
-    public:
-        bool suppress_heartbeat = false;
+  public:
+    bool suppress_heartbeat = false;
 
-        struct StateMetadata
-        {
-            const app::State *state;
-            VCState can_state;
-            StateMetadata(const app::State *s, const VCState cs) : state(s), can_state(cs) {}
-        };
-        
-        const std::array<StateMetadata, 7> state_metadatas = { {
-            { &init_state, VCState::VC_INIT_STATE },
-            { &inverterOn_state, VCState::VC_INVERTER_ON_STATE },
-            { &bmsOn_state, VCState::VC_BMS_ON_STATE },
-            { &pcmOn_state, VCState::VC_PCM_ON_STATE },
-            { &hvInit_state, VCState::VC_HV_INIT_STATE },
-            { &hv_state, VCState::VC_HV_ON_STATE },
-            { &drive_state, VCState::VC_DRIVE_STATE },
-        } };
+    struct StateMetadata
+    {
+        const app::State *state;
+        VCState           can_state;
+        StateMetadata(const app::State *s, const VCState cs) : state(s), can_state(cs) {}
+    };
+
+    const std::array<StateMetadata, 7> state_metadatas = { {
+        { &init_state, VCState::VC_INIT_STATE },
+        { &inverterOn_state, VCState::VC_INVERTER_ON_STATE },
+        { &bmsOn_state, VCState::VC_BMS_ON_STATE },
+        { &pcmOn_state, VCState::VC_PCM_ON_STATE },
+        { &hvInit_state, VCState::VC_HV_INIT_STATE },
+        { &hv_state, VCState::VC_HV_ON_STATE },
+        { &drive_state, VCState::VC_DRIVE_STATE },
+    } };
 };

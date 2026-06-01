@@ -64,6 +64,14 @@ constexpr app::inverter::Handle inverter_handle_RR{
     app::can_alerts::warnings::RearRightInverterFault_set,
 };
 
+void app::inverter::inverter_enable_toggle(bool fl, bool fr, bool rl, bool rr)
+{
+    inverter_handle_FL.can_enable_inv(fl);
+    inverter_handle_FR.can_enable_inv(fr);
+    inverter_handle_RL.can_enable_inv(rl);
+    inverter_handle_RR.can_enable_inv(rr);
+}
+
 void app::inverter::set_torque_limit_negative(float fl_Nm, float fr_Nm, float rl_Nm, float rr_Nm)
 {
     using app::tv::datatypes::torque_limits::TORQUE_REQUEST;
@@ -232,7 +240,7 @@ void app::inverter::FaultCheck(void)
         state_to_recover_after_fault = const_cast<app::State *>(curr);
     }
 
-    //LOG_INFO("inverter state in appinv %s", state_to_recover_after_fault->name);
+    // LOG_INFO("inverter state in appinv %s", state_to_recover_after_fault->name);
     app::StateMachine::set_next_state(&app::states::inverter_fault_handling_state);
 }
 

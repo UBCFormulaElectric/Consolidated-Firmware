@@ -17,19 +17,18 @@ using namespace app::inverter;
 using namespace app::powerManager;
 using namespace app::tv::datatypes::torque_limits;
 
-// TODO: Why does this need to be a struct??? we can just pass the reference of the array
 static const app::powerManager::PowerManagerConfig power_manager_state = { .efuse_configs = { {
-                                                                                       { true, 200, 5 }, // rr_pump
-                                                                                       { true, 200, 5 }, // rl_pump
-                                                                                       { true, 200, 5 }, // r_rad_fan
-                                                                                       { true, 200, 5 }, // l_rad_fan
-                                                                                       { true, 0, 5 },   // f_inv
-                                                                                       { true, 0, 5 },   // r_inv
-                                                                                       { true, 0, 5 },   // rsm
-                                                                                       { true, 0, 5 },   // bms
-                                                                                       { true, 0, 5 },   // dam
-                                                                                       { true, 0, 5 },   // front
-                                                                                   } } };
+                                                                               { true, 200, 5 }, // rr_pump
+                                                                               { true, 200, 5 }, // rl_pump
+                                                                               { true, 200, 5 }, // r_rad_fan
+                                                                               { true, 200, 5 }, // l_rad_fan
+                                                                               { true, 0, 5 },   // f_inv
+                                                                               { true, 0, 5 },   // r_inv
+                                                                               { true, 0, 5 },   // rsm
+                                                                               { true, 0, 5 },   // bms
+                                                                               { true, 0, 5 },   // dam
+                                                                               { true, 0, 5 },   // front
+                                                                           } } };
 
 static volatile float apps = 0.0f;
 
@@ -59,6 +58,9 @@ static void driveStateRunOnEntry()
     app::can_tx::VC_State_set(VCState::VC_DRIVE_STATE);
     updateConfig(power_manager_state);
 
+    // Ensure inverters are enabled
+    inverter_enable_toggle(true, true, true, true);
+
     set_torque_limit_negative(MAX_REGEN_TORQUE_Nm, MAX_REGEN_TORQUE_Nm, MAX_REGEN_TORQUE_Nm, MAX_REGEN_TORQUE_Nm);
     set_torque_limit_positive(
         MAX_TORQUE_REQUEST_Nm, MAX_TORQUE_REQUEST_Nm, MAX_TORQUE_REQUEST_Nm, MAX_TORQUE_REQUEST_Nm);
@@ -67,6 +69,8 @@ static void driveStateRunOnEntry()
 
 static void driveStateRunOnTick100Hz(void)
 {
+    efuseProtocolTick_100Hz();
+
     if (!driveStatePassPreCheck())
     {
         send_torque(NO_TORQUE_Nm, NO_TORQUE_Nm, NO_TORQUE_Nm, NO_TORQUE_Nm);
@@ -83,6 +87,7 @@ static void driveStateRunOnTick100Hz(void)
 static void driveStateRunOnExit(void)
 {
     // disable inverters
+    inverter_enable_toggle(false, false, false, false);
     set_torque_limit_negative(NO_TORQUE_Nm, NO_TORQUE_Nm, NO_TORQUE_Nm, NO_TORQUE_Nm);
     set_torque_limit_positive(NO_TORQUE_Nm, NO_TORQUE_Nm, NO_TORQUE_Nm, NO_TORQUE_Nm);
 }

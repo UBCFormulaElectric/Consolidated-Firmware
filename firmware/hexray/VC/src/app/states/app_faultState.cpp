@@ -26,7 +26,7 @@ namespace faultState
                                                                                        { true, 0, 5 },    // bms
                                                                                        { true, 0, 5 },    // dam
                                                                                        { true, 0, 5 },    // front
-        } } };
+                                                                                   } } };
         app::powerManager::updateConfig(power_manager_state);
         app::can_tx::VC_State_set(VCState::VC_FAULT_STATE);
     }

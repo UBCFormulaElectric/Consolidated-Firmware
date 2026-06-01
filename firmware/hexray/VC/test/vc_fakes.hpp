@@ -24,16 +24,18 @@ namespace powerMonitoring
 
 namespace sbgEllipse
 {
-    void setAttitude(float roll, float pitch, float yaw);
-    void setVelocity(
-        uint32_t status,
-        float    north,
+    result<void> init();
+    void         setInit(bool initialized);
+    void         setAttitude(float roll, float pitch, float yaw);
+    void         setVelocity(
+                uint32_t status,
+                float    north,
 
-        float east,
-        float down,
-        float north_std_dev,
-        float east_std_dev,
-        float down_std_dev);
+                float east,
+                float down,
+                float north_std_dev,
+                float east_std_dev,
+                float down_std_dev);
     void setAngularVelocity(float roll_rate, float pitch_rate, float yaw_rate);
     void setLinearAcceleration(float x_accel, float y_accel, float z_accel);
     void setGeneralStatus(uint16_t status);

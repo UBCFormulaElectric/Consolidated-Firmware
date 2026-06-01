@@ -103,10 +103,7 @@ static void ResetCanMessages()
 
 class VCStateMachineTest : public VCBaseTest
 {
-    void board_teardown() override
-    {
-        ResetCanMessages();
-    }
+    void board_teardown() override { ResetCanMessages(); }
 };
 
 TEST_F(VCStateMachineTest, InitToInverterOnTransition)

@@ -34,7 +34,7 @@ static void invcan_tx(const JsonCanMsg &tx_msg)
 }
 
 static constexpr uint32_t AIR_MINUS_OPEN_DEBOUNCE_MS = 100U;
-static app::Timer        air_minus_open_debounce_timer{ AIR_MINUS_OPEN_DEBOUNCE_MS };
+static app::Timer         air_minus_open_debounce_timer{ AIR_MINUS_OPEN_DEBOUNCE_MS };
 
 void jobs_init()
 {
@@ -53,6 +53,8 @@ void jobs_init()
     app::can_tx::VC_Heartbeat_set(true);
 
     io::can_tx::VC_Bootup_sendAperiodic();
+
+    app::StateMachine::init(&app::states::init_state);
 }
 void jobs_run1Hz_tick() {}
 void jobs_run100Hz_tick()
@@ -81,7 +83,7 @@ void jobs_run100Hz_tick()
 
     app::inverter::FaultCheck();
     app::StateMachine::tick100Hz();
-    
+
     io::can_tx::enqueue100HzMsgs();
     hb_monitor.checkIn();
     hb_monitor.broadcastFaults();
