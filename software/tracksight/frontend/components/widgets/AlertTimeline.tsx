@@ -8,23 +8,34 @@ import { render_hover_line } from "./render";
 
 const INITIAL_SLIP_STREAM_LANES = 5;
 const MAX_SLIP_STREAM_LANES = 5;
+const SLIP_STREAM_TOP_PADDING_LANES = 1;
+
 const SLIP_STREAM_GAP = 5;
 const SLIP_STREAM_LANE_HEIGHT = 32;
-const PROCESSING_INTERVAL_MS = 1;
 const SLIP_STREAM_ROUNDING_RADIUS = 8;
 const SLIP_STREAM_ROUNDING_SPEED = 0.5;
+
+const PROCESSING_INTERVAL_MS = 1;
+
 const LABEL_FONT = "11px sans-serif";
 const LABEL_PADDING = 8;
+
 const TOOLTIP_FONT = "11px sans-serif";
+
 const TOOLTIP_PADDING_X = 8;
 const TOOLTIP_PADDING_Y = 4;
+
 const TOOLTIP_TRIANGLE_SIZE = 5;
+
 const TOOLTIP_GAP = 2;
+
 const TOOLTIP_COLOR = "#000000ac";
 const TOOLTIP_TEXT_COLOR = "white";
 const TOOLTIP_BORDER_COLOR = "black";
 
-const containerHeightForLanes = (lanes: number) => (lanes + 1) * SLIP_STREAM_LANE_HEIGHT + lanes * SLIP_STREAM_GAP;
+const containerHeightForLanes = (lanes: number) =>
+  (lanes + SLIP_STREAM_TOP_PADDING_LANES) * SLIP_STREAM_LANE_HEIGHT +
+  (lanes + SLIP_STREAM_TOP_PADDING_LANES - 1) * SLIP_STREAM_GAP;
 
 type HoverInfo = {
   alertIndex: number;
@@ -139,7 +150,7 @@ const hitTestAlerts = (
     if (alert.streamIndex >= slipStreamLanes) continue;
     if (alert.endTime && alert.endTime < leftEdge) continue;
 
-    const laneY = (alert.streamIndex + 1) * (heightPerLane + laneGap);
+    const laneY = (alert.streamIndex + SLIP_STREAM_TOP_PADDING_LANES) * (heightPerLane + laneGap);
     if (mouseY < laneY || mouseY > laneY + heightPerLane) continue;
 
     const alertStartX = alert.startTime < leftEdge ? 0 : (alert.startTime - leftEdge) * pixelsPerMs;
@@ -183,7 +194,7 @@ const renderAlertTimeline = (
     if (alert.streamIndex >= slipStreamLanes) return;
     if (alert.endTime && alert.endTime < leftEdge) return;
 
-    const laneY = (alert.streamIndex + 1) * (heightPerLane + laneGap);
+    const laneY = (alert.streamIndex + SLIP_STREAM_TOP_PADDING_LANES) * (heightPerLane + laneGap);
 
     const isStartBeforeView = alert.startTime < leftEdge;
 
@@ -242,7 +253,7 @@ const renderAlertTimeline = (
 
   if (alert.streamIndex >= slipStreamLanes) return;
 
-  const laneY = (alert.streamIndex + 1) * (heightPerLane + laneGap);
+  const laneY = (alert.streamIndex + SLIP_STREAM_TOP_PADDING_LANES) * (heightPerLane + laneGap);
   const alertStartX = alert.startTime < leftEdge ? 0 : (alert.startTime - leftEdge) * pixelsPerMillisecond;
   const alertEndX = alert.endTime ? (alert.endTime - leftEdge) * pixelsPerMillisecond : (liveTime - leftEdge) * pixelsPerMillisecond;
   const visibleStartX = Math.max(alertStartX, 0);
