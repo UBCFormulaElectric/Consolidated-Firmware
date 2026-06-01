@@ -49,7 +49,11 @@ function useSuppressScrollWhileLocked(containerRef: RefObject<HTMLDivElement | n
         if (!container) return;
 
         const suppressScroll = (e: WheelEvent) => {
-            if (isViewportLocked && Math.abs(e.deltaX) > 0 && !e.ctrlKey) {
+            if (!isViewportLocked) {
+                return;
+            }
+
+            if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
                 e.preventDefault();
             }
         };
@@ -112,16 +116,19 @@ export default function SyncedGraphContainer({ children, initialTimeRange, onVie
         }, 200);
     }, [getViewportRange, onViewportSettled]);
 
-    const syncContainerScrollLeft = useCallback((container: HTMLDivElement, nextScrollLeft: number) => {
-        scrollLeftRef.current = nextScrollLeft;
+    const syncContainerScrollLeft = useCallback(
+        (container: HTMLDivElement, nextScrollLeft: number) => {
+            scrollLeftRef.current = nextScrollLeft;
 
-        if (container.scrollLeft === nextScrollLeft) {
-            return;
-        }
+            if (container.scrollLeft === nextScrollLeft) {
+                return;
+            }
 
-        ignoreProgrammaticScrollRef.current = true;
-        container.scrollLeft = nextScrollLeft;
-    }, [scrollLeftRef]);
+            ignoreProgrammaticScrollRef.current = true;
+            container.scrollLeft = nextScrollLeft;
+        },
+        [scrollLeftRef]
+    );
 
     useEffect(() => {
         isViewportLockedRef.current = isViewportLocked;
@@ -158,15 +165,18 @@ export default function SyncedGraphContainer({ children, initialTimeRange, onVie
         }
     }, [contentRef, globalTimeRangeRef, scalePxPerSecRef, scrollContainerRef, syncContainerScrollLeft]);
 
-    const updateWithTimestamp = useCallback((timestamp: number) => {
-        if (!globalTimeRangeRef.current || timestamp < globalTimeRangeRef.current.min || timestamp > globalTimeRangeRef.current.max) {
-            globalTimeRangeRef.current = {
-                min: Math.min(timestamp, globalTimeRangeRef.current?.min || timestamp),
-                max: Math.max(timestamp, globalTimeRangeRef.current?.max || timestamp),
-            };
-            updateGraphWidth();
-        }
-    }, [updateGraphWidth]);
+    const updateWithTimestamp = useCallback(
+        (timestamp: number) => {
+            if (!globalTimeRangeRef.current || timestamp < globalTimeRangeRef.current.min || timestamp > globalTimeRangeRef.current.max) {
+                globalTimeRangeRef.current = {
+                    min: Math.min(timestamp, globalTimeRangeRef.current?.min || timestamp),
+                    max: Math.max(timestamp, globalTimeRangeRef.current?.max || timestamp),
+                };
+                updateGraphWidth();
+            }
+        },
+        [updateGraphWidth]
+    );
 
     const setTimeRange = useCallback(
         (range: TimeRange, fitViewport = false) => {
