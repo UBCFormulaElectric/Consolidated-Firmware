@@ -3,7 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "//dev": "original: 'next dev' (changed to bind 0.0.0.0 for LAN hosting)",
+    "dev": "next dev -H 0.0.0.0",
     "build": "next build",
     "start": "next start ${FRONTEND_PORT:+-p $FRONTEND_PORT}",
     "lint": "next lint",
