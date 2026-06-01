@@ -20,7 +20,7 @@
 #include "hw_resetReason.hpp"
 #include "hw_bootup.hpp"
 #include "hw_pwms.hpp"
-#include "hw_runTimeStat.hpp"
+// #include "hw_runTimeStat.hpp"
 
 constexpr size_t         TASK_COUNT = 8;
 [[noreturn]] static void tasks_run1Hz(void *arg);
@@ -52,61 +52,61 @@ static hw::rtos::StaticTask
     TaskAdbmsConfigs(osPriorityNormal, "TaskAdbmsConfigs", tasks_runAdbmsConfigs, TaskAdbmsConfigsStack);
 static hw::rtos::StaticTask TaskAdbmsAux(osPriorityNormal, "TaskAdbmsAux", tasks_runAdbmsAux, TaskAdbmsAuxStack);
 
-static hw::runtimeStat::monitor<TASK_COUNT> runtimeMonitor(
-    {
-        app::can_tx::BMS_CoreCpuUsage_set,
-        app::can_tx::BMS_CoreCpuUsageMax_set,
-    },
-    { {
-        {
-            Task1kHz,
-            app::can_tx::BMS_TaskRun1kHzCpuUsage_set,
-            app::can_tx::BMS_TaskRun1kHzCpuUsageMax_set,
-            app::can_tx::BMS_TaskRun1kHzStackUsage_set,
-        },
-        {
-            Task1Hz,
-            app::can_tx::BMS_TaskRun1HzCpuUsage_set,
-            app::can_tx::BMS_TaskRun1HzCpuUsageMax_set,
-            app::can_tx::BMS_TaskRun1HzStackUsage_set,
-        },
-        {
-            Task100Hz,
-            app::can_tx::BMS_TaskRun100HzCpuUsage_set,
-            app::can_tx::BMS_TaskRun100HzCpuUsageMax_set,
-            app::can_tx::BMS_TaskRun100HzStackUsage_set,
-        },
-        {
-            TaskCanRx,
-            app::can_tx::BMS_TaskRunCanRxCpuUsage_set,
-            app::can_tx::BMS_TaskRunCanRxCpuUsageMax_set,
-            app::can_tx::BMS_TaskRunCanRxStackUsage_set,
-        },
-        {
-            TaskCanTx,
-            app::can_tx::BMS_TaskRunCanTxCpuUsage_set,
-            app::can_tx::BMS_TaskRunCanTxCpuUsageMax_set,
-            app::can_tx::BMS_TaskRunCanTxStackUsage_set,
-        },
-        {
-            TaskAdbmsVoltages,
-            app::can_tx::BMS_TaskRunAdbmsVoltagesCpuUsage_set,
-            app::can_tx::BMS_TaskRunAdbmsVoltagesCpuUsageMax_set,
-            app::can_tx::BMS_TaskRunAdbmsVoltagesStackUsage_set,
-        },
-        {
-            TaskAdbmsConfigs,
-            app::can_tx::BMS_TaskRunAdbmsConfigsCpuUsage_set,
-            app::can_tx::BMS_TaskRunAdbmsConfigsCpuUsageMax_set,
-            app::can_tx::BMS_TaskRunAdbmsConfigsStackUsage_set,
-        },
-        {
-            TaskAdbmsAux,
-            app::can_tx::BMS_TaskRunAdbmsAuxCpuUsage_set,
-            app::can_tx::BMS_TaskRunAdbmsAuxCpuUsageMax_set,
-            app::can_tx::BMS_TaskRunAdbmsAuxStackUsage_set,
-        },
-    } });
+// static hw::runtimeStat::monitor<TASK_COUNT> runtimeMonitor(
+//     {
+//         app::can_tx::BMS_CoreCpuUsage_set,
+//         app::can_tx::BMS_CoreCpuUsageMax_set,
+//     },
+//     { {
+//         {
+//             Task1kHz,
+//             app::can_tx::BMS_TaskRun1kHzCpuUsage_set,
+//             app::can_tx::BMS_TaskRun1kHzCpuUsageMax_set,
+//             app::can_tx::BMS_TaskRun1kHzStackUsage_set,
+//         },
+//         {
+//             Task1Hz,
+//             app::can_tx::BMS_TaskRun1HzCpuUsage_set,
+//             app::can_tx::BMS_TaskRun1HzCpuUsageMax_set,
+//             app::can_tx::BMS_TaskRun1HzStackUsage_set,
+//         },
+//         {
+//             Task100Hz,
+//             app::can_tx::BMS_TaskRun100HzCpuUsage_set,
+//             app::can_tx::BMS_TaskRun100HzCpuUsageMax_set,
+//             app::can_tx::BMS_TaskRun100HzStackUsage_set,
+//         },
+//         {
+//             TaskCanRx,
+//             app::can_tx::BMS_TaskRunCanRxCpuUsage_set,
+//             app::can_tx::BMS_TaskRunCanRxCpuUsageMax_set,
+//             app::can_tx::BMS_TaskRunCanRxStackUsage_set,
+//         },
+//         {
+//             TaskCanTx,
+//             app::can_tx::BMS_TaskRunCanTxCpuUsage_set,
+//             app::can_tx::BMS_TaskRunCanTxCpuUsageMax_set,
+//             app::can_tx::BMS_TaskRunCanTxStackUsage_set,
+//         },
+//         {
+//             TaskAdbmsVoltages,
+//             app::can_tx::BMS_TaskRunAdbmsVoltagesCpuUsage_set,
+//             app::can_tx::BMS_TaskRunAdbmsVoltagesCpuUsageMax_set,
+//             app::can_tx::BMS_TaskRunAdbmsVoltagesStackUsage_set,
+//         },
+//         {
+//             TaskAdbmsConfigs,
+//             app::can_tx::BMS_TaskRunAdbmsConfigsCpuUsage_set,
+//             app::can_tx::BMS_TaskRunAdbmsConfigsCpuUsageMax_set,
+//             app::can_tx::BMS_TaskRunAdbmsConfigsStackUsage_set,
+//         },
+//         {
+//             TaskAdbmsAux,
+//             app::can_tx::BMS_TaskRunAdbmsAuxCpuUsage_set,
+//             app::can_tx::BMS_TaskRunAdbmsAuxCpuUsageMax_set,
+//             app::can_tx::BMS_TaskRunAdbmsAuxStackUsage_set,
+//         },
+//     } });
 
 static hw::watchdog::monitor<TASK_COUNT> monitor{
     hiwdg1,
@@ -122,9 +122,15 @@ void tasks_run1Hz(void *arg)
 
     forever
     {
+        // SEGGER_SYSVIEW_MarkStart(100);
         jobs_run1Hz_tick();
+        // SEGGER_SYSVIEW_MarkStop(100);
+        // SEGGER_SYSVIEW_MarkStart(101);
         watchdog1hz.checkIn();
-        runtimeMonitor.checkin();
+        // SEGGER_SYSVIEW_MarkStop(101);
+        // SEGGER_SYSVIEW_MarkStart(102);
+        // runtimeMonitor.checkin();
+        // SEGGER_SYSVIEW_MarkStop(102);
         start_ticks += period_ms;
         io::time::delayUntil(start_ticks);
         osDelayUntil(start_ticks);
