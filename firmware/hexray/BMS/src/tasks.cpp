@@ -34,12 +34,12 @@ constexpr size_t         TASK_COUNT = 8;
 
 static hw::rtos::StaticTask::StaticTaskStack<512>      Task1kHzStack;
 static hw::rtos::StaticTask::StaticTaskStack<512>      Task1HzStack;
-static hw::rtos::StaticTask::StaticTaskStack<1024 * 5> Task100HzStack;
+static hw::rtos::StaticTask::StaticTaskStack<1024 * 6> Task100HzStack;
 static hw::rtos::StaticTask::StaticTaskStack<512>      TaskCanRxStack;
 static hw::rtos::StaticTask::StaticTaskStack<512>      TaskCanTxStack;
-static hw::rtos::StaticTask::StaticTaskStack<1024 * 5> TaskAdbmsVoltagesStack;
-static hw::rtos::StaticTask::StaticTaskStack<1024 * 5> TaskAdbmsConfigsStack;
-static hw::rtos::StaticTask::StaticTaskStack<1024 * 5> TaskAdbmsAuxStack;
+static hw::rtos::StaticTask::StaticTaskStack<1024 * 3> TaskAdbmsVoltagesStack;
+static hw::rtos::StaticTask::StaticTaskStack<1024 * 3> TaskAdbmsConfigsStack;
+static hw::rtos::StaticTask::StaticTaskStack<1024 * 3> TaskAdbmsAuxStack;
 
 static hw::rtos::StaticTask Task1kHz(osPriorityRealtime, "Task1kHz", tasks_run1kHz, Task1kHzStack);
 static hw::rtos::StaticTask Task1Hz(osPriorityAboveNormal, "Task1Hz", tasks_run1Hz, Task1HzStack);
