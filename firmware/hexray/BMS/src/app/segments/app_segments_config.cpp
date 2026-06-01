@@ -89,8 +89,8 @@ io::adbms::Segments<result<bool>> isConfigEqual()
 result<void> upload()
 {
     assert(config_data_lock.is_held());
-    RETURN_IF_ERR(io::adbms::write::configReg(segment_config));
-    RETURN_IF_ERR(io::adbms::write::pwmReg(pwm_config));
+    RETURN_IF_ERR_SILENT(io::adbms::write::configReg(segment_config));
+    RETURN_IF_ERR_SILENT(io::adbms::write::pwmReg(pwm_config));
     return {};
 }
 } // namespace
@@ -165,8 +165,7 @@ Segments<result<bool>> sync()
             per_seg.fill(unexpected(up.error()));
             continue;
         }
-        per_seg = isConfigEqual();
-        if (ranges::any_of(
+        if (per_seg = isConfigEqual(); ranges::any_of(
                 per_seg, [](const result<bool> &seg_ok_res) -> bool { return not(seg_ok_res and seg_ok_res.value()); }))
         {
             // comes here if 1+ segments are not equal, or failed to read back (e.g., due to a CHECKSUM_FAIL)
