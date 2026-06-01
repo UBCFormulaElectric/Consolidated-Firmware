@@ -23,6 +23,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "hw_hardFaultHandler.hpp"
+#include "SEGGER_SYSVIEW_FreeRTOS.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -179,11 +180,11 @@ void DebugMon_Handler(void)
 void DMA1_Stream0_IRQHandler(void)
 {
     /* USER CODE BEGIN DMA1_Stream0_IRQn 0 */
-
+    // traceISR_ENTER();
     /* USER CODE END DMA1_Stream0_IRQn 0 */
     HAL_DMA_IRQHandler(&hdma_adc1);
     /* USER CODE BEGIN DMA1_Stream0_IRQn 1 */
-
+    // traceISR_EXIT();
     /* USER CODE END DMA1_Stream0_IRQn 1 */
 }
 
@@ -193,11 +194,11 @@ void DMA1_Stream0_IRQHandler(void)
 void DMA1_Stream1_IRQHandler(void)
 {
     /* USER CODE BEGIN DMA1_Stream1_IRQn 0 */
-
+    // traceISR_ENTER();
     /* USER CODE END DMA1_Stream1_IRQn 0 */
     HAL_DMA_IRQHandler(&hdma_adc3);
     /* USER CODE BEGIN DMA1_Stream1_IRQn 1 */
-
+    // traceISR_EXIT();
     /* USER CODE END DMA1_Stream1_IRQn 1 */
 }
 
@@ -207,11 +208,11 @@ void DMA1_Stream1_IRQHandler(void)
 void DMA1_Stream2_IRQHandler(void)
 {
     /* USER CODE BEGIN DMA1_Stream2_IRQn 0 */
-
+    // traceISR_ENTER();
     /* USER CODE END DMA1_Stream2_IRQn 0 */
     HAL_DMA_IRQHandler(&hdma_spi4_rx);
     /* USER CODE BEGIN DMA1_Stream2_IRQn 1 */
-
+    // traceISR_EXIT();
     /* USER CODE END DMA1_Stream2_IRQn 1 */
 }
 
@@ -221,11 +222,11 @@ void DMA1_Stream2_IRQHandler(void)
 void DMA1_Stream3_IRQHandler(void)
 {
     /* USER CODE BEGIN DMA1_Stream3_IRQn 0 */
-
+    // traceISR_ENTER();
     /* USER CODE END DMA1_Stream3_IRQn 0 */
     HAL_DMA_IRQHandler(&hdma_spi4_tx);
     /* USER CODE BEGIN DMA1_Stream3_IRQn 1 */
-
+    // traceISR_EXIT();
     /* USER CODE END DMA1_Stream3_IRQn 1 */
 }
 
@@ -235,11 +236,11 @@ void DMA1_Stream3_IRQHandler(void)
 void FDCAN1_IT0_IRQHandler(void)
 {
     /* USER CODE BEGIN FDCAN1_IT0_IRQn 0 */
-
+    traceISR_ENTER();
     /* USER CODE END FDCAN1_IT0_IRQn 0 */
     HAL_FDCAN_IRQHandler(&hfdcan1);
     /* USER CODE BEGIN FDCAN1_IT0_IRQn 1 */
-
+    traceISR_EXIT();
     /* USER CODE END FDCAN1_IT0_IRQn 1 */
 }
 
@@ -249,11 +250,11 @@ void FDCAN1_IT0_IRQHandler(void)
 void FDCAN2_IT0_IRQHandler(void)
 {
     /* USER CODE BEGIN FDCAN2_IT0_IRQn 0 */
-
+    traceISR_ENTER();
     /* USER CODE END FDCAN2_IT0_IRQn 0 */
     HAL_FDCAN_IRQHandler(&hfdcan2);
     /* USER CODE BEGIN FDCAN2_IT0_IRQn 1 */
-
+    traceISR_EXIT();
     /* USER CODE END FDCAN2_IT0_IRQn 1 */
 }
 
@@ -263,11 +264,11 @@ void FDCAN2_IT0_IRQHandler(void)
 void FDCAN1_IT1_IRQHandler(void)
 {
     /* USER CODE BEGIN FDCAN1_IT1_IRQn 0 */
-
+    traceISR_ENTER();
     /* USER CODE END FDCAN1_IT1_IRQn 0 */
     HAL_FDCAN_IRQHandler(&hfdcan1);
     /* USER CODE BEGIN FDCAN1_IT1_IRQn 1 */
-
+    traceISR_EXIT();
     /* USER CODE END FDCAN1_IT1_IRQn 1 */
 }
 
@@ -277,11 +278,11 @@ void FDCAN1_IT1_IRQHandler(void)
 void FDCAN2_IT1_IRQHandler(void)
 {
     /* USER CODE BEGIN FDCAN2_IT1_IRQn 0 */
-
+    traceISR_ENTER();
     /* USER CODE END FDCAN2_IT1_IRQn 0 */
     HAL_FDCAN_IRQHandler(&hfdcan2);
     /* USER CODE BEGIN FDCAN2_IT1_IRQn 1 */
-
+    traceISR_EXIT();
     /* USER CODE END FDCAN2_IT1_IRQn 1 */
 }
 
@@ -291,11 +292,11 @@ void FDCAN2_IT1_IRQHandler(void)
 void TIM1_CC_IRQHandler(void)
 {
     /* USER CODE BEGIN TIM1_CC_IRQn 0 */
-
+    // traceISR_ENTER();
     /* USER CODE END TIM1_CC_IRQn 0 */
     HAL_TIM_IRQHandler(&htim1);
     /* USER CODE BEGIN TIM1_CC_IRQn 1 */
-
+    // traceISR_EXIT();
     /* USER CODE END TIM1_CC_IRQn 1 */
 }
 
@@ -305,11 +306,11 @@ void TIM1_CC_IRQHandler(void)
 void TIM2_IRQHandler(void)
 {
     /* USER CODE BEGIN TIM2_IRQn 0 */
-
+    // traceISR_ENTER();
     /* USER CODE END TIM2_IRQn 0 */
     HAL_TIM_IRQHandler(&htim2);
     /* USER CODE BEGIN TIM2_IRQn 1 */
-
+    // traceISR_EXIT();
     /* USER CODE END TIM2_IRQn 1 */
 }
 
@@ -319,11 +320,11 @@ void TIM2_IRQHandler(void)
 void TIM3_IRQHandler(void)
 {
     /* USER CODE BEGIN TIM3_IRQn 0 */
-
+    traceISR_ENTER();
     /* USER CODE END TIM3_IRQn 0 */
     HAL_TIM_IRQHandler(&htim3);
     /* USER CODE BEGIN TIM3_IRQn 1 */
-
+    traceISR_EXIT();
     /* USER CODE END TIM3_IRQn 1 */
 }
 
@@ -333,11 +334,11 @@ void TIM3_IRQHandler(void)
 void SDMMC1_IRQHandler(void)
 {
     /* USER CODE BEGIN SDMMC1_IRQn 0 */
-
+    traceISR_ENTER();
     /* USER CODE END SDMMC1_IRQn 0 */
     HAL_SD_IRQHandler(&hsd1);
     /* USER CODE BEGIN SDMMC1_IRQn 1 */
-
+    traceISR_EXIT();
     /* USER CODE END SDMMC1_IRQn 1 */
 }
 
@@ -347,11 +348,11 @@ void SDMMC1_IRQHandler(void)
 void TIM5_IRQHandler(void)
 {
     /* USER CODE BEGIN TIM5_IRQn 0 */
-
+    // traceISR_ENTER();
     /* USER CODE END TIM5_IRQn 0 */
     HAL_TIM_IRQHandler(&htim5);
     /* USER CODE BEGIN TIM5_IRQn 1 */
-
+    // traceISR_EXIT();
     /* USER CODE END TIM5_IRQn 1 */
 }
 
@@ -361,11 +362,11 @@ void TIM5_IRQHandler(void)
 void TIM7_IRQHandler(void)
 {
     /* USER CODE BEGIN TIM7_IRQn 0 */
-
+    traceISR_ENTER();
     /* USER CODE END TIM7_IRQn 0 */
     HAL_TIM_IRQHandler(&htim7);
     /* USER CODE BEGIN TIM7_IRQn 1 */
-
+    traceISR_EXIT();
     /* USER CODE END TIM7_IRQn 1 */
 }
 
@@ -375,11 +376,11 @@ void TIM7_IRQHandler(void)
 void OTG_HS_EP1_OUT_IRQHandler(void)
 {
     /* USER CODE BEGIN OTG_HS_EP1_OUT_IRQn 0 */
-
+    traceISR_ENTER();
     /* USER CODE END OTG_HS_EP1_OUT_IRQn 0 */
     HAL_PCD_IRQHandler(&hpcd_USB_OTG_HS);
     /* USER CODE BEGIN OTG_HS_EP1_OUT_IRQn 1 */
-
+    traceISR_EXIT();
     /* USER CODE END OTG_HS_EP1_OUT_IRQn 1 */
 }
 
@@ -389,11 +390,11 @@ void OTG_HS_EP1_OUT_IRQHandler(void)
 void OTG_HS_EP1_IN_IRQHandler(void)
 {
     /* USER CODE BEGIN OTG_HS_EP1_IN_IRQn 0 */
-
+    traceISR_ENTER();
     /* USER CODE END OTG_HS_EP1_IN_IRQn 0 */
     HAL_PCD_IRQHandler(&hpcd_USB_OTG_HS);
     /* USER CODE BEGIN OTG_HS_EP1_IN_IRQn 1 */
-
+    traceISR_EXIT();
     /* USER CODE END OTG_HS_EP1_IN_IRQn 1 */
 }
 
@@ -403,11 +404,11 @@ void OTG_HS_EP1_IN_IRQHandler(void)
 void OTG_HS_IRQHandler(void)
 {
     /* USER CODE BEGIN OTG_HS_IRQn 0 */
-
+    traceISR_ENTER();
     /* USER CODE END OTG_HS_IRQn 0 */
     HAL_PCD_IRQHandler(&hpcd_USB_OTG_HS);
     /* USER CODE BEGIN OTG_HS_IRQn 1 */
-
+    traceISR_EXIT();
     /* USER CODE END OTG_HS_IRQn 1 */
 }
 
@@ -417,11 +418,11 @@ void OTG_HS_IRQHandler(void)
 void SPI4_IRQHandler(void)
 {
     /* USER CODE BEGIN SPI4_IRQn 0 */
-
+    traceISR_ENTER();
     /* USER CODE END SPI4_IRQn 0 */
     HAL_SPI_IRQHandler(&hspi4);
     /* USER CODE BEGIN SPI4_IRQn 1 */
-
+    traceISR_EXIT();
     /* USER CODE END SPI4_IRQn 1 */
 }
 
