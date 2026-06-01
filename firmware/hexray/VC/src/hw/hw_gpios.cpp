@@ -39,3 +39,16 @@ const hw::gpio inertia_3v3_out(INERTIA_3V3_OUT_GPIO_Port, INERTIA_3V3_OUT_Pin);
 const hw::gpio misc_fuse_pg(MISC_FUSE_PG_GPIO_Port, MISC_FUSE_PG_Pin);
 const hw::gpio misc_fuse_en(MISC_FUSE_EN_GPIO_Port, MISC_FUSE_EN_Pin);
 const hw::gpio bat_mtr_nalert(BAT_MTR_nALERT_GPIO_Port, BAT_MTR_nALERT_Pin);
+
+#ifndef USE_CHIMERA
+#include "io_batteryMonitoring.hpp"
+// Battery Monitoring Alert interrupt handler.
+
+void HAL_GPIO_EXTI_Callback(const uint16_t GPIO_Pin)
+{
+    if (GPIO_Pin == bat_mtr_nalert.getPin())
+    {
+        io::batteryMonitoring::alert_handler();
+    }
+}
+#endif
