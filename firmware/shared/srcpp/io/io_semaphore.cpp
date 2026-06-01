@@ -24,7 +24,8 @@ void io::semaphore::give() const
 }
 void io::semaphore::take(const uint32_t timeout) const
 {
-    xSemaphoreTake(freertos_semaphore_, timeout);
+    const auto take_success = xSemaphoreTake(freertos_semaphore_, timeout);
+    assert(take_success == pdTRUE);
 }
 
 bool io::semaphore::is_held() const
