@@ -16,9 +16,9 @@ const HISTORIC_WIDGET_STORAGE_KEY = "tracksight_historic_widgets_config_v1";
 const HISTORIC_VIEWPORT_LOCK_STORAGE_KEY = "tracksight_historic_viewport_lock_state_v1";
 
 const toDateKey = (date: Date) => {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
+    const year = date.getUTCFullYear();
+    const month = String(date.getUTCMonth() + 1).padStart(2, "0");
+    const day = String(date.getUTCDate()).padStart(2, "0");
 
     return `${year}-${month}-${day}`;
 };
@@ -91,7 +91,7 @@ export default function Historical() {
                     <SessionDropdown sessions={sessions} selectedSessionId={selectedSessionId} isLoading={sessionsQuery.isPending} error={sessionsQuery.error} onSessionSelect={setSelectedSessionId} />
                 </div>
 
-                <div className="mx-4 mb-3 text-sm font-medium text-gray-600 shrink-0">Time axis shown in UTC!! ts aint pst.</div>
+                <div className="mx-4 mb-3 text-sm font-medium text-gray-600 shrink-0">All times shown in UTC</div>
 
                 <div className="flex-1 min-h-0 relative w-full">
                     <WidgetManager storageKey={HISTORIC_WIDGET_STORAGE_KEY}>{selectedRange ? <HistoricContent selectedRange={selectedRange} /> : <div className="mx-4 grid h-full place-items-center text-gray-500">{sessionsQuery.isPending ? "Loading sessions..." : "No historical session selected."}</div>}</WidgetManager>

@@ -19,21 +19,19 @@ function toIsoUtcSeconds(timestampMs: number): string {
 function parseHistoricalPayload(payloadText: string): HistoricalSignalRow[] {
     const parsed = JSON.parse(payloadText) as unknown;
     if (!Array.isArray(parsed)) {
+        console.warn("[historical signal] Expected an array payload from backend.", parsed);
         return [];
     }
     return parsed as HistoricalSignalRow[];
 }
 
-export async function fetchHistoricalSignal(params: {
-    signalName: string;
-    startUtcMs: number;
-    endUtcMs: number;
-}): Promise<HistoricalSignalPoint[]> {
+export async function fetchHistoricalSignal(params: { signalName: string; startUtcMs: number; endUtcMs: number }): Promise<HistoricalSignalPoint[]> {
     const { signalName, startUtcMs, endUtcMs } = params;
 
     const start = toIsoUtcSeconds(startUtcMs);
     const end = toIsoUtcSeconds(endUtcMs);
-    const url = `${API_BASE_URL}/api/v1/signal/tiles/${encodeURIComponent(signalName)}/${start}/${end}?source=sd_card`;
+    const source = "Radio";
+    const url = `${API_BASE_URL}/api/v1/signal/tiles/${encodeURIComponent(signalName)}/${start}/${end}?source=${encodeURIComponent(JSON.stringify(source))}`;
 
     const response = await fetch(url, {
         cache: "no-store",

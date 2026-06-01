@@ -6,8 +6,8 @@ import { ENUM_COLORS } from "@/lib/constants";
 import { ChartLayout, LODAwareNumericalSeries, LODAwareSeries } from "./CanvasChartTypes";
 // utils
 import { bisect } from "@/lib/bisect";
-import { EnumTimelineWidgetData, NumericalGraphWidgetData, WidgetData } from "@/lib/types/Widget";
 import { isEnumSignalMetadata } from "@/lib/types/Signal";
+import { EnumTimelineWidgetData, NumericalGraphWidgetData, WidgetData } from "@/lib/types/Widget";
 
 // TODO reduce to bisect right
 // first enum index where the enum's end time (timestamps[i+1]) >= targetTime
@@ -42,16 +42,18 @@ function binarySearchForFirstEnumIndex(timestamps: number[], targetTime: number)
 
 // constants
 const TIME_FORMATTER = new Intl.DateTimeFormat(undefined, {
-    hour: "numeric",
+    hour: "2-digit",
+    hourCycle: "h23",
     minute: "2-digit",
     second: "2-digit",
-    hour12: true,
+    timeZone: "UTC",
 });
 
 const DATE_FORMATTER = new Intl.DateTimeFormat(undefined, {
-    year: "numeric",
-    month: "short",
     day: "2-digit",
+    month: "short",
+    timeZone: "UTC",
+    year: "numeric",
 });
 export const CHART_PADDING = { top: 15, right: 0, bottom: 40, left: 60 };
 
@@ -175,11 +177,7 @@ function render_enum(
             }
 
             const value = seriesData[closestIdx];
-            const hoverValue = signalMetadata ? (
-                isEnumSignalMetadata(signalMetadata)
-                    ? Object.entries(signalMetadata?.enum_signal?.enum_values || {}).find(([_, v]) => v === value)?.[0]
-                    : ["false", "true"][value] || null)
-                : null;
+            const hoverValue = signalMetadata ? (isEnumSignalMetadata(signalMetadata) ? Object.entries(signalMetadata?.enum_signal?.enum_values || {}).find(([_, v]) => v === value)?.[0] : ["false", "true"][value] || null) : null;
 
             hoverValues.push({
                 name: signalMetadata?.name || "Unknown Signal",
@@ -287,7 +285,7 @@ function render_numerical(context: CanvasRenderingContext2D, width: number, char
         for (let i = left - 1; i <= right + 1; i++) {
             const time = lod.timestamps[i];
             const value = lod.data.get(i);
-            const x = timeToX(time)
+            const x = timeToX(time);
             const y = numericalTop + chartHeight - ((value - all_series_min) / (all_series_max - all_series_min)) * chartHeight;
 
             if (!initialMove) {
@@ -362,8 +360,8 @@ export function render_tooltip(
     }
 
     const hoverDate = new Date(hoverTime);
-    const ms = hoverDate.getMilliseconds().toString().padStart(3, "0");
-    const time_string = `${DATE_FORMATTER.format(hoverDate)} ${TIME_FORMATTER.format(hoverDate)}.${ms}`;
+    const ms = hoverDate.getUTCMilliseconds().toString().padStart(3, "0");
+    const time_string = `${DATE_FORMATTER.format(hoverDate)} ${TIME_FORMATTER.format(hoverDate)}.${ms} UTC`;
     const tooltip_lines = [time_string, ...hover_value.map(({ name, value }) => `${name}: ${value}`)];
 
     context.setLineDash([4, 4]);
@@ -486,8 +484,8 @@ export default function render(context: CanvasRenderingContext2D, width: number,
         if (x < CHART_PADDING.left - 10 || x > width - CHART_PADDING.right + 10) continue;
 
         const dateObj = new Date(tick);
-        const msLabel = dateObj.getMilliseconds().toString().padStart(3, "0");
-        const timeLabel = `${TIME_FORMATTER.format(dateObj)}.${msLabel}`;
+        const msLabel = dateObj.getUTCMilliseconds().toString().padStart(3, "0");
+        const timeLabel = `${TIME_FORMATTER.format(dateObj)}.${msLabel} UTC`;
         const dateLabel = DATE_FORMATTER.format(dateObj);
 
         context.fillText(timeLabel, x, height - CHART_PADDING.bottom + 8);
