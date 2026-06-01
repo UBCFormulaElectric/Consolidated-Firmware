@@ -170,9 +170,6 @@ void jobs_runAdbmsConfigs_tick()
         }
     }
     // TODO handle this properly
-    LOG_IF_ERR(io::adbms::clear::cell());
-    LOG_IF_ERR(io::adbms::clear::aux());
-    LOG_IF_ERR(io::adbms::clear::stat());
 
     {
         const io::unique_semaphore h{ health_lock };
@@ -200,14 +197,12 @@ void jobs_runAdbmsVoltages_tick()
     std::array<Cells<result<float>>, static_cast<size_t>(OpenWireSwitch::CHANNEL_COUNT)> owc_voltages;
 
     {
-        // const io::unique_semaphore s{ spi_bus_lock };
         const io::unique_semaphore h{ health_lock };
-
         // Cell Voltages
+        LOG_IF_ERR(io::adbms::clear::cell());
         voltages_poll_ok = app::segments::startPoll::cellAdc();
         if (voltages_poll_ok)
             cell_voltages = app::segments::conversion::cellVoltage();
-
         // Cell Open Wire Check
         for (const OpenWireSwitch channel : { OpenWireSwitch::ODD_CHANNELS, OpenWireSwitch::EVEN_CHANNELS })
         {
@@ -250,6 +245,8 @@ void jobs_runAdbmsAux_tick()
     Segments<result<float>>              seg_voltages;
     Segments<io::adbms::StatusGroupsRes> status;
 
+    LOG_IF_ERR(io::adbms::clear::aux());
+
     // Thermistor Aux
     for (const app::segments::ThermistorMux mux :
          { app::segments::ThermistorMux::THERMISTOR_MUX_0_7, app::segments::ThermistorMux::THERMISTOR_MUX_8_13 })
@@ -258,6 +255,7 @@ void jobs_runAdbmsAux_tick()
 
         sync_done.wait();
 
+        io::time::delay(100);
         {
             // const io::unique_semaphore s{ spi_bus_lock };
             const io::unique_semaphore h{ health_lock };
@@ -274,9 +272,9 @@ void jobs_runAdbmsAux_tick()
     }
 
     {
-        // const io::unique_semaphore s{ spi_bus_lock };
         const io::unique_semaphore h{ health_lock };
 
+        LOG_IF_ERR(io::adbms::clear::stat());
         seg_voltages = app::segments::conversion::segVoltage();
         status       = app::segments::conversion::status();
     }

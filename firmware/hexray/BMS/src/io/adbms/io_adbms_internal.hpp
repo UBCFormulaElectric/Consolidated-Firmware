@@ -81,7 +81,7 @@ inline constexpr uint16_t MUTE   = 0x0028U;
 inline constexpr uint16_t UNMUTE = 0x0029U;
 
 // Start
-inline constexpr uint16_t ADCV_BASE  = 0x0260U;
+inline constexpr uint16_t ADCV_BASE  = 0x0270U;
 inline constexpr uint16_t ADSV_BASE  = 0x0168U;
 inline constexpr uint16_t ADAX_BASE  = 0x0410U;
 inline constexpr uint16_t ADAX2_BASE = 0x0400U;
@@ -113,7 +113,7 @@ inline constexpr uint16_t CH0 = 1U << 0;
 // Poll commands return a packed readiness bitmap
 inline constexpr uint32_t POLL_STATUS_READY =
     __builtin_bswap32(0xFFFFFFFFU >> (2 * NUM_SEGMENTS)); // TEST THIS SMTH SKEACHY GOING ON
-inline constexpr uint8_t POLL_RETRIES        = 5U;       // TEST THIS SMTH SKEACHY GOING ON
+inline constexpr uint8_t POLL_RETRIES        = 5U;        // TEST THIS SMTH SKEACHY GOING ON
 inline constexpr uint8_t POLL_RETRY_DELAY_MS = 3U;        // TEST THIS SMTH SKEACHY GOING ON
 
 inline constexpr uint16_t DEFAULT_REGISTER_VALUE = 0x8000;
