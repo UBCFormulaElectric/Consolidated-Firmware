@@ -271,7 +271,7 @@ Segments<uint8_t> getCmdCountMismatches()
 result<void> sendCmd(const uint16_t cmd)
 {
     const Cmd  tx_cmd{ cmd };
-    const auto status = adbms_spi_ls.transmit(tx_cmd.into_span());
+    const auto status = adbms_spi_ls.transmitDma(tx_cmd.into_span());
     if (status)
     {
         postTxUpdateCmdCount(cmd);
@@ -284,7 +284,7 @@ result<bitset<32>> poll(const uint16_t cmd)
     const Cmd tx_cmd{ cmd };
     uint32_t  poll_buf;
     static_assert(sizeof(poll_buf) == 4);
-    const auto status = adbms_spi_ls.transmitThenReceive(
+    const auto status = adbms_spi_ls.transmitThenReceiveDma(
         tx_cmd.into_span(), { reinterpret_cast<uint8_t *>(&poll_buf), sizeof(poll_buf) });
     if (status)
     {
@@ -299,7 +299,7 @@ Segments<result<RegBuffer>> readRegGroup(const uint16_t cmd)
     const Cmd                   tx_cmd{ cmd };
     Segments<RegGroupPayload>   rx_buffer;
 
-    if (const auto comm_status = adbms_spi_ls.transmitThenReceive(
+    if (const auto comm_status = adbms_spi_ls.transmitThenReceiveDma(
             tx_cmd.into_span(), { reinterpret_cast<uint8_t *>(rx_buffer.data()), sizeof(rx_buffer) });
         !comm_status)
     {
@@ -328,9 +328,9 @@ Segments<result<RegBuffer>> readRegGroup(const uint16_t cmd)
 
 result<void> writeRegGroup(const uint16_t cmd, Segments<RegBuffer> &regs)
 {
-    std::reverse(regs.begin(), regs.end());
+    ranges::reverse(regs);
     WriteCmd   tx_buffer(cmd, regs);
-    const auto status = adbms_spi_ls.transmit(tx_buffer.into_span());
+    const auto status = adbms_spi_ls.transmitDma(tx_buffer.into_span());
     if (status)
     {
         postTxUpdateCmdCount(cmd);

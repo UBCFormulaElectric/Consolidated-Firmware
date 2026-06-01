@@ -2,7 +2,6 @@
 
 #include "io_adbms.hpp"
 #include "util_errorCodes.hpp"
-#include <cstring>
 #include <array>
 #include <bitset>
 
