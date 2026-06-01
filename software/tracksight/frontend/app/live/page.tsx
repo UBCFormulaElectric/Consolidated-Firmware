@@ -42,16 +42,18 @@ function Content() {
 
 export default function LiveDataPage() {
   return (
-    <div id="live-page" className="pt-14 h-screen w-screen">
+    <div id="live-page" className="pt-14 h-screen w-screen flex flex-col overflow-hidden">
       <DisplayControlProvider>
-        <div className="sticky z-10 mr-auto ml-2">
+        <div className="shrink-0 z-10 mr-auto ml-2 mb-2">
           <ViewportLockButton />
         </div>
-        <SyncedGraphContainer>
-          <WidgetManager>
-            <Content />
-          </WidgetManager>
-        </SyncedGraphContainer>
+        <div className="flex-1 min-h-0 w-full relative">
+          <SyncedGraphContainer>
+            <WidgetManager>
+              <Content />
+            </WidgetManager>
+          </SyncedGraphContainer>
+        </div>
       </DisplayControlProvider>
     </div>
   );

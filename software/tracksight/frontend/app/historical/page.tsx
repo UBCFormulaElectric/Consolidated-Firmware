@@ -85,15 +85,17 @@ export default function Historical() {
 
     return (
         <DisplayControlProvider defaultViewportLocked={false} viewportLockStorageKey={HISTORIC_VIEWPORT_LOCK_STORAGE_KEY}>
-            <div className="mt-20 h-[calc(100vh-72px)] bg">
-                <div className="mx-4 mb-4 flex flex-wrap items-center gap-4">
+            <div className="mt-20 h-[calc(100vh-72px)] bg flex flex-col overflow-hidden">
+                <div className="mx-4 mb-4 flex flex-wrap items-center gap-4 shrink-0">
                     <CalendarDropdown selectedDate={selectedDate} onDateSelect={setSelectedDate} />
                     <SessionDropdown sessions={sessions} selectedSessionId={selectedSessionId} isLoading={sessionsQuery.isPending} error={sessionsQuery.error} onSessionSelect={setSelectedSessionId} />
                 </div>
 
-                <div className="mx-4 mb-3 text-sm font-medium text-gray-600">Time axis shown in UTC!! ts aint pst.</div>
+                <div className="mx-4 mb-3 text-sm font-medium text-gray-600 shrink-0">Time axis shown in UTC!! ts aint pst.</div>
 
-                <WidgetManager storageKey={HISTORIC_WIDGET_STORAGE_KEY}>{selectedRange ? <HistoricContent selectedRange={selectedRange} /> : <div className="mx-4 grid h-full place-items-center text-gray-500">{sessionsQuery.isPending ? "Loading sessions..." : "No historical session selected."}</div>}</WidgetManager>
+                <div className="flex-1 min-h-0 relative w-full">
+                    <WidgetManager storageKey={HISTORIC_WIDGET_STORAGE_KEY}>{selectedRange ? <HistoricContent selectedRange={selectedRange} /> : <div className="mx-4 grid h-full place-items-center text-gray-500">{sessionsQuery.isPending ? "Loading sessions..." : "No historical session selected."}</div>}</WidgetManager>
+                </div>
             </div>
         </DisplayControlProvider>
     );
