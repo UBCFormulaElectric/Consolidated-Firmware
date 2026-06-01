@@ -91,7 +91,7 @@ const CalendarDropdown = ({ selectedDate, onDateSelect }: CalendarDropdownProps)
     return (
         <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
             <PopoverTrigger asChild>
-                <button type="button" className="flex min-w-84 items-center justify-between gap-4 rounded-3xl border border-gray-200 bg-white px-5 py-4 text-left shadow-[0_14px_40px_rgba(15,23,42,0.12)] transition-colors hover:bg-gray-50 cursor-grab">
+                <button type="button" className="flex min-w-84 items-center justify-between gap-4 rounded-3xl border border-gray-200 bg-white px-5 py-4 text-left shadow-[0_8px_24px_rgba(15,23,42,0.10)] transition-colors hover:bg-gray-50 cursor-grab">
                     <div className="flex items-center gap-4">
                         <div className="flex size-11 items-center justify-center rounded-2xl bg-gray-100 text-gray-900">
                             <CalendarIcon className="size-6" strokeWidth={2.2} />
@@ -106,7 +106,7 @@ const CalendarDropdown = ({ selectedDate, onDateSelect }: CalendarDropdownProps)
                 </button>
             </PopoverTrigger>
 
-            <PopoverContent align="start" sideOffset={14} className="w-150 rounded-[2rem] border border-gray-200 bg-white p-6 shadow-[0_28px_70px_rgba(15,23,42,0.16)]">
+            <PopoverContent align="start" sideOffset={14} className="w-150 rounded-[2rem] border border-gray-200 bg-white p-6 shadow-[0_18px_44px_rgba(15,23,42,0.14)]">
                 <div>
                     <section className="min-w-0 rounded-[1.6rem] bg-gray-100 p-4">
                         <div className="mb-4 flex items-center gap-3">
