@@ -26,7 +26,7 @@ namespace balancingState
             app::segments::balancing::tick();
         }
 
-        if (!balancing_enabled)// TODO: add ir negative
+        if (!balancing_enabled) // TODO: add ir negative
         {
             app::StateMachine::set_next_state(&app::states::init_state);
         }
