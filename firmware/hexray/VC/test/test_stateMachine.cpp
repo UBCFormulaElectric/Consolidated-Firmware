@@ -103,29 +103,8 @@ static void ResetCanMessages()
 
 class VCStateMachineTest : public VCBaseTest
 {
-    void board_setup() override
+    void board_teardown() override
     {
-        suppress_heartbeat = false;
-
-        register_task(jobs_run1Hz_tick, 1000);
-        register_task(
-            [this]
-            {
-                if (suppress_heartbeat)
-                {
-                    app::can_rx::RSM_Heartbeat_update(true);
-                    app::can_rx::BMS_Heartbeat_update(true);
-                    app::can_rx::DAM_Heartbeat_update(true);
-                    app::can_rx::FSM_Heartbeat_update(true);
-                    app::can_rx::CRIT_Heartbeat_update(true);
-                }
-                jobs_run100Hz_tick();
-            },
-            10);
-
-        register_task(jobs_run1kHz_tick, 1);
-
-        jobs_init();
         ResetCanMessages();
     }
 };
