@@ -66,6 +66,13 @@ namespace segments
     // TODO: Better testing interface for temps.
     void SetAuxRegs(float voltage);
     void SetAuxReg(uint8_t segment, uint8_t cell, float voltage);
+
+    // Directly drive the placeholder getMaxCellVoltage()/getMaxCellTemp()/getPackVoltage()
+    // values consumed by chargeState and precharge. These exist because app::segments is not yet
+    // implemented in tree.
+    void setMaxCellVoltage(float v);
+    void setMaxCellTemp(float t);
+    void setPackVoltage(float v);
 } // namespace segments
 namespace charger
 {

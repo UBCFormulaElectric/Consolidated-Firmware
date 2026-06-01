@@ -56,7 +56,7 @@ namespace initState
 
             if (external_charging_request && charger_connected)
             {
-                app::StateMachine::set_next_state(&charge_state);
+                app::StateMachine::set_next_state(&precharge_charge_state);
             }
             else if (precharge_for_driving)
             {

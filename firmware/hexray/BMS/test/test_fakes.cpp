@@ -312,6 +312,33 @@ namespace charger
     }
 } // namespace charger
 
+} // namespace io
+
+// Placeholder app::segments accessors used by app_chargeState. Real implementations live in the
+// segments module which is not yet merged in tree. Tests drive these via fakes::segments setters.
+namespace app::segments
+{
+static float fake_max_cell_v = 3.8f;
+static float fake_max_cell_t = 25.0f;
+static float fake_pack_v     = 3.8f * 10.0f * 14.0f; // matches setPackVoltageEvenly default
+
+float getMaxCellVoltage()
+{
+    return fake_max_cell_v;
+}
+float getMaxCellTemp()
+{
+    return fake_max_cell_t;
+}
+float getPackVoltage()
+{
+    return fake_pack_v;
+}
+} // namespace app::segments
+
+namespace io
+{
+
 namespace shdn
 {
     node hv_p_ok_node(true, app::can_tx::BMS_HVPShdnOKStatus_set);
@@ -559,6 +586,19 @@ namespace segments
     void SetAuxReg(const uint8_t segment, const uint8_t cell, const float voltage)
     {
         aux_regs_storage[segment][cell] = static_cast<uint16_t>(voltage * 1000); // Not sure if conversion is correct
+    }
+
+    void setMaxCellVoltage(const float v)
+    {
+        app::segments::fake_max_cell_v = v;
+    }
+    void setMaxCellTemp(const float t)
+    {
+        app::segments::fake_max_cell_t = t;
+    }
+    void setPackVoltage(const float v)
+    {
+        app::segments::fake_pack_v = v;
     }
 } // namespace segments
 

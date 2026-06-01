@@ -12,8 +12,6 @@
 #include "app_canTx.hpp"
 #include "app_canAlerts.hpp"
 
-// OVERALL TODO: Refer to FIRM-175 and FIRM-544
-
 // Charger/pack constants
 namespace
 {
@@ -45,8 +43,8 @@ namespace app::states
 // Charge state implementation
 namespace chargeState
 {
-    // Conservative SC current limit from AC supply
-    static float calcDcCurrentRange(float iac_max)
+    // Conservative DC current limit from AC supply
+    static float calcDcCurrentLimit(float iac_max)
     {
         const float pin  = VAC_MIN * iac_max;
         const float pout = pin * CHARGER_EFFICIENCY;
@@ -80,9 +78,9 @@ namespace chargeState
         const app::charger::ElconRx rx          = app::charger::readElconStatus();
 
         const float max_cell_v = app::segments::getMaxCellVoltage(); // placeholder func
-        const float max_cell_t = app::segments::getMaxCellTemp();    // placeholder func
 
-        const bool fault = ext_shutdown || !charger_conn || rx.hardware_failure || rx.charging_state_fault ||
+        // Hard faults: ext_shutdown (negative open) and any Elcon-reported safety condition.
+        const bool fault = ext_shutdown || rx.hardware_failure || rx.charging_state_fault ||
                            rx.over_temperature || rx.input_voltage_fault || rx.comm_timeout;
 
         const app::charger::ElconTx stop{ .max_voltage_v = 0.0f, .max_current_a = 0.0f, .stop_charging = true };
@@ -95,7 +93,8 @@ namespace chargeState
             return;
         }
 
-        if (!user_enable)
+        // User stopped the session OR the charger was unplugged. Either way, send a stop frame and return to init. The user must re-issue Debug_StartCharging to charge again.
+        if (!user_enable || !charger_conn)
         {
             app::charger::setTxFrame(stop);
             app::StateMachine::set_next_state(&init_state);
@@ -112,27 +111,35 @@ namespace chargeState
             return;
         }
 
-        // Derive DC current limit from AC supply capability. Same code path on wall and EVSE (only difference is the
-        // available AC current)
+        // Derive DC current limit from AC supply capability. Same code path on wall and EVSE (only difference is the available AC current)
         float i_max;
         if (charger_connection_status == ChargerConnectedType::CHARGER_CONNECTED_EVSE)
         {
             const float evse_iac         = app::charger::getAvailableCurrent();
             const float clamped_evse_iac = (evse_iac > CAC_MAX * CIRC_EFF) ? CAC_MAX * CIRC_EFF : evse_iac;
-            i_max                        = calcDcCurrentRange(clamped_evse_iac);
+            i_max                        = calcDcCurrentLimit(clamped_evse_iac);
         }
         else
         {
-            i_max = calcDcCurrentRange(CAC_MAX * CIRC_EFF);
+            i_max = calcDcCurrentLimit(CAC_MAX * CIRC_EFF);
         }
 
         // CC/CV is implicit given the Elcon needs max V and max I commands
-        // Per cell CC/CV fallback (if pack is unbalanced or not using EVSE)
-        float i_cmd_max = i_max;
-        if (max_cell_v > CELL_V_TAPER_START)
+        // Per cell CC/CV fallback (if pack is unbalanced or not using EVSE).
+        // Clamp to 0 at/above the per-cell max so we never command negative current.
+        float i_cmd_max;
+        if (max_cell_v >= CELL_V_MAX_CHARGE)
+        {
+            i_cmd_max = 0.0f;
+        }
+        else if (max_cell_v > CELL_V_TAPER_START)
         {
             const float frac = (CELL_V_MAX_CHARGE - max_cell_v) / (CELL_V_MAX_CHARGE - CELL_V_TAPER_START);
             i_cmd_max        = i_max * frac;
+        }
+        else
+        {
+            i_cmd_max = i_max;
         }
 
         const app::charger::ElconTx tx{

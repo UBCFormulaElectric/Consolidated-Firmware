@@ -6,7 +6,7 @@
 #include "app_tractiveSystem.hpp"
 #include "io_irs.hpp"
 #include "app_canAlerts.hpp"
-// #include "app_segments.hpp"
+#include "app_segments.hpp"
 
 namespace app::precharge
 {
@@ -60,9 +60,7 @@ State poll(bool precharge_for_charging)
 #define HV_SUPPLY_VOLTAGE (588.0f)
     const float threshold_voltage = HV_SUPPLY_VOLTAGE * PRECHARGE_ACC_V_THRESHOLD;
 #else
-    // TODO: Change back if we ever get to 10 segments again
-    // const float threshold_voltage = app::segments::getPackVoltage() * PRECHARGE_ACC_V_THRESHOLD;
-    const float threshold_voltage = 400.0f * PRECHARGE_ACC_V_THRESHOLD;
+    const float threshold_voltage = app::segments::getPackVoltage() * PRECHARGE_ACC_V_THRESHOLD;
 #endif
 
     const bool is_air_negative_open =

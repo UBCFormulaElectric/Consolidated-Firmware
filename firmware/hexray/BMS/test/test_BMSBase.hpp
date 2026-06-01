@@ -32,6 +32,11 @@ class BMSBaseTest : public EcuTestBase
         // fakes::segments::setPackVoltageEvenly(3.8f * NUM_SEGMENTS * CELLS_PER_SEGMENT);
         fakes::segments::setPackVoltageEvenly(3.8f * 10 * 14);
         fakes::segments::SetAuxRegs(15.0f); // Approx. 25C
+        // Placeholder accessors used by charge state and precharge. Defaults pick a mid-charge
+        // cell and the matching pack voltage (3.8V * 10 segments * 14 cells = 532V).
+        fakes::segments::setMaxCellVoltage(3.8f);
+        fakes::segments::setMaxCellTemp(25.0f);
+        fakes::segments::setPackVoltage(3.8f * 10.0f * 14.0f);
 
         fakes::ts::setVoltage(0.0f);
 
