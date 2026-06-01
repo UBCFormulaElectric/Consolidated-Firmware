@@ -53,6 +53,8 @@ void jobs_init()
     app::can_tx::VC_Heartbeat_set(true);
 
     io::can_tx::VC_Bootup_sendAperiodic();
+
+    app::StateMachine::init(&app::states::init_state);
 }
 void jobs_run1Hz_tick() {}
 void jobs_run100Hz_tick()
