@@ -40,7 +40,7 @@ using io::adbms::Segments;
 using io::adbms::ThermGpios;
 using io::adbms::Therms;
 
-io::semaphore spi_bus_lock(true);
+io::semaphore spi_bus_lock(false);
 
 static void jsoncan_transmit_func(const JsonCanMsg &tx_msg)
 {

@@ -34,7 +34,7 @@ constexpr size_t         TASK_COUNT = 8;
 
 static hw::rtos::StaticTask::StaticTaskStack<512>      Task1kHzStack;
 static hw::rtos::StaticTask::StaticTaskStack<512>      Task1HzStack;
-static hw::rtos::StaticTask::StaticTaskStack<512>      Task100HzStack;
+static hw::rtos::StaticTask::StaticTaskStack<1024 * 5> Task100HzStack;
 static hw::rtos::StaticTask::StaticTaskStack<512>      TaskCanRxStack;
 static hw::rtos::StaticTask::StaticTaskStack<512>      TaskCanTxStack;
 static hw::rtos::StaticTask::StaticTaskStack<1024 * 5> TaskAdbmsVoltagesStack;
