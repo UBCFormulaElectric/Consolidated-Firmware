@@ -40,7 +40,8 @@ using io::adbms::Segments;
 using io::adbms::ThermGpios;
 using io::adbms::Therms;
 
-io::semaphore spi_bus_lock(true, 0x90210);
+// spi_bus_lock is now handled inside the io::adbms SPI functions (recursive mutex around the bus).
+// io::semaphore spi_bus_lock(true, 0x90210);
 
 static void jsoncan_transmit_func(const JsonCanMsg &tx_msg)
 {
@@ -145,7 +146,7 @@ static io::notify::Notifier sync_done;
 
 void jobs_runAdbmsConfigs_tick()
 {
-    const io::unique_semaphore s{ spi_bus_lock };
+    // const io::unique_semaphore s{ spi_bus_lock };
 
     const Segments<result<bool>> res             = app::segments::config::sync();
     bool                         all_segments_ok = true;
@@ -199,7 +200,7 @@ void jobs_runAdbmsVoltages_tick()
     std::array<Cells<result<float>>, static_cast<size_t>(OpenWireSwitch::CHANNEL_COUNT)> owc_voltages;
 
     {
-        const io::unique_semaphore s{ spi_bus_lock };
+        // const io::unique_semaphore s{ spi_bus_lock };
         const io::unique_semaphore h{ health_lock };
 
         // Cell Voltages
@@ -258,7 +259,7 @@ void jobs_runAdbmsAux_tick()
         sync_done.wait();
 
         {
-            const io::unique_semaphore s{ spi_bus_lock };
+            // const io::unique_semaphore s{ spi_bus_lock };
             const io::unique_semaphore h{ health_lock };
 
             if (const auto res = app::segments::startPoll::auxAdc(); !res)
@@ -273,7 +274,7 @@ void jobs_runAdbmsAux_tick()
     }
 
     {
-        const io::unique_semaphore s{ spi_bus_lock };
+        // const io::unique_semaphore s{ spi_bus_lock };
         const io::unique_semaphore h{ health_lock };
 
         seg_voltages = app::segments::conversion::segVoltage();

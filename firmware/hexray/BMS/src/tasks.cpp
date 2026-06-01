@@ -228,7 +228,9 @@ void tasks_runAdbmsVoltages(void *arg)
 
     forever
     {
+        SEGGER_SYSVIEW_MarkStart(0xaa);
         jobs_runAdbmsVoltages_tick();
+        SEGGER_SYSVIEW_MarkStop(0xaa);
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
     }
@@ -236,12 +238,14 @@ void tasks_runAdbmsVoltages(void *arg)
 
 void tasks_runAdbmsConfigs(void *arg)
 {
-    const uint32_t period_ms   = 200U;
+    const uint32_t period_ms   = 100U;
     uint32_t       start_ticks = osKernelGetTickCount();
 
     forever
     {
+        SEGGER_SYSVIEW_MarkStart(0xbb);
         jobs_runAdbmsConfigs_tick();
+        SEGGER_SYSVIEW_MarkStop(0xbb);
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
     }
@@ -249,12 +253,14 @@ void tasks_runAdbmsConfigs(void *arg)
 
 void tasks_runAdbmsAux(void *arg)
 {
-    const uint32_t period_ms   = 500U;
+    const uint32_t period_ms   = 1200U;
     uint32_t       start_ticks = osKernelGetTickCount();
 
     forever
     {
+        SEGGER_SYSVIEW_MarkStart(0xcc);
         jobs_runAdbmsAux_tick();
+        SEGGER_SYSVIEW_MarkStop(0xcc);
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
     }

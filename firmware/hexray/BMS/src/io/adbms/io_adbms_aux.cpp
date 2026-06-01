@@ -64,9 +64,9 @@ result<void> command::pollAuxAdc()
             if (rx_res.value().to_ulong() == POLL_STATUS_READY)
                 return {};
             io::time::delay(POLL_RETRY_DELAY_MS);
-            return unexpected(ErrorCode::BUSY);
+            return unexpected(ErrorCode::POLL_INVALID);
         },
-        20);
+        POLL_RETRIES);
 }
 
 ThermGpios<result<int16_t>> read::thermGpioVoltage()

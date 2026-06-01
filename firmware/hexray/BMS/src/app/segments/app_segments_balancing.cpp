@@ -106,7 +106,7 @@ void disable()
     pwm_duty.fill({});
     config::setBalanceConfig(discharge_enabled, pwm_duty, false);
     {
-        const io::unique_semaphore s{ spi_bus_lock };
+        // const io::unique_semaphore s{ spi_bus_lock };
         LOG_IF_ERR(io::adbms::command::stopBalance());
     }
     balancing_state = can_utils::BalancingState::BALANCING_DISABLED;
@@ -129,7 +129,7 @@ void tick()
             {
                 updateCellsToBalance();
                 {
-                    const io::unique_semaphore s{ spi_bus_lock };
+                    // const io::unique_semaphore s{ spi_bus_lock };
                     if (const auto r = io::adbms::command::startBalance(); r)
                     {
                         balance_timer.restart();
@@ -149,7 +149,7 @@ void tick()
             if (balance_timer.updateAndGetState() == app::Timer::TimerState::EXPIRED)
             {
                 {
-                    const io::unique_semaphore s{ spi_bus_lock };
+                    // const io::unique_semaphore s{ spi_bus_lock };
                     LOG_IF_ERR(io::adbms::command::stopBalance());
                 }
                 settle_timer.restart();

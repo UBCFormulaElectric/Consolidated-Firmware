@@ -3,6 +3,9 @@
 #include "util_errorCodes.hpp"
 #include "hw_spis.hpp"
 
+#include <FreeRTOS.h>
+#include <semphr.h>
+
 #include <cstring>
 #include <algorithm>
 
@@ -10,6 +13,31 @@ using namespace std;
 
 namespace
 {
+/**
+ * Serializes access to the ADBMS SPI bus so the concurrent ADBMS tasks (voltages, configs, aux) can't interleave
+ * transactions. Recursive because readRegGroup() re-enters sendCmd() via the RSTCC recovery path.
+ */
+SemaphoreHandle_t spiMutex()
+{
+    static StaticSemaphore_t storage;
+    static SemaphoreHandle_t handle = xSemaphoreCreateRecursiveMutexStatic(&storage);
+    return handle;
+}
+
+class SpiLock
+{
+    SemaphoreHandle_t m;
+
+  public:
+    SpiLock() : m(spiMutex()) { xSemaphoreTakeRecursive(m, portMAX_DELAY); }
+    ~SpiLock() { xSemaphoreGiveRecursive(m); }
+
+    SpiLock(const SpiLock &)            = delete;
+    SpiLock &operator=(const SpiLock &) = delete;
+    SpiLock(SpiLock &&)                 = delete;
+    SpiLock &operator=(SpiLock &&)      = delete;
+};
+
 consteval std::array<uint16_t, 256> pecTable(const uint16_t poly, const uint16_t size)
 {
     const auto MSB_SIZE  = static_cast<uint16_t>(1 << (size - 1));
@@ -270,7 +298,8 @@ Segments<uint8_t> getCmdCountMismatches()
 
 result<void> sendCmd(const uint16_t cmd)
 {
-    const Cmd  tx_cmd{ cmd };
+    const SpiLock lock;
+    const Cmd     tx_cmd{ cmd };
     const auto status = adbms_spi_ls.transmitDma(tx_cmd.into_span());
     if (status)
     {
@@ -281,7 +310,8 @@ result<void> sendCmd(const uint16_t cmd)
 
 result<bitset<32>> poll(const uint16_t cmd)
 {
-    const Cmd tx_cmd{ cmd };
+    const SpiLock lock;
+    const Cmd     tx_cmd{ cmd };
     uint32_t  poll_buf;
     static_assert(sizeof(poll_buf) == 4);
     const auto status = adbms_spi_ls.transmitThenReceiveDma(
@@ -295,6 +325,7 @@ result<bitset<32>> poll(const uint16_t cmd)
 
 Segments<result<RegBuffer>> readRegGroup(const uint16_t cmd)
 {
+    const SpiLock               lock;
     Segments<result<RegBuffer>> regs;
     const Cmd                   tx_cmd{ cmd };
     Segments<RegGroupPayload>   rx_buffer;
@@ -328,6 +359,7 @@ Segments<result<RegBuffer>> readRegGroup(const uint16_t cmd)
 
 result<void> writeRegGroup(const uint16_t cmd, Segments<RegBuffer> &regs)
 {
+    const SpiLock lock;
     ranges::reverse(regs);
     WriteCmd   tx_buffer(cmd, regs);
     const auto status = adbms_spi_ls.transmitDma(tx_buffer.into_span());
