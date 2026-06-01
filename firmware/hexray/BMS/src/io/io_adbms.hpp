@@ -55,7 +55,12 @@ struct __attribute__((packed)) CFGA
     uint8_t mute_st : 1; // 1 = mute is active, discharging disabled
     uint8_t snap_st : 1; // 1 = snapshot is activated, result registers are frozen
     uint8_t : 2;
-    bool operator==(const CFGA &cfga) const = default;
+    bool operator==(const CFGA &cfga) const
+    {
+        return cth == cfga.cth && ref_on == cfga.ref_on && flag_d == cfga.flag_d && owa == cfga.owa &&
+               owrng == cfga.owrng && soak_on == cfga.soak_on && gpio_1_8 == cfga.gpio_1_8 &&
+               gpio_9_10 == cfga.gpio_9_10 && fc == cfga.fc && comm_bk == cfga.comm_bk;
+    };
 };
 static_assert(sizeof(CFGA) == REG_GROUP_SIZE);
 static_assert(sizeof(RegBuffer) == sizeof(CFGA));
