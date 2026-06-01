@@ -25,11 +25,13 @@ function Content() {
 
   return (
     <DataSourceProvider>
-      <AlertTimeline />
       {initializedFromLocalStorage ? (
         <>
+          <AlertTimeline />
           <DataDashboard />
-          <WidgetAdder />
+          <div className="flex flex-col py-8 items-center gap-4">
+            <WidgetAdder />
+          </div>
         </>
       ) : (
         <div className="grid h-full place-items-center text-gray-500">
@@ -42,10 +44,12 @@ function Content() {
 
 export default function LiveDataPage() {
   return (
-    <div id="live-page" className="pt-14 h-screen w-screen flex flex-col overflow-hidden">
+    <div id="live-page" className="pt-14 mb-28 h-[calc(100vh-3.5rem-7rem)] w-screen overflow-y-visible">
       <DisplayControlProvider>
-        <div className="shrink-0 z-10 mr-auto ml-2 mb-2">
-          <ViewportLockButton />
+        <div className="fixed top-14 left-0 z-60 flex w-screen -translate-y-1/2 justify-center pointer-events-none">
+          <div className="pointer-events-auto relative rounded-full bg-white p-2 before:pointer-events-none before:absolute before:inset-0 before:rounded-full before:border before:border-gray-200 before:[clip-path:inset(47%_-2px_-2px_-2px)] before:content-['']">
+            <ViewportLockButton />
+          </div>
         </div>
         <div className="flex-1 min-h-0 w-full relative">
           <SyncedGraphContainer>

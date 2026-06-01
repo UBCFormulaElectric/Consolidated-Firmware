@@ -343,6 +343,28 @@ function render_numerical(context: CanvasRenderingContext2D, width: number, char
     return [];
 }
 
+export function render_hover_line(
+    context: CanvasRenderingContext2D,
+    width: number,
+    height: number,
+    hoverTime: number,
+    timeToX: (t: number) => number,
+    includeTopPaddingInOffset = true,
+) {
+    const xPosition = timeToX(hoverTime);
+
+    if (xPosition < CHART_PADDING.left || xPosition > width - CHART_PADDING.right) return;
+
+    context.setLineDash([4, 4]);
+    context.strokeStyle = "rgba(0,0,0,0.6)";
+    context.lineWidth = 1;
+    context.beginPath();
+    context.moveTo(xPosition, includeTopPaddingInOffset ? CHART_PADDING.top : 0);
+    context.lineTo(xPosition, includeTopPaddingInOffset ? height - CHART_PADDING.bottom : height);
+    context.stroke();
+    context.setLineDash([]);
+}
+
 export function render_tooltip(
     context: CanvasRenderingContext2D,
     width: number,
@@ -363,15 +385,8 @@ export function render_tooltip(
     const ms = hoverDate.getUTCMilliseconds().toString().padStart(3, "0");
     const time_string = `${DATE_FORMATTER.format(hoverDate)} ${TIME_FORMATTER.format(hoverDate)}.${ms} UTC`;
     const tooltip_lines = [time_string, ...hover_value.map(({ name, value }) => `${name}: ${value}`)];
-
-    context.setLineDash([4, 4]);
-    context.strokeStyle = "rgba(0,0,0,0.6)";
-    context.lineWidth = 1;
-    context.beginPath();
-    context.moveTo(xPosition, includeTopPaddingInOffset ? CHART_PADDING.top : 0);
-    context.lineTo(xPosition, includeTopPaddingInOffset ? height - CHART_PADDING.bottom : height);
-    context.stroke();
-    context.setLineDash([]);
+    
+    render_hover_line(context, width, height, hoverTime, timeToX, includeTopPaddingInOffset);
 
     const font = "12px sans-serif";
     context.font = font;
