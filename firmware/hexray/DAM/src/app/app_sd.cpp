@@ -47,13 +47,14 @@ void update_metadata()
         return;
     }
 
-    std::array<uint8_t, 6> raw{};
-    raw[0] = rtc_date.value().month;
-    raw[1] = rtc_date.value().day;
-    raw[2] = rtc_date.value().year;
-    raw[3] = rtc_time.value().hours;
-    raw[4] = rtc_time.value().minutes;
-    raw[5] = rtc_time.value().seconds;
+    std::array<uint8_t, 7> raw{};
+    raw[0] = rtc_time.value().seconds;
+    raw[1] = rtc_time.value().minutes;
+    raw[2] = rtc_time.value().hours;
+    raw[3] = rtc_date.value().day;
+    raw[4] = rtc_date.value().weekday;
+    raw[5] = rtc_date.value().month;
+    raw[6] = rtc_date.value().year;
 
     const std::span<const uint8_t> metadata_buf(raw.data(), raw.size());
     auto                           err = fs.writeMetadata(log_fd, metadata_buf);

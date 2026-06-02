@@ -9,7 +9,7 @@ void init_fs();
 
 /**
  * Updates the metadata (time) of the given file descriptor with the current time from the RTC.
- * Writes month, day, year, hours, minutes, seconds (in that order) in the first 6 bytes of the metadata block.
+ * Writes seconds, minutes, hour, day, weekday, month, year (in that order) in the first 6 bytes of the metadata block.
  */
 void update_metadata();
 
