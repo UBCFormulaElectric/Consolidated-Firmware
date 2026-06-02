@@ -8,8 +8,8 @@
 #include "io_semaphore.hpp"
 
 // Minimum conversion times
-inline constexpr uint8_t CELL_CONV_TIME_MS           = 2U; 
-inline constexpr uint8_t SECONDARY_CELL_CONV_TIME_MS = 8U; 
+inline constexpr uint8_t CELL_CONV_TIME_MS           = 2U;
+inline constexpr uint8_t SECONDARY_CELL_CONV_TIME_MS = 8U;
 inline constexpr uint8_t AUX_CONV_TIME_MS            = 18U;
 
 extern io::semaphore spi_bus_lock;
@@ -125,9 +125,9 @@ namespace shared
     SegmentParam<float>     getMinSegmentVoltage();
     SegmentParam<float>     getMaxSegmentVoltage();
 
-    void setVoltageStats(const Cells<result<float>> latest, const Cells<result<bool>> owc);
-    void setTemperatureStats(const Therms<result<float>> latest, const Therms<result<bool>> owc);
-    void setSegmentVoltageStats(const Segments<result<float>> latest);
+    void setVoltageStats(const Cells<result<float>> &latest, const Cells<result<bool>> &owc);
+    void setTemperatureStats(const Therms<result<float>> &latest, const Therms<result<bool>> &owc);
+    void setSegmentVoltageStats(const Segments<result<float>> &latest);
 } // namespace shared
 
 // app_segments_alerts.cpp
@@ -160,14 +160,14 @@ namespace conversion
 // app_segments_calculation.cpp
 namespace calculate
 {
-    Cells<result<bool>> cellOwc(
-        const std::array<Cells<result<float>>, static_cast<size_t>(io::adbms::OpenWireSwitch::CHANNEL_COUNT)>
-            &owc_voltages);
-    Therms<result<float>> thermTemps(
-        const std::array<ThermGpios<result<float>>, static_cast<size_t>(ThermistorMux::THERMISTOR_MUX_COUNT)>
-            &therm_voltages);
-    Therms<result<bool>> thermOwc(
-        const std::array<ThermGpios<result<float>>, static_cast<size_t>(ThermistorMux::THERMISTOR_MUX_COUNT)>
-            &therm_voltages);
+    Cells<result<bool>>
+        cellOwc(const std::array<Cells<result<float>>, static_cast<size_t>(io::adbms::OpenWireSwitch::CHANNEL_COUNT)>
+                    &owc_voltages);
+    Therms<result<float>>
+        thermTemps(const std::array<ThermGpios<result<float>>, static_cast<size_t>(ThermistorMux::THERMISTOR_MUX_COUNT)>
+                       &therm_voltages);
+    Therms<result<bool>>
+        thermOwc(const std::array<ThermGpios<result<float>>, static_cast<size_t>(ThermistorMux::THERMISTOR_MUX_COUNT)>
+                     &therm_voltages);
 } // namespace calculate
 } // namespace app::segments

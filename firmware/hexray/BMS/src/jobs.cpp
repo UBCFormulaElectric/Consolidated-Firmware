@@ -108,8 +108,8 @@ void jobs_run100Hz_tick()
     app::can_tx::BMS_ChargerConnectedType_set(io::charger::getConnectionStatus());
 
     using FaultLatchState = io::FaultLatch::FaultLatchState;
-    // const bool acc_fault = app::segments::alerts::tick();
-    // bms_ok_latch.setCurrentStatus(acc_fault ? FaultLatchState::FAULT : FaultLatchState::OK);
+    const bool acc_fault  = app::segments::alerts::tick();
+    bms_ok_latch.setCurrentStatus(acc_fault ? FaultLatchState::FAULT : FaultLatchState::OK);
     bms_ok_latch.setCurrentStatus(FaultLatchState::OK);
     app::latches::broadcast();
 

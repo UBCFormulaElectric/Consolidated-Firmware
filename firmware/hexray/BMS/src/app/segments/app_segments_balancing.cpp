@@ -1,7 +1,6 @@
 #include "app_segments_internal.hpp"
 #include "app_segments.hpp"
 
-#include "jobs.hpp"
 #include "app_canTx.hpp"
 #include "app_canRx.hpp"
 #include "app_canUtils.hpp"
@@ -28,9 +27,9 @@ app::Timer                                                       balance_timer(B
 
 void updateCellsToBalance()
 {
-    app::segments::Cells<result<float>> cell_voltages    = app::segments::shared::getLatestVoltages();
-    app::segments::CellParam<float>     min_cell_voltage = app::segments::shared::getMinCellVoltage();
-    app::segments::Cells<result<bool>>  cell_owc         = app::segments::shared::getLatestCellOwc();
+    const app::segments::Cells<result<float>> cell_voltages    = app::segments::shared::getLatestVoltages();
+    const auto [min_cell_seg, min_cell_cell, min_cell_voltage] = app::segments::shared::getMinCellVoltage();
+    const app::segments::Cells<result<bool>> cell_owc          = app::segments::shared::getLatestCellOwc();
 
     for (uint8_t seg = 0; seg < NUM_SEGMENTS; seg++)
     {
@@ -51,8 +50,7 @@ void updateCellsToBalance()
             }
 
             // Never discharge the leader cell unless balancing to target voltage
-            if (seg == min_cell_voltage.segment && cell == min_cell_voltage.cell &&
-                !app::can_rx::Debug_CellBalancing_OverrideValue_get())
+            if (seg == min_cell_seg && cell == min_cell_cell && !app::can_rx::Debug_CellBalancing_OverrideValue_get())
             {
                 discharge_enabled[seg][cell] = false;
                 continue;
@@ -68,7 +66,7 @@ void updateCellsToBalance()
             const float delta =
                 cell_voltages[seg][cell].value() - (app::can_rx::Debug_CellBalancing_OverrideValue_get()
                                                         ? app::can_rx::Debug_CellBalancing_TargetValue_get()
-                                                        : min_cell_voltage.value);
+                                                        : min_cell_voltage);
 
             // Don't dischange below threshold
             if (delta < DISCHARGE_THRESHOLD_V)

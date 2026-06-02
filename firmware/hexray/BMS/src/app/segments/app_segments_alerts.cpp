@@ -29,21 +29,21 @@ constexpr uint32_t FAULT_OWC_DEBOUNCE_MS    = 5000;
 constexpr uint32_t FAULT_HEALTH_DEBOUNCE_MS = 2000;
 constexpr uint32_t INFO_OWC_DEBOUNCE_MS     = 5000;
 
-float maxTempLimit(float base_limit)
+float maxTempLimit(const float base_limit)
 {
     const bool charging = app::StateMachine::get_current_state() == &app::states::charge_state;
     return charging ? std::min(base_limit, MAX_CELL_CHARGE_TEMP_DEGC) : base_limit;
 }
 
-bool minCellUnder(float threshold)
+bool minCellUnder(const float threshold)
 {
     return app::segments::shared::getMinCellVoltage().value < threshold;
 }
-bool maxCellOver(float threshold)
+bool maxCellOver(const float threshold)
 {
     return app::segments::shared::getMaxCellVoltage().value > threshold;
 }
-bool maxTempOver(float threshold)
+bool maxTempOver(const float threshold)
 {
     return app::segments::shared::getMaxCellTemperature().value > maxTempLimit(threshold);
 }
@@ -76,8 +76,8 @@ bool isCellOvertempFault()
 
 bool anyCellOpenWire()
 {
-    const auto cells = app::segments::shared::getLatestCellOwc();
-    for (const auto &segment : cells)
+    for (const io::adbms::Cells<result<bool>>         cells = app::segments::shared::getLatestCellOwc();
+         const io::adbms::SegmentCells<result<bool>> &segment : cells)
         for (const auto &cell : segment)
             if (cell.has_value() && cell.value())
                 return true;
@@ -86,8 +86,8 @@ bool anyCellOpenWire()
 
 bool anyThermOpenWire()
 {
-    const auto therms = app::segments::shared::getLatestThermOwc();
-    for (const auto &segment : therms)
+    for (const io::adbms::Therms<result<bool>>         therms = app::segments::shared::getLatestThermOwc();
+         const io::adbms::SegmentTherms<result<bool>> &segment : therms)
         for (const auto &therm : segment)
             if (therm.has_value() && therm.value())
                 return true;
@@ -110,44 +110,36 @@ struct Entry
     Timer timer;
 };
 
-Entry warning_entries[] = {
+std::array<Entry, 3> warning_entries = { {
     { &isCellUnderVoltageWarn, &app::can_alerts::warnings::CellUnderVoltage_set, Timer{ WARN_DEBOUNCE_MS } },
     { &isCellOverVoltageWarn, &app::can_alerts::warnings::CellOverVoltage_set, Timer{ WARN_DEBOUNCE_MS } },
     { &isCellOverTempWarn, &app::can_alerts::warnings::CellOverTemp_set, Timer{ WARN_DEBOUNCE_MS } },
-};
+} };
 
-Entry fault_entries[] = {
+std::array<Entry, 5> fault_entries = { {
     { &isCellUndervoltageFault, &app::can_alerts::faults::CellUndervoltage_set, Timer{ FAULT_V_DEBOUNCE_MS } },
     { &isCellOvervoltageFault, &app::can_alerts::faults::CellOvervoltage_set, Timer{ FAULT_V_DEBOUNCE_MS } },
     { &isCellOvertempFault, &app::can_alerts::faults::CellOvertemp_set, Timer{ FAULT_T_DEBOUNCE_MS } },
     { &anyCellOpenWire, &app::can_alerts::faults::CellOpenWire_set, Timer{ FAULT_OWC_DEBOUNCE_MS } },
     { &anyHealthError, &app::can_alerts::faults::HealthError_set, Timer{ FAULT_HEALTH_DEBOUNCE_MS } },
-};
+} };
 
-Entry info_entries[] = {
+std::array<Entry, 1> info_entries = { {
     { &anyThermOpenWire, &app::can_alerts::infos::ThermOpenWire_set, Timer{ INFO_OWC_DEBOUNCE_MS } },
-};
+} };
 
 Timer startup_blanking{ STARTUP_BLANKING_MS };
 
-bool runEntries(Entry *entries, size_t n)
+bool runEntries(const std::span<Entry> entries)
 {
     bool any_fired = false;
-    for (size_t i = 0; i < n; ++i)
+    for (auto [cond, setter, timer] : entries)
     {
-        Entry     &e     = entries[i];
-        const bool cond  = e.condition();
-        const bool fired = e.timer.runIfCondition(cond) == Timer::TimerState::EXPIRED;
-        e.setter(fired);
+        const bool fired = timer.runIfCondition(cond()) == Timer::TimerState::EXPIRED;
+        setter(fired);
         any_fired = any_fired || fired;
     }
     return any_fired;
-}
-
-void resetTimers(Entry *entries, size_t n)
-{
-    for (size_t i = 0; i < n; ++i)
-        entries[i].timer.stop();
 }
 } // namespace
 
@@ -155,9 +147,12 @@ namespace app::segments::alerts
 {
 void init()
 {
-    resetTimers(warning_entries, std::size(warning_entries));
-    resetTimers(fault_entries, std::size(fault_entries));
-    resetTimers(info_entries, std::size(info_entries));
+    for (auto [_c, _s, t] : warning_entries)
+        t.stop();
+    for (auto [_c, _s, t] : fault_entries)
+        t.stop();
+    for (auto [_c, _s, t] : info_entries)
+        t.stop();
     startup_blanking.restart();
 }
 
@@ -166,9 +161,10 @@ bool tick()
     if (startup_blanking.updateAndGetState() != Timer::TimerState::EXPIRED)
         return false;
 
-    runEntries(warning_entries, std::size(warning_entries));
-    const bool fault_active = runEntries(fault_entries, std::size(fault_entries));
-    runEntries(info_entries, std::size(info_entries));
+    const bool fault_active = runEntries(fault_entries);
+    runEntries(warning_entries);
+    runEntries(info_entries);
+
     return fault_active;
 }
 } // namespace app::segments::alerts

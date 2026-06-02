@@ -107,7 +107,7 @@ SegmentParam<float> getMaxSegmentVoltage()
     return latest_max_segment_voltage;
 }
 
-void setVoltageStats(const Cells<result<float>> latest, const Cells<result<bool>> owc)
+void setVoltageStats(const Cells<result<float>> &latest, const Cells<result<bool>> &owc)
 {
     {
         const io::unique_semaphore lock{ cell_owc_lock };
@@ -117,8 +117,8 @@ void setVoltageStats(const Cells<result<float>> latest, const Cells<result<bool>
     const io::unique_semaphore lock{ voltage_lock };
     latest_voltages = latest;
 
-    CellParam<float> min{ .segment = 0, .cell = 0, .value = std::numeric_limits<float>::infinity() };
-    CellParam<float> max{ .segment = 0, .cell = 0, .value = -std::numeric_limits<float>::infinity() };
+    CellParam min{ .segment = 0, .cell = 0, .value = std::numeric_limits<float>::infinity() };
+    CellParam max{ .segment = 0, .cell = 0, .value = -std::numeric_limits<float>::infinity() };
     for (uint8_t seg = 0; seg < NUM_SEGMENTS; ++seg)
     {
         for (uint8_t cell = 0; cell < CELLS_PER_SEGMENT; ++cell)
@@ -128,7 +128,7 @@ void setVoltageStats(const Cells<result<float>> latest, const Cells<result<bool>
             {
                 continue;
             }
-            const CellParam<float> cp{ .segment = seg, .cell = cell, .value = v.value() };
+            const CellParam cp{ .segment = seg, .cell = cell, .value = v.value() };
             min = std::min(min, cp);
             max = std::max(max, cp);
         }
@@ -137,7 +137,7 @@ void setVoltageStats(const Cells<result<float>> latest, const Cells<result<bool>
     latest_max_cell_voltage = max;
 }
 
-void setTemperatureStats(const Therms<result<float>> latest, const Therms<result<bool>> owc)
+void setTemperatureStats(const Therms<result<float>> &latest, const Therms<result<bool>> &owc)
 {
     {
         const io::unique_semaphore lock{ therm_owc_lock };
@@ -147,8 +147,8 @@ void setTemperatureStats(const Therms<result<float>> latest, const Therms<result
     const io::unique_semaphore lock{ temperature_lock };
     latest_temperatures = latest;
 
-    CellParam<float> min{ .segment = 0, .cell = 0, .value = std::numeric_limits<float>::infinity() };
-    CellParam<float> max{ .segment = 0, .cell = 0, .value = -std::numeric_limits<float>::infinity() };
+    CellParam min{ .segment = 0, .cell = 0, .value = std::numeric_limits<float>::infinity() };
+    CellParam max{ .segment = 0, .cell = 0, .value = -std::numeric_limits<float>::infinity() };
     for (uint8_t seg = 0; seg < NUM_SEGMENTS; ++seg)
     {
         for (uint8_t therm = 0; therm < THERMISTORS_PER_SEGMENT; ++therm)
@@ -158,7 +158,7 @@ void setTemperatureStats(const Therms<result<float>> latest, const Therms<result
             {
                 continue;
             }
-            const CellParam<float> cp{ .segment = seg, .cell = therm, .value = t.value() };
+            const CellParam cp{ .segment = seg, .cell = therm, .value = t.value() };
             min = std::min(min, cp);
             max = std::max(max, cp);
         }
@@ -167,13 +167,13 @@ void setTemperatureStats(const Therms<result<float>> latest, const Therms<result
     latest_max_therm_temperature = max;
 }
 
-void setSegmentVoltageStats(const Segments<result<float>> latest)
+void setSegmentVoltageStats(const Segments<result<float>> &latest)
 {
     const io::unique_semaphore lock{ segment_voltage_lock };
     latest_segment_voltages = latest;
 
-    SegmentParam<float> min{ .segment = 0, .value = std::numeric_limits<float>::infinity() };
-    SegmentParam<float> max{ .segment = 0, .value = -std::numeric_limits<float>::infinity() };
+    SegmentParam min{ .segment = 0, .value = std::numeric_limits<float>::infinity() };
+    SegmentParam max{ .segment = 0, .value = -std::numeric_limits<float>::infinity() };
     for (uint8_t seg = 0; seg < NUM_SEGMENTS; ++seg)
     {
         const result<float> &v = latest[seg];
@@ -181,12 +181,11 @@ void setSegmentVoltageStats(const Segments<result<float>> latest)
         {
             continue;
         }
-        const SegmentParam<float> sp{ .segment = seg, .value = v.value() };
+        const SegmentParam sp{ .segment = seg, .value = v.value() };
         min = std::min(min, sp);
         max = std::max(max, sp);
     }
     latest_min_segment_voltage = min;
     latest_max_segment_voltage = max;
 }
-
 } // namespace app::segments::shared
