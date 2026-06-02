@@ -18,6 +18,8 @@ template <typename Arr> void fillWithError(Arr &arr, ErrorCode err)
 
 namespace app::segments
 {
+using io::adbms::Cells, io::adbms::Segments;
+
 result<void> startPoll::secondaryCellAdc(const io::adbms::OpenWireSwitch owcSwitch)
 {
     if (const auto start = io::adbms::command::owcCells(owcSwitch); !start)

@@ -17,12 +17,6 @@ extern io::semaphore health_lock;
 
 namespace app::segments
 {
-// Re-export ADBMS array aliases inside this namespace so app code can use them unqualified.
-using io::adbms::Cells;
-using io::adbms::Segments;
-using io::adbms::ThermGpios;
-using io::adbms::Therms;
-
 // Thermistor bank selected during AUX conversions.
 enum class ThermistorMux : size_t
 {
@@ -51,12 +45,15 @@ template <typename T> struct SegmentParam
 // app_segments_config.cpp
 namespace config
 {
-    void setBalanceConfig(const Cells<bool> &balance_config, const Cells<uint8_t> &pwm_duty, bool balancing_enabled);
+    void setBalanceConfig(
+        const io::adbms::Cells<bool>    &balance_config,
+        const io::adbms::Cells<uint8_t> &pwm_duty,
+        bool                             balancing_enabled);
     void setThermistorConfig(ThermistorMux mux);
     /**
      * Synchronizes the in-memory config with the ADBMS chips.
      */
-    [[nodiscard]] Segments<result<bool>> sync();
+    [[nodiscard]] io::adbms::Segments<result<bool>> sync();
 } // namespace config
 
 // app_segments_balancing.cpp
@@ -72,12 +69,12 @@ namespace broadcast
 {
     namespace debug
     {
-        void cellVoltages(const Cells<result<float>> &voltages, const result<void> &poll_ok);
-        void thermTemps(const Therms<result<float>> &temps, const result<void> &poll_ok);
-        void thermOwc(const Therms<result<bool>> &therm_owc, const result<void> &poll_ok);
-        void segVoltages(const Segments<result<float>> &seg_voltages);
-        void status(const Segments<io::adbms::StatusGroupsRes> &status);
-        void cellOwc(const Cells<result<bool>> &owc_results, const result<void> &poll_ok);
+        void cellVoltages(const io::adbms::Cells<result<float>> &voltages, const result<void> &poll_ok);
+        void thermTemps(const io::adbms::Therms<result<float>> &temps, const result<void> &poll_ok);
+        void thermOwc(const io::adbms::Therms<result<bool>> &therm_owc, const result<void> &poll_ok);
+        void segVoltages(const io::adbms::Segments<result<float>> &seg_voltages);
+        void status(const io::adbms::Segments<io::adbms::StatusGroupsRes> &status);
+        void cellOwc(const io::adbms::Cells<result<bool>> &owc_results, const result<void> &poll_ok);
     } // namespace debug
     void segmentHealthError();
     void voltageStats();
@@ -113,21 +110,22 @@ namespace health
 // app_segments_shared.cpp
 namespace shared
 {
-    Cells<result<float>>    getLatestVoltages();
-    CellParam<float>        getMinCellVoltage();
-    CellParam<float>        getMaxCellVoltage();
-    Therms<result<float>>   getLatestTemperatures();
-    CellParam<float>        getMinCellTemperature();
-    CellParam<float>        getMaxCellTemperature();
-    Cells<result<bool>>     getLatestCellOwc();
-    Therms<result<bool>>    getLatestThermOwc();
-    Segments<result<float>> getLatestSegmentVoltages();
-    SegmentParam<float>     getMinSegmentVoltage();
-    SegmentParam<float>     getMaxSegmentVoltage();
+    io::adbms::Cells<result<float>>    getLatestVoltages();
+    CellParam<float>                   getMinCellVoltage();
+    CellParam<float>                   getMaxCellVoltage();
+    io::adbms::Therms<result<float>>   getLatestTemperatures();
+    CellParam<float>                   getMinCellTemperature();
+    CellParam<float>                   getMaxCellTemperature();
+    io::adbms::Cells<result<bool>>     getLatestCellOwc();
+    io::adbms::Therms<result<bool>>    getLatestThermOwc();
+    io::adbms::Segments<result<float>> getLatestSegmentVoltages();
+    SegmentParam<float>                getMinSegmentVoltage();
+    SegmentParam<float>                getMaxSegmentVoltage();
 
-    void setVoltageStats(const Cells<result<float>> &latest, const Cells<result<bool>> &owc);
-    void setTemperatureStats(const Therms<result<float>> &latest, const Therms<result<bool>> &owc);
-    void setSegmentVoltageStats(const Segments<result<float>> &latest);
+    void setVoltageStats(const io::adbms::Cells<result<float>> &latest, const io::adbms::Cells<result<bool>> &owc);
+    void
+        setTemperatureStats(const io::adbms::Therms<result<float>> &latest, const io::adbms::Therms<result<bool>> &owc);
+    void setSegmentVoltageStats(const io::adbms::Segments<result<float>> &latest);
 } // namespace shared
 
 // app_segments_alerts.cpp
@@ -150,24 +148,24 @@ namespace startPoll
 
 namespace conversion
 {
-    Cells<result<float>>                 cellVoltage();
-    ThermGpios<result<float>>            thermVoltage();
-    Segments<result<float>>              segVoltage();
-    Segments<io::adbms::StatusGroupsRes> status();
-    Cells<result<float>>                 cellOwcVoltages();
+    io::adbms::Cells<result<float>>                 cellVoltage();
+    io::adbms::ThermGpios<result<float>>            thermVoltage();
+    io::adbms::Segments<result<float>>              segVoltage();
+    io::adbms::Segments<io::adbms::StatusGroupsRes> status();
+    io::adbms::Cells<result<float>>                 cellOwcVoltages();
 } // namespace conversion
 
 // app_segments_calculation.cpp
 namespace calculate
 {
-    Cells<result<bool>>
-        cellOwc(const std::array<Cells<result<float>>, static_cast<size_t>(io::adbms::OpenWireSwitch::CHANNEL_COUNT)>
-                    &owc_voltages);
-    Therms<result<float>>
-        thermTemps(const std::array<ThermGpios<result<float>>, static_cast<size_t>(ThermistorMux::THERMISTOR_MUX_COUNT)>
-                       &therm_voltages);
-    Therms<result<bool>>
-        thermOwc(const std::array<ThermGpios<result<float>>, static_cast<size_t>(ThermistorMux::THERMISTOR_MUX_COUNT)>
-                     &therm_voltages);
+    io::adbms::Cells<result<bool>> cellOwc(
+        const std::array<io::adbms::Cells<result<float>>, static_cast<size_t>(io::adbms::OpenWireSwitch::CHANNEL_COUNT)>
+            &owc_voltages);
+    io::adbms::Therms<result<float>> thermTemps(
+        const std::array<io::adbms::ThermGpios<result<float>>, static_cast<size_t>(ThermistorMux::THERMISTOR_MUX_COUNT)>
+            &therm_voltages);
+    io::adbms::Therms<result<bool>> thermOwc(
+        const std::array<io::adbms::ThermGpios<result<float>>, static_cast<size_t>(ThermistorMux::THERMISTOR_MUX_COUNT)>
+            &therm_voltages);
 } // namespace calculate
 } // namespace app::segments

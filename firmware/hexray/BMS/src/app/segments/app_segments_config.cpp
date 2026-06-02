@@ -97,6 +97,8 @@ result<void> upload()
 
 namespace app::segments::config
 {
+using io::adbms::Cells, io::adbms::Segments;
+
 void setBalanceConfig(const Cells<bool> &balance_config, const Cells<uint8_t> &pwm_duty, const bool balancing_enabled)
 {
     const io::unique_semaphore lock{ config_data_lock };

@@ -12,7 +12,7 @@
 #include <expected>
 
 // Physical daisy-chain dimensions for this ECU.
-inline constexpr uint8_t NUM_SEGMENTS            = 10;
+inline constexpr uint8_t NUM_SEGMENTS            = 3;
 inline constexpr uint8_t CELLS_PER_SEGMENT       = 14;
 inline constexpr uint8_t THERMISTORS_PER_SEGMENT = 14;
 inline constexpr uint8_t THERM_GPIOS_PER_SEGMENT = 8;

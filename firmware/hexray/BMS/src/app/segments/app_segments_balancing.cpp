@@ -14,22 +14,23 @@
 
 namespace
 {
-
 constexpr float    DISCHARGE_THRESHOLD_V = 10e-3f;
 constexpr uint32_t SETTLE_TIME_MS        = 5 * 1000;
 constexpr uint32_t BALANCE_TIME_MS       = 5 * 1000;
 
-auto balancing_state = app::can_utils::BalancingState::BALANCING_DISABLED;
-std::array<std::array<bool, CELLS_PER_SEGMENT>, NUM_SEGMENTS>    discharge_enabled;
-std::array<std::array<uint8_t, CELLS_PER_SEGMENT>, NUM_SEGMENTS> pwm_duty;
-app::Timer                                                       settle_timer(SETTLE_TIME_MS);
-app::Timer                                                       balance_timer(BALANCE_TIME_MS);
+using io::adbms::Cells;
+
+auto           balancing_state = app::can_utils::BalancingState::BALANCING_DISABLED;
+Cells<bool>    discharge_enabled;
+Cells<uint8_t> pwm_duty;
+app::Timer     settle_timer(SETTLE_TIME_MS);
+app::Timer     balance_timer(BALANCE_TIME_MS);
 
 void updateCellsToBalance()
 {
-    const app::segments::Cells<result<float>> cell_voltages    = app::segments::shared::getLatestVoltages();
+    const Cells<result<float>> cell_voltages                   = app::segments::shared::getLatestVoltages();
     const auto [min_cell_seg, min_cell_cell, min_cell_voltage] = app::segments::shared::getMinCellVoltage();
-    const app::segments::Cells<result<bool>> cell_owc          = app::segments::shared::getLatestCellOwc();
+    const Cells<result<bool>> cell_owc                         = app::segments::shared::getLatestCellOwc();
 
     for (uint8_t seg = 0; seg < NUM_SEGMENTS; seg++)
     {
@@ -123,7 +124,7 @@ void tick()
         }
         case can_utils::BalancingState::BALANCING_SETTLE:
         {
-            if (settle_timer.updateAndGetState() == app::Timer::TimerState::EXPIRED)
+            if (settle_timer.updateAndGetState() == Timer::TimerState::EXPIRED)
             {
                 updateCellsToBalance();
                 {
@@ -144,7 +145,7 @@ void tick()
         }
         case can_utils::BalancingState::BALANCING_BALANCE:
         {
-            if (balance_timer.updateAndGetState() == app::Timer::TimerState::EXPIRED)
+            if (balance_timer.updateAndGetState() == Timer::TimerState::EXPIRED)
             {
                 {
                     // const io::unique_semaphore s{ spi_bus_lock };

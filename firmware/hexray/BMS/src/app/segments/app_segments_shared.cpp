@@ -5,15 +5,8 @@
 
 namespace
 {
-using app::segments::CellParam;
-using app::segments::Cells;
-using app::segments::SegmentParam;
-using app::segments::Segments;
-using app::segments::Therms;
-
-/*
-
-*/
+using app::segments::CellParam, app::segments::SegmentParam;
+using io::adbms::Cells, io::adbms::Segments, io::adbms::Therms;
 
 Cells<result<float>> latest_voltages{};
 CellParam<float>     latest_min_cell_voltage{};
@@ -35,7 +28,6 @@ Segments<result<float>> latest_segment_voltages{};
 SegmentParam<float>     latest_max_segment_voltage{};
 SegmentParam<float>     latest_min_segment_voltage{};
 io::semaphore           segment_voltage_lock{ true };
-
 } // namespace
 
 namespace app::segments::shared

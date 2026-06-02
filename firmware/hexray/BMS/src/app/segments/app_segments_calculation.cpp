@@ -6,6 +6,7 @@
 
 namespace app::segments::calculate
 {
+using io::adbms::Cells, io::adbms::Therms, io::adbms::ThermGpios;
 Cells<result<bool>> cellOwc(
     const std::array<Cells<result<float>>, static_cast<size_t>(io::adbms::OpenWireSwitch::CHANNEL_COUNT)> &owc_voltages)
 {

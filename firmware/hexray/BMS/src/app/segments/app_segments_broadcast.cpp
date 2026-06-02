@@ -147,6 +147,8 @@ BroadcastBuffer<CanErr, MAX_NUM_SEGMENTS, tx::BMS_SegmentStatDErrors_sendAperiod
 
 namespace app::segments::broadcast
 {
+using io::adbms::Cells, io::adbms::Segments, io::adbms::Therms;
+
 namespace debug
 {
     void cellVoltages(const Cells<result<float>> &voltages, const result<void> &poll_ok)
