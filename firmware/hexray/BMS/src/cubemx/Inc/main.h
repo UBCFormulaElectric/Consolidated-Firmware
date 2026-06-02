@@ -69,12 +69,10 @@ extern "C"
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define TIM1_IC_PRESCALER 1
 #define TIM5_PWM_MIN_FREQUENCY 775
 #define TIM3_PRESCALER 10
-#define TIM5_PRESCALER                                                                                   \
-    (((TIMx_FREQUENCY / TIM5_AUTO_RELOAD_REG) / TIM5_PWM_MIN_FREQUENCY * TIM5_IC_PRESCALER) > 1U         \
-         ? (((TIMx_FREQUENCY / TIM5_AUTO_RELOAD_REG) / TIM5_PWM_MIN_FREQUENCY * TIM5_IC_PRESCALER) - 1U) \
-         : 0)
+#define TIM5_PRESCALER (((TIMx_FREQUENCY / TIM5_AUTO_RELOAD_REG) / TIM5_PWM_MIN_FREQUENCY * TIM5_IC_PRESCALER) - 1U)
 #define TIM5_AUTO_RELOAD_REG 0xFFFF
 #define ADC_FREQUENCY 1000
 #define TIM1_AUTO_RELOAD_REG 0xFFFF
@@ -85,11 +83,7 @@ extern "C"
 #define IWDG_PRESCALER 4
 #define LSI_FREQUENCY 32000
 #define TIM1_PWM_MIN_FREQUENCY 8
-#define TIM1_PRESCALER                                                                                   \
-    (((TIMx_FREQUENCY / TIM1_AUTO_RELOAD_REG) / TIM1_PWM_MIN_FREQUENCY * TIM1_IC_PRESCALER) > 1U         \
-         ? (((TIMx_FREQUENCY / TIM1_AUTO_RELOAD_REG) / TIM1_PWM_MIN_FREQUENCY * TIM1_IC_PRESCALER) - 1U) \
-         : 0)
-#define TIM1_IC_PRESCALER 1
+#define TIM1_PRESCALER (((TIMx_FREQUENCY / TIM1_AUTO_RELOAD_REG) / TIM1_PWM_MIN_FREQUENCY * TIM1_IC_PRESCALER) - 1U)
 #define SPI_SCK_Pin GPIO_PIN_2
 #define SPI_SCK_GPIO_Port GPIOE
 #define IR_P_EN_Pin GPIO_PIN_3
