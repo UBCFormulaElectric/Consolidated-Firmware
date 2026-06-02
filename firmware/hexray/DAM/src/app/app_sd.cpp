@@ -11,9 +11,9 @@ namespace app::sd
 namespace
 {
     constexpr const char *DEFAULT_LOG_PATH = "/log.bin"; // Fallback path
-    std::array<char, 32> LOG_PATH_BUF{};
-    uint32_t             log_fd   = 0;
-    bool                 log_open = false;
+    std::array<char, 32>  LOG_PATH_BUF{};
+    uint32_t              log_fd   = 0;
+    bool                  log_open = false;
 } // namespace
 
 void init_fs()
@@ -33,8 +33,8 @@ void init_fs()
     const char *log_path = DEFAULT_LOG_PATH;
     if (const auto boot_num = app::bootcount::update(fs); boot_num)
     {
-        std::snprintf(LOG_PATH_BUF.data(), LOG_PATH_BUF.size(), "/boot_%lu.bin",
-                      static_cast<unsigned long>(boot_num.value()));
+        std::snprintf(
+            LOG_PATH_BUF.data(), LOG_PATH_BUF.size(), "/boot_%lu.bin", static_cast<unsigned long>(boot_num.value()));
         log_path = LOG_PATH_BUF.data();
     }
     else
