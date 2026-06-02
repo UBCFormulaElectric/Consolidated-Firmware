@@ -85,6 +85,18 @@ BroadcastBuffer<bool, MAX_NUM_SEGMENTS * CELLS_PER_SEGMENT, tx::BMS_CellOpenWire
     cell_owc_ok_buffer(app::can_tx::BMS_CellOpenWireCheck_getData());
 BroadcastBuffer<bool, MAX_NUM_SEGMENTS * CELLS_PER_SEGMENT, tx::BMS_ThermistorOpenWireCheck_sendAperiodic>
     therm_owc_ok_buffer(app::can_tx::BMS_ThermistorOpenWireCheck_getData());
+BroadcastBuffer<bool, MAX_NUM_SEGMENTS * CELLS_PER_SEGMENT, tx::BMS_CellDischargeEnabled_sendAperiodic>
+    cell_discharge_enabled_buffer(app::can_tx::BMS_CellDischargeEnabled_getData());
+
+CellBroadcaster<
+    uint8_t,
+    tx::BMS_CellPwmDuty_Seg0_Seg3_sendAperiodic,
+    tx::BMS_CellPwmDuty_Seg4_Seg7_sendAperiodic,
+    tx::BMS_CellPwmDuty_Seg8_Seg9_sendAperiodic>
+    cell_pwm_duty_setters(
+        app::can_tx::BMS_CellPwmDuty_Seg0_Seg3_getData(),
+        app::can_tx::BMS_CellPwmDuty_Seg4_Seg7_getData(),
+        app::can_tx::BMS_CellPwmDuty_Seg8_Seg9_getData());
 
 using CanErr = app::can_utils::ErrorCode;
 constexpr CanErr toCanErr(const ErrorCode e)
@@ -211,6 +223,28 @@ namespace debug
         }
         cell_owc_ok_buffer.send();
         cell_owc_error_setters.send();
+    }
+
+    void balancing(const Cells<bool> &discharge_enabled, const Cells<uint8_t> &pwm_duty)
+    {
+        for (size_t seg = 0U; seg < NUM_SEGMENTS; seg++)
+        {
+            for (size_t cell = 0U; cell < CELLS_PER_SEGMENT; cell++)
+            {
+                cell_discharge_enabled_buffer[seg * CELLS_PER_SEGMENT + cell] = discharge_enabled[seg][cell];
+                cell_pwm_duty_setters[seg][cell]                              = pwm_duty[seg][cell];
+            }
+        }
+        for (size_t seg = NUM_SEGMENTS; seg < MAX_NUM_SEGMENTS; seg++)
+        {
+            for (size_t cell = 0U; cell < CELLS_PER_SEGMENT; cell++)
+            {
+                cell_discharge_enabled_buffer[seg * CELLS_PER_SEGMENT + cell] = false;
+                cell_pwm_duty_setters[seg][cell]                              = 0U;
+            }
+        }
+        cell_discharge_enabled_buffer.send();
+        cell_pwm_duty_setters.send();
     }
 
     void thermTemps(const Therms<result<float>> &temps, const result<void> &poll_ok)
