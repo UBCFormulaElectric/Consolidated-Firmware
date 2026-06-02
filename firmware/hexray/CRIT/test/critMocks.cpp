@@ -37,12 +37,12 @@ bool telem_mark_get()
 #include "io_leds.hpp"
 namespace io::leds
 {
-std::expected<void, ErrorCode> update(const config &c)
+result<void> update(const config &c)
 {
     UNUSED(c);
     return {};
 }
-std::expected<void, ErrorCode> setBrightness(const float brightness)
+result<void> setBrightness(const float brightness)
 {
     UNUSED(brightness);
     return {};
@@ -52,14 +52,14 @@ std::expected<void, ErrorCode> setBrightness(const float brightness)
 #include "io_sevenSeg.hpp"
 namespace io::seven_seg
 {
-std::expected<void, ErrorCode> setBrightness(const float brightness)
+result<void> setBrightness(const float brightness)
 {
     UNUSED(brightness);
     return {};
 }
 static std::array<digit, DIGITS> display;
 // ReSharper disable once CppParameterMayBeConstPtrOrRef
-std::expected<void, ErrorCode> write(std::array<digit, DIGITS> &data)
+result<void> write(std::array<digit, DIGITS> &data)
 {
     display = data;
     return {};
@@ -69,3 +69,13 @@ std::expected<void, ErrorCode> write(std::array<digit, DIGITS> &data)
 #include "io_canQueues.hpp"
 io::queue<io::CanMsg, 128> can_tx_queue{ "" };
 io::queue<io::CanMsg, 128> can_rx_queue{ "" };
+
+#include "io_powerGauge.hpp"
+
+namespace io::power_gauge
+{
+result<void> update(std::span<led_frame, LEDS> data)
+{
+    return {};
+}
+} // namespace io::power_gauge

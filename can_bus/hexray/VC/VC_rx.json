@@ -5,9 +5,13 @@
         "FSM_Vitals",
         "RSM_Vitals",
         "CRIT_Vitals",
+        "CRIT_ButtonsAndSwitches",
         "DAM_Vitals",
         "BMS_Contactors",
         "FSM_ShdnNodeStatus",
+        "FSM_Apps",
+        "FSM_Steering",
+        "FSM_Brake",
         "DAM_ShdnNodeStatus",
         "RSM_ShdnNodeStatus",
         "BMS_BMSShdnNodeStatus",
@@ -20,14 +24,6 @@
         "INVRL_RLInverterInfo2",
         "INVRR_RRInverterInfo2",
         "BMS_LatchStatus",
-        "VC_Imu1LinearData",
-        "VC_Imu2LinearData",
-        "VC_Imu3LinearData",
-        "VC_Imu1AngularData",
-        "VC_Imu2AngularData",
-        "VC_Imu3AngularData",
-        "FSM_Brake",
-        "BMS_PowerLimit",
-        "CRIT_ButtonsAndSwitches"
+        "BMS_PowerLimit"
     ]
 }

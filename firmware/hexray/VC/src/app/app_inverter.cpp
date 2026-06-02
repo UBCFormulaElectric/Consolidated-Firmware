@@ -5,6 +5,7 @@
 #include "app_canTx.hpp"
 #include "app_canRx.hpp"
 #include "app_canAlerts.hpp"
+#include "torque_vectoring/datatypes/torque_limits.hpp"
 #include "io_log.hpp"
 
 static app::State       *state_to_recover_after_fault;
@@ -16,6 +17,9 @@ constexpr app::inverter::Handle inverter_handle_FL{
     app::can_tx::VC_INVFLbEnable_set,
     app::can_tx::VC_INVFLbInverterOn_set,
     app::can_tx::VC_INVFLbDcOn_set,
+    app::can_tx::VC_INVFLTorqueSetpoint_set,
+    app::can_tx::VC_INVFLTorqueLimitNegative_set,
+    app::can_tx::VC_INVFLTorqueLimitPositive_set,
     app::can_rx::INVFL_ErrorInfo_get,
     app::can_tx::VC_INVFLbErrorReset_set,
     app::can_rx::INVFL_bError_get,
@@ -26,6 +30,9 @@ constexpr app::inverter::Handle inverter_handle_FR{
     app::can_tx::VC_INVFRbEnable_set,
     app::can_tx::VC_INVFRbInverterOn_set,
     app::can_tx::VC_INVFRbDcOn_set,
+    app::can_tx::VC_INVFRTorqueSetpoint_set,
+    app::can_tx::VC_INVFRTorqueLimitNegative_set,
+    app::can_tx::VC_INVFRTorqueLimitPositive_set,
     app::can_rx::INVFR_ErrorInfo_get,
     app::can_tx::VC_INVFRbErrorReset_set,
     app::can_rx::INVFR_bError_get,
@@ -35,6 +42,9 @@ constexpr app::inverter::Handle inverter_handle_RL{
     app::can_tx::VC_INVRLbEnable_set,
     app::can_tx::VC_INVRLbInverterOn_set,
     app::can_tx::VC_INVRLbDcOn_set,
+    app::can_tx::VC_INVRLTorqueSetpoint_set,
+    app::can_tx::VC_INVRLTorqueLimitNegative_set,
+    app::can_tx::VC_INVRLTorqueLimitPositive_set,
     app::can_rx::INVRL_ErrorInfo_get,
     app::can_tx::VC_INVRLbErrorReset_set,
     app::can_rx::INVRL_bError_get,
@@ -45,11 +55,52 @@ constexpr app::inverter::Handle inverter_handle_RR{
     app::can_tx::VC_INVRRbEnable_set,
     app::can_tx::VC_INVRRbInverterOn_set,
     app::can_tx::VC_INVRRbDcOn_set,
+    app::can_tx::VC_INVRRTorqueSetpoint_set,
+    app::can_tx::VC_INVRRTorqueLimitNegative_set,
+    app::can_tx::VC_INVRRTorqueLimitPositive_set,
     app::can_rx::INVRR_ErrorInfo_get,
     app::can_tx::VC_INVRRbErrorReset_set,
     app::can_rx::INVRR_bError_get,
     app::can_alerts::warnings::RearRightInverterFault_set,
 };
+
+void app::inverter::inverter_enable_toggle(bool fl, bool fr, bool rl, bool rr)
+{
+    inverter_handle_FL.can_enable_inv(fl);
+    inverter_handle_FR.can_enable_inv(fr);
+    inverter_handle_RL.can_enable_inv(rl);
+    inverter_handle_RR.can_enable_inv(rr);
+}
+
+void app::inverter::set_torque_limit_negative(float fl_Nm, float fr_Nm, float rl_Nm, float rr_Nm)
+{
+    using app::tv::datatypes::torque_limits::TORQUE_REQUEST;
+
+    inverter_handle_FL.can_torque_limit_negative(TORQUE_REQUEST(fl_Nm));
+    inverter_handle_FR.can_torque_limit_negative(TORQUE_REQUEST(fr_Nm));
+    inverter_handle_RL.can_torque_limit_negative(TORQUE_REQUEST(rl_Nm));
+    inverter_handle_RR.can_torque_limit_negative(TORQUE_REQUEST(rr_Nm));
+}
+
+void app::inverter::set_torque_limit_positive(float fl_Nm, float fr_Nm, float rl_Nm, float rr_Nm)
+{
+    using app::tv::datatypes::torque_limits::TORQUE_REQUEST;
+
+    inverter_handle_FL.can_torque_limit_positive(TORQUE_REQUEST(fl_Nm));
+    inverter_handle_FR.can_torque_limit_positive(TORQUE_REQUEST(fr_Nm));
+    inverter_handle_RL.can_torque_limit_positive(TORQUE_REQUEST(rl_Nm));
+    inverter_handle_RR.can_torque_limit_positive(TORQUE_REQUEST(rr_Nm));
+}
+
+void app::inverter::send_torque(float fl_Nm, float fr_Nm, float rl_Nm, float rr_Nm)
+{
+    using app::tv::datatypes::torque_limits::TORQUE_REQUEST;
+
+    inverter_handle_FL.can_torque_setpoint(TORQUE_REQUEST(fl_Nm));
+    inverter_handle_FR.can_torque_setpoint(TORQUE_REQUEST(fr_Nm));
+    inverter_handle_RL.can_torque_setpoint(TORQUE_REQUEST(rl_Nm));
+    inverter_handle_RR.can_torque_setpoint(TORQUE_REQUEST(rr_Nm));
+}
 
 static bool inverter_status(void)
 {
@@ -169,6 +220,11 @@ void app::inverter::FaultCheck(void)
 {
     const app::State *curr = app::StateMachine::get_current_state();
 
+    if (!lockout())
+    {
+        app::can_tx::VC_Fault_InvLockoutFault_set(false);
+    }
+
     if (!inverter_status() || curr == &app::states::inverter_fault_handling_state)
     {
         return;
@@ -184,7 +240,7 @@ void app::inverter::FaultCheck(void)
         state_to_recover_after_fault = const_cast<app::State *>(curr);
     }
 
-    LOG_INFO("inverter state in appinv %s", state_to_recover_after_fault->name);
+    // LOG_INFO("inverter state in appinv %s", state_to_recover_after_fault->name);
     app::StateMachine::set_next_state(&app::states::inverter_fault_handling_state);
 }
 

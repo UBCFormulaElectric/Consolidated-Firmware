@@ -46,7 +46,7 @@ void imu::set_GyroYaw(const float gyro_z_fake) const
     _gyro_z_fake = gyro_z_fake;
 }
 
-std::expected<void, ErrorCode> imu::init() const
+result<void> imu::init() const
 {
     if (init_status.has_value())
     {
@@ -58,37 +58,37 @@ std::expected<void, ErrorCode> imu::init() const
         return std::unexpected(init_status.error());
     }
 }
-std::expected<float, ErrorCode> imu::getAccelX() const
+result<float> imu::getAccelX() const
 {
     return _accel_x_fake;
 }
-std::expected<float, ErrorCode> imu::getAccelY() const
+result<float> imu::getAccelY() const
 {
     return _accel_y_fake;
 }
-std::expected<float, ErrorCode> imu::getAccelZ() const
+result<float> imu::getAccelZ() const
 {
     return _accel_z_fake;
 }
-std::expected<float, ErrorCode> imu::getGyroX() const
+result<float> imu::getGyroX() const
 {
     return _gyro_x_fake;
 }
-std::expected<float, ErrorCode> imu::getGyroY() const
+result<float> imu::getGyroY() const
 {
     return _gyro_y_fake;
 }
-std::expected<float, ErrorCode> imu::getGyroZ() const
+result<float> imu::getGyroZ() const
 {
     return _gyro_z_fake;
 }
 
-std::expected<imu::AccelData, ErrorCode> imu::getAccelAll() const
+result<imu::AccelData> imu::getAccelAll() const
 {
     return AccelData{ _accel_x_fake, _accel_y_fake, _accel_z_fake };
 }
 
-std::expected<imu::GyroData, ErrorCode> imu::getGyroAll() const
+result<imu::GyroData> imu::getGyroAll() const
 {
     return GyroData{ _gyro_x_fake, _gyro_y_fake, _gyro_z_fake };
 }

@@ -10,5 +10,5 @@ namespace io::imus
 {
 extern imu imu_rear;
 
-std::expected<void, ErrorCode> init();
+result<void> init();
 } // namespace io::imus

@@ -1,107 +1,65 @@
 // #include <string.h>
-// #include <stdint.h>
-// #include "app_screens.hpp"
+#include <cstdint>
+#include "app_screens.hpp"
+#include "app_canUtils.hpp"
+#include "io_sevenSeg.hpp"
+
+#include <cstring>
 // #include "app_screen_defines.hpp"
 // #include "app_canTx.h"
 // #include "app_canRx.h"
 // #include "io_shift_register.h"
 // #include "app_canUtils.h"
 //
-// static DriveMode drive_mode = DRIVE_MODE_POWER;
-//
-// static void drive_mode_ccw(void);
-// static void drive_mode_cw(void);
-// static void drive_mode_update(void);
-//
-// static uint8_t digit_to_segment(uint8_t digit)
-// {
-//     switch (digit)
-//     {
-//         case 0:
-//             return SEG_PATTERN_0;
-//         case 1:
-//             return SEG_PATTERN_1;
-//         case 2:
-//             return SEG_PATTERN_2;
-//         case 3:
-//             return SEG_PATTERN_3;
-//         case 4:
-//             return SEG_PATTERN_4;
-//         case 5:
-//             return SEG_PATTERN_5;
-//         case 6:
-//             return SEG_PATTERN_6;
-//         case 7:
-//             return SEG_PATTERN_7;
-//         case 8:
-//             return SEG_PATTERN_8;
-//         case 9:
-//             return SEG_PATTERN_9;
-//         default:
-//             return SEG_PATTERN_DP;
-//     }
-// }
-//
-// static void drive_mode_ccw(void)
-// {
-//     if (drive_mode == 0)
-//     {
-//         drive_mode = (DriveMode)(DRIVE_MODE_COUNT - 1);
-//     }
-//     else
-//     {
-//         drive_mode--;
-//     }
-//
-//     drive_mode_update();
-// }
-//
-// static void drive_mode_cw(void)
-// {
-//     drive_mode = (DriveMode)((drive_mode + 1) % DRIVE_MODE_COUNT);
-//     drive_mode_update();
-// }
-//
-// static void drive_mode_update(void)
-// {
-//     const uint8_t max_cell_temp                      = (uint8_t)app_canRx_BMS_MaxCellTemp_get();
-//     uint8_t       data_buffer[SEVEN_SEG_DATA_LENGTH] = { 0 };
-//     (void)memset(&data_buffer[0], SEG_PATTERN_DP, (sizeof(uint8_t) * SEVEN_SEG_DATA_LENGTH));
-//
-//     data_buffer[3] = digit_to_segment(max_cell_temp / 100);
-//     data_buffer[4] = digit_to_segment((max_cell_temp / 10) % 10);
-//     data_buffer[5] = digit_to_segment(max_cell_temp % 10);
-//
-//     switch (drive_mode)
-//     {
-//         case DRIVE_MODE_POWER:
-//             data_buffer[6] = SEG_PATTERN_P;
-//             data_buffer[7] = SEG_PATTERN_U;
-//             data_buffer[8] = SEG_PATTERN_R;
-//             break;
-//         case DRIVE_MODE_POWER_AND_ACTIVE:
-//             data_buffer[6] = SEG_PATTERN_P;
-//             data_buffer[7] = SEG_PATTERN_DP;
-//             data_buffer[8] = SEG_PATTERN_A;
-//             break;
-//         case DRIVE_MODE_TV:
-//             data_buffer[6] = SEG_PATTERN_T;
-//             data_buffer[7] = SEG_PATTERN_V;
-//             data_buffer[8] = SEG_PATTERN_DP;
-//             break;
-//         default:
-//             data_buffer[6] = SEG_PATTERN_8;
-//             data_buffer[7] = SEG_PATTERN_8;
-//             data_buffer[8] = SEG_PATTERN_8;
-//             break;
-//         case DRIVE_MODE_COUNT:
-//         case NUM_DRIVE_MODE_CHOICES:
-//             break;
-//     }
-//
-//     io_shift_register_updateSevenSegRegisters((uint8_t *)data_buffer);
-// }
-//
-// Screen drive_modes_screen = { .ccw_callback = drive_mode_ccw,
-//                               .cw_callback  = drive_mode_cw,
-//                               .update       = drive_mode_update };
+static auto              drive_mode       = app::can_utils::DriveMode::VANILLA;
+static constexpr uint8_t DRIVE_MODE_COUNT = static_cast<size_t>(app::can_utils::DriveMode::COUNT);
+
+static void drive_mode_ccw()
+{
+    drive_mode = static_cast<app::can_utils::DriveMode>(
+        (static_cast<uint8_t>(drive_mode) - 1 + DRIVE_MODE_COUNT) % DRIVE_MODE_COUNT);
+}
+
+static void drive_mode_cw()
+{
+    drive_mode = static_cast<app::can_utils::DriveMode>((static_cast<uint8_t>(drive_mode) + 1) % DRIVE_MODE_COUNT);
+}
+
+static void drive_mode_update()
+{
+    // const uint8_t max_cell_temp                      = static_cast<uint8_t>(app_canRx_BMS_MaxCellTemp_get());
+    // uint8_t data_buffer[DIG] = { 0 };
+    std::array<io::seven_seg::digit, io::seven_seg::DIGITS> data_buffer{};
+    // memset(&data_buffer[0], SEG_PATTERN_DP, (sizeof(uint8_t) * SEVEN_SEG_DATA_LENGTH));
+
+    // data_buffer[3] = digit_to_segment(max_cell_temp / 100);
+    // data_buffer[4] = digit_to_segment((max_cell_temp / 10) % 10);
+    // data_buffer[5] = digit_to_segment(max_cell_temp % 10);
+
+    switch (drive_mode)
+    {
+        case app::can_utils::DriveMode::VANILLA:
+            data_buffer[0] = io::seven_seg::v;
+            data_buffer[1] = io::seven_seg::a;
+            data_buffer[2] = io::seven_seg::n;
+            break;
+        case app::can_utils::DriveMode::LAUNCH:
+            data_buffer[0] = io::seven_seg::l;
+            data_buffer[1] = io::seven_seg::a;
+            data_buffer[2] = io::seven_seg::u;
+            break;
+        case app::can_utils::DriveMode::TV:
+            data_buffer[0] = io::seven_seg::t;
+            data_buffer[1] = io::seven_seg::v;
+            break;
+        case app::can_utils::DriveMode::COUNT:
+        default:
+            break;
+    }
+
+    LOG_IF_ERR(io::seven_seg::write(data_buffer));
+}
+
+constexpr app::screens::Screen app::screens::drive_modes_screen = { .ccw_callback = drive_mode_ccw,
+                                                                    .cw_callback  = drive_mode_cw,
+                                                                    .update       = drive_mode_update };

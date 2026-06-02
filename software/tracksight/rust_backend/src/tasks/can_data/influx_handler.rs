@@ -1,15 +1,11 @@
-use influxdb2::{Client, api::write::TimestampPrecision, models::{DataPoint, data_point::DataPointError}};
+use influxdb2::{Client, models::DataPoint};
 use tokio::sync::{broadcast::Receiver};
-use futures::stream;
 
-#[allow(unused_imports)]
-use crate::utils::yellow;
+use crate::{tasks::can_data::influx_util::{InfluxSignalSource, MAX_BATCH_CAPACITY, build_data_point, flush_buffer}, utils::yellow};
 use crate::{config::CONFIG, tasks::{HealthCheckSender, HealthCheckSenderExt, ResultExt, Task}, vprintln};
 
 use jsoncan_rust::can_database::DecodedSignal;
 
-// Write to database once batch size is reached or some termination signal
-const MAX_BATCH_CAPACITY: usize = 500;
 
 /**
  * After serial_handler parses the can messages,
@@ -38,7 +34,7 @@ pub async fn run_influx_handler(
     loop {
         match decoded_signal_rx.recv().await {
             Ok(decoded_signal) => {
-                let data = match build_data_point(decoded_signal) {
+                let data = match build_data_point(decoded_signal, InfluxSignalSource::Radio) {
                     Ok(data) => data,
                     Err(e) => {
                         eprintln!("{e}");
@@ -63,26 +59,4 @@ pub async fn run_influx_handler(
     flush_buffer(&mut batch_buffer, &influx_client).await;
     
     vprintln!("{}", yellow("Influx task ended."));
-}
-
-/**
- * Helper to flush out a buffer
- */
-async fn flush_buffer(buffer: &mut Vec<DataPoint>, client: &Client) {
-    let body = stream::iter((*buffer).drain(..).collect::<Vec<DataPoint>>());
-    let write_res = client.write_with_precision(&CONFIG.influxdb_bucket, body, TimestampPrecision::Milliseconds).await;
-    if let Err(e) = write_res {
-        eprintln!("Error writing to InfluxDB: {e}");
-    }
-}
-
-/**
- * helper to build InfluxDB data point
- */
-fn build_data_point(decoded_signal: DecodedSignal) -> Result<DataPoint, DataPointError> {
-    DataPoint::builder(&CONFIG.influxdb_measurement)
-        .field("_value", decoded_signal.value)
-        .tag("signal_name", &decoded_signal.name)
-        .timestamp(decoded_signal.timestamp.unwrap_or_default() as i64)
-        .build()
 }

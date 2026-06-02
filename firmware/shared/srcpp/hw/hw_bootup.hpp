@@ -17,15 +17,15 @@ namespace hw::bootup
 
 enum class BootTarget : uint8_t
 {
-    BOOT_TARGET_APP,
-    BOOT_TARGET_BOOTLOADER,
+    APP,
+    BOOTLOADER,
 };
 
 enum class BootContext : uint8_t
 {
-    BOOT_CONTEXT_NONE,
-    BOOT_CONTEXT_STACK_OVERFLOW,
-    BOOT_CONTEXT_WATCHDOG_TIMEOUT,
+    NONE,
+    OVERFLOW,
+    WATCHDOG_TIMEOUT,
 };
 
 // Note the ordering matters as given the system is 4-byte aligned

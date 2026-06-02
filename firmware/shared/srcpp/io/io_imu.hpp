@@ -197,26 +197,26 @@ class imu
     constexpr explicit imu() {}
 #endif
 
-    [[nodiscard]] std::expected<void, ErrorCode> init() const;
+    [[nodiscard]] result<void> init() const;
 
-    std::expected<float, ErrorCode> getAccelX() const;
-    std::expected<float, ErrorCode> getAccelY() const;
-    std::expected<float, ErrorCode> getAccelZ() const;
+    result<float> getAccelX() const;
+    result<float> getAccelY() const;
+    result<float> getAccelZ() const;
 
-    std::expected<float, ErrorCode> getGyroX() const;
-    std::expected<float, ErrorCode> getGyroY() const;
-    std::expected<float, ErrorCode> getGyroZ() const;
+    result<float> getGyroX() const;
+    result<float> getGyroY() const;
+    result<float> getGyroZ() const;
 
-    std::expected<float, ErrorCode> getTemp() const;
+    result<float> getTemp() const;
 
-    std::expected<AccelData, ErrorCode> getAccelAll() const;
-    std::expected<GyroData, ErrorCode>  getGyroAll() const;
+    result<AccelData> getAccelAll() const;
+    result<GyroData>  getGyroAll() const;
 
 #ifdef TARGET_TEST
     mutable bool  initialized   = false;
     mutable float _accel_x_fake = 0.0f, _accel_y_fake = 0.0f, _accel_z_fake = 0.0f, _gyro_x_fake = 0.0f,
                   _gyro_y_fake = 0.0f, _gyro_z_fake = 0.0f;
-    mutable std::expected<void, ErrorCode> init_status = {};
+    mutable result<void> init_status = {};
 
     void reset_init();
     bool get_init() const;
