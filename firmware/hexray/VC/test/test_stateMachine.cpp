@@ -63,7 +63,7 @@ static void ResetCanMessages()
     SetAllInverterErrors(false);
     app::can_rx::INVFL_ErrorInfo_update(0u);
 
-    app::can_tx::VC_ChannelOneVoltage_set(0.0f);
+    app::can_tx::VC_PcmChannelVoltage_set(0.0f);
     app::can_tx::VC_PcmRetryCount_set(0u);
     app::can_tx::VC_Info_PcmUnderVoltage_set(false);
     app::can_tx::VC_Info_InverterRetry_set(false);
@@ -257,7 +257,7 @@ TEST_F(VCStateMachineTest, PcmGoodVoltageTransitionsToHvInit)
 {
     SetStateWithEntry(&app::states::pcmOn_state);
     app::can_rx::BMS_IrNegative_update(app::can_utils::ContactorState::CONTACTOR_STATE_CLOSED);
-    app::can_tx::VC_ChannelOneVoltage_set(20.0f);
+    app::can_tx::VC_PcmChannelVoltage_set(20.0f);
 
     LetTimePass(20);
     ASSERT_EQ(app::can_tx::VC_PcmRetryCount_get(), 0);
@@ -268,7 +268,7 @@ TEST_F(VCStateMachineTest, PcmUnderVoltageRetriesThenFaults)
 {
     SetStateWithEntry(&app::states::pcmOn_state);
     app::can_rx::BMS_IrNegative_update(app::can_utils::ContactorState::CONTACTOR_STATE_CLOSED);
-    app::can_tx::VC_ChannelOneVoltage_set(16.0f);
+    app::can_tx::VC_PcmChannelVoltage_set(16.0f);
     ASSERT_EQ(app::can_tx::VC_PcmRetryCount_get(), 0);
 
     LetTimePass(20);
@@ -410,7 +410,7 @@ TEST_F(VCStateMachineTest, InverterRetryTwoFaultsInARow)
     app::can_rx::BMS_State_update(BmsState::BMS_DRIVE_STATE);
     LetTimePass(10);
     ASSERT_STATE_EQ(app::states::pcmOn_state);
-    app::can_tx::VC_ChannelOneVoltage_set(20.0f);
+    app::can_tx::VC_PcmChannelVoltage_set(20.0f);
     LetTimePass(20);
     ASSERT_STATE_EQ(app::states::hvInit_state);
 
@@ -456,7 +456,7 @@ TEST_F(VCStateMachineTest, AirMinusOpenDebounceReturnsBmsOnToInit)
 TEST_F(VCStateMachineTest, AirMinusOpenDebounceReturnsPcmOnToInit)
 {
     SetStateWithEntry(&app::states::pcmOn_state);
-    app::can_tx::VC_ChannelOneVoltage_set(28.0f);
+    app::can_tx::VC_PcmChannelVoltage_set(28.0f);
     app::can_rx::BMS_IrNegative_update(ContactorState::CONTACTOR_STATE_OPEN);
 
     LetTimePass(110);
@@ -722,7 +722,7 @@ TEST_F(VCStateMachineTest, InverterRetryTwoFaultsInaRow)
     app::can_rx::BMS_State_update(BmsState::BMS_DRIVE_STATE);
     LetTimePass(10);
     ASSERT_STATE_EQ(app::states::pcmOn_state);
-    app::can_tx::VC_ChannelOneVoltage_set(20.0f);
+    app::can_tx::VC_PcmChannelVoltage_set(20.0f);
     LetTimePass(20);
     ASSERT_STATE_EQ(app::states::hvInit_state);
 
@@ -737,7 +737,7 @@ TEST_F(VCStateMachineTest, InverterRetryTwoFaultsInaRow)
 TEST_F(VCStateMachineTest, GoodVoltageTransitionsToHvInit)
 {
     SetStateWithEntry(&app::states::pcmOn_state);
-    app::can_tx::VC_ChannelOneVoltage_set(20.0f);
+    app::can_tx::VC_PcmChannelVoltage_set(20.0f);
 
     LetTimePass(20);
     ASSERT_EQ(app::can_tx::VC_PcmRetryCount_get(), 0);
@@ -785,7 +785,7 @@ TEST_F(VCStateMachineTest, bmsOnLatchedFault)
 TEST_F(VCStateMachineTest, pcmOnStateLatchedFault)
 {
     SetStateWithEntry(&app::states::pcmOn_state);
-    app::can_tx::VC_ChannelOneVoltage_set(28.0f);
+    app::can_tx::VC_PcmChannelVoltage_set(28.0f);
     app::can_rx::BMS_IrNegative_update(ContactorState::CONTACTOR_STATE_OPEN);
 
     LetTimePass(110);

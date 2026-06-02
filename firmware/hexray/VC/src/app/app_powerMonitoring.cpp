@@ -73,10 +73,10 @@ result<void> update()
     app::can_tx::VC_VbatChannelVoltage_set(ch3_voltage.value_or(0.0f));
     app::can_tx::VC_BoostChannelVoltage_set(ch4_voltage.value_or(0.0f));
 
-    app::can_tx::VC_ChannelOneCurrent_set(ch1_current.value_or(0.0f));
-    app::can_tx::VC_ChannelTwoCurrent_set(ch2_current.value_or(0.0f));
-    app::can_tx::VC_ChannelThreeCurrent_set(ch3_current.value_or(0.0f));
-    app::can_tx::VC_ChannelFourCurrent_set(ch4_current.value_or(0.0f));
+    app::can_tx::VC_PcmChannelCurrent_set(ch1_current.value_or(0.0f));
+    app::can_tx::VC_ExtChannelCurrent_set(ch2_current.value_or(0.0f));
+    app::can_tx::VC_VbatChannelCurrent_set(ch3_current.value_or(0.0f));
+    app::can_tx::VC_BoostChannelCurrent_set(ch4_current.value_or(0.0f));
 
     app::can_tx::VC_ChannelOnePower_set(ch1_power.value_or(0.0f));
     app::can_tx::VC_ChannelTwoPower_set(ch2_power.value_or(0.0f));

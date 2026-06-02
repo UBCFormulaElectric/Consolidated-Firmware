@@ -614,49 +614,49 @@
     "cycle_time": 100,
     "description": "Power monitoring chip",
     "signals": {
-      "ChannelOneVoltage": {
+      "PcmChannelVoltage": {
         "resolution": 0.1,
         "min": 0.0,
         "max": 24.0,
         "unit": "V"
       },
-      "ChannelTwoVoltage": {
+      "ExtChannelVoltage": {
         "resolution": 0.1,
         "min": 0.0,
         "max": 32.0,
         "unit": "V"
       },
-      "ChannelThreeVoltage": {
+      "VbatChannelVoltage": {
         "resolution": 0.1,
         "min": 0.0,
         "max": 32.0,
         "unit": "V"
       },
-      "ChannelFourVoltage": {
+      "BoostChannelVoltage": {
         "resolution": 0.1,
         "min": 0.0,
         "max": 32.0,
         "unit": "V"
       },
-      "ChannelOneCurrent": {
+      "PcmChannelCurrent": {
         "resolution": 0.1,
         "min": 0.0,
         "max": 25.0,
         "unit": "A"
       },
-      "ChannelTwoCurrent": {
+      "ExtChannelCurrent": {
         "resolution": 0.1,
         "min": 0.0,
         "max": 25.0,
         "unit": "A"
       },
-      "ChannelThreeCurrent": {
+      "VbatChannelCurrent": {
         "resolution": 0.1,
         "min": 0.0,
         "max": 25.0,
         "unit": "A"
       },
-      "ChannelFourCurrent": {
+      "BoostChannelCurrent": {
         "resolution": 0.1,
         "min": 0.0,
         "max": 25.0,

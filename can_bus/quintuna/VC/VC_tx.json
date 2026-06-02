@@ -807,13 +807,13 @@
         "max": 32.0,
         "unit": "V"
       },
-      "ChannelOneCurrent": {
+      "PcmChannelCurrent": {
         "resolution": 0.1,
         "min": 0.0,
         "max": 25.0,
         "unit": "A"
       },
-      "ChannelTwoCurrent": {
+      "ExtChannelCurrent": {
         "resolution": 0.1,
         "min": 0.0,
         "max": 25.0,

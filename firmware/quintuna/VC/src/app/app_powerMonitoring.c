@@ -32,8 +32,8 @@ void app_powerMonitoring_update(void)
 
         app_canTx_VC_PcmChannelVoltage_set(ch1_voltage);
         app_canTx_VC_ExtChannelVoltage_set(ch2_voltage);
-        app_canTx_VC_ChannelOneCurrent_set(ch1_current);
-        app_canTx_VC_ChannelTwoCurrent_set(ch2_current);
+        app_canTx_VC_PcmChannelCurrent_set(ch1_current);
+        app_canTx_VC_ExtChannelCurrent_set(ch2_current);
         app_canTx_VC_ChannelOnePower_set(ch1_power);
         app_canTx_VC_ChannelTwoPower_set(ch2_power);
     }
