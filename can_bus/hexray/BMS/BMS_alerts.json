@@ -1,8 +1,8 @@
 {
-  "warnings_id": 421,
-  "faults_id": 422,
-  "warnings_counts_id": 423,
-  "faults_counts_id": 424,
+  "faults_id": 401,
+  "warnings_id": 402,
+  "faults_counts_id": 403,
+  "warnings_counts_id": 404,
   "warnings": {
     "CellUndervoltage": {
       "id": 425,
@@ -63,8 +63,8 @@
       "description": "Charger faulted! Could be Elcon error OR external shutdown OR charger disconnected."
     }
   },
-  "info_id": 437,
-  "info_counts_id": 438,
+  "info_id": 405,
+  "info_counts_id": 406,
   "info": {
     "StackOverflow": {
       "id": 440,

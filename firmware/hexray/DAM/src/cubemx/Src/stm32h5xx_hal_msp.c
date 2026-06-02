@@ -229,7 +229,7 @@ void HAL_RTC_MspInit(RTC_HandleTypeDef *hrtc)
         /** Initializes the peripherals clock
          */
         PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_RTC;
-        PeriphClkInitStruct.RTCClockSelection    = RCC_RTCCLKSOURCE_LSI;
+        PeriphClkInitStruct.RTCClockSelection    = RCC_RTCCLKSOURCE_LSE;
         if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
         {
             Error_Handler();
@@ -319,7 +319,7 @@ void HAL_SD_MspInit(SD_HandleTypeDef *hsd)
         HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
         /* SDMMC1 interrupt Init */
-        HAL_NVIC_SetPriority(SDMMC1_IRQn, 0, 0);
+        HAL_NVIC_SetPriority(SDMMC1_IRQn, 5, 0);
         HAL_NVIC_EnableIRQ(SDMMC1_IRQn);
         /* USER CODE BEGIN SDMMC1_MspInit 1 */
 

@@ -1,5 +1,6 @@
 #include "chimera_v2.hpp"
 #include "tasks.h"
+#include "hw_pwms.hpp"
 #include "hw_gpios.hpp"
 #include "hw_adcs.hpp"
 #include "hw_i2cs.hpp"
@@ -150,4 +151,12 @@ char USBD_PRODUCT_STRING_FS[] = "rsm";
     TaskChimera.start();
     osKernelStart();
     forever {}
+}
+
+void tasks_handle_arr_rollover_callback(TIM_HandleTypeDef *htim)
+{
+    if (htim == &flow_meter_config.get_timer_handle())
+    {
+        flow_meter_config.increment_arrRolloverCount();
+    }
 }

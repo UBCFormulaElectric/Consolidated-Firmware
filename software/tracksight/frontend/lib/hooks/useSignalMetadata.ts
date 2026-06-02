@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 
 import { API_BASE_URL } from "@/lib/constants";
 import { SignalMetadata } from "@/lib/types/Signal";
-import { getSignalMetadataType } from "../api/signals";
+import { getSignalType } from "../api/signals";
 
 /**
  * Hook to fetch metadata for a specific signal.
@@ -31,7 +31,7 @@ export default function useSignalMetadata(signalName: string | null) {
         throw new Error(`Signal not found: ${signalName}`);
       }
 
-      const type = getSignalMetadataType(signal);
+      const type = getSignalType(signal);
       return { ...signal, type };
     },
     retryOnMount: false,
