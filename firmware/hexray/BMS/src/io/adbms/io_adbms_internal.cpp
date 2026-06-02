@@ -300,7 +300,7 @@ result<void> sendCmd(const uint16_t cmd)
 {
     const SpiLock lock;
     const Cmd     tx_cmd{ cmd };
-    const auto status = adbms_spi_ls.transmitDma(tx_cmd.into_span());
+    const auto    status = adbms_spi_ls.transmitDma(tx_cmd.into_span());
     if (status)
     {
         postTxUpdateCmdCount(cmd);
@@ -312,7 +312,7 @@ result<bitset<32>> poll(const uint16_t cmd)
 {
     const SpiLock lock;
     const Cmd     tx_cmd{ cmd };
-    uint32_t  poll_buf;
+    uint32_t      poll_buf;
     static_assert(sizeof(poll_buf) == 4);
     const auto status = adbms_spi_ls.transmitThenReceiveDma(
         tx_cmd.into_span(), { reinterpret_cast<uint8_t *>(&poll_buf), sizeof(poll_buf) });
