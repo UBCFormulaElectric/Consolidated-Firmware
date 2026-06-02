@@ -106,11 +106,6 @@ void jobs_initLogFs()
 
     app::sd::init_fs();
     app::sd::update_metadata();
-
-    if (const auto err = app::bootcount::update(fs); !err)
-    {
-        LOG_ERROR("Failed to update bootcount: %d", static_cast<int>(err.error()));
-    }
 }
 
 void jobs_run1Hz_tick()

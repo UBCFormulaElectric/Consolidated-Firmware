@@ -1,14 +1,19 @@
+#include "app_bootcount.hpp"
 #include "io_rtc.hpp"
 #include "io_filesystem.hpp"
 #include "io_fileSystems.hpp"
+
+#include <array>
+#include <cstdio>
 
 namespace app::sd
 {
 namespace
 {
-    auto     LOG_PATH = "/log.bin";
-    uint32_t log_fd   = 0;
-    bool     log_open = false;
+    constexpr const char *DEFAULT_LOG_PATH = "/log.bin"; // Fallback path
+    std::array<char, 32> LOG_PATH_BUF{};
+    uint32_t             log_fd   = 0;
+    bool                 log_open = false;
 } // namespace
 
 void init_fs()
@@ -25,14 +30,26 @@ void init_fs()
         LOG_INFO("Initialised filesystem successfully.");
     }
 
-    if (const auto r = fs.open(LOG_PATH); r)
+    const char *log_path = DEFAULT_LOG_PATH;
+    if (const auto boot_num = app::bootcount::update(fs); boot_num)
+    {
+        std::snprintf(LOG_PATH_BUF.data(), LOG_PATH_BUF.size(), "/boot_%lu.bin",
+                      static_cast<unsigned long>(boot_num.value()));
+        log_path = LOG_PATH_BUF.data();
+    }
+    else
+    {
+        LOG_ERROR("Failed to update bootcount: %d", static_cast<int>(boot_num.error()));
+    }
+
+    if (const auto r = fs.open(log_path); r)
     {
         log_fd   = r.value();
         log_open = true;
     }
     else
     {
-        LOG_ERROR("Failed to open %s: %d", LOG_PATH, static_cast<int>(r.error()));
+        LOG_ERROR("Failed to open %s: %d", log_path, static_cast<int>(r.error()));
     }
 }
 
