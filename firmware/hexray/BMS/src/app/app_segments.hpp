@@ -69,13 +69,13 @@ namespace broadcast
 {
     namespace debug
     {
-        void cellVoltages(const Cells<result<float>> &voltages, const result<void> &poll_ok);
-        void thermTemps(const Therms<result<float>> &temps, const result<void> &poll_ok);
-        void thermOwc(const Therms<result<bool>> &therm_owc, const result<void> &poll_ok);
-        void segVoltages(const Segments<result<float>> &seg_voltages);
-        void status(const Segments<io::adbms::StatusGroupsRes> &status);
-        void cellOwc(const Cells<result<bool>> &owc_results, const result<void> &poll_ok);
-        void balancing(const Cells<bool> &discharge_enabled, const Cells<uint8_t> &pwm_duty);
+        void cellVoltages(const io::adbms::Cells<result<float>> &voltages, const result<void> &poll_ok);
+        void thermTemps(const io::adbms::Therms<result<float>> &temps, const result<void> &poll_ok);
+        void thermOwc(const io::adbms::Therms<result<bool>> &therm_owc, const result<void> &poll_ok);
+        void segVoltages(const io::adbms::Segments<result<float>> &seg_voltages);
+        void status(const io::adbms::Segments<io::adbms::StatusGroupsRes> &status);
+        void cellOwc(const io::adbms::Cells<result<bool>> &owc_results, const result<void> &poll_ok);
+        void balancing(const io::adbms::Cells<bool> &discharge_enabled, const io::adbms::Cells<uint8_t> &pwm_duty);
     } // namespace debug
     void segmentHealthError();
     void voltageStats();
