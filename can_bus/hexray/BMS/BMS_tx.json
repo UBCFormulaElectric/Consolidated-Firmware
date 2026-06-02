@@ -3944,63 +3944,63 @@
     "description": "Internal temperature for all segments",
     "signals": {
       "Seg0_ITMP": {
-        "resolution": 0.01,
+        "resolution": 0.1,
         "min": -0.1,
-        "max": 80,
+        "max": 160,
         "unit": "degC"
       },
       "Seg1_ITMP": {
-        "resolution": 0.01,
+        "resolution": 0.1,
         "min": -0.1,
-        "max": 80,
+        "max": 160,
         "unit": "degC"
       },
       "Seg2_ITMP": {
-        "resolution": 0.01,
+        "resolution": 0.1,
         "min": -0.1,
-        "max": 80,
+        "max": 160,
         "unit": "degC"
       },
       "Seg3_ITMP": {
-        "resolution": 0.01,
+        "resolution": 0.1,
         "min": -0.1,
-        "max": 80,
+        "max": 160,
         "unit": "degC"
       },
       "Seg4_ITMP": {
-        "resolution": 0.01,
+        "resolution": 0.1,
         "min": -0.1,
-        "max": 80,
+        "max": 160,
         "unit": "degC"
       },
       "Seg5_ITMP": {
-        "resolution": 0.01,
+        "resolution": 0.1,
         "min": -0.1,
-        "max": 80,
+        "max": 160,
         "unit": "degC"
       },
       "Seg6_ITMP": {
-        "resolution": 0.01,
+        "resolution": 0.1,
         "min": -0.1,
-        "max": 80,
+        "max": 160,
         "unit": "degC"
       },
       "Seg7_ITMP": {
-        "resolution": 0.01,
+        "resolution": 0.1,
         "min": -0.1,
-        "max": 80,
+        "max": 160,
         "unit": "degC"
       },
       "Seg8_ITMP": {
-        "resolution": 0.01,
+        "resolution": 0.1,
         "min": -0.1,
-        "max": 80,
+        "max": 160,
         "unit": "degC"
       },
       "Seg9_ITMP": {
-        "resolution": 0.01,
+        "resolution": 0.1,
         "min": -0.1,
-        "max": 80,
+        "max": 160,
         "unit": "degC"
       }
     }
