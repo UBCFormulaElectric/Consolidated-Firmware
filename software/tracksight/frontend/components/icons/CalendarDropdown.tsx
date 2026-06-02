@@ -91,13 +91,13 @@ const CalendarDropdown = ({ selectedDate, onDateSelect }: CalendarDropdownProps)
     return (
         <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
             <PopoverTrigger asChild>
-                <button type="button" className="flex min-w-84 items-center justify-between gap-4 rounded-3xl border border-gray-200 bg-white px-5 py-4 text-left shadow-[0_8px_24px_rgba(15,23,42,0.10)] transition-colors hover:bg-gray-50 cursor-grab">
-                    <div className="flex items-center gap-4">
-                        <div className="flex size-11 items-center justify-center rounded-2xl bg-gray-100 text-gray-900">
-                            <CalendarIcon className="size-6" strokeWidth={2.2} />
+                <button type="button" className="flex min-w-0 w-full cursor-grab items-center justify-between gap-3 rounded-2xl border border-gray-200 bg-white px-4 py-3 text-left shadow-[0_8px_24px_rgba(15,23,42,0.10)] transition-colors hover:bg-gray-50">
+                    <div className="flex min-w-0 items-center gap-3">
+                        <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-gray-100 text-gray-900">
+                            <CalendarIcon className="size-5" strokeWidth={2.2} />
                         </div>
-                        <div>
-                            <div className="text-[1.9rem] font-semibold leading-none text-gray-950">
+                        <div className="min-w-0">
+                            <div className="truncate text-xl font-semibold leading-none text-gray-950">
                                 {MONTH_NAMES[activeSelectedDate.getUTCMonth()]} {getOrdinalDay(activeSelectedDate.getUTCDate())}, {activeSelectedDate.getUTCFullYear()}
                             </div>
                         </div>

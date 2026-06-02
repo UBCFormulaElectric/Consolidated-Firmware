@@ -2,7 +2,7 @@ import React, { memo, useEffect, useMemo, useRef, useState } from "react";
 
 import { useSyncedGraph } from "@/components/SyncedGraphContainer";
 import { useWidgetManager } from "@/components/widgets/WidgetManagerContext";
-import { fetchHistoricalSignal } from "@/lib/api/historicalSignals";
+import { fetchHistoricalSignal, HistoricalSignalSource } from "@/lib/api/historicalSignals";
 import { SignalDataStoreProvider } from "@/lib/contexts/signalStores/SignalStoreContext";
 import HistoricalSignalStore from "@/lib/signals/HistoricalSignalStore";
 import { SignalMetadata } from "@/lib/types/Signal";
@@ -11,6 +11,7 @@ type HistoricalSignalStoreProviderProps = {
     children: React.ReactNode;
     startUtcMs: number;
     endUtcMs: number;
+    source: HistoricalSignalSource;
     selectedRange: {
         min: number;
         max: number;
@@ -18,7 +19,7 @@ type HistoricalSignalStoreProviderProps = {
 };
 
 export const HistoricalSignalStoreProvider = memo(function HistoricalSignalStoreProvider(props: HistoricalSignalStoreProviderProps) {
-    const { children, startUtcMs, endUtcMs, selectedRange } = props;
+    const { children, startUtcMs, endUtcMs, source, selectedRange } = props;
     const { widgets } = useWidgetManager();
     const { updateWithTimestamp, setTimeRange } = useSyncedGraph();
     const signalStoreRef = useRef<HistoricalSignalStore>(null!);
@@ -40,7 +41,7 @@ export const HistoricalSignalStoreProvider = memo(function HistoricalSignalStore
         return [...signalsByName.values()];
     }, [widgets]);
 
-    const selectedRangeKey = `${selectedRange.min}:${selectedRange.max}`;
+    const selectedRangeKey = `${source}:${selectedRange.min}:${selectedRange.max}`;
 
     useEffect(() => {
         let isCancelled = false;
@@ -62,6 +63,7 @@ export const HistoricalSignalStoreProvider = memo(function HistoricalSignalStore
                         signalName: signal.name,
                         startUtcMs,
                         endUtcMs,
+                        source,
                     }),
                 }))
             );
@@ -100,7 +102,7 @@ export const HistoricalSignalStoreProvider = memo(function HistoricalSignalStore
         return () => {
             isCancelled = true;
         };
-    }, [endUtcMs, selectedRange, selectedRangeKey, selectedSignals, setTimeRange, startUtcMs]);
+    }, [endUtcMs, selectedRange, selectedRangeKey, selectedSignals, setTimeRange, source, startUtcMs]);
 
     return (
         <SignalDataStoreProvider signalStore={signalStoreRef}>
@@ -108,11 +110,11 @@ export const HistoricalSignalStoreProvider = memo(function HistoricalSignalStore
             {isLoading ? (
                 <div className="mx-4 mb-3 flex items-center gap-3 px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg animate-pulse">
                     <div className="w-2 h-2 bg-green-500 rounded-full animate-bounce" />
-                    <span className="text-sm font-medium text-gray-600">Syncing historical data...</span>
+                    <span className="text-sm font-medium text-gray-600">Syncing {source === "SdCard" ? "SD card" : "historical"} data...</span>
                 </div>
             ) : !error ? (
                 <div className="mx-4 mb-3 flex items-center gap-3 px-3 py-2 bg-green-100 border border-gray-200 rounded-lg ">
-                    <span className="text-sm font-medium text-gray-600">Data Synced</span>
+                    <span className="text-sm font-medium text-gray-600">{source === "SdCard" ? "SD Card" : "Historical"} Data Synced</span>
                 </div>
             ) : null}
             {children}
