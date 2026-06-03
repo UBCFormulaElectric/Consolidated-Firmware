@@ -6,6 +6,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { WidgetAdder } from "@/app/live/WidgetAdder";
 import DataDashboard from "@/components/DataDashboard";
 import CalendarDropdown from "@/components/icons/CalendarDropdown";
+import DropdownTrigger from "@/components/icons/DropdownTrigger";
 import SessionDropdown from "@/components/icons/SessionDropdown";
 import { DisplayControlProvider } from "@/components/PausePlayControl";
 import SyncedGraphContainer, { TimeRange } from "@/components/SyncedGraphContainer";
@@ -14,13 +15,13 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { WidgetManager, useWidgetManager } from "@/components/widgets/WidgetManagerContext";
 import { HistoricalSignalSource } from "@/lib/api/historicalSignals";
 import { HistoricalSignalStoreProvider } from "@/lib/contexts/signalStores/HistoricalSignalStoreContext";
-import { useHistoricalSessions } from "@/lib/hooks/useHistoricalSessions";
+import { useHistoricalSessionSelection } from "@/lib/hooks/useHistoricalSessionSelection";
 import { cn } from "@/lib/utils";
 
 const HISTORIC_WIDGET_STORAGE_KEY = "tracksight_historic_widgets_config_v1";
 const HISTORIC_VIEWPORT_LOCK_STORAGE_KEY = "tracksight_historic_viewport_lock_state_v1";
 
-const _sourceOptions: { value: HistoricalSignalSource; label: string; description: string; Icon: typeof RadioIcon }[] = [
+const SOURCE_OPTIONS: { value: HistoricalSignalSource; label: string; description: string; Icon: typeof RadioIcon }[] = [
     {
         value: "Radio",
         label: "Radio",
@@ -56,7 +57,7 @@ const expandViewportFetchRange = (range: TimeRange, bounds: TimeRange): TimeRang
 function SourceDropdown(props: { selectedSource: HistoricalSignalSource; onSourceSelect: (source: HistoricalSignalSource) => void }) {
     const { selectedSource, onSourceSelect } = props;
     const [isOpen, setIsOpen] = useState(false);
-    const activeSource = _sourceOptions.find((source) => source.value === selectedSource) ?? _sourceOptions[0];
+    const activeSource = SOURCE_OPTIONS.find((source) => source.value === selectedSource) ?? SOURCE_OPTIONS[0];
     const ActiveIcon = activeSource.Icon;
 
     const handleSourceSelect = (source: HistoricalSignalSource) => {
@@ -67,23 +68,12 @@ function SourceDropdown(props: { selectedSource: HistoricalSignalSource; onSourc
     return (
         <Popover open={isOpen} onOpenChange={setIsOpen}>
             <PopoverTrigger asChild>
-                <button type="button" className="flex min-w-48 items-center justify-between gap-3 rounded-2xl border border-gray-200 bg-white px-4 py-3 text-left shadow-[0_12px_34px_rgba(15,23,42,0.12)] transition-colors hover:bg-gray-50">
-                    <div className="flex min-w-0 items-center gap-3">
-                        <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-gray-100 text-gray-900">
-                            <ActiveIcon className="size-5" strokeWidth={2.2} />
-                        </div>
-                        <div className="min-w-0">
-                            <div className="text-sm font-semibold uppercase tracking-[0.16em] text-gray-500">Source</div>
-                            <div className="truncate text-xl font-semibold leading-none text-gray-950">{activeSource.label}</div>
-                        </div>
-                    </div>
-                    <ChevronDown className={cn("size-6 shrink-0 text-gray-500 transition-transform", isOpen && "rotate-180")} strokeWidth={2.25} />
-                </button>
+                <DropdownTrigger className="min-w-48" open={isOpen} label="Source" value={activeSource.label} icon={<ActiveIcon className="size-5" strokeWidth={2.2} />} />
             </PopoverTrigger>
 
             <PopoverContent align="start" sideOffset={14} className="w-80 rounded-[1.5rem] border border-gray-200 bg-white p-3 shadow-[0_28px_70px_rgba(15,23,42,0.16)]">
                 <div className="grid gap-2">
-                    {_sourceOptions.map((source) => {
+                    {SOURCE_OPTIONS.map((source) => {
                         const isSelected = source.value === selectedSource;
                         const Icon = source.Icon;
 
@@ -136,58 +126,34 @@ function HistoricContent(props: { selectedRange: { min: number; max: number }; s
 
 export default function Historical() {
     const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-    const [selectedSessionId, setSelectedSessionId] = useState<string | null>(null);
     const [selectedSource, setSelectedSource] = useState<HistoricalSignalSource>("Radio");
     const [draftDate, setDraftDate] = useState<Date>(selectedDate);
-    const [draftSessionId, setDraftSessionId] = useState<string | null>(selectedSessionId);
     const [selectionModalOpen, setSelectionModalOpen] = useState(false);
     const selectedDateKey = useMemo(() => toDateKey(selectedDate), [selectedDate]);
     const draftDateKey = useMemo(() => toDateKey(draftDate), [draftDate]);
-    const sessionsQuery = useHistoricalSessions(selectedDateKey);
-    const draftSessionsQuery = useHistoricalSessions(draftDateKey);
-    const sessions = useMemo(() => sessionsQuery.data ?? [], [sessionsQuery.data]);
-    const draftSessions = useMemo(() => draftSessionsQuery.data ?? [], [draftSessionsQuery.data]);
 
-    useEffect(() => {
-        setDraftSessionId(null);
-    }, [draftDateKey]);
+    // `live` drives the dashboard; `draft` is the staged selection inside the modal.
+    const live = useHistoricalSessionSelection(selectedDateKey);
+    const draft = useHistoricalSessionSelection(draftDateKey);
 
-    useEffect(() => {
-        if (sessions.length === 0) {
-            return;
-        }
+    const selectedRange = useMemo(() => (live.selectedSession ? { min: live.selectedSession.startUtcMs, max: live.selectedSession.endUtcMs } : null), [live.selectedSession]);
+    const sourceLabel = SOURCE_OPTIONS.find((source) => source.value === selectedSource)?.label ?? "Historical";
 
-        setSelectedSessionId((currentSessionId) => (sessions.some((session) => session.id === currentSessionId) ? currentSessionId : sessions[0].id));
-    }, [sessions]);
-
-    useEffect(() => {
-        if (draftSessions.length === 0) {
-            return;
-        }
-
-        setDraftSessionId((currentSessionId) => (draftSessions.some((session) => session.id === currentSessionId) ? currentSessionId : draftSessions[0].id));
-    }, [draftSessions]);
-
-    const selectedSession = useMemo(() => sessions.find((session) => session.id === selectedSessionId) ?? null, [selectedSessionId, sessions]);
-    const selectedRange = useMemo(() => (selectedSession ? { min: selectedSession.startUtcMs, max: selectedSession.endUtcMs } : null), [selectedSession]);
-    const sourceLabel = _sourceOptions.find((source) => source.value === selectedSource)?.label ?? "Historical";
-    const draftSelectedSession = useMemo(() => draftSessions.find((session) => session.id === draftSessionId) ?? null, [draftSessionId, draftSessions]);
-
-    const openSelectionModal = useCallback(() => {
+    const openSelectionModal = () => {
         setDraftDate(selectedDate);
-        setDraftSessionId(selectedSessionId);
+        draft.setSelectedSessionId(live.selectedSessionId);
         setSelectionModalOpen(true);
-    }, [selectedDate, selectedSessionId]);
+    };
 
     const handleLoadData = () => {
         setSelectedDate(draftDate);
-        setSelectedSessionId(draftSessionId);
+        live.setSelectedSessionId(draft.selectedSessionId);
         setSelectionModalOpen(false);
     };
 
     return (
         <DisplayControlProvider defaultViewportLocked={false} viewportLockStorageKey={HISTORIC_VIEWPORT_LOCK_STORAGE_KEY}>
-            <div className="mt-20 h-[calc(100vh-72px)] bg flex flex-col overflow-hidden">
+            <div className="mt-20 h-[calc(100vh-72px)] flex flex-col overflow-hidden">
                 <div className="mx-4 mb-4 flex flex-wrap items-center gap-4 shrink-0">
                     <SourceDropdown selectedSource={selectedSource} onSourceSelect={setSelectedSource} />
                     <button type="button" className="flex min-w-72 items-center justify-between gap-4 rounded-3xl border border-gray-200 bg-white px-5 py-4 text-left shadow-[0_10px_30px_rgba(15,23,42,0.10)] transition-colors hover:bg-gray-50" onClick={() => openSelectionModal()}>
@@ -197,7 +163,7 @@ export default function Historical() {
                             </div>
                             <div>
                                 <div className="text-sm font-semibold uppercase tracking-[0.16em] text-gray-500">Date and Session</div>
-                                <div className="text-[1.45rem] font-semibold leading-none text-gray-950">{selectedSession?.label ?? "Select session"}</div>
+                                <div className="text-[1.45rem] font-semibold leading-none text-gray-950">{live.selectedSession?.label ?? "Select session"}</div>
                             </div>
                         </div>
                         <ChevronDown className="size-6 shrink-0 text-gray-500" strokeWidth={2.25} />
@@ -207,7 +173,7 @@ export default function Historical() {
                 <div className="mx-4 mb-3 text-sm font-medium text-gray-600 shrink-0">Showing {sourceLabel} data. All times shown in UTC.</div>
 
                 <div className="flex-1 min-h-0 relative w-full">
-                    <WidgetManager storageKey={HISTORIC_WIDGET_STORAGE_KEY}>{selectedRange ? <HistoricContent selectedRange={selectedRange} selectedSource={selectedSource} /> : <div className="mx-4 grid h-full place-items-center text-gray-500">{sessionsQuery.isPending ? "Loading sessions..." : "No historical session selected."}</div>}</WidgetManager>
+                    <WidgetManager storageKey={HISTORIC_WIDGET_STORAGE_KEY}>{selectedRange ? <HistoricContent selectedRange={selectedRange} selectedSource={selectedSource} /> : <div className="mx-4 grid h-full place-items-center text-gray-500">{live.query.isPending ? "Loading sessions..." : "No historical session selected."}</div>}</WidgetManager>
                 </div>
             </div>
 
@@ -220,11 +186,11 @@ export default function Historical() {
 
                     <div className="grid gap-4 md:grid-cols-[minmax(16rem,1fr)_minmax(22rem,1.2fr)]">
                         <CalendarDropdown selectedDate={draftDate} onDateSelect={setDraftDate} />
-                        <SessionDropdown sessions={draftSessions} selectedSessionId={draftSessionId} isLoading={draftSessionsQuery.isPending} error={draftSessionsQuery.error} onSessionSelect={setDraftSessionId} />
+                        <SessionDropdown sessions={draft.sessions} selectedSessionId={draft.selectedSessionId} isLoading={draft.query.isPending} error={draft.query.error} onSessionSelect={draft.setSelectedSessionId} />
                     </div>
 
                     <DialogFooter>
-                        <button type="button" className="rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white shadow-[0_8px_18px_rgba(37,99,235,0.28)] transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60" disabled={!draftSelectedSession} onClick={handleLoadData}>
+                        <button type="button" className="rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white shadow-[0_8px_18px_rgba(37,99,235,0.28)] transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60" disabled={!draft.selectedSession} onClick={handleLoadData}>
                             Load Data
                         </button>
                     </DialogFooter>

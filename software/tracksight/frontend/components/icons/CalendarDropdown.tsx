@@ -1,8 +1,9 @@
 "use client";
 
-import { CalendarIcon, ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
+import { CalendarIcon, ChevronLeft, ChevronRight } from "lucide-react";
 import { useMemo, useState } from "react";
 
+import DropdownTrigger from "@/components/icons/DropdownTrigger";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 
@@ -91,19 +92,12 @@ const CalendarDropdown = ({ selectedDate, onDateSelect }: CalendarDropdownProps)
     return (
         <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
             <PopoverTrigger asChild>
-                <button type="button" className="flex min-w-0 w-full cursor-grab items-center justify-between gap-3 rounded-2xl border border-gray-200 bg-white px-4 py-3 text-left shadow-[0_8px_24px_rgba(15,23,42,0.10)] transition-colors hover:bg-gray-50">
-                    <div className="flex min-w-0 items-center gap-3">
-                        <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-gray-100 text-gray-900">
-                            <CalendarIcon className="size-5" strokeWidth={2.2} />
-                        </div>
-                        <div className="min-w-0">
-                            <div className="truncate text-xl font-semibold leading-none text-gray-950">
-                                {MONTH_NAMES[activeSelectedDate.getUTCMonth()]} {getOrdinalDay(activeSelectedDate.getUTCDate())}, {activeSelectedDate.getUTCFullYear()}
-                            </div>
-                        </div>
-                    </div>
-                    <ChevronDown className={cn("size-6 shrink-0 text-gray-500 transition-transform", calendarOpen && "rotate-180")} strokeWidth={2.25} />
-                </button>
+                <DropdownTrigger
+                    className="w-full"
+                    open={calendarOpen}
+                    value={`${MONTH_NAMES[activeSelectedDate.getUTCMonth()]} ${getOrdinalDay(activeSelectedDate.getUTCDate())}, ${activeSelectedDate.getUTCFullYear()}`}
+                    icon={<CalendarIcon className="size-5" strokeWidth={2.2} />}
+                />
             </PopoverTrigger>
 
             <PopoverContent align="start" sideOffset={14} className="w-150 rounded-[2rem] border border-gray-200 bg-white p-6 shadow-[0_18px_44px_rgba(15,23,42,0.14)]">
