@@ -280,15 +280,25 @@ async fn signal_sessions(
         }
     };
 
-    let time_bigram: Vec<(String, String)> = match req {
-        Ok(starts) => starts.windows(2)
+    fn to_unix(w: &SessionStarts) -> String {
+        return w.time.timestamp_millis().to_string();
+    }
+
+    let time_bigram: Vec<(String, Option<String>)> = match req {
+        Ok(starts) => {
+            let mut tb: Vec<(String, Option<String>)> = starts.windows(2)
             .map(|w| 
                 (
-                    w[0].time.to_rfc3339_opts(chrono::SecondsFormat::Millis, true), 
-                    w[1].time.to_rfc3339_opts(chrono::SecondsFormat::Millis, true)
+                    to_unix(&w[0]), 
+                    Some(to_unix(&w[1]))
                 )
             )
-            .collect(),
+            .collect();
+            if let Some(last) = starts.last() {
+                tb.push((to_unix(last), None));
+            }
+            tb
+        },
         Err(e) => return (StatusCode::INTERNAL_SERVER_ERROR, format!("Error occurred while fetching session starts: {}", e)),
     };
 
