@@ -10,9 +10,7 @@ static ShutdownNode get_first_shutdown()
 {
     if (!app::can_tx::VC_TSMSOKStatus_get())
         return ShutdownNode::TSMS;
-    
 
-    
     // The shutdowns in the accumulator
     if (!app::can_rx::BMS_BmsLatchOk_get())
         return ShutdownNode::BMS_OK;
@@ -44,7 +42,7 @@ static ShutdownNode get_first_shutdown()
         return ShutdownNode::FL_INERTIA_ILCK;
     if (!app::can_rx::FSM_FrontRightILCKOKStatus_get())
         return ShutdownNode::FR_ILCK;
-    
+
     return ShutdownNode::OK;
 }
 
