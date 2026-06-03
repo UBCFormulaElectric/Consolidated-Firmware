@@ -10,7 +10,7 @@ message("")
 message("🐍 Python Configuration")
 
 # ====== Generate PYTHON_COMMAND ======
-find_package(Python3 3.10.0...3.13.7 COMPONENTS Interpreter REQUIRED)
+find_package(Python3 3.10.0...3.14.5 COMPONENTS Interpreter REQUIRED)
 message("  ℹ️ Found Python ${Python3_VERSION}")
 set(PYTHON_COMMAND ${Python3_EXECUTABLE})
 
