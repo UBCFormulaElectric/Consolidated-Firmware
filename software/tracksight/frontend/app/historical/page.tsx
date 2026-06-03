@@ -140,7 +140,6 @@ export default function Historical() {
     const [selectedSource, setSelectedSource] = useState<HistoricalSignalSource>("Radio");
     const [draftDate, setDraftDate] = useState<Date>(selectedDate);
     const [draftSessionId, setDraftSessionId] = useState<string | null>(selectedSessionId);
-    const [draftSource, setDraftSource] = useState<HistoricalSignalSource>(selectedSource);
     const [selectionModalOpen, setSelectionModalOpen] = useState(false);
     const selectedDateKey = useMemo(() => toDateKey(selectedDate), [selectedDate]);
     const draftDateKey = useMemo(() => toDateKey(draftDate), [draftDate]);
@@ -172,25 +171,15 @@ export default function Historical() {
     const selectedSession = useMemo(() => sessions.find((session) => session.id === selectedSessionId) ?? null, [selectedSessionId, sessions]);
     const selectedRange = useMemo(() => (selectedSession ? { min: selectedSession.startUtcMs, max: selectedSession.endUtcMs } : null), [selectedSession]);
     const sourceLabel = _sourceOptions.find((source) => source.value === selectedSource)?.label ?? "Historical";
-    const draftSourceLabel = _sourceOptions.find((source) => source.value === draftSource)?.label ?? "Historical";
     const draftSelectedSession = useMemo(() => draftSessions.find((session) => session.id === draftSessionId) ?? null, [draftSessionId, draftSessions]);
 
-    const openSelectionModal = useCallback(
-        (nextSource = selectedSource) => {
-            setDraftSource(nextSource);
-            setDraftDate(selectedDate);
-            setDraftSessionId(selectedSessionId);
-            setSelectionModalOpen(true);
-        },
-        [selectedDate, selectedSessionId, selectedSource]
-    );
-
-    const handleSourceSelect = (source: HistoricalSignalSource) => {
-        openSelectionModal(source);
-    };
+    const openSelectionModal = useCallback(() => {
+        setDraftDate(selectedDate);
+        setDraftSessionId(selectedSessionId);
+        setSelectionModalOpen(true);
+    }, [selectedDate, selectedSessionId]);
 
     const handleLoadData = () => {
-        setSelectedSource(draftSource);
         setSelectedDate(draftDate);
         setSelectedSessionId(draftSessionId);
         setSelectionModalOpen(false);
@@ -200,7 +189,7 @@ export default function Historical() {
         <DisplayControlProvider defaultViewportLocked={false} viewportLockStorageKey={HISTORIC_VIEWPORT_LOCK_STORAGE_KEY}>
             <div className="mt-20 h-[calc(100vh-72px)] bg flex flex-col overflow-hidden">
                 <div className="mx-4 mb-4 flex flex-wrap items-center gap-4 shrink-0">
-                    <SourceDropdown selectedSource={selectedSource} onSourceSelect={handleSourceSelect} />
+                    <SourceDropdown selectedSource={selectedSource} onSourceSelect={setSelectedSource} />
                     <button type="button" className="flex min-w-72 items-center justify-between gap-4 rounded-3xl border border-gray-200 bg-white px-5 py-4 text-left shadow-[0_10px_30px_rgba(15,23,42,0.10)] transition-colors hover:bg-gray-50" onClick={() => openSelectionModal()}>
                         <div className="flex items-center gap-4">
                             <div className="flex size-11 items-center justify-center rounded-2xl bg-gray-100 text-gray-900">
@@ -225,12 +214,11 @@ export default function Historical() {
             <Dialog open={selectionModalOpen} onOpenChange={setSelectionModalOpen}>
                 <DialogContent className="max-w-6xl gap-6 rounded-[1.5rem] bg-white">
                     <DialogHeader>
-                        <DialogTitle>Select {draftSourceLabel} Data</DialogTitle>
-                        <DialogDescription>Choose the source, date, and session to load into the historical dashboard.</DialogDescription>
+                        <DialogTitle>Select Historical Data</DialogTitle>
+                        <DialogDescription>Choose the date and session to load into the historical dashboard.</DialogDescription>
                     </DialogHeader>
 
-                    <div className="grid gap-4 md:grid-cols-[12rem_minmax(16rem,1fr)] lg:grid-cols-[12rem_minmax(16rem,1fr)_minmax(22rem,1.2fr)]">
-                        <SourceDropdown selectedSource={draftSource} onSourceSelect={setDraftSource} />
+                    <div className="grid gap-4 md:grid-cols-[minmax(16rem,1fr)_minmax(22rem,1.2fr)]">
                         <CalendarDropdown selectedDate={draftDate} onDateSelect={setDraftDate} />
                         <SessionDropdown sessions={draftSessions} selectedSessionId={draftSessionId} isLoading={draftSessionsQuery.isPending} error={draftSessionsQuery.error} onSessionSelect={setDraftSessionId} />
                     </div>
