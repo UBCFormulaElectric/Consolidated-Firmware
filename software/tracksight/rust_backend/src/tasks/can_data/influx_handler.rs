@@ -1,5 +1,5 @@
 use influxdb2::{Client, models::DataPoint};
-use tokio::sync::{broadcast::Receiver};
+use tokio::sync::{broadcast::Receiver, broadcast::error::RecvError};
 
 use crate::{tasks::can_data::influx_util::{InfluxSignalSource, MAX_BATCH_CAPACITY, build_data_point, flush_buffer}, utils::yellow};
 use crate::{config::CONFIG, tasks::{HealthCheckSender, HealthCheckSenderExt, ResultExt, Task}, vprintln};
@@ -48,8 +48,13 @@ pub async fn run_influx_handler(
                     flush_buffer(&mut batch_buffer, &influx_client).await;
                 }
             }
-            // Closed channel or any error is signal to stop thread
-            _ => {
+            // Lagging behind is recoverable: drop the missed signals and keep going
+            Err(RecvError::Lagged(n)) => {
+                eprintln!("Influx handler lagged, dropped {n} signals");
+                continue;
+            }
+            // Closed channel is the signal to stop thread
+            Err(RecvError::Closed) => {
                 vprintln!("Influx task shutting down.");
                 break;
             }
