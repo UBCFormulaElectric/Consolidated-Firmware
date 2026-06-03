@@ -4,6 +4,7 @@
 #include "io_log.hpp"
 
 #include "app_bootcount.hpp"
+#include "app_buzzer.hpp"
 #include "app_canTx.hpp"
 #include "app_canUtils.hpp"
 #include "app_canDataCapture.hpp"
@@ -11,6 +12,7 @@
 #include "app_heartbeatMonitors.hpp"
 #include "app_commitInfo.hpp"
 #include "app_epochClock.hpp"
+#include "app_tsim.hpp"
 
 #include "io_canMsg.hpp"
 #include "io_canQueues.hpp"
@@ -73,6 +75,9 @@ void jobs_init()
     app::can_tx::DAM_Heartbeat_set(true);
     io::can_tx::DAM_Bootup_sendAperiodic();
     app::epochClock::logDateTime("Boot RTC time (GMT)");
+
+    app::tsim::init();
+    app::buzzer::init();
 }
 
 void jobs_initLogFs()
@@ -150,10 +155,15 @@ void jobs_run100Hz_tick()
         }
         // NTP markers go over UART only; the SD log is raw CAN frames only.
     }
+
+    app::buzzer::tick();
+
     hb_monitor.checkIn();
     hb_monitor.broadcastFaults();
 
     io::can_tx::enqueue100HzMsgs();
+
+    app::tsim::tick();
 }
 void jobs_run1kHz_tick()
 {

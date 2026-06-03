@@ -10,8 +10,11 @@ struct Time
     uint8_t  hours;      // Must be [0-23]
     uint8_t  minutes;    // Must be [0-59]
     uint8_t  seconds;    // Must be [0-59]
-    uint32_t subseconds; // PREDIV_S is internally set to 999 so this field will be [0, 999 + 1].
-                         // ms = PREDIV_S - subseconds
+    uint32_t subseconds; // RTC sync prescaler is 1023 (LSE @ 32768 Hz, async div 32),
+                         // so this field is in [0, 1023]. Counts DOWN within each second:
+                         // subseconds == 1023 means "just rolled over" (0 ms in), 0 means
+                         // "just before next tick" (~999 ms in). To convert to ms:
+                         //     ms = (1023 - subseconds) * 1000 / 1024
                          // This field is NOT used by HAL_RTC_SetTime().
 
     Time() = delete;
