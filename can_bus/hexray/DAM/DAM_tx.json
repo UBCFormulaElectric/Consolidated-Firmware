@@ -35,7 +35,11 @@
     "msg_id": 808,
     "cycle_time": null,
     "description": "Async bootup message!",
-    "signals": {}
+    "signals": {
+      "Alive": {
+        "bits": 1
+      }
+    }
   },
   "CommitInfo": {
     "msg_id": 809,
