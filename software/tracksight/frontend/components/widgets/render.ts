@@ -55,7 +55,7 @@ const DATE_FORMATTER = new Intl.DateTimeFormat(undefined, {
     timeZone: "UTC",
     year: "numeric",
 });
-export const CHART_PADDING = { top: 15, right: 0, bottom: 40, left: 60 };
+export const CHART_PADDING = { top: 15, right: 0, bottom: 40, left: 180 };
 
 function selectLOD(series: LODAwareSeries, visibleTimeRange: number, chartWidth: number): number {
     const totalLODCount = series.lods.length;
@@ -124,10 +124,20 @@ function render_enum(
         const signalMetadata = signalConfigByName.get(series.label);
         const isHovered = hoveredSignal?.current === series.label;
 
+        let label = series.label;
+        const labelX = 16;
+        const labelMaxWidth = CHART_PADDING.left - labelX - 10;
         context.fillStyle = "#000000";
-        context.textAlign = "right";
+        context.font = "12px sans-serif";
+        context.textAlign = "left";
         context.textBaseline = "middle";
-        context.fillText(series.label, CHART_PADDING.left - 10, currentStripY + ENUM_STRIP_HEIGHT / 2);
+        if (context.measureText(label).width > labelMaxWidth) {
+            while (context.measureText(`${label}...`).width > labelMaxWidth && label.length > 0) {
+                label = label.slice(0, -1);
+            }
+            label = `${label}...`;
+        }
+        context.fillText(label, labelX, currentStripY + ENUM_STRIP_HEIGHT / 2);
 
         for (let data_idx = binarySearchForFirstEnumIndex(seriesTimestamps, visibleStartTime); data_idx <= binarySearchForFirstEnumIndex(seriesTimestamps, visibleEndTime); data_idx++) {
             const dataStartTime = seriesTimestamps[data_idx];
