@@ -132,9 +132,9 @@ class FileSystem
     // These caches are handed directly to the SDMMC internal DMA (IDMABASER), which requires a
     // 4-byte-aligned base address. std::array<uint8_t/char> only guarantees alignment 1, so force it
     // here rather than relying on incidental struct layout.
-    alignas(4) std::array<uint8_t, HW_DEVICE_SECTOR_SIZE>                           cache{};
-    std::array<LogFsFileCfg, MAX_FILE_NUMBER>                                       files_cfg{};
-    std::array<LogFsFile, MAX_FILE_NUMBER>                                          files{};
+    alignas(4) std::array<uint8_t, HW_DEVICE_SECTOR_SIZE> cache{};
+    std::array<LogFsFileCfg, MAX_FILE_NUMBER> files_cfg{};
+    std::array<LogFsFile, MAX_FILE_NUMBER>    files{};
     alignas(4) std::array<std::array<char, HW_DEVICE_SECTOR_SIZE>, MAX_FILE_NUMBER> files_cache{};
 #else
     std::unordered_map<size_t, std::fstream> files;
