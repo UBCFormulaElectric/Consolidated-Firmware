@@ -181,8 +181,6 @@ h5dev = Board(
     path=os.path.join("firmware", "dev", "h5dev", "h5dev_app_metadata.hex")
 )
 
-
-
 CONFIGS = {
     "h7dev": [h7dev],
     "h5dev": [h5dev],
