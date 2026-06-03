@@ -142,14 +142,16 @@ fn main() {
                     match l.cat(&path) {
                         Ok((metadata, data)) => {
                             println!("metadata ({} bytes): {:02X?}", metadata.len(), metadata);
-                            // Metadata layout (firmware/hexray/DAM/src/app/app_sd.cpp):
-                            // month, day, year-2000, hours, minutes, seconds.
-                            if metadata.len() >= 6 {
+                            // Metadata layout written by firmware (7 bytes):
+                            // [0] seconds, [1] minutes, [2] hours,
+                            // [3] weekday (1=Mon..7=Sun, ignored here),
+                            // [4] date (day), [5] month, [6] year-2000.
+                            if metadata.len() >= 7 {
                                 println!(
                                     "start timestamp: {:04}-{:02}-{:02} {:02}:{:02}:{:02}",
-                                    2000 + metadata[2] as u32,
-                                    metadata[0], metadata[1],
-                                    metadata[3], metadata[4], metadata[5],
+                                    2000 + metadata[6] as u32,
+                                    metadata[5], metadata[4],
+                                    metadata[2], metadata[1], metadata[0],
                                 );
                             }
                             println!("data ({} bytes): {:02X?}", data.len(), data);
