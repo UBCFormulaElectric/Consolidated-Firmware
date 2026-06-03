@@ -138,9 +138,24 @@ fn main() {
             COMMAND_CAT => {
                 if let Some(ref mut l) = logfs {
                     let file_name = args[0];
-                    let path = format!("{}/{}", dir_to_path(&curr_dir), file_name);
-                    match l.cat(&path, None) {
-                        Ok(data) => println!("{:?}", String::from_utf8(data).unwrap_or_default()),
+                    let path = join_path(&dir_to_path(&curr_dir), file_name);
+                    match l.cat(&path) {
+                        Ok((metadata, data)) => {
+                            println!("metadata ({} bytes): {:02X?}", metadata.len(), metadata);
+                            // Metadata layout written by firmware (7 bytes):
+                            // [0] seconds, [1] minutes, [2] hours,
+                            // [3] weekday (1=Mon..7=Sun, ignored here),
+                            // [4] date (day), [5] month, [6] year-2000.
+                            if metadata.len() >= 7 {
+                                println!(
+                                    "start timestamp: {:04}-{:02}-{:02} {:02}:{:02}:{:02}",
+                                    2000 + metadata[6] as u32,
+                                    metadata[5], metadata[4],
+                                    metadata[2], metadata[1], metadata[0],
+                                );
+                            }
+                            println!("data ({} bytes): {:02X?}", data.len(), data);
+                        }
                         Err(e) => eprintln!("Error opening file: {}", e),
                     }
                 } else {
@@ -150,7 +165,7 @@ fn main() {
             COMMAND_WRITE => {
                 if let Some(ref mut l) = logfs {
                     let file_name = args[0];
-                    let path = format!("{}/{}", dir_to_path(&curr_dir), file_name);
+                    let path = join_path(&dir_to_path(&curr_dir), file_name);
                     let data = args[1].as_bytes();
                     println!("Writing to '{}': {}", path, String::from_utf8_lossy(data));
                     match l.open(&path, LogFsOpenFlags_LOGFS_OPEN_RD_WR | LogFsOpenFlags_LOGFS_OPEN_CREATE) {
@@ -233,6 +248,13 @@ fn dir_to_path(dir: &[String]) -> String {
     }
     // Skip the root "/" entry and join the rest with slashes
     format!("/{}", dir[1..].join("/"))
+}
+
+/// Join a directory path with a file name, avoiding a double leading slash when
+/// the directory is root ("/"). logfs matches paths with an exact strcmp, so
+/// "//log.bin" would not match a stored "/log.bin".
+fn join_path(dir: &str, file_name: &str) -> String {
+    format!("{}/{}", dir.trim_end_matches('/'), file_name)
 }
 
 fn resolve_dir(curr_dir: &[String], target: &str) -> Vec<String> {
