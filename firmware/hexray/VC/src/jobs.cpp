@@ -8,6 +8,7 @@
 #include "app_lowVoltageBattery.hpp"
 #include "app_powerMonitoring.hpp"
 #include "app_commitInfo.hpp"
+#include "app_shdnLast.hpp"
 
 #include "io_canMsg.hpp"
 #include "io_canTx.hpp"
@@ -57,6 +58,8 @@ void jobs_run100Hz_tick()
     hb_monitor.broadcastFaults();
 
     io::can_tx::enqueue100HzMsgs();
+
+    app::shdnLast::broadcast();
 }
 void jobs_run1kHz_tick()
 {
