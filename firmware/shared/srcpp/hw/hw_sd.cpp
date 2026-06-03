@@ -39,6 +39,10 @@ result<void> SdCard::read(std::span<uint8_t> pdata, const uint32_t block_addr) c
     if (pdata.size() < HW_DEVICE_SECTOR_SIZE || pdata.size() % HW_DEVICE_SECTOR_SIZE != 0)
         return std::unexpected(ErrorCode::ERROR);
 
+    // The async path feeds this pointer to the SDMMC internal DMA, which requires a 4-byte-aligned base.
+    if (reinterpret_cast<uintptr_t>(pdata.data()) % 4 != 0)
+        return std::unexpected(ErrorCode::INVALID_ARGS);
+
     CHECK_SD_PRESENT();
     while (HAL_SD_GetCardState(&_hsd) != HAL_SD_CARD_TRANSFER)
         ;
@@ -61,7 +65,7 @@ result<void> SdCard::read(std::span<uint8_t> pdata, const uint32_t block_addr) c
     taskInProgress = xTaskGetCurrentTaskHandle();
 
     result<void> exit = utils::convertHalStatus(
-        HAL_SD_ReadBlocks_IT(&_hsd, pdata.data(), block_addr, pdata.size() / HW_DEVICE_SECTOR_SIZE));
+        HAL_SD_ReadBlocks_DMA(&_hsd, pdata.data(), block_addr, pdata.size() / HW_DEVICE_SECTOR_SIZE));
     if (not exit.has_value())
     {
         // Mark this transaction as no longer in progress.
@@ -86,7 +90,10 @@ result<void> SdCard::write(const std::span<uint8_t> pdata, const uint32_t block_
     if (pdata.size() < HW_DEVICE_SECTOR_SIZE || pdata.size() % HW_DEVICE_SECTOR_SIZE != 0)
         return std::unexpected(ErrorCode::ERROR);
 
-    // TODO this on interrupt basis as well?
+    // The async path feeds this pointer to the SDMMC internal DMA, which requires a 4-byte-aligned base.
+    if (reinterpret_cast<uintptr_t>(pdata.data()) % 4 != 0)
+        return std::unexpected(ErrorCode::INVALID_ARGS);
+
     while (HAL_SD_GetCardState(&_hsd) != HAL_SD_CARD_TRANSFER)
         ;
 
@@ -108,7 +115,7 @@ result<void> SdCard::write(const std::span<uint8_t> pdata, const uint32_t block_
     taskInProgress = xTaskGetCurrentTaskHandle();
 
     result<void> exit = utils::convertHalStatus(
-        HAL_SD_WriteBlocks_IT(&_hsd, pdata.data(), block_addr, pdata.size() / HW_DEVICE_SECTOR_SIZE));
+        HAL_SD_WriteBlocks_DMA(&_hsd, pdata.data(), block_addr, pdata.size() / HW_DEVICE_SECTOR_SIZE));
     if (not exit.has_value())
     {
         // Mark this transaction as no longer in progress.
