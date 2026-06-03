@@ -256,14 +256,19 @@ async fn signal_sessions(
 
     let source_str = match source {
         Some(s) => {
-            if let Ok(_) = from_str::<InfluxSignalSource>(&s) {
-                s
-            } else {
-                error_println!("[sessions] BAD_REQUEST: bad source={:?}", s);
-                return (StatusCode::BAD_REQUEST, "Bad source!".to_string());
+            // `s` arrives JSON-encoded (e.g. `"Radio"` with quotes); deserialize
+            // and use the enum's lowercase Display so the Flux filter matches the
+            // tag value written by build_data_point (e.g. `radio`), not the raw
+            // quoted string.
+            match from_str::<InfluxSignalSource>(&s) {
+                Ok(parsed) => parsed.to_string(),
+                Err(_) => {
+                    error_println!("[sessions] BAD_REQUEST: bad source={:?}", s);
+                    return (StatusCode::BAD_REQUEST, "Bad source!".to_string());
+                }
             }
         }
-        _ => "radio".to_string(),
+        _ => InfluxSignalSource::Radio.to_string(),
     };
 
     error_println!(
