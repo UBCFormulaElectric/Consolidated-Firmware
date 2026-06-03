@@ -266,7 +266,7 @@ async fn signal_sessions(
         from(bucket: "{}")
         |> range(start: time(v: "{start_utc}"), stop: time(v: "{end_utc}"))
         |> filter(fn: (r) => r["_measurement"] == "{}")
-        |> filter(fn: (r) => r["signal_name"] == "Bootup")
+        |> filter(fn: (r) => r["signal_name"] == "DAM_Alive")
         |> filter(fn: (r) => r["source"] == "{source_str}")
         |> sort(columns: ["_time"])
         "#, &CONFIG.influxdb_bucket, &CONFIG.influxdb_measurement);
