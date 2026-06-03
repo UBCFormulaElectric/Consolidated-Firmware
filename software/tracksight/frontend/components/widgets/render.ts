@@ -343,14 +343,7 @@ function render_numerical(context: CanvasRenderingContext2D, width: number, char
     return [];
 }
 
-export function render_hover_line(
-    context: CanvasRenderingContext2D,
-    width: number,
-    height: number,
-    hoverTime: number,
-    timeToX: (t: number) => number,
-    includeTopPaddingInOffset = true,
-) {
+export function render_hover_line(context: CanvasRenderingContext2D, width: number, height: number, hoverTime: number, timeToX: (t: number) => number, includeTopPaddingInOffset = true) {
     const xPosition = timeToX(hoverTime);
 
     if (xPosition < CHART_PADDING.left || xPosition > width - CHART_PADDING.right) return;
@@ -385,7 +378,6 @@ export function render_tooltip(
     const ms = hoverDate.getUTCMilliseconds().toString().padStart(3, "0");
     const time_string = `${DATE_FORMATTER.format(hoverDate)} ${TIME_FORMATTER.format(hoverDate)}.${ms} UTC`;
     const tooltip_lines = [time_string, ...hover_value.map(({ name, value }) => `${name}: ${value}`)];
-    
     render_hover_line(context, width, height, hoverTime, timeToX, includeTopPaddingInOffset);
 
     const font = "12px sans-serif";
@@ -451,9 +443,6 @@ export default function render(context: CanvasRenderingContext2D, width: number,
     let hover_value: Array<{ name: string; value: string }> | null = null;
 
     if (chartData.type === "enumTimeline") {
-        const LEGEND_HEIGHT = 30;
-        const ENUM_STRIP_HEIGHT = 40;
-        const ENUM_STRIP_GAP = 40;
         hover_value = render_enum(
             context,
             width,
@@ -462,9 +451,9 @@ export default function render(context: CanvasRenderingContext2D, width: number,
             visibleEndTime,
             0, // TODO
             timeToX,
-            LEGEND_HEIGHT,
-            ENUM_STRIP_HEIGHT,
-            ENUM_STRIP_GAP,
+            30, // legend height
+            40, // enum strip height
+            40, // enum strip gap
             hoverTime,
             hoveredSignal
         );
