@@ -34,7 +34,7 @@ function Content() {
 
 export default function LiveDataPage() {
     return (
-        <div id="live-page" className="pt-14 mb-28 h-[calc(100vh-3.5rem-7rem)] w-screen flex flex-col overflow-hidden">
+        <div id="live-page" className="pt-14 h-[calc(100vh-3.5rem)] w-screen flex flex-col overflow-hidden">
             <DisplayControlProvider>
                 <div className="fixed top-14 left-0 z-60 flex w-screen -translate-y-1/2 justify-center pointer-events-none">
                     <div className="pointer-events-auto relative rounded-full bg-white p-2 before:pointer-events-none before:absolute before:inset-0 before:rounded-full before:border before:border-gray-200 before:[clip-path:inset(47%_-2px_-2px_-2px)] before:content-['']">
