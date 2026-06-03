@@ -2,6 +2,7 @@
 #include "io_rtc.hpp"
 #include "io_filesystem.hpp"
 #include "io_fileSystems.hpp"
+#include "util_errorCodes.hpp"
 
 #include <array>
 #include <expected>
@@ -54,12 +55,12 @@ std::expected<void, io::FileSystem::FileSystemError> init_fs()
     }
 }
 
-std::expected<void, io::FileSystem::FileSystemError> update_metadata()
+std::expected<void, ErrorCode> update_metadata()
 {
     if (!log_open)
     {
         LOG_ERROR("Failed to update metadata: log file is not open");
-        return std::unexpected(io::FileSystem::FileSystemError::ERROR);
+        return std::unexpected(ErrorCode::INVALID_ARGS);
     }
 
     result<io::rtc::Time> rtc_time = io::rtc::get_time();
@@ -68,7 +69,7 @@ std::expected<void, io::FileSystem::FileSystemError> update_metadata()
     if (!rtc_time.has_value() || !rtc_date.has_value())
     {
         LOG_ERROR("Failed to get RTC time and/or date");
-        return std::unexpected(io::FileSystem::FileSystemError::ERROR);
+        return std::unexpected(ErrorCode::ERROR);
     }
 
     std::array<uint8_t, 7> raw{};
@@ -86,7 +87,7 @@ std::expected<void, io::FileSystem::FileSystemError> update_metadata()
     if (!err.has_value())
     {
         LOG_ERROR("Failed to write time to file metadata: %d", static_cast<int>(err.error()));
-        return std::unexpected(err.error());
+        return std::unexpected(ErrorCode::ERROR);
     }
 
     return {};
