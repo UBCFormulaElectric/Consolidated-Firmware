@@ -4,64 +4,71 @@
 #include "io_fileSystems.hpp"
 
 #include <array>
+#include <expected>
 #include <cstdio>
 
 namespace app::sd
 {
 namespace
 {
-    constexpr const char *DEFAULT_LOG_PATH = "/log.bin"; // Fallback path
+    constexpr const char *DEFAULT_LOG_PATH = "/boot.bin"; // Fallback path
     std::array<char, 32>  LOG_PATH_BUF{};
     uint32_t              log_fd   = 0;
     bool                  log_open = false;
 } // namespace
 
-void init_fs()
+std::expected<void, io::FileSystem::FileSystemError> init_fs()
 {
     if (log_open)
-        return;
+        return {};
 
-    if (const auto err = fs.init(); not err)
+    if (const auto err = fs.init(); !err.has_value())
     {
         LOG_ERROR("Failed to init filesystem: %d", static_cast<int>(err.error()));
-    }
-    else
-    {
-        LOG_INFO("Initialised filesystem successfully.");
+        return std::unexpected(err.error());
     }
 
     const char *log_path = DEFAULT_LOG_PATH;
-    if (const auto boot_num = app::bootcount::update(fs); boot_num)
+    if (const auto boot_num = app::bootcount::update(fs); boot_num) // update bootcount
     {
         std::snprintf(
             LOG_PATH_BUF.data(), LOG_PATH_BUF.size(), "/boot_%lu.bin", static_cast<unsigned long>(boot_num.value()));
-        log_path = LOG_PATH_BUF.data();
+        log_path = LOG_PATH_BUF.data(); // file name = boot_x.bin where x is the boot number
     }
     else
     {
         LOG_ERROR("Failed to update bootcount: %d", static_cast<int>(boot_num.error()));
+        return std::unexpected(boot_num.error());
     }
 
-    if (const auto r = fs.open(log_path); r)
+    if (const auto r = fs.open(log_path); r.has_value())
     {
         log_fd   = r.value();
         log_open = true;
+        return {};
     }
     else
     {
         LOG_ERROR("Failed to open %s: %d", log_path, static_cast<int>(r.error()));
+        return std::unexpected(r.error());
     }
 }
 
-void update_metadata()
+std::expected<void, io::FileSystem::FileSystemError> update_metadata()
 {
+    if (!log_open)
+    {
+        LOG_ERROR("Failed to update metadata: log file is not open");
+        return std::unexpected(io::FileSystem::FileSystemError::ERROR);
+    }
+
     result<io::rtc::Time> rtc_time = io::rtc::get_time();
     result<io::rtc::Date> rtc_date = io::rtc::get_date();
 
-    if (!rtc_time || !rtc_date)
+    if (!rtc_time.has_value() || !rtc_date.has_value())
     {
         LOG_ERROR("Failed to get RTC time and/or date");
-        return;
+        return std::unexpected(io::FileSystem::FileSystemError::ERROR);
     }
 
     std::array<uint8_t, 7> raw{};
@@ -77,7 +84,12 @@ void update_metadata()
     auto                           err = fs.writeMetadata(log_fd, metadata_buf);
 
     if (!err.has_value())
+    {
         LOG_ERROR("Failed to write time to file metadata: %d", static_cast<int>(err.error()));
+        return std::unexpected(err.error());
+    }
+
+    return {};
 }
 
 uint32_t getLogFd()

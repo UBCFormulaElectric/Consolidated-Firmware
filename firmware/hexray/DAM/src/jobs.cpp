@@ -104,8 +104,14 @@ void jobs_initLogFs()
     //     }
     // }
 
-    app::sd::init_fs();
-    app::sd::update_metadata();
+    if (const auto err = app::sd::init_fs(); !err.has_value())
+    {
+        LOG_ERROR("jobs_initLogFs: init_fs failed: %d", static_cast<int>(err.error()));
+        return;
+    }
+
+    if (const auto err = app::sd::update_metadata(); !err.has_value())
+        LOG_ERROR("jobs_initLogFs: update_metadata failed: %d", static_cast<int>(err.error()));
 }
 
 void jobs_run1Hz_tick()
