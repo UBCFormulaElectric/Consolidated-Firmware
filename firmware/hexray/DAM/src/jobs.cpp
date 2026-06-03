@@ -13,6 +13,7 @@
 #include "app_commitInfo.hpp"
 #include "app_epochClock.hpp"
 #include "app_tsim.hpp"
+#include "app_damShdnLoop.hpp"
 
 #include "io_canMsg.hpp"
 #include "io_canQueues.hpp"
@@ -161,6 +162,8 @@ void jobs_run100Hz_tick()
 
     hb_monitor.checkIn();
     hb_monitor.broadcastFaults();
+
+    dam_shdnLoop.broadcast();
 
     io::can_tx::enqueue100HzMsgs();
 
