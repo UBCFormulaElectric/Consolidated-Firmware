@@ -139,10 +139,11 @@ pub async fn get_signals(
         import "date"
         from(bucket: "{}")
         |> range(start: {tile_start_str}, stop: date.add(d: {tile_duration_ms}ms, to: {tile_start_str}))
-        |> aggregateWindow(every: {resolution_ms}ms, fn: mean, createEmpty: false)
         |> filter(fn: (r) => r["_measurement"] == "{}")
         |> filter(fn: (r) => r["signal_name"] == "{signal}")
-        |> filter(fn: (r) => r["source"] == "{source_str}")"#
+        |> filter(fn: (r) => r["source"] == "{source_str}")
+        |> toFloat()
+        |> aggregateWindow(every: {resolution_ms}ms, fn: mean, createEmpty: false)"#
         , &CONFIG.influxdb_bucket, &CONFIG.influxdb_measurement)
     };
     
