@@ -251,7 +251,7 @@ void tasks_init()
     dam_en.writePin(true);
     rsm_en.writePin(true);
     front_en.writePin(true);
-    bms_en.writePin(false);
+    bms_en.writePin(true);
     rl_pump_en.writePin(true);
     rr_pump_en.writePin(true);
     f_inv_en.writePin(true);

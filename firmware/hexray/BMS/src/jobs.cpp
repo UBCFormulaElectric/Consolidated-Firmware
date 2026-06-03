@@ -121,7 +121,7 @@ void jobs_run100Hz_tick()
     app::can_tx::BMS_ChargerConnectedType_set(io::charger::getConnectionStatus());
 
 #ifdef TARGET_HV_SUPPLY
-    const bool acc_fault = false;
+    constexpr bool acc_fault = false;
 #else
     // segments::checkWarnings();
     // const bool acc_fault = segments::checkFaults();

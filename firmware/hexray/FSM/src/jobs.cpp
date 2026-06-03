@@ -36,7 +36,9 @@ void jobs_init()
     app::can_tx::FSM_Heartbeat_set(true);
     io::can_tx::FSM_Bootup_sendAperiodic();
 }
-void jobs_run1Hz_tick()
+void jobs_run1Hz_tick() {}
+
+void jobs_run100Hz_tick()
 {
     app::apps::broadcast();
     app::brake::broadcast();
@@ -44,9 +46,7 @@ void jobs_run1Hz_tick()
     // app::shdnLoop::broadcast();
     app::steering::broadcast();
     app::suspension::broadcast();
-}
-void jobs_run100Hz_tick()
-{
+
     hb_monitor.checkIn();
     hb_monitor.broadcastFaults();
 
