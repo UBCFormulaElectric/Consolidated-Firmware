@@ -99,14 +99,14 @@ pub async fn dump_sd_file(
             Err(_) => return Err(SdCardDumpError::FileNotFound),
         };
 
-        let metadata = match file.read_metadata(None) {
-            Ok(d) => d,
-            Err(_) => return Err(SdCardDumpError::FileReadError),
-        };
-        let data = match file.read(None) {
-            Ok(d) => d,
-            Err(_) => return Err(SdCardDumpError::FileReadError),
-        };
+        let metadata = file.read_metadata(None).map_err(|e| {
+            vprintln!("read_metadata failed: {:?}", e);
+            SdCardDumpError::FileReadError
+        })?;
+        let data = file.read(None).map_err(|e| {
+            vprintln!("read failed: {:?}", e);
+            SdCardDumpError::FileReadError
+        })?;
         (metadata, data)
         // logfs and file are dropped here, before any await
     };
@@ -181,6 +181,12 @@ pub fn parse_can_log_frames(metadata: &[u8], data: &[u8]) -> Vec<CanLogFrame> {
             continue;
         }
 
+        // If a full header can't fit, the log is truncated mid-frame — done.
+        // Without this the `data[i + 1]` etc. accesses below could panic on
+        // pathologically truncated input (e.g. a trailing stray 0xBA).
+        if i + MSG_HDR_SIZE > data.len() {
+            break;
+        }
         let dlc = data[i + 1] as usize;
         let msg_end = i + MSG_HDR_SIZE + dlc; // index of the CRC byte
         if msg_end >= data.len() {
@@ -301,6 +307,19 @@ mod tests {
         assert_eq!(frames[0].timestamp_ms, start_ms + 60_000);
         // Wrap detected: 1000 < 60000 - 30000, so add 2^16.
         assert_eq!(frames[1].timestamp_ms, start_ms + 1_000 + 65_536);
+    }
+
+    #[test]
+    fn truncated_trailing_magic_does_not_panic() {
+        // Regression: a stray 0xBA at/near the end (or any input too short to fit
+        // a full header) must not panic via out-of-bounds indexing on `data[i+1]`.
+        let md = metadata(0, 0, 0, 1, 1, 24);
+        assert_eq!(parse_can_log_frames(&md, &[0xBA]).len(), 0);
+        assert_eq!(parse_can_log_frames(&md, &[0x00, 0x00, 0xBA]).len(), 0);
+        // A trailing magic right after a complete good frame must also not panic.
+        let mut data = encode_msg(0x1, 100, &[0xAA]);
+        data.push(0xBA);
+        assert_eq!(parse_can_log_frames(&md, &data).len(), 1);
     }
 
     #[test]
