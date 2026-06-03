@@ -9,7 +9,7 @@ use regex::Regex;
 use serde_json::from_str;
 use tokio::{select, time::sleep};
 
-use crate::{config::CONFIG, dprintln, tasks::{can_data::influx_util::InfluxSignalSource, client_api::{AppState, signal_tile::{InfluxSignalRow, get_signals}}}, utils::{rfc3339_to_utc, rfc3339_to_utc_str}};
+use crate::{config::CONFIG, dprintln, error_println, tasks::{can_data::influx_util::InfluxSignalSource, client_api::{AppState, signal_tile::{InfluxSignalRow, get_signals}}}, utils::{rfc3339_to_utc, rfc3339_to_utc_str}};
 use crate::tasks::client_api::INFLUX_QUERY_TIMEOUT_MS;
 
 /**
@@ -242,11 +242,14 @@ async fn signal_sessions(
     Query(SourceQuery { source }): Query<SourceQuery>,
     State(state): State<AppState>
 ) -> impl IntoResponse {
-    let (start_utc, end_utc) = 
-        if let (Some(s), Some(e)) = 
+    error_println!("[sessions] request start={:?} end={:?} source={:?}", start, end, source);
+
+    let (start_utc, end_utc) =
+        if let (Some(s), Some(e)) =
         (rfc3339_to_utc_str(&start), rfc3339_to_utc_str(&end)) {
             (s, e)
         } else {
+            error_println!("[sessions] BAD_REQUEST: bad date format start={:?} end={:?}", start, end);
             return (StatusCode::BAD_REQUEST, "Bad date format, should be RFC3339 format".to_string());
         };
 
@@ -256,11 +259,17 @@ async fn signal_sessions(
             if let Ok(_) = from_str::<InfluxSignalSource>(&s) {
                 s
             } else {
+                error_println!("[sessions] BAD_REQUEST: bad source={:?}", s);
                 return (StatusCode::BAD_REQUEST, "Bad source!".to_string());
             }
         }
         _ => "radio".to_string(),
     };
+
+    error_println!(
+        "[sessions] querying bucket={} measurement={} range=[{}, {}] source={}",
+        &CONFIG.influxdb_bucket, &CONFIG.influxdb_measurement, start_utc, end_utc, source_str
+    );
 
     let car_on_query = format!(r#"
         from(bucket: "{}")
@@ -286,10 +295,11 @@ async fn signal_sessions(
 
     let time_bigram: Vec<(String, Option<String>)> = match req {
         Ok(starts) => {
+            error_println!("[sessions] influx returned {} DAM_Alive point(s)", starts.len());
             let mut tb: Vec<(String, Option<String>)> = starts.windows(2)
-            .map(|w| 
+            .map(|w|
                 (
-                    to_unix(&w[0]), 
+                    to_unix(&w[0]),
                     Some(to_unix(&w[1]))
                 )
             )
@@ -299,9 +309,13 @@ async fn signal_sessions(
             }
             tb
         },
-        Err(e) => return (StatusCode::INTERNAL_SERVER_ERROR, format!("Error occurred while fetching session starts: {}", e)),
+        Err(e) => {
+            error_println!("[sessions] INTERNAL_SERVER_ERROR: influx query failed: {}", e);
+            return (StatusCode::INTERNAL_SERVER_ERROR, format!("Error occurred while fetching session starts: {}", e));
+        },
     };
 
+    error_println!("[sessions] returning {} session(s)", time_bigram.len());
     return (StatusCode::OK, serde_json::to_string(&time_bigram).unwrap());
 }
 
