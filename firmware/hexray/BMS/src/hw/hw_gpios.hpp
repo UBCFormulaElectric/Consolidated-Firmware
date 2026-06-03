@@ -8,7 +8,7 @@ extern const hw::gpio bspd_ok_current_status;
 extern const hw::gpio accel_brake_ok;
 extern const hw::gpio n_brake_press_3v3;
 extern const hw::gpio n_high_current_bspd;
-extern const hw::gpio msd_shdn_sns;
+extern const hw::gpio shdn_term_sns;
 extern const hw::gpio hv_p_intlck_sns;
 extern const hw::gpio hv_n_intlck_sns;
 extern const hw::gpio n_imd_latch_status;

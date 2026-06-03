@@ -42,9 +42,82 @@ static ShutdownNode get_first_shutdown()
     return ShutdownNode::OK;
 }
 
+static bool consistent(const ShutdownNode first)
+{
+    switch (first)
+    {
+        case ShutdownNode::OK:
+            if (not app::can_tx::VC_TSMSOKStatus_get())
+                return false;
+            __attribute__((fallthrough));
+        case ShutdownNode::TSMS:
+            if (not app::can_rx::FSM_FrontRightILCKOKStatus_get())
+                return false;
+            __attribute__((fallthrough));
+        case ShutdownNode::FR_ILCK:
+            if (not app::can_rx::FSM_FrontLeftILCKInertiaOKStatus_get())
+                return false;
+            __attribute__((fallthrough));
+        case ShutdownNode::FL_INERTIA_ILCK:
+            if (not app::can_rx::FSM_BOTSOKStatus_get())
+                return false;
+            __attribute__((fallthrough));
+        case ShutdownNode::BOTS:
+            if (not app::can_rx::FSM_COCKPITOKStatus_get())
+                return false;
+            __attribute__((fallthrough));
+        case ShutdownNode::Cockpit_EStop:
+            if (not app::can_rx::DAM_LEStopOKStatus_get())
+                return false;
+            __attribute__((fallthrough));
+        case ShutdownNode::L_EStop:
+            if (not app::can_rx::DAM_REStopOKStatus_get())
+                return false;
+            __attribute__((fallthrough));
+        case ShutdownNode::R_EStop:
+            if (not app::can_tx::VC_RearRightMotorInterlock_get())
+                return false;
+            __attribute__((fallthrough));
+        case ShutdownNode::RR_ILCK:
+            if (not app::can_rx::RSM_RearLeftMotorInterlock_get())
+                return false;
+            __attribute__((fallthrough));
+        case ShutdownNode::RL_ILCK:
+            if (not app::can_tx::VC_MSDOrEMeterOKStatus_get())
+                return false;
+            __attribute__((fallthrough));
+        case ShutdownNode::MSD_EMETER_ILCK:
+            if (not app::can_rx::BMS_HVNShdnOKStatus_get())
+                return false;
+            __attribute__((fallthrough));
+        case ShutdownNode::HV_N_ILCK:
+            if (not app::can_rx::BMS_HVPShdnOKStatus_get())
+                return false;
+            __attribute__((fallthrough));
+        case ShutdownNode::HV_P_ILCK:
+            if (not app::can_rx::BMS_BspdLatchOk_get())
+                return false;
+            __attribute__((fallthrough));
+        case ShutdownNode::BSPD_OK:
+            if (not app::can_rx::BMS_ImdLatchOk_get())
+                return false;
+            __attribute__((fallthrough));
+        case ShutdownNode::IMD_OK:
+            if (not app::can_rx::BMS_BmsLatchOk_get())
+                return false;
+            __attribute__((fallthrough));
+        case ShutdownNode::BMS_OK:
+            return true;
+        default:
+            return false;
+    }
+}
+
 void broadcast()
 {
-    app::can_tx::VC_FirstFaultNode_set(get_first_shutdown());
+    const auto first_shdn_node = get_first_shutdown();
+    app::can_tx::VC_FirstFaultNode_set(first_shdn_node);
+    app::can_tx::VC_ShdnLoopConsistent_set(consistent(first_shdn_node));
 }
 
 } //  namespace app::shdnLast
