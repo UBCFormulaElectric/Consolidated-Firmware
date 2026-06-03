@@ -346,10 +346,10 @@ result<void> imu::init() const
     PwrMgmt2     pwr_mgmt2{};
 
     // Disable the I2C interface while using SPI.
-    RETURN_IF_ERR_SILENT(write_reg(USER_CTRL, std::bit_cast<uint8_t>(UserCtrl{})));
+    RETURN_IF_ERR(write_reg(USER_CTRL, std::bit_cast<uint8_t>(UserCtrl{})));
 
     const auto user_ctrl_readback = read_reg(USER_CTRL);
-    RETURN_IF_ERR_SILENT(user_ctrl_readback);
+    RETURN_IF_ERR(user_ctrl_readback);
 
     if (READ_BITS<uint8_t>(user_ctrl_readback.value(), 4U, 1U) != 1U)
         return std::unexpected(ErrorCode::ERROR);

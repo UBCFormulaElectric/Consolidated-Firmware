@@ -5,7 +5,6 @@
  */
 void jobs_init();
 void jobs_initImu();
-;
 
 /**
  * Anything that needs to run on periodic intervals in the unit test is to be placed here

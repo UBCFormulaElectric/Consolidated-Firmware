@@ -24,12 +24,11 @@ void jobs_init()
     io::can_tx::init(
         [](const JsonCanMsg &tx_msg)
         {
-            const io::CanMsg msg = app::jsoncan::copyToCanMsg(tx_msg);
-            LOG_IF_ERR(can_tx_queue.push(msg));
+            // const io::CanMsg msg = app::jsoncan::copyToCanMsg(tx_msg);
+            // LOG_IF_ERR(can_tx_queue.push(msg));
         });
 
     io::can_tx::enableMode_FDCAN(app::can_utils::FDCANMode::FDCAN_MODE_DEFAULT, true);
-    app::imu::init();
 
     app::can_tx::FSM_Hash_set(GIT_COMMIT_HASH);
     app::can_tx::FSM_Clean_set(GIT_COMMIT_CLEAN);

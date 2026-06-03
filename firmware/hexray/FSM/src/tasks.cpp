@@ -150,7 +150,6 @@ void tasks_runImu(void *arg)
         jobs_runImu_tick();
 
         watchdogImu.checkIn();
-
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
     }
@@ -190,7 +189,12 @@ void tasks_runCanRx(void *arg)
 
 static void FSM_StartAllTasks()
 {
+    Task100Hz.start();
     Task1kHz.start();
+    Task1Hz.start();
+    TaskImu.start();
+    TaskCanRx.start();
+    TaskCanTx.start();
 }
 
 void tasks_preInit()
