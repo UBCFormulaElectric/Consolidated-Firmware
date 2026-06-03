@@ -39,6 +39,9 @@
       "Alive": {
         "bits": 1
       }
+    },
+    "data_capture": {
+      "telem_cycle_time": 1000
     }
   },
   "CommitInfo": {
