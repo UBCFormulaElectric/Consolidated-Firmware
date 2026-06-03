@@ -193,5 +193,5 @@ CONFIGS = {
     "hexray_VC" : [hexray_VC],
     "hexray_FD": [hexray_DAM, hexray_VC, hexray_BMS],
     "hexray_Sx" : [hexray_CRIT, hexray_FSM, hexray_RSM],
-    "hexray" : [hexray_RSM, hexray_BMS, hexray_CRIT, hexray_DAM, hexray_CRIT, hexray_FSM, hexray_VC],
+    "hexray" : [hexray_RSM, hexray_BMS, hexray_CRIT, hexray_DAM, hexray_FSM, hexray_VC],
 }
