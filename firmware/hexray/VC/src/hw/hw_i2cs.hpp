@@ -5,4 +5,5 @@
 #include <cassert>
 
 extern const hw::i2c::device bat_mon;
-extern const hw::i2c::device pwr_pump;
+extern const hw::i2c::device pwr_mon;
+extern const hw::i2c::device pump;
