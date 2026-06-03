@@ -10,9 +10,6 @@
 #include "io_efuse_TI_TPS25.hpp"
 #include "io_efuse_TI_TPS28.hpp"
 
-io::imu                  IMU1;
-io::imu                  IMU2;
-io::imu                  IMU3;
 const io::pump           rr_pump;
 const io::pump           rl_pump;
 const io::TI_TPS28_Efuse f_inv_efuse;
@@ -34,6 +31,13 @@ const io::shdn::node rear_right_motor_interlock_node(false, app::can_tx::VC_Rear
 const io::shdn::node splitter_box_interlock_node(false, app::can_tx::VC_MSDOrEMeterOKStatus_set);
 namespace io // Define the mocked functions here
 {
+namespace imus
+{
+    imu IMU1;
+    imu IMU2;
+    imu IMU3;
+} // namespace imus
+
 namespace batteryMonitoring
 {
     result<void> init()
@@ -106,6 +110,7 @@ namespace batteryMonitoring
         return 0;
     }
 } // namespace batteryMonitoring
+
 namespace batteryCharging
 {
     void charger_enable(void) {}
@@ -115,25 +120,27 @@ namespace batteryCharging
         return false;
     }
 } // namespace batteryCharging
+
 namespace imus
 {
     result<void> initAll()
     {
-        if (auto result = IMU1.init(); not result)
+        if (auto result = io::imus::IMU1.init(); not result)
         {
             return result;
         }
-        if (auto result = IMU2.init(); not result)
+        if (auto result = io::imus::IMU2.init(); not result)
         {
             return result;
         }
-        if (auto result = IMU3.init(); not result)
+        if (auto result = io::imus::IMU3.init(); not result)
         {
             return result;
         }
         return {};
     }
 } // namespace imus
+
 namespace sbgEllipse
 {
     const Attitude getEkfEulerAngles()
@@ -202,7 +209,4 @@ namespace powerMonitoring
         return false;
     }
 } // namespace powerMonitoring
-namespace imus
-{
-} // namespace imus
 } // namespace io
