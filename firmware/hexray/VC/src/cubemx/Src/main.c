@@ -977,8 +977,7 @@ static void MX_GPIO_Init(void)
         GPIO_PIN_RESET);
 
     /*Configure GPIO pin Output Level */
-    HAL_GPIO_WritePin(
-        GPIOB, TSMS_3V3_OUT_Pin | BAT_CHRG_nSHDN_Pin | BMS_EN_Pin | FRONT_EN_Pin | RL_PUMP_EN_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(GPIOB, BAT_CHRG_nSHDN_Pin | BMS_EN_Pin | FRONT_EN_Pin | RL_PUMP_EN_Pin, GPIO_PIN_RESET);
 
     /*Configure GPIO pin Output Level */
     HAL_GPIO_WritePin(
@@ -1012,11 +1011,10 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(IMU_INT3_GPIO_Port, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : TSMS_3V3_OUT_Pin BAT_CHRG_nSHDN_Pin BMS_EN_Pin FRONT_EN_Pin */
-    GPIO_InitStruct.Pin   = TSMS_3V3_OUT_Pin | BAT_CHRG_nSHDN_Pin | BMS_EN_Pin | FRONT_EN_Pin;
-    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
-    GPIO_InitStruct.Pull  = GPIO_NOPULL;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+    /*Configure GPIO pins : TSMS_3V3_OUT_Pin FRONT_PG_Pin RL_PUMP_PGOOD_Pin */
+    GPIO_InitStruct.Pin  = TSMS_3V3_OUT_Pin | FRONT_PG_Pin | RL_PUMP_PGOOD_Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
     /*Configure GPIO pins : RR_ILCK_3V3_OUT_Pin BMS_PG_Pin PWR_MTR_nALERT_Pin BOOST_PG_Pin
@@ -1025,6 +1023,13 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
+
+    /*Configure GPIO pins : BAT_CHRG_nSHDN_Pin BMS_EN_Pin FRONT_EN_Pin */
+    GPIO_InitStruct.Pin   = BAT_CHRG_nSHDN_Pin | BMS_EN_Pin | FRONT_EN_Pin;
+    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull  = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
     /*Configure GPIO pin : BAT_MTR_nALERT_Pin */
     GPIO_InitStruct.Pin  = BAT_MTR_nALERT_Pin;
@@ -1074,12 +1079,6 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(RR_PUMP_PGOOD_GPIO_Port, &GPIO_InitStruct);
-
-    /*Configure GPIO pins : FRONT_PG_Pin RL_PUMP_PGOOD_Pin */
-    GPIO_InitStruct.Pin  = FRONT_PG_Pin | RL_PUMP_PGOOD_Pin;
-    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
     /*Configure GPIO pin : RL_PUMP_EN_Pin */
     GPIO_InitStruct.Pin   = RL_PUMP_EN_Pin;

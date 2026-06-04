@@ -33,10 +33,12 @@ static ShutdownNode get_first_shutdown()
         return ShutdownNode::Cockpit_EStop;
     if (!app::can_rx::FSM_BOTSOKStatus_get())
         return ShutdownNode::BOTS;
-    if (!app::can_rx::FSM_FrontLeftILCKInertiaOKStatus_get())
-        return ShutdownNode::FL_INERTIA_ILCK;
+    if (!app::can_rx::FSM_FrontLeftILCKOKStatus_get())
+        return ShutdownNode::FL_ILCK;
     if (!app::can_rx::FSM_FrontRightILCKOKStatus_get())
         return ShutdownNode::FR_ILCK;
+    if (!app::can_tx::VC_InertiaSwitch_get())
+        return ShutdownNode::INERTIA;
     if (!app::can_tx::VC_TSMSOKStatus_get())
         return ShutdownNode::TSMS;
     return ShutdownNode::OK;
@@ -51,14 +53,18 @@ static bool consistent(const ShutdownNode first)
                 return false;
             __attribute__((fallthrough));
         case ShutdownNode::TSMS:
+            if (not app::can_tx::VC_InertiaSwitch_get())
+                return false;
+            __attribute__((fallthrough));
+        case ShutdownNode::INERTIA:
             if (not app::can_rx::FSM_FrontRightILCKOKStatus_get())
                 return false;
             __attribute__((fallthrough));
         case ShutdownNode::FR_ILCK:
-            if (not app::can_rx::FSM_FrontLeftILCKInertiaOKStatus_get())
+            if (not app::can_rx::FSM_FrontLeftILCKOKStatus_get())
                 return false;
             __attribute__((fallthrough));
-        case ShutdownNode::FL_INERTIA_ILCK:
+        case ShutdownNode::FL_ILCK:
             if (not app::can_rx::FSM_BOTSOKStatus_get())
                 return false;
             __attribute__((fallthrough));
