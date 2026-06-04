@@ -10,6 +10,7 @@
 #include "app_canTx.hpp"
 #include "app_heartbeatMonitors.hpp"
 #include "app_commitInfo.hpp"
+#include "app_fsmShdnLoop.hpp"
 
 #include "io_canQueues.hpp"
 #include "io_time.hpp"
@@ -39,7 +40,8 @@ void jobs_initImu()
 {
     app::imu::init();
 }
-void jobs_run1Hz_tick()
+void jobs_run1Hz_tick() {}
+void jobs_run100Hz_tick()
 {
     app::apps::broadcast();
     app::brake::broadcast();
@@ -47,9 +49,8 @@ void jobs_run1Hz_tick()
     // app::shdnLoop::broadcast();
     app::steering::broadcast();
     app::suspension::broadcast();
-}
-void jobs_run100Hz_tick()
-{
+    fsm_shdnLoop.broadcast();
+
     hb_monitor.checkIn();
     hb_monitor.broadcastFaults();
 

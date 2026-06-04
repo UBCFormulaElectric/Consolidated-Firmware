@@ -6,6 +6,8 @@
 #include "io_canTx.hpp"
 #include "app_timer.hpp"
 
+#include <numeric>
+
 namespace
 {
 constexpr float    DISCHARGE_THRESHOLD_V   = 10e-3f; // discharge until min/max are between this

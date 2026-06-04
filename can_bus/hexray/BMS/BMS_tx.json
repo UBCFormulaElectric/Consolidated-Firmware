@@ -366,6 +366,9 @@
       },
       "HVNShdnOKStatus": {
         "bits": 1
+      },
+      "ShdnTermOKStatus": {
+        "bits": 1
       }
     }
   },

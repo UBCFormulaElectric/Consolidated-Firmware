@@ -189,7 +189,7 @@
       "COCKPITOKStatus": {
         "bits": 1
       },
-      "FrontLeftILCKInertiaOKStatus": {
+      "FrontLeftILCKOKStatus": {
         "bits": 1
       },
       "FrontRightILCKOKStatus": {

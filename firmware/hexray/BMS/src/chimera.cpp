@@ -36,7 +36,7 @@ class BMSChimeraConfig final : public chimera_v2::config
             case bms_GpioNetName_GPIO_nHIGH_CURRENT_BSPD:
                 return std::cref(n_high_current_bspd);
             case bms_GpioNetName_GPIO_MSD_SHDN_SNS:
-                return std::cref(msd_shdn_sns);
+                return std::cref(shdn_term_sns);
             case bms_GpioNetName_GPIO_HV_P_INTLCK_SNS:
                 return std::cref(hv_p_intlck_sns);
             case bms_GpioNetName_GPIO_HV_N_INTLCK_SNS:

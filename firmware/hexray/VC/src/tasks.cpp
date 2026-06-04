@@ -282,7 +282,6 @@ void tasks_init()
     r_rad_fan_en.writePin(true);
     l_rad_fan_en.writePin(true);
     misc_fuse_en.writePin(true);
-
     ResetReason reason = hw::resetReason::get();
     app::can_tx::VC_ResetReason_set(static_cast<app::can_utils::CanResetReason>(reason));
     if (reason == RESET_REASON_WATCHDOG)

@@ -498,10 +498,13 @@
   "GlobalShdnNodeStatus": {
     "msg_id": 535,
     "cycle_time": 100,
-    "description": "Global Shutdown Node Status",
+    "description": "Global Shutdown Node Status. Consistency shows that everything after first faulted node is actually faulted",
     "signals": {
       "FirstFaultNode": {
         "enum": "ShutdownNode"
+      },
+      "ShdnLoopConsistent": {
+        "bits": 1
       }
     }
   },
@@ -874,146 +877,146 @@
     }
   },
   "BatteryMonitoring_Faults": {
-        "msg_id": 561,
-        "cycle_time": null,
-        "description": "Battery monitoring chip faults and charging",
-        "signals": {
-            "CELL1_VOVSnapshot": {
-                "resolution": 0.001,
-                "min": 0.0,
-                "max": 4.5,
-                "unit": "V"
-            },
-            "CELL2_VOVSnapshot": {
-                "resolution": 0.001,
-                "min": 0.0,
-                "max": 4.5,
-                "unit": "V"
-            },
-            "CELL3_VOVSnapshot": {
-                "resolution": 0.001,
-                "min": 0.0,
-                "max": 4.5,
-                "unit": "V"
-            },
-            "CELL4_VOVSnapshot": {
-                "resolution": 0.001,
-                "min": 0.0,
-                "max": 4.5,
-                "unit": "V"
-            },
-            "CELL1_VUVSnapshot": {
-                "resolution": 0.001,
-                "min": 0.0,
-                "max": 4.5,
-                "unit": "V"
-            },
-            "CELL2_VUVSnapshot": {
-                "resolution": 0.001,
-                "min": 0.0,
-                "max": 4.5,
-                "unit": "V"
-            },
-            "CELL3_VUVSnapshot": {
-                "resolution": 0.001,
-                "min": 0.0,
-                "max": 4.5,
-                "unit": "V"
-            },
-            "CELL4_VUVSnapshot": {
-                "resolution": 0.001,
-                "min": 0.0,
-                "max": 4.5,
-                "unit": "V"
-            }
-        }
-   },
+    "msg_id": 561,
+    "cycle_time": null,
+    "description": "Battery monitoring chip faults and charging",
+    "signals": {
+      "CELL1_VOVSnapshot": {
+        "resolution": 0.001,
+        "min": 0.0,
+        "max": 4.5,
+        "unit": "V"
+      },
+      "CELL2_VOVSnapshot": {
+        "resolution": 0.001,
+        "min": 0.0,
+        "max": 4.5,
+        "unit": "V"
+      },
+      "CELL3_VOVSnapshot": {
+        "resolution": 0.001,
+        "min": 0.0,
+        "max": 4.5,
+        "unit": "V"
+      },
+      "CELL4_VOVSnapshot": {
+        "resolution": 0.001,
+        "min": 0.0,
+        "max": 4.5,
+        "unit": "V"
+      },
+      "CELL1_VUVSnapshot": {
+        "resolution": 0.001,
+        "min": 0.0,
+        "max": 4.5,
+        "unit": "V"
+      },
+      "CELL2_VUVSnapshot": {
+        "resolution": 0.001,
+        "min": 0.0,
+        "max": 4.5,
+        "unit": "V"
+      },
+      "CELL3_VUVSnapshot": {
+        "resolution": 0.001,
+        "min": 0.0,
+        "max": 4.5,
+        "unit": "V"
+      },
+      "CELL4_VUVSnapshot": {
+        "resolution": 0.001,
+        "min": 0.0,
+        "max": 4.5,
+        "unit": "V"
+      }
+    }
+  },
   "BatteryMonitoring_Data": {
-        "msg_id": 562,
-        "cycle_time": 100,
-        "description": "Battery monitoring chip and balancing",
-        "signals": {
-            "CELL1_Voltage": {
-                "resolution": 0.001,
-                "min": 0.0,
-                "max": 4.5,
-                "unit": "V"
-            },
-            "CELL2_Voltage": {
-                "resolution": 0.001,
-                "min": 0.0,
-                "max": 4.5,
-                "unit": "V"
-            },
-            "CELL3_Voltage": {
-                "resolution": 0.001,
-                "min": 0.0,
-                "max": 4.5,
-                "unit": "V"
-            }, 
-            "CELL4_Voltage": {
-                "resolution": 0.001,
-                "min": 0.0,
-                "max": 4.5,
-                "unit": "V"
-            },
-            "PACK_Voltage": {
-                "resolution": 0.001,
-                "min": 0.0,
-                "max": 17.0,
-                "unit": "V"
-            },
-            "LOAD_Voltage": {
-                "resolution": 0.001,
-                "min": 0.0,
-                "max": 17.0,
-                "unit": "V"
-            },
-            "SenseCurrent": {
-                "resolution": 0.001,
-                "min": 0.0,
-                "max": 0.1,
-                "unit": "A"
-            },
-            "BalancingState": {
-                "resolution": 1,
-                "min": 0,
-                "max": 2,
-                "description": "0=DISABLED, 1=SETTLE, 2=BALANCE"
-            },
-            "ImbalanceMagnitude": {
-                "resolution": 0.001,
-                "min": 0,
-                "max": 1,
-                "unit": "V"
-            },
-            "BalancingLeader": {
-                "resolution": 1,
-                "min": 0,
-                "max": 3
-            },
-            "BalancingCell": {
-                "resolution": 1,
-                "min": 0,
-                "max": 32
-            },
-            "Balancing": {
-                "bits": 1
-            },
-             "CELL_VOV": {
-                "bits": 1
-            },
-            "CELL_VUV": {
-                "bits": 1
-            },
-            "ICOverTemperature": {
-                "bits": 1
-            },
-            "Charging": {
-                "bits": 1
-            }
-        }
-   },
+    "msg_id": 562,
+    "cycle_time": 100,
+    "description": "Battery monitoring chip and balancing",
+    "signals": {
+      "CELL1_Voltage": {
+        "resolution": 0.001,
+        "min": 0.0,
+        "max": 4.5,
+        "unit": "V"
+      },
+      "CELL2_Voltage": {
+        "resolution": 0.001,
+        "min": 0.0,
+        "max": 4.5,
+        "unit": "V"
+      },
+      "CELL3_Voltage": {
+        "resolution": 0.001,
+        "min": 0.0,
+        "max": 4.5,
+        "unit": "V"
+      },
+      "CELL4_Voltage": {
+        "resolution": 0.001,
+        "min": 0.0,
+        "max": 4.5,
+        "unit": "V"
+      },
+      "PACK_Voltage": {
+        "resolution": 0.001,
+        "min": 0.0,
+        "max": 17.0,
+        "unit": "V"
+      },
+      "LOAD_Voltage": {
+        "resolution": 0.001,
+        "min": 0.0,
+        "max": 17.0,
+        "unit": "V"
+      },
+      "SenseCurrent": {
+        "resolution": 0.001,
+        "min": 0.0,
+        "max": 0.1,
+        "unit": "A"
+      },
+      "BalancingState": {
+        "resolution": 1,
+        "min": 0,
+        "max": 2,
+        "description": "0=DISABLED, 1=SETTLE, 2=BALANCE"
+      },
+      "ImbalanceMagnitude": {
+        "resolution": 0.001,
+        "min": 0,
+        "max": 1,
+        "unit": "V"
+      },
+      "BalancingLeader": {
+        "resolution": 1,
+        "min": 0,
+        "max": 3
+      },
+      "BalancingCell": {
+        "resolution": 1,
+        "min": 0,
+        "max": 32
+      },
+      "Balancing": {
+        "bits": 1
+      },
+      "CELL_VOV": {
+        "bits": 1
+      },
+      "CELL_VUV": {
+        "bits": 1
+      },
+      "ICOverTemperature": {
+        "bits": 1
+      },
+      "Charging": {
+        "bits": 1
+      }
+    }
+  },
   "CPUDataLogInfo": {
     "msg_id": 563,
     "cycle_time": 100,

@@ -206,6 +206,7 @@ void tasks_preInit()
 [[noreturn]] void tasks_init()
 {
     SEGGER_SYSVIEW_Conf();
+    LOG_INFO("FSM Reset!");
 
 #ifndef WATCHDOG_DISABLED
     __HAL_DBGMCU_FREEZE_IWDG();
