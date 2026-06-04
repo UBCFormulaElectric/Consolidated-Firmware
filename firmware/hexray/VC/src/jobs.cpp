@@ -80,13 +80,11 @@ void jobs_run100Hz_tick()
         default:
             break;
     }
-
     app::inverter::FaultCheck();
     app::StateMachine::tick100Hz();
-
-    io::can_tx::enqueue100HzMsgs();
     hb_monitor.checkIn();
     hb_monitor.broadcastFaults();
+    io::can_tx::enqueue100HzMsgs();
 }
 void jobs_run1kHz_tick()
 {

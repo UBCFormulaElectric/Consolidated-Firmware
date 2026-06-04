@@ -120,7 +120,7 @@ static bool is_lockout_code(uint32_t code)
         case 1342u: // System run-up aborted
         case 2311u: // Controller enable (RF) is withdrawn internally (Encoder error)
         case 3871u: // Communication error with the supply
-        case 1100u: //  Short-circuit / overload digital outputs
+        case 1100u: // Short-circuit / overload digital outputs
             return true;
         default:
             return false;

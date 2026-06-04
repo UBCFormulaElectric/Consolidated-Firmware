@@ -60,8 +60,12 @@ TEST_F(VCPowerManagerTest, test_sequencingStateMachine)
 
     // close ir negative
     app::can_rx::BMS_IrNegative_update(ContactorState::CONTACTOR_STATE_CLOSED);
-    //LetTimePass(10);
+    LetTimePass(10);
     ASSERT_STATE_EQ(app::states::inverterOn_state);
+
+    const app::State *mew0 = app::StateMachine::get_current_state();
+    LetTimePass(10);
+
     check_efuses(false, false, false, false, true, true, true, true, true, true);
 
     // turn on inverters
@@ -70,19 +74,22 @@ TEST_F(VCPowerManagerTest, test_sequencingStateMachine)
     app::can_rx::INVRL_bSystemReady_update(true);
     app::can_rx::INVRR_bSystemReady_update(true);
 
-    LetTimePass(100);
+    LetTimePass(10);
     ASSERT_STATE_EQ(app::states::bmsOn_state);
+    LetTimePass(10);
     check_efuses(false, false, false, false, true, true, true, true, true, true);
 
     // turn on the bms
     app::can_rx::BMS_State_update(BmsState::BMS_DRIVE_STATE);
-    LetTimePass(100);
+    LetTimePass(10);
     ASSERT_STATE_EQ(app::states::pcmOn_state);
+    LetTimePass(10);
     check_efuses(false, false, false, false, true, true, true, true, true, true);
 
     // todo whatever gets us out of PCM on state
     app::can_tx::VC_PcmChannelVoltage_set(24.0f);
-    LetTimePass(1000);
+    LetTimePass(20);
     ASSERT_STATE_EQ(app::states::hvInit_state);
+    LetTimePass(10);
     check_efuses(true, true, true, true, true, true, true, true, true, true);
 }

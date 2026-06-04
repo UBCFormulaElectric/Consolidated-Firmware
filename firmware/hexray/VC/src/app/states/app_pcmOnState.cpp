@@ -16,7 +16,7 @@ namespace app::states
 namespace pcmOnState
 {
     constexpr float   PCM_NOMINAL_VOLTAGE = 20.0f;
-    constexpr float   PCM_MAX_VOLTAGE     = 30.0f;
+    constexpr float   PCM_MAX_VOLTAGE     = 28.0f;
     constexpr float   PCM_MAX_CURRENT     = 40.0f;
     constexpr uint8_t PCM_MAX_RETRIES     = 5;
 
