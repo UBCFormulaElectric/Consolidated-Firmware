@@ -50,12 +50,13 @@ static void init_update()
             data_buffer[7] = io::seven_seg::o;
             data_buffer[8] = io::seven_seg::p;
             break;
-        case app::can_utils::ShutdownNode::FL_INERTIA_ILCK:
+        case app::can_utils::ShutdownNode::FL_ILCK:
             data_buffer[3] = io::seven_seg::f;
             data_buffer[4] = io::seven_seg::l;
             data_buffer[5] = io::seven_seg::i;
-            data_buffer[6] = io::seven_seg::n;
-            data_buffer[7] = io::seven_seg::e;
+            data_buffer[6] = io::seven_seg::l;
+            data_buffer[7] = io::seven_seg::c;
+            data_buffer[8] = io::seven_seg::k;
             break;
         case app::can_utils::ShutdownNode::BOTS:
             data_buffer[3] = io::seven_seg::b;
@@ -134,6 +135,14 @@ static void init_update()
             data_buffer[6] = io::seven_seg::s;
             data_buffer[7] = io::seven_seg::g;
             data_buffer[8] = io::seven_seg::o;
+            break;
+        case app::can_utils::ShutdownNode::INERTIA:
+            data_buffer[3] = io::seven_seg::i;
+            data_buffer[4] = io::seven_seg::n;
+            data_buffer[5] = io::seven_seg::e;
+            data_buffer[6] = io::seven_seg::r;
+            data_buffer[7] = io::seven_seg::t;
+            data_buffer[8] = io::seven_seg::dot;
             break;
         default:
             // leave all segments blank
