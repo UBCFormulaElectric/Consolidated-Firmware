@@ -15,29 +15,29 @@ void hw_sysviewConfig_sendSystemDesc()
     SEGGER_SYSVIEW_SendSysDesc("I#15=SysTick");
 }
 
-#define LV_ON_THRESHOLD_V (20.0f)
-#define TURN_ON_DELAY_MS (100)
-typedef enum
+static constexpr float    LV_ON_THRESHOLD_V = 20.0f;
+static constexpr uint32_t TURN_ON_DELAY_MS  = 100;
+enum class PcmState
 {
-    PCM_STATE_OFF,
-    PCM_STATE_VICOR_ONLY,
-    PCM_STATE_ON
-} PcmState;
+    OFF,
+    VICOR_ONLY,
+    ON
+};
 
 // Define this guy for debug mode.
-#define PCM_DEBUG
+// #define PCM_DEBUG
 
 static const hw::gpio pcm_en_in{ PCM_EN_GPIO_Port, PCM_EN_Pin };
 static const hw::gpio lv_buck_en_out{ LV_BUCK_EN_GPIO_Port, LV_BUCK_EN_Pin };
 static const hw::gpio led_out{ LED_GPIO_Port, LED_Pin };
 
-static PcmState state = PCM_STATE_OFF;
+static auto state = PcmState::OFF;
 
 #ifdef PCM_DEBUG
 static char debug_buf[1024];
 #endif
 
-void tasks_init(void)
+void tasks_init()
 {
     hw_hardFaultHandler_init();
 
@@ -49,30 +49,31 @@ void tasks_init(void)
 #endif
 }
 
-_Noreturn void tasks_tick(void)
+_Noreturn void tasks_tick()
 {
     for (;;)
     {
 #ifdef PCM_DEBUG
-        float vin  = 0;
-        float iin  = 0;
-        float vout = 0;
-        float iout = 0;
-        float temp = 0;
-        float pout = 0;
+        const auto vin_res  = vicor_readVin();
+        const auto iin_res  = vicor_readIin();
+        const auto vout_res = vicor_readVout();
+        const auto iout_res = vicor_readIout();
+        const auto temp_res = vicor_readTemp();
+        const auto pout_res = vicor_readPout();
 
-        LOG_IF_ERR(vicor_readVin(&vin));
-        LOG_IF_ERR(vicor_readIin(&iin));
-        LOG_IF_ERR(vicor_readVout(&vout));
-        LOG_IF_ERR(vicor_readIout(&iout));
-        LOG_IF_ERR(vicor_readTemp(&temp));
-        LOG_IF_ERR(vicor_readPout(&pout));
+        LOG_IF_ERR(vin_res);
+        LOG_IF_ERR(iin_res);
+        LOG_IF_ERR(vout_res);
+        LOG_IF_ERR(iout_res);
+        LOG_IF_ERR(temp_res);
+        LOG_IF_ERR(pout_res);
 
         // SysView does't support floats! :(
         sprintf(
             debug_buf, "Vin = %.2fV\nIin = %.2fA\nVout=%.2fV\nIout=%.2fA\nTemp=%.1fdegC\nPout=%.2fW",
-            static_cast<double>(vin), static_cast<double>(iin), static_cast<double>(vout), static_cast<double>(iout),
-            static_cast<double>(temp), static_cast<double>(pout));
+            static_cast<double>(vin_res.value_or(0)), static_cast<double>(iin_res.value_or(0)),
+            static_cast<double>(vout_res.value_or(0)), static_cast<double>(iout_res.value_or(0)),
+            static_cast<double>(temp_res.value_or(0)), static_cast<double>(pout_res.value_or(0)));
         LOG_INFO("%s", debug_buf);
 
         UNUSED(led_out.togglePin());
@@ -80,39 +81,39 @@ _Noreturn void tasks_tick(void)
 #else
         switch (state)
         {
-            case PCM_STATE_OFF:
+            case PcmState::OFF:
             {
-                if (hw_gpio_readPin(&pcm_en_in) && IS_EXIT_OK(vicor_clearFaults()) && IS_EXIT_OK(vicor_operation(true)))
+                if (pcm_en_in.readPin() and vicor_clearFaults().has_value() and vicor_operation(true).has_value())
                 {
-                    state = PCM_STATE_VICOR_ONLY;
+                    state = PcmState::VICOR_ONLY;
                 }
                 break;
             }
-            case PCM_STATE_VICOR_ONLY:
+            case PcmState::VICOR_ONLY:
             {
-                if (!hw_gpio_readPin(&pcm_en_in) && IS_EXIT_OK(vicor_operation(false)))
+                if (not pcm_en_in.readPin() and vicor_operation(false).has_value())
                 {
-                    state = PCM_STATE_OFF;
+                    state = PcmState::OFF;
                 }
 
-                float vout = 0;
-                if (IS_EXIT_OK(vicor_readVout(&vout) && vout >= LV_ON_THRESHOLD_V))
+                // float vout = ;
+                if (const auto vout = vicor_readVout(); vout.has_value() && vout.value() >= LV_ON_THRESHOLD_V)
                 {
                     osDelay(TURN_ON_DELAY_MS);
-                    hw_gpio_writePin(&lv_buck_en_out, true);
-                    state = PCM_STATE_ON;
+                    lv_buck_en_out.writePin(true);
+                    state = PcmState::ON;
                 }
                 break;
             }
-            case PCM_STATE_ON:
+            case PcmState::ON:
             {
-                if (!hw_gpio_readPin(&pcm_en_in))
+                if (not pcm_en_in.readPin())
                 {
-                    hw_gpio_writePin(&lv_buck_en_out, false);
+                    lv_buck_en_out.writePin(false);
 
-                    if (IS_EXIT_OK(vicor_operation(false)))
+                    if (vicor_operation(false).has_value())
                     {
-                        state = PCM_STATE_OFF;
+                        state = PcmState::OFF;
                     }
                 }
                 break;

@@ -65,7 +65,7 @@ static result<void> writeByte(const uint8_t cmd, const uint8_t data)
 
 static result<void> readByte(const uint8_t cmd, uint8_t &data)
 {
-    return vicor_i2c.memoryRead(cmd, std::span(&data, 1));
+    return vicor_i2c.memoryRead(cmd, std::span(&data, sizeof(uint8_t)));
 }
 
 static result<void> readWord(const uint8_t cmd, uint16_t &data)
