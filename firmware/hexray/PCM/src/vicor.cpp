@@ -101,64 +101,58 @@ result<void> vicor_clearFaults()
     return vicor_i2c.transmit(std::span(&cmd, 1));
 }
 
-result<void> vicor_readVin(float *val)
+result<float> vicor_readVin()
 {
     RETURN_IF_ERR(enforcePage(VicorPage::TELEM));
 
     uint16_t word = 0;
     RETURN_IF_ERR(readWord(CMD_READ_VIN, word));
-    *val = DECODE_V(word);
-    return {};
+    return DECODE_V(word);
 }
 
-result<void> vicor_readIin(float *val)
+result<float> vicor_readIin()
 {
     RETURN_IF_ERR(enforcePage(VicorPage::TELEM));
 
     uint16_t word = 0;
     RETURN_IF_ERR(readWord(CMD_READ_IIN, word));
-    *val = DECODE_IIN(word);
-    return {};
+    return DECODE_IIN(word);
 }
 
-result<void> vicor_readVout(float *val)
+result<float> vicor_readVout()
 {
     RETURN_IF_ERR(enforcePage(VicorPage::TELEM));
 
     uint16_t word = 0;
     RETURN_IF_ERR(readWord(CMD_READ_VOUT, word));
-    *val = DECODE_V(word);
-    return {};
+    return DECODE_V(word);
 }
 
-result<void> vicor_readIout(float *val)
+result<float> vicor_readIout()
 {
     RETURN_IF_ERR(enforcePage(VicorPage::TELEM));
 
     uint16_t word = 0;
     RETURN_IF_ERR(readWord(CMD_READ_IOUT, word));
-    *val = DECODE_IOUT(word);
-    return {};
+    return DECODE_IOUT(word);
 }
 
-result<void> vicor_readTemp(float *val)
+result<float> vicor_readTemp()
 {
     RETURN_IF_ERR(enforcePage(VicorPage::TELEM));
 
     uint16_t word = 0;
     RETURN_IF_ERR(readWord(CMD_READ_TEMP, word));
-    *val = DECODE_TEMP(word);
-    return {};
+    return DECODE_TEMP(word);
 }
 
-result<void> vicor_readPout(float *val)
+result<float> vicor_readPout()
 {
     RETURN_IF_ERR(enforcePage(VicorPage::TELEM));
 
     uint16_t word = 0;
     RETURN_IF_ERR(readWord(CMD_READ_POUT, word));
-    *val = DECODE_POUT(word);
-    return {};
+    return DECODE_POUT(word);
 }
 
 result<void> vicor_readSerial()
@@ -182,44 +176,56 @@ result<void> vicor_readSerial()
     return {};
 }
 
-result<void> vicor_statusWord(uint16_t &status)
+result<uint16_t> vicor_statusWord()
 {
     RETURN_IF_ERR(enforcePage(VicorPage::CONFIG));
 
-    return readWord(CMD_STATUS_WORD, status);
+    uint16_t status;
+    RETURN_IF_ERR(readWord(CMD_STATUS_WORD, status));
+    return status;
 }
 
-result<void> vicor_statusIout(uint8_t &status)
+result<uint8_t> vicor_statusIout()
 {
     RETURN_IF_ERR(enforcePage(VicorPage::CONFIG));
 
-    return readByte(CMD_STATUS_IOUT, status);
+    uint8_t status;
+    RETURN_IF_ERR(readByte(CMD_STATUS_IOUT, status));
+    return status;
 }
 
-result<void> vicor_statusInput(uint8_t &status)
+result<uint8_t> vicor_statusInput()
 {
     RETURN_IF_ERR(enforcePage(VicorPage::CONFIG));
 
-    return readByte(CMD_STATUS_INPUT, status);
+    uint8_t status;
+    RETURN_IF_ERR(readByte(CMD_STATUS_INPUT, status));
+    return status;
 }
 
-result<void> vicor_statusTemp(uint8_t &status)
+result<uint8_t> vicor_statusTemp()
 {
     RETURN_IF_ERR(enforcePage(VicorPage::CONFIG));
 
-    return readByte(CMD_STATUS_TEMP, status);
+    uint8_t status;
+    RETURN_IF_ERR(readByte(CMD_STATUS_TEMP, status));
+    return status;
 }
 
-result<void> vicor_statusComm(uint8_t &status)
+result<uint8_t> vicor_statusComm()
 {
     RETURN_IF_ERR(enforcePage(VicorPage::CONFIG));
 
-    return readByte(CMD_STATUS_CML, status);
+    uint8_t status;
+    RETURN_IF_ERR(readByte(CMD_STATUS_CML, status));
+    return status;
 }
 
-result<void> vicor_statusMfrSpecific(uint8_t &status)
+result<uint8_t> vicor_statusMfrSpecific()
 {
     RETURN_IF_ERR(enforcePage(VicorPage::CONFIG));
 
-    return readByte(CMD_STATUS_MFR_SPECIFIC, status);
+    uint8_t status;
+    RETURN_IF_ERR(readByte(CMD_STATUS_MFR_SPECIFIC, status));
+    return status;
 }

@@ -2,18 +2,18 @@
 
 #include "util_errorCodes.hpp"
 
-result<void> vicor_operation(bool enable);
-result<void> vicor_clearFaults();
-result<void> vicor_readVin(float *val);
-result<void> vicor_readIin(float *val);
-result<void> vicor_readVout(float *val);
-result<void> vicor_readIout(float *val);
-result<void> vicor_readTemp(float *val);
-result<void> vicor_readPout(float *val);
-result<void> vicor_readSerial(void);
-result<void> vicor_statusWord(uint16_t *status);
-result<void> vicor_statusIout(uint8_t *status);
-result<void> vicor_statusInput(uint8_t *status);
-result<void> vicor_statusTemp(uint8_t *status);
-result<void> vicor_statusComm(uint8_t *status);
-result<void> vicor_statusMfrSpecific(uint8_t *status);
+result<void>     vicor_operation(bool enable);
+result<void>     vicor_clearFaults();
+result<float>    vicor_readVin();
+result<float>    vicor_readIin();
+result<float>    vicor_readVout();
+result<float>    vicor_readIout();
+result<float>    vicor_readTemp();
+result<float>    vicor_readPout();
+result<void>     vicor_readSerial();
+result<uint16_t> vicor_statusWord();
+result<uint8_t>  vicor_statusIout();
+result<uint8_t>  vicor_statusInput();
+result<uint8_t>  vicor_statusTemp();
+result<uint8_t>  vicor_statusComm();
+result<uint8_t>  vicor_statusMfrSpecific();
