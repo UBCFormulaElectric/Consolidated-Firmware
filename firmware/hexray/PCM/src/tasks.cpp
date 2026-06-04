@@ -1,11 +1,12 @@
 #include "tasks.h"
-#include "hw_gpio.h"
+#include "hw_gpio.hpp"
 #include "main.h"
 #include "vicor.hpp"
-#include "io_log.h"
-#include "hw_hardFaultHandler.h"
+#include "io_log.hpp"
+#include "hw_hardFaultHandler.hpp"
 #include "SEGGER_SYSVIEW.h"
 #include "cmsis_os2.h"
+#include <cstdio>
 
 // Required by SysView
 void hw_sysviewConfig_sendSystemDesc()
@@ -26,9 +27,9 @@ typedef enum
 // Define this guy for debug mode.
 #define PCM_DEBUG
 
-static const Gpio pcm_en_in      = { .port = PCM_EN_GPIO_Port, .pin = PCM_EN_Pin };
-static const Gpio lv_buck_en_out = { .port = LV_BUCK_EN_GPIO_Port, .pin = LV_BUCK_EN_Pin };
-static const Gpio led_out        = { .port = LED_GPIO_Port, .pin = LED_Pin };
+static const hw::gpio pcm_en_in{ PCM_EN_GPIO_Port, PCM_EN_Pin };
+static const hw::gpio lv_buck_en_out{ LV_BUCK_EN_GPIO_Port, LV_BUCK_EN_Pin };
+static const hw::gpio led_out{ LED_GPIO_Port, LED_Pin };
 
 static PcmState state = PCM_STATE_OFF;
 
@@ -74,7 +75,7 @@ _Noreturn void tasks_tick(void)
             static_cast<double>(temp), static_cast<double>(pout));
         LOG_INFO("%s", debug_buf);
 
-        hw_gpio_togglePin(&led_out);
+        UNUSED(led_out.togglePin());
         osDelay(500);
 #else
         switch (state)
