@@ -1,6 +1,10 @@
 "use client";
 
-import { CardSim } from "lucide-react";
+import { useState } from "react";
+
+import { CardSim, FileCog } from "lucide-react";
+import useFormatSDCard from "@/lib/mutations/useFormatSDCard";
+import SDCardFormatErrorModal from "./SDCardFormatErrorModal";
 
 type SDCardPickerProps = {
   selected: string | null;
@@ -9,6 +13,97 @@ type SDCardPickerProps = {
   isLoading: boolean;
   error: unknown;
 };
+
+type FormatSDCardButtonProps = {
+  sdCard?: string;
+};
+
+const FormatSDCardButton = (props: FormatSDCardButtonProps) => {
+  const { sdCard } = props;
+
+  const [hasConfirmed, setHasConfirmed] = useState(false);
+  const [confirmationTimeout, setConfirmationTimeout] = useState<NodeJS.Timeout | null>(null);
+  const [formatError, setFormatError] = useState<string | null>(null);
+
+  const formatSDCardMutation = useFormatSDCard();
+
+  const onClick = () => {
+    if (!sdCard) return;
+
+    formatSDCardMutation.mutate({ drive: sdCard });
+  };
+
+  return (
+    <>
+      <button
+        onClick={() => {
+          if (!hasConfirmed) {
+            setHasConfirmed(true);
+
+            const timeout = setTimeout(() => {
+              setHasConfirmed(false);
+            }, 5000);
+
+            setConfirmationTimeout(timeout);
+
+            return;
+          }
+          
+          setConfirmationTimeout((prev) => {
+            if (prev) clearTimeout(prev);
+
+            return null;
+          });
+
+          onClick();
+          setHasConfirmed(false);
+        }}
+        className={`rounded px-4 py-4 text-left flex gap-2 items-center transition-colors hover:cursor-pointer border ${hasConfirmed ? "bg-red-100 border-red-500 text-red-500" : "bg-white border-black hover:border-black/75"}`}
+      >
+        <FileCog className="mb-1" />
+        <div className="flex flex-col leading-4">
+          {
+            hasConfirmed
+              ? (
+                <>
+                  <span className="font-semibold text-sm">Confirm Formatting</span>
+                  <span className="text-xs font-mono">{sdCard}</span>
+                </>
+              )
+              : (
+                <>
+                  <span className="font-semibold text-sm">Format SD Card</span>
+                  <span className="text-xs font-mono">{sdCard}</span>
+                </>
+              )
+          }
+        </div>
+      </button>
+      {
+        formatSDCardMutation.isError && (
+          <SDCardFormatErrorModal
+            errorMessage={formatSDCardMutation.error instanceof Error ? formatSDCardMutation.error.message : "An unknown error occurred."}
+            onCancel={() => {
+              setFormatError(null);
+              
+              formatSDCardMutation.reset();
+            }}
+            options={[
+              {
+                label: "Okay",
+                onClick: () => {
+                  setFormatError(null);
+                  
+                  formatSDCardMutation.reset();
+                },
+              },
+            ]}
+          />
+        )
+      }
+    </>
+  );
+}
 
 const SDCardPickerCardSkeleton = () => {
   return (
@@ -69,6 +164,10 @@ const SDCardPicker = (props: SDCardPickerProps) => {
           </button>
         );
       })}
+
+      <FormatSDCardButton
+        sdCard={selected || undefined}
+      />
     </div>
   );
 };

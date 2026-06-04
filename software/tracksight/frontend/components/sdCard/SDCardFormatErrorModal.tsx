@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react";
 import ErrorModal from "../common/ErrorModal";
 
-type SDCardDumpErrorModalProps = {
+type SDCardFormatErrorModalProps = {
   errorMessage: string;
   onCancel: () => void;
 
@@ -13,12 +13,12 @@ type SDCardDumpErrorModalProps = {
   }[];
 };
 
-const SDCardDumpErrorModal = (props: SDCardDumpErrorModalProps) => {
+const SDCardFormatErrorModal = (props: SDCardFormatErrorModalProps) => {
   const { errorMessage, options = [], onCancel } = props;
 
   return (
     <ErrorModal 
-      title="Error Dumping SD Card"
+      title="Error Formatting SD Card"
       errorMessage={errorMessage}
       onCancel={onCancel}
       options={options}
@@ -26,4 +26,4 @@ const SDCardDumpErrorModal = (props: SDCardDumpErrorModalProps) => {
   );
 };
 
-export default SDCardDumpErrorModal;
+export default SDCardFormatErrorModal;
