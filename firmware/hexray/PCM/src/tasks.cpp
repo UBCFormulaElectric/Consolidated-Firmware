@@ -6,6 +6,8 @@
 #include "hw_hardFaultHandler.hpp"
 #include "SEGGER_SYSVIEW.h"
 #include "cmsis_os2.h"
+#include "hw_rtosTaskHandler.hpp"
+
 #include <cstdio>
 
 // Required by SysView
@@ -37,20 +39,9 @@ static auto state = PcmState::OFF;
 static char debug_buf[1024];
 #endif
 
-void tasks_init()
+[[noreturn]] static void tasks_tick(void *arg)
 {
-    hw_hardFaultHandler_init();
-
-    SEGGER_SYSVIEW_Conf();
-    LOG_INFO("PCM reset!");
-
-#ifdef PCM_DEBUG
-    LOG_IF_ERR(vicor_operation(true));
-#endif
-}
-
-_Noreturn void tasks_tick()
-{
+    UNUSED(arg);
     for (;;)
     {
 #ifdef PCM_DEBUG
@@ -126,4 +117,24 @@ _Noreturn void tasks_tick()
         }
 #endif
     }
+}
+
+static hw::rtos::StaticTask::StaticTaskStack<8096> TaskPcmStack;
+static hw::rtos::StaticTask                        TaskPcm(osPriorityHigh, "Task100Hz", tasks_tick, TaskPcmStack);
+
+void tasks_init()
+{
+    hw_hardFaultHandler_init();
+
+    SEGGER_SYSVIEW_Conf();
+    LOG_INFO("PCM reset!");
+
+#ifdef PCM_DEBUG
+    LOG_IF_ERR(vicor_operation(true));
+#endif
+
+    osKernelInitialize();
+    TaskPcm.start();
+    osKernelStart();
+    forever {}
 }
