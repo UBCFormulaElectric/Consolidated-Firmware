@@ -7,16 +7,20 @@
 #include "app_heartbeatMonitors.hpp"
 #include "app_canTx.hpp"
 #include "app_canRx.hpp"
+#include "app_lowVoltageBattery.hpp"
 #include "app_powerMonitoring.hpp"
 #include "app/states/app_states.hpp"
 #include "app_stateMachine.hpp"
 #include "app_timer.hpp"
 #include "app_commitInfo.hpp"
+#include "app_vcShdnLoop.hpp"
+#include "app_shdnLast.hpp"
 
 #include "io_canMsg.hpp"
 #include "io_canTx.hpp"
 #include "io_canQueues.hpp"
 #include "io_time.hpp"
+#include "io_batteryMonitoring.hpp"
 #include "io_canReroute.hpp"
 
 #include <util_errorCodes.hpp>
@@ -84,13 +88,19 @@ void jobs_run100Hz_tick()
     app::StateMachine::tick100Hz();
     hb_monitor.checkIn();
     hb_monitor.broadcastFaults();
+    app::shdnLoop::broadcast();
+    app::shdnLast::broadcast();
     io::can_tx::enqueue100HzMsgs();
 }
 void jobs_run1kHz_tick()
 {
     io::can_tx::enqueueOtherPeriodicMsgs(io::time::getCurrentMs());
 }
+void jobs_runBatteryMonitoring_tick()
+{
+    app::batteryMonitoring::update();
+}
 void jobs_runPowerMonitoring_tick()
 {
-    app::powerMonitoring::update();
+    LOG_IF_ERR(app::powerMonitoring::update());
 }

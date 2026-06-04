@@ -23,20 +23,20 @@ result<void> update()
     RETURN_IF_ERR(io::powerMonitoring::monitor_power_inputs());
     RETURN_IF_ERR(io::powerMonitoring::refresh());
 
-    const auto ch1_voltage = io::powerMonitoring::read_voltage(Channel::CH1);
+    const auto ch1_voltage = io::powerMonitoring::read_voltage(Channel::CH4);
     const auto ch2_voltage = io::powerMonitoring::read_voltage(Channel::CH2);
     const auto ch3_voltage = io::powerMonitoring::read_voltage(Channel::CH3);
-    const auto ch4_voltage = io::powerMonitoring::read_voltage(Channel::CH4);
+    const auto ch4_voltage = io::powerMonitoring::read_voltage(Channel::CH1);
 
-    const auto ch1_current = io::powerMonitoring::read_current(Channel::CH1);
+    const auto ch1_current = io::powerMonitoring::read_current(Channel::CH4);
     const auto ch2_current = io::powerMonitoring::read_current(Channel::CH2);
     const auto ch3_current = io::powerMonitoring::read_current(Channel::CH3);
-    const auto ch4_current = io::powerMonitoring::read_current(Channel::CH4);
+    const auto ch4_current = io::powerMonitoring::read_current(Channel::CH1);
 
-    const auto ch1_power = io::powerMonitoring::read_power(Channel::CH1);
+    const auto ch1_power = io::powerMonitoring::read_power(Channel::CH4);
     const auto ch2_power = io::powerMonitoring::read_power(Channel::CH2);
     const auto ch3_power = io::powerMonitoring::read_power(Channel::CH3);
-    const auto ch4_power = io::powerMonitoring::read_power(Channel::CH4);
+    const auto ch4_power = io::powerMonitoring::read_power(Channel::CH1);
 
     const bool ch1_voltage_valid = ch1_voltage.has_value();
     const bool ch2_voltage_valid = ch2_voltage.has_value();
@@ -83,22 +83,22 @@ result<void> update()
     app::can_tx::VC_ChannelThreePower_set(ch3_power.value_or(0.0f));
     app::can_tx::VC_ChannelFourPower_set(ch4_power.value_or(0.0f));
 
-    uint8_t    OV_UV_mask   = 0u;
-    const auto alert_status = io::powerMonitoring::read_alert_status();
+    AlertOvUvBits ov_uv{};
+    const auto    alert_status = io::powerMonitoring::read_alert_status();
     if (alert_status.has_value())
     {
-        OV_UV_mask = alert_status.value();
+        ov_uv.alert_status = alert_status.value();
     }
 
-    app::can_tx::VC_CHANNEL1_OV_set((OV_UV_mask & ALERT_OV_CH1) != 0u);
-    app::can_tx::VC_CHANNEL2_OV_set((OV_UV_mask & ALERT_OV_CH2) != 0u);
-    app::can_tx::VC_CHANNEL3_OV_set((OV_UV_mask & ALERT_OV_CH3) != 0u);
-    app::can_tx::VC_CHANNEL4_OV_set((OV_UV_mask & ALERT_OV_CH4) != 0u);
+    app::can_tx::VC_CHANNEL1_OV_set(ov_uv.bits.CH1OV);
+    app::can_tx::VC_CHANNEL2_OV_set(ov_uv.bits.CH2OV);
+    app::can_tx::VC_CHANNEL3_OV_set(ov_uv.bits.CH3OV);
+    app::can_tx::VC_CHANNEL4_OV_set(ov_uv.bits.CH4OV);
 
-    app::can_tx::VC_CHANNEL1_UV_set((OV_UV_mask & ALERT_UV_CH1) != 0u);
-    app::can_tx::VC_CHANNEL2_UV_set((OV_UV_mask & ALERT_UV_CH2) != 0u);
-    app::can_tx::VC_CHANNEL3_UV_set((OV_UV_mask & ALERT_UV_CH3) != 0u);
-    app::can_tx::VC_CHANNEL4_UV_set((OV_UV_mask & ALERT_UV_CH4) != 0u);
+    app::can_tx::VC_CHANNEL1_UV_set(ov_uv.bits.CH1UV);
+    app::can_tx::VC_CHANNEL2_UV_set(ov_uv.bits.CH2UV);
+    app::can_tx::VC_CHANNEL3_UV_set(ov_uv.bits.CH3UV);
+    app::can_tx::VC_CHANNEL4_UV_set(ov_uv.bits.CH4UV);
 
     return {};
 }
