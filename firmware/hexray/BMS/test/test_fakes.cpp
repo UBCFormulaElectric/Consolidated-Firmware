@@ -314,8 +314,9 @@ namespace charger
 
 namespace shdn
 {
-    node hv_p_ok_node(true, app::can_tx::BMS_HVPShdnOKStatus_set);
-    node hv_n_ok_node(true, app::can_tx::BMS_HVNShdnOKStatus_set);
+    node hv_p_ok_node(app::can_tx::BMS_HVPShdnOKStatus_set);
+    node hv_n_ok_node(app::can_tx::BMS_HVNShdnOKStatus_set);
+    node loop_ok_node(app::can_tx::BMS_ShdnTermOKStatus_set);
 } // namespace shdn
 
 namespace fans

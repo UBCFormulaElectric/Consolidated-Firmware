@@ -8,6 +8,8 @@
 #include "app_lowVoltageBattery.hpp"
 #include "app_powerMonitoring.hpp"
 #include "app_commitInfo.hpp"
+#include "app_vcShdnLoop.hpp"
+#include "app_shdnLast.hpp"
 
 #include "io_canMsg.hpp"
 #include "io_canTx.hpp"
@@ -51,11 +53,15 @@ void jobs_init()
 void jobs_run1Hz_tick() {}
 void jobs_run100Hz_tick()
 {
-    io::can_tx::enqueue100HzMsgs();
     const uint32_t k = app::can_rx::BMS_ChargePowerLimit_get();
     LOG_INFO("%d", k);
     hb_monitor.checkIn();
     hb_monitor.broadcastFaults();
+
+    io::can_tx::enqueue100HzMsgs();
+
+    app::shdnLoop::broadcast();
+    app::shdnLast::broadcast();
 }
 void jobs_run1kHz_tick()
 {
@@ -67,5 +73,5 @@ void jobs_runBatteryMonitoring_tick()
 }
 void jobs_runPowerMonitoring_tick()
 {
-    app::powerMonitoring::update();
+    LOG_IF_ERR(app::powerMonitoring::update());
 }
