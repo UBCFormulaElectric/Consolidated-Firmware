@@ -1,5 +1,6 @@
 #include <iostream>
 
+#include "app_canTx.hpp"
 #include "io_canQueues.hpp"
 #include "io_ntpButton.hpp"
 #include "io_telemRx.hpp"
@@ -146,3 +147,7 @@ std::expected<std::span<const uint8_t>, ErrorCode> io::telemRx::read(std::span<u
 {
     return std::span<const uint8_t>{};
 }
+
+#include "io_shdn_loop.hpp"
+const io::shdn::node r_estop(app::can_tx::DAM_REStopOKStatus_set);
+const io::shdn::node l_estop(app::can_tx::DAM_LEStopOKStatus_set);

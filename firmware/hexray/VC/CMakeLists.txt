@@ -184,6 +184,7 @@ elseif ("${TARGET}" STREQUAL "test")
             "${SHARED_FAKES_DIR_CPP}/io_imu.cpp"
             "${SHARED_FAKES_DIR_CPP}/io_time.cpp"
             "${SHARED_FAKES_DIR_CPP}/io_pump.cpp"
+            "${SHARED_FAKES_DIR_CPP}/io_shdnLoopNode.cpp"
     )
     set(INCLUDE_DIRS
             "${CMAKE_CURRENT_SOURCE_DIR}/test"

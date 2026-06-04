@@ -973,8 +973,7 @@ static void MX_GPIO_Init(void)
 
     /*Configure GPIO pin Output Level */
     HAL_GPIO_WritePin(
-        GPIOE, IMU_CS1_Pin | IMU_CS2_Pin | IMU_CS3_Pin | LED_Pin | BOOT_Pin | INERTIA_3V3_OUT_Pin | IMU_FSYNC_Pin,
-        GPIO_PIN_RESET);
+        GPIOE, IMU_CS1_Pin | IMU_CS2_Pin | IMU_CS3_Pin | LED_Pin | BOOT_Pin | IMU_FSYNC_Pin, GPIO_PIN_RESET);
 
     /*Configure GPIO pin Output Level */
     HAL_GPIO_WritePin(GPIOB, BAT_CHRG_nSHDN_Pin | BMS_EN_Pin | FRONT_EN_Pin | RL_PUMP_EN_Pin, GPIO_PIN_RESET);
@@ -991,9 +990,8 @@ static void MX_GPIO_Init(void)
     HAL_GPIO_WritePin(RR_PUMP_EN_GPIO_Port, RR_PUMP_EN_Pin, GPIO_PIN_RESET);
 
     /*Configure GPIO pins : IMU_CS1_Pin IMU_CS2_Pin IMU_CS3_Pin LED_Pin
-                             BOOT_Pin INERTIA_3V3_OUT_Pin IMU_FSYNC_Pin */
-    GPIO_InitStruct.Pin =
-        IMU_CS1_Pin | IMU_CS2_Pin | IMU_CS3_Pin | LED_Pin | BOOT_Pin | INERTIA_3V3_OUT_Pin | IMU_FSYNC_Pin;
+                             BOOT_Pin IMU_FSYNC_Pin */
+    GPIO_InitStruct.Pin   = IMU_CS1_Pin | IMU_CS2_Pin | IMU_CS3_Pin | LED_Pin | BOOT_Pin | IMU_FSYNC_Pin;
     GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull  = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -1017,9 +1015,10 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : RR_ILCK_3V3_OUT_Pin BMS_PG_Pin PWR_MTR_nALERT_Pin BOOST_PG_Pin
-                             BAT_CHRG_MODE_Pin */
-    GPIO_InitStruct.Pin  = RR_ILCK_3V3_OUT_Pin | BMS_PG_Pin | PWR_MTR_nALERT_Pin | BOOST_PG_Pin | BAT_CHRG_MODE_Pin;
+    /*Configure GPIO pins : RR_ILCK_3V3_OUT_Pin BMS_PG_Pin INERTIA_3V3_OUT_Pin PWR_MTR_nALERT_Pin
+                             BOOST_PG_Pin BAT_CHRG_MODE_Pin */
+    GPIO_InitStruct.Pin =
+        RR_ILCK_3V3_OUT_Pin | BMS_PG_Pin | INERTIA_3V3_OUT_Pin | PWR_MTR_nALERT_Pin | BOOST_PG_Pin | BAT_CHRG_MODE_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);

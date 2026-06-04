@@ -160,6 +160,7 @@ elseif ("${TARGET}" STREQUAL "test")
     file(GLOB_RECURSE TEST_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp")
     set(FAKE_SRCS
             #"${SHARED_FAKES_DIR}/io_imuQuintuna.cpp"
+            "${SHARED_FAKES_DIR_CPP}/io_shdnLoopNode.cpp"
             "${SHARED_FAKES_DIR_CPP}/io_imu.cpp"
             "${SHARED_FAKES_DIR_CPP}/io_time.cpp"
     )

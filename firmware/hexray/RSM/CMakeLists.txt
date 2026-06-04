@@ -161,6 +161,7 @@ elseif ("${TARGET}" STREQUAL "test")
     set(FAKE_SRCS
             "${SHARED_FAKES_DIR_CPP}/io_time.cpp"
             "${SHARED_FAKES_DIR_CPP}/io_imu.cpp"
+            "${SHARED_FAKES_DIR_CPP}/io_shdnLoopNode.cpp"
     )
     set(SRCS ${APP_SRCS} ${APP_SHARED_SRCS} ${JOBS_SRC} ${TEST_SRCS} ${FAKE_SRCS})
     set(INCLUDE_DIRS
