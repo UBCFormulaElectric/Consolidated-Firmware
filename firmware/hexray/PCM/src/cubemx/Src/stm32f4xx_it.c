@@ -22,7 +22,7 @@
 #include "stm32f4xx_it.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "hw_hardFaultHandler.hpp"
+// #include "hw_hardFaultHandler.hpp"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -85,7 +85,7 @@ void NMI_Handler(void)
 void HardFault_Handler(void)
 {
     /* USER CODE BEGIN HardFault_IRQn 0 */
-    hw_hardFaultHandler_handleFault();
+    // hw_hardFaultHandler_handleFault();
     /* USER CODE END HardFault_IRQn 0 */
     while (1)
     {
@@ -150,6 +150,20 @@ void DebugMon_Handler(void)
     /* USER CODE BEGIN DebugMonitor_IRQn 1 */
 
     /* USER CODE END DebugMonitor_IRQn 1 */
+}
+
+/**
+ * @brief This function handles System tick timer.
+ */
+void SysTick_Handler(void)
+{
+    /* USER CODE BEGIN SysTick_IRQn 0 */
+
+    /* USER CODE END SysTick_IRQn 0 */
+    HAL_IncTick();
+    /* USER CODE BEGIN SysTick_IRQn 1 */
+
+    /* USER CODE END SysTick_IRQn 1 */
 }
 
 /******************************************************************************/

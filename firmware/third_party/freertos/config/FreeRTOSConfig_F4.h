@@ -28,8 +28,8 @@
  */
 /* USER CODE END Header */
 
-#ifndef FREERTOS_CONFIG_H
-#define FREERTOS_CONFIG_H
+#ifndef HW_FREERTOS_CONFIG_F4_H
+#define HW_FREERTOS_CONFIG_F4_H
 
 /*-----------------------------------------------------------
  * Application specific definitions.
@@ -69,7 +69,7 @@ void            xPortSysTickHandler(void);
 #define configTICK_RATE_HZ ((TickType_t)1000)
 #define configMAX_PRIORITIES (56)
 #define configMINIMAL_STACK_SIZE ((uint16_t)128)
-#define configTOTAL_HEAP_SIZE ((size_t)15360)
+#define configTOTAL_HEAP_SIZE ((size_t)0)
 #define configMAX_TASK_NAME_LEN (16)
 #define configUSE_TRACE_FACILITY 1
 #define configUSE_16_BIT_TICKS 0
@@ -115,10 +115,8 @@ to exclude the API function. */
 #define INCLUDE_xTimerPendFunctionCall 1
 #define INCLUDE_xQueueGetMutexHolder 1
 #define INCLUDE_uxTaskGetStackHighWaterMark 1
-#define INCLUDE_uxTaskGetStackHighWaterMark2 1
 #define INCLUDE_xTaskGetCurrentTaskHandle 1
 #define INCLUDE_eTaskGetState 1
-#define INCLUDE_xTaskGetHandle 1
 
 /*
  * The CMSIS-RTOS V2 FreeRTOS wrapper is dependent on the heap implementation used
@@ -174,8 +172,6 @@ standard names. */
 #define USE_CUSTOM_SYSTICK_HANDLER_IMPLEMENTATION 1
 
 /* USER CODE BEGIN Defines */
-/* Section where parameter definitions can be added (for instance, to override default ones in FreeRTOS.h) */
-
 /* USER CODE END Defines */
 
 #endif /* FREERTOS_CONFIG_H */

@@ -120,11 +120,11 @@ static char debug_buf[1024];
 }
 
 static hw::rtos::StaticTask::StaticTaskStack<8096> TaskPcmStack;
-static hw::rtos::StaticTask                        TaskPcm(osPriorityHigh, "Task100Hz", tasks_tick, TaskPcmStack);
+static hw::rtos::StaticTask                        TaskPcm(osPriorityHigh, "TaskPCM", tasks_tick, TaskPcmStack);
 
 void tasks_init()
 {
-    hw_hardFaultHandler_init();
+    // hw_hardFaultHandler_init();
 
     SEGGER_SYSVIEW_Conf();
     LOG_INFO("PCM reset!");
