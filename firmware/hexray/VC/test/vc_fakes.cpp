@@ -6,17 +6,21 @@
 #include "io_pumpControl.hpp"
 #include "io_sbgEllipse.hpp"
 #include "io_powerMonitoring.hpp"
-#include "io_pump.hpp"
 #include "io_shdnLoopNode.hpp"
 #include "io_efuse_TI_TPS25.hpp"
 #include "io_efuse_TI_TPS28.hpp"
 #include "io_vcShdn.hpp"
 
+//imus
 io::imu            IMU1;
 io::imu            IMU2;
 io::imu            IMU3;
-io::pump           rr_pump;
-io::pump           rl_pump;
+
+//pumps
+const io::pump           rr_pump;
+const io::pump           rl_pump;
+
+//efuses
 io::TI_TPS28_Efuse f_inv_efuse;
 io::TI_TPS28_Efuse r_inv_efuse;
 io::TI_TPS28_Efuse bms_efuse;
@@ -62,7 +66,7 @@ namespace io
         static float power_ch4   = 0.0f;
         static float current_ch4 = 0.0f;
         static float voltage_ch4 = 0.0f;
-
+    
         void set_reading_voltage(Channel channel, float voltage)
         {
             switch (channel)
@@ -123,9 +127,9 @@ namespace io
                     break;
             }
         }
-
     } // namespace powerMonitoring
 
+ 
     namespace sbgEllipse
     {
         ::io::sbgEllipse::Attitude     attitude{ 0.0f, 0.0f, 0.0f };
@@ -203,18 +207,11 @@ namespace io
         }
     } // namespace sbgEllipse
 
-namespace pcm
-{
-    void set(const bool enable)
-    {
-        fakes::io::pcm::enable_pin = enable;
-    }
+  } 
+} // fakes::io
 
-    bool enabled()
-    {
-        return fakes::io::pcm::enable_pin;
-    }
-} // namespace pcm
+namespace io
+{
 namespace batteryMonitoring
 {
     result<void> init()
@@ -388,6 +385,7 @@ namespace powerMonitoring
     }
 } // namespace powerMonitoring
 
+
 namespace sbgEllipse
 {
     result<void> init()
@@ -395,7 +393,7 @@ namespace sbgEllipse
         return fakes::io::sbgEllipse::init();
     }
 
-    const io::sbgEllipse::Attitude getEkfEulerAngles()
+    const ::io::sbgEllipse::Attitude getEkfEulerAngles()
     {
         return fakes::io::sbgEllipse::attitude;
     }
@@ -403,7 +401,7 @@ namespace sbgEllipse
     {
         return fakes::io::sbgEllipse::solution_mode;
     }
-    const io::sbgEllipse::VelocityData getEkfNavVelocityData()
+    const ::io::sbgEllipse::VelocityData getEkfNavVelocityData()
     {
         return fakes::io::sbgEllipse::velocity;
     }
@@ -423,7 +421,19 @@ namespace sbgEllipse
     {
         return fakes::io::sbgEllipse::general_status;
     }
+    
 } // namespace sbgEllipse
+namespace pcm
+{
+    void set(const bool enable)
+    {
+        fakes::io::pcm::enable_pin = enable;
+    }
+
+    bool enabled()
+    {
+        return fakes::io::pcm::enable_pin;
+    }
+} // namespace pcm
 
 } // namespace io
-}// namespace fakes

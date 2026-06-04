@@ -25,7 +25,7 @@ TEST_F(VCShdnLastTest, test_latch_not_ok_in_order)
     app::can_rx::DAM_LEStopOKStatus_update(true);
     app::can_rx::FSM_COCKPITOKStatus_update(true);
     app::can_rx::FSM_BOTSOKStatus_update(true);
-    app::can_rx::FSM_FrontLeftILCKInertiaOKStatus_update(true);
+    app::can_rx::FSM_FrontLeftILCKOKStatus_update(true);
     app::can_rx::FSM_FrontRightILCKOKStatus_update(true);
     app::can_tx::VC_TSMSOKStatus_set(true);
 

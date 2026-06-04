@@ -6,6 +6,7 @@
 #include "app_canUtils.hpp"
 #include "app_inverter.hpp"
 #include "app_powerManager.hpp"
+#include "io_log.hpp"
 
 using namespace app::can_utils;
 
@@ -29,6 +30,7 @@ namespace faultState
                                                                                    } } };
         app::powerManager::updateConfig(power_manager_state);
         app::can_tx::VC_State_set(VCState::VC_FAULT_STATE);
+        LOG_INFO("entering fault state!");
     }
 
     static void runOnTick100Hz(void)
@@ -40,7 +42,9 @@ namespace faultState
         }
     }
 
-    static void runOnExit(void) {}
+    static void runOnExit(void) {
+        LOG_INFO("exiting fault state!");
+    }
 
 } // namespace faultState
 

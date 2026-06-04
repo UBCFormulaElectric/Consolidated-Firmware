@@ -4,6 +4,7 @@
 #include "app_canRx.hpp"
 #include "app_canUtils.hpp"
 #include "app_powerManager.hpp"
+#include "io_log.hpp"
 
 using namespace app::can_utils;
 
@@ -14,6 +15,8 @@ namespace bmsOnStates
 
     static void runOnEntry(void)
     {
+                LOG_INFO("entering bms on state!");
+
         static const app::powerManager::PowerManagerConfig power_manager_state = { .efuse_configs = { {
                                                                                        { false, 0, 5 }, // rr_pump
                                                                                        { false, 0, 5 }, // rl_pump
@@ -46,7 +49,10 @@ namespace bmsOnStates
         }
     }
 
-    static void runOnExit(void) {}
+    static void runOnExit(void) {
+                LOG_INFO("exiting bms on state!");
+
+    }
 } // namespace bmsOnStates
 
 State bmsOn_state = { .name              = "BMS ON",

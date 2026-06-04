@@ -3,6 +3,7 @@
 #include "app_states.hpp"
 #include "app_canRx.hpp"
 #include "app_canUtils.hpp"
+#include "io_log.hpp"
 
 #include "app_powerManager.hpp"
 
@@ -13,6 +14,7 @@ namespace inverterOnState
 {
     static void runOnEntry(void)
     {
+        LOG_INFO("entering inverter on state!");
         static const app::powerManager::PowerManagerConfig power_manager_state = { .efuse_configs = { {
                                                                                        { false, 0, 5 }, // rr_pump
                                                                                        { false, 0, 5 }, // rl_pump
@@ -42,7 +44,9 @@ namespace inverterOnState
         }
     }
 
-    static void runOnExit(void) {}
+    static void runOnExit(void) {
+        LOG_INFO("exiting inverter on state!");
+    }
 } // namespace inverterOnState
 
 State inverterOn_state = { .name              = "INVERTER ON",

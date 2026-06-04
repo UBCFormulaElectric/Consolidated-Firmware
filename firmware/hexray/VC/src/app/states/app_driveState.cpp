@@ -9,7 +9,7 @@
 #include "app_inverter.hpp"
 #include "app_powerManager.hpp"
 #include "torque_vectoring/datatypes/torque_limits.hpp"
-
+#include "io_log.hpp"
 #include "app_powerManager.hpp"
 
 using namespace app::can_utils;
@@ -54,6 +54,8 @@ static bool driveStatePassPreCheck()
 
 static void driveStateRunOnEntry()
 {
+            LOG_INFO("entering drive state!");
+
     // enable inverters
     app::can_tx::VC_State_set(VCState::VC_DRIVE_STATE);
     updateConfig(power_manager_state);
@@ -87,6 +89,7 @@ static void driveStateRunOnTick100Hz(void)
 static void driveStateRunOnExit(void)
 {
     // disable inverters
+    LOG_INFO("exiting drive state!");
     inverter_enable_toggle(false, false, false, false);
     set_torque_limit_negative(NO_TORQUE_Nm, NO_TORQUE_Nm, NO_TORQUE_Nm, NO_TORQUE_Nm);
     set_torque_limit_positive(NO_TORQUE_Nm, NO_TORQUE_Nm, NO_TORQUE_Nm, NO_TORQUE_Nm);

@@ -5,8 +5,8 @@
 #include "app_canAlerts.hpp"
 #include "app_canUtils.hpp"
 #include "app_startSwitch.hpp"
-
 #include "app_powerManager.hpp"
+#include "io_log.hpp"
 
 using namespace app::can_utils;
 
@@ -16,6 +16,7 @@ namespace hvState
 {
     static void runOnEntry(void)
     {
+        LOG_INFO("entering hv state!");
         static const app::powerManager::PowerManagerConfig power_manager_state = { .efuse_configs = { {
                                                                                        { true, 200, 5 }, // rr_pump
                                                                                        { true, 200, 5 }, // rl_pump
@@ -46,7 +47,9 @@ namespace hvState
         }
     }
 
-    static void runOnExit(void) {}
+    static void runOnExit(void) {
+        LOG_INFO("exiting hv state!");
+    }
 } // namespace hvState
 
 State hv_state = { .name              = "HV",

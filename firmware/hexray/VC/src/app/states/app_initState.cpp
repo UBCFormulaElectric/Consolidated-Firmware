@@ -6,6 +6,7 @@
 #include "app_canUtils.hpp"
 #include "app_canAlerts.hpp"
 #include "torque_vectoring/datatypes/torque_limits.hpp"
+#include "io_log.hpp"
 
 using namespace app::can_utils;
 using namespace app::tv::datatypes;
@@ -29,6 +30,8 @@ namespace initState
                                                                                } } };
     static void                                        runOnEntry(void)
     {
+            LOG_INFO("entering init state!");
+
         app::powerManager::updateConfig(power_manager_state);
         app::can_tx::VC_State_set(VCState::VC_INIT_STATE);
 
@@ -59,7 +62,10 @@ namespace initState
         }
     }
 
-    static void runOnExit(void) {}
+    static void runOnExit(void) {
+                LOG_INFO("exiting init state!");
+
+    }
 } // namespace initState
 
 State init_state = { .name              = "INIT",

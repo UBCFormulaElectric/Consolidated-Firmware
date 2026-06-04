@@ -5,8 +5,8 @@
 #include "app_canRx.hpp"
 #include "io_log.hpp"
 #include "app_canUtils.hpp"
-
 #include "app_powerManager.hpp"
+#include "io_log.hpp"
 
 using namespace app::can_utils;
 
@@ -38,6 +38,8 @@ namespace hvInitState
 
     static void runOnEntry(void)
     {
+                LOG_INFO("entering hv init state!");
+
         static const app::powerManager::PowerManagerConfig power_manager_state = { .efuse_configs = { {
                                                                                        { true, 200, 5 }, // rr_pump
                                                                                        { true, 200, 5 }, // rl_pump
@@ -222,6 +224,8 @@ namespace hvInitState
     {
         current_inverter_state = VCInverterState::INV_SYSTEM_READY;
         start_up_timer.stop();
+                LOG_INFO("exiting hv init state!");
+
         // app_canAlerts_VC_Info_InverterRetry_set(false);
     }
 

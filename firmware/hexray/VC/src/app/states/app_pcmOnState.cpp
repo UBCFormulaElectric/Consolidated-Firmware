@@ -6,7 +6,7 @@
 #include "app_canAlerts.hpp"
 #include "app_timer.hpp"
 #include "app_powerManager.hpp"
-
+#include "io_log.hpp"
 #include "io_pcm.hpp"
 
 using namespace app::can_utils;
@@ -42,6 +42,7 @@ namespace pcmOnState
 
     static void runOnEntry(void)
     {
+        LOG_INFO("entering pcm on state!");
         static const app::powerManager::PowerManagerConfig power_manager_state = { .efuse_configs = { {
                                                                                        { false, 200, 5 }, // rr_pump
                                                                                        { false, 200, 5 }, // rl_pump
@@ -124,6 +125,7 @@ namespace pcmOnState
 
     static void runOnExit(void)
     {
+        LOG_INFO("exiting pcm on state!");
         pcm_timer.stop();
         pcm_cooldown_timer.stop();
     }

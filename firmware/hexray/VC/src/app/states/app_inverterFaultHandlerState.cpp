@@ -15,6 +15,8 @@ namespace inverterFaultHandler
 
     static void runOnEntry(void)
     {
+                LOG_INFO("entering inverter fault handler state!");
+
         app::can_tx::VC_State_set(VCState::VC_INVERTER_FAULT_HANDELER);
         app::can_alerts::infos::InverterRetry_set(true);
     }
@@ -42,6 +44,7 @@ namespace inverterFaultHandler
 
     static void runOnExit(void)
     {
+        LOG_INFO("exiting inverter fault handler state!");
         app::can_alerts::infos::InverterRetry_set(false);
     }
 
