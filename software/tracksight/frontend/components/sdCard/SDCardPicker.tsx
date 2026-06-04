@@ -23,7 +23,6 @@ const FormatSDCardButton = (props: FormatSDCardButtonProps) => {
 
   const [hasConfirmed, setHasConfirmed] = useState(false);
   const [confirmationTimeout, setConfirmationTimeout] = useState<NodeJS.Timeout | null>(null);
-  const [formatError, setFormatError] = useState<string | null>(null);
 
   const formatSDCardMutation = useFormatSDCard();
 
@@ -84,16 +83,13 @@ const FormatSDCardButton = (props: FormatSDCardButtonProps) => {
           <SDCardFormatErrorModal
             errorMessage={formatSDCardMutation.error instanceof Error ? formatSDCardMutation.error.message : "An unknown error occurred."}
             onCancel={() => {
-              setFormatError(null);
-              
+              console.log(formatSDCardMutation.error);
               formatSDCardMutation.reset();
             }}
             options={[
               {
                 label: "Okay",
                 onClick: () => {
-                  setFormatError(null);
-                  
                   formatSDCardMutation.reset();
                 },
               },
