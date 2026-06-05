@@ -2,18 +2,47 @@
 
 #include "util_errorCodes.hpp"
 
-result<void>    vicor_operation(bool enable);
-result<bool>    vicor_read_operation();
-result<void>    vicor_clearFaults();
-result<float>   vicor_readVin();
-result<float>   vicor_readIin();
-result<float>   vicor_readVout();
-result<float>   vicor_readIout();
-result<float>   vicor_readTemp();
-result<float>   vicor_readPout();
-result<void>    vicor_readSerial();
-result<uint8_t> vicor_statusIout();
-result<uint8_t> vicor_statusInput();
+result<void> vicor_operation(bool enable);
+result<bool> vicor_read_operation();
+result<void> vicor_clearFaults();
+
+struct VicorPowerStats
+{
+    float vin;
+    float iin;
+    float vout;
+    float iout;
+    float temp;
+    float pout;
+};
+result<VicorPowerStats> vicor_readPowerStats();
+
+// result<void> vicor_readSerial();
+struct VicorCurrentOutputStatus
+{
+    bool pout_op_warning : 1;      // not supported
+    bool pout_op_fault : 1;        // not supported
+    bool in_pwr_limiting_mode : 1; // not supported
+    bool current_share_fault : 1;  // not supported
+    bool iout_uc_fault : 1;        // not supported
+    bool iout_oc_warning : 1;
+    bool iout_oc_lv_fault : 1; // not supported
+    bool iout_oc_fault : 1;
+};
+result<VicorCurrentOutputStatus> vicor_statusIout();
+
+struct VicorInputStatus
+{
+    bool pin_op_warning : 1; // not supported
+    bool iin_oc_warning : 1; // not supported
+    bool iin_oc_fault : 1;   // not supported
+    bool unit_off_for_insufficient_voltage : 1;
+    bool vin_uv_fault : 1;
+    bool vin_uv_warning : 1; // not supported
+    bool vin_ov_warning : 1;
+    bool vin_ov_fault : 1;
+};
+result<VicorInputStatus> vicor_statusInput();
 
 struct VicorTempStatus
 {
@@ -64,7 +93,7 @@ struct VicorStatus
     }
 };
 static_assert(sizeof(VicorStatus) == sizeof(uint16_t), "VicorStatus should be 16 bits");
-result<VicorStatus> vicor_statusWord();
+result<VicorStatus> vicor_status();
 
 struct VicorCommStatus
 {

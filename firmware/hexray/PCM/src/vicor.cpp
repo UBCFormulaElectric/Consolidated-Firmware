@@ -15,28 +15,7 @@ enum class VicorPage
 static constexpr uint32_t I2C_ADDR       = 0x51;
 static constexpr uint32_t I2C_TIMEOUT_MS = 1000;
 
-static constexpr uint8_t CMD_PAGE                = 0x0;
-static constexpr uint8_t CMD_OPERATION           = 0x1;
-static constexpr uint8_t CMD_CLEAR_FAULTS        = 0x03;
-static constexpr uint8_t CMD_STATUS_WORD         = 0x79;
-static constexpr uint8_t CMD_STATUS_IOUT         = 0x7B;
-static constexpr uint8_t CMD_STATUS_INPUT        = 0x7C;
-static constexpr uint8_t CMD_STATUS_TEMP         = 0x7D;
-static constexpr uint8_t CMD_STATUS_CML          = 0x7E;
-static constexpr uint8_t CMD_STATUS_MFR_SPECIFIC = 0x80;
-static constexpr uint8_t CMD_READ_VIN            = 0x88;
-static constexpr uint8_t CMD_READ_IIN            = 0x89;
-static constexpr uint8_t CMD_READ_VOUT           = 0x8B;
-static constexpr uint8_t CMD_READ_IOUT           = 0x8C;
-static constexpr uint8_t CMD_READ_TEMP           = 0x8D;
-static constexpr uint8_t CMD_READ_POUT           = 0x96;
-
-#define DECODE(m, Y, R, b) ((1.0f / m) * (Y * R - b))
-#define DECODE_V(Y) (DECODE(1.0f, Y, 1e-1f, 0))
-#define DECODE_IIN(Y) (DECODE(1.0f, Y, 1e-3f, 0))
-#define DECODE_IOUT(Y) (DECODE(1.0f, Y, 1e-2f, 0))
-#define DECODE_POUT(Y) (DECODE(1.0f, Y, 1e-0f, 0))
-#define DECODE_TEMP(Y) (DECODE(1.0f, Y, 1e-0f, 0))
+static constexpr uint8_t CMD_OPERATION = 0x1;
 
 static hw::i2c::bus    vicor_bus(hi2c1);
 static hw::i2c::device vicor_i2c{ vicor_bus, I2C_ADDR, I2C_TIMEOUT_MS };
@@ -75,6 +54,7 @@ static result<void> readWord(const uint8_t cmd, uint16_t &data)
 
 static result<void> enforcePage(const VicorPage page)
 {
+    static constexpr uint8_t CMD_PAGE = 0x0;
     assert(page == VicorPage::LV_SIDE || page == VicorPage::HV_SIDE);
 
     if (page != current_page)
@@ -105,110 +85,78 @@ result<bool> vicor_read_operation()
 result<void> vicor_clearFaults()
 {
     RETURN_IF_ERR(enforcePage(VicorPage::LV_SIDE));
+    static constexpr uint8_t CMD_CLEAR_FAULTS = 0x03;
 
     constexpr uint8_t cmd = CMD_CLEAR_FAULTS;
     return vicor_i2c.transmit(std::span(&cmd, 1));
 }
 
-result<float> vicor_readVin()
+static float DECODE(const float m, const uint16_t Y, const float R, const float b)
+{
+    return 1.0f / m * (static_cast<float>(Y) * R - b);
+}
+result<VicorPowerStats> vicor_readPowerStats()
 {
     RETURN_IF_ERR(enforcePage(VicorPage::HV_SIDE));
+    static constexpr uint8_t CMD_READ_VIN  = 0x88;
+    static constexpr uint8_t CMD_READ_IIN  = 0x89;
+    static constexpr uint8_t CMD_READ_VOUT = 0x8B;
+    static constexpr uint8_t CMD_READ_IOUT = 0x8C;
+    static constexpr uint8_t CMD_READ_TEMP = 0x8D;
+    static constexpr uint8_t CMD_READ_POUT = 0x96;
 
-    uint16_t word = 0;
+    // buffers
+    VicorPowerStats out{};
+    uint16_t        word;
+
     RETURN_IF_ERR(readWord(CMD_READ_VIN, word));
-    return DECODE_V(word);
-}
+    out.vin = DECODE(1.0f, word, 1e-1f, 0);
 
-result<float> vicor_readIin()
-{
-    RETURN_IF_ERR(enforcePage(VicorPage::HV_SIDE));
-
-    uint16_t word = 0;
     RETURN_IF_ERR(readWord(CMD_READ_IIN, word));
-    return DECODE_IIN(word);
-}
+    out.iin = DECODE(1.0f, word, 1e-3f, 0);
 
-result<float> vicor_readVout()
-{
-    RETURN_IF_ERR(enforcePage(VicorPage::HV_SIDE));
-
-    uint16_t word = 0;
     RETURN_IF_ERR(readWord(CMD_READ_VOUT, word));
-    return DECODE_V(word);
-}
+    out.vout = DECODE(1.0f, word, 1e-1f, 0);
 
-result<float> vicor_readIout()
-{
-    RETURN_IF_ERR(enforcePage(VicorPage::HV_SIDE));
-
-    uint16_t word = 0;
     RETURN_IF_ERR(readWord(CMD_READ_IOUT, word));
-    return DECODE_IOUT(word);
-}
+    out.iout = DECODE(1.0f, word, 1e-2f, 0);
 
-result<float> vicor_readTemp()
-{
-    RETURN_IF_ERR(enforcePage(VicorPage::HV_SIDE));
-
-    uint16_t word = 0;
     RETURN_IF_ERR(readWord(CMD_READ_TEMP, word));
-    return DECODE_TEMP(word);
-}
+    out.temp = DECODE(1.0f, word, 1e-0f, 0);
 
-result<float> vicor_readPout()
-{
-    RETURN_IF_ERR(enforcePage(VicorPage::HV_SIDE));
-
-    uint16_t word = 0;
     RETURN_IF_ERR(readWord(CMD_READ_POUT, word));
-    return DECODE_POUT(word);
+    out.pout = DECODE(1.0f, word, 1e-0f, 0);
+
+    return out;
 }
 
-result<void> vicor_readSerial()
+result<VicorStatus> vicor_status()
 {
     RETURN_IF_ERR(enforcePage(VicorPage::LV_SIDE));
-
-    uint16_t word;
-    RETURN_IF_ERR(readWord(0x9D, word));
-    LOG_INFO("%d", word);
-    uint8_t serial[16];
-    LOG_IF_ERR(vicor_i2c.memoryRead(0x9E, std::span(serial, sizeof(serial))));
-    LOG_INFO(
-        "Serial: %X%X%X%X%X%X%X%X%X%X%X%X%X%X%X", serial[0], serial[1], serial[2], serial[3], serial[4], serial[5],
-        serial[6], serial[7], serial[8], serial[9], serial[10], serial[11], serial[12], serial[13], serial[14],
-        serial[15]);
-
-    // model
-    char model[18];
-    LOG_IF_ERR(vicor_i2c.memoryRead(0x9A, std::span(reinterpret_cast<uint8_t *>(model), sizeof(model))));
-    LOG_INFO("model: %s", model);
-    return {};
-}
-
-result<VicorStatus> vicor_statusWord()
-{
-    RETURN_IF_ERR(enforcePage(VicorPage::LV_SIDE));
+    static constexpr uint8_t CMD_STATUS_WORD = 0x79;
 
     VicorStatus status{};
     RETURN_IF_ERR(readWord(CMD_STATUS_WORD, reinterpret_cast<uint16_t &>(status)));
     return status;
 }
 
-result<uint8_t> vicor_statusIout()
+result<VicorCurrentOutputStatus> vicor_statusIout()
 {
     RETURN_IF_ERR(enforcePage(VicorPage::LV_SIDE));
+    static constexpr uint8_t CMD_STATUS_IOUT = 0x7B;
 
-    uint8_t status;
-    RETURN_IF_ERR(readByte(CMD_STATUS_IOUT, status));
+    VicorCurrentOutputStatus status{};
+    RETURN_IF_ERR(readByte(CMD_STATUS_IOUT, reinterpret_cast<uint8_t &>(status)));
     return status;
 }
 
-result<uint8_t> vicor_statusInput()
+result<VicorInputStatus> vicor_statusInput()
 {
     RETURN_IF_ERR(enforcePage(VicorPage::LV_SIDE));
 
-    uint8_t status;
-    RETURN_IF_ERR(readByte(CMD_STATUS_INPUT, status));
+    static constexpr uint8_t CMD_STATUS_INPUT = 0x7C;
+    VicorInputStatus         status{};
+    RETURN_IF_ERR(readByte(CMD_STATUS_INPUT, reinterpret_cast<uint8_t &>(status)));
     return status;
 }
 
@@ -216,7 +164,8 @@ result<VicorTempStatus> vicor_statusTemp()
 {
     RETURN_IF_ERR(enforcePage(VicorPage::LV_SIDE));
 
-    VicorTempStatus status{};
+    static constexpr uint8_t CMD_STATUS_TEMP = 0x7D;
+    VicorTempStatus          status{};
     RETURN_IF_ERR(readByte(CMD_STATUS_TEMP, reinterpret_cast<uint8_t &>(status)));
     return status;
 }
@@ -225,7 +174,8 @@ result<VicorCommStatus> vicor_statusComm()
 {
     RETURN_IF_ERR(enforcePage(VicorPage::LV_SIDE));
 
-    VicorCommStatus status{};
+    static constexpr uint8_t CMD_STATUS_CML = 0x7E;
+    VicorCommStatus          status{};
     RETURN_IF_ERR(readByte(CMD_STATUS_CML, reinterpret_cast<uint8_t &>(status)));
     return status;
 }
@@ -234,7 +184,8 @@ result<VicorStatusMFRSpecific> vicor_statusMfrSpecific()
 {
     RETURN_IF_ERR(enforcePage(VicorPage::LV_SIDE));
 
-    VicorStatusMFRSpecific status{};
+    static constexpr uint8_t CMD_STATUS_MFR_SPECIFIC = 0x80;
+    VicorStatusMFRSpecific   status{};
     RETURN_IF_ERR(readByte(CMD_STATUS_MFR_SPECIFIC, reinterpret_cast<uint8_t &>(status)));
     return status;
 }

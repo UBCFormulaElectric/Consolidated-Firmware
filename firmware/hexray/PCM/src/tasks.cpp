@@ -76,7 +76,7 @@ static char debug_buf[1024];
             // status_comm_res.value().log();
             LOG_IF_ERR(vicor_clearFaults());
         }
-        const auto status_res = vicor_statusWord();
+        const auto status_res = vicor_status();
         if (status_res.has_value())
         {
             // LOG_INFO("status word: %lX", status_res.value());
