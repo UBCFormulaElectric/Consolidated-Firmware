@@ -23,6 +23,7 @@ class BMSBaseTest : public EcuTestBase
         fakes::charger::setConnectionStatus(app::can_utils::ChargerConnectedType::CHARGER_DISCONNECTED);
 
         app::can_rx::VC_State_update(app::can_utils::VCState::VC_INIT_STATE);
+        app::can_rx::Debug_CellBalancing_Request_update(false);
         app::can_tx::BMS_Fault_TESTFAULT_set(false);
 
         // TODO: Change back to using constants once segments is added

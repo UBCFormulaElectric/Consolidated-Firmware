@@ -4,6 +4,7 @@
 #include "app_canRx.hpp"
 #include "app_segments.hpp"
 #include "app_irs.hpp"
+#include "io_irs.hpp"
 
 namespace app::states
 {
@@ -18,15 +19,15 @@ namespace balancingState
 
     static void balancingStateRunOnTick100Hz()
     {
-        const bool ir_negative_opened_debounced = app::irs::negativeOpenedDebounced();
-        const bool balancing_enabled            = app::can_rx::Debug_CellBalancing_Request_get();
+        const bool ir_negative_open =
+            (io::irs::negativeState() == app::can_utils::ContactorState::CONTACTOR_STATE_OPEN);
+        const bool balancing_enabled = app::can_rx::Debug_CellBalancing_Request_get();
 
-        if (balancing_enabled)
+        if (balancing_enabled && !ir_negative_open)
         {
             app::segments::balancing::tick();
         }
-
-        if (!balancing_enabled) // TODO: add ir negative
+        else
         {
             app::StateMachine::set_next_state(&app::states::init_state);
         }
@@ -35,6 +36,8 @@ namespace balancingState
     static void balancingStateRunOnExit()
     {
         app::segments::balancing::disable();
+        // Clear the balancing request so we don't immediately re-enter balancing from init.
+        app::can_rx::Debug_CellBalancing_Request_update(false);
     }
 } // namespace balancingState
 

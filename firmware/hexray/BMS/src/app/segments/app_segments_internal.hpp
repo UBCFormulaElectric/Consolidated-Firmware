@@ -1,6 +1,6 @@
 #pragma once
 
-// #include <algorithm>
+#include <algorithm>
 #include <cmath>
 #include <span>
 #include "app_segments.hpp"
