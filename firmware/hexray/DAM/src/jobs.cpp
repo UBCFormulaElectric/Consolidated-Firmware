@@ -113,6 +113,8 @@ void jobs_initLogFs()
 
     if (const auto err = app::sd::update_metadata(); !err.has_value())
         LOG_ERROR("jobs_initLogFs: update_metadata failed: %d", static_cast<int>(err.error()));
+
+    LOG_INFO("Filesystem initialized successfully");
 }
 
 void jobs_run1Hz_tick()
@@ -144,13 +146,13 @@ void jobs_run100Hz_tick()
 
     dam_shdnLoop.broadcast();
 
-    io::can_tx::enqueue100HzMsgs();
+    //io::can_tx::enqueue100HzMsgs();
 
     app::tsim::tick();
 }
 void jobs_run1kHz_tick()
 {
-    io::can_tx::enqueueOtherPeriodicMsgs(io::time::getCurrentMs());
+    //io::can_tx::enqueueOtherPeriodicMsgs(io::time::getCurrentMs());
 }
 void jobs_runLogging_tick()
 {
