@@ -9,6 +9,7 @@
 #include "io_shdnLoopNode.hpp"
 #include "io_efuse_TI_TPS25.hpp"
 #include "io_efuse_TI_TPS28.hpp"
+#include "io_vcShdn.hpp"
 
 io::imu                  IMU1;
 io::imu                  IMU2;
@@ -28,10 +29,10 @@ const io::TI_TPS28_Efuse r_rad_fan_efuse;
 const io::TI_TPS25_Efuse rl_pump_efuse;
 const io::TI_TPS25_Efuse rr_pump_efuse;
 
-const io::shdn::node tsms_node(false, app::can_tx::VC_TSMSOKStatus_set);
-const io::shdn::node inertia_stop_node(false, app::can_tx::VC_InertiaSwitch_set);
-const io::shdn::node rear_right_motor_interlock_node(false, app::can_tx::VC_RearRightMotorInterlock_set);
-const io::shdn::node splitter_box_interlock_node(false, app::can_tx::VC_MSDOrEMeterOKStatus_set);
+const io::shdn::node tsms_node(app::can_tx::VC_TSMSOKStatus_set);
+const io::shdn::node inertia_stop_node(app::can_tx::VC_InertiaSwitch_set);
+const io::shdn::node rear_right_motor_interlock_node(app::can_tx::VC_RearRightMotorInterlock_set);
+const io::shdn::node splitter_box_interlock_node(app::can_tx::VC_MSDOrEMeterOKStatus_set);
 namespace io // Define the mocked functions here
 {
 namespace batteryMonitoring

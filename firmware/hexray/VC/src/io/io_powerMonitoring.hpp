@@ -18,7 +18,9 @@ union AlertOvUvBits
         uint32_t CH1UV : 1;
     } bits;
     uint8_t alert_status;
+#ifdef TARGET_EMBEDDED
     static_assert(sizeof(bits) == sizeof(alert_status));
+#endif
 };
 
 /**

@@ -669,9 +669,10 @@ static void MX_TIM1_Init(void)
 
     /* USER CODE END TIM1_Init 0 */
 
-    TIM_SlaveConfigTypeDef  sSlaveConfig  = { 0 };
-    TIM_MasterConfigTypeDef sMasterConfig = { 0 };
-    TIM_IC_InitTypeDef      sConfigIC     = { 0 };
+    TIM_ClockConfigTypeDef  sClockSourceConfig = { 0 };
+    TIM_SlaveConfigTypeDef  sSlaveConfig       = { 0 };
+    TIM_MasterConfigTypeDef sMasterConfig      = { 0 };
+    TIM_IC_InitTypeDef      sConfigIC          = { 0 };
 
     /* USER CODE BEGIN TIM1_Init 1 */
 
@@ -684,6 +685,11 @@ static void MX_TIM1_Init(void)
     htim1.Init.RepetitionCounter = 0;
     htim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
     if (HAL_TIM_Base_Init(&htim1) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+    if (HAL_TIM_ConfigClockSource(&htim1, &sClockSourceConfig) != HAL_OK)
     {
         Error_Handler();
     }
@@ -779,8 +785,9 @@ static void MX_TIM5_Init(void)
 
     /* USER CODE END TIM5_Init 0 */
 
-    TIM_MasterConfigTypeDef sMasterConfig = { 0 };
-    TIM_IC_InitTypeDef      sConfigIC     = { 0 };
+    TIM_ClockConfigTypeDef  sClockSourceConfig = { 0 };
+    TIM_MasterConfigTypeDef sMasterConfig      = { 0 };
+    TIM_IC_InitTypeDef      sConfigIC          = { 0 };
 
     /* USER CODE BEGIN TIM5_Init 1 */
 
@@ -791,6 +798,15 @@ static void MX_TIM5_Init(void)
     htim5.Init.Period            = TIM5_AUTO_RELOAD_REG;
     htim5.Init.ClockDivision     = TIM_CLOCKDIVISION_DIV1;
     htim5.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+    if (HAL_TIM_Base_Init(&htim5) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+    if (HAL_TIM_ConfigClockSource(&htim5, &sClockSourceConfig) != HAL_OK)
+    {
+        Error_Handler();
+    }
     if (HAL_TIM_IC_Init(&htim5) != HAL_OK)
     {
         Error_Handler();
@@ -803,7 +819,7 @@ static void MX_TIM5_Init(void)
     }
     sConfigIC.ICPolarity  = TIM_INPUTCHANNELPOLARITY_FALLING;
     sConfigIC.ICSelection = TIM_ICSELECTION_INDIRECTTI;
-    sConfigIC.ICPrescaler = TIM_ICPSC_DIV1;
+    sConfigIC.ICPrescaler = TIM_ICPSC_DIV8;
     sConfigIC.ICFilter    = 0;
     if (HAL_TIM_IC_ConfigChannel(&htim5, &sConfigIC, TIM_CHANNEL_3) != HAL_OK)
     {
@@ -1068,7 +1084,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
         HAL_IncTick();
     }
     /* USER CODE BEGIN Callback 1 */
-
+    tasks_handle_arr_rollover_callback(htim);
     /* USER CODE END Callback 1 */
 }
 

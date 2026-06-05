@@ -150,7 +150,7 @@ namespace tireTemp
 } // namespace tireTemp
 } // namespace io
 
-const io::shdn::node rl_int_3v3_sens(true, app::can_tx::RSM_RearLeftMotorInterlock_set);
+const io::shdn::node rl_int_3v3_sens(app::can_tx::RSM_RearLeftMotorInterlock_set);
 
 io::queue<io::CanMsg, 128> can_tx_queue{ "" };
 io::queue<io::CanMsg, 128> can_rx_queue{ "" };

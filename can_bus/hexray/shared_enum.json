@@ -40,9 +40,10 @@
     "Cockpit_EStop": 10,
     "BOTS": 11,
     "FR_ILCK": 12,
-    "FL_INERTIA_ILCK": 13,
-    "TSMS": 14,
-    "OK": 15
+    "FL_ILCK": 13,
+    "INERTIA": 14,
+    "TSMS": 15,
+    "OK": 16
   },
   "DriveMode": {
     "VANILLA": 0,

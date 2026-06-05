@@ -109,15 +109,33 @@ void jobs_run100Hz_tick()
     // Charger connection status
     app::can_tx::BMS_ChargerConnectedType_set(io::charger::getConnectionStatus());
 
-    using FaultLatchState = io::FaultLatch::FaultLatchState;
+#ifdef TARGET_HV_SUPPLY
+    constexpr bool acc_fault = false;
+#else
+    
     const bool acc_fault  = app::segments::alerts::tick();
+#endif
+    using FaultLatchState = io::FaultLatch::FaultLatchState;
     bms_ok_latch.setCurrentStatus(acc_fault ? FaultLatchState::FAULT : FaultLatchState::OK);
     bms_ok_latch.setCurrentStatus(FaultLatchState::OK);
     app::latches::broadcast();
 
-    // BSPD
-    io::bspdtest::enable(app::can_rx::Debug_EnableTestCurrent_get());
-    app::can_tx::BMS_BSPDCurrentThresholdExceeded_set(io::bspdtest::isCurrentThresholdExceeded());
+    // Update CAN signals for BMS latch statuses.
+    const bool imd_latched_ok  = imd_ok_latch.getLatchedStatus() == FaultLatchState::OK;
+    const bool bspd_latched_ok = bspd_ok_latch.getLatchedStatus() == FaultLatchState::OK;
+    const bool bms_latched_ok  = bms_ok_latch.getLatchedStatus() == FaultLatchState::OK;
+
+    app::can_alerts::faults::ImdLatched_set(not imd_latched_ok);
+    app::can_alerts::faults::HardwareBspdLatched_set(not bspd_latched_ok);
+    app::can_alerts::faults::BmsLatched_set(not bms_latched_ok);
+
+    app::can_tx::BMS_BmsCurrentlyOk_set(bms_ok_latch.getCurrentStatus() == FaultLatchState::OK);
+    app::can_tx::BMS_ImdCurrentlyOk_set(imd_ok_latch.getCurrentStatus() == FaultLatchState::OK);
+    app::can_tx::BMS_BspdCurrentlyOk_set(bspd_ok_latch.getCurrentStatus() == FaultLatchState::OK);
+    app::can_tx::BMS_BmsLatchOk_set(bms_latched_ok);
+    app::can_tx::BMS_ImdLatchOk_set(imd_latched_ok);
+    app::can_tx::BMS_BspdLatchOk_set(bspd_latched_ok);
+
     app::can_tx::BMS_BSPDBrakePressureThresholdExceeded_set(io::bspdtest::isBrakePressureThresholdExceeded());
     app::can_tx::BMS_BSPDAccelBrakeOk_set(io::bspdtest::isAccelBrakeOk());
 
