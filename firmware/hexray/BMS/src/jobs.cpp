@@ -121,7 +121,7 @@ void jobs_run100Hz_tick()
     app::can_tx::BMS_ChargerConnectedType_set(io::charger::getConnectionStatus());
 
 #ifdef TARGET_HV_SUPPLY
-    const bool acc_fault = false;
+    constexpr bool acc_fault = false;
 #else
     // segments::checkWarnings();
     // const bool acc_fault = segments::checkFaults();
@@ -140,9 +140,9 @@ void jobs_run100Hz_tick()
     app::can_alerts::faults::HardwareBspdLatched_set(not bspd_latched_ok);
     app::can_alerts::faults::BmsLatched_set(not bms_latched_ok);
 
-    app::can_tx::BMS_BmsCurrentlyOk_set(bms_ok_latch.getLatchedStatus() == FaultLatchState::OK);
-    app::can_tx::BMS_ImdCurrentlyOk_set(imd_ok_latch.getLatchedStatus() == FaultLatchState::OK);
-    app::can_tx::BMS_BspdCurrentlyOk_set(bspd_ok_latch.getLatchedStatus() == FaultLatchState::OK);
+    app::can_tx::BMS_BmsCurrentlyOk_set(bms_ok_latch.getCurrentStatus() == FaultLatchState::OK);
+    app::can_tx::BMS_ImdCurrentlyOk_set(imd_ok_latch.getCurrentStatus() == FaultLatchState::OK);
+    app::can_tx::BMS_BspdCurrentlyOk_set(bspd_ok_latch.getCurrentStatus() == FaultLatchState::OK);
     app::can_tx::BMS_BmsLatchOk_set(bms_latched_ok);
     app::can_tx::BMS_ImdLatchOk_set(imd_latched_ok);
     app::can_tx::BMS_BspdLatchOk_set(bspd_latched_ok);

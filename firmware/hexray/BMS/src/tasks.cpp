@@ -19,6 +19,7 @@
 #include "hw_rtosTaskHandler.hpp"
 #include "hw_resetReason.hpp"
 #include "hw_bootup.hpp"
+#include "hw_gpios.hpp"
 #include "hw_pwms.hpp"
 #include "hw_runTimeStat.hpp"
 
@@ -192,6 +193,7 @@ void tasks_init()
     pwms_init();
     fdcan1.init();
     fdcan2.init();
+    shdn_en.writePin(true);
 
     const ResetReason reset_reason = hw::resetReason::get();
     app::can_tx::BMS_ResetReason_set(static_cast<app::can_utils::CanResetReason>(reset_reason));

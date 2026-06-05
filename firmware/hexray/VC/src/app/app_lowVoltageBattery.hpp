@@ -1,8 +1,7 @@
 #pragma once
 #include <expected>
-#include <cfloat>
-#include <limits>
 #include "util_errorCodes.hpp"
+#include <cstdint>
 
 enum class BalancingState
 {

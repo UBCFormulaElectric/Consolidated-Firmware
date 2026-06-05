@@ -15,7 +15,7 @@ constexpr float LOOP_SHUNT_RES            = (1.0f / 75.0e-3f);
 
 ContactorState negativeState()
 {
-    return msd_shdn_sns.readPin() ? ContactorState::CONTACTOR_STATE_CLOSED : ContactorState::CONTACTOR_STATE_OPEN;
+    return shdn_term_sns.readPin() ? ContactorState::CONTACTOR_STATE_CLOSED : ContactorState::CONTACTOR_STATE_OPEN;
 }
 
 void setPositive(const ContactorState state)

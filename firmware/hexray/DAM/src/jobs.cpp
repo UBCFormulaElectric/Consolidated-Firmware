@@ -14,6 +14,7 @@
 #include "app_epochClock.hpp"
 #include "app_sd.hpp"
 #include "app_tsim.hpp"
+#include "app_damShdnLoop.hpp"
 
 #include "io_canMsg.hpp"
 #include "io_canQueues.hpp"
@@ -123,6 +124,7 @@ void jobs_run1Hz_tick()
             LOG_ERROR("Log sync failed: %d", static_cast<int>(err.error()));
         }
     }
+    io::can_tx::enqueue1HzMsgs();
 }
 void jobs_run100Hz_tick()
 {
@@ -139,6 +141,8 @@ void jobs_run100Hz_tick()
 
     hb_monitor.checkIn();
     hb_monitor.broadcastFaults();
+
+    dam_shdnLoop.broadcast();
 
     io::can_tx::enqueue100HzMsgs();
 

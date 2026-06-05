@@ -11,6 +11,7 @@
 #include "app_canTx.hpp"
 #include "app_heartbeatMonitors.hpp"
 #include "app_commitInfo.hpp"
+#include "app_rsmShdnLoop.hpp"
 
 #include "io_canQueues.hpp"
 #include "io_imus.hpp"
@@ -37,7 +38,11 @@ void jobs_init()
     app::can_tx::RSM_Heartbeat_set(true);
     io::can_tx::RSM_Bootup_sendAperiodic();
 }
-void jobs_run1Hz_tick() {}
+void jobs_run1Hz_tick()
+{
+    io::can_tx::enqueue1HzMsgs();
+}
+
 void jobs_run100Hz_tick()
 {
     app::brake::broadcast();
@@ -46,6 +51,8 @@ void jobs_run100Hz_tick()
     app::tireTemp::broadcast();
     app::coolant::broadcast();
     app::pumpControl::broadcast();
+
+    rsm_shdnLoop.broadcast();
 
     hb_monitor.checkIn();
     hb_monitor.broadcastFaults();
