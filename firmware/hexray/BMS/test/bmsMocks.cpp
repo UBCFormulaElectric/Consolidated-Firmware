@@ -1,6 +1,6 @@
 #include "io_canQueues.hpp"
 
-io::queue<io::CanMsg, 128> can_tx_queue{ "" };
+io::queue<io::CanMsg, 250> can_tx_queue{ "" };
 io::queue<io::CanMsg, 128> can_rx_queue{ "" };
 
 #include "io_adbms.hpp"
@@ -30,24 +30,24 @@ namespace io::adbms::read
     return Segments<result<PWMConfig>>{};
 }
 
-[[nodiscard]] Cells<result<uint16_t>> cellVoltage()
+[[nodiscard]] Cells<result<int16_t>> cellVoltage()
 {
-    return Cells<result<uint16_t>>{};
+    return Cells<result<int16_t>>{};
 }
 
-[[nodiscard]] Cells<result<uint16_t>> secondaryCellVoltage()
+[[nodiscard]] Cells<result<int16_t>> secondaryCellVoltage()
 {
-    return Cells<result<uint16_t>>{};
+    return Cells<result<int16_t>>{};
 }
 
-[[nodiscard]] Segments<result<uint16_t>> segVoltage()
+[[nodiscard]] Segments<result<int16_t>> segVoltage()
 {
-    return Segments<result<uint16_t>>{};
+    return Segments<result<int16_t>>{};
 }
 
-[[nodiscard]] ThermGpios<result<uint16_t>> thermGpioVoltage()
+[[nodiscard]] ThermGpios<result<int16_t>> thermGpioVoltage()
 {
-    return ThermGpios<result<uint16_t>>{};
+    return ThermGpios<result<int16_t>>{};
 }
 
 [[nodiscard]] Segments<StatusGroupsRes> status()
