@@ -8,15 +8,20 @@ namespace app::pumpControl
 {
 void monitorPumps()
 {
-    const result<void> e = io::rPump::setPercentage(static_cast<uint8_t>(can_rx::VC_PumpRampUpSetPoint_get()));
-    UNUSED(e);
+    const float setpoint = can_rx::VC_PumpRampUpSetPoint_get();
+    LOG_IF_ERR(io::rPump::setPercentage(static_cast<uint8_t>(setpoint)));
 }
 
 void broadcast()
 {
-    uint8_t percentage;
-    io::rPump::readPercentage(percentage);
-    can_tx::RSM_RPumpPercentage_set(percentage);
+    if (const auto percentage = io::rPump::readPercentage())
+    {
+        can_tx::RSM_RPumpPercentage_set(percentage.value());
+    }
+    else
+    {
+        can_tx::RSM_RPumpPercentage_set(255);
+    }
 }
 
 } // namespace app::pumpControl
