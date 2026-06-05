@@ -433,9 +433,10 @@ fn test_msg_name_collision() {
     assert!(matches!(
         e,
         CanDBError::DuplicateTxMsgID {
+            tx_msg_name_1,
             tx_node_name_1,
+            tx_msg_name_2,
             tx_node_name_2,
-            tx_msg_name
-        } if tx_node_name_1 == "Node1" && tx_node_name_2 == "Node1" && tx_msg_name == "Msg2"
+        } if tx_node_name_1 == "Node1" && tx_node_name_2 == "Node1" && tx_msg_name_1 == "Msg2" && tx_msg_name_2 == "Msg1"
     ));
 }

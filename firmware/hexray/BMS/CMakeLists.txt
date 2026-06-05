@@ -23,7 +23,9 @@ set(APP_INCLUDE_DIRS
 file(GLOB_RECURSE IO_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/io/*.cpp")
 set(IO_SHARED_SRCS
         "${SHARED_IO_INCLUDE_DIR_CPP}/io_time.cpp"
+        "${SHARED_IO_INCLUDE_DIR_CPP}/io_semaphore.cpp"
         "${SHARED_IO_INCLUDE_DIR_CPP}/io_shdnLoopNode.cpp"
+        "${SHARED_IO_INCLUDE_DIR_CPP}/io_notify.cpp"
 )
 set(IO_INCLUDE_DIRS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io"
@@ -61,9 +63,6 @@ set(CHIMERA_SRCS
 set(CHIMERA_INCLUDE_DIRS ${HW_INCLUDE_DIRS})
 
 if ("${TARGET}" STREQUAL "binary")
-    # TODO: Remove once ADBMS + Segments are merged
-    list(FILTER IO_SRCS EXCLUDE REGEX ".*adbms.*") # Exclude ADBMS-specific IO files
-
     set(ARM_CORE "cm7")
     if ("${BOOTLOAD}" STREQUAL "ON")
         set(LINKER_SCRIPT "${LINKER_DIR}/stm32h733vgtx/stm32h733vgtx_app.ld")
@@ -137,12 +136,13 @@ if ("${TARGET}" STREQUAL "binary")
     )
 
     target_link_libraries("hexray_BMS_app.elf" PRIVATE "hexray_BMS_stm32" "hexray_BMS_jsoncan" "hexray_BMS_commit_info" "m")
-    target_compile_definitions("hexray_BMS_app.elf" PRIVATE BMS TARGET_HV_SUPPLY)
+    target_compile_definitions("hexray_BMS_app.elf" PRIVATE BMS)
 
     add_chimera_stm32h7("hexray_BMS_chimera" "${CHIMERA_SRCS}" "${CHIMERA_INCLUDE_DIRS}" "hexray_chimera_v2_proto_cm7")
     target_link_libraries("hexray_BMS_chimera.elf" PRIVATE "hexray_BMS_stm32")
 
     if ("${BOOTLOAD}" STREQUAL "ON")
+        target_compile_definitions("hexray_BMS_app.elf" PRIVATE BOOTLOAD)
         file(GLOB BOOT_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/boot/*.cpp")
         file(GLOB BOOT_CUBEMX_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Src/*.c")
         set(BOOT_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/boot" "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Inc")
@@ -169,7 +169,8 @@ elseif ("${TARGET}" STREQUAL "test")
     file(GLOB_RECURSE TEST_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp")
     set(FAKE_SRCS
             #     "${SHARED_FAKES_DIR_CPP}/io_canQueue.cpp"
-            #     "${SHARED_FAKES_DIR_CPP}/io_semaphore.cpp"
+            "${SHARED_FAKES_DIR_CPP}/io_semaphore.cpp"
+            "${SHARED_FAKES_DIR_CPP}/io_notify.cpp"
             #     "${SHARED_FAKES_DIR_CPP}/io_timer.cpp"
             "${SHARED_FAKES_DIR_CPP}/io_shdnLoopNode.cpp"
             "${SHARED_FAKES_DIR_CPP}/io_time.cpp"

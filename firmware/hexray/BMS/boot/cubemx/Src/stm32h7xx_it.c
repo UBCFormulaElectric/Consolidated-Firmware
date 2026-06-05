@@ -1,11 +1,7 @@
 /* USER CODE BEGIN Header */
 /**
  ******************************************************************************
-<<<<<<<< HEAD:firmware/hexray/RSM/boot/cubemx/Src/stm32h5xx_it.c
- * @file    stm32h5xx_it.c
-========
  * @file    stm32h7xx_it.c
->>>>>>>> master:firmware/hexray/BMS/boot/cubemx/Src/stm32h7xx_it.c
  * @brief   Interrupt Service Routines.
  ******************************************************************************
  * @attention

@@ -133,6 +133,8 @@ if ("${TARGET}" STREQUAL "binary")
     target_link_libraries("hexray_FSM_chimera.elf" PRIVATE "hexray_FSM_stm32")
 
     if ("${BOOTLOAD}" STREQUAL "ON")
+        target_compile_definitions("hexray_FSM_app.elf" PRIVATE BOOTLOAD)
+
         # Bootloader files.
         file(GLOB BOOT_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/boot/*.cpp")
         file(GLOB BOOT_CUBEMX_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Src/*.c")
