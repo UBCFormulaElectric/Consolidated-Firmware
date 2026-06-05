@@ -134,10 +134,9 @@ namespace rPump
         return {};
     }
 
-    result<void> readPercentage(uint8_t &dest)
+    result<uint8_t> readPercentage()
     {
-        dest = fakes::io::rPump::percentage;
-        return {};
+        return fakes::io::rPump::percentage;
     }
 } // namespace rPump
 
