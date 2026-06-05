@@ -1,7 +1,7 @@
 {
   "INVFLSetPoints": {
     "msg_id": 388,
-    "cycle_time": 5,
+    "cycle_time": 10,
     "signals": {
       "INVFLReserve1": {
         "start_bit": 0,
@@ -46,7 +46,7 @@
   },
   "INVFRSetPoints": {
     "msg_id": 389,
-    "cycle_time": 5,
+    "cycle_time": 10,
     "signals": {
       "INVFRReserve1": {
         "start_bit": 0,
@@ -91,7 +91,7 @@
   },
   "INVRLSetPoints": {
     "msg_id": 392,
-    "cycle_time": 5,
+    "cycle_time": 100,
     "signals": {
       "INVRLbReserve1": {
         "start_bit": 0,
@@ -136,7 +136,7 @@
   },
   "INVRRSetPoints": {
     "msg_id": 393,
-    "cycle_time": 5,
+    "cycle_time": 10,
     "signals": {
       "INVRRbReserve1": {
         "start_bit": 0,
@@ -401,7 +401,7 @@
   },
   "ConnectorBoardEfuse": {
     "msg_id": 545,
-    "cycle_time": 100,
+    "cycle_time": 10,
     "description": "Efuse info for RL Pump/RR Pump/F pump/L Rad/R Rad efuses.",
     "signals": {
       "RsmTurnOnPump": {
@@ -447,7 +447,7 @@
   },
   "ShdnNodeStatus": {
     "msg_id": 550,
-    "cycle_time": 100,
+    "cycle_time": 10,
     "description": "VC Shutdown Node Status",
     "signals": {
       "RearRightMotorInterlock": {
@@ -808,7 +808,7 @@
   },
   "BatteryMonitoring_Data": {
     "msg_id": 562,
-    "cycle_time": 100,
+    "cycle_time": 10,
     "description": "Battery monitoring chip and balancing",
     "signals": {
       "CELL1_Voltage": {
@@ -1029,7 +1029,7 @@
   },
   "PCM": {
     "msg_id": 564,
-    "cycle_time": 100,
+    "cycle_time": 10,
     "signals": {
       "PcmRetryCount": {
         "min": 0,
