@@ -11,16 +11,16 @@
 #include "io_efuse_TI_TPS28.hpp"
 #include "io_vcShdn.hpp"
 
-//imus
-io::imu            IMU1;
-io::imu            IMU2;
-io::imu            IMU3;
+// imus
+io::imu IMU1;
+io::imu IMU2;
+io::imu IMU3;
 
-//pumps
-const io::pump           rr_pump;
-const io::pump           rl_pump;
+// pumps
+const io::pump rr_pump;
+const io::pump rl_pump;
 
-//efuses
+// efuses
 io::TI_TPS28_Efuse f_inv_efuse;
 io::TI_TPS28_Efuse r_inv_efuse;
 io::TI_TPS28_Efuse bms_efuse;
@@ -66,7 +66,7 @@ namespace io
         static float power_ch4   = 0.0f;
         static float current_ch4 = 0.0f;
         static float voltage_ch4 = 0.0f;
-    
+
         void set_reading_voltage(Channel channel, float voltage)
         {
             switch (channel)
@@ -129,7 +129,6 @@ namespace io
         }
     } // namespace powerMonitoring
 
- 
     namespace sbgEllipse
     {
         ::io::sbgEllipse::Attitude     attitude{ 0.0f, 0.0f, 0.0f };
@@ -207,8 +206,8 @@ namespace io
         }
     } // namespace sbgEllipse
 
-  } 
-} // fakes::io
+} // namespace io
+} // namespace fakes
 
 namespace io
 {
@@ -385,7 +384,6 @@ namespace powerMonitoring
     }
 } // namespace powerMonitoring
 
-
 namespace sbgEllipse
 {
     result<void> init()
@@ -421,7 +419,7 @@ namespace sbgEllipse
     {
         return fakes::io::sbgEllipse::general_status;
     }
-    
+
 } // namespace sbgEllipse
 namespace pcm
 {

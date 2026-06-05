@@ -54,7 +54,7 @@ static bool driveStatePassPreCheck()
 
 static void driveStateRunOnEntry()
 {
-            LOG_INFO("entering drive state!");
+    LOG_INFO("entering drive state!");
 
     // enable inverters
     app::can_tx::VC_State_set(VCState::VC_DRIVE_STATE);

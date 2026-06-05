@@ -44,7 +44,8 @@ namespace inverterOnState
         }
     }
 
-    static void runOnExit(void) {
+    static void runOnExit(void)
+    {
         LOG_INFO("exiting inverter on state!");
     }
 } // namespace inverterOnState

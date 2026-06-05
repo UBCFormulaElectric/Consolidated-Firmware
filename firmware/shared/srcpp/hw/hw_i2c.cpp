@@ -58,12 +58,12 @@ result<void> hw::i2c::device::receive(std::span<uint8_t> rx_buffer) const
     return waitForNotification();
 }
 
-result<void> hw::i2c::device::transmit(std::span<const uint8_t> tx_buffer) const
+result<void> hw::i2c::device::transmit(std::span<const uint8_t> tx_buffer, const bool read) const
 {
     if (osKernelGetState() != taskSCHEDULER_RUNNING || xPortIsInsideInterrupt())
     {
         return utils::convertHalStatus(HAL_I2C_Master_Transmit(
-            &d_bus.handle, static_cast<uint16_t>(targetAddress << 1), const_cast<uint8_t *>(tx_buffer.data()),
+            &d_bus.handle, static_cast<uint16_t>(targetAddress << 1 | read), const_cast<uint8_t *>(tx_buffer.data()),
             static_cast<uint16_t>(tx_buffer.size()), timeoutMs));
     }
 

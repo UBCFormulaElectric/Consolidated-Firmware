@@ -358,6 +358,7 @@
       }
     },
     {
+   
       "name": "Debug Embedded: BMS (Hexray)",
       "cwd": "${workspaceRoot}",
       "executable": "build_fw_dev/firmware/hexray/BMS/hexray_BMS.hex",

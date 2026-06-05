@@ -1,13 +1,12 @@
 #include "io_fans.hpp"
-#include "hw_gpio.hpp"
 #include "hw_gpios.hpp"
-#include <stdint.h>
+#include <cstdint>
 
 constexpr uint8_t MAX_RETRIES = 5;
 namespace io::fans
 {
 
-void tick(bool enable)
+void tick(const bool enable)
 {
     if (enable)
     {

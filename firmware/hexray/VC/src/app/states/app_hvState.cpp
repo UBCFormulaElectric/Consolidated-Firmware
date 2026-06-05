@@ -47,7 +47,8 @@ namespace hvState
         }
     }
 
-    static void runOnExit(void) {
+    static void runOnExit(void)
+    {
         LOG_INFO("exiting hv state!");
     }
 } // namespace hvState
