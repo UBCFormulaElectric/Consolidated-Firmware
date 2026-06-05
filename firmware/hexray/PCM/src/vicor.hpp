@@ -109,20 +109,45 @@ result<VicorStatusMFRSpecific> vicor_statusMfrSpecific();
 
 struct VicorMetadata
 {
-    uint8_t  pmbus_version;
-    uint16_t id;
-    char     part_number[18];
-    char     revision[18];
-    char     location[2];
-    char     date[4];
-    char     serial_num[16];
+    uint8_t pmbus_version;
+    char    id[2 + 1];
+    char    part_number[18 + 1]{};
+    char    revision[18 + 1]{};
+    char    location[2 + 1]{};
+    char    date[4 + 1]{};
+    char    serial_num[16 + 1]{};
 
     void log() const
     {
         LOG_INFO(
-            "Metadata - PMBus Version: %d, ID: %d, Part Number: %s, Revision: %s, Location: %s, Date: %s, Serial Num: "
+            "Metadata - PMBus Version: %lX (expected 0x22), ID: %s (expect VI), Part Number: %s, Revision: %s, "
+            "Location: %s, Date: "
+            "%s (YY/MM), Serial Num: "
             "%s",
             pmbus_version, id, part_number, revision, location, date, serial_num);
     }
 };
 result<VicorMetadata> vicor_metadata();
+
+struct VicorLimits
+{
+    uint16_t vin_min;
+    uint16_t vin_max;
+    uint16_t vout_min;
+    uint16_t vout_max;
+    uint16_t iout_max;
+    uint16_t pout_max;
+    void     log() const
+    {
+        LOG_INFO(
+            "Limits - VIN_MIN: %d, VIN_MAX: %d, VOUT_MIN: %d, VOUT_MAX: %d, IOUT_MAX: %d, POUT_MAX: %d", vin_min,
+            vin_max, vout_min, vout_max, iout_max, pout_max);
+    }
+};
+result<VicorLimits> vicor_limits();
+
+struct VicorLimitsHV
+{
+    uint16_t read_k_factor; // hv only
+    uint16_t read_bcm_rout; // hv only
+};

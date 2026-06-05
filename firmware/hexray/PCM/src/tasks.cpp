@@ -73,25 +73,23 @@ static char debug_buf[1024];
         const auto status_comm_res = vicor_statusComm();
         if (status_comm_res.has_value())
         {
-            status_comm_res.value().log();
+            // status_comm_res.value().log();
             LOG_IF_ERR(vicor_clearFaults());
         }
         const auto status_res = vicor_statusWord();
         if (status_res.has_value())
         {
-            LOG_INFO("status word: %lX", status_res.value());
+            // LOG_INFO("status word: %lX", status_res.value());
         }
         else
         {
             LOG_INFO("Failed to read status word");
         }
 
-        LOG_IF_ERR(vicor_operation(false));
         switch (state)
         {
             case PcmState::LV: // this state is for when the PCM is awake, but the vicor is still off
             {
-                LOG_IF_ERR(vicor_operation(false)); // PLEASE!!!!!!! TURN OFF!!!!!!
                 break;
             }
             case PcmState::OFF: // this state is for when the HV is on, but the vicor is still off (precharge)
@@ -104,6 +102,10 @@ static char debug_buf[1024];
                         LOG_INFO("Going to VICOR_ONLY state");
                         state = PcmState::VICOR_ONLY;
                     }
+                }
+                else
+                {
+                    LOG_IF_ERR(vicor_operation(false)); // PLEASE!!!!!!! TURN OFF!!!!!!
                 }
                 break;
             }
@@ -169,6 +171,15 @@ void tasks_init()
     else
     {
         LOG_INFO("Failed to read metadata");
+    }
+
+    if (const auto limits_res = vicor_limits(); limits_res.has_value())
+    {
+        limits_res.value().log();
+    }
+    else
+    {
+        LOG_INFO("Failed to read limits");
     }
 #endif
 

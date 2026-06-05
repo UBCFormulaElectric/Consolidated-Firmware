@@ -3,6 +3,7 @@
 #include "main.h"
 #include "hw_i2c.hpp"
 #include <cassert>
+#include <cstring>
 
 enum class VicorPage
 {
@@ -250,25 +251,55 @@ result<VicorMetadata> vicor_metadata()
     RETURN_IF_ERR(enforcePage(VicorPage::LV_SIDE));
 
     VicorMetadata out{};
+    uint8_t       buf[20]{};
+
     static_assert(sizeof(out.pmbus_version) == 1, "pmbus_version should be 16 bytes");
     RETURN_IF_ERR(readByte(CMD_PMBUS_REVISION, out.pmbus_version));
-    static_assert(sizeof(out.id) == 2, "mfr_id should be 2 bytes");
-    RETURN_IF_ERR(readWord(CMD_MFR_ID, out.id));
-    static_assert(sizeof(out.part_number) == 18, "model should be 18 bytes");
-    RETURN_IF_ERR(vicor_i2c.memoryRead(
-        CMD_MFR_MODEL, std::span(reinterpret_cast<uint8_t *>(out.part_number), sizeof(out.part_number))));
-    static_assert(sizeof(out.revision) == 18, "revision should be 18 bytes");
-    RETURN_IF_ERR(vicor_i2c.memoryRead(
-        CMD_MFR_REVISION, std::span(reinterpret_cast<uint8_t *>(out.revision), sizeof(out.revision))));
-    static_assert(sizeof(out.location) == 2, "location should be 2 bytes");
-    RETURN_IF_ERR(vicor_i2c.memoryRead(
-        CMD_MFR_LOCATION, std::span(reinterpret_cast<uint8_t *>(out.location), sizeof(out.location))));
-    static_assert(sizeof(out.date) == 4, "date should be 4 bytes");
-    RETURN_IF_ERR(
-        vicor_i2c.memoryRead(CMD_MFR_DATE, std::span(reinterpret_cast<uint8_t *>(out.date), sizeof(out.date))));
-    static_assert(sizeof(out.serial_num) == 16, "serial should be 16 bytes");
-    RETURN_IF_ERR(vicor_i2c.memoryRead(
-        CMD_MFR_SERIAL, std::span(reinterpret_cast<uint8_t *>(out.serial_num), sizeof(out.serial_num))));
+
+    static_assert(sizeof(out.id) == 2 + 1, "mfr_id should be 2 bytes");
+    RETURN_IF_ERR(vicor_i2c.memoryRead(CMD_MFR_ID, std::span(buf, 2 + 1)));
+    memcpy(out.id, buf + 1, sizeof(out.id) - 1); // first byte is 0x12, the rest are the actual data
+
+    static_assert(sizeof(out.part_number) == 18 + 1, "model should be 18 bytes");
+    RETURN_IF_ERR(vicor_i2c.memoryRead(CMD_MFR_MODEL, std::span(buf, 18 + 1)));
+    memcpy(out.part_number, buf + 1, sizeof(out.part_number) - 1);
+
+    static_assert(sizeof(out.revision) == 18 + 1, "revision should be 18 bytes");
+    RETURN_IF_ERR(vicor_i2c.memoryRead(CMD_MFR_REVISION, std::span(buf, 18 + 1)));
+    memcpy(out.revision, buf + 1, sizeof(out.revision) - 1);
+
+    static_assert(sizeof(out.location) == 2 + 1, "location should be 2 bytes");
+    RETURN_IF_ERR(vicor_i2c.memoryRead(CMD_MFR_LOCATION, std::span(buf, 2 + 1)));
+    memcpy(out.location, buf + 1, sizeof(out.location) - 1);
+
+    static_assert(sizeof(out.date) == 4 + 1, "date should be 4 bytes");
+    RETURN_IF_ERR(vicor_i2c.memoryRead(CMD_MFR_DATE, std::span(buf, 4 + 1)));
+    memcpy(out.date, buf + 1, sizeof(out.date) - 1);
+
+    static_assert(sizeof(out.serial_num) == 16 + 1, "serial should be 16 bytes");
+    RETURN_IF_ERR(vicor_i2c.memoryRead(CMD_MFR_SERIAL, std::span(buf, 16 + 1)));
+    memcpy(out.serial_num, buf + 1, sizeof(out.serial_num) - 1);
 
     return out;
+}
+
+result<VicorLimits> vicor_limits()
+{
+    RETURN_IF_ERR(enforcePage(VicorPage::LV_SIDE));
+
+    static constexpr uint8_t CMD_MFR_VIN_MIN  = 0xA0;
+    static constexpr uint8_t CMD_MFR_VIN_MAX  = 0xA1;
+    static constexpr uint8_t CMD_MFR_VOUT_MIN = 0xA4;
+    static constexpr uint8_t CMD_MFR_VOUT_MAX = 0xA5;
+    static constexpr uint8_t CMD_MFR_IOUT_MAX = 0xA6;
+    static constexpr uint8_t CMD_MFR_POUT_MAX = 0xA7;
+
+    VicorLimits limits{};
+    RETURN_IF_ERR(readWord(CMD_MFR_VIN_MIN, limits.vin_min));
+    RETURN_IF_ERR(readWord(CMD_MFR_VIN_MAX, limits.vin_max));
+    RETURN_IF_ERR(readWord(CMD_MFR_VOUT_MIN, limits.vout_min));
+    RETURN_IF_ERR(readWord(CMD_MFR_VOUT_MAX, limits.vout_max));
+    RETURN_IF_ERR(readWord(CMD_MFR_IOUT_MAX, limits.iout_max));
+    RETURN_IF_ERR(readWord(CMD_MFR_POUT_MAX, limits.pout_max));
+    return limits;
 }
