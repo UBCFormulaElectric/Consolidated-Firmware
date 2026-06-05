@@ -2,6 +2,7 @@ import SignalStore from "@/lib/signals/SignalStore";
 import { SignalMetadata, SignalType } from "../types/Signal";
 import propagateHaar, { HaarLodBuffer } from "../utils/propagateHaar";
 import propagateMode, { ModeLodBuffer } from "../utils/propagateMode";
+import { addTelemetryMarker } from "../telemetryMarkers";
 
 export const MOCK_STATES = [ // needed to hardcode for widgetadder
   "IDLE", "ACTIVE", "ERROR", "WAITING", "CHARGING", "SKIBIDI",
@@ -33,6 +34,8 @@ export const ALERT_SIGNALS = [
 const INITIAL_DATA_POINTS = 0;
 
 const NUM_LOD_LEVELS = 15;
+const MOCK_MARKER_INTERVAL_MS = 8_000;
+const MOCK_MARKER_MESSAGE_NAME = "MockTelemButtonPressed";
 
 function generateRandomNumericalValue(time: number, index: number = 0, min: number, max: number) {
   if (min !== undefined && max !== undefined) {
@@ -75,6 +78,8 @@ function generateRandomAlertValue(prev: number) {
 class MockSignalStore extends SignalStore {
   private signalSubscriptionInterval: Map<string, number>;
   private lodBuffers: Map<string, (HaarLodBuffer | ModeLodBuffer)[]>;
+  private markerIntervalId: number | null;
+  private markerCount: number;
 
   constructor(
     updateWithTimestamp: (timestamp: number) => void,
@@ -83,6 +88,8 @@ class MockSignalStore extends SignalStore {
 
     this.signalSubscriptionInterval = new Map();
     this.lodBuffers = new Map();
+    this.markerIntervalId = null;
+    this.markerCount = 0;
 
     ALERT_SIGNALS.forEach(signalName => {
       let previousValue = 0;
@@ -104,6 +111,26 @@ class MockSignalStore extends SignalStore {
 
       this.signalSubscriptionInterval.set(signalName, intervalId as unknown as number);
     });
+
+    this.markerIntervalId = setInterval(() => {
+      const now = Date.now();
+      this.markerCount += 1;
+
+      addTelemetryMarker({
+        timestampMs: now,
+        messageName: MOCK_MARKER_MESSAGE_NAME,
+        source: "mock-dashboard-button",
+        canId: "0x4A7",
+        value: "pressed",
+        details: {
+          markerIndex: this.markerCount,
+          payload: "01 00 00 00 00 00 00 00",
+          mode: "mock",
+        },
+      });
+
+      this.updateWithTimestamp(now);
+    }, MOCK_MARKER_INTERVAL_MS) as unknown as number;
   }
 
   // FIXME(evan): Type stuff I can't be bothered to do right now
