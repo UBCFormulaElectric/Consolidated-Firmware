@@ -39,7 +39,6 @@ TEST_F(BmsStateMachineTest, enter_precharge_drive)
     ASSERT_EQ(io::irs::negativeState(), app::can_utils::ContactorState::CONTACTOR_STATE_CLOSED);
 }
 
-
 TEST_F(BmsStateMachineTest, no_precharge_drive_if_negative_open)
 {
     ASSERT_STATE_EQ(app::states::init_state);
