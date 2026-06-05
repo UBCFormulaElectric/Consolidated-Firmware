@@ -51,37 +51,37 @@ namespace io
     }
     namespace powerMonitoring
     {
-        static float power_ch1   = 0.0f;
-        static float current_ch1 = 0.0f;
-        static float voltage_ch1 = 0.0f;
+        static float ch_pcm_voltage = 0.0f;
+        static float ch_pcm_current = 0.0f;
+        static float ch_pcm_power   = 0.0f;
 
-        static float power_ch2   = 0.0f;
-        static float current_ch2 = 0.0f;
-        static float voltage_ch2 = 0.0f;
+        static float ch_ext_voltage = 0.0f;
+        static float ch_ext_current = 0.0f;
+        static float ch_ext_power   = 0.0f;
 
-        static float power_ch3   = 0.0f;
-        static float current_ch3 = 0.0f;
-        static float voltage_ch3 = 0.0f;
+        static float ch_vbat_voltage = 0.0f;
+        static float ch_vbat_current = 0.0f;
+        static float ch_vbat_power   = 0.0f;
 
-        static float power_ch4   = 0.0f;
-        static float current_ch4 = 0.0f;
-        static float voltage_ch4 = 0.0f;
+        static float ch_boost_voltage = 0.0f;
+        static float ch_boost_current = 0.0f;
+        static float ch_boost_power   = 0.0f;
 
         void set_reading_voltage(Channel channel, float voltage)
         {
             switch (channel)
             {
                 case CH1:
-                    fakes::io::powerMonitoring::voltage_ch1 = voltage;
+                    fakes::io::powerMonitoring::ch_pcm_voltage = voltage;
                     break;
                 case CH2:
-                    fakes::io::powerMonitoring::voltage_ch2 = voltage;
+                    fakes::io::powerMonitoring::ch_ext_voltage = voltage;
                     break;
                 case CH3:
-                    fakes::io::powerMonitoring::voltage_ch3 = voltage;
+                    fakes::io::powerMonitoring::ch_vbat_voltage = voltage;
                     break;
                 case CH4:
-                    fakes::io::powerMonitoring::voltage_ch4 = voltage;
+                    fakes::io::powerMonitoring::ch_boost_voltage = voltage;
                     break;
                 default:
                     break;
@@ -92,16 +92,16 @@ namespace io
             switch (channel)
             {
                 case CH1:
-                    fakes::io::powerMonitoring::current_ch1 = current;
+                    fakes::io::powerMonitoring::ch_pcm_current = current;
                     break;
                 case CH2:
-                    fakes::io::powerMonitoring::current_ch2 = current;
+                    fakes::io::powerMonitoring::ch_ext_current = current;
                     break;
                 case CH3:
-                    fakes::io::powerMonitoring::current_ch3 = current;
+                    fakes::io::powerMonitoring::ch_vbat_current = current;
                     break;
                 case CH4:
-                    fakes::io::powerMonitoring::current_ch4 = current;
+                    fakes::io::powerMonitoring::ch_boost_current = current;
                     break;
                 default:
                     break;
@@ -112,16 +112,16 @@ namespace io
             switch (channel)
             {
                 case CH1:
-                    fakes::io::powerMonitoring::power_ch1 = power;
+                    fakes::io::powerMonitoring::ch_pcm_power = power;
                     break;
                 case CH2:
-                    fakes::io::powerMonitoring::power_ch2 = power;
+                    fakes::io::powerMonitoring::ch_ext_power = power;
                     break;
                 case CH3:
-                    fakes::io::powerMonitoring::power_ch3 = power;
+                    fakes::io::powerMonitoring::ch_vbat_power = power;
                     break;
                 case CH4:
-                    fakes::io::powerMonitoring::power_ch4 = power;
+                    fakes::io::powerMonitoring::ch_boost_power = power;
                     break;
                 default:
                     break;
@@ -314,13 +314,13 @@ namespace powerMonitoring
         switch (ch)
         {
             case CH1:
-                return fakes::io::powerMonitoring::power_ch1;
+                return fakes::io::powerMonitoring::ch_pcm_power;
             case CH2:
-                return fakes::io::powerMonitoring::power_ch2;
+                return fakes::io::powerMonitoring::ch_ext_power;
             case CH3:
-                return fakes::io::powerMonitoring::power_ch3;
+                return fakes::io::powerMonitoring::ch_vbat_power;
             case CH4:
-                return fakes::io::powerMonitoring::power_ch4;
+                return fakes::io::powerMonitoring::ch_boost_power;
             default:
                 break;
         }
@@ -332,13 +332,13 @@ namespace powerMonitoring
         switch (ch)
         {
             case CH1:
-                return fakes::io::powerMonitoring::current_ch1;
+                return fakes::io::powerMonitoring::ch_pcm_current;
             case CH2:
-                return fakes::io::powerMonitoring::current_ch2;
+                return fakes::io::powerMonitoring::ch_ext_current;
             case CH3:
-                return fakes::io::powerMonitoring::current_ch3;
+                return fakes::io::powerMonitoring::ch_vbat_current;
             case CH4:
-                return fakes::io::powerMonitoring::current_ch4;
+                return fakes::io::powerMonitoring::ch_boost_current;
             default:
                 break;
         }
@@ -350,13 +350,13 @@ namespace powerMonitoring
         switch (ch)
         {
             case CH1:
-                return fakes::io::powerMonitoring::voltage_ch1;
+                return fakes::io::powerMonitoring::ch_pcm_voltage;
             case CH2:
-                return fakes::io::powerMonitoring::voltage_ch2;
+                return fakes::io::powerMonitoring::ch_ext_voltage;
             case CH3:
-                return fakes::io::powerMonitoring::voltage_ch3;
+                return fakes::io::powerMonitoring::ch_vbat_voltage;
             case CH4:
-                return fakes::io::powerMonitoring::voltage_ch4;
+                return fakes::io::powerMonitoring::ch_boost_voltage;
             default:
                 break;
         }

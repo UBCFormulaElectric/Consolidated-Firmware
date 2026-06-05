@@ -27,16 +27,16 @@ TEST_F(VCPowerMonitorTest, updating_test)
 
     app::powerMonitoring::update();
 
-    ASSERT_FLOAT_EQ(5.0f, app::can_tx::VC_PcmChannelVoltage_get());
-    ASSERT_FLOAT_EQ(2.0f, app::can_tx::VC_PcmChannelCurrent_get());
-    ASSERT_FLOAT_EQ(10.0f, app::can_tx::VC_ChannelOnePower_get());
+    ASSERT_FLOAT_EQ(8.0f, app::can_tx::VC_PcmChannelVoltage_get());
+    ASSERT_FLOAT_EQ(5.0f, app::can_tx::VC_PcmChannelCurrent_get());
+    ASSERT_FLOAT_EQ(40.0f, app::can_tx::VC_PcmChannelPower_get());
     ASSERT_FLOAT_EQ(6.0f, app::can_tx::VC_ExtChannelVoltage_get());
     ASSERT_FLOAT_EQ(3.0f, app::can_tx::VC_ExtChannelCurrent_get());
-    ASSERT_FLOAT_EQ(18.0f, app::can_tx::VC_ChannelTwoPower_get());
+    ASSERT_FLOAT_EQ(18.0f, app::can_tx::VC_ExtChannelPower_get());
     ASSERT_FLOAT_EQ(7.0f, app::can_tx::VC_VbatChannelVoltage_get());
     ASSERT_FLOAT_EQ(4.0f, app::can_tx::VC_VbatChannelCurrent_get());
-    ASSERT_FLOAT_EQ(28.0f, app::can_tx::VC_ChannelThreePower_get());
-    ASSERT_FLOAT_EQ(8.0f, app::can_tx::VC_BoostChannelVoltage_get());
-    ASSERT_FLOAT_EQ(5.0f, app::can_tx::VC_BoostChannelCurrent_get());
-    ASSERT_FLOAT_EQ(40.0f, app::can_tx::VC_ChannelFourPower_get());
+    ASSERT_FLOAT_EQ(28.0f, app::can_tx::VC_VbatChannelPower_get());
+    ASSERT_FLOAT_EQ(5.0f, app::can_tx::VC_BoostChannelVoltage_get());
+    ASSERT_FLOAT_EQ(2.0f, app::can_tx::VC_BoostChannelCurrent_get());
+    ASSERT_FLOAT_EQ(10.0f, app::can_tx::VC_BoostChannelPower_get());
 }

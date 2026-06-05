@@ -7,8 +7,6 @@
 #include "app_canRx.hpp"
 #include "states/app_states.hpp"
 
-using namespace app::states;
-using namespace app::can_utils;
 class VCBaseTest : public EcuTestBase
 {
     void board_setup() override
@@ -42,18 +40,18 @@ class VCBaseTest : public EcuTestBase
 
     struct StateMetadata
     {
-        const app::State *state;
-        VCState           can_state;
-        StateMetadata(const app::State *s, const VCState cs) : state(s), can_state(cs) {}
+        const app::State       *state;
+        app::can_utils::VCState can_state;
+        StateMetadata(const app::State *s, const app::can_utils::VCState cs) : state(s), can_state(cs) {}
     };
 
     const std::array<StateMetadata, 7> state_metadatas = { {
-        { &init_state, VCState::VC_INIT_STATE },
-        { &inverterOn_state, VCState::VC_INVERTER_ON_STATE },
-        { &bmsOn_state, VCState::VC_BMS_ON_STATE },
-        { &pcmOn_state, VCState::VC_PCM_ON_STATE },
-        { &hvInit_state, VCState::VC_HV_INIT_STATE },
-        { &hv_state, VCState::VC_HV_ON_STATE },
-        { &drive_state, VCState::VC_DRIVE_STATE },
+        { &app::states::init_state, app::can_utils::VCState::VC_INIT_STATE },
+        { &app::states::inverterOn_state, app::can_utils::VCState::VC_INVERTER_ON_STATE },
+        { &app::states::bmsOn_state, app::can_utils::VCState::VC_BMS_ON_STATE },
+        { &app::states::pcmOn_state, app::can_utils::VCState::VC_PCM_ON_STATE },
+        { &app::states::hvInit_state, app::can_utils::VCState::VC_HV_INIT_STATE },
+        { &app::states::hv_state, app::can_utils::VCState::VC_HV_ON_STATE },
+        { &app::states::drive_state, app::can_utils::VCState::VC_DRIVE_STATE },
     } };
 };

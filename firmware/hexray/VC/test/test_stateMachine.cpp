@@ -264,7 +264,7 @@ TEST_F(VCStateMachineTest, PcmGoodVoltageTransitionsToHvInit)
     ASSERT_STATE_EQ(app::states::hvInit_state);
 }
 
-TEST_F(VCStateMachineTest, PcmUnderVoltageRetriesThenFaults)
+TEST_F(VCStateMachineTest, PcmUnderVoltageRetriesThenFaultsAndAutoRecovers)
 {
     SetStateWithEntry(&app::states::pcmOn_state);
     app::can_rx::BMS_IrNegative_update(app::can_utils::ContactorState::CONTACTOR_STATE_CLOSED);
@@ -274,26 +274,23 @@ TEST_F(VCStateMachineTest, PcmUnderVoltageRetriesThenFaults)
     LetTimePass(20);
     EXPECT_TRUE(io::pcm::enabled());
 
-    for (uint8_t retry = 0; retry < 5; retry++)
+    for (uint8_t retry = 0; retry < 4; retry++)
     {
         LetTimePass(110);
         EXPECT_FALSE(io::pcm::enabled());
-        ASSERT_EQ(app::can_tx::VC_PcmRetryCount_get(), retry);
+        ASSERT_EQ(app::can_tx::VC_PcmRetryCount_get(), static_cast<uint8_t>(retry + 1));
         io::pcm::set(true);
         LetTimePass(110);
     }
-    // LetTimePass(10);
 
     EXPECT_TRUE(io::pcm::enabled());
     ASSERT_STATE_EQ(app::states::pcmOn_state);
-
+    // last try
     LetTimePass(110);
     EXPECT_FALSE(io::pcm::enabled());
     ASSERT_EQ(app::can_tx::VC_PcmRetryCount_get(), 5);
-    LetTimePass(110);
-
     EXPECT_TRUE(app::can_tx::VC_Info_PcmUnderVoltage_get());
-    ASSERT_STATE_EQ(app::states::fault_state);
+    ASSERT_STATE_EQ(app::states::inverterOn_state);
 }
 
 TEST_F(VCStateMachineTest, InverterRetryOneFaultedInverterFromDrive)

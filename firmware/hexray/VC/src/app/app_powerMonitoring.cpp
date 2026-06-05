@@ -23,65 +23,65 @@ result<void> update()
     RETURN_IF_ERR(io::powerMonitoring::monitor_power_inputs());
     RETURN_IF_ERR(io::powerMonitoring::refresh());
 
-    const auto ch1_voltage = io::powerMonitoring::read_voltage(Channel::CH4);
-    const auto ch2_voltage = io::powerMonitoring::read_voltage(Channel::CH2);
-    const auto ch3_voltage = io::powerMonitoring::read_voltage(Channel::CH3);
-    const auto ch4_voltage = io::powerMonitoring::read_voltage(Channel::CH1);
+    const auto ch_boost_voltage = io::powerMonitoring::read_voltage(Channel::CH1);
+    const auto ch_ext_voltage   = io::powerMonitoring::read_voltage(Channel::CH2);
+    const auto ch_vbat_voltage  = io::powerMonitoring::read_voltage(Channel::CH3);
+    const auto ch_pcm_voltage   = io::powerMonitoring::read_voltage(Channel::CH4);
 
-    const auto ch1_current = io::powerMonitoring::read_current(Channel::CH4);
-    const auto ch2_current = io::powerMonitoring::read_current(Channel::CH2);
-    const auto ch3_current = io::powerMonitoring::read_current(Channel::CH3);
-    const auto ch4_current = io::powerMonitoring::read_current(Channel::CH1);
+    const auto ch_boost_current = io::powerMonitoring::read_current(Channel::CH1);
+    const auto ch_ext_current   = io::powerMonitoring::read_current(Channel::CH2);
+    const auto ch_vbat_current  = io::powerMonitoring::read_current(Channel::CH3);
+    const auto ch_pcm_current   = io::powerMonitoring::read_current(Channel::CH4);
 
-    const auto ch1_power = io::powerMonitoring::read_power(Channel::CH4);
-    const auto ch2_power = io::powerMonitoring::read_power(Channel::CH2);
-    const auto ch3_power = io::powerMonitoring::read_power(Channel::CH3);
-    const auto ch4_power = io::powerMonitoring::read_power(Channel::CH1);
+    const auto ch_boost_power = io::powerMonitoring::read_power(Channel::CH1);
+    const auto ch_ext_power   = io::powerMonitoring::read_power(Channel::CH2);
+    const auto ch_vbat_power  = io::powerMonitoring::read_power(Channel::CH3);
+    const auto ch_pcm_power   = io::powerMonitoring::read_power(Channel::CH4);
 
-    const bool ch1_voltage_valid = ch1_voltage.has_value();
-    const bool ch2_voltage_valid = ch2_voltage.has_value();
-    const bool ch3_voltage_valid = ch3_voltage.has_value();
-    const bool ch4_voltage_valid = ch4_voltage.has_value();
+    const bool ch_pcm_voltage_valid   = ch_pcm_voltage.has_value();
+    const bool ch_ext_voltage_valid   = ch_ext_voltage.has_value();
+    const bool ch_vbat_voltage_valid  = ch_vbat_voltage.has_value();
+    const bool ch_boost_voltage_valid = ch_boost_voltage.has_value();
 
-    const bool ch1_current_valid = ch1_current.has_value();
-    const bool ch2_current_valid = ch2_current.has_value();
-    const bool ch3_current_valid = ch3_current.has_value();
-    const bool ch4_current_valid = ch4_current.has_value();
+    const bool ch_pcm_current_valid   = ch_pcm_current.has_value();
+    const bool ch_ext_current_valid   = ch_ext_current.has_value();
+    const bool ch_vbat_current_valid  = ch_vbat_current.has_value();
+    const bool ch_boost_current_valid = ch_boost_current.has_value();
 
-    const bool ch1_power_valid = ch1_power.has_value();
-    const bool ch2_power_valid = ch2_power.has_value();
-    const bool ch3_power_valid = ch3_power.has_value();
-    const bool ch4_power_valid = ch4_power.has_value();
+    const bool ch_pcm_power_valid   = ch_pcm_power.has_value();
+    const bool ch_ext_power_valid   = ch_ext_power.has_value();
+    const bool ch_vbat_power_valid  = ch_vbat_power.has_value();
+    const bool ch_boost_power_valid = ch_boost_power.has_value();
 
-    app::can_tx::VC_CHANNEL1_VOLTAGE_VALID_set(ch1_voltage_valid);
-    app::can_tx::VC_CHANNEL2_VOLTAGE_VALID_set(ch2_voltage_valid);
-    app::can_tx::VC_CHANNEL3_VOLTAGE_VALID_set(ch3_voltage_valid);
-    app::can_tx::VC_CHANNEL4_VOLTAGE_VALID_set(ch4_voltage_valid);
+    app::can_tx::VC_PCM_CHANNEL_VOLTAGE_VALID_set(ch_pcm_voltage_valid);
+    app::can_tx::VC_EXT_CHANNEL_VOLTAGE_VALID_set(ch_ext_voltage_valid);
+    app::can_tx::VC_VBAT_CHANNEL_VOLTAGE_VALID_set(ch_vbat_voltage_valid);
+    app::can_tx::VC_BOOST_CHANNEL_VOLTAGE_VALID_set(ch_boost_voltage_valid);
 
-    app::can_tx::VC_CHANNEL1_CURRENT_VALID_set(ch1_current_valid);
-    app::can_tx::VC_CHANNEL2_CURRENT_VALID_set(ch2_current_valid);
-    app::can_tx::VC_CHANNEL3_CURRENT_VALID_set(ch3_current_valid);
-    app::can_tx::VC_CHANNEL4_CURRENT_VALID_set(ch4_current_valid);
+    app::can_tx::VC_PCM_CHANNEL_CURRENT_VALID_set(ch_pcm_current_valid);
+    app::can_tx::VC_EXT_CHANNEL_CURRENT_VALID_set(ch_ext_current_valid);
+    app::can_tx::VC_VBAT_CHANNEL_CURRENT_VALID_set(ch_vbat_current_valid);
+    app::can_tx::VC_BOOST_CHANNEL_CURRENT_VALID_set(ch_boost_current_valid);
 
-    app::can_tx::VC_CHANNEL1_POWER_VALID_set(ch1_power_valid);
-    app::can_tx::VC_CHANNEL2_POWER_VALID_set(ch2_power_valid);
-    app::can_tx::VC_CHANNEL3_POWER_VALID_set(ch3_power_valid);
-    app::can_tx::VC_CHANNEL4_POWER_VALID_set(ch4_power_valid);
+    app::can_tx::VC_CHANNEL1_POWER_VALID_set(ch_boost_power_valid);
+    app::can_tx::VC_CHANNEL2_POWER_VALID_set(ch_ext_power_valid);
+    app::can_tx::VC_CHANNEL3_POWER_VALID_set(ch_vbat_power_valid);
+    app::can_tx::VC_CHANNEL4_POWER_VALID_set(ch_pcm_power_valid);
 
-    app::can_tx::VC_PcmChannelVoltage_set(ch1_voltage.value_or(0.0f));
-    app::can_tx::VC_ExtChannelVoltage_set(ch2_voltage.value_or(0.0f));
-    app::can_tx::VC_VbatChannelVoltage_set(ch3_voltage.value_or(0.0f));
-    app::can_tx::VC_BoostChannelVoltage_set(ch4_voltage.value_or(0.0f));
+    app::can_tx::VC_PcmChannelVoltage_set(ch_pcm_voltage.value_or(0.0f));
+    app::can_tx::VC_ExtChannelVoltage_set(ch_ext_voltage.value_or(0.0f));
+    app::can_tx::VC_VbatChannelVoltage_set(ch_vbat_voltage.value_or(0.0f));
+    app::can_tx::VC_BoostChannelVoltage_set(ch_boost_voltage.value_or(0.0f));
 
-    app::can_tx::VC_PcmChannelCurrent_set(ch1_current.value_or(0.0f));
-    app::can_tx::VC_ExtChannelCurrent_set(ch2_current.value_or(0.0f));
-    app::can_tx::VC_VbatChannelCurrent_set(ch3_current.value_or(0.0f));
-    app::can_tx::VC_BoostChannelCurrent_set(ch4_current.value_or(0.0f));
+    app::can_tx::VC_PcmChannelCurrent_set(ch_pcm_current.value_or(0.0f));
+    app::can_tx::VC_ExtChannelCurrent_set(ch_ext_current.value_or(0.0f));
+    app::can_tx::VC_VbatChannelCurrent_set(ch_vbat_current.value_or(0.0f));
+    app::can_tx::VC_BoostChannelCurrent_set(ch_boost_current.value_or(0.0f));
 
-    app::can_tx::VC_ChannelOnePower_set(ch1_power.value_or(0.0f));
-    app::can_tx::VC_ChannelTwoPower_set(ch2_power.value_or(0.0f));
-    app::can_tx::VC_ChannelThreePower_set(ch3_power.value_or(0.0f));
-    app::can_tx::VC_ChannelFourPower_set(ch4_power.value_or(0.0f));
+    app::can_tx::VC_PcmChannelPower_set(ch_pcm_power.value_or(0.0f));
+    app::can_tx::VC_ExtChannelPower_set(ch_ext_power.value_or(0.0f));
+    app::can_tx::VC_VbatChannelPower_set(ch_vbat_power.value_or(0.0f));
+    app::can_tx::VC_BoostChannelPower_set(ch_boost_power.value_or(0.0f));
 
     AlertOvUvBits ov_uv{};
     const auto    alert_status = io::powerMonitoring::read_alert_status();
@@ -90,15 +90,15 @@ result<void> update()
         ov_uv.alert_status = alert_status.value();
     }
 
-    app::can_tx::VC_CHANNEL1_OV_set(ov_uv.bits.CH1OV);
-    app::can_tx::VC_CHANNEL2_OV_set(ov_uv.bits.CH2OV);
-    app::can_tx::VC_CHANNEL3_OV_set(ov_uv.bits.CH3OV);
-    app::can_tx::VC_CHANNEL4_OV_set(ov_uv.bits.CH4OV);
+    app::can_tx::VC_CHANNEL1_BOOST_OV_set(ov_uv.bits.CH1OV);
+    app::can_tx::VC_CHANNEL2_EXT_OV_set(ov_uv.bits.CH2OV);
+    app::can_tx::VC_CHANNEL3_VBAT_OV_set(ov_uv.bits.CH3OV);
+    app::can_tx::VC_CHANNEL4_PCM_OV_set(ov_uv.bits.CH4OV);
 
-    app::can_tx::VC_CHANNEL1_UV_set(ov_uv.bits.CH1UV);
-    app::can_tx::VC_CHANNEL2_UV_set(ov_uv.bits.CH2UV);
-    app::can_tx::VC_CHANNEL3_UV_set(ov_uv.bits.CH3UV);
-    app::can_tx::VC_CHANNEL4_UV_set(ov_uv.bits.CH4UV);
+    app::can_tx::VC_CHANNEL1_BOOST_UV_set(ov_uv.bits.CH1UV);
+    app::can_tx::VC_CHANNEL2_EXT_UV_set(ov_uv.bits.CH2UV);
+    app::can_tx::VC_CHANNEL3_VBAT_UV_set(ov_uv.bits.CH3UV);
+    app::can_tx::VC_CHANNEL4_PCM_UV_set(ov_uv.bits.CH4UV);
 
     return {};
 }

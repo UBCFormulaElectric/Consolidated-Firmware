@@ -665,76 +665,76 @@
         "max": 25.0,
         "unit": "A"
       },
-      "ChannelOnePower": {
+      "PcmChannelPower": {
         "resolution": 0.1,
         "min": -800.0,
         "max": 800.0,
         "unit": "W"
       },
-      "ChannelTwoPower": {
+      "ExtChannelPower": {
         "resolution": 0.1,
         "min": -800.0,
         "max": 800.0,
         "unit": "W"
       },
-      "ChannelThreePower": {
+      "VbatChannelPower": {
         "resolution": 0.1,
         "min": -800.0,
         "max": 800.0,
         "unit": "W"
       },
-      "ChannelFourPower": {
+      "BoostChannelPower": {
         "resolution": 0.1,
         "min": -800.0,
         "max": 800.0,
         "unit": "W"
       },
-      "CHANNEL1_OV": {
+      "CHANNEL4_PCM_OV": {
         "bits": 1
       },
-      "CHANNEL2_OV": {
+      "CHANNEL2_EXT_OV": {
         "bits": 1
       },
-      "CHANNEL3_OV": {
+      "CHANNEL3_VBAT_OV": {
         "bits": 1
       },
-      "CHANNEL4_OV": {
+      "CHANNEL1_BOOST_OV": {
         "bits": 1
       },
-      "CHANNEL1_UV": {
+      "CHANNEL4_PCM_UV": {
         "bits": 1
       },
-      "CHANNEL2_UV": {
+      "CHANNEL2_EXT_UV": {
         "bits": 1
       },
-      "CHANNEL3_UV": {
+      "CHANNEL3_VBAT_UV": {
         "bits": 1
       },
-      "CHANNEL4_UV": {
+      "CHANNEL1_BOOST_UV": {
         "bits": 1
       },
-      "CHANNEL1_VOLTAGE_VALID": {
+      "PCM_CHANNEL_VOLTAGE_VALID": {
         "bits": 1
       },
-      "CHANNEL2_VOLTAGE_VALID": {
+      "EXT_CHANNEL_VOLTAGE_VALID": {
         "bits": 1
       },
-      "CHANNEL3_VOLTAGE_VALID": {
+      "VBAT_CHANNEL_VOLTAGE_VALID": {
         "bits": 1
       },
-      "CHANNEL4_VOLTAGE_VALID": {
+      "BOOST_CHANNEL_VOLTAGE_VALID": {
         "bits": 1
       },
-      "CHANNEL1_CURRENT_VALID": {
+      "PCM_CHANNEL_CURRENT_VALID": {
         "bits": 1
       },
-      "CHANNEL2_CURRENT_VALID": {
+      "EXT_CHANNEL_CURRENT_VALID": {
         "bits": 1
       },
-      "CHANNEL3_CURRENT_VALID": {
+      "VBAT_CHANNEL_CURRENT_VALID": {
         "bits": 1
       },
-      "CHANNEL4_CURRENT_VALID": {
+      "BOOST_CHANNEL_CURRENT_VALID": {
         "bits": 1
       },
       "CHANNEL1_POWER_VALID": {

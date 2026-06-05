@@ -41,6 +41,7 @@ namespace sbgEllipse
     void setGeneralStatus(uint16_t status);
     void setComStatus(uint32_t status);
     void setOverflowCount(uint8_t overflow);
+    void setSolutionMode(uint32_t mode);
     void setTimestampUs(uint32_t timestamp);
 } // namespace sbgEllipse
 
