@@ -21,7 +21,6 @@ class Notifier
     void notify() const;
     void notifyFromISR() const;
 
-
 #ifdef TARGET_EMBEDDED
   private:
     StaticEventGroup_t storage_{};

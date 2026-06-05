@@ -3852,9 +3852,6 @@
   "BMSShdnNodeStatus": {
     "msg_id": 433,
     "cycle_time": 100,
-    "allowed_modes": [
-      "DEBUG"
-    ],
     "description": "BMS Shutdown Nodes Status",
     "signals": {
       "HVPShdnOKStatus": {

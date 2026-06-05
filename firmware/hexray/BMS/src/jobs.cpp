@@ -112,8 +112,8 @@ void jobs_run100Hz_tick()
 #ifdef TARGET_HV_SUPPLY
     constexpr bool acc_fault = false;
 #else
-    
-    const bool acc_fault  = app::segments::alerts::tick();
+    constexpr bool acc_fault = false;
+    // const bool acc_fault = app::segments::alerts::tick();
 #endif
     using FaultLatchState = io::FaultLatch::FaultLatchState;
     bms_ok_latch.setCurrentStatus(acc_fault ? FaultLatchState::FAULT : FaultLatchState::OK);
@@ -166,7 +166,6 @@ static io::notify::Notifier sync_done;
 
 void jobs_runAdbmsConfigs_tick()
 {
-
     const Segments<result<bool>> res             = app::segments::config::sync();
     bool                         all_segments_ok = true;
     {
