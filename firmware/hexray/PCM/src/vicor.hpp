@@ -139,16 +139,6 @@ namespace status
 
     struct General
     {
-        // byte 1
-        bool unknown : 1;    // not supported
-        bool other_fake : 1; // not supported
-        bool fan_alert : 1;  // not supported
-        bool pwr_bad : 1;
-        bool status_mfr_specific : 1;
-        bool input_alert : 1;
-        bool iout_or_pout_alert : 1;
-        bool vout_alert : 1; // not supported
-
         // byte 2
         bool other : 1; // this means that STATUS_MFR_SPECIFIC (80h) or something in the first 8 bits is set
         bool pmbus_comm_event : 1;
@@ -158,6 +148,16 @@ namespace status
         bool vout_ov_fault : 1; // not supported
         bool unit_off : 1;
         bool unit_busy : 1;
+
+        // byte 1
+        bool unknown : 1;    // not supported
+        bool other_fake : 1; // not supported
+        bool fan_alert : 1;  // not supported
+        bool pwr_bad : 1;
+        bool status_mfr_specific : 1;
+        bool input_alert : 1;
+        bool iout_or_pout_alert : 1;
+        bool vout_alert : 1; // not supported
 
         void log() const
         {
@@ -169,6 +169,8 @@ namespace status
                 pwr_bad, status_mfr_specific, input_alert, iout_or_pout_alert, other, pmbus_comm_event, temp_alert,
                 vin_uv_fault, iout_oc_fault, unit_off, unit_busy);
         }
+
+        uint16_t raw() const { return reinterpret_cast<const uint16_t &>(*this); }
     };
     static_assert(sizeof(General) == sizeof(uint16_t), "VicorStatus should be 16 bits");
     result<General> general();

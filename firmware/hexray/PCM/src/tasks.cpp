@@ -44,8 +44,6 @@ static char debug_buf[1024];
 {
     forever
     {
-        const result<vicor::read::Power> power_info = vicor::read::power_stats();
-        LOG_IF_ERR(power_info);
 #ifdef PCM_DEBUG
         // SysView does't support floats! :(
         // TODO fix
@@ -74,7 +72,7 @@ static char debug_buf[1024];
                     continue;
                 }
             }
-            status_res.value().log();
+            // status_res.value().log();
         }
         else
         {
@@ -84,8 +82,8 @@ static char debug_buf[1024];
         const result<vicor::status::Comm> status_comm_res = vicor::status::comm();
         if (status_comm_res.has_value())
         {
-            status_comm_res.value().log();
-            LOG_IF_ERR(vicor::clearFaults());
+            // status_comm_res.value().log();
+            // LOG_IF_ERR(vicor::clearFaults()); // TODO figure out where to put this
         }
         else
         {
@@ -95,7 +93,7 @@ static char debug_buf[1024];
         const result<vicor::status::CurrentOutput> current = vicor::status::iout();
         if (current.has_value())
         {
-            current.value().log();
+            // current.value().log();
         }
         else
         {
@@ -105,7 +103,7 @@ static char debug_buf[1024];
         const result<vicor::status::Temp> temp = vicor::status::temp();
         if (temp.has_value())
         {
-            temp.value().log();
+            // temp.value().log();
         }
         else
         {
@@ -154,6 +152,9 @@ static char debug_buf[1024];
                     LOG_INFO("Going to OFF state");
                     state = PcmState::OFF;
                 }
+
+                const result<vicor::read::Power> power_info = vicor::read::power_stats();
+                LOG_IF_ERR(power_info);
 
                 if (power_info.has_value() and power_info->vout >= LV_ON_THRESHOLD_V)
                 {

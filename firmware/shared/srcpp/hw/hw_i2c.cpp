@@ -32,7 +32,7 @@ result<void> hw::i2c::device::waitForNotification() const
     {
         const auto error = d_bus.error.value();
         d_bus.error      = std::nullopt;
-        LOG_ERROR("I2C transaction failed with error code: 0x%X", error);
+        // LOG_ERROR("I2C transaction failed with error code: 0x%X", error);
         return std::unexpected(ErrorCode::ERROR);
     }
 
