@@ -185,12 +185,12 @@ result<void> vicor_readSerial()
     return {};
 }
 
-result<uint16_t> vicor_statusWord()
+result<VicorStatus> vicor_statusWord()
 {
     RETURN_IF_ERR(enforcePage(VicorPage::LV_SIDE));
 
-    uint16_t status;
-    RETURN_IF_ERR(readWord(CMD_STATUS_WORD, status));
+    VicorStatus status{};
+    RETURN_IF_ERR(readWord(CMD_STATUS_WORD, reinterpret_cast<uint16_t &>(status)));
     return status;
 }
 
@@ -221,21 +221,21 @@ result<uint8_t> vicor_statusTemp()
     return status;
 }
 
-result<uint8_t> vicor_statusComm()
+result<VicorCommStatus> vicor_statusComm()
 {
     RETURN_IF_ERR(enforcePage(VicorPage::LV_SIDE));
 
-    uint8_t status;
-    RETURN_IF_ERR(readByte(CMD_STATUS_CML, status));
+    VicorCommStatus status;
+    RETURN_IF_ERR(readByte(CMD_STATUS_CML, reinterpret_cast<uint8_t &>(status)));
     return status;
 }
 
-result<uint8_t> vicor_statusMfrSpecific()
+result<VicorStatusMFRSpecific> vicor_statusMfrSpecific()
 {
     RETURN_IF_ERR(enforcePage(VicorPage::LV_SIDE));
 
-    uint8_t status;
-    RETURN_IF_ERR(readByte(CMD_STATUS_MFR_SPECIFIC, status));
+    VicorStatusMFRSpecific status{};
+    RETURN_IF_ERR(readByte(CMD_STATUS_MFR_SPECIFIC, reinterpret_cast<uint8_t &>(status)));
     return status;
 }
 

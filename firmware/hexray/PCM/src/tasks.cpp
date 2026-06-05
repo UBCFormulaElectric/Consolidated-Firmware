@@ -21,6 +21,7 @@ static constexpr float    LV_ON_THRESHOLD_V = 20.0f;
 static constexpr uint32_t TURN_ON_DELAY_MS  = 100;
 enum class PcmState
 {
+    LV,
     OFF,
     VICOR_ONLY,
     ON
@@ -33,7 +34,7 @@ static const hw::gpio pcm_en_in{ PCM_EN_GPIO_Port, PCM_EN_Pin };
 static const hw::gpio lv_buck_en_out{ LV_BUCK_EN_GPIO_Port, LV_BUCK_EN_Pin };
 static const hw::gpio led_out{ LED_GPIO_Port, LED_Pin };
 
-static auto state = PcmState::OFF;
+static auto state = PcmState::LV;
 
 #ifdef PCM_DEBUG
 static char debug_buf[1024];
@@ -42,7 +43,7 @@ static char debug_buf[1024];
 [[noreturn]] static void tasks_tick(void *arg)
 {
     UNUSED(arg);
-    for (;;)
+    forever
     {
 #ifdef PCM_DEBUG
         const auto vin_res  = vicor_readVin();
@@ -70,9 +71,32 @@ static char debug_buf[1024];
         UNUSED(led_out.togglePin());
         osDelay(500);
 #else
+        const auto status_comm_res = vicor_statusComm();
+        LOG_INFO("comm status: %lX", status_comm_res.value_or(0xFF));
+        if (status_comm_res.has_value() && status_comm_res.value() != 0)
+        {
+            LOG_INFO("Fault detected, trying to clear");
+            LOG_IF_ERR(vicor_clearFaults());
+        }
+        const auto status_res = vicor_statusWord();
+        if (status_res.has_value())
+        {
+            LOG_INFO("status word: %lX", status_res.value());
+        }
+        else
+        {
+            LOG_INFO("Failed to read status word");
+        }
+
+        LOG_IF_ERR(vicor_operation(false));
         switch (state)
         {
-            case PcmState::OFF:
+            case PcmState::LV: // this state is for when the PCM is awake, but the vicor is still off
+            {
+                vicor_operation(false); // PLEASE!!!!!!! TURN OFF!!!!!!
+                break;
+            }
+            case PcmState::OFF: // this state is for when the HV is on, but the vicor is still off (precharge)
             {
                 if (pcm_en_in.readPin())
                 {
@@ -85,7 +109,7 @@ static char debug_buf[1024];
                 }
                 break;
             }
-            case PcmState::VICOR_ONLY:
+            case PcmState::VICOR_ONLY: //
             {
                 if (not pcm_en_in.readPin() and vicor_operation(false).has_value())
                 {
@@ -103,7 +127,7 @@ static char debug_buf[1024];
                 }
                 break;
             }
-            case PcmState::ON:
+            case PcmState::ON: // everything on
             {
                 if (not pcm_en_in.readPin())
                 {
@@ -140,8 +164,8 @@ void tasks_init()
 #ifdef PCM_DEBUG
     LOG_IF_ERR(vicor_operation(true));
 #else
-    LOG_IF_ERR(vicor_operation(false));
-    LOG_INFO("vicor off");
+    // LOG_IF_ERR(vicor_operation(false));
+    // LOG_INFO("vicor off");
 #endif
 
     osKernelInitialize();
