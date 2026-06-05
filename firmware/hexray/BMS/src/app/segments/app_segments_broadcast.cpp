@@ -3,6 +3,7 @@
 #include "app_segments_internal.hpp"
 #include "app_segments.hpp"
 #include "app_canTx.hpp"
+#include "app_canUtils.hpp"
 #include "io_canTx.hpp"
 #include "io_semaphore.hpp"
 

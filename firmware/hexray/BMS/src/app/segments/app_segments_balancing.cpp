@@ -3,7 +3,7 @@
 
 #include "app_canTx.hpp"
 #include "app_canRx.hpp"
-#include "app_canUtils.hpp"
+// #include "app_canUtils.hpp"
 #include "app_timer.hpp"
 
 #include "io_adbms.hpp"
