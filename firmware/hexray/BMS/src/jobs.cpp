@@ -34,6 +34,8 @@
 #include "io_time.hpp"
 #include "io_notify.hpp"
 
+#include "tasks.h"
+
 using io::adbms::Cells;
 using io::adbms::OpenWireSwitch;
 using io::adbms::Segments;
@@ -144,6 +146,18 @@ void jobs_run1kHz_tick()
 
 static io::notify::Notifier sync_done;
 
+void jobs_requestConfigSync()
+{
+    tasks_requestAdbmsConfigRun();
+}
+
+void jobs_requestConfigSyncAndWait()
+{
+    sync_done.clear();
+    tasks_requestAdbmsConfigRun();
+    sync_done.wait();
+}
+
 void jobs_runAdbmsConfigs_tick()
 {
     // const io::unique_semaphore s{ spi_bus_lock };
@@ -187,7 +201,7 @@ void jobs_runAdbmsConfigs_tick()
 
 void jobs_runAdbmsVoltages_tick()
 {
-    sync_done.wait();
+    jobs_requestConfigSyncAndWait();
     LOG_INFO("Starting voltage poll and conversion");
 
     result<void>         voltages_poll_ok;
@@ -236,7 +250,7 @@ void jobs_runAdbmsVoltages_tick()
 
 void jobs_runAdbmsAux_tick()
 {
-    sync_done.wait();
+    jobs_requestConfigSyncAndWait();
     LOG_INFO("Starting AUX poll and conversion");
 
     result<void> therm_voltages_poll_ok;
@@ -253,7 +267,9 @@ void jobs_runAdbmsAux_tick()
     {
         app::segments::config::setThermistorConfig(mux);
 
-        sync_done.wait();
+        // Push the freshly-set thermistor mux config now and wait for that specific
+        // sync to land, rather than waiting up to a full periodic config tick.
+        jobs_requestConfigSyncAndWait();
 
         io::time::delay(100);
         {

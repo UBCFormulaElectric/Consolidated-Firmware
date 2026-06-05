@@ -24,4 +24,9 @@ void Notifier::notifyFromISR() const
     portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }
 
+void Notifier::clear() const
+{
+    xEventGroupClearBits(handle_, NOTIFY_BIT);
+}
+
 } // namespace io::notify

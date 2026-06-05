@@ -236,18 +236,31 @@ void tasks_runAdbmsVoltages(void *arg)
     }
 }
 
+// Thread flag used to kick the config task out of its periodic sleep on demand.
+static constexpr uint32_t CONFIG_RUN_NOW_FLAG = 0x01U;
+
+void tasks_requestAdbmsConfigRun(void)
+{
+    // Wake the config task out of its periodic sleep so it syncs now instead of on its
+    // next tick. It runs at its normal (unchanged) priority; the scheduler preempts the
+    // caller only if the config task already outranks it.
+    osThreadFlagsSet(TaskAdbmsConfigs.id(), CONFIG_RUN_NOW_FLAG);
+}
+
 void tasks_runAdbmsConfigs(void *arg)
 {
-    const uint32_t period_ms   = 100U;
-    uint32_t       start_ticks = osKernelGetTickCount();
+    constexpr uint32_t period_ms = 100U;
 
     forever
     {
+        // Sleep until the period elapses OR an immediate run is requested. The wait
+        // returns (and clears the flag) early when tasks_requestAdbmsConfigRun() fires.
+        // Either way the pass runs at this task's normal priority.
+        osThreadFlagsWait(CONFIG_RUN_NOW_FLAG, osFlagsWaitAny, period_ms);
+
         SEGGER_SYSVIEW_MarkStart(0xbb);
         jobs_runAdbmsConfigs_tick();
         SEGGER_SYSVIEW_MarkStop(0xbb);
-        start_ticks += period_ms;
-        osDelayUntil(start_ticks);
     }
 }
 
