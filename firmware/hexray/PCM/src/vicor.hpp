@@ -6,6 +6,22 @@ result<void> vicor_operation(bool enable);
 result<bool> vicor_read_operation();
 result<void> vicor_clearFaults();
 
+struct VicorCapability
+{
+    bool    packet_error_not_supported : 1;
+    uint8_t max_bus_speed : 2;
+    bool    smbus_alert_not_supported : 1;
+    uint8_t reserved : 4;
+    void    log() const
+    {
+        LOG_INFO(
+            "Capability - PACKET_ERROR_NOT_SUPPORTED: %d, MAX_BUS_SPEED: %d, SMBUS_ALERT_NOT_SUPPORTED: %d",
+            packet_error_not_supported, max_bus_speed, smbus_alert_not_supported);
+    }
+};
+static_assert(sizeof(VicorCapability) == sizeof(uint8_t), "VicorCapability should be 8 bits");
+result<VicorCapability> vicor_capability();
+
 struct VicorPowerStats
 {
     float vin;

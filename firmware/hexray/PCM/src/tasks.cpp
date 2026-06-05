@@ -181,6 +181,15 @@ void tasks_init()
     {
         LOG_INFO("Failed to read limits");
     }
+
+    if (const auto capability_res = vicor_capability(); capability_res.has_value())
+    {
+        capability_res.value().log();
+    }
+    else
+    {
+        LOG_INFO("Failed to read capability");
+    }
 #endif
 
     osKernelInitialize();

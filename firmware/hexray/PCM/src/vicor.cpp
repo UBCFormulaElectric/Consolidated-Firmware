@@ -91,6 +91,16 @@ result<void> vicor_clearFaults()
     return vicor_i2c.transmit(std::span(&cmd, 1));
 }
 
+result<VicorCapability> vicor_capability()
+{
+    RETURN_IF_ERR(enforcePage(VicorPage::LV_SIDE));
+    static constexpr uint8_t CMD_CAPABILITY = 0x19;
+
+    VicorCapability capability{};
+    RETURN_IF_ERR(readByte(CMD_CAPABILITY, reinterpret_cast<uint8_t &>(capability)));
+    return capability;
+}
+
 static float DECODE(const float m, const uint16_t Y, const float R, const float b)
 {
     return 1.0f / m * (static_cast<float>(Y) * R - b);
