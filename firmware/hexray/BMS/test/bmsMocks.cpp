@@ -126,3 +126,11 @@ namespace io::adbms::clear
     return result<void>{};
 }
 } // namespace io::adbms::clear
+
+namespace io::adbms
+{
+Segments<uint8_t> getCmdCountMismatches()
+{
+    return Segments<uint8_t>{};
+}
+} // namespace io::adbms
