@@ -44,22 +44,11 @@ static char debug_buf[1024];
 {
     forever
     {
+        const result<vicor::read::Power> power_info = vicor::read::power_stats();
+        LOG_IF_ERR(power_info);
 #ifdef PCM_DEBUG
-        const auto vin_res  = vicor_readVin();
-        const auto iin_res  = vicor_readIin();
-        const auto vout_res = vicor_readVout();
-        const auto iout_res = vicor_readIout();
-        const auto temp_res = vicor_readTemp();
-        const auto pout_res = vicor_readPout();
-
-        LOG_IF_ERR(vin_res);
-        LOG_IF_ERR(iin_res);
-        LOG_IF_ERR(vout_res);
-        LOG_IF_ERR(iout_res);
-        LOG_IF_ERR(temp_res);
-        LOG_IF_ERR(pout_res);
-
         // SysView does't support floats! :(
+        // TODO fix
         sprintf(
             debug_buf, "Vin = %.2fV\nIin = %.2fA\nVout=%.2fV\nIout=%.2fA\nTemp=%.1fdegC\nPout=%.2fW",
             static_cast<double>(vin_res.value_or(0)), static_cast<double>(iin_res.value_or(0)),
@@ -70,14 +59,12 @@ static char debug_buf[1024];
         UNUSED(led_out.togglePin());
         osDelay(500);
 #else
-        const auto status_comm_res = vicor_statusComm();
-        if (status_comm_res.has_value())
+        if (const result<vicor::status::Comm> status_comm_res = vicor::status::comm(); status_comm_res.has_value())
         {
             // status_comm_res.value().log();
-            LOG_IF_ERR(vicor_clearFaults());
+            LOG_IF_ERR(vicor::clearFaults());
         }
-        const auto status_res = vicor_status();
-        if (status_res.has_value())
+        if (const result<vicor::status::General> status_res = vicor::status::general(); status_res.has_value())
         {
             // LOG_INFO("status word: %lX", status_res.value());
         }
@@ -97,7 +84,7 @@ static char debug_buf[1024];
                 if (pcm_en_in.readPin())
                 {
                     LOG_INFO("trying to clear faults and turn on");
-                    if (vicor_clearFaults().has_value() and vicor_operation(true).has_value())
+                    if (vicor::clearFaults().has_value() and vicor::operation(true).has_value())
                     {
                         LOG_INFO("Going to VICOR_ONLY state");
                         state = PcmState::VICOR_ONLY;
@@ -105,20 +92,19 @@ static char debug_buf[1024];
                 }
                 else
                 {
-                    LOG_IF_ERR(vicor_operation(false)); // PLEASE!!!!!!! TURN OFF!!!!!!
+                    LOG_IF_ERR(vicor::operation(false)); // PLEASE!!!!!!! TURN OFF!!!!!!
                 }
                 break;
             }
             case PcmState::VICOR_ONLY: //
             {
-                if (not pcm_en_in.readPin() and vicor_operation(false).has_value())
+                if (not pcm_en_in.readPin() and vicor::operation(false).has_value())
                 {
                     LOG_INFO("Going to OFF state");
                     state = PcmState::OFF;
                 }
 
-                // float vout = ;
-                if (const auto vout = vicor_readVout(); vout.has_value() && vout.value() >= LV_ON_THRESHOLD_V)
+                if (power_info.has_value() and power_info->vout >= LV_ON_THRESHOLD_V)
                 {
                     osDelay(TURN_ON_DELAY_MS);
                     lv_buck_en_out.writePin(true);
@@ -133,7 +119,7 @@ static char debug_buf[1024];
                 {
                     lv_buck_en_out.writePin(false);
 
-                    if (vicor_operation(false).has_value())
+                    if (vicor::operation(false).has_value())
                     {
                         LOG_INFO("Going to OFF state");
                         state = PcmState::OFF;
@@ -164,7 +150,7 @@ void tasks_init()
 #ifdef PCM_DEBUG
     LOG_IF_ERR(vicor_operation(true));
 #else
-    if (const auto metadata_res = vicor_metadata(); metadata_res.has_value())
+    if (const auto metadata_res = vicor::read::metadata(); metadata_res.has_value())
     {
         metadata_res.value().log();
     }
@@ -173,7 +159,7 @@ void tasks_init()
         LOG_INFO("Failed to read metadata");
     }
 
-    if (const auto limits_res = vicor_limits(); limits_res.has_value())
+    if (const auto limits_res = vicor::read::limits(); limits_res.has_value())
     {
         limits_res.value().log();
     }
@@ -182,7 +168,7 @@ void tasks_init()
         LOG_INFO("Failed to read limits");
     }
 
-    if (const auto capability_res = vicor_capability(); capability_res.has_value())
+    if (const auto capability_res = vicor::read::capability(); capability_res.has_value())
     {
         capability_res.value().log();
     }
