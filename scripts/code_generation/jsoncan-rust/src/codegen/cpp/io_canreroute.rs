@@ -20,6 +20,23 @@ impl IoCanRerouteModuleSource<'_> {
             .unwrap()
             .to_string()
     }
+
+    fn should_reroute_to_bus(&self, msg_id: &u32, bus_name: &str) -> bool {
+        if bus_name != "InvCAN" {
+            return true;
+        }
+
+        let msg_name = self.msg_name_from_id(msg_id);
+        !matches!(
+            msg_name.as_str(),
+            name if name.ends_with("_Warnings")
+                || name.ends_with("_Faults")
+                || name.ends_with("_Info")
+                || name.ends_with("_WarningsCounts")
+                || name.ends_with("_FaultsCounts")
+                || name.ends_with("_InfoCounts")
+        )
+    }
 }
 
 #[derive(Template)]
