@@ -29,7 +29,6 @@ static constexpr uint8_t CMD_READ_VOUT           = 0x8B;
 static constexpr uint8_t CMD_READ_IOUT           = 0x8C;
 static constexpr uint8_t CMD_READ_TEMP           = 0x8D;
 static constexpr uint8_t CMD_READ_POUT           = 0x96;
-static constexpr uint8_t CMD_MFR_SERIAL          = 0x9E;
 
 #define DECODE(m, Y, R, b) ((1.0f / m) * (Y * R - b))
 #define DECODE_V(Y) (DECODE(1.0f, Y, 1e-1f, 0))
@@ -212,12 +211,12 @@ result<uint8_t> vicor_statusInput()
     return status;
 }
 
-result<uint8_t> vicor_statusTemp()
+result<VicorTempStatus> vicor_statusTemp()
 {
     RETURN_IF_ERR(enforcePage(VicorPage::LV_SIDE));
 
-    uint8_t status;
-    RETURN_IF_ERR(readByte(CMD_STATUS_TEMP, status));
+    VicorTempStatus status{};
+    RETURN_IF_ERR(readByte(CMD_STATUS_TEMP, reinterpret_cast<uint8_t &>(status)));
     return status;
 }
 
@@ -225,7 +224,7 @@ result<VicorCommStatus> vicor_statusComm()
 {
     RETURN_IF_ERR(enforcePage(VicorPage::LV_SIDE));
 
-    VicorCommStatus status;
+    VicorCommStatus status{};
     RETURN_IF_ERR(readByte(CMD_STATUS_CML, reinterpret_cast<uint8_t &>(status)));
     return status;
 }
@@ -239,11 +238,37 @@ result<VicorStatusMFRSpecific> vicor_statusMfrSpecific()
     return status;
 }
 
-result<uint16_t> vicor_serialNumber()
+result<VicorMetadata> vicor_metadata()
 {
+    static constexpr uint8_t CMD_PMBUS_REVISION = 0x98;
+    static constexpr uint8_t CMD_MFR_ID         = 0x99;
+    static constexpr uint8_t CMD_MFR_MODEL      = 0x9A;
+    static constexpr uint8_t CMD_MFR_REVISION   = 0x9B;
+    static constexpr uint8_t CMD_MFR_LOCATION   = 0x9C;
+    static constexpr uint8_t CMD_MFR_DATE       = 0x9D;
+    static constexpr uint8_t CMD_MFR_SERIAL     = 0x9E;
     RETURN_IF_ERR(enforcePage(VicorPage::LV_SIDE));
 
-    uint16_t word;
-    RETURN_IF_ERR(readWord(CMD_MFR_SERIAL, word));
-    return word;
+    VicorMetadata out{};
+    static_assert(sizeof(out.pmbus_version) == 1, "pmbus_version should be 16 bytes");
+    RETURN_IF_ERR(readByte(CMD_PMBUS_REVISION, out.pmbus_version));
+    static_assert(sizeof(out.id) == 2, "mfr_id should be 2 bytes");
+    RETURN_IF_ERR(readWord(CMD_MFR_ID, out.id));
+    static_assert(sizeof(out.part_number) == 18, "model should be 18 bytes");
+    RETURN_IF_ERR(vicor_i2c.memoryRead(
+        CMD_MFR_MODEL, std::span(reinterpret_cast<uint8_t *>(out.part_number), sizeof(out.part_number))));
+    static_assert(sizeof(out.revision) == 18, "revision should be 18 bytes");
+    RETURN_IF_ERR(vicor_i2c.memoryRead(
+        CMD_MFR_REVISION, std::span(reinterpret_cast<uint8_t *>(out.revision), sizeof(out.revision))));
+    static_assert(sizeof(out.location) == 2, "location should be 2 bytes");
+    RETURN_IF_ERR(vicor_i2c.memoryRead(
+        CMD_MFR_LOCATION, std::span(reinterpret_cast<uint8_t *>(out.location), sizeof(out.location))));
+    static_assert(sizeof(out.date) == 4, "date should be 4 bytes");
+    RETURN_IF_ERR(
+        vicor_i2c.memoryRead(CMD_MFR_DATE, std::span(reinterpret_cast<uint8_t *>(out.date), sizeof(out.date))));
+    static_assert(sizeof(out.serial_num) == 16, "serial should be 16 bytes");
+    RETURN_IF_ERR(vicor_i2c.memoryRead(
+        CMD_MFR_SERIAL, std::span(reinterpret_cast<uint8_t *>(out.serial_num), sizeof(out.serial_num))));
+
+    return out;
 }

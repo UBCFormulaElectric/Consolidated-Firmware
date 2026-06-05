@@ -14,7 +14,23 @@ result<float>   vicor_readPout();
 result<void>    vicor_readSerial();
 result<uint8_t> vicor_statusIout();
 result<uint8_t> vicor_statusInput();
-result<uint8_t> vicor_statusTemp();
+
+struct VicorTempStatus
+{
+    bool reserved : 4;
+    bool ut_warning : 1;
+    bool ut_fault : 1;
+    bool ot_warning : 1;
+    bool ot_fault : 1;
+    void log() const
+    {
+        LOG_INFO(
+            "Temp Status - UT Warning: %d, UT Fault: %d, OT Warning: %d, OT Fault: %d", ut_warning, ut_fault,
+            ot_warning, ot_fault);
+    }
+};
+static_assert(sizeof(VicorTempStatus) == sizeof(uint8_t), "VicorTempStatus should be 8 bits");
+result<VicorTempStatus> vicor_statusTemp();
 
 struct VicorStatus
 {
@@ -37,6 +53,15 @@ struct VicorStatus
     bool vout_ov_fault : 1; // not supported
     bool unit_off : 1;
     bool unit_busy : 1;
+
+    void log() const
+    {
+        LOG_INFO(
+            "Status Word - PWR_BAD: %d, STATUS_MFR_SPECIFIC: %d, INPUT_ALERT: %d, IOUT_OR_POUT_ALERT: %d, OTHER: %d, "
+            "PMBUS_COMM_EVENT: %d, TEMP_ALERT: %d, VIN_UV_FAULT: %d, IOUT_OC_FAULT: %d, UNIT_OFF: %d, UNIT_BUSY: %d",
+            pwr_bad, status_mfr_specific, input_alert, iout_or_pout_alert, other, pmbus_comm_event, temp_alert,
+            vin_uv_fault, iout_oc_fault, unit_off, unit_busy);
+    }
 };
 static_assert(sizeof(VicorStatus) == sizeof(uint16_t), "VicorStatus should be 16 bits");
 result<VicorStatus> vicor_statusWord();
@@ -51,7 +76,16 @@ struct VicorCommStatus
     bool packet_error : 1;    // unsupported
     bool invalid_data : 1;
     bool invalid_command : 1;
+    void log() const
+    {
+        LOG_INFO(
+            "Comm Status - OTHER_MEM_OR_LOGIC_FAULT: %d, OTHER_COMM_FAULT: %d, PROCESSOR_FAULT: %d, MEM_FAULT: %d, "
+            "PACKET_ERROR: %d, INVALID_DATA: %d, INVALID_COMMAND: %d",
+            other_mem_or_logic_fault, other_comm_fault, processor_fault, mem_fault, packet_error, invalid_data,
+            invalid_command);
+    }
 };
+static_assert(sizeof(VicorCommStatus) == sizeof(uint8_t), "VicorCommStatus should be 8 bits");
 result<VicorCommStatus> vicor_statusComm();
 
 struct VicorStatusMFRSpecific
@@ -62,7 +96,33 @@ struct VicorStatusMFRSpecific
     uint8_t _reserved_2 : 1;
     bool    bcm_at_page_1_preset : 1;
     uint8_t _reserved : 3;
+    void    log() const
+    {
+        LOG_INFO(
+            "MFR Specific Status - REVERSE_OPERATION: %d, HW_PROTECTION_SHUTDOWN_FAULT: %d, BCM_UART_CML: %d, "
+            "BCM_AT_PAGE_1_PRESET: %d",
+            reverse_operation, hw_protection_shutdown_fault, bcm_uart_cml, bcm_at_page_1_preset);
+    }
 };
+static_assert(sizeof(VicorStatusMFRSpecific) == sizeof(uint8_t), "VicorStatusMFRSpecific should be 8 bits");
 result<VicorStatusMFRSpecific> vicor_statusMfrSpecific();
 
-result<uint16_t> vicor_serialNumber();
+struct VicorMetadata
+{
+    uint8_t  pmbus_version;
+    uint16_t id;
+    char     part_number[18];
+    char     revision[18];
+    char     location[2];
+    char     date[4];
+    char     serial_num[16];
+
+    void log() const
+    {
+        LOG_INFO(
+            "Metadata - PMBus Version: %d, ID: %d, Part Number: %s, Revision: %s, Location: %s, Date: %s, Serial Num: "
+            "%s",
+            pmbus_version, id, part_number, revision, location, date, serial_num);
+    }
+};
+result<VicorMetadata> vicor_metadata();

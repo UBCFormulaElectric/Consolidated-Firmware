@@ -42,7 +42,6 @@ static char debug_buf[1024];
 
 [[noreturn]] static void tasks_tick(void *arg)
 {
-    UNUSED(arg);
     forever
     {
 #ifdef PCM_DEBUG
@@ -72,10 +71,9 @@ static char debug_buf[1024];
         osDelay(500);
 #else
         const auto status_comm_res = vicor_statusComm();
-        LOG_INFO("comm status: %lX", status_comm_res.value_or(0xFF));
-        if (status_comm_res.has_value() && status_comm_res.value() != 0)
+        if (status_comm_res.has_value())
         {
-            LOG_INFO("Fault detected, trying to clear");
+            status_comm_res.value().log();
             LOG_IF_ERR(vicor_clearFaults());
         }
         const auto status_res = vicor_statusWord();
@@ -93,7 +91,7 @@ static char debug_buf[1024];
         {
             case PcmState::LV: // this state is for when the PCM is awake, but the vicor is still off
             {
-                vicor_operation(false); // PLEASE!!!!!!! TURN OFF!!!!!!
+                LOG_IF_ERR(vicor_operation(false)); // PLEASE!!!!!!! TURN OFF!!!!!!
                 break;
             }
             case PcmState::OFF: // this state is for when the HV is on, but the vicor is still off (precharge)
@@ -164,8 +162,14 @@ void tasks_init()
 #ifdef PCM_DEBUG
     LOG_IF_ERR(vicor_operation(true));
 #else
-    // LOG_IF_ERR(vicor_operation(false));
-    // LOG_INFO("vicor off");
+    if (const auto metadata_res = vicor_metadata(); metadata_res.has_value())
+    {
+        metadata_res.value().log();
+    }
+    else
+    {
+        LOG_INFO("Failed to read metadata");
+    }
 #endif
 
     osKernelInitialize();
