@@ -45,7 +45,7 @@ namespace bmsOnStates
         // transition to PCM_ON state
         if (app::can_rx::BMS_State_get() == BmsState::BMS_DRIVE_STATE)
         {
-            app::StateMachine::set_next_state(&pcmOn_state);
+            app::StateMachine::set_next_state(&hvInit_state);
         }
     }
 

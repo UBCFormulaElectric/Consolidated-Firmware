@@ -614,7 +614,7 @@
   },
   "PowerMonitoring": {
     "msg_id": 560,
-    "cycle_time": 100,
+    "cycle_time": 10,
     "description": "Power monitoring chip",
     "signals": {
       "PcmChannelVoltage": {
@@ -1034,6 +1034,10 @@
       "PcmRetryCount": {
         "min": 0,
         "max": 5,
+        "resolution": 1
+      },
+      "PcmEnable": {
+        "bits": 1,
         "resolution": 1
       }
     }
