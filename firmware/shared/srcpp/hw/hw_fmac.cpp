@@ -34,8 +34,7 @@ namespace
     constexpr uint8_t IIR_MAX_GAIN   = 7;  // R max
 } // namespace
 
-std::expected<void, ErrorCode>
-    FmacIir::init(std::span<const int16_t> coefB, std::span<const int16_t> coefA, uint8_t gainExponent)
+result<void> FmacIir::init(std::span<const int16_t> coefB, std::span<const int16_t> coefA, uint8_t gainExponent)
 {
     const auto numBTaps = static_cast<uint8_t>(coefB.size());
     const auto numATaps = static_cast<uint8_t>(coefA.size());
@@ -82,19 +81,19 @@ std::expected<void, ErrorCode>
     return {};
 }
 
-std::expected<void, ErrorCode> FmacIir::pushSample(int16_t sample_q15)
+result<void> FmacIir::pushSample(int16_t sample_q15)
 {
     uint16_t size = 1;
     return hw::utils::convertHalStatus(HAL_FMAC_AppendFilterData(&m_handle, &sample_q15, &size));
 }
 
-std::expected<int16_t, ErrorCode> FmacIir::popSample()
+result<int16_t> FmacIir::popSample()
 {
     RETURN_IF_ERR(hw::utils::convertHalStatus(HAL_FMAC_PollFilterData(&m_handle, kPollFilterDataTimeoutMs)));
     return m_outputSample;
 }
 
-std::expected<float, ErrorCode> FmacIir::process(const float sample)
+result<float> FmacIir::process(const float sample)
 {
     RETURN_IF_ERR(pushSample(floatToQ1Point5(sample)));
     auto out_q15 = popSample();
@@ -103,7 +102,7 @@ std::expected<float, ErrorCode> FmacIir::process(const float sample)
     return q1Point5ToFloat(out_q15.value());
 }
 
-std::expected<void, ErrorCode> FmacIir::stop()
+result<void> FmacIir::stop()
 {
     return hw::utils::convertHalStatus(HAL_FMAC_FilterStop(&m_handle));
 }

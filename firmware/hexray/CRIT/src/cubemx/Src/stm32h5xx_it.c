@@ -169,6 +169,48 @@ void DebugMon_Handler(void)
 /******************************************************************************/
 
 /**
+ * @brief This function handles EXTI Line8 interrupt.
+ */
+void EXTI8_IRQHandler(void)
+{
+    /* USER CODE BEGIN EXTI8_IRQn 0 */
+
+    /* USER CODE END EXTI8_IRQn 0 */
+    HAL_GPIO_EXTI_IRQHandler(ROT_S_Pin);
+    /* USER CODE BEGIN EXTI8_IRQn 1 */
+
+    /* USER CODE END EXTI8_IRQn 1 */
+}
+
+/**
+ * @brief This function handles EXTI Line9 interrupt.
+ */
+void EXTI9_IRQHandler(void)
+{
+    /* USER CODE BEGIN EXTI9_IRQn 0 */
+
+    /* USER CODE END EXTI9_IRQn 0 */
+    HAL_GPIO_EXTI_IRQHandler(ROT_B_Pin);
+    /* USER CODE BEGIN EXTI9_IRQn 1 */
+
+    /* USER CODE END EXTI9_IRQn 1 */
+}
+
+/**
+ * @brief This function handles EXTI Line10 interrupt.
+ */
+void EXTI10_IRQHandler(void)
+{
+    /* USER CODE BEGIN EXTI10_IRQn 0 */
+
+    /* USER CODE END EXTI10_IRQn 0 */
+    HAL_GPIO_EXTI_IRQHandler(ROT_A_Pin);
+    /* USER CODE BEGIN EXTI10_IRQn 1 */
+
+    /* USER CODE END EXTI10_IRQn 1 */
+}
+
+/**
  * @brief This function handles FDCAN1 interrupt 0.
  */
 void FDCAN1_IT0_IRQHandler(void)

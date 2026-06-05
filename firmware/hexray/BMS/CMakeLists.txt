@@ -38,7 +38,6 @@ set(HW_SHARED_SRCS
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_spi.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_pwmOutput.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_can_hx.cpp"
-        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_watchdog.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_bootup.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_resetReason.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_bootup.cpp"
@@ -138,7 +137,7 @@ if ("${TARGET}" STREQUAL "binary")
     )
 
     target_link_libraries("hexray_BMS_app.elf" PRIVATE "hexray_BMS_stm32" "hexray_BMS_jsoncan" "hexray_BMS_commit_info" "m")
-    target_compile_definitions("hexray_BMS_app.elf" PRIVATE BMS)
+    target_compile_definitions("hexray_BMS_app.elf" PRIVATE BMS TARGET_HV_SUPPLY)
 
     add_chimera_stm32h7("hexray_BMS_chimera" "${CHIMERA_SRCS}" "${CHIMERA_INCLUDE_DIRS}" "hexray_chimera_v2_proto_cm7")
     target_link_libraries("hexray_BMS_chimera.elf" PRIVATE "hexray_BMS_stm32")
@@ -186,7 +185,7 @@ elseif ("${TARGET}" STREQUAL "test")
             "${INCLUDE_DIRS}"
     )
 
-    add_compile_definitions("hexray_BMS_test" PRIVATE STM32h763Rx)
+    add_compile_definitions("hexray_BMS_test" PRIVATE STM32H763Rx)
 
     # JSONCAN
     jsoncan_library_cpp(BMS hexray "${CMAKE_CURRENT_BINARY_DIR}")

@@ -210,7 +210,7 @@ void PeriphCommonClock_Config(void)
     PeriphClkInitStruct.PLL2.PLL2Source     = RCC_PLL2_SOURCE_HSE;
     PeriphClkInitStruct.PLL2.PLL2M          = 1;
     PeriphClkInitStruct.PLL2.PLL2N          = 24;
-    PeriphClkInitStruct.PLL2.PLL2P          = 20;
+    PeriphClkInitStruct.PLL2.PLL2P          = 128;
     PeriphClkInitStruct.PLL2.PLL2Q          = 2;
     PeriphClkInitStruct.PLL2.PLL2R          = 2;
     PeriphClkInitStruct.PLL2.PLL2RGE        = RCC_PLL2_VCIRANGE_3;
@@ -360,7 +360,7 @@ static void MX_SPI2_Init(void)
     hspi2.Instance                     = SPI2;
     hspi2.Init.Mode                    = SPI_MODE_MASTER;
     hspi2.Init.Direction               = SPI_DIRECTION_2LINES_TXONLY;
-    hspi2.Init.DataSize                = SPI_DATASIZE_16BIT;
+    hspi2.Init.DataSize                = SPI_DATASIZE_8BIT;
     hspi2.Init.CLKPolarity             = SPI_POLARITY_LOW;
     hspi2.Init.CLKPhase                = SPI_PHASE_1EDGE;
     hspi2.Init.NSS                     = SPI_NSS_SOFT;
@@ -406,7 +406,7 @@ static void MX_SPI3_Init(void)
     hspi3.Instance                     = SPI3;
     hspi3.Init.Mode                    = SPI_MODE_MASTER;
     hspi3.Init.Direction               = SPI_DIRECTION_2LINES_TXONLY;
-    hspi3.Init.DataSize                = SPI_DATASIZE_16BIT;
+    hspi3.Init.DataSize                = SPI_DATASIZE_8BIT;
     hspi3.Init.CLKPolarity             = SPI_POLARITY_LOW;
     hspi3.Init.CLKPhase                = SPI_PHASE_1EDGE;
     hspi3.Init.NSS                     = SPI_NSS_SOFT;
@@ -648,11 +648,27 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : ROT_S_Pin ROT_B_Pin ROT_A_Pin */
-    GPIO_InitStruct.Pin  = ROT_S_Pin | ROT_B_Pin | ROT_A_Pin;
-    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+    /*Configure GPIO pin : ROT_S_Pin */
+    GPIO_InitStruct.Pin  = ROT_S_Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(ROT_S_GPIO_Port, &GPIO_InitStruct);
+
+    /*Configure GPIO pins : ROT_B_Pin ROT_A_Pin */
+    GPIO_InitStruct.Pin  = ROT_B_Pin | ROT_A_Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING_FALLING;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+    /* EXTI interrupt init*/
+    HAL_NVIC_SetPriority(EXTI8_IRQn, 5, 0);
+    HAL_NVIC_EnableIRQ(EXTI8_IRQn);
+
+    HAL_NVIC_SetPriority(EXTI9_IRQn, 5, 0);
+    HAL_NVIC_EnableIRQ(EXTI9_IRQn);
+
+    HAL_NVIC_SetPriority(EXTI10_IRQn, 5, 0);
+    HAL_NVIC_EnableIRQ(EXTI10_IRQn);
 
     /* USER CODE BEGIN MX_GPIO_Init_2 */
 

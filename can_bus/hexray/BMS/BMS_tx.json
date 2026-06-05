@@ -12,19 +12,6 @@
       }
     }
   },
-  "CommitInfo": {
-    "msg_id": 409,
-    "cycle_time": 100,
-    "description": "BMS Commit Info",
-    "signals": {
-      "Hash": {
-        "bits": 32
-      },
-      "Clean": {
-        "bits": 1
-      }
-    }
-  },
   "Debug": {
     "msg_id": 407,
     "cycle_time": 1000,
@@ -44,6 +31,25 @@
       },
       "WatchdogTimeoutTask": {
         "bits": 32
+      }
+    }
+  },
+  "Bootup": {
+    "msg_id": 408,
+    "cycle_time": null,
+    "description": "Async bootup message!",
+    "signals": {}
+  },
+  "CommitInfo": {
+    "msg_id": 409,
+    "cycle_time": 100,
+    "description": "BMS Commit Info",
+    "signals": {
+      "Hash": {
+        "bits": 32
+      },
+      "Clean": {
+        "bits": 1
       }
     }
   },
@@ -88,22 +94,6 @@
       }
     }
   },
-  "Charger": {
-    "msg_id": 413,
-    "cycle_time": 100,
-    "description": "Charger infomation for the BMS to broadcast to other boards",
-    "signals": {
-      "ChargerConnectedType": {
-        "enum": "ChargerConnectedType"
-      },
-      "ChargingDone": {
-        "bits": 1
-      },
-      "ChargingFaulted": {
-        "bits": 1
-      }
-    }
-  },
   "TractiveSystem": {
     "msg_id": 412,
     "cycle_time": 10,
@@ -143,6 +133,22 @@
       }
     }
   },
+  "Charger": {
+    "msg_id": 413,
+    "cycle_time": 100,
+    "description": "Charger infomation for the BMS to broadcast to other boards",
+    "signals": {
+      "ChargerConnectedType": {
+        "enum": "ChargerConnectedType"
+      },
+      "ChargingDone": {
+        "bits": 1
+      },
+      "ChargingFaulted": {
+        "bits": 1
+      }
+    }
+  },
   "BSPDStatus": {
     "msg_id": 414,
     "cycle_time": 10,
@@ -159,51 +165,137 @@
       }
     }
   },
-  "ElconControls": {
-    "msg_id": 403105268,
-    "cycle_time": 1000,
-    "description": "Control parameters for Elcon charger communication",
+  "CPUDataLogInfo": {
+    "msg_id": 416,
+    "cycle_time": 100,
+    "description": "BMS cpu and stack information",
     "signals": {
-      "MaxChargingVoltage": {
-        "start_bit": 0,
-        "bits": 16,
+      "CoreCpuUsageMax": {
+        "resolution": 0.1,
         "min": 0,
-        "max": 10000,
-        "scale": 0.1,
-        "offset": 0,
-        "unit": "V",
-        "big_endian": true
+        "max": 100,
+        "unit": "%"
       },
-      "MaxChargingCurrent": {
-        "start_bit": 16,
-        "bits": 16,
+      "CoreCpuUsage": {
+        "resolution": 0.1,
         "min": 0,
-        "max": 1000,
-        "scale": 0.1,
-        "offset": 0,
-        "unit": "A",
-        "big_endian": true
+        "max": 100,
+        "unit": "%"
       },
-      "StopCharging": {
-        "start_bit": 32,
-        "bits": 1,
-        "start_value": 1
+      "TaskRun1HzCpuUsageMax": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRun1HzCpuUsage": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRun1HzStackUsage": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRun100HzCpuUsageMax": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRun100HzCpuUsage": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRun100HzStackUsage": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRun1kHzCpuUsageMax": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRun1kHzCpuUsage": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRun1kHzStackUsage": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRunCanTxCpuUsageMax": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRunCanTxCpuUsage": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRunCanTxStackUsage": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRunCanRxCpuUsageMax": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRunCanRxCpuUsage": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRunCanRxStackUsage": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
       }
     }
   },
-  "HvBatteryProperties": {
-    "msg_id": 455,
-    "cycle_time": 1000,
-    "description": "HV Battery Properties",
+  "PowerLimit": {
+    "msg_id": 422,
+    "cycle_time": 10,
+    "description": "BMS Power Limit",
     "signals": {
-      "HvBatterySoc": {
-        "start_bit": 0,
-        "bits": 8,
+      "ChargePowerLimit": {
+        "resolution": 1,
         "min": 0,
-        "max": 100,
-        "scale": 1,
-        "offset": 0,
-        "unit": "%"
+        "max": 100000,
+        "unit": "W"
+      },
+      "DischargePowerLimit": {
+        "resolution": 1,
+        "min": 0,
+        "max": 100000,
+        "unit": "W"
+      },
+      "ChargePowerLimitCondition": {
+        "enum": "ChargePowerLimitCondition"
+      },
+      "DischargePowerLimitCondition": {
+        "enum": "DischargePowerLimitCondition"
       }
     }
   },
@@ -264,28 +356,35 @@
       }
     }
   },
-  "PowerLimit": {
-    "msg_id": 122,
-    "cycle_time": 10,
-    "description": "BMS Power Limit",
+  "BMSShdnNodeStatus": {
+    "msg_id": 454,
+    "cycle_time": 100,
+    "description": "BMS Shutdown Nodes Status",
     "signals": {
-      "ChargePowerLimit": {
-        "resolution": 1,
+      "HVPShdnOKStatus": {
+        "bits": 1
+      },
+      "HVNShdnOKStatus": {
+        "bits": 1
+      },
+      "ShdnTermOKStatus": {
+        "bits": 1
+      }
+    }
+  },
+  "HvBatteryProperties": {
+    "msg_id": 455,
+    "cycle_time": 1000,
+    "description": "HV Battery Properties",
+    "signals": {
+      "HvBatterySoc": {
+        "start_bit": 0,
+        "bits": 8,
         "min": 0,
-        "max": 100000,
-        "unit": "W"
-      },
-      "DischargePowerLimit": {
-        "resolution": 1,
-        "min": 0,
-        "max": 100000,
-        "unit": "W"
-      },
-      "ChargePowerLimitCondition": {
-        "enum": "ChargePowerLimitCondition"
-      },
-      "DischargePowerLimitCondition": {
-        "enum": "DischargePowerLimitCondition"
+        "max": 100,
+        "scale": 1,
+        "offset": 0,
+        "unit": "%"
       }
     }
   },
@@ -312,246 +411,6 @@
         "max": 9
       },
       "MinCellVoltageIdx": {
-        "resolution": 1,
-        "min": 0,
-        "max": 13
-      }
-    }
-  },
-  "CellVoltageStats_2": {
-    "msg_id": 469,
-    "cycle_time": 1000,
-    "description": "BMS cell voltage stats",
-    "signals": {
-      "PackVoltage": {
-        "resolution": 0.01,
-        "min": 100,
-        "max": 650,
-        "unit": "V"
-      },
-      "MaxCellVoltage": {
-        "resolution": 0.001,
-        "min": 0,
-        "max": 5,
-        "unit": "V"
-      },
-      "MaxCellVoltageSegment": {
-        "resolution": 1,
-        "min": 0,
-        "max": 9
-      },
-      "MaxCellVoltageIdx": {
-        "resolution": 1,
-        "min": 0,
-        "max": 13
-      }
-    }
-  },
-  "CellTempStats": {
-    "msg_id": 463,
-    "cycle_time": 1000,
-    "description": "BMS cell temperature stats",
-    "signals": {
-      "AvgCellTemp": {
-        "resolution": 0.1,
-        "min": 0,
-        "max": 100,
-        "unit": "degC"
-      },
-      "MinCellTemp": {
-        "resolution": 0.1,
-        "min": 0,
-        "max": 100,
-        "unit": "degC"
-      },
-      "MinCellTempSegment": {
-        "resolution": 1,
-        "min": 0,
-        "max": 9
-      },
-      "MinCellTempIdx": {
-        "resolution": 1,
-        "min": 0,
-        "max": 13
-      },
-      "MaxCellTemp": {
-        "resolution": 0.1,
-        "min": 0,
-        "max": 100,
-        "unit": "degC"
-      },
-      "MaxCellTempSegment": {
-        "resolution": 1,
-        "min": 0,
-        "max": 9
-      },
-      "MaxCellTempIdx": {
-        "resolution": 1,
-        "min": 0,
-        "max": 13
-      }
-    }
-  },
-  "AvgVoltageStats": {
-    "msg_id": 464,
-    "allowed_modes": [
-      "DEBUG"
-    ],
-    "cycle_time": 1000,
-    "description": "Average voltages for each segment in the accumulator",
-    "signals": {
-      "Seg0_AvgVoltage": {
-        "resolution": 0.01,
-        "min": 2,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg1_AvgVoltage": {
-        "resolution": 0.01,
-        "min": 2,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg2_AvgVoltage": {
-        "resolution": 0.01,
-        "min": 2,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg3_AvgVoltage": {
-        "resolution": 0.01,
-        "min": 2,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg4_AvgVoltage": {
-        "resolution": 0.01,
-        "min": 2,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg5_AvgVoltage": {
-        "resolution": 0.01,
-        "min": 2,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg6_AvgVoltage": {
-        "resolution": 0.01,
-        "min": 2,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg7_AvgVoltage": {
-        "resolution": 0.01,
-        "min": 2,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg8_AvgVoltage": {
-        "resolution": 0.01,
-        "min": 2,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg9_AvgVoltage": {
-        "resolution": 0.01,
-        "min": 2,
-        "max": 5,
-        "unit": "V"
-      }
-    }
-  },
-  "AvgTempStats": {
-    "msg_id": 465,
-    "cycle_time": 1000,
-    "allowed_modes": [
-      "DEBUG"
-    ],
-    "description": "Average temps for each segment in the accumulator",
-    "signals": {
-      "Seg0_AvgTemp": {
-        "resolution": 0.2,
-        "min": 10,
-        "max": 70,
-        "unit": "degC"
-      },
-      "Seg1_AvgTemp": {
-        "resolution": 0.2,
-        "min": 10,
-        "max": 70,
-        "unit": "degC"
-      },
-      "Seg2_AvgTemp": {
-        "resolution": 0.2,
-        "min": 10,
-        "max": 70,
-        "unit": "degC"
-      },
-      "Seg3_AvgTemp": {
-        "resolution": 0.2,
-        "min": 10,
-        "max": 70,
-        "unit": "degC"
-      },
-      "Seg4_AvgTemp": {
-        "resolution": 0.2,
-        "min": 10,
-        "max": 70,
-        "unit": "degC"
-      },
-      "Seg5_AvgTemp": {
-        "resolution": 0.2,
-        "min": 10,
-        "max": 70,
-        "unit": "degC"
-      },
-      "Seg6_AvgTemp": {
-        "resolution": 0.2,
-        "min": 10,
-        "max": 70,
-        "unit": "degC"
-      },
-      "Seg7_AvgTemp": {
-        "resolution": 0.2,
-        "min": 10,
-        "max": 70,
-        "unit": "degC"
-      },
-      "Seg8_AvgTemp": {
-        "resolution": 0.2,
-        "min": 10,
-        "max": 70,
-        "unit": "degC"
-      },
-      "Seg9_AvgTemp": {
-        "resolution": 0.2,
-        "min": 10,
-        "max": 70,
-        "unit": "degC"
-      }
-    }
-  },
-  "Balancing": {
-    "msg_id": 466,
-    "cycle_time": 1000,
-    "description": "Info about balancing",
-    "signals": {
-      "BalancingState": {
-        "enum": "BalancingState"
-      },
-      "ImbalanceMagnitude": {
-        "resolution": 0.001,
-        "min": 0,
-        "max": 1,
-        "unit": "V"
-      },
-      "BalancingLeaderSegment": {
-        "resolution": 1,
-        "min": 0,
-        "max": 9
-      },
-      "BalancingLeaderCellIdx": {
         "resolution": 1,
         "min": 0,
         "max": 13
@@ -1428,6 +1287,246 @@
       }
     }
   },
+  "CellTempStats": {
+    "msg_id": 463,
+    "cycle_time": 1000,
+    "description": "BMS cell temperature stats",
+    "signals": {
+      "AvgCellTemp": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "degC"
+      },
+      "MinCellTemp": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "degC"
+      },
+      "MinCellTempSegment": {
+        "resolution": 1,
+        "min": 0,
+        "max": 9
+      },
+      "MinCellTempIdx": {
+        "resolution": 1,
+        "min": 0,
+        "max": 13
+      },
+      "MaxCellTemp": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "degC"
+      },
+      "MaxCellTempSegment": {
+        "resolution": 1,
+        "min": 0,
+        "max": 9
+      },
+      "MaxCellTempIdx": {
+        "resolution": 1,
+        "min": 0,
+        "max": 13
+      }
+    }
+  },
+  "AvgVoltageStats": {
+    "msg_id": 464,
+    "allowed_modes": [
+      "DEBUG"
+    ],
+    "cycle_time": 1000,
+    "description": "Average voltages for each segment in the accumulator",
+    "signals": {
+      "Seg0_AvgVoltage": {
+        "resolution": 0.01,
+        "min": 2,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg1_AvgVoltage": {
+        "resolution": 0.01,
+        "min": 2,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg2_AvgVoltage": {
+        "resolution": 0.01,
+        "min": 2,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg3_AvgVoltage": {
+        "resolution": 0.01,
+        "min": 2,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg4_AvgVoltage": {
+        "resolution": 0.01,
+        "min": 2,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg5_AvgVoltage": {
+        "resolution": 0.01,
+        "min": 2,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg6_AvgVoltage": {
+        "resolution": 0.01,
+        "min": 2,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg7_AvgVoltage": {
+        "resolution": 0.01,
+        "min": 2,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg8_AvgVoltage": {
+        "resolution": 0.01,
+        "min": 2,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg9_AvgVoltage": {
+        "resolution": 0.01,
+        "min": 2,
+        "max": 5,
+        "unit": "V"
+      }
+    }
+  },
+  "AvgTempStats": {
+    "msg_id": 465,
+    "cycle_time": 1000,
+    "allowed_modes": [
+      "DEBUG"
+    ],
+    "description": "Average temps for each segment in the accumulator",
+    "signals": {
+      "Seg0_AvgTemp": {
+        "resolution": 0.2,
+        "min": 10,
+        "max": 70,
+        "unit": "degC"
+      },
+      "Seg1_AvgTemp": {
+        "resolution": 0.2,
+        "min": 10,
+        "max": 70,
+        "unit": "degC"
+      },
+      "Seg2_AvgTemp": {
+        "resolution": 0.2,
+        "min": 10,
+        "max": 70,
+        "unit": "degC"
+      },
+      "Seg3_AvgTemp": {
+        "resolution": 0.2,
+        "min": 10,
+        "max": 70,
+        "unit": "degC"
+      },
+      "Seg4_AvgTemp": {
+        "resolution": 0.2,
+        "min": 10,
+        "max": 70,
+        "unit": "degC"
+      },
+      "Seg5_AvgTemp": {
+        "resolution": 0.2,
+        "min": 10,
+        "max": 70,
+        "unit": "degC"
+      },
+      "Seg6_AvgTemp": {
+        "resolution": 0.2,
+        "min": 10,
+        "max": 70,
+        "unit": "degC"
+      },
+      "Seg7_AvgTemp": {
+        "resolution": 0.2,
+        "min": 10,
+        "max": 70,
+        "unit": "degC"
+      },
+      "Seg8_AvgTemp": {
+        "resolution": 0.2,
+        "min": 10,
+        "max": 70,
+        "unit": "degC"
+      },
+      "Seg9_AvgTemp": {
+        "resolution": 0.2,
+        "min": 10,
+        "max": 70,
+        "unit": "degC"
+      }
+    }
+  },
+  "Balancing": {
+    "msg_id": 466,
+    "cycle_time": 1000,
+    "description": "Info about balancing",
+    "signals": {
+      "BalancingState": {
+        "enum": "BalancingState"
+      },
+      "ImbalanceMagnitude": {
+        "resolution": 0.001,
+        "min": 0,
+        "max": 1,
+        "unit": "V"
+      },
+      "BalancingLeaderSegment": {
+        "resolution": 1,
+        "min": 0,
+        "max": 9
+      },
+      "BalancingLeaderCellIdx": {
+        "resolution": 1,
+        "min": 0,
+        "max": 13
+      }
+    }
+  },
+  "CellVoltageStats_2": {
+    "msg_id": 469,
+    "cycle_time": 1000,
+    "description": "BMS cell voltage stats",
+    "signals": {
+      "PackVoltage": {
+        "resolution": 0.01,
+        "min": 100,
+        "max": 650,
+        "unit": "V"
+      },
+      "MaxCellVoltage": {
+        "resolution": 0.001,
+        "min": 0,
+        "max": 5,
+        "unit": "V"
+      },
+      "MaxCellVoltageSegment": {
+        "resolution": 1,
+        "min": 0,
+        "max": 9
+      },
+      "MaxCellVoltageIdx": {
+        "resolution": 1,
+        "min": 0,
+        "max": 13
+      }
+    }
+  },
   "CellTemps_Seg0_Seg3": {
     "msg_id": 470,
     "cycle_time": 1000,
@@ -2298,6 +2397,16 @@
       }
     }
   },
+  "OpenWireCheck": {
+    "msg_id": 477,
+    "cycle_time": 100,
+    "description": "Open wire check status",
+    "signals": {
+      "OpenWireCheckStatus": {
+        "bits": 1
+      }
+    }
+  },
   "AdbmsOwc": {
     "msg_id": 480,
     "cycle_time": 1000,
@@ -2758,142 +2867,36 @@
       }
     }
   },
-  "BMSShdnNodeStatus": {
-    "msg_id": 454,
-    "cycle_time": 100,
-    "description": "BMS Shutdown Nodes Status",
+  "ElconControls": {
+    "msg_id": 403105268,
+    "cycle_time": 1000,
+    "description": "Control parameters for Elcon charger communication",
     "signals": {
-      "HVPShdnOKStatus": {
-        "bits": 1
+      "MaxChargingVoltage": {
+        "start_bit": 0,
+        "bits": 16,
+        "min": 0,
+        "max": 10000,
+        "scale": 0.1,
+        "offset": 0,
+        "unit": "V",
+        "big_endian": true
       },
-      "HVNShdnOKStatus": {
-        "bits": 1
+      "MaxChargingCurrent": {
+        "start_bit": 16,
+        "bits": 16,
+        "min": 0,
+        "max": 1000,
+        "scale": 0.1,
+        "offset": 0,
+        "unit": "A",
+        "big_endian": true
+      },
+      "StopCharging": {
+        "start_bit": 32,
+        "bits": 1,
+        "start_value": 1
       }
     }
-  },
-  "OpenWireCheck": {
-    "msg_id": 477,
-    "cycle_time": 100,
-    "description": "Open wire check status",
-    "signals": {
-      "OpenWireCheckStatus": {
-        "bits": 1
-      }
-    }
-  },
-  "CPUDataLogInfo": {
-    "msg_id": 416,
-    "cycle_time": 100,
-    "description": "BMS cpu and stack information",
-    "signals": {
-      "CoreCpuUsageMax": {
-        "resolution": 0.1,
-        "min": 0,
-        "max": 100,
-        "unit": "%"
-      },
-      "CoreCpuUsage": {
-        "resolution": 0.1,
-        "min": 0,
-        "max": 100,
-        "unit": "%"
-      },
-      "TaskRun1HzCpuUsageMax": {
-        "resolution": 0.1,
-        "min": 0,
-        "max": 100,
-        "unit": "%"
-      },
-      "TaskRun1HzCpuUsage": {
-        "resolution": 0.1,
-        "min": 0,
-        "max": 100,
-        "unit": "%"
-      },
-      "TaskRun1HzStackUsage": {
-        "resolution": 0.1,
-        "min": 0,
-        "max": 100,
-        "unit": "%"
-      },
-      "TaskRun100HzCpuUsageMax": {
-        "resolution": 0.1,
-        "min": 0,
-        "max": 100,
-        "unit": "%"
-      },
-      "TaskRun100HzCpuUsage": {
-        "resolution": 0.1,
-        "min": 0,
-        "max": 100,
-        "unit": "%"
-      },
-      "TaskRun100HzStackUsage": {
-        "resolution": 0.1,
-        "min": 0,
-        "max": 100,
-        "unit": "%"
-      },
-      "TaskRun1kHzCpuUsageMax": {
-        "resolution": 0.1,
-        "min": 0,
-        "max": 100,
-        "unit": "%"
-      },
-      "TaskRun1kHzCpuUsage": {
-        "resolution": 0.1,
-        "min": 0,
-        "max": 100,
-        "unit": "%"
-      },
-      "TaskRun1kHzStackUsage": {
-        "resolution": 0.1,
-        "min": 0,
-        "max": 100,
-        "unit": "%"
-      },
-      "TaskRunCanTxCpuUsageMax": {
-        "resolution": 0.1,
-        "min": 0,
-        "max": 100,
-        "unit": "%"
-      },
-      "TaskRunCanTxCpuUsage": {
-        "resolution": 0.1,
-        "min": 0,
-        "max": 100,
-        "unit": "%"
-      },
-      "TaskRunCanTxStackUsage": {
-        "resolution": 0.1,
-        "min": 0,
-        "max": 100,
-        "unit": "%"
-      },
-      "TaskRunCanRxCpuUsageMax": {
-        "resolution": 0.1,
-        "min": 0,
-        "max": 100,
-        "unit": "%"
-      },
-      "TaskRunCanRxCpuUsage": {
-        "resolution": 0.1,
-        "min": 0,
-        "max": 100,
-        "unit": "%"
-      },
-      "TaskRunCanRxStackUsage": {
-        "resolution": 0.1,
-        "min": 0,
-        "max": 100,
-        "unit": "%"
-      }
-    }
-  },
-  "Bootup": {
-    "msg_id": 499,
-    "cycle_time": null,
-    "description": "Async bootup message!",
-    "signals": {}
   }
 }

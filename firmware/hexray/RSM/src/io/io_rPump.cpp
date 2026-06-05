@@ -6,17 +6,17 @@ namespace io::rPump
 {
 const Potentiometer rPump{ r_pump, POTENTIOMETER_WIPER::WIPER0 };
 
-std::expected<void, ErrorCode> ready()
+result<void> ready()
 {
     return r_pump.isTargetReady();
 }
 
-std::expected<void, ErrorCode> setPercentage(const uint8_t percentage)
+result<void> setPercentage(const uint8_t percentage)
 {
     return rPump.writePercentage(percentage);
 }
 
-std::expected<uint8_t, ErrorCode> readPercentage()
+result<uint8_t> readPercentage()
 {
     return rPump.readPercentage();
 }

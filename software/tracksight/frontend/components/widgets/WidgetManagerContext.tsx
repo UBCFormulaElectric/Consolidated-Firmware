@@ -149,8 +149,8 @@ function removeSignalFromWidget(widget: WidgetData, signalName: string): WidgetD
     };
 }
 
-export function WidgetManager({ children }: { children: ReactNode }) {
-    const [widgets, setWidgets, isInitialized] = useLocalState<WidgetData[]>(LOCAL_STORAGE_KEY, [], WidgetSerialize, WidgetDeserialize);
+export function WidgetManager({ children, storageKey = LOCAL_STORAGE_KEY }: { children: ReactNode; storageKey?: string }) {
+    const [widgets, setWidgets, isInitialized] = useLocalState<WidgetData[]>(storageKey, [], WidgetSerialize, WidgetDeserialize);
 
     const appendWidget = useCallback((newWidget: WidgetData) => {
         setWidgets((prev) => [...prev, { ...newWidget, id: uuidv4() }]);
@@ -187,7 +187,12 @@ export function WidgetManager({ children }: { children: ReactNode }) {
             const nextWidgets = [...prev];
             nextWidgets[widgetIndex] = {
                 ...existingWidget,
-                signals: [...existingWidget.signals, newSignal],
+                // TODO(evan): I'll fix these generics in the future 🙏🏽 promise.
+                // NOTE(evan): any cast shifts the burden of type safety to the caller, which is bad
+                //             so it should be fixed eventually, but currently the only callers
+                //             are the enum and numerical signal pickers which are fully sound
+                //             and already guard their own types correctly.
+                signals: [...existingWidget.signals, newSignal] as any,
             };
             return nextWidgets;
         });

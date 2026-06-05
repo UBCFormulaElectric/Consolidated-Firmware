@@ -38,7 +38,7 @@ class device
     const uint8_t  targetAddress;
     const uint32_t timeoutMs;
 
-    [[nodiscard]] std::expected<void, ErrorCode> waitForNotification() const;
+    [[nodiscard]] result<void> waitForNotification() const;
 
   public:
     consteval explicit device(const i2c::bus &bus_in, const uint8_t targetAddr_in, const uint32_t timeoutMs_in)
@@ -49,7 +49,7 @@ class device
      * @brief Check if device connected to the given I2C interface is ready for communication.
      * @return EXIT_CODE_OK if connected device is ready to communicate over I2C.
      */
-    [[nodiscard]] std::expected<void, ErrorCode> isTargetReady() const
+    [[nodiscard]] result<void> isTargetReady() const
     {
         return utils::convertHalStatus(HAL_I2C_IsDeviceReady(
             &d_bus.handle, static_cast<uint16_t>(targetAddress << 1), NUM_DEVICE_READY_TRIALS, timeoutMs));
@@ -61,7 +61,7 @@ class device
      * from the device connected to the I2C interface.
      * @return EXIT_CODE_OK if data is transmitted successfully.
      */
-    [[nodiscard]] std::expected<void, ErrorCode> receive(std::span<uint8_t> rx_buffer) const;
+    [[nodiscard]] result<void> receive(std::span<uint8_t> rx_buffer) const;
 
     /**
      * @brief Transmit data to the device connected to the given I2C interface.
@@ -71,7 +71,7 @@ class device
      * (true).
      * @return EXIT_CODE_OK if data is transmitted successfully.
      */
-    [[nodiscard]] std::expected<void, ErrorCode> transmit(std::span<const uint8_t> tx_buffer, bool read = true) const;
+    [[nodiscard]] result<void> transmit(std::span<const uint8_t> tx_buffer, bool read = true) const;
 
     /**
      * @brief Read an amount of data from a specific memory address
@@ -79,7 +79,7 @@ class device
      * @param rx_buffer A data buffer containing the data transmitted from the device connected to the I2C interface.
      * @return EXIT_CODE_OK if data is transmitted successfully.
      */
-    [[nodiscard]] std::expected<void, ErrorCode> memoryRead(uint16_t mem_addr, std::span<uint8_t> rx_buffer) const;
+    [[nodiscard]] result<void> memoryRead(uint16_t mem_addr, std::span<uint8_t> rx_buffer) const;
 
     /**
      * @brief Write an amount of data to a specific memory address
@@ -88,8 +88,7 @@ class device
      * to the device connected to the I2C interface.
      * @return EXIT_CODE_OK if data is read successfully.
      */
-    [[nodiscard]] std::expected<void, ErrorCode>
-        memoryWrite(uint16_t mem_addr, std::span<const uint8_t> tx_buffer) const;
+    [[nodiscard]] result<void> memoryWrite(uint16_t mem_addr, std::span<const uint8_t> tx_buffer) const;
 };
 
 /**

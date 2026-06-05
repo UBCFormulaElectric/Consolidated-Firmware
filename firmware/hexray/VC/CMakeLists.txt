@@ -29,6 +29,7 @@ set(IO_SHARED_SRCS
         "${SHARED_IO_INCLUDE_DIR_CPP}/efuse/io_efuse_TI_TPS25.cpp"
         "${SHARED_IO_INCLUDE_DIR_CPP}/util/"
         "${SHARED_IO_INCLUDE_DIR_CPP}/io_time.cpp"
+        "${SHARED_IO_INCLUDE_DIR_CPP}/io_shdnLoopNode.cpp"
 )
 set(IO_INCLUDE_DIRS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io"
@@ -48,7 +49,6 @@ set(HW_SHARED_SRCS
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_pwmOutput.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_hardFaultHandler.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_bootup.cpp"
-        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_watchdog.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_resetReason.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_fmac.cpp"
 )
@@ -184,6 +184,7 @@ elseif ("${TARGET}" STREQUAL "test")
             "${SHARED_FAKES_DIR_CPP}/io_imu.cpp"
             "${SHARED_FAKES_DIR_CPP}/io_time.cpp"
             "${SHARED_FAKES_DIR_CPP}/io_pump.cpp"
+            "${SHARED_FAKES_DIR_CPP}/io_shdnLoopNode.cpp"
     )
     set(INCLUDE_DIRS
             "${CMAKE_CURRENT_SOURCE_DIR}/test"
