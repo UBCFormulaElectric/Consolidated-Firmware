@@ -282,10 +282,10 @@ TEST_F(VCStateMachineTest, PcmUnderVoltageRetriesThenFaults)
         io::pcm::set(true);
         LetTimePass(110);
     }
-            //LetTimePass(10);
+    // LetTimePass(10);
 
-        EXPECT_TRUE(io::pcm::enabled());
-        ASSERT_STATE_EQ(app::states::pcmOn_state);
+    EXPECT_TRUE(io::pcm::enabled());
+    ASSERT_STATE_EQ(app::states::pcmOn_state);
 
     LetTimePass(110);
     EXPECT_FALSE(io::pcm::enabled());

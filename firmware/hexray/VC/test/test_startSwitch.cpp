@@ -18,7 +18,7 @@ TEST_F(VCStartSwitchTest, test_rising_edge_from_off_to_on)
     LetTimePass(10);
     ASSERT_FALSE(app::startSwitch::hasRisingEdge());
     app::can_rx::CRIT_StartButton_update(app::can_utils::SwitchState::ON);
-    //LetTimePass(10);
+    // LetTimePass(10);
     ASSERT_TRUE(app::startSwitch::hasRisingEdge());
 }
 

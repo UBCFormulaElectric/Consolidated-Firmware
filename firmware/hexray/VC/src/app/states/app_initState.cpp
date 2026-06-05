@@ -30,7 +30,7 @@ namespace initState
                                                                                } } };
     static void                                        runOnEntry(void)
     {
-            LOG_INFO("entering init state!");
+        LOG_INFO("entering init state!");
 
         app::powerManager::updateConfig(power_manager_state);
         app::can_tx::VC_State_set(VCState::VC_INIT_STATE);
@@ -62,9 +62,9 @@ namespace initState
         }
     }
 
-    static void runOnExit(void) {
-                LOG_INFO("exiting init state!");
-
+    static void runOnExit(void)
+    {
+        LOG_INFO("exiting init state!");
     }
 } // namespace initState
 

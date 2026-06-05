@@ -15,7 +15,7 @@ namespace bmsOnStates
 
     static void runOnEntry(void)
     {
-                LOG_INFO("entering bms on state!");
+        LOG_INFO("entering bms on state!");
 
         static const app::powerManager::PowerManagerConfig power_manager_state = { .efuse_configs = { {
                                                                                        { false, 0, 5 }, // rr_pump
@@ -49,9 +49,9 @@ namespace bmsOnStates
         }
     }
 
-    static void runOnExit(void) {
-                LOG_INFO("exiting bms on state!");
-
+    static void runOnExit(void)
+    {
+        LOG_INFO("exiting bms on state!");
     }
 } // namespace bmsOnStates
 
