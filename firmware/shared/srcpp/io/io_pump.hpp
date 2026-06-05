@@ -21,12 +21,12 @@ class pump
     constexpr explicit pump() {}
 #endif
 
-    std::expected<void, ErrorCode>    setPercentage(uint8_t percentage) const;
-    std::expected<uint8_t, ErrorCode> getPercentage() const;
-    std::expected<void, ErrorCode>    enable(bool enable) const;
-    std::expected<bool, ErrorCode>    isEnabled() const;
-    std::expected<bool, ErrorCode>    ok() const;
-    std::expected<bool, ErrorCode>    isReady() const;
+    result<void>    setPercentage(uint8_t percentage) const;
+    result<uint8_t> getPercentage() const;
+    result<void>    enable(bool enable) const;
+    result<bool>    isEnabled() const;
+    result<bool>    ok() const;
+    result<bool>    isReady() const;
 
   private:
     static constexpr uint8_t logicalToHw(bool invert, uint8_t percent)

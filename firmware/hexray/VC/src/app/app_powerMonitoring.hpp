@@ -5,5 +5,5 @@
 
 namespace app::powerMonitoring
 {
-std::expected<void, ErrorCode> update();
+result<void> update();
 }

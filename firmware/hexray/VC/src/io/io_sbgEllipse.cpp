@@ -194,7 +194,7 @@ static void processMsg_EkfNavVelandPos(const SbgEComLogUnion *log_data)
 
 /* ------------------------- Public Function Definitions -------------------------- */
 
-std::expected<void, ErrorCode> init()
+result<void> init()
 {
     memset(&sensor_data, 0, sizeof(SensorData));
 

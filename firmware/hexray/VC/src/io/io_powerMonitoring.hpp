@@ -4,21 +4,33 @@
 #include <span>
 #include "util_errorCodes.hpp"
 
-enum AlertOvUvBits : uint8_t
+union AlertOvUvBits
 {
-    ALERT_OV_CH1 = (1u << 0),
-    ALERT_OV_CH2 = (1u << 1),
-    ALERT_OV_CH3 = (1u << 2),
-    ALERT_OV_CH4 = (1u << 3),
-    ALERT_UV_CH1 = (1u << 4),
-    ALERT_UV_CH2 = (1u << 5),
-    ALERT_UV_CH3 = (1u << 6),
-    ALERT_UV_CH4 = (1u << 7),
+    struct __attribute__((packed))
+    {
+        uint32_t CH4OV : 1;
+        uint32_t CH3OV : 1;
+        uint32_t CH2OV : 1;
+        uint32_t CH1OV : 1;
+        uint32_t CH4UV : 1;
+        uint32_t CH3UV : 1;
+        uint32_t CH2UV : 1;
+        uint32_t CH1UV : 1;
+    } bits;
+    uint8_t alert_status;
+#ifdef TARGET_EMBEDDED
+    static_assert(sizeof(bits) == sizeof(alert_status));
+#endif
 };
+
+/**
+ * NOTE: CH1 is meant to represent PCM and CH4 is meant to represent BOOST, however the nets were swapped on
+ * schematic, so I am js gonna swap in app layer
+ */
 
 enum Channel : uint8_t
 {
-    CH1,
+    CH1 = 1,
     CH2,
     CH3,
     CH4
@@ -26,12 +38,12 @@ enum Channel : uint8_t
 namespace io::powerMonitoring
 {
 // bitmask: OV (bits 0,1, 2, 3), UV (bits 4, 5, 6, 7)
-std::expected<void, ErrorCode>    refresh();
-std::expected<void, ErrorCode>    init();
-std::expected<float, ErrorCode>   read_voltage(Channel ch);
-std::expected<float, ErrorCode>   read_current(Channel ch);
-std::expected<float, ErrorCode>   read_power(Channel ch);
-std::expected<uint8_t, ErrorCode> read_alert_status();
-std::expected<bool, ErrorCode>    is_alert_asserted();
-std::expected<void, ErrorCode>    monitor_power_inputs();
+result<void>    refresh();
+result<void>    init();
+result<float>   read_voltage(Channel ch);
+result<float>   read_current(Channel ch);
+result<float>   read_power(Channel ch);
+result<uint8_t> read_alert_status();
+result<bool>    is_alert_asserted();
+result<void>    monitor_power_inputs();
 } // namespace io::powerMonitoring

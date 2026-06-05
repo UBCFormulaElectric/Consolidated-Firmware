@@ -83,7 +83,7 @@ namespace imus
 {
     imu imu_rear;
 
-    std::expected<void, ErrorCode> init()
+    result<void> init()
     {
         return imu_rear.init();
     }
@@ -129,12 +129,12 @@ namespace suspension
 
 namespace rPump
 {
-    std::expected<void, ErrorCode> setPercentage(uint8_t value)
+    result<void> setPercentage(uint8_t value)
     {
         return {};
     }
 
-    std::expected<void, ErrorCode> readPercentage(uint8_t &dest)
+    result<void> readPercentage(uint8_t &dest)
     {
         dest = fakes::io::rPump::percentage;
         return {};
@@ -150,7 +150,7 @@ namespace tireTemp
 } // namespace tireTemp
 } // namespace io
 
-const io::shdn::node rl_int_3v3_sens(true, app::can_tx::RSM_RearLeftMotorInterlock_set);
+const io::shdn::node rl_int_3v3_sens(app::can_tx::RSM_RearLeftMotorInterlock_set);
 
 io::queue<io::CanMsg, 128> can_tx_queue{ "" };
 io::queue<io::CanMsg, 128> can_rx_queue{ "" };

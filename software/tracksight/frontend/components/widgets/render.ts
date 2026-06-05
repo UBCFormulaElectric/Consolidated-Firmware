@@ -6,6 +6,7 @@ import { ENUM_COLORS } from "@/lib/constants";
 import { ChartLayout, LODAwareNumericalSeries, LODAwareSeries } from "./CanvasChartTypes";
 // utils
 import { bisect } from "@/lib/bisect";
+import { isEnumSignalMetadata } from "@/lib/types/Signal";
 import { EnumTimelineWidgetData, NumericalGraphWidgetData, WidgetData } from "@/lib/types/Widget";
 
 // TODO reduce to bisect right
@@ -41,16 +42,18 @@ function binarySearchForFirstEnumIndex(timestamps: number[], targetTime: number)
 
 // constants
 const TIME_FORMATTER = new Intl.DateTimeFormat(undefined, {
-    hour: "numeric",
+    hour: "2-digit",
+    hourCycle: "h23",
     minute: "2-digit",
     second: "2-digit",
-    hour12: true,
+    timeZone: "UTC",
 });
 
 const DATE_FORMATTER = new Intl.DateTimeFormat(undefined, {
-    year: "numeric",
-    month: "short",
     day: "2-digit",
+    month: "short",
+    timeZone: "UTC",
+    year: "numeric",
 });
 export const CHART_PADDING = { top: 15, right: 0, bottom: 40, left: 60 };
 
@@ -111,18 +114,20 @@ function render_enum(
     // const legendY = CHART_PADDING.top;
     // const allEnumValues = new Set<string>();
 
+    const hoverValues: Array<{ name: string; value: string }> = [];
+
     let currentStripY = CHART_PADDING.top + LEGEND_HEIGHT;
     for (let series_idx = 0; series_idx < widgetConfig.signals.length; series_idx++) {
         const series = widgetConfig.data[series_idx];
         const selectedLOD = series.lods[selectLOD(series, visibleEndTime - visibleStartTime, width)];
         const { data: seriesData, timestamps: seriesTimestamps } = selectedLOD;
-        const signalConfig = signalConfigByName.get(series.label);
+        const signalMetadata = signalConfigByName.get(series.label);
         const isHovered = hoveredSignal?.current === series.label;
 
-        context.fillStyle = "#000000";
-        context.textAlign = "right";
-        context.textBaseline = "middle";
-        context.fillText(series.label, CHART_PADDING.left - 10, currentStripY + ENUM_STRIP_HEIGHT / 2);
+        context.beginPath();
+        context.fillStyle = widgetConfig.options.colorPalette[widgetConfig.signals[series_idx]?.name ?? ""]?.color.hex() ?? "#333";
+        context.arc(CHART_PADDING.left / 2, currentStripY + ENUM_STRIP_HEIGHT / 2, 6, 0, Math.PI * 2);
+        context.fill();
 
         for (let data_idx = binarySearchForFirstEnumIndex(seriesTimestamps, visibleStartTime); data_idx <= binarySearchForFirstEnumIndex(seriesTimestamps, visibleEndTime); data_idx++) {
             const dataStartTime = seriesTimestamps[data_idx];
@@ -159,13 +164,34 @@ function render_enum(
             context.strokeRect(CHART_PADDING.left, currentStripY, width - CHART_PADDING.left - CHART_PADDING.right, ENUM_STRIP_HEIGHT);
         }
 
+        if (hoverTime !== null && seriesTimestamps.length > 0) {
+            const idx = binarySearchForFirstEnumIndex(seriesTimestamps, hoverTime);
+            let closestIdx = idx;
+
+            if (idx >= seriesTimestamps.length) {
+                closestIdx = seriesTimestamps.length - 1;
+            } else if (idx > 0) {
+                const diffLeft = Math.abs(seriesTimestamps[idx - 1] - hoverTime);
+                const diffRight = Math.abs(seriesTimestamps[idx] - hoverTime);
+                closestIdx = diffLeft < diffRight ? idx - 1 : idx;
+            }
+
+            const value = seriesData[closestIdx];
+            const hoverValue = signalMetadata ? (isEnumSignalMetadata(signalMetadata) ? Object.entries(signalMetadata?.enum_signal?.enum_values || {}).find(([_, v]) => v === value)?.[0] : ["false", "true"][value] || null) : null;
+
+            hoverValues.push({
+                name: signalMetadata?.name || "Unknown Signal",
+                value: hoverValue !== null ? String(hoverValue) : "N/A",
+            });
+        } else {
+            hoverValues.push({ name: signalMetadata?.name || "N/A", value: "N/A" });
+        }
+
         // move to the next strip
         currentStripY += ENUM_STRIP_HEIGHT + ENUM_STRIP_GAP;
     }
 
-    // move to the next strip
-    currentStripY += ENUM_STRIP_HEIGHT + ENUM_STRIP_GAP;
-    return [];
+    return hoverValues;
 }
 
 function render_numerical(context: CanvasRenderingContext2D, width: number, chartWidth: number, chartHeight: number, numericalTop: number, widgetConfig: NumericalGraphWidgetData, visibleStartTime: number, visibleEndTime: number, timeToX: (time: number) => number, hoverTime: number | null, hoveredSignal: RefObject<string | null> | undefined): Array<{ name: string; value: string }> | null {
@@ -259,7 +285,7 @@ function render_numerical(context: CanvasRenderingContext2D, width: number, char
         for (let i = left - 1; i <= right + 1; i++) {
             const time = lod.timestamps[i];
             const value = lod.data.get(i);
-            const x = timeToX(time)
+            const x = timeToX(time);
             const y = numericalTop + chartHeight - ((value - all_series_min) / (all_series_max - all_series_min)) * chartHeight;
 
             if (!initialMove) {
@@ -317,6 +343,21 @@ function render_numerical(context: CanvasRenderingContext2D, width: number, char
     return [];
 }
 
+export function render_hover_line(context: CanvasRenderingContext2D, width: number, height: number, hoverTime: number, timeToX: (t: number) => number, includeTopPaddingInOffset = true) {
+    const xPosition = timeToX(hoverTime);
+
+    if (xPosition < CHART_PADDING.left || xPosition > width - CHART_PADDING.right) return;
+
+    context.setLineDash([4, 4]);
+    context.strokeStyle = "rgba(0,0,0,0.6)";
+    context.lineWidth = 1;
+    context.beginPath();
+    context.moveTo(xPosition, includeTopPaddingInOffset ? CHART_PADDING.top : 0);
+    context.lineTo(xPosition, includeTopPaddingInOffset ? height - CHART_PADDING.bottom : height);
+    context.stroke();
+    context.setLineDash([]);
+}
+
 export function render_tooltip(
     context: CanvasRenderingContext2D,
     width: number,
@@ -329,23 +370,15 @@ export function render_tooltip(
 ) {
     const xPosition = timeToX(hoverTime);
 
-    if (xPosition < CHART_PADDING.left ||xPosition > width - CHART_PADDING.right) {
+    if (xPosition < CHART_PADDING.left || xPosition > width - CHART_PADDING.right) {
         return;
     }
 
     const hoverDate = new Date(hoverTime);
-    const ms = hoverDate.getMilliseconds().toString().padStart(3, "0");
-    const time_string = `${DATE_FORMATTER.format(hoverDate)} ${TIME_FORMATTER.format(hoverDate)}.${ms}`;
+    const ms = hoverDate.getUTCMilliseconds().toString().padStart(3, "0");
+    const time_string = `${DATE_FORMATTER.format(hoverDate)} ${TIME_FORMATTER.format(hoverDate)}.${ms} UTC`;
     const tooltip_lines = [time_string, ...hover_value.map(({ name, value }) => `${name}: ${value}`)];
-
-    context.setLineDash([4, 4]);
-    context.strokeStyle = "rgba(0,0,0,0.6)";
-    context.lineWidth = 1;
-    context.beginPath();
-    context.moveTo(xPosition, includeTopPaddingInOffset ? CHART_PADDING.top : 0);
-    context.lineTo(xPosition, includeTopPaddingInOffset ? height - CHART_PADDING.bottom : height); 
-    context.stroke();
-    context.setLineDash([]);
+    render_hover_line(context, width, height, hoverTime, timeToX, includeTopPaddingInOffset);
 
     const font = "12px sans-serif";
     context.font = font;
@@ -410,9 +443,6 @@ export default function render(context: CanvasRenderingContext2D, width: number,
     let hover_value: Array<{ name: string; value: string }> | null = null;
 
     if (chartData.type === "enumTimeline") {
-        const LEGEND_HEIGHT = 30;
-        const ENUM_STRIP_HEIGHT = 40;
-        const ENUM_STRIP_GAP = 40;
         hover_value = render_enum(
             context,
             width,
@@ -421,9 +451,9 @@ export default function render(context: CanvasRenderingContext2D, width: number,
             visibleEndTime,
             0, // TODO
             timeToX,
-            LEGEND_HEIGHT,
-            ENUM_STRIP_HEIGHT,
-            ENUM_STRIP_GAP,
+            30, // legend height
+            40, // enum strip height
+            40, // enum strip gap
             hoverTime,
             hoveredSignal
         );
@@ -458,8 +488,8 @@ export default function render(context: CanvasRenderingContext2D, width: number,
         if (x < CHART_PADDING.left - 10 || x > width - CHART_PADDING.right + 10) continue;
 
         const dateObj = new Date(tick);
-        const msLabel = dateObj.getMilliseconds().toString().padStart(3, "0");
-        const timeLabel = `${TIME_FORMATTER.format(dateObj)}.${msLabel}`;
+        const msLabel = dateObj.getUTCMilliseconds().toString().padStart(3, "0");
+        const timeLabel = `${TIME_FORMATTER.format(dateObj)}.${msLabel} UTC`;
         const dateLabel = DATE_FORMATTER.format(dateObj);
 
         context.fillText(timeLabel, x, height - CHART_PADDING.bottom + 8);

@@ -28,12 +28,13 @@
  *         In case it was not clear, IWDG_RESET_FREQUENCY = 5 means that the
  *         IWDG has a frequency of 5Hz, or a period of 200ms.
  */
-
-#include <cstdint>
-#include <cassert>
-#include <cmsis_os.h>
 #include "io_log.hpp"
+#include "hw_error.hpp"
+#include "hw_bootup.hpp"
+
+#include <cmsis_os.h>
 #include <array>
+#include <optional>
 #ifdef STM32H562xx
 #include <stm32h5xx_hal.h>
 #include <stm32h5xx_hal_iwdg.h>
@@ -44,66 +45,58 @@
 
 namespace hw::watchdog
 {
-struct WatchdogInstance
+struct instance
 {
-    // Is this watchdog ready to be used?
-    bool initialized;
     // The tick period of the task being monitored.
     uint32_t period;
     // The current deadline of the task being monitored.
     uint32_t deadline;
     // Has the task being monitored checked in for the current period?
-    bool check_in_status;
+    bool check_in_status = true;
     // ID to identify the task this watchdog monitors (for debugging only).
-    xTaskHandle task_id;
+    TaskHandle_t task_id = xTaskGetCurrentTaskHandle();
 
-    explicit WatchdogInstance(const uint32_t period_in_ticks)
-      : initialized(true),
-        period(period_in_ticks),
-        deadline(period_in_ticks),
-        check_in_status(true),
-        task_id(xTaskGetCurrentTaskHandle())
-    {
-    }
+    explicit instance(const uint32_t period_in_ticks) : period(period_in_ticks), deadline(period_in_ticks) {}
 
     /**
      * Every periodic task monitored by a software watchdog must call this at the
      * end of each period.
-     * @param watchdog: Handle to the software watchdog
      */
-    void checkIn()
-    {
-        assert(initialized == true);
-        check_in_status = true;
-    }
+    void checkIn() { check_in_status = true; }
 };
-class monitor
+
+template <size_t WATCHDOG_INSTANCES> class monitor
 {
-  private:
-    constexpr static int                                          MAX_WATCHDOG_INSTANCES = 10;
-    static std::array<WatchdogInstance *, MAX_WATCHDOG_INSTANCES> watchdogs;
-    static bool                                                   timeout_detected;
+    std::array<std::optional<instance>, WATCHDOG_INSTANCES> watchdogs{};
+    bool                                                    timeout_detected = false;
 
-    WatchdogInstance   *watchdog_instance;
     IWDG_HandleTypeDef &handle;
-    HAL_StatusTypeDef (*refresh_watchdog)(IWDG_HandleTypeDef *){};
-    void (*timeout_callback)(WatchdogInstance *){};
-
-    // Function to refresh hardware watchdog
-    void refresh_hardware_watchdog() { refresh_watchdog(&handle); }
+    void (*timeout_callback)(const instance &){};
 
   public:
-    constexpr explicit monitor(
-        WatchdogInstance   *watchdog_instance_in,
-        IWDG_HandleTypeDef &handle_in,
-        HAL_StatusTypeDef (*refresh_watchdog_in)(IWDG_HandleTypeDef *),
-        void (*timeout_callback_in)(WatchdogInstance *) = nullptr)
-      : watchdog_instance(watchdog_instance_in),
-        handle(handle_in),
-        refresh_watchdog(refresh_watchdog_in),
-        timeout_callback(timeout_callback_in){};
+    constexpr explicit monitor(IWDG_HandleTypeDef &handle_in, void (*timeout_callback_in)(const instance &) = nullptr)
+      : handle(handle_in), timeout_callback(timeout_callback_in){};
 
-    void registerWatchdogInstance();
+    /**
+     * Note that this function must be called from the task being monitored.
+     * This is important because the instance is instantiated with the current (monitored) task's ID for debugging
+     * purposes.
+     * @param period The tick period of the task being monitored.
+     * @return An instance of the software watchdog monitoring the task that calls this function.
+     */
+    instance &spawn_instance(const uint32_t period)
+    {
+        for (std::optional<instance> &i : watchdogs)
+        {
+            if (not i.has_value())
+            {
+                i = instance(period);
+                return i.value();
+            }
+        }
+        LOG_ERROR("Failed to register watchdog instance. Maximum number of watchdog instances reached.");
+        Error_Handler();
+    }
 
     /**
      * Check if any software watchdog has expired.
@@ -113,7 +106,66 @@ class monitor
      * @note  This function must be called periodically. It is good practice to call
      *        it from the system tick handler.
      */
-    void checkForTimeouts();
+    void checkForTimeouts()
+    {
+        // If a timeout is detected, let the hardware watchdog timeout reset the
+        // system. We don't reboot immediately because we need some time to log
+        // information for further debugging.
+        if (timeout_detected)
+        {
+            return;
+        }
+
+        for (std::optional<instance> &instance : watchdogs)
+        {
+            if (not instance.has_value())
+                continue;
+
+            if (osKernelGetTickCount() >= instance->deadline)
+            {
+                // Check if the check-in status is set
+                if (instance->check_in_status)
+                {
+                    // Clear the check-in status
+                    instance->check_in_status = false;
+
+                    // Update deadline
+                    instance->deadline += instance->period;
+#ifndef WATCHDOG_DISABLED
+                    HAL_IWDG_Refresh(&handle);
+#endif
+                }
+                else
+                {
+                    TaskStatus_t status;
+                    vTaskGetInfo(instance->task_id, &status, pdFALSE, eRunning);
+
+                    LOG_ERROR(
+                        "Software watchdog detected a timeout in a task, letting hardware watchdog reset the MCU (task "
+                        "= "
+                        "%s, "
+                        "id = %d)",
+                        pcTaskGetTaskName(instance->task_id), status.xTaskNumber);
+
+#ifndef NO_BOOTLOADER
+                    const bootup::BootRequest request = {
+                        .target        = bootup::BootTarget::APP,
+                        .context       = bootup::BootContext::WATCHDOG_TIMEOUT,
+                        ._unused       = 0xffff,
+                        .context_value = status.xTaskNumber,
+                    };
+                    bootup::setBootRequest(request);
+#endif
+                    timeout_detected = true;
+                    if (timeout_callback != nullptr)
+                    {
+                        timeout_callback(*instance);
+                    }
+                    return;
+                }
+            }
+        }
+    }
 };
 } // namespace hw::watchdog
 // namespace hw::watchdog
