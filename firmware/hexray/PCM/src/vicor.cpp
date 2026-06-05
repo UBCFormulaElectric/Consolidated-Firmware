@@ -6,8 +6,8 @@
 
 enum class VicorPage
 {
-    CONFIG  = 0X00,
-    TELEM   = 0X01,
+    LV_SIDE = 0X00, // aka BCM
+    HV_SIDE = 0X01, // aka BCM controller
     UNKNOWN = 0X02,
 };
 
@@ -29,6 +29,7 @@ static constexpr uint8_t CMD_READ_VOUT           = 0x8B;
 static constexpr uint8_t CMD_READ_IOUT           = 0x8C;
 static constexpr uint8_t CMD_READ_TEMP           = 0x8D;
 static constexpr uint8_t CMD_READ_POUT           = 0x96;
+static constexpr uint8_t CMD_MFR_SERIAL          = 0x9E;
 
 #define DECODE(m, Y, R, b) ((1.0f / m) * (Y * R - b))
 #define DECODE_V(Y) (DECODE(1.0f, Y, 1e-1f, 0))
@@ -37,7 +38,6 @@ static constexpr uint8_t CMD_READ_POUT           = 0x96;
 #define DECODE_POUT(Y) (DECODE(1.0f, Y, 1e-0f, 0))
 #define DECODE_TEMP(Y) (DECODE(1.0f, Y, 1e-0f, 0))
 
-// static I2cBus    vicor_bus    = { .handle = &hi2c1 };
 static hw::i2c::bus    vicor_bus(hi2c1);
 static hw::i2c::device vicor_i2c{ vicor_bus, I2C_ADDR, I2C_TIMEOUT_MS };
 static auto            current_page = VicorPage::UNKNOWN;
@@ -75,7 +75,7 @@ static result<void> readWord(const uint8_t cmd, uint16_t &data)
 
 static result<void> enforcePage(const VicorPage page)
 {
-    assert(page == VicorPage::CONFIG || page == VicorPage::TELEM);
+    assert(page == VicorPage::LV_SIDE || page == VicorPage::HV_SIDE);
 
     if (page != current_page)
     {
@@ -88,24 +88,23 @@ static result<void> enforcePage(const VicorPage page)
 
 result<void> vicor_operation(const bool enable)
 {
-    RETURN_IF_ERR(enforcePage(VicorPage::CONFIG));
+    RETURN_IF_ERR(enforcePage(VicorPage::HV_SIDE));
 
     return writeByte(CMD_OPERATION, static_cast<uint8_t>(enable << 7));
 }
 
-result<void> vicor_read_operation()
+result<bool> vicor_read_operation()
 {
-    RETURN_IF_ERR(enforcePage(VicorPage::TELEM));
+    RETURN_IF_ERR(enforcePage(VicorPage::LV_SIDE));
 
     uint8_t op;
     RETURN_IF_ERR(readByte(CMD_OPERATION, op));
-    LOG_INFO("Operation: %s", (op & 0x80) ? "ON" : "OFF");
-    return {};
+    return (op & 0x80) != 0;
 }
 
 result<void> vicor_clearFaults()
 {
-    RETURN_IF_ERR(enforcePage(VicorPage::CONFIG));
+    RETURN_IF_ERR(enforcePage(VicorPage::LV_SIDE));
 
     constexpr uint8_t cmd = CMD_CLEAR_FAULTS;
     return vicor_i2c.transmit(std::span(&cmd, 1));
@@ -113,7 +112,7 @@ result<void> vicor_clearFaults()
 
 result<float> vicor_readVin()
 {
-    RETURN_IF_ERR(enforcePage(VicorPage::TELEM));
+    RETURN_IF_ERR(enforcePage(VicorPage::HV_SIDE));
 
     uint16_t word = 0;
     RETURN_IF_ERR(readWord(CMD_READ_VIN, word));
@@ -122,7 +121,7 @@ result<float> vicor_readVin()
 
 result<float> vicor_readIin()
 {
-    RETURN_IF_ERR(enforcePage(VicorPage::TELEM));
+    RETURN_IF_ERR(enforcePage(VicorPage::HV_SIDE));
 
     uint16_t word = 0;
     RETURN_IF_ERR(readWord(CMD_READ_IIN, word));
@@ -131,7 +130,7 @@ result<float> vicor_readIin()
 
 result<float> vicor_readVout()
 {
-    RETURN_IF_ERR(enforcePage(VicorPage::TELEM));
+    RETURN_IF_ERR(enforcePage(VicorPage::HV_SIDE));
 
     uint16_t word = 0;
     RETURN_IF_ERR(readWord(CMD_READ_VOUT, word));
@@ -140,7 +139,7 @@ result<float> vicor_readVout()
 
 result<float> vicor_readIout()
 {
-    RETURN_IF_ERR(enforcePage(VicorPage::TELEM));
+    RETURN_IF_ERR(enforcePage(VicorPage::HV_SIDE));
 
     uint16_t word = 0;
     RETURN_IF_ERR(readWord(CMD_READ_IOUT, word));
@@ -149,7 +148,7 @@ result<float> vicor_readIout()
 
 result<float> vicor_readTemp()
 {
-    RETURN_IF_ERR(enforcePage(VicorPage::TELEM));
+    RETURN_IF_ERR(enforcePage(VicorPage::HV_SIDE));
 
     uint16_t word = 0;
     RETURN_IF_ERR(readWord(CMD_READ_TEMP, word));
@@ -158,7 +157,7 @@ result<float> vicor_readTemp()
 
 result<float> vicor_readPout()
 {
-    RETURN_IF_ERR(enforcePage(VicorPage::TELEM));
+    RETURN_IF_ERR(enforcePage(VicorPage::HV_SIDE));
 
     uint16_t word = 0;
     RETURN_IF_ERR(readWord(CMD_READ_POUT, word));
@@ -167,7 +166,7 @@ result<float> vicor_readPout()
 
 result<void> vicor_readSerial()
 {
-    RETURN_IF_ERR(enforcePage(VicorPage::CONFIG));
+    RETURN_IF_ERR(enforcePage(VicorPage::LV_SIDE));
 
     uint16_t word;
     RETURN_IF_ERR(readWord(0x9D, word));
@@ -188,7 +187,7 @@ result<void> vicor_readSerial()
 
 result<uint16_t> vicor_statusWord()
 {
-    RETURN_IF_ERR(enforcePage(VicorPage::CONFIG));
+    RETURN_IF_ERR(enforcePage(VicorPage::LV_SIDE));
 
     uint16_t status;
     RETURN_IF_ERR(readWord(CMD_STATUS_WORD, status));
@@ -197,7 +196,7 @@ result<uint16_t> vicor_statusWord()
 
 result<uint8_t> vicor_statusIout()
 {
-    RETURN_IF_ERR(enforcePage(VicorPage::CONFIG));
+    RETURN_IF_ERR(enforcePage(VicorPage::LV_SIDE));
 
     uint8_t status;
     RETURN_IF_ERR(readByte(CMD_STATUS_IOUT, status));
@@ -206,7 +205,7 @@ result<uint8_t> vicor_statusIout()
 
 result<uint8_t> vicor_statusInput()
 {
-    RETURN_IF_ERR(enforcePage(VicorPage::CONFIG));
+    RETURN_IF_ERR(enforcePage(VicorPage::LV_SIDE));
 
     uint8_t status;
     RETURN_IF_ERR(readByte(CMD_STATUS_INPUT, status));
@@ -215,7 +214,7 @@ result<uint8_t> vicor_statusInput()
 
 result<uint8_t> vicor_statusTemp()
 {
-    RETURN_IF_ERR(enforcePage(VicorPage::CONFIG));
+    RETURN_IF_ERR(enforcePage(VicorPage::LV_SIDE));
 
     uint8_t status;
     RETURN_IF_ERR(readByte(CMD_STATUS_TEMP, status));
@@ -224,7 +223,7 @@ result<uint8_t> vicor_statusTemp()
 
 result<uint8_t> vicor_statusComm()
 {
-    RETURN_IF_ERR(enforcePage(VicorPage::CONFIG));
+    RETURN_IF_ERR(enforcePage(VicorPage::LV_SIDE));
 
     uint8_t status;
     RETURN_IF_ERR(readByte(CMD_STATUS_CML, status));
@@ -233,9 +232,18 @@ result<uint8_t> vicor_statusComm()
 
 result<uint8_t> vicor_statusMfrSpecific()
 {
-    RETURN_IF_ERR(enforcePage(VicorPage::CONFIG));
+    RETURN_IF_ERR(enforcePage(VicorPage::LV_SIDE));
 
     uint8_t status;
     RETURN_IF_ERR(readByte(CMD_STATUS_MFR_SPECIFIC, status));
     return status;
+}
+
+result<uint16_t> vicor_serialNumber()
+{
+    RETURN_IF_ERR(enforcePage(VicorPage::LV_SIDE));
+
+    uint16_t word;
+    RETURN_IF_ERR(readWord(CMD_MFR_SERIAL, word));
+    return word;
 }

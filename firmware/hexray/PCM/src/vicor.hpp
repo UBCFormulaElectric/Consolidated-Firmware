@@ -3,7 +3,7 @@
 #include "util_errorCodes.hpp"
 
 result<void>     vicor_operation(bool enable);
-result<void>     vicor_read_operation();
+result<bool>     vicor_read_operation();
 result<void>     vicor_clearFaults();
 result<float>    vicor_readVin();
 result<float>    vicor_readIin();
@@ -18,3 +18,4 @@ result<uint8_t>  vicor_statusInput();
 result<uint8_t>  vicor_statusTemp();
 result<uint8_t>  vicor_statusComm();
 result<uint8_t>  vicor_statusMfrSpecific();
+result<uint16_t> vicor_serialNumber();

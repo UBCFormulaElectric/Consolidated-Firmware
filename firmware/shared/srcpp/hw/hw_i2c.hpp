@@ -1,6 +1,7 @@
 #pragma once
 
 #include <span>
+#include <optional>
 #include "hw_utils.hpp"
 #include "FreeRTOS.h"
 #include "task.h"
@@ -24,6 +25,8 @@ class bus
      * Called by HAL I2C completion callbacks to signal that a transaction has finished.
      */
     void onTransactionCompleteFromISR() const;
+
+    mutable std::optional<uint32_t> error = std::nullopt;
 
   private:
     friend class device;
