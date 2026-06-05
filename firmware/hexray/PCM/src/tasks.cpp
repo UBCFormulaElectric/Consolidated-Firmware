@@ -70,13 +70,19 @@ static char debug_buf[1024];
         UNUSED(led_out.togglePin());
         osDelay(500);
 #else
+        LOG_IF_ERR(vicor_read_operation());
         switch (state)
         {
             case PcmState::OFF:
             {
-                if (pcm_en_in.readPin() and vicor_clearFaults().has_value() and vicor_operation(true).has_value())
+                if (pcm_en_in.readPin())
                 {
-                    state = PcmState::VICOR_ONLY;
+                    LOG_INFO("trying to clear faults and turn on");
+                    if (vicor_clearFaults().has_value() and vicor_operation(true).has_value())
+                    {
+                        LOG_INFO("Going to VICOR_ONLY state");
+                        state = PcmState::VICOR_ONLY;
+                    }
                 }
                 break;
             }
@@ -84,6 +90,7 @@ static char debug_buf[1024];
             {
                 if (not pcm_en_in.readPin() and vicor_operation(false).has_value())
                 {
+                    LOG_INFO("Going to OFF state");
                     state = PcmState::OFF;
                 }
 
@@ -92,6 +99,7 @@ static char debug_buf[1024];
                 {
                     osDelay(TURN_ON_DELAY_MS);
                     lv_buck_en_out.writePin(true);
+                    LOG_INFO("Going to ON state");
                     state = PcmState::ON;
                 }
                 break;
@@ -104,6 +112,7 @@ static char debug_buf[1024];
 
                     if (vicor_operation(false).has_value())
                     {
+                        LOG_INFO("Going to OFF state");
                         state = PcmState::OFF;
                     }
                 }
@@ -131,6 +140,9 @@ void tasks_init()
 
 #ifdef PCM_DEBUG
     LOG_IF_ERR(vicor_operation(true));
+#else
+    LOG_IF_ERR(vicor_operation(false));
+    LOG_INFO("vicor off");
 #endif
 
     osKernelInitialize();

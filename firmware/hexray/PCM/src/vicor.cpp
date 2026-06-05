@@ -93,6 +93,16 @@ result<void> vicor_operation(const bool enable)
     return writeByte(CMD_OPERATION, static_cast<uint8_t>(enable << 7));
 }
 
+result<void> vicor_read_operation()
+{
+    RETURN_IF_ERR(enforcePage(VicorPage::CONFIG));
+
+    uint8_t op;
+    RETURN_IF_ERR(readByte(CMD_OPERATION, op));
+    LOG_INFO("Operation: %s", (op & 0x80) ? "ON" : "OFF");
+    return {};
+}
+
 result<void> vicor_clearFaults()
 {
     RETURN_IF_ERR(enforcePage(VicorPage::CONFIG));

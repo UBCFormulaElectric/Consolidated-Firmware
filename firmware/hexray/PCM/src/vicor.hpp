@@ -3,6 +3,7 @@
 #include "util_errorCodes.hpp"
 
 result<void>     vicor_operation(bool enable);
+result<void>     vicor_read_operation();
 result<void>     vicor_clearFaults();
 result<float>    vicor_readVin();
 result<float>    vicor_readIin();
