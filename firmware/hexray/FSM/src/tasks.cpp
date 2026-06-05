@@ -169,6 +169,10 @@ void tasks_runCanRx(void *arg)
 static void FSM_StartAllTasks()
 {
     Task1kHz.start();
+    Task100Hz.start();
+    Task1Hz.start();
+    TaskCanTx.start();
+    TaskCanRx.start();
 }
 
 void tasks_preInit()
@@ -180,6 +184,7 @@ void tasks_preInit()
 [[noreturn]] void tasks_init()
 {
     SEGGER_SYSVIEW_Conf();
+    LOG_INFO("FSM Reset!");
 
 #ifndef WATCHDOG_DISABLED
     __HAL_DBGMCU_FREEZE_IWDG();

@@ -3,5 +3,5 @@
 
 namespace app::shdn
 {
-extern const app::shdn::shdnLoop<2> bms_shdnLoop;
+extern const shdnLoop<3> bms_shdnLoop;
 } // namespace app::shdn
