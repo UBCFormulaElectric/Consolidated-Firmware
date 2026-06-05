@@ -21,9 +21,6 @@ class Notifier
     void notify() const;
     void notifyFromISR() const;
 
-    // Discard any pending (already-latched) notification so the next wait() blocks
-    // until a fresh notify() arrives.
-    void clear() const;
 
 #ifdef TARGET_EMBEDDED
   private:

@@ -164,21 +164,8 @@ void jobs_run1kHz_tick()
 
 static io::notify::Notifier sync_done;
 
-void jobs_requestConfigSync()
-{
-    tasks_requestAdbmsConfigRun();
-}
-
-void jobs_requestConfigSyncAndWait()
-{
-    sync_done.clear();
-    tasks_requestAdbmsConfigRun();
-    sync_done.wait();
-}
-
 void jobs_runAdbmsConfigs_tick()
 {
-    // const io::unique_semaphore s{ spi_bus_lock };
 
     const Segments<result<bool>> res             = app::segments::config::sync();
     bool                         all_segments_ok = true;
@@ -219,7 +206,7 @@ void jobs_runAdbmsConfigs_tick()
 
 void jobs_runAdbmsVoltages_tick()
 {
-    jobs_requestConfigSyncAndWait();
+    sync_done.wait();
     LOG_INFO("Starting voltage poll and conversion");
 
     result<void>         voltages_poll_ok;
@@ -268,7 +255,7 @@ void jobs_runAdbmsVoltages_tick()
 
 void jobs_runAdbmsAux_tick()
 {
-    jobs_requestConfigSyncAndWait();
+    sync_done.wait();
     LOG_INFO("Starting AUX poll and conversion");
 
     result<void> therm_voltages_poll_ok;
@@ -285,10 +272,7 @@ void jobs_runAdbmsAux_tick()
     {
         app::segments::config::setThermistorConfig(mux);
 
-        // Push the freshly-set thermistor mux config now and wait for that specific
-        // sync to land, rather than waiting up to a full periodic config tick.
-        jobs_requestConfigSyncAndWait();
-
+        sync_done.notify();
         io::time::delay(100);
         {
             // const io::unique_semaphore s{ spi_bus_lock };
