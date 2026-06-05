@@ -67,9 +67,11 @@ class device
      * @brief Transmit data to the device connected to the given I2C interface.
      * @param tx_buffer A data buffer containing the data transmitted
      * to the device connected to the I2C interface.
+     * @param read A boolean flag indicating whether the transmission is a write operation (false) or a read operation
+     * (true).
      * @return EXIT_CODE_OK if data is transmitted successfully.
      */
-    [[nodiscard]] result<void> transmit(std::span<const uint8_t> tx_buffer) const;
+    [[nodiscard]] result<void> transmit(std::span<const uint8_t> tx_buffer, bool read = true) const;
 
     /**
      * @brief Read an amount of data from a specific memory address
