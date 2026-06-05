@@ -95,7 +95,7 @@ result<void> vicor_operation(const bool enable)
 
 result<void> vicor_read_operation()
 {
-    RETURN_IF_ERR(enforcePage(VicorPage::CONFIG));
+    RETURN_IF_ERR(enforcePage(VicorPage::TELEM));
 
     uint8_t op;
     RETURN_IF_ERR(readByte(CMD_OPERATION, op));
