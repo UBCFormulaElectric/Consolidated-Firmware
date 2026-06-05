@@ -262,7 +262,7 @@ namespace status
         return status;
     }
 
-    result<MFRSpecific> MfrSpecific()
+    result<MFRSpecific> mfrspecific()
     {
         RETURN_IF_ERR(enforcePage(VicorPage::LV_SIDE));
 

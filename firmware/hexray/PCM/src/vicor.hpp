@@ -95,6 +95,15 @@ namespace status
         bool iout_oc_warning : 1;
         bool iout_oc_lv_fault : 1; // not supported
         bool iout_oc_fault : 1;
+        void log() const
+        {
+            LOG_INFO(
+                "IOUT Status - POUT_OP_WARNING: %d, POUT_OP_FAULT: %d, IN_PWR_LIMITING_MODE: %d, CURRENT_SHARE_FAULT: "
+                "%d, "
+                "IOUT_UC_FAULT: %d, IOUT_OC_WARNING: %d, IOUT_OC_LV_FAULT: %d, IOUT_OC_FAULT: %d",
+                pout_op_warning, pout_op_fault, in_pwr_limiting_mode, current_share_fault, iout_uc_fault,
+                iout_oc_warning, iout_oc_lv_fault, iout_oc_fault);
+        }
     };
     result<CurrentOutput> iout();
 
@@ -203,6 +212,6 @@ namespace status
         }
     };
     static_assert(sizeof(MFRSpecific) == sizeof(uint8_t), "VicorStatusMFRSpecific should be 8 bits");
-    result<MFRSpecific> MfrSpecific();
+    result<MFRSpecific> mfrspecific();
 } // namespace status
 } // namespace vicor

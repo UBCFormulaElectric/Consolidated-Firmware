@@ -59,27 +59,78 @@ static char debug_buf[1024];
         UNUSED(led_out.togglePin());
         osDelay(500);
 #else
-        if (const result<vicor::status::Comm> status_comm_res = vicor::status::comm(); status_comm_res.has_value())
+        const result<vicor::status::General> status_res = vicor::status::general();
+        if (status_res.has_value())
         {
-            // status_comm_res.value().log();
-            LOG_IF_ERR(vicor::clearFaults());
-        }
-        if (const result<vicor::status::General> status_res = vicor::status::general(); status_res.has_value())
-        {
-            // LOG_INFO("status word: %lX", status_res.value());
+            if (status_res.value().status_mfr_specific)
+            {
+                if (const result<vicor::status::MFRSpecific> specific_status_res = vicor::status::mfrspecific();
+                    specific_status_res.has_value())
+                {
+                    specific_status_res.value().log();
+                }
+                else
+                {
+                    continue;
+                }
+            }
+            status_res.value().log();
         }
         else
         {
-            LOG_INFO("Failed to read status word");
+            continue;
         }
+
+        const result<vicor::status::Comm> status_comm_res = vicor::status::comm();
+        if (status_comm_res.has_value())
+        {
+            status_comm_res.value().log();
+            LOG_IF_ERR(vicor::clearFaults());
+        }
+        else
+        {
+            continue;
+        }
+
+        const result<vicor::status::CurrentOutput> current = vicor::status::iout();
+        if (current.has_value())
+        {
+            current.value().log();
+        }
+        else
+        {
+            continue;
+        }
+
+        const result<vicor::status::Temp> temp = vicor::status::temp();
+        if (temp.has_value())
+        {
+            temp.value().log();
+        }
+        else
+        {
+            continue;
+        }
+
+        // all above variables should have values
+        const vicor::status::General       &general_status = status_res.value();
+        const vicor::status::Comm          &comm_status    = status_comm_res.value();
+        const vicor::status::CurrentOutput &current_status = current.value();
+        const vicor::status::Temp          &temp_status    = temp.value();
 
         switch (state)
         {
             case PcmState::LV: // this state is for when the PCM is awake, but the vicor is still off
             {
+                if (not general_status.unit_off) // namely unit_on
+                {
+                    LOG_INFO("Going to OFF state");
+                    state = PcmState::OFF;
+                }
                 break;
             }
-            case PcmState::OFF: // this state is for when the HV is on, but the vicor is still off (precharge)
+            case PcmState::OFF: // this state is for when HV is off, or when the HV is on, but the vicor is still off
+                                // (precharge)
             {
                 if (pcm_en_in.readPin())
                 {
@@ -96,7 +147,7 @@ static char debug_buf[1024];
                 }
                 break;
             }
-            case PcmState::VICOR_ONLY: //
+            case PcmState::VICOR_ONLY:
             {
                 if (not pcm_en_in.readPin() and vicor::operation(false).has_value())
                 {
@@ -132,6 +183,12 @@ static char debug_buf[1024];
                 // Should never get here.
                 break;
             }
+        }
+
+        if (general_status.unit_off)
+        {
+            LOG_INFO("Going to LV state because unit is off");
+            state = PcmState::LV;
         }
 #endif
     }
