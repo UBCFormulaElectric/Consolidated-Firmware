@@ -3,6 +3,7 @@
 #include "io_irs.hpp"
 #include "io_faultLatch.hpp"
 #include "app_canTx.hpp"
+#include "app_canAlerts.hpp"
 
 namespace app::states
 {
@@ -19,11 +20,11 @@ namespace faultState
 
     static void runOnTick100Hz()
     {
-        // bms_ok_latch is hardware-latched: once tripped it stays FAULT until externally
-        // reset, and alerts::tick() in jobs.cpp re-trips it every cycle a segment fault
-        // is active. So the latch returning OK is the single source of truth for "the
-        // segment/ADBMS fault has cleared and the operator has acknowledged it."
-        if (bms_ok_latch.getLatchedStatus() == io::FaultLatch::FaultLatchState::OK)
+        // Stay latched in fault until every fault source has cleared. This includes the
+        // hardware-latched bms/imd/bspd latches (which hold FAULT until externally reset
+        // and acknowledged) as well as any other active board fault. Only once no board
+        // reports a fault do we return to init.
+        if (!app::can_alerts::AnyBoardHasFault())
         {
             app::StateMachine::set_next_state(&init_state);
         }
