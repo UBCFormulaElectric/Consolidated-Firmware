@@ -70,7 +70,6 @@ static char debug_buf[1024];
         UNUSED(led_out.togglePin());
         osDelay(500);
 #else
-        LOG_IF_ERR(vicor_read_operation());
         switch (state)
         {
             case PcmState::OFF:
