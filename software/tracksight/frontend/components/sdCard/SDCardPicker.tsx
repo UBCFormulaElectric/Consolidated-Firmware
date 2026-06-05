@@ -102,7 +102,7 @@ const FormatSDCardButton = (props: FormatSDCardButtonProps) => {
         formatSDCardMutation.isSuccess && (
           <AlertModal
             title="SD card formatted successfully."
-            errorMessage="The SD card has been formatted successfully."
+            errorMessage=""
             onDismiss={() => {
               formatSDCardMutation.reset();
             }}
