@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import useSDCardFiles from "@/lib/hooks/useSDCardFiles";
 import useDumpSDCardFile, { DumpSDCardFileError } from "@/lib/mutations/useDumpSDCardFile";
 
-import SDCardDumpErrorModal from "./SDCardDumpErrorModal";
+import AlertModal from "../common/AlertModal";
 import SDCardFileInfo from "./SDCardFileInfo";
 import SDCardFileList from "./SDCardFileList";
 
@@ -127,42 +127,57 @@ const SDCardFileNavigator = (props: SDCardFileNavigatorProps) => {
       />
 
       {dumpError && (
-        <SDCardDumpErrorModal
+        <AlertModal
+          title="Error Dumping SD Card File"
           errorMessage={dumpError.message}
-          onCancel={() => {
+          onDismiss={() => {
             setDumpError(null);
             setPendingDump(null);
           }}
           options={
-            dumpError.statusCode === 409 && pendingDump
-              ? [
-                  {
-                    label: "Ignore and Proceed",
-                    onClick: () => {
-                      const filesToContinue = pendingDump.remainingFiles;
+            [
+              {
+                label: "Cancel",
+                style: "destructive",
+                onClick: () => {
+                  setDumpError(null);
+                  setPendingDump(null);
+                },
+              },
+              ...(
+                dumpError.statusCode === 409 && pendingDump
+                  ? [
+                      {
+                        label: "Ignore and Proceed",
+                        style: "default",
+                        onClick: () => {
+                          const filesToContinue = pendingDump.remainingFiles;
 
-                      setDumpError(null);
-                      setSelectedFiles((currentSelectedFiles) =>
-                        currentSelectedFiles.filter(
-                          (selectedFile) => selectedFile !== pendingDump.fileName
-                        )
-                      );
-                      setPendingDump(null);
-                      void handleDump(filesToContinue, false);
-                    },
-                  },
-                  {
-                    label: "Proceed",
-                    onClick: () => {
-                      const filesToContinue = [pendingDump.fileName, ...pendingDump.remainingFiles];
+                          setDumpError(null);
+                          setSelectedFiles((currentSelectedFiles) =>
+                            currentSelectedFiles.filter(
+                              (selectedFile) => selectedFile !== pendingDump.fileName
+                            )
+                          );
+                          setPendingDump(null);
+                          void handleDump(filesToContinue, false);
+                        },
+                      },
+                      {
+                        label: "Proceed",
+                        style: "positive",
+                        onClick: () => {
+                          const filesToContinue = [pendingDump.fileName, ...pendingDump.remainingFiles];
 
-                      setDumpError(null);
-                      setPendingDump(null);
-                      void handleDump(filesToContinue, true);
-                    },
-                  },
-                ]
-              : []
+                          setDumpError(null);
+                          setPendingDump(null);
+                          void handleDump(filesToContinue, true);
+                        },
+                      },
+                    ] as const
+                  : []
+              )
+            ]
           }
         />
       )}

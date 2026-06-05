@@ -2,33 +2,34 @@
 
 import { useEffect, useRef } from "react";
 
-type ErrorModalProps = {
+type AlertModalProps = {
     title: string;
     errorMessage: string;
-    onCancel?: () => void;
+    onDismiss?: () => void;
 
     options?: {
         label: string;
+        style: "default" | "positive" | "destructive";
         onClick: () => void;
     }[];
 };
 
-const ErrorModal = (props: ErrorModalProps) => {
-    const { title, errorMessage, options = [], onCancel } = props;
+const AlertModal = (props: AlertModalProps) => {
+    const { title, errorMessage, options = [], onDismiss } = props;
     const modalRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             if (!modalRef.current || modalRef.current.contains(event.target as Node)) return;
 
-            onCancel?.();
+            onDismiss?.();
         };
 
         document.addEventListener("mousedown", handleClickOutside);
         return () => {
             document.removeEventListener("mousedown", handleClickOutside);
         };
-    }, [onCancel]);
+    }, [onDismiss]);
 
     return (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-[1.5px] flex items-center justify-center">
@@ -41,23 +42,19 @@ const ErrorModal = (props: ErrorModalProps) => {
                     <p className="text-sm text-muted-foreground mb-1">{errorMessage}</p>
                 </div>
                 <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 mt-4">
-                    {
-                        onCancel && (
-                            <button
-                                className="w-full sm:w-auto bg-gray-100 text-black px-4 py-2 rounded hover:bg-gray-200"
-                                onClick={onCancel}
-                            >
-                                Cancel
-                            </button>
-                        )
-                    }
                     {options.length > 0 && (
                         <div className="flex w-full sm:w-auto gap-2">
                             {options.map((option, index) => (
                                 <button
                                     key={index}
                                     onClick={option.onClick}
-                                    className="flex-1 sm:flex-none bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                                    className={`flex-1 sm:flex-none px-4 py-2 rounded hover:cursor-pointer ${
+                                        option.style === "positive"
+                                            ? "bg-green-400 text-white hover:bg-green-500/80"
+                                            : option.style === "destructive"
+                                            ? "bg-red-400 text-white hover:bg-red-500/80"
+                                            : "bg-gray-400 text-white hover:bg-gray-500/80"
+                                    }`}
                                 >
                                     {option.label}
                                 </button>
@@ -70,4 +67,4 @@ const ErrorModal = (props: ErrorModalProps) => {
     );
 };
 
-export default ErrorModal;
+export default AlertModal;

@@ -4,7 +4,7 @@ import { useState } from "react";
 
 import { CardSim, FileCog } from "lucide-react";
 import useFormatSDCard from "@/lib/mutations/useFormatSDCard";
-import SDCardFormatErrorModal from "./SDCardFormatErrorModal";
+import AlertModal from "../common/AlertModal";
 
 type SDCardPickerProps = {
   selected: string | null;
@@ -57,7 +57,7 @@ const FormatSDCardButton = (props: FormatSDCardButtonProps) => {
           onClick();
           setHasConfirmed(false);
         }}
-        className={`rounded px-4 py-4 text-left flex gap-2 items-center transition-colors hover:cursor-pointer border ${hasConfirmed ? "bg-red-100 border-red-500 text-red-500" : "bg-white border-black hover:border-black/75"}`}
+        className={`rounded px-4 py-4 ml-auto text-left flex gap-2 items-center transition-colors hover:cursor-pointer border ${hasConfirmed ? "bg-red-100 border-red-500 text-red-500" : "bg-red-100/10 border-red-500 text-red-500"}`}
       >
         <FileCog className="mb-1" />
         <div className="flex flex-col leading-4">
@@ -80,15 +80,36 @@ const FormatSDCardButton = (props: FormatSDCardButtonProps) => {
       </button>
       {
         formatSDCardMutation.isError && (
-          <SDCardFormatErrorModal
+          <AlertModal
+            title="Error Formatting SD Card"
             errorMessage={formatSDCardMutation.error instanceof Error ? formatSDCardMutation.error.message : "An unknown error occurred."}
-            onCancel={() => {
-              console.log(formatSDCardMutation.error);
+            onDismiss={() => {
               formatSDCardMutation.reset();
             }}
             options={[
               {
                 label: "Okay",
+                style: "default",
+                onClick: () => {
+                  formatSDCardMutation.reset();
+                },
+              },
+            ]}
+          />
+        )
+      }
+      {
+        formatSDCardMutation.isSuccess && (
+          <AlertModal
+            title="SD card formatted successfully."
+            errorMessage="The SD card has been formatted successfully."
+            onDismiss={() => {
+              formatSDCardMutation.reset();
+            }}
+            options={[
+              {
+                label: "Okay",
+                style: "positive",
                 onClick: () => {
                   formatSDCardMutation.reset();
                 },
