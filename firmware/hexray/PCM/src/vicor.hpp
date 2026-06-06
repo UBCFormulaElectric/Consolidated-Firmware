@@ -97,12 +97,10 @@ namespace status
         bool iout_oc_fault : 1;
         void log() const
         {
-            LOG_INFO(
-                "IOUT Status - POUT_OP_WARNING: %d, POUT_OP_FAULT: %d, IN_PWR_LIMITING_MODE: %d, CURRENT_SHARE_FAULT: "
-                "%d, "
-                "IOUT_UC_FAULT: %d, IOUT_OC_WARNING: %d, IOUT_OC_LV_FAULT: %d, IOUT_OC_FAULT: %d",
-                pout_op_warning, pout_op_fault, in_pwr_limiting_mode, current_share_fault, iout_uc_fault,
-                iout_oc_warning, iout_oc_lv_fault, iout_oc_fault);
+            if (iout_oc_warning)
+                LOG_INFO("IOUT_OC_WARNING is set");
+            if (iout_oc_fault)
+                LOG_INFO("IOUT_OC_FAULT is set");
         }
     };
     result<CurrentOutput> iout();
@@ -129,9 +127,14 @@ namespace status
         bool ot_fault : 1;
         void log() const
         {
-            LOG_INFO(
-                "Temp Status - UT Warning: %d, UT Fault: %d, OT Warning: %d, OT Fault: %d", ut_warning, ut_fault,
-                ot_warning, ot_fault);
+            if (ut_warning)
+                LOG_INFO("UT_WARNING is set");
+            if (ut_fault)
+                LOG_INFO("UT_FAULT is set");
+            if (ot_warning)
+                LOG_INFO("OT_WARNING is set");
+            if (ot_fault)
+                LOG_INFO("OT_FAULT is set");
         }
     };
     static_assert(sizeof(Temp) == sizeof(uint8_t), "VicorTempStatus should be 8 bits");
@@ -161,13 +164,32 @@ namespace status
 
         void log() const
         {
-            LOG_INFO(
-                "Status Word - PWR_BAD: %d, STATUS_MFR_SPECIFIC: %d, INPUT_ALERT: %d, IOUT_OR_POUT_ALERT: %d, OTHER: "
-                "%d, "
-                "PMBUS_COMM_EVENT: %d, TEMP_ALERT: %d, VIN_UV_FAULT: %d, IOUT_OC_FAULT: %d, UNIT_OFF: %d, UNIT_BUSY: "
-                "%d",
-                pwr_bad, status_mfr_specific, input_alert, iout_or_pout_alert, other, pmbus_comm_event, temp_alert,
-                vin_uv_fault, iout_oc_fault, unit_off, unit_busy);
+            if (pwr_bad)
+                LOG_INFO("PWR_BAD is set");
+            if (status_mfr_specific)
+                LOG_INFO("STATUS_MFR_SPECIFIC is set");
+            if (input_alert)
+                LOG_INFO("INPUT_ALERT is set");
+            if (iout_or_pout_alert)
+                LOG_INFO("IOUT_OR_POUT_ALERT is set");
+            if (other)
+                LOG_INFO("OTHER is set");
+            if (pmbus_comm_event)
+                LOG_INFO("PMBUS_COMM_EVENT is set");
+            if (temp_alert)
+                LOG_INFO("TEMP_ALERT is set");
+            if (vin_uv_fault)
+                LOG_INFO("VIN_UV_FAULT is set");
+            if (iout_oc_fault)
+                LOG_INFO("IOUT_OC_FAULT is set");
+            if (unit_busy)
+                LOG_INFO("UNIT_BUSY is set");
+        }
+
+        bool any() const
+        {
+            return pwr_bad or status_mfr_specific or input_alert or iout_or_pout_alert or other or pmbus_comm_event or
+                   temp_alert or vin_uv_fault or iout_oc_fault or unit_busy;
         }
 
         uint16_t raw() const { return reinterpret_cast<const uint16_t &>(*this); }
@@ -187,11 +209,20 @@ namespace status
         bool invalid_command : 1;
         void log() const
         {
-            LOG_INFO(
-                "Comm Status - OTHER_MEM_OR_LOGIC_FAULT: %d, OTHER_COMM_FAULT: %d, PROCESSOR_FAULT: %d, MEM_FAULT: %d, "
-                "PACKET_ERROR: %d, INVALID_DATA: %d, INVALID_COMMAND: %d",
-                other_mem_or_logic_fault, other_comm_fault, processor_fault, mem_fault, packet_error, invalid_data,
-                invalid_command);
+            if (other_mem_or_logic_fault)
+                LOG_INFO("OTHER_MEM_OR_LOGIC_FAULT is set");
+            if (other_comm_fault)
+                LOG_INFO("OTHER_COMM_FAULT is set");
+            if (processor_fault)
+                LOG_INFO("PROCESSOR_FAULT is set");
+            if (mem_fault)
+                LOG_INFO("MEM_FAULT is set");
+            if (packet_error)
+                LOG_INFO("PACKET_ERROR is set");
+            if (invalid_data)
+                LOG_INFO("INVALID_DATA is set");
+            if (invalid_command)
+                LOG_INFO("INVALID_COMMAND is set");
         }
     };
     static_assert(sizeof(Comm) == sizeof(uint8_t), "VicorCommStatus should be 8 bits");
@@ -207,10 +238,21 @@ namespace status
         uint8_t _reserved : 3;
         void    log() const
         {
-            LOG_INFO(
-                "MFR Specific Status - REVERSE_OPERATION: %d, HW_PROTECTION_SHUTDOWN_FAULT: %d, BCM_UART_CML: %d, "
-                "BCM_AT_PAGE_1_PRESET: %d",
-                reverse_operation, hw_protection_shutdown_fault, bcm_uart_cml, bcm_at_page_1_preset);
+            if (reverse_operation)
+                LOG_INFO("REVERSE_OPERATION is set");
+            if (hw_protection_shutdown_fault)
+                LOG_INFO("HW_PROTECTION_SHUTDOWN_FAULT is set");
+            if (bcm_uart_cml)
+                LOG_INFO("BCM_UART_CML is set");
+            if (bcm_at_page_1_preset)
+                LOG_INFO("BCM_AT_PAGE_1_PRESET is set");
+        }
+
+        uint8_t raw() const { return reinterpret_cast<const uint8_t &>(*this); }
+
+        bool any() const
+        {
+            return reverse_operation or hw_protection_shutdown_fault or bcm_uart_cml or bcm_at_page_1_preset;
         }
     };
     static_assert(sizeof(MFRSpecific) == sizeof(uint8_t), "VicorStatusMFRSpecific should be 8 bits");

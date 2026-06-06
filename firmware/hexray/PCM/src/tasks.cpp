@@ -57,22 +57,26 @@ static char debug_buf[1024];
         UNUSED(led_out.togglePin());
         osDelay(500);
 #else
-        const result<vicor::status::General> status_res = vicor::status::general();
+        const result<vicor::status::General> status_res   = vicor::status::general();
+        bool                                 should_clear = false;
         if (status_res.has_value())
         {
+            status_res.value().log();
             if (status_res.value().status_mfr_specific)
             {
                 if (const result<vicor::status::MFRSpecific> specific_status_res = vicor::status::mfrspecific();
                     specific_status_res.has_value())
                 {
                     specific_status_res.value().log();
+                    LOG_INFO("mfrspecific raw: %d", specific_status_res.value().raw());
+                    should_clear |= specific_status_res.value().any();
                 }
                 else
                 {
                     continue;
                 }
             }
-            // status_res.value().log();
+            should_clear |= status_res.value().any();
         }
         else
         {
@@ -80,10 +84,11 @@ static char debug_buf[1024];
         }
 
         const result<vicor::status::Comm> status_comm_res = vicor::status::comm();
+        LOG_IF_ERR(status_comm_res);
         if (status_comm_res.has_value())
         {
-            // status_comm_res.value().log();
-            // LOG_IF_ERR(vicor::clearFaults()); // TODO figure out where to put this
+            status_comm_res.value().log();
+            LOG_IF_ERR(vicor::clearFaults()); // TODO figure out where to put this
         }
         else
         {
@@ -91,9 +96,10 @@ static char debug_buf[1024];
         }
 
         const result<vicor::status::CurrentOutput> current = vicor::status::iout();
+        LOG_IF_ERR(current);
         if (current.has_value())
         {
-            // current.value().log();
+            current.value().log();
         }
         else
         {
@@ -101,13 +107,20 @@ static char debug_buf[1024];
         }
 
         const result<vicor::status::Temp> temp = vicor::status::temp();
+        LOG_IF_ERR(temp);
         if (temp.has_value())
         {
-            // temp.value().log();
+            temp.value().log();
         }
         else
         {
             continue;
+        }
+
+        if (should_clear)
+        {
+            LOG_INFO("Clearing faults because status indicates there are faults");
+            LOG_IF_ERR(vicor::clearFaults());
         }
 
         // all above variables should have values
@@ -186,7 +199,7 @@ static char debug_buf[1024];
             }
         }
 
-        if (general_status.unit_off)
+        if (general_status.unit_off and state != PcmState::LV)
         {
             LOG_INFO("Going to LV state because unit is off");
             state = PcmState::LV;
