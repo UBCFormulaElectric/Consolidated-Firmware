@@ -6,8 +6,8 @@ constexpr hw::adcchip<1> adc3{ hadc3, htim3 };
 
 constexpr hw::adc fan_isns       = adc1.getChannel(0);
 constexpr hw::adc ts_vsense_p    = adc1.getChannel(1);
-constexpr hw::adc ts_vsense_n    = adc1.getChannel(2);
-constexpr hw::adc shdn_sns       = adc1.getChannel(3);
+constexpr hw::adc shdn_sns       = adc1.getChannel(2);
+constexpr hw::adc ts_vsense_n    = adc1.getChannel(3);
 constexpr hw::adc emeter_tsns    = adc1.getChannel(4);
 constexpr hw::adc ts_isense_400a = adc1.getChannel(5);
 constexpr hw::adc ts_isense_50a  = adc1.getChannel(6);
