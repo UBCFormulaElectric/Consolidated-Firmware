@@ -77,3 +77,5 @@ const ::app::State precharge_charge_state = {
     .run_on_exit       = prechargeChargeState::runOnExit,
 };
 } // namespace app::states
+
+// Why do we need to precharge to charge? TS might be bus when we are charging.

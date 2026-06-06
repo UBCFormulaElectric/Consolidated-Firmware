@@ -105,7 +105,7 @@ namespace chargeState
         // Both conditions required (high V + high I = mid-CV-ramp, low I + low V = idle)
         if ((max_cell_v >= CELL_V_TERMINATE) && (rx.output_current_a < I_TERMINATE_A))
         {
-            app::can_tx::BMS_ChargingDone_set(true);
+            app::can_tx::BMS_ChargingDone_set(true); // Is this ever set to false? look into this!!!!!!!!!!!!
             app::charger::setTxFrame(stop);
             app::StateMachine::set_next_state(&init_state);
             return;
@@ -127,7 +127,7 @@ namespace chargeState
         // CC/CV is implicit given the Elcon needs max V and max I commands
         // Per cell CC/CV fallback (if pack is unbalanced or not using EVSE).
         // Clamp to 0 at/above the per-cell max so we never command negative current.
-        float i_cmd_max;
+        float i_cmd_max; // Look into this more. make sure u know it!!!!
         if (max_cell_v >= CELL_V_MAX_CHARGE)
         {
             i_cmd_max = 0.0f;
