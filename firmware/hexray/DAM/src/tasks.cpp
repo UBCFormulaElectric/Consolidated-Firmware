@@ -133,13 +133,13 @@ void tasks_run1kHz(void *arg)
 
 void tasks_runLogging(void *arg)
 {
-    uint32_t start_ticks = osKernelGetTickCount();
-    constexpr uint32_t      period_ms                = 100U;
+    uint32_t           start_ticks = osKernelGetTickCount();
+    constexpr uint32_t period_ms   = 100U;
     // Debug but we need these to upgrade to 4b since we need to init in 1b bus width!
     // LOG_INFO("hsd1 state: %s", sd1.getCardStateString());
-    LOG_IF_ERR(sd1.upgrade_buswidth());
-    // LOG_INFO("upgraded buswidth");
-    LOG_IF_ERR(sd1.update_speed());
+    // LOG_IF_ERR(sd1.upgrade_buswidth());
+    // // LOG_INFO("upgraded buswidth");
+    // LOG_IF_ERR(sd1.update_speed());
     // LOG_INFO("upgraded speed");
 
     jobs_initLogFs();
@@ -274,7 +274,8 @@ void tasks_runCanRx(void *arg)
         //     else
         //     {
         //         LOG_WARN(
-        //             "telem RX timestamp unavailable, dropping CAN 0x%03lX", static_cast<unsigned long>(can_msg.std_id));
+        //             "telem RX timestamp unavailable, dropping CAN 0x%03lX", static_cast<unsigned
+        //             long>(can_msg.std_id));
         //     }
         // }
         // if (app::can_data_capture::needsLog(can_msg.std_id, now_ms))

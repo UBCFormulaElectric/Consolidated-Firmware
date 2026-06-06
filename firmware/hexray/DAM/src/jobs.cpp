@@ -105,7 +105,8 @@ void jobs_initLogFs()
     //     }
     // }
 
-    const auto log_if_failed = [](auto &&operation, const char *name) {
+    const auto log_if_failed = [](auto &&operation, const char *name)
+    {
         if (const auto err = operation(); !err.has_value())
         {
             LOG_ERROR("jobs_initLogFs: %s failed: %d", name, static_cast<int>(err.error()));
@@ -151,13 +152,13 @@ void jobs_run100Hz_tick()
 
     dam_shdnLoop.broadcast();
 
-    //io::can_tx::enqueue100HzMsgs();
+    // io::can_tx::enqueue100HzMsgs();
 
     app::tsim::tick();
 }
 void jobs_run1kHz_tick()
 {
-    //io::can_tx::enqueueOtherPeriodicMsgs(io::time::getCurrentMs());
+    // io::can_tx::enqueueOtherPeriodicMsgs(io::time::getCurrentMs());
 }
 void jobs_runLogging_tick()
 {
