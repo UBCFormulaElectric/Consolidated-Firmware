@@ -13,6 +13,12 @@ namespace app::sd
 std::expected<void, io::FileSystem::FileSystemError> init_fs();
 
 /**
+ * Upgrade the SD card interface to 4-bit wide bus mode and higher speed.
+ * @return ErrorCode if either upgrade_buswidth or update_speed fails
+ */
+std::expected<void, ErrorCode> upgrade_sd();
+
+/**
  * Updates the metadata (time) of the given file descriptor with the current time from the RTC.
  * Writes seconds, minutes, hour, day, weekday, month, year (in that order) in the first 6 bytes of the metadata block.
  * @return ErrorCode status if failure

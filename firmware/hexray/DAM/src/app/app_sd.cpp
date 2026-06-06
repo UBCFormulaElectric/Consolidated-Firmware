@@ -3,6 +3,7 @@
 #include "io_filesystem.hpp"
 #include "io_fileSystems.hpp"
 #include "util_errorCodes.hpp"
+#include "hw_sds.hpp"
 
 #include <array>
 #include <expected>
@@ -24,10 +25,7 @@ std::expected<void, io::FileSystem::FileSystemError> init_fs()
         return {};
 
     if (const auto err = fs.init(); !err.has_value())
-    {
-        LOG_ERROR("Failed to init filesystem: %d", static_cast<int>(err.error()));
         return std::unexpected(err.error());
-    }
 
     const char *log_path = DEFAULT_LOG_PATH;
     if (const auto boot_num = app::bootcount::update(fs); boot_num) // update bootcount
@@ -38,7 +36,6 @@ std::expected<void, io::FileSystem::FileSystemError> init_fs()
     }
     else
     {
-        LOG_ERROR("Failed to update bootcount: %d", static_cast<int>(boot_num.error()));
         return std::unexpected(boot_num.error());
     }
 
@@ -50,18 +47,26 @@ std::expected<void, io::FileSystem::FileSystemError> init_fs()
     }
     else
     {
-        LOG_ERROR("Failed to open %s: %d", log_path, static_cast<int>(r.error()));
         return std::unexpected(r.error());
     }
+}
+
+std::expected<void, ErrorCode> upgrade_sd()
+{
+    // We need these to upgrade to 4b since we need to init in 1b bus width!
+    if (const auto err = sd1.upgrade_buswidth(); !err.has_value())
+        return std::unexpected(ErrorCode::ERROR);
+
+    if (const auto err = sd1.update_speed(); !err.has_value())
+        return std::unexpected(ErrorCode::ERROR);
+
+    return {};
 }
 
 std::expected<void, ErrorCode> update_metadata()
 {
     if (!log_open)
-    {
-        LOG_ERROR("Failed to update metadata: log file is not open");
         return std::unexpected(ErrorCode::INVALID_ARGS);
-    }
 
     result<io::rtc::Time> rtc_time = io::rtc::get_time();
     result<io::rtc::Date> rtc_date = io::rtc::get_date();
@@ -85,10 +90,7 @@ std::expected<void, ErrorCode> update_metadata()
     auto                           err = fs.writeMetadata(log_fd, metadata_buf);
 
     if (!err.has_value())
-    {
-        LOG_ERROR("Failed to write time to file metadata: %d", static_cast<int>(err.error()));
         return std::unexpected(ErrorCode::ERROR);
-    }
 
     return {};
 }

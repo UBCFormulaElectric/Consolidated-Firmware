@@ -105,16 +105,21 @@ void jobs_initLogFs()
     //     }
     // }
 
-    if (const auto err = app::sd::init_fs(); !err.has_value())
-    {
-        LOG_ERROR("jobs_initLogFs: init_fs failed: %d", static_cast<int>(err.error()));
-        return;
-    }
+    const auto log_if_failed = [](auto &&operation, const char *name) {
+        if (const auto err = operation(); !err.has_value())
+        {
+            LOG_ERROR("jobs_initLogFs: %s failed: %d", name, static_cast<int>(err.error()));
+            return false;
+        }
+        return true;
+    };
 
-    if (const auto err = app::sd::update_metadata(); !err.has_value())
-        LOG_ERROR("jobs_initLogFs: update_metadata failed: %d", static_cast<int>(err.error()));
+    const bool init_success = log_if_failed(app::sd::init_fs, "init_fs") &&
+                              log_if_failed(app::sd::update_metadata, "update_metadata") &&
+                              log_if_failed(app::sd::upgrade_sd, "upgrade_sd");
 
-    LOG_INFO("Filesystem initialized successfully");
+    if (init_success)
+        LOG_INFO("Filesystem initialized successfully");
 }
 
 void jobs_run1Hz_tick()
