@@ -6,6 +6,7 @@ import { ENUM_COLORS } from "@/lib/constants";
 import { ChartLayout, LODAwareNumericalSeries, LODAwareSeries } from "./CanvasChartTypes";
 // utils
 import { bisect } from "@/lib/bisect";
+import { TelemetryMarker } from "@/lib/telemetryMarkers";
 import { isEnumSignalMetadata } from "@/lib/types/Signal";
 import { EnumTimelineWidgetData, NumericalGraphWidgetData, WidgetData } from "@/lib/types/Widget";
 
@@ -420,7 +421,79 @@ export function render_tooltip(
     });
 }
 
-export default function render(context: CanvasRenderingContext2D, width: number, height: number, layoutRef: RefObject<ChartLayout | null>, chartData: WidgetData, timeTickCount: number, hoverTime: number | null, hoveredSignal: RefObject<string | null> | undefined, { min: visibleStartTime, max: visibleEndTime }: { min: number; max: number }) {
+function getMarkerLines(marker: TelemetryMarker) {
+    const markerDate = new Date(marker.timestampMs);
+    const ms = markerDate.getUTCMilliseconds().toString().padStart(3, "0");
+    const lines = [
+        marker.messageName,
+        `${DATE_FORMATTER.format(markerDate)} ${TIME_FORMATTER.format(markerDate)}.${ms} UTC`,
+        `id: ${marker.id}`,
+        `source: ${marker.source}`,
+    ];
+
+    if (marker.canId) lines.push(`can: ${marker.canId}`);
+    if (marker.value !== undefined) lines.push(`value: ${marker.value}`);
+
+    Object.entries(marker.details ?? {}).forEach(([key, value]) => {
+        lines.push(`${key}: ${value}`);
+    });
+
+    return lines;
+}
+
+function render_markers(context: CanvasRenderingContext2D, width: number, height: number, visibleMarkers: TelemetryMarker[], timeToX: (t: number) => number) {
+    if (visibleMarkers.length === 0) return;
+
+    const labelPaddingX = 7;
+    const labelPaddingY = 5;
+    const lineHeight = 14;
+    const maxLabelWidth = Math.max(120, Math.min(280, width - CHART_PADDING.left - 16));
+
+    visibleMarkers.forEach((marker, index) => {
+        const xPosition = timeToX(marker.timestampMs);
+        if (xPosition < CHART_PADDING.left || xPosition > width - CHART_PADDING.right) return;
+
+        context.save();
+        context.strokeStyle = "rgba(220, 38, 38, 0.85)";
+        context.lineWidth = 1.5;
+        context.beginPath();
+        context.moveTo(xPosition, 0);
+        context.lineTo(xPosition, height);
+        context.stroke();
+
+        const markerLines = getMarkerLines(marker);
+        context.font = "11px sans-serif";
+        const measuredWidth = markerLines.reduce((maxWidth, line) => Math.max(maxWidth, context.measureText(line).width), 0);
+        const labelWidth = Math.min(maxLabelWidth, measuredWidth + labelPaddingX * 2);
+        const labelHeight = markerLines.length * lineHeight + labelPaddingY * 2;
+        const stackOffset = (index % 4) * Math.min(labelHeight + 4, 56);
+        let labelX = xPosition + 6;
+        let labelY = CHART_PADDING.top + stackOffset;
+
+        if (labelX + labelWidth > width - CHART_PADDING.right) {
+            labelX = xPosition - labelWidth - 6;
+        }
+
+        labelX = Math.max(CHART_PADDING.left + 2, Math.min(labelX, width - labelWidth - 2));
+        labelY = Math.max(2, Math.min(labelY, height - labelHeight - CHART_PADDING.bottom));
+
+        context.fillStyle = "rgba(127, 29, 29, 0.9)";
+        context.fillRect(labelX, labelY, labelWidth, labelHeight);
+        context.strokeStyle = "rgba(254, 202, 202, 0.85)";
+        context.lineWidth = 1;
+        context.strokeRect(labelX, labelY, labelWidth, labelHeight);
+
+        context.fillStyle = "#ffffff";
+        context.textAlign = "left";
+        context.textBaseline = "top";
+        markerLines.forEach((line, lineIndex) => {
+            context.fillText(line, labelX + labelPaddingX, labelY + labelPaddingY + lineIndex * lineHeight, labelWidth - labelPaddingX * 2);
+        });
+        context.restore();
+    });
+}
+
+export default function render(context: CanvasRenderingContext2D, width: number, height: number, layoutRef: RefObject<ChartLayout | null>, chartData: WidgetData, timeTickCount: number, hoverTime: number | null, hoveredSignal: RefObject<string | null> | undefined, { min: visibleStartTime, max: visibleEndTime }: { min: number; max: number }, markers: TelemetryMarker[]) {
     context.clearRect(0, 0, width, height);
 
     const numericalTop = CHART_PADDING.top;
@@ -495,6 +568,8 @@ export default function render(context: CanvasRenderingContext2D, width: number,
         context.fillText(timeLabel, x, height - CHART_PADDING.bottom + 8);
         context.fillText(dateLabel, x, height - CHART_PADDING.bottom + 24);
     }
+
+    render_markers(context, width, height, markers, timeToX);
 
     if (hoverTime !== null) {
         render_tooltip(context, width, height, hoverTime, hover_value!, timeToX);
