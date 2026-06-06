@@ -9,7 +9,7 @@ use crate::utils::yellow;
 use crate::tasks::{HealthCheckSender, HealthCheckSenderExt, Task};
 use crate::tasks::telem_message::CanPayload;
 use crate::tasks::client_api::subtable_clients::Clients;
-use crate::{vprintln};
+use crate::{error_println, vprintln};
 
 use jsoncan_rust::can_database::{CanDatabase, DecodedSignal};
 
@@ -34,7 +34,7 @@ pub async fn run_can_data_handler(
     
     health_check_tx.send_health_check(Task::CanDataHandler, true).await;
     
-    loop {
+    'outer: loop {
         select! {
             _ = shutdown_rx.recv() => {
                 vprintln!("CAN data task shutting down.");
@@ -49,8 +49,8 @@ pub async fn run_can_data_handler(
 
                 for signal in decoded_signals {
                     if !decoded_signal_tx.send(signal).is_ok() {
-                        eprintln!("Parsed can data signal consumers are all closed");
-                        break;
+                        error_println!("Parsed can data signal consumers are all closed");
+                        break 'outer;
                     }
                 }
             }
