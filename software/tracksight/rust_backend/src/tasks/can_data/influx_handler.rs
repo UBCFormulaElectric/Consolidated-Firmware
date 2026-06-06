@@ -50,7 +50,7 @@ pub async fn run_influx_handler(
             }
             // Lagging behind is recoverable: drop the missed signals and keep going
             Err(RecvError::Lagged(n)) => {
-                eprintln!("Influx handler lagged, dropped {n} signals");
+                error_println!("Influx handler lagged, dropped {n} signals");
                 continue;
             }
             // Closed channel is the signal to stop thread

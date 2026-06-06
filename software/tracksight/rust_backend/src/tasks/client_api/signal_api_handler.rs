@@ -242,14 +242,14 @@ async fn signal_sessions(
     Query(SourceQuery { source }): Query<SourceQuery>,
     State(state): State<AppState>
 ) -> impl IntoResponse {
-    error_println!("[sessions] request start={:?} end={:?} source={:?}", start, end, source);
+    vprintln!("[sessions] request start={:?} end={:?} source={:?}", start, end, source);
 
     let (start_utc, end_utc) =
         if let (Some(s), Some(e)) =
         (rfc3339_to_utc_str(&start), rfc3339_to_utc_str(&end)) {
             (s, e)
         } else {
-            error_println!("[sessions] BAD_REQUEST: bad date format start={:?} end={:?}", start, end);
+            vprintln!("[sessions] BAD_REQUEST: bad date format start={:?} end={:?}", start, end);
             return (StatusCode::BAD_REQUEST, "Bad date format, should be RFC3339 format".to_string());
         };
 
@@ -271,7 +271,7 @@ async fn signal_sessions(
         _ => InfluxSignalSource::Radio.to_string(),
     };
 
-    error_println!(
+    vprintln!(
         "[sessions] querying bucket={} measurement={} range=[{}, {}] source={}",
         &CONFIG.influxdb_bucket, &CONFIG.influxdb_measurement, start_utc, end_utc, source_str
     );
@@ -320,7 +320,7 @@ async fn signal_sessions(
         },
     };
 
-    error_println!("[sessions] returning {} session(s)", time_bigram.len());
+    vprintln!("[sessions] returning {} session(s)", time_bigram.len());
     return (StatusCode::OK, serde_json::to_string(&time_bigram).unwrap());
 }
 
