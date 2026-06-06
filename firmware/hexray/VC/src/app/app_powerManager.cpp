@@ -62,7 +62,7 @@ void updateConfig(const PowerManagerConfig &new_cfg)
     state_             = new_cfg;
     retries_ = {}; 
     sequencing_timer_.stop();
-    const bool under_v = can_tx::VC_Info_PcmUnderVoltage_get();
+    const bool under_v = can_tx::VC_CHANNEL4_PCM_UV_get();
     state_.efuse_configs[0].efuse_enable =
         state_.efuse_configs[0].efuse_enable ? !under_v : state_.efuse_configs[0].efuse_enable;
     state_.efuse_configs[2].efuse_enable =
