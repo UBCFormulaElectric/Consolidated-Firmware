@@ -172,8 +172,6 @@ namespace calculate
     io::adbms::Therms<result<bool>> thermOwc(
         const std::array<io::adbms::ThermGpios<result<float>>, static_cast<size_t>(ThermistorMux::THERMISTOR_MUX_COUNT)>
             &therm_voltages);
-    result<float> packVoltage(
-        const io::adbms::Segments<result<float>> 
-            &seg_voltages);
+    result<float> packVoltage(const io::adbms::Segments<result<float>> &seg_voltages);
 } // namespace calculate
 } // namespace app::segments

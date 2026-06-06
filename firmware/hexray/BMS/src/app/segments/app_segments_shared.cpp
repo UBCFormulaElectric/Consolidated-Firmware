@@ -29,8 +29,8 @@ SegmentParam<float>     latest_max_segment_voltage{};
 SegmentParam<float>     latest_min_segment_voltage{};
 io::semaphore           segment_voltage_lock{ true };
 
-result<float>   pack_voltage;
-io::semaphore    pack_voltage_lock{ true };
+result<float> pack_voltage;
+io::semaphore pack_voltage_lock{ true };
 } // namespace
 
 namespace app::segments::shared
@@ -192,7 +192,8 @@ void setSegmentVoltageStats(const Segments<result<float>> &latest)
     latest_max_segment_voltage = max;
 }
 
-void setPackVoltage(const result<float> latest) {
+void setPackVoltage(const result<float> latest)
+{
     const io::unique_semaphore lock{ pack_voltage_lock };
     pack_voltage = latest;
 }
