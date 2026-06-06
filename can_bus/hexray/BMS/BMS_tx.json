@@ -369,6 +369,19 @@
       }
     }
   },
+  "PackVoltage": {
+    "msg_id": 425,
+    "cycle_time": 100,
+    "description": "Accumulator pack voltage (sum of segment voltages from the ADBMS stack)",
+    "signals": {
+      "PackVoltage": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 700,
+        "unit": "V"
+      }
+    }
+  },
   "CellVoltages_Seg0_Seg3": {
     "msg_id": 422,
     "cycle_time": null,

@@ -81,6 +81,7 @@ namespace broadcast
     void voltageStats();
     void temperatureStats();
     void segmentVoltageStats();
+    void packVoltage();
     void cmdCountMismatch();
 } // namespace broadcast
 
@@ -122,6 +123,7 @@ namespace shared
     io::adbms::Segments<result<float>> getLatestSegmentVoltages();
     SegmentParam<float>                getMinSegmentVoltage();
     SegmentParam<float>                getMaxSegmentVoltage();
+    result<float>                      getPackVoltage();
 
     void setCellOwc(const io::adbms::Cells<result<bool>> &owc);
     void setVoltageStats(const io::adbms::Cells<result<float>> &latest);

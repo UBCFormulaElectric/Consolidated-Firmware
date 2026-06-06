@@ -102,6 +102,12 @@ SegmentParam<float> getMaxSegmentVoltage()
     return latest_max_segment_voltage;
 }
 
+result<float> getPackVoltage()
+{
+    const io::unique_semaphore lock{ pack_voltage_lock };
+    return pack_voltage;
+}
+
 void setCellOwc(const Cells<result<bool>> &latest)
 {
     const io::unique_semaphore lock{ cell_owc_lock };

@@ -498,4 +498,9 @@ void segmentVoltageStats()
     can_tx::BMS_MaxSegmentVoltageSegment_set(max_seg);
 }
 
+void packVoltage()
+{
+    can_tx::BMS_PackVoltage_set(shared::getPackVoltage().value_or(-0.1f));
+}
+
 } // namespace app::segments::broadcast
