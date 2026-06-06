@@ -133,7 +133,10 @@ namespace
     // CAN traffic flows, so that one isn't raced. 0 means "not yet anchored".
     volatile uint64_t fast_basetime_ms = 0;
 
-    void setFastBase(const uint64_t epoch_ms) { fast_basetime_ms = epoch_ms - io::time::getCurrentMs(); }
+    void setFastBase(const uint64_t epoch_ms)
+    {
+        fast_basetime_ms = epoch_ms - io::time::getCurrentMs();
+    }
 } // namespace
 
 result<void> anchorBaseTime()
