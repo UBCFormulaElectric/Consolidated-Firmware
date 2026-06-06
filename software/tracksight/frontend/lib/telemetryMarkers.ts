@@ -53,6 +53,10 @@ export function getTelemetryMarkers(): TelemetryMarker[] {
     return markerCache;
 }
 
+export function getVisibleTelemetryMarkers(startTimeMs: number, endTimeMs: number): TelemetryMarker[] {
+    return getTelemetryMarkers().filter((marker) => marker.timestampMs >= startTimeMs && marker.timestampMs <= endTimeMs);
+}
+
 export function addTelemetryMarker(marker: Omit<TelemetryMarker, "id"> & { id?: string }) {
     const nextMarker: TelemetryMarker = {
         ...marker,
