@@ -53,7 +53,6 @@ void {{msg.name}}_sendAperiodic()
     unlock();
     #endif
     {%- for msg_bus_name in busses %}
-    {%- if should_send_to_bus(msg, msg_bus_name) %}
     {%- if msg.modes != CanBusModes::All %}
     if (
     {%- for mode in unwrap_mode_names(msg.modes) %}
@@ -65,7 +64,6 @@ void {{msg.name}}_sendAperiodic()
     }
     {%- else %}
     enqueue_func_{{msg_bus_name}}(tx_msg);
-    {%- endif %}
     {%- endif %}
     {%- endfor %}
 }

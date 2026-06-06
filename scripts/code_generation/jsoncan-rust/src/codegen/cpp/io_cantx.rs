@@ -19,23 +19,6 @@ impl IoCanTxModuleSource<'_> {
             CanBusModes::Some(names) => names,
         }
     }
-
-    fn should_send_to_bus(&self, msg: &CanMessage, bus_name: &str) -> bool {
-        if bus_name != "InvCAN" {
-            return true;
-        }
-
-        let msg_name = msg.name.as_str();
-        !matches!(
-            msg_name,
-            name if name.ends_with("_Warnings")
-                || name.ends_with("_Faults")
-                || name.ends_with("_Info")
-                || name.ends_with("_WarningsCounts")
-                || name.ends_with("_FaultsCounts")
-                || name.ends_with("_InfoCounts")
-        )
-    }
 }
 
 #[derive(Template)]
