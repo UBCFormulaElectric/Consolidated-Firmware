@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use socketioxide::extract::SocketRef;
-use tokio::sync::{RwLock, broadcast::Receiver};
+use tokio::sync::{RwLock, broadcast::Receiver, broadcast::error::RecvError};
 
 use crate::utils::yellow;
 use crate::{error_println, tasks::{HealthCheckSender, HealthCheckSenderExt, Task, client_api::subtable_clients::Clients}, vprintln};
@@ -54,8 +54,13 @@ pub async fn run_live_data_handler(
                     }
                 }
             }
-            // Closed channel or any error is signal to stop thread
-            _ => {
+            // Lagging behind is recoverable: drop the missed signals and keep going
+            Err(RecvError::Lagged(n)) => {
+                error_println!("Live data handler lagged, dropped {n} signals");
+                continue;
+            }
+            // Closed channel is the signal to stop thread
+            Err(RecvError::Closed) => {
                 vprintln!("Live data task shutting down.");
                 break;
             }
