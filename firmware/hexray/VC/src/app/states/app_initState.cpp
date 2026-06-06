@@ -16,6 +16,50 @@ namespace app::states
 
 namespace initState
 {
+    static void reset_inverter_rx()
+    {
+        app::can_rx::INVFL_bSystemReady_update(false);
+        app::can_rx::INVFR_bSystemReady_update(false);
+        app::can_rx::INVRL_bSystemReady_update(false);
+        app::can_rx::INVRR_bSystemReady_update(false);
+        app::can_rx::INVFL_bQuitDcOn_update(false);
+        app::can_rx::INVFR_bQuitDcOn_update(false);
+        app::can_rx::INVRL_bQuitDcOn_update(false);
+        app::can_rx::INVRR_bQuitDcOn_update(false);
+        app::can_rx::INVFL_bQuitInverterOn_update(false);
+        app::can_rx::INVFR_bQuitInverterOn_update(false);
+        app::can_rx::INVRL_bQuitInverterOn_update(false);
+        app::can_rx::INVRR_bQuitInverterOn_update(false);
+        app::can_rx::INVFL_bError_update(false);
+        app::can_rx::INVFR_bError_update(false);
+        app::can_rx::INVRL_bError_update(false);
+        app::can_rx::INVRR_bError_update(false);
+        app::can_rx::INVFL_ErrorInfo_update(0u);
+        app::can_rx::INVFR_ErrorInfo_update(0u);
+        app::can_rx::INVRL_ErrorInfo_update(0u);
+        app::can_rx::INVRR_ErrorInfo_update(0u);
+    }
+
+    static void reset_inverter_tx()
+    {
+        app::can_tx::VC_INVFLbDcOn_set(false);
+        app::can_tx::VC_INVFRbDcOn_set(false);
+        app::can_tx::VC_INVRLbDcOn_set(false);
+        app::can_tx::VC_INVRRbDcOn_set(false);
+        app::can_tx::VC_INVFLbEnable_set(false);
+        app::can_tx::VC_INVFRbEnable_set(false);
+        app::can_tx::VC_INVRLbEnable_set(false);
+        app::can_tx::VC_INVRRbEnable_set(false);
+        app::can_tx::VC_INVFLbInverterOn_set(false);
+        app::can_tx::VC_INVFRbInverterOn_set(false);
+        app::can_tx::VC_INVRLbInverterOn_set(false);
+        app::can_tx::VC_INVRRbInverterOn_set(false);
+        app::can_tx::VC_INVFLbErrorReset_set(false);
+        app::can_tx::VC_INVFRbErrorReset_set(false);
+        app::can_tx::VC_INVRLbErrorReset_set(false);
+        app::can_tx::VC_INVRRbErrorReset_set(false);
+    }
+
     static const app::powerManager::PowerManagerConfig power_manager_state = { .efuse_configs = { {
                                                                                    { false, 200, 5 }, // rr_pump
                                                                                    { false, 200, 5 }, // rl_pump
@@ -38,6 +82,8 @@ namespace initState
         app::can_tx::VC_State_set(VCState::VC_INIT_STATE);
 
         app::can_alerts::infos::InverterRetry_set(false);
+        reset_inverter_rx();
+        reset_inverter_tx();
 
         app::can_tx::VC_INVFLTorqueSetpoint_set(torque_limits::NO_TORQUE_Nm);
         app::can_tx::VC_INVFRTorqueSetpoint_set(torque_limits::NO_TORQUE_Nm);
