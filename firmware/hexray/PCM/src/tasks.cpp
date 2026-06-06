@@ -21,7 +21,6 @@ static constexpr float    LV_ON_THRESHOLD_V = 20.0f;
 static constexpr uint32_t TURN_ON_DELAY_MS  = 100;
 enum class PcmState
 {
-    LV,
     OFF,
     VICOR_ONLY,
     ON
@@ -34,7 +33,7 @@ static const hw::gpio pcm_en_in{ PCM_EN_GPIO_Port, PCM_EN_Pin };
 static const hw::gpio lv_buck_en_out{ LV_BUCK_EN_GPIO_Port, LV_BUCK_EN_Pin };
 static const hw::gpio led_out{ LED_GPIO_Port, LED_Pin };
 
-static auto state = PcmState::LV;
+static auto state = PcmState::OFF;
 
 #ifdef PCM_DEBUG
 static char debug_buf[1024];
@@ -94,9 +93,9 @@ static char debug_buf[1024];
             continue;
         }
 
-        const result<vicor::status::CurrentOutput> current = vicor::status::iout();
-        LOG_IF_ERR(current);
-        if (current.has_value())
+        const result<vicor::status::CurrentOutput> current_res = vicor::status::iout();
+        LOG_IF_ERR(current_res);
+        if (current_res.has_value())
         {
             // current.value().log();
         }
@@ -105,11 +104,22 @@ static char debug_buf[1024];
             continue;
         }
 
-        const result<vicor::status::Temp> temp = vicor::status::temp();
-        LOG_IF_ERR(temp);
-        if (temp.has_value())
+        const result<vicor::status::Temp> temp_res = vicor::status::temp();
+        LOG_IF_ERR(temp_res);
+        if (temp_res.has_value())
         {
             // temp.value().log();
+        }
+        else
+        {
+            continue;
+        }
+
+        const result<vicor::status::Input> input_res = vicor::status::input();
+        LOG_IF_ERR(input_res);
+        if (input_res.has_value())
+        {
+            input_res.value().log();
         }
         else
         {
@@ -125,22 +135,13 @@ static char debug_buf[1024];
         // all above variables should have values
         const vicor::status::General       &general_status = status_res.value();
         const vicor::status::Comm          &comm_status    = status_comm_res.value();
-        const vicor::status::CurrentOutput &current_status = current.value();
-        const vicor::status::Temp          &temp_status    = temp.value();
+        const vicor::status::CurrentOutput &current_status = current_res.value();
+        const vicor::status::Temp          &temp_status    = temp_res.value();
+        const vicor::status::Input         &input_status   = input_res.value();
 
         switch (state)
         {
-            case PcmState::LV: // this state is for when the PCM is awake, but the vicor is still off
-            {
-                if (not general_status.unit_off) // namely unit_on
-                {
-                    LOG_INFO("Going to OFF state");
-                    state = PcmState::OFF;
-                }
-                break;
-            }
-            case PcmState::OFF: // this state is for when HV is off, or when the HV is on, but the vicor is still off
-                                // (precharge)
+            case PcmState::OFF:
             {
                 if (pcm_en_in.readPin())
                 {
@@ -153,7 +154,8 @@ static char debug_buf[1024];
                 }
                 else
                 {
-                    LOG_IF_ERR(vicor::operation(false)); // PLEASE!!!!!!! TURN OFF!!!!!!
+                    // note that this will fail if the HV is off, but I have no idea how to check if HV is off
+                    UNUSED(vicor::operation(false)); // PLEASE!!!!!!! TURN OFF!!!!!!
                 }
                 break;
             }
@@ -196,12 +198,6 @@ static char debug_buf[1024];
                 // Should never get here.
                 break;
             }
-        }
-
-        if (general_status.unit_off and state != PcmState::LV)
-        {
-            LOG_INFO("Going to LV state because unit is off");
-            state = PcmState::LV;
         }
 #endif
     }

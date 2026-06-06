@@ -116,6 +116,17 @@ namespace status
         bool vin_uv_warning : 1; // not supported
         bool vin_ov_warning : 1;
         bool vin_ov_fault : 1;
+        void log() const
+        {
+            if (unit_off_for_insufficient_voltage)
+                LOG_INFO("UNIT_OFF_FOR_INSUFFICIENT_VOLTAGE is set");
+            if (vin_uv_fault)
+                LOG_INFO("VIN_UV_FAULT is set");
+            if (vin_ov_warning)
+                LOG_INFO("VIN_OV_WARNING is set");
+            if (vin_ov_fault)
+                LOG_INFO("VIN_OV_FAULT is set");
+        }
     };
     static_assert(sizeof(Input) == sizeof(uint8_t), "VicorInputStatus should be 8 bits");
     result<Input> input();
