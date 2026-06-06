@@ -9,8 +9,9 @@
 #include "app_inverter.hpp"
 #include "app_powerManager.hpp"
 #include "torque_vectoring/datatypes/torque_limits.hpp"
-#include "io_log.hpp"
 #include "app_powerManager.hpp"
+#include "app_pumpControl.hpp"
+#include "io_pumpControl.hpp"
 
 using namespace app::can_utils;
 using namespace app::inverter;
@@ -34,23 +35,23 @@ static volatile float apps = 0.0f;
 
 namespace app::states
 {
-static bool driveStatePassPreCheck()
-{
-    // check inverter warnings
-    app::inverter::FaultCheck();
+// static bool driveStatePassPreCheck()
+// {
+//     // check inverter warnings
+//     app::inverter::FaultCheck();
 
-    // check board warnings
-    if (app::can_alerts::AnyBoardHasWarning())
-        return false;
+//     // check board warnings
+//     // if (app::can_alerts::AnyBoardHasWarning())
+//     //     return false;
 
-    // check possibly other faults
-    apps = app::can_rx::FSM_PappsMappedPedalPercentage_get();
+//     // check possibly other faults
+//     apps = app::can_rx::FSM_PappsMappedPedalPercentage_get();
 
-    if (app::bspdWarning::checkSoftwareBspd(apps))
-        return false;
+//     if (app::bspdWarning::checkSoftwareBspd(apps))
+//         return false;
 
-    return true;
-}
+//     return true;
+// }
 
 static void driveStateRunOnEntry()
 {
@@ -72,17 +73,18 @@ static void driveStateRunOnEntry()
 static void driveStateRunOnTick100Hz(void)
 {
     efuseProtocolTick_100Hz();
-
-    if (!driveStatePassPreCheck())
-    {
-        send_torque(NO_TORQUE_Nm, NO_TORQUE_Nm, NO_TORQUE_Nm, NO_TORQUE_Nm);
-        // TODO: set speed requests to 0 as well
-        return;
-    }
+    app::pumpControl::MonitorPumps();
+    // if (!driveStatePassPreCheck())
+    // {
+    //     send_torque(NO_TORQUE_Nm, NO_TORQUE_Nm, NO_TORQUE_Nm, NO_TORQUE_Nm);
+    //     // TODO: set speed requests to 0 as well
+    //     return;
+    // }
 
     // TODO: add driving algorithm handling here
     // just for spinning wheels
-    const float torque = TORQUE_REQUEST(apps * MAX_TORQUE_REQUEST_Nm);
+    apps = app::can_rx::FSM_PappsMappedPedalPercentage_get();
+    const float torque = apps * MAX_TORQUE_REQUEST_Nm / 100.0f;
     send_torque(torque, torque, torque, torque);
 }
 

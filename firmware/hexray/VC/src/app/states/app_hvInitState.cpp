@@ -188,9 +188,12 @@ namespace hvInitState
             app::can_tx::VC_InverterState_set(current_inverter_state);
         }
 
-        reset_inverter_power_requests();
+       //reset_inverter_power_requests();
         switch (current_inverter_state)
         {
+            case VCInverterState::INV_READY_FOR_DRIVE:
+                app::StateMachine::set_next_state(&hv_state);
+                __attribute__((fallthrough));
             case VCInverterState::INV_INVERTER_ON:
                 app::can_tx::VC_INVFLbInverterOn_set(true);
                 app::can_tx::VC_INVFRbInverterOn_set(true);
@@ -208,9 +211,6 @@ namespace hvInitState
                 app::can_tx::VC_INVFRbDcOn_set(true);
                 app::can_tx::VC_INVRRbDcOn_set(true);
                 app::can_tx::VC_INVRLbDcOn_set(true);
-                break;
-            case VCInverterState::INV_READY_FOR_DRIVE:
-                app::StateMachine::set_next_state(&hv_state);
                 break;
             case VCInverterState::INV_ERROR_RETRY:
                 start_up_timer.stop();

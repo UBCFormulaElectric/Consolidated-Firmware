@@ -2,6 +2,7 @@
 #include "io_time.hpp"
 #include "io_efuses.hpp"
 #include "app_canTx.hpp"
+#include "io_pumpControl.hpp"
 
 #define BUFFER 5.0f
 
@@ -22,13 +23,13 @@ void MonitorPumps()
 {
     time_ms += 10;
 
-    const auto rl_ready = rl_pump.isReady();
+    //const auto rl_ready = rl_pump.isReady();
     const auto rr_ready = rr_pump.isReady();
 
-    const bool ramp_up_rl_pump = rl_ready && *rl_ready;
+    //const bool ramp_up_rl_pump = rl_ready && *rl_ready;
     const bool ramp_up_rr_pump = rr_ready && *rr_ready;
 
-    if (ramp_up_rl_pump && ramp_up_rr_pump)
+    if (ramp_up_rr_pump)
     {
         app::can_tx::VC_PumpFailure_set(false);
         if (!finished_ramp_up)
@@ -48,8 +49,7 @@ void MonitorPumps()
         finished_ramp_up = false;
         time_ms          = 0;
     }
-
-    app::can_tx::VC_RsmTurnOnPump_set(ramp_up_rl_pump && ramp_up_rr_pump);
+    app::can_tx::VC_RsmTurnOnPump_set(ramp_up_rr_pump);
 }
 
 #ifdef TARGET_TEST

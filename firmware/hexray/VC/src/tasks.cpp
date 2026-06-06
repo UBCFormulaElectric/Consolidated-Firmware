@@ -49,7 +49,7 @@ static hw::rtos::StaticTask Task1kHz(osPriorityRealtime, "Task1kHz", tasks_run1k
 static hw::rtos::StaticTask Task1Hz(osPriorityAboveNormal, "Task1Hz", tasks_run1Hz, Task1HzStack);
 static hw::rtos::StaticTask TaskCanRx(osPriorityNormal, "TaskCanRx", tasks_runCanRx, TaskCanRxStack);
 static hw::rtos::StaticTask TaskCan1Tx(osPriorityNormal, "TaskCanTx", tasks_runCan1Tx, TaskCan1TxStack);
-static hw::rtos::StaticTask TaskCan2Tx(osPriorityNormal, "TaskCanTx", tasks_runCan2Tx, TaskCan2TxStack);
+static hw::rtos::StaticTask TaskCan2Tx(osPriorityHigh, "TaskCanTx", tasks_runCan2Tx, TaskCan2TxStack);
 static hw::rtos::StaticTask
     TaskBatteryMonitoring(osPriorityNormal, "TaskBatteryMonitoring", tasks_batteryMonitoring, BatteryMonitoringStack);
 static hw::rtos::StaticTask

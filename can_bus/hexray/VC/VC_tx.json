@@ -1,7 +1,7 @@
 {
   "INVFLSetPoints": {
     "msg_id": 388,
-    "cycle_time": 5,
+    "cycle_time": 10,
     "signals": {
       "INVFLReserve1": {
         "start_bit": 0,
@@ -46,7 +46,7 @@
   },
   "INVFRSetPoints": {
     "msg_id": 389,
-    "cycle_time": 5,
+    "cycle_time": 10,
     "signals": {
       "INVFRReserve1": {
         "start_bit": 0,
@@ -91,7 +91,7 @@
   },
   "INVRLSetPoints": {
     "msg_id": 392,
-    "cycle_time": 5,
+    "cycle_time": 10,
     "signals": {
       "INVRLbReserve1": {
         "start_bit": 0,
@@ -136,7 +136,7 @@
   },
   "INVRRSetPoints": {
     "msg_id": 393,
-    "cycle_time": 5,
+    "cycle_time": 10,
     "signals": {
       "INVRRbReserve1": {
         "start_bit": 0,

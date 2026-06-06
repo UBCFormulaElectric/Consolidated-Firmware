@@ -89,7 +89,7 @@ class Potentiometer
     [[nodiscard]] result<void> writePercentage(const uint8_t percentage) const
     {
 #ifdef TARGET_EMBEDDED
-        return writeWiper(percentage * MAX_WIPER_VALUE / 100);
+        return writeWiper(static_cast<uint8_t>(percentage * MAX_WIPER_VALUE / 100));
 #elif TARGET_TEST
         return {};
 #endif
