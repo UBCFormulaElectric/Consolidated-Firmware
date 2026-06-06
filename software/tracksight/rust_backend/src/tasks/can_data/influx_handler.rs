@@ -1,7 +1,7 @@
 use influxdb2::{Client, models::DataPoint};
 use tokio::sync::{broadcast::Receiver, broadcast::error::RecvError};
 
-use crate::{tasks::can_data::influx_util::{InfluxSignalSource, MAX_BATCH_CAPACITY, build_data_point, flush_buffer}, utils::yellow};
+use crate::{error_println, tasks::can_data::influx_util::{InfluxSignalSource, MAX_BATCH_CAPACITY, build_data_point, flush_buffer}, utils::yellow};
 use crate::{config::CONFIG, tasks::{HealthCheckSender, HealthCheckSenderExt, ResultExt, Task}, vprintln};
 
 use jsoncan_rust::can_database::DecodedSignal;
