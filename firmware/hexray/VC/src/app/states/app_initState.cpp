@@ -32,6 +32,8 @@ namespace initState
     {
         LOG_INFO("entering init state!");
 
+        app::can_rx::clear_board_rx_table(app::can_utils::CanNode::VC_NODE);
+
         app::powerManager::updateConfig(power_manager_state);
         app::can_tx::VC_State_set(VCState::VC_INIT_STATE);
 

@@ -67,8 +67,6 @@ void jobs_run1Hz_tick() {}
 void jobs_run100Hz_tick()
 {
     app::powerManager::efuseProtocolTick_100Hz();
-    app::loadswitches::efuse_broadcast();
-    
     if (app::can_alerts::AnyBoardHasFault())
     {
         app::StateMachine::set_next_state(&app::states::fault_state);
@@ -91,6 +89,7 @@ void jobs_run100Hz_tick()
     app::inverter::FaultCheck();
     app::StateMachine::tick100Hz();
     app::can_tx::VC_PcmEnable_set(io::pcm::enabled());
+    app::loadswitches::efuse_broadcast();
     hb_monitor.checkIn();
     hb_monitor.broadcastFaults();
     app::shdnLoop::broadcast();

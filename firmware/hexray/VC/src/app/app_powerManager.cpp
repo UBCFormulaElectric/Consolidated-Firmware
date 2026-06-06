@@ -7,7 +7,6 @@ namespace app::powerManager
 {
 namespace
 {
-    constexpr int DAUGHTERBOARD_EFUSES = 3;
     PowerManagerConfig                                          state_{};
     Timer                                                       sequencing_timer_{ 0 };
     constexpr std::array<const io::Efuse *, NUM_EFUSE_CHANNELS> efuses = { {
@@ -30,21 +29,18 @@ namespace
         {
             if (sequencing_timer_.updateAndGetState() != Timer::TimerState::IDLE)
                 break;
-
             const io::Efuse *efuse = efuses[ch];
             assert(efuse != nullptr);
 
             const bool desired = state_.efuse_configs[ch].efuse_enable;
-            const bool blocked = (ch <= DAUGHTERBOARD_EFUSES) && can_tx::VC_Info_PcmUnderVoltage_get();
-            const bool should_enable = desired && !blocked;
 
-            if (const bool actual = efuse->isChannelEnabled(); actual == should_enable)
+            if (const bool actual = efuse->isChannelEnabled(); actual == desired)
                 continue;
 
             if (retries_[ch] > state_.efuse_configs[ch].max_retry)
                 continue;
 
-            if (!should_enable)
+            if (!desired)
             {
                 efuse->setChannel(false);
                 continue;
@@ -64,8 +60,17 @@ namespace
 void updateConfig(const PowerManagerConfig &new_cfg)
 {
     state_             = new_cfg;
-    retries_ = {};
+    retries_ = {}; 
     sequencing_timer_.stop();
+    const bool under_v = can_tx::VC_Info_PcmUnderVoltage_get();
+    state_.efuse_configs[0].efuse_enable =
+        state_.efuse_configs[0].efuse_enable ? !under_v : state_.efuse_configs[0].efuse_enable;
+    state_.efuse_configs[2].efuse_enable =
+        state_.efuse_configs[2].efuse_enable ? !under_v : state_.efuse_configs[2].efuse_enable;
+    state_.efuse_configs[1].efuse_enable =
+        state_.efuse_configs[1].efuse_enable ? !under_v : state_.efuse_configs[1].efuse_enable;
+    state_.efuse_configs[3].efuse_enable =
+        state_.efuse_configs[3].efuse_enable ? !under_v : state_.efuse_configs[3].efuse_enable;
 }
 void efuseProtocolTick_100Hz()
 {
