@@ -214,6 +214,31 @@ result<DateTime> getDateTime()
     };
 }
 
+result<DateTime> dateTimeFromEpoch(uint64_t epoch_ms)
+{
+    const int64_t  days      = static_cast<int64_t>(epoch_ms / MS_PER_DAY);
+    const uint32_t ms_of_day = static_cast<uint32_t>(epoch_ms % MS_PER_DAY);
+
+    const YMD           ymd  = civilFromDays(days);
+    const io::rtc::Time time = timeFromMsOfDay(ms_of_day);
+
+    return DateTime{
+        static_cast<uint16_t>(ymd.year),
+        static_cast<uint8_t>(ymd.month),
+        static_cast<uint8_t>(ymd.day),
+        time.hours,
+        time.minutes,
+        time.seconds,
+        static_cast<uint16_t>(millisecondsFromSubseconds(time.subseconds)),
+    };
+}
+
+result<uint8_t> weekdayFromEpoch(uint64_t epoch_ms)
+{
+    const int64_t days = static_cast<int64_t>(epoch_ms / MS_PER_DAY);
+    return weekdayFromDays(days);
+}
+
 void logDateTime(const char *prefix)
 {
     const auto rtc_datetime = getDateTime();

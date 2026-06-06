@@ -37,6 +37,14 @@ result<void> setEpochMs(uint64_t epoch_ms);
 // Read RTC date/time into a printable calendar representation.
 result<DateTime> getDateTime();
 
+// Convert an absolute Unix epoch milliseconds value into a calendar DateTime
+// (UTC) without reading the RTC. Useful for converting stored epoch values
+// into human calendar fields.
+result<DateTime> dateTimeFromEpoch(uint64_t epoch_ms);
+
+// Get ISO weekday (Mon=1..Sun=7) for an epoch ms value without reading RTC.
+result<uint8_t> weekdayFromEpoch(uint64_t epoch_ms);
+
 // Log current RTC date/time as YYYY-MM-DD HH:MM:SS.mmm.
 void logDateTime(const char *prefix);
 

@@ -13,8 +13,8 @@ namespace app::sd
 std::expected<void, io::FileSystem::FileSystemError> init_fs();
 
 /**
- * Updates the metadata (time) of the given file descriptor with the current time from the RTC.
- * Writes seconds, minutes, hour, day, weekday, month, year (in that order) in the first 6 bytes of the metadata block.
+ * Updates the metadata of the given file descriptor with the corrected DAM basetime.
+ * Writes seconds, minutes, hour, day, weekday, month, year (in that order) in the first 7 bytes of the metadata block.
  * @return ErrorCode status if failure
  */
 std::expected<void, ErrorCode> update_metadata();

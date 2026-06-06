@@ -1,7 +1,8 @@
 #include "app_bootcount.hpp"
-#include "io_rtc.hpp"
+#include "app_epochClock.hpp"
 #include "io_filesystem.hpp"
 #include "io_fileSystems.hpp"
+#include "io_time.hpp"
 #include "util_errorCodes.hpp"
 
 #include <array>
@@ -55,23 +56,39 @@ std::expected<void, ErrorCode> update_metadata()
     if (!log_open)
         return std::unexpected(ErrorCode::INVALID_ARGS);
 
-    result<io::rtc::Time> rtc_time = io::rtc::get_time();
-    result<io::rtc::Date> rtc_date = io::rtc::get_date();
-
-    if (!rtc_time.has_value() || !rtc_date.has_value())
+    const auto epoch_ms = app::epochClock::getEpochMs();
+    if (!epoch_ms.has_value())
     {
-        LOG_ERROR("Failed to get RTC time and/or date");
+        LOG_ERROR("Failed to get current epoch ms");
+        return std::unexpected(ErrorCode::ERROR);
+    }
+
+    // Update basetime: basetime = ntp_time - now_ms
+    const uint64_t now_ms    = io::time::getCurrentMs();
+    const uint64_t base_time = epoch_ms.value() - now_ms;
+
+    const auto dt = app::epochClock::dateTimeFromEpoch(base_time);
+    if (!dt)
+    {
+        LOG_ERROR("Failed to convert base_time to DateTime");
+        return std::unexpected(ErrorCode::ERROR);
+    }
+
+    const auto wkday = app::epochClock::weekdayFromEpoch(base_time);
+    if (!wkday)
+    {
+        LOG_ERROR("Failed to compute weekday from base_time");
         return std::unexpected(ErrorCode::ERROR);
     }
 
     std::array<uint8_t, 7> raw{};
-    raw[0] = rtc_time.value().seconds;
-    raw[1] = rtc_time.value().minutes;
-    raw[2] = rtc_time.value().hours;
-    raw[3] = rtc_date.value().day;
-    raw[4] = rtc_date.value().weekday;
-    raw[5] = rtc_date.value().month;
-    raw[6] = rtc_date.value().year;
+    raw[0] = static_cast<uint8_t>(dt->seconds);
+    raw[1] = static_cast<uint8_t>(dt->minutes);
+    raw[2] = static_cast<uint8_t>(dt->hours);
+    raw[3] = static_cast<uint8_t>(dt->day);
+    raw[4] = wkday.value();
+    raw[5] = static_cast<uint8_t>(dt->month);
+    raw[6] = static_cast<uint8_t>(dt->year - 2000);
 
     const std::span<const uint8_t> metadata_buf(raw.data(), raw.size());
     auto                           err = fs.writeMetadata(log_fd, metadata_buf);
