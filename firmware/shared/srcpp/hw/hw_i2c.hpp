@@ -1,6 +1,7 @@
 #pragma once
 
 #include <span>
+#include <optional>
 #include "hw_utils.hpp"
 #include "FreeRTOS.h"
 #include "task.h"
@@ -24,6 +25,8 @@ class bus
      * Called by HAL I2C completion callbacks to signal that a transaction has finished.
      */
     void onTransactionCompleteFromISR() const;
+
+    mutable std::optional<uint32_t> error = std::nullopt;
 
   private:
     friend class device;
@@ -49,10 +52,10 @@ class device
      * @brief Check if device connected to the given I2C interface is ready for communication.
      * @return EXIT_CODE_OK if connected device is ready to communicate over I2C.
      */
-    [[nodiscard]] result<void> isTargetReady() const
+    [[nodiscard]] result<void> isTargetReady(const bool read = false) const
     {
         return utils::convertHalStatus(HAL_I2C_IsDeviceReady(
-            &d_bus.handle, static_cast<uint16_t>(targetAddress << 1), NUM_DEVICE_READY_TRIALS, timeoutMs));
+            &d_bus.handle, static_cast<uint16_t>(targetAddress << 1 | read), NUM_DEVICE_READY_TRIALS, timeoutMs));
     }
 
     /**
