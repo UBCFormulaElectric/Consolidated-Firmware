@@ -209,7 +209,7 @@ void tasks_runTelemParse(void *arg)
 {
     forever
     {
-        // Block until TaskTelemRx pushes new bytes into the ring. 
+        // Block until TaskTelemRx pushes new bytes into the ring.
         (void)ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
         app::telemRx::drain();
     }
