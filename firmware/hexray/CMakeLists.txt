@@ -4,6 +4,7 @@ add_subdirectory(DAM)
 add_subdirectory(FSM)
 add_subdirectory(RSM)
 add_subdirectory(VC)
+add_subdirectory(PCM)
 
 if ("${TARGET}" STREQUAL "binary")
     add_custom_target(hexray_hexes)
