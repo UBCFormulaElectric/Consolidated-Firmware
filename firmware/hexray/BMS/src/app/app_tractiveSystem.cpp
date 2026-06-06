@@ -5,8 +5,8 @@
 #include "app_canTx.hpp"
 #include "app_canAlerts.hpp"
 
-#define HIGH_RES_MAX_CURRENT_READING 50.0f
-#define W_TO_KW 1.0e-3f
+inline constexpr float HIGH_RES_MAX_CURRENT_READING = 50.0f;
+inline constexpr float W_TO_KW                      = 1.0e-3f;
 
 namespace app::ts
 {
@@ -25,10 +25,7 @@ float getCurrent()
     {
         return high_res_current;
     }
-    else
-    {
-        return low_res_current;
-    }
+    return low_res_current;
 }
 
 void broadcast()

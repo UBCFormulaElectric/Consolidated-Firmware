@@ -147,7 +147,7 @@ template <size_t WATCHDOG_INSTANCES> class monitor
                         "id = %d)",
                         pcTaskGetTaskName(instance->task_id), status.xTaskNumber);
 
-#ifndef NO_BOOTLOADER
+#ifdef BOOTLOAD
                     const bootup::BootRequest request = {
                         .target        = bootup::BootTarget::APP,
                         .context       = bootup::BootContext::WATCHDOG_TIMEOUT,

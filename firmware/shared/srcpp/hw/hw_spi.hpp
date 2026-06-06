@@ -78,16 +78,48 @@ class device
      */
     [[nodiscard]] result<void> transmitThenReceive(std::span<const uint8_t> tx, std::span<uint8_t> rx) const;
 
+    /**
+     * @brief Transmit data over SPI using DMA.
+     * @param tx Buffer to transmit. Must be <= 256 bytes.
+     * @return EXIT_CODE_OK on success, INVALID_ARGS if tx is too large, BUSY if another transfer is in flight,
+     *         TIMEOUT if the transfer does not complete within timeoutMs, ERROR on hardware fault.
+     */
+    [[nodiscard]] result<void> transmitDma(std::span<const uint8_t> tx) const;
+
+    /**
+     * @brief Receive data over SPI using DMA.
+     * @param rx Buffer to fill. Must be <= 256 bytes
+     * @return EXIT_CODE_OK on success, INVALID_ARGS if rx is too large, BUSY if another transfer is in flight,
+     *         TIMEOUT if the transfer does not complete within timeoutMs, ERROR on hardware fault.
+     */
+    [[nodiscard]] result<void> receiveDma(std::span<uint8_t> rx) const;
+
+    /**
+     * @brief Transmit then receive over SPI using DMA, while keeping NSS asserted.
+     * @param tx Command bytes to transmit first.
+     * @param rx Buffer for the response. tx.size() + rx.size() must be <= 256 bytes.
+     * @return EXIT_CODE_OK on success, INVALID_ARGS if combined size is too large, BUSY if another transfer
+     *         is in flight, TIMEOUT if the transfer does not complete within timeoutMs, ERROR on fault.
+     */
+    [[nodiscard]] result<void> transmitThenReceiveDma(std::span<const uint8_t> tx, std::span<uint8_t> rx) const;
+
   private:
     const bus                &parent_bus;
     const std::optional<gpio> nss;
     uint32_t                  timeoutMs;
 
+    // Scratch buffers for DMA transfers. Live in AXI SRAM (.bss section) because globals on this MCU
+    // default there and DMA cannot reach DTCM. Size caps every DMA transfer at 256 bytes.
+    mutable uint8_t dma_tx_buf[256]{};
+    mutable uint8_t dma_rx_buf[256]{};
+
     void enableNss() const;
     void disableNss() const;
 
     /**
-     * @return idk
+     * @brief Block the calling task until the current SPI transfer completes.
+     * @return EXIT_CODE_OK on a successful notification, TIMEOUT if the wait times out (transfer is also
+     *         aborted), ERROR if the wake came from HAL_SPI_ErrorCallback.
      */
     [[nodiscard]] result<void> waitForNotification() const;
 };

@@ -24,15 +24,12 @@ def get_commit_info(sha: str) -> Commit:
 
 
 bus_mapping: dict[int, str] = {
-    140: "BMS",
-    506: "CRIT",
-    819: "dimos",
-    302: "FSM",
-    419: "RSM",
-    204: "VC",
-    799: "RSM_boot",
-    599: "FSM_boot",
-    899: "CRIT_boot",
+    409: "BMS",
+    909: "CRIT",
+    609: "FSM",
+    709: "RSM",
+    509: "VC",
+    809: "DAM",
 }
 
 bus_found: dict[str, bool] = {
@@ -51,15 +48,15 @@ bus_found: dict[str, bool] = {
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--bus", type=str, default="pcan", help="python-can bus type")
+    parser.add_argument("--bus", type=str, default="vector", help="python-can bus type")
     parser.add_argument(
-        "--channel", type=str, default="PCAN_USBBUS1", help="python-can channel"
+        "--channel", type=str, default="0", help="python-can channel"
     )
-    parser.add_argument("--bit_rate", type=int, default=500000, help="CAN bus bit rate")
+    parser.add_argument("--bit_rate", type=int, default=1_000_000, help="CAN bus bit rate")
     args = parser.parse_args()
 
     with can.interface.Bus(
-        interface=args.bus, channel=args.channel, bitrate=args.bit_rate
+        interface=args.bus, channel=args.channel, bitrate=args.bit_rate, fd=True
     ) as bus:
         try:
             while not all(bus_found.values()):
