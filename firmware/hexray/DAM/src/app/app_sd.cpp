@@ -17,7 +17,7 @@ namespace
     std::array<char, 32>  LOG_PATH_BUF{};
     uint32_t              log_fd   = 0;
     bool                  log_open = false;
-} // namespace
+}
 
 std::expected<void, io::FileSystem::FileSystemError> init_fs()
 {

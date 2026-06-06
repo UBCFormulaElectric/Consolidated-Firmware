@@ -135,12 +135,6 @@ void tasks_runLogging(void *arg)
 {
     uint32_t           start_ticks = osKernelGetTickCount();
     constexpr uint32_t period_ms   = 100U;
-    // Debug but we need these to upgrade to 4b since we need to init in 1b bus width!
-    // LOG_INFO("hsd1 state: %s", sd1.getCardStateString());
-    // LOG_IF_ERR(sd1.upgrade_buswidth());
-    // // LOG_INFO("upgraded buswidth");
-    // LOG_IF_ERR(sd1.update_speed());
-    // LOG_INFO("upgraded speed");
 
     jobs_initLogFs();
     forever
@@ -215,7 +209,7 @@ void tasks_runTelemParse(void *arg)
 {
     forever
     {
-        // Block until TaskTelemRx pushes new bytes into the ring. pdTRUE
+        // Block until TaskTelemRx pushes new bytes into the ring. 
         (void)ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
         app::telemRx::drain();
     }
@@ -253,7 +247,6 @@ void tasks_runCanRx(void *arg)
         const auto    &can_msg = msg.value();
         const uint32_t now_ms  = io::time::getCurrentMs();
         // LOG_INFO("Received CAN msg with ID: 0x%03lX", static_cast<unsigned long>(can_msg.std_id));
-        // SKIP THE FILTER WITH THIS CHUNK, TEMPORARY GET RED OF THIS!
         const auto e = app::epochClock::getEpochMs();
         if (e)
         {
