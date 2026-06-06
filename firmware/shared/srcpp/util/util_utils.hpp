@@ -55,7 +55,7 @@
 #include <windows.h>
 #include <intrin.h>
 #ifdef NO_ERROR
-#undef NO_ERROR
+#undef NO_ERROR // we are not using this macro in tests luckly, so this is good
 #endif
 #define IS_DEBUGGER_PRESENT() (IsDebuggerPresent() != 0)
 #define DEBUG_BREAK() __debugbreak()
