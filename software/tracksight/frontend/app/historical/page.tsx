@@ -133,8 +133,8 @@ export default function Historical() {
     const draftDateKey = useMemo(() => toDateKey(draftDate), [draftDate]);
 
     // `live` drives the dashboard; `draft` is the staged selection inside the modal.
-    const live = useHistoricalSessionSelection(selectedDateKey);
-    const draft = useHistoricalSessionSelection(draftDateKey);
+    const live = useHistoricalSessionSelection(selectedDateKey, selectedSource);
+    const draft = useHistoricalSessionSelection(draftDateKey, selectedSource);
 
     const selectedRange = useMemo(() => (live.selectedSession ? { min: live.selectedSession.startUtcMs, max: live.selectedSession.endUtcMs } : null), [live.selectedSession]);
     const sourceLabel = SOURCE_OPTIONS.find((source) => source.value === selectedSource)?.label ?? "Historical";
