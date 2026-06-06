@@ -1,5 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import { API_BASE_URL, IS_MOCK } from "../constants";
+import { useToast } from "../contexts/ToastContext";
 
 const SD_CARD_API_VERSION = IS_MOCK ? "mock" : "v1";
 
@@ -14,7 +15,9 @@ export class FormatSDCardError extends Error {
 }
 
 const useFormatSDCard = () => {
-  return useMutation({
+    const { notify } = useToast();
+
+    return useMutation({
         mutationFn: async (body: { drive: string }) => {
             const response = await fetch(`${API_BASE_URL}/api/${SD_CARD_API_VERSION}/sd/format`, {
                 body: JSON.stringify(body),
@@ -37,8 +40,11 @@ const useFormatSDCard = () => {
             const result = await response.text();
 
             return result;
-    },
-  });
+        },
+        onSuccess: () => {
+            notify("SD Card formatted successfully!", "The SD card is formatted and ready to use.", "success");
+        },
+    });
 };
 
 export default useFormatSDCard;

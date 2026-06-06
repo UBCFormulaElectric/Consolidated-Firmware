@@ -98,26 +98,6 @@ const FormatSDCardButton = (props: FormatSDCardButtonProps) => {
           />
         )
       }
-      {
-        formatSDCardMutation.isSuccess && (
-          <AlertModal
-            title="SD card formatted successfully."
-            errorMessage=""
-            onDismiss={() => {
-              formatSDCardMutation.reset();
-            }}
-            options={[
-              {
-                label: "Okay",
-                style: "positive",
-                onClick: () => {
-                  formatSDCardMutation.reset();
-                },
-              },
-            ]}
-          />
-        )
-      }
     </>
   );
 }
