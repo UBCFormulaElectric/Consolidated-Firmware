@@ -4,6 +4,7 @@ import SDCardDumpPage from "@/components/sdCard/SDCardDumpPage";
 import { getQueryClient } from "@/lib/contexts/getQueryClient";
 import { listSDCardsQueryOptions } from "@/lib/hooks/useListSDCards";
 import { sdCardFilesQueryOptions } from "@/lib/hooks/useSDCardFiles";
+import { ToastProvider } from "@/lib/contexts/ToastContext";
 
 export default async function SDDumpPage() {
   const queryClient = getQueryClient();
@@ -25,7 +26,9 @@ export default async function SDDumpPage() {
       </span>
 
       <HydrationBoundary state={dehydrate(queryClient)}>
-        <SDCardDumpPage initialSelectedSDCard={sdCards?.[0] ?? null} />
+        <ToastProvider>
+          <SDCardDumpPage initialSelectedSDCard={sdCards?.[0] ?? null} />
+        </ToastProvider>
       </HydrationBoundary>
     </div>
   );

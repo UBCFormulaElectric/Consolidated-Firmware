@@ -82,7 +82,6 @@ IF ("${TARGET}" STREQUAL "binary")
             "${CUBEMX_INCLUDE_DIRS}"
             TRUE
             "${ARM_CORE}"
-            TRUE
     )
 
     # JSONCAN
