@@ -61,14 +61,13 @@ static char debug_buf[1024];
         bool                                 should_clear = false;
         if (status_res.has_value())
         {
-            status_res.value().log();
+            // status_res.value().log();
             if (status_res.value().status_mfr_specific)
             {
                 if (const result<vicor::status::MFRSpecific> specific_status_res = vicor::status::mfrspecific();
                     specific_status_res.has_value())
                 {
-                    specific_status_res.value().log();
-                    LOG_INFO("mfrspecific raw: %d", specific_status_res.value().raw());
+                    // specific_status_res.value().log();
                     should_clear |= specific_status_res.value().any();
                 }
                 else
@@ -87,7 +86,7 @@ static char debug_buf[1024];
         LOG_IF_ERR(status_comm_res);
         if (status_comm_res.has_value())
         {
-            status_comm_res.value().log();
+            // status_comm_res.value().log();
             LOG_IF_ERR(vicor::clearFaults()); // TODO figure out where to put this
         }
         else
@@ -99,7 +98,7 @@ static char debug_buf[1024];
         LOG_IF_ERR(current);
         if (current.has_value())
         {
-            current.value().log();
+            // current.value().log();
         }
         else
         {
@@ -110,7 +109,7 @@ static char debug_buf[1024];
         LOG_IF_ERR(temp);
         if (temp.has_value())
         {
-            temp.value().log();
+            // temp.value().log();
         }
         else
         {
@@ -119,7 +118,7 @@ static char debug_buf[1024];
 
         if (should_clear)
         {
-            LOG_INFO("Clearing faults because status indicates there are faults");
+            // LOG_INFO("Clearing faults because status indicates there are faults");
             LOG_IF_ERR(vicor::clearFaults());
         }
 

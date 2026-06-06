@@ -103,6 +103,7 @@ namespace status
                 LOG_INFO("IOUT_OC_FAULT is set");
         }
     };
+    static_assert(sizeof(CurrentOutput) == sizeof(uint8_t), "VicorCurrentOutputStatus should be 8 bits");
     result<CurrentOutput> iout();
 
     struct __attribute__((packed)) Input
@@ -116,6 +117,7 @@ namespace status
         bool vin_ov_warning : 1;
         bool vin_ov_fault : 1;
     };
+    static_assert(sizeof(Input) == sizeof(uint8_t), "VicorInputStatus should be 8 bits");
     result<Input> input();
 
     struct __attribute__((packed)) Temp
@@ -233,7 +235,7 @@ namespace status
         bool    reverse_operation : 1;
         bool    hw_protection_shutdown_fault : 1;
         bool    bcm_uart_cml : 1;
-        uint8_t _reserved_2 : 1;
+        bool    _reserved_2 : 1;
         bool    bcm_at_page_1_preset : 1;
         uint8_t _reserved : 3;
         void    log() const
