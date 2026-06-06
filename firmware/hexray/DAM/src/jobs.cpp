@@ -74,6 +74,7 @@ void jobs_init()
     app::can_tx::DAM_Clean_set(GIT_COMMIT_CLEAN);
     io::can_tx::enableMode_FDCAN(app::can_utils::FDCANMode::FDCAN_MODE_DEFAULT, true);
     app::can_tx::DAM_Heartbeat_set(true);
+    app::can_tx::DAM_Alive_set(1);
     io::can_tx::DAM_Bootup_sendAperiodic();
     app::epochClock::logDateTime("Boot RTC time (GMT)");
 
