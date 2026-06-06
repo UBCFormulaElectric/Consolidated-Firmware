@@ -5,7 +5,8 @@ WORKDIR /backend
 
 RUN apt-get update && apt-get install -y \
     pkg-config \
-    libudev-dev
+    libudev-dev \
+    clang
 
 COPY software/tracksight/rust_backend/Cargo.toml .
 COPY software/tracksight/rust_backend/src src

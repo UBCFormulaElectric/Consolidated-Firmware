@@ -30,6 +30,8 @@ template <typename Callable> auto retry(Callable &&k, const uint32_t retry_count
             break;
         }
     }
+
     return result;
 }
+
 } // namespace util

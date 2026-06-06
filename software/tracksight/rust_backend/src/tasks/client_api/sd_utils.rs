@@ -56,6 +56,25 @@ pub fn get_logfs(drive: String) -> Result<LogFs, ()> {
     return Err(());
 }
 
+#[derive(Debug)]
+pub enum SdFormatError {
+    NotDetachable,
+    DiskOpenFailed,
+    FormatFailed(LogFsErr),
+}
+
+pub fn format_drive(drive: &String) -> Result<(), SdFormatError> {
+    if !find_detachable_drives().contains(drive) {
+        return Err(SdFormatError::NotDetachable);
+    }
+
+    let disk = LogFsUnixDisk::new(512, 1024 * 1024 * 15, Path::new(drive))
+        .map_err(|_| SdFormatError::DiskOpenFailed)?;
+    let mut logfs = LogFs::new(512, 1024 * 1024 * 15, Arc::new(disk), 0, false);
+
+    logfs.format().map_err(SdFormatError::FormatFailed)
+}
+
 /**
  * Unrestricted depth recursive file (not dir) search, shouldn't be an issue since sd card should be shallow enough
  */

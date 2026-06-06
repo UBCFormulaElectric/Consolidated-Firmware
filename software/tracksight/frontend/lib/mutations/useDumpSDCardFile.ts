@@ -1,5 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import { API_BASE_URL, IS_MOCK } from "../constants";
+import { useToast } from "../contexts/ToastContext";
 
 const SD_CARD_API_VERSION = IS_MOCK ? "mock" : "v1";
 
@@ -20,7 +21,9 @@ export class DumpSDCardFileError extends Error {
 }
 
 const useDumpSDCardFile = () => {
-  return useMutation({
+    const { notify } = useToast();
+
+    return useMutation({
         mutationFn: async (body: { drive: string; file: string; overwrite?: boolean }) => {
             const response = await fetch(`${API_BASE_URL}/api/${SD_CARD_API_VERSION}/sd/dump`, {
                 body: JSON.stringify(body),
@@ -49,8 +52,11 @@ const useDumpSDCardFile = () => {
             const result = await response.text();
 
             return result;
-    },
-  });
+        },
+        onSuccess: (_, variables) => {
+            notify("File dumped successfully", `${variables.file} has been dumped from drive ${variables.drive} successfully.`, "success");
+        },
+    });
 };
 
 export default useDumpSDCardFile;
