@@ -15,6 +15,7 @@
 #include "app_commitInfo.hpp"
 #include "app_vcShdnLoop.hpp"
 #include "app_shdnLast.hpp"
+#include "app_loadswitches.hpp"
 
 #include "io_canMsg.hpp"
 #include "io_canTx.hpp"
@@ -64,7 +65,7 @@ void jobs_run1Hz_tick() {}
 void jobs_run100Hz_tick()
 {
     app::powerManager::efuseProtocolTick_100Hz();
-
+    app::loadswitches::efuse_broadcast();
     if (app::can_alerts::AnyBoardHasFault())
     {
         app::StateMachine::set_next_state(&app::states::fault_state);

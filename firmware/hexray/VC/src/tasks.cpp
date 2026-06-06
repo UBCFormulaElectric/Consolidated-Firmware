@@ -248,17 +248,17 @@ void tasks_init()
     }
 
     // TODO this should surely be managed by the power manager??
-    dam_en.writePin(true);
-    rsm_en.writePin(true);
-    front_en.writePin(true);
-    bms_en.writePin(true);
-    rl_pump_en.writePin(true);
-    rr_pump_en.writePin(true);
-    f_inv_en.writePin(true);
-    r_inv_en.writePin(true);
-    r_rad_fan_en.writePin(true);
-    l_rad_fan_en.writePin(true);
-    misc_fuse_en.writePin(true);
+    // dam_en.writePin(true);
+    // rsm_en.writePin(true);
+    // front_en.writePin(true);
+    // bms_en.writePin(true);
+    // rl_pump_en.writePin(true);
+    // rr_pump_en.writePin(true);
+    // f_inv_en.writePin(true);
+    // r_inv_en.writePin(true);
+    // r_rad_fan_en.writePin(true);
+    // l_rad_fan_en.writePin(true);
+    //misc_fuse_en.writePin(true);
     ResetReason reason = hw::resetReason::get();
     app::can_tx::VC_ResetReason_set(static_cast<app::can_utils::CanResetReason>(reason));
     if (reason == RESET_REASON_WATCHDOG)
