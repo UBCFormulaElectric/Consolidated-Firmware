@@ -10,7 +10,7 @@ result<void> clearFaults();
 
 namespace read
 {
-    struct Capability
+    struct __attribute__((packed)) Capability
     {
         bool    packet_error_not_supported : 1;
         uint8_t max_bus_speed : 2;
@@ -85,7 +85,7 @@ namespace read
 
 namespace status
 {
-    struct CurrentOutput
+    struct __attribute__((packed)) CurrentOutput
     {
         bool pout_op_warning : 1;      // not supported
         bool pout_op_fault : 1;        // not supported
@@ -105,7 +105,7 @@ namespace status
     };
     result<CurrentOutput> iout();
 
-    struct Input
+    struct __attribute__((packed)) Input
     {
         bool pin_op_warning : 1; // not supported
         bool iin_oc_warning : 1; // not supported
@@ -118,7 +118,7 @@ namespace status
     };
     result<Input> input();
 
-    struct Temp
+    struct __attribute__((packed)) Temp
     {
         bool reserved : 4;
         bool ut_warning : 1;
@@ -140,7 +140,7 @@ namespace status
     static_assert(sizeof(Temp) == sizeof(uint8_t), "VicorTempStatus should be 8 bits");
     result<Temp> temp();
 
-    struct General
+    struct __attribute__((packed)) General
     {
         // byte 2
         bool other : 1; // this means that STATUS_MFR_SPECIFIC (80h) or something in the first 8 bits is set
@@ -197,7 +197,7 @@ namespace status
     static_assert(sizeof(General) == sizeof(uint16_t), "VicorStatus should be 16 bits");
     result<General> general();
 
-    struct Comm
+    struct __attribute__((packed)) Comm
     {
         bool other_mem_or_logic_fault : 1; // unsupported
         bool other_comm_fault : 1;
@@ -228,7 +228,7 @@ namespace status
     static_assert(sizeof(Comm) == sizeof(uint8_t), "VicorCommStatus should be 8 bits");
     result<Comm> comm();
 
-    struct MFRSpecific
+    struct __attribute__((packed)) MFRSpecific
     {
         bool    reverse_operation : 1;
         bool    hw_protection_shutdown_fault : 1;
