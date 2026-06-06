@@ -123,10 +123,12 @@ namespace shared
     SegmentParam<float>                getMinSegmentVoltage();
     SegmentParam<float>                getMaxSegmentVoltage();
 
-    void setVoltageStats(const io::adbms::Cells<result<float>> &latest, const io::adbms::Cells<result<bool>> &owc);
-    void
-        setTemperatureStats(const io::adbms::Therms<result<float>> &latest, const io::adbms::Therms<result<bool>> &owc);
+    void setCellOwc(const io::adbms::Cells<result<bool>> &owc);
+    void setVoltageStats(const io::adbms::Cells<result<float>> &latest);
+    void setThermistorOwc(const io::adbms::Therms<result<bool>> &owc);
+    void setTemperatureStats(const io::adbms::Therms<result<float>> &latest);
     void setSegmentVoltageStats(const io::adbms::Segments<result<float>> &latest);
+    void setPackVoltage(const result<float>);
 } // namespace shared
 
 // app_segments_alerts.cpp
@@ -168,5 +170,8 @@ namespace calculate
     io::adbms::Therms<result<bool>> thermOwc(
         const std::array<io::adbms::ThermGpios<result<float>>, static_cast<size_t>(ThermistorMux::THERMISTOR_MUX_COUNT)>
             &therm_voltages);
+    result<float> packVoltage(
+        const io::adbms::Segments<result<float>> 
+            &seg_voltages);
 } // namespace calculate
 } // namespace app::segments

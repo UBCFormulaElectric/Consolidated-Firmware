@@ -28,6 +28,9 @@ Segments<result<float>> latest_segment_voltages{};
 SegmentParam<float>     latest_max_segment_voltage{};
 SegmentParam<float>     latest_min_segment_voltage{};
 io::semaphore           segment_voltage_lock{ true };
+
+result<float>   pack_voltage;
+io::semaphore    pack_voltage_lock{ true };
 } // namespace
 
 namespace app::segments::shared
@@ -99,13 +102,14 @@ SegmentParam<float> getMaxSegmentVoltage()
     return latest_max_segment_voltage;
 }
 
-void setVoltageStats(const Cells<result<float>> &latest, const Cells<result<bool>> &owc)
+void setCellOwc(const Cells<result<bool>> &latest)
 {
-    {
-        const io::unique_semaphore lock{ cell_owc_lock };
-        latest_cell_owc = owc;
-    }
+    const io::unique_semaphore lock{ cell_owc_lock };
+    latest_cell_owc = latest;
+}
 
+void setVoltageStats(const Cells<result<float>> &latest)
+{
     const io::unique_semaphore lock{ voltage_lock };
     latest_voltages = latest;
 
@@ -129,13 +133,14 @@ void setVoltageStats(const Cells<result<float>> &latest, const Cells<result<bool
     latest_max_cell_voltage = max;
 }
 
-void setTemperatureStats(const Therms<result<float>> &latest, const Therms<result<bool>> &owc)
+void setThermistorOwc(const Therms<result<bool>> &latest)
 {
-    {
-        const io::unique_semaphore lock{ therm_owc_lock };
-        latest_therm_owc = owc;
-    }
+    const io::unique_semaphore lock{ therm_owc_lock };
+    latest_therm_owc = latest;
+}
 
+void setTemperatureStats(const Therms<result<float>> &latest)
+{
     const io::unique_semaphore lock{ temperature_lock };
     latest_temperatures = latest;
 
@@ -179,5 +184,10 @@ void setSegmentVoltageStats(const Segments<result<float>> &latest)
     }
     latest_min_segment_voltage = min;
     latest_max_segment_voltage = max;
+}
+
+void setPackVoltage(const result<float> latest) {
+    const io::unique_semaphore lock{ pack_voltage_lock };
+    pack_voltage = latest;
 }
 } // namespace app::segments::shared

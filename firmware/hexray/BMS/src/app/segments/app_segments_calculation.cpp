@@ -166,4 +166,20 @@ Therms<result<bool>>
     }
     return out;
 }
+
+result<float> packVoltage(const io::adbms::Segments<result<float>> &seg_voltages)
+{
+    result<float> out = 0.0f;
+
+    for (size_t seg = 0; seg < NUM_SEGMENTS; seg++)
+    {
+        const auto &reading = seg_voltages[seg];
+        if (!reading)
+        {
+            return std::unexpected(reading.error());
+        }
+        out.value() += reading.value();
+    }
+    return out;
+}
 } // namespace app::segments::calculate

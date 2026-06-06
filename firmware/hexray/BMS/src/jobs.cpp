@@ -237,7 +237,8 @@ void jobs_runAdbmsVoltages_tick()
 
     const Cells<result<bool>> cell_owc = app::segments::calculate::cellOwc(owc_voltages);
 
-    app::segments::shared::setVoltageStats(cell_voltages, cell_owc);
+    app::segments::shared::setCellOwc(cell_owc);
+    app::segments::shared::setVoltageStats(cell_voltages);
 
     app::segments::broadcast::voltageStats();
 
@@ -294,12 +295,16 @@ void jobs_runAdbmsAux_tick()
         status       = app::segments::conversion::status();
     }
 
-    const Therms<result<float>> therm_temps = app::segments::calculate::thermTemps(therm_voltages);
-    const Therms<result<bool>>  therm_owc   = app::segments::calculate::thermOwc(therm_voltages);
+    const Therms<result<float>> therm_temps  = app::segments::calculate::thermTemps(therm_voltages);
+    const Therms<result<bool>>  therm_owc    = app::segments::calculate::thermOwc(therm_voltages);
+    const result<float>         pack_voltage = app::segments::calculate::packVoltage(seg_voltages);
 
-    app::segments::shared::setTemperatureStats(therm_temps, therm_owc);
+    app::segments::shared::setThermistorOwc(therm_owc);
+    app::segments::shared::setTemperatureStats(therm_temps);
     app::segments::shared::setSegmentVoltageStats(seg_voltages);
+    app::segments::shared::setPackVoltage(pack_voltage);
 
+    app::segments::broadcast::packVoltage();
     app::segments::broadcast::temperatureStats();
     app::segments::broadcast::segmentVoltageStats();
     {
