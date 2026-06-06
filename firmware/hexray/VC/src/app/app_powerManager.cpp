@@ -38,7 +38,7 @@ namespace
                 continue;
 
             if (retries_[ch] > state_.efuse_configs[ch].max_retry)
-                break;
+                continue;
 
             if (!desired)
             {
@@ -60,6 +60,8 @@ namespace
 void updateConfig(const PowerManagerConfig &new_cfg)
 {
     state_             = new_cfg;
+    retries_ = {}; 
+    sequencing_timer_.stop();
     const bool under_v = can_tx::VC_Info_PcmUnderVoltage_get();
     state_.efuse_configs[0].efuse_enable =
         state_.efuse_configs[0].efuse_enable ? !under_v : state_.efuse_configs[0].efuse_enable;
