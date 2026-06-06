@@ -19,6 +19,19 @@ void SdCard::onTransactionCompleteFromISR() const
     portYIELD_FROM_ISR(higherPriorityTaskWoken);
 }
 
+void SdCard::onTransactionErrorFromISR() const
+{
+    // The SDMMC error ISR can fire outside of a DMA transaction (e.g. during init); only wake an actual waiter.
+    if (taskInProgress == nullptr)
+        return;
+
+    transactionFailed = true;
+
+    BaseType_t higherPriorityTaskWoken = pdFALSE;
+    vTaskNotifyGiveFromISR(taskInProgress, &higherPriorityTaskWoken);
+    portYIELD_FROM_ISR(higherPriorityTaskWoken);
+}
+
 result<void> SdCard::waitForNotification(const uint32_t timeoutMs) const
 {
     const uint32_t num_notifications = ulTaskNotifyTake(pdTRUE, timeoutMs);
@@ -30,6 +43,11 @@ result<void> SdCard::waitForNotification(const uint32_t timeoutMs) const
         (void)HAL_SD_Abort_IT(&_hsd);
         LOG_WARN("SD transaction timed out");
         return std::unexpected(ErrorCode::TIMEOUT);
+    }
+    if (transactionFailed)
+    {
+        // Woken by the error ISR rather than a completion: the transfer failed (e.g. RX FIFO overrun).
+        return std::unexpected(ErrorCode::ERROR);
     }
     return {};
 }
@@ -62,7 +80,8 @@ result<void> SdCard::read(std::span<uint8_t> pdata, const uint32_t block_addr) c
     }
 
     // Save current task before starting a SD transaction.
-    taskInProgress = xTaskGetCurrentTaskHandle();
+    taskInProgress    = xTaskGetCurrentTaskHandle();
+    transactionFailed = false;
 
     result<void> exit = utils::convertHalStatus(
         HAL_SD_ReadBlocks_DMA(&_hsd, pdata.data(), block_addr, pdata.size() / HW_DEVICE_SECTOR_SIZE));
@@ -112,7 +131,8 @@ result<void> SdCard::write(const std::span<uint8_t> pdata, const uint32_t block_
     }
 
     // Save current task before starting a SD transaction.
-    taskInProgress = xTaskGetCurrentTaskHandle();
+    taskInProgress    = xTaskGetCurrentTaskHandle();
+    transactionFailed = false;
 
     result<void> exit = utils::convertHalStatus(
         HAL_SD_WriteBlocks_DMA(&_hsd, pdata.data(), block_addr, pdata.size() / HW_DEVICE_SECTOR_SIZE));
@@ -185,8 +205,9 @@ extern "C"
     void HAL_SD_ErrorCallback(SD_HandleTypeDef *hsd)
     {
         const hw::SdCard &sd = hw::getSdFromHandle(hsd);
-        // TODO set error
         LOG_ERROR("error: 0x%lX, %s", HAL_SD_GetError(&sd.getHsd()), sd.getErrorString());
+        // Wake the blocked task with a failure instead of letting it wait out the full timeout.
+        sd.onTransactionErrorFromISR();
     }
 
     void HAL_SD_AbortCallback(SD_HandleTypeDef *hsd)

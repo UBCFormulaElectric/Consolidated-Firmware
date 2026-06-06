@@ -51,7 +51,7 @@ void jobs_init()
             }
             if (app::can_data_capture::needsTelem(msg.std_id, now_ms))
             {
-                const auto epoch_ms = app::epochClock::getEpochMs();
+                const auto epoch_ms = app::epochClock::getEpochMsFast();
                 if (epoch_ms)
                 {
                     (void)telem_tx_queue.push(io::telemMessage::TelemCanMsg(msg, *epoch_ms));

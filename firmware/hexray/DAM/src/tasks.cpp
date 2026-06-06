@@ -247,7 +247,7 @@ void tasks_runCanRx(void *arg)
         const auto    &can_msg = msg.value();
         const uint32_t now_ms  = io::time::getCurrentMs();
         // LOG_INFO("Received CAN msg with ID: 0x%03lX", static_cast<unsigned long>(can_msg.std_id));
-        const auto e = app::epochClock::getEpochMs();
+        const auto e = app::epochClock::getEpochMsFast();
         if (e)
         {
             (void)telem_tx_queue.push(io::telemMessage::TelemCanMsg(can_msg, *e));

@@ -2,6 +2,10 @@
 
 #include "io_log.hpp"
 #include "io_rtc.hpp"
+#include "io_time.hpp"
+
+#include "FreeRTOS.h"
+#include "task.h"
 
 namespace app::epochClock
 {
@@ -118,6 +122,50 @@ result<uint64_t> getEpochMs()
     return static_cast<uint64_t>(days) * MS_PER_DAY + ms_of_day;
 }
 
+namespace
+{
+    // Cached RTC->monotonic base for getEpochMsFast(). Refreshed on first use and whenever the RTC
+    // is (re)programmed, so the fast clock follows NTP corrections instead of drifting from a stale
+    // base. Read/written from multiple tasks (CAN RX, telem TX), never from an ISR.
+    uint64_t fast_base_epoch_ms = 0;
+    uint32_t fast_base_mono_ms  = 0;
+    bool     fast_base_valid    = false;
+
+    void refreshFastBase(const uint64_t epoch_ms)
+    {
+        taskENTER_CRITICAL();
+        fast_base_epoch_ms = epoch_ms;
+        fast_base_mono_ms  = io::time::getCurrentMs();
+        fast_base_valid    = true;
+        taskEXIT_CRITICAL();
+    }
+} // namespace
+
+result<uint64_t> getEpochMsFast()
+{
+    // getEpochMs() does 3 RTC register reads plus 64-bit calendar math, far too expensive to run per
+    // CAN frame in the RX hot path. Snapshot the RTC->monotonic offset once and derive later
+    // timestamps from the cheap monotonic tick. setEpochMs() refreshes the base so an NTP correction
+    // is reflected here too. The same absolute base is written to the log file metadata.
+    taskENTER_CRITICAL();
+    const bool     valid  = fast_base_valid;
+    const uint64_t base_e = fast_base_epoch_ms;
+    const uint32_t base_m = fast_base_mono_ms;
+    taskEXIT_CRITICAL();
+
+    if (!valid)
+    {
+        const auto epoch = getEpochMs();
+        if (!epoch)
+            return std::unexpected(epoch.error());
+        refreshFastBase(*epoch);
+        return *epoch;
+    }
+
+    // Unsigned wrap makes the elapsed-since-base subtraction correct for sessions under ~49 days.
+    return base_e + static_cast<uint64_t>(io::time::getCurrentMs() - base_m);
+}
+
 result<void> setEpochMs(uint64_t epoch_ms)
 {
     const int64_t  days      = static_cast<int64_t>(epoch_ms / MS_PER_DAY);
@@ -139,6 +187,10 @@ result<void> setEpochMs(uint64_t epoch_ms)
     status = io::rtc::set_date(date);
     if (!status)
         return std::unexpected(status.error());
+
+    // Re-anchor the fast-clock base to the value we just programmed so getEpochMsFast() picks up the
+    // NTP correction instead of continuing from the pre-correction base.
+    refreshFastBase(epoch_ms);
     return {};
 }
 
