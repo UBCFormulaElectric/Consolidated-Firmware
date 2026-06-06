@@ -10,7 +10,7 @@ app::can_utils::ChargerConnectedType getConnectionStatus()
     constexpr int kMinHz = 990;
     constexpr int kMaxHz = 1010;
 
-    const int   freq = static_cast<int>(evse_pwm_input.get_frequency());
+    const int freq = static_cast<int>(evse_pwm_input.get_frequency());
     if (kMinHz <= freq && freq <= kMaxHz)
         return app::can_utils::ChargerConnectedType::CHARGER_CONNECTED_EVSE;
 

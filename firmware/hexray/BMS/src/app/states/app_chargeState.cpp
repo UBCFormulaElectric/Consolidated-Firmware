@@ -72,11 +72,11 @@ namespace chargeState
     {
         using namespace app::can_utils;
         const ChargerConnectedType charger_connection_status = io::charger::getConnectionStatus();
-        const bool charger_conn =
+        const bool                 charger_conn =
             (charger_connection_status == ChargerConnectedType::CHARGER_CONNECTED_EVSE ||
              charger_connection_status == ChargerConnectedType::CHARGER_CONNECTED_WALL);
 
-        const bool user_enable                            = app::can_rx::Debug_StartCharging_get();
+        const bool                           user_enable  = app::can_rx::Debug_StartCharging_get();
         const app::charger::ElconFaultConfig fault_status = app::charger::getFaultStatus();
 
         const float max_cell_v = app::segments::shared::getMaxCellVoltage().value;

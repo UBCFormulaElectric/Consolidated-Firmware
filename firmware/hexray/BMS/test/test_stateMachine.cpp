@@ -267,9 +267,9 @@ TEST_F(BmsStateMachineTest, precharge_charge_success_to_charge_init)
     }
     fakes::ts::setVoltage(target_voltage);
     LetTimePass(20);
-    ASSERT_STATE_EQ(charge_state);
-    ASSERT_EQ(io::irs::positiveState(), ContactorState::CONTACTOR_STATE_CLOSED);
-    ASSERT_EQ(io::irs::prechargeState(), ContactorState::CONTACTOR_STATE_OPEN);
+    ASSERT_STATE_EQ(app::states::charge_state);
+    ASSERT_EQ(io::irs::positiveState(), app::can_utils::ContactorState::CONTACTOR_STATE_CLOSED);
+    ASSERT_EQ(io::irs::prechargeState(), app::can_utils::ContactorState::CONTACTOR_STATE_OPEN);
 }
 
 TEST_F(BmsStateMachineTest, precharge_charge_latches_after_retries)
@@ -306,13 +306,14 @@ TEST_F(BmsStateMachineTest, precharge_charge_latches_after_retries)
 
 TEST_F(BmsStateMachineTest, drive_to_init_on_ir_negative_open_debounced)
 {
+    constexpr uint32_t ir_negative_debounce_period = 200U;
     fakes::irs::setNegativeState(app::can_utils::ContactorState::CONTACTOR_STATE_CLOSED);
     io::irs::setPositive(app::can_utils::ContactorState::CONTACTOR_STATE_CLOSED);
     app::StateMachine::set_current_state(&app::states::drive_state);
     LetTimePass(1000);
     ASSERT_STATE_EQ(app::states::drive_state);
     fakes::irs::setNegativeState(app::can_utils::ContactorState::CONTACTOR_STATE_OPEN);
-    LetTimePass(app::irs::N_DEBOUNCE_PERIOD_MS - 50);
+    LetTimePass(ir_negative_debounce_period - 50);
     ASSERT_STATE_EQ(app::states::drive_state);
     LetTimePass(100);
 
