@@ -8,24 +8,30 @@
 
 namespace app::charger
 {
+// UNUSED
+// const float getOutputVoltage()
+// {
+//     return app::can_rx::Elcon_OutputVoltage_get();
+// }
+
+float getOutputCurrent()
+{
+    return app::can_rx::Elcon_OutputCurrent_get();
+}
 
 // Read current charger status from CAN→typed struct
-ElconRx readElconStatus()
+ElconFaultConfig getFaultStatus()
 {
-    ElconRx rx{
-        .hardware_failure     = app::can_rx::Elcon_HardwareFailure_get(),
-        .over_temperature     = app::can_rx::Elcon_ChargerOverTemperature_get(),
-        .input_voltage_fault  = app::can_rx::Elcon_InputVoltageError_get(),
-        .charging_state_fault = app::can_rx::Elcon_ChargingDisabled_get(),
-        .comm_timeout         = app::can_rx::Elcon_CommunicationTimeout_get(),
-        .output_voltage_v     = app::can_rx::Elcon_OutputVoltage_get(),
-        .output_current_a     = app::can_rx::Elcon_OutputCurrent_get(),
-    };
+    ElconFaultConfig rx{ .hardware_failure     = app::can_rx::Elcon_HardwareFailure_get(),
+                         .over_temperature     = app::can_rx::Elcon_ChargerOverTemperature_get(),
+                         .input_voltage_fault  = app::can_rx::Elcon_InputVoltageError_get(),
+                         .charging_state_fault = app::can_rx::Elcon_ChargingDisabled_get(),
+                         .comm_timeout         = app::can_rx::Elcon_CommunicationTimeout_get() };
     return rx;
 }
 
 // Push a charging command to the BMS CAN TX table
-void setTxFrame(const ElconTx &cmd)
+void setChargingConfig(const ElconChargingConfig &cmd)
 {
     app::can_tx::BMS_MaxChargingVoltage_set(cmd.max_voltage_v);
     app::can_tx::BMS_MaxChargingCurrent_set(cmd.max_current_a);

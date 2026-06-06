@@ -93,13 +93,13 @@ struct StateMetadata
     bool                     requires_fault;
 };
 
-constexpr inline std::array<StateMetadata, 10> state_metadata = { {
-    { &app::states::init_state, app::can_utils::BmsState::BMS_INIT_STATE, false, false },
-    { &app::states::fault_state, app::can_utils::BmsState::BMS_FAULT_STATE, false, true },
-    { &app::states::precharge_drive_state, app::can_utils::BmsState::BMS_PRECHARGE_DRIVE_STATE, true, false },
-    { &app::states::drive_state, app::can_utils::BmsState::BMS_DRIVE_STATE, true, false },
-    { &app::states::balancing_state, app::can_utils::BmsState::BMS_BALANCING_STATE, true, false },
-    { &app::states::precharge_latch_state, app::can_utils::BmsState::BMS_PRECHARGE_LATCH_STATE, true, false },
-    { &app::states::precharge_charge_state, app::can_utils::BmsState::BMS_PRECHARGE_CHARGE_STATE, true, false },
-    { &app::states::charge_state, app::can_utils::BmsState::BMS_CHARGE_STATE, true, false }
-} };
+constexpr inline std::array<StateMetadata, 10> state_metadata = {
+    { { &app::states::init_state, app::can_utils::BmsState::BMS_INIT_STATE, false, false },
+      { &app::states::fault_state, app::can_utils::BmsState::BMS_FAULT_STATE, false, true },
+      { &app::states::precharge_drive_state, app::can_utils::BmsState::BMS_PRECHARGE_DRIVE_STATE, true, false },
+      { &app::states::drive_state, app::can_utils::BmsState::BMS_DRIVE_STATE, true, false },
+      { &app::states::balancing_state, app::can_utils::BmsState::BMS_BALANCING_STATE, true, false },
+      { &app::states::precharge_latch_state, app::can_utils::BmsState::BMS_PRECHARGE_LATCH_STATE, true, false },
+      { &app::states::precharge_charge_state, app::can_utils::BmsState::BMS_PRECHARGE_CHARGE_STATE, true, false },
+      { &app::states::charge_state, app::can_utils::BmsState::BMS_CHARGE_STATE, true, false } }
+};

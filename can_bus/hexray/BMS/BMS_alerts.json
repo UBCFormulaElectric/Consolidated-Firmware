@@ -57,10 +57,6 @@
     "TESTFAULT": {
       "id": 460,
       "description": "FOR UNIT TESTING ONLY DO NOT EVER EVER THROW"
-    },
-    "ChargerFault": {
-      "id": 444,
-      "description": "Charger faulted! Could be Elcon error OR external shutdown OR charger disconnected."
     }
   },
   "info_id": 405,
