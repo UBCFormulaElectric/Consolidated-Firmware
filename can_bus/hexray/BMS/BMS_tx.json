@@ -10,6 +10,10 @@
       "State": {
         "enum": "BmsState"
       }
+    },
+    "data_capture": {
+      "telem_cycle_time": 100,
+      "log_cycle_time" : 100
     }
   },
   "Debug": {
@@ -32,6 +36,10 @@
       "WatchdogTimeoutTask": {
         "bits": 32
       }
+    },
+    "data_capture": {
+      "telem_cycle_time": 1000,
+      "log_cycle_time" : 1000
     }
   },
   "Bootup": {
@@ -76,6 +84,10 @@
       "BspdLatchOk": {
         "bits": 1
       }
+    },
+    "data_capture": {
+      "telem_cycle_time": 100,
+      "log_cycle_time" : 100
     }
   },
   "Contactors": {
@@ -92,6 +104,10 @@
       "PrechargeRelay": {
         "enum": "ContactorState"
       }
+    },
+    "data_capture": {
+      "telem_cycle_time": 100,
+      "log_cycle_time" : 100
     }
   },
   "Charger": {
@@ -147,6 +163,10 @@
       "VoltageSensorOk": {
         "bits": 1
       }
+    },
+    "data_capture": {
+      "telem_cycle_time": 100,
+      "log_cycle_time" : 100
     }
   },
   "BSPDStatus": {
@@ -163,6 +183,10 @@
       "BSPDAccelBrakeOk": {
         "bits": 1
       }
+    },
+    "data_capture": {
+      "telem_cycle_time": 100,
+      "log_cycle_time" : 100
     }
   },
   "HvBatteryProperties": {
@@ -210,6 +234,10 @@
         "max": 100,
         "unit": "Hz"
       }
+    },
+    "data_capture": {
+      "telem_cycle_time": 100,
+      "log_cycle_time" : 100
     }
   },
   "ImdData": {
@@ -235,6 +263,10 @@
       "ImdSpeedStartStatus30Hz": {
         "enum": "ImdSstState"
       }
+    },
+    "data_capture": {
+      "telem_cycle_time": 100,
+      "log_cycle_time" : 100
     }
   },
   "PowerLimit": {
@@ -299,6 +331,10 @@
         "min": 0,
         "max": 13
       }
+    },
+    "data_capture": {
+      "telem_cycle_time": 100,
+      "log_cycle_time" : 100
     }
   },
   "CellTempStats": {
@@ -338,6 +374,10 @@
         "min": 0,
         "max": 13
       }
+    },
+    "data_capture": {
+      "telem_cycle_time": 100,
+      "log_cycle_time" : 100
     }
   },
   "SegmentVoltageStats": {
@@ -367,6 +407,10 @@
         "min": 0,
         "max": 9
       }
+    },
+    "data_capture": {
+      "telem_cycle_time": 100,
+      "log_cycle_time" : 100
     }
   },
   "CellVoltages_Seg0_Seg3": {
