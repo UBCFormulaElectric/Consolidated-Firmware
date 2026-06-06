@@ -29,6 +29,7 @@ set(IO_SHARED_SRCS
         "${SHARED_IO_INCLUDE_DIR_CPP}/efuse/io_efuse_TI_TPS25.cpp"
         "${SHARED_IO_INCLUDE_DIR_CPP}/util/"
         "${SHARED_IO_INCLUDE_DIR_CPP}/io_time.cpp"
+        "${SHARED_IO_INCLUDE_DIR_CPP}/io_shdnLoopNode.cpp"
 )
 set(IO_INCLUDE_DIRS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io"
@@ -151,6 +152,8 @@ if ("${TARGET}" STREQUAL "binary")
     target_compile_definitions("hexray_VC_app.elf" PRIVATE VC)
 
     if ("${BOOTLOAD}" STREQUAL "ON")
+        target_compile_definitions("hexray_VC_app.elf" PRIVATE BOOTLOAD)
+
         # Bootloader files.
         file(GLOB BOOT_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/boot/*.cpp")
         file(GLOB BOOT_CUBEMX_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Src/*.c")
@@ -183,6 +186,7 @@ elseif ("${TARGET}" STREQUAL "test")
             "${SHARED_FAKES_DIR_CPP}/io_imu.cpp"
             "${SHARED_FAKES_DIR_CPP}/io_time.cpp"
             "${SHARED_FAKES_DIR_CPP}/io_pump.cpp"
+            "${SHARED_FAKES_DIR_CPP}/io_shdnLoopNode.cpp"
     )
     set(INCLUDE_DIRS
             "${CMAKE_CURRENT_SOURCE_DIR}/test"

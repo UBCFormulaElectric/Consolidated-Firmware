@@ -2,7 +2,7 @@
 #include "ecuTestBase.hpp"
 #include "test_fakes.hpp"
 #include "jobs.hpp"
-#include "states/app_states.hpp"
+#include "app_states.hpp"
 #include "app_stateMachine.hpp"
 #include "app_canRx.hpp"
 #include "app_canTx.hpp"
@@ -10,9 +10,6 @@
 #include "io_canRx.hpp"
 
 #define ADBMS_CONVERSION_PERIOD_MS (1000U)
-
-using namespace app::states;
-using namespace app::can_utils;
 
 class BMSBaseTest : public EcuTestBase
 {
@@ -23,9 +20,10 @@ class BMSBaseTest : public EcuTestBase
         fakes::faultLatch::resetFaultLatch(&imd_ok_latch);
         fakes::faultLatch::resetFaultLatch(&bspd_ok_latch);
         fakes::faultLatch::setCurrentStatus_resetCallCounts();
-        fakes::charger::setConnectionStatus(ChargerConnectedType::CHARGER_DISCONNECTED);
+        fakes::charger::setConnectionStatus(app::can_utils::ChargerConnectedType::CHARGER_DISCONNECTED);
 
-        app::can_rx::VC_State_update(VCState::VC_INIT_STATE);
+        app::can_rx::VC_State_update(app::can_utils::VCState::VC_INIT_STATE);
+        app::can_rx::Debug_CellBalancing_Request_update(false);
         app::can_tx::BMS_Fault_TESTFAULT_set(false);
 
         // TODO: Change back to using constants once segments is added
@@ -64,18 +62,24 @@ class BMSBaseTest : public EcuTestBase
 
     std::vector<const app::State *> GetAllStates()
     {
-        return std::vector{ &init_state,  &precharge_drive_state, &precharge_charge_state, &precharge_latch_state,
-                            &drive_state, &charge_state,          &balancing_state,        &fault_state };
+        return std::vector{ &app::states::init_state,
+                            &app::states::precharge_drive_state,
+                            &app::states::precharge_charge_state,
+                            &app::states::precharge_latch_state,
+                            &app::states::drive_state,
+                            &app::states::charge_state,
+                            &app::states::balancing_state,
+                            &app::states::fault_state };
     }
-    void SetImdCondition(const ImdConditionName condition_name)
+    void SetImdCondition(const app::can_utils::ImdConditionName condition_name)
     {
         const std::map<app::can_utils::ImdConditionName, float> mapping{
-            { ImdConditionName::IMD_CONDITION_SHORT_CIRCUIT, 0.0f },
-            { ImdConditionName::IMD_CONDITION_NORMAL, 10.0f },
-            { ImdConditionName::IMD_CONDITION_UNDERVOLTAGE_DETECTED, 20.0f },
-            { ImdConditionName::IMD_CONDITION_SST, 30.0f },
-            { ImdConditionName::IMD_CONDITION_DEVICE_ERROR, 40.0f },
-            { ImdConditionName::IMD_CONDITION_GROUND_FAULT, 50.0f }
+            { app::can_utils::ImdConditionName::IMD_CONDITION_SHORT_CIRCUIT, 0.0f },
+            { app::can_utils::ImdConditionName::IMD_CONDITION_NORMAL, 10.0f },
+            { app::can_utils::ImdConditionName::IMD_CONDITION_UNDERVOLTAGE_DETECTED, 20.0f },
+            { app::can_utils::ImdConditionName::IMD_CONDITION_SST, 30.0f },
+            { app::can_utils::ImdConditionName::IMD_CONDITION_DEVICE_ERROR, 40.0f },
+            { app::can_utils::ImdConditionName::IMD_CONDITION_GROUND_FAULT, 50.0f }
         };
         fakes::imd::setFrequency(mapping.at(condition_name));
     }
@@ -83,19 +87,19 @@ class BMSBaseTest : public EcuTestBase
 
 struct StateMetadata
 {
-    const app::State *state;
-    BmsState          can_state;
-    bool              requires_irs_negative_closed;
-    bool              requires_fault;
+    const app::State        *state;
+    app::can_utils::BmsState can_state;
+    bool                     requires_irs_negative_closed;
+    bool                     requires_fault;
 };
 
-constexpr inline std::array<StateMetadata, 8> state_metadata = { {
-    { &init_state, BmsState::BMS_INIT_STATE, false, false },
-    { &fault_state, BmsState::BMS_FAULT_STATE, false, true },
-    { &precharge_drive_state, BmsState::BMS_PRECHARGE_DRIVE_STATE, true, false },
-    { &drive_state, BmsState::BMS_DRIVE_STATE, true, false },
-    { &balancing_state, BmsState::BMS_BALANCING_STATE, true, false },
-    { &precharge_latch_state, BmsState::BMS_PRECHARGE_LATCH_STATE, true, false },
-    { &precharge_charge_state, BmsState::BMS_PRECHARGE_CHARGE_STATE, true, false },
-    { &charge_state, BmsState::BMS_CHARGE_STATE, true, false },
+constexpr inline std::array<StateMetadata, 10> state_metadata = { {
+    { &app::states::init_state, app::can_utils::BmsState::BMS_INIT_STATE, false, false },
+    { &app::states::fault_state, app::can_utils::BmsState::BMS_FAULT_STATE, false, true },
+    { &app::states::precharge_drive_state, app::can_utils::BmsState::BMS_PRECHARGE_DRIVE_STATE, true, false },
+    { &app::states::drive_state, app::can_utils::BmsState::BMS_DRIVE_STATE, true, false },
+    { &app::states::balancing_state, app::can_utils::BmsState::BMS_BALANCING_STATE, true, false },
+    { &app::states::precharge_latch_state, app::can_utils::BmsState::BMS_PRECHARGE_LATCH_STATE, true, false },
+    { &app::states::precharge_charge_state, app::can_utils::BmsState::BMS_PRECHARGE_CHARGE_STATE, true, false },
+    { &app::states::charge_state, app::can_utils::BmsState::BMS_CHARGE_STATE, true, false }
 } };

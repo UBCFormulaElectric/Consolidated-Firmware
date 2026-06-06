@@ -7,7 +7,7 @@ const hw::gpio bspd_ok_current_status(BSPD_OK_GPIO_Port, BSPD_OK_Pin);
 const hw::gpio accel_brake_ok(ACCEL_BRAKE_OK_GPIO_Port, ACCEL_BRAKE_OK_Pin);
 const hw::gpio n_brake_press_3v3(nBRAKE_PRESS_3V3_GPIO_Port, nBRAKE_PRESS_3V3_Pin);
 const hw::gpio n_high_current_bspd(nHIGH_CURRENT_BSPD_GPIO_Port, nHIGH_CURRENT_BSPD_Pin);
-const hw::gpio msd_shdn_sns(MSD_SHDN_SNS_GPIO_Port, MSD_SHDN_SNS_Pin);
+const hw::gpio shdn_term_sns(MSD_SHDN_SNS_GPIO_Port, MSD_SHDN_SNS_Pin);
 const hw::gpio hv_p_intlck_sns(HV_P_INTLCK_SNS_GPIO_Port, HV_P_INTLCK_SNS_Pin);
 const hw::gpio hv_n_intlck_sns(HV_N_INTLCK_SNS_GPIO_Port, HV_N_INTLCK_SNS_Pin);
 

@@ -158,8 +158,9 @@ template <size_t TaskCount> class monitor
             }
 
             // Calculate max stack usage
-            const float max_stack_usage = static_cast<float>(runTimeStats[task].usStackHighWaterMark) /
-                                          static_cast<float>(_tasks_info[task].t->stackSize()) * 100;
+            const float max_stack_usage = (1 - static_cast<float>(runTimeStats[task].usStackHighWaterMark) /
+                                                   static_cast<float>(_tasks_info[task].t->stackSize())) *
+                                          100;
             _tasks_info[task].stack_usage_max_setter(max_stack_usage);
         }
     }

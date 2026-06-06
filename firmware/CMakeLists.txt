@@ -15,9 +15,6 @@ IF ("${TARGET}" STREQUAL "binary")
 
     # compile definitions
     add_compile_definitions(TARGET_EMBEDDED)
-    IF (${BOOTLOAD})
-        add_compile_definitions(BOOTLOAD)
-    ENDIF ()
 ELSEIF ("${TARGET}" STREQUAL "test")
     include(cmake/test_libs.cmake)
     add_subdirectory(test)

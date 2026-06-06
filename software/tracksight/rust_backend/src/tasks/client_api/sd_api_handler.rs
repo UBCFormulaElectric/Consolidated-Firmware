@@ -3,7 +3,7 @@ use futures::stream;
 use influxdb2::{FromDataPoint, models::DataPoint};
 use serde::Deserialize;
 
-use crate::{config::CONFIG, tasks::client_api::{AppState, sd_utils::{dump_sd_file, find_detachable_drives, get_logfs, ls_deep}}};
+use crate::{config::CONFIG, tasks::client_api::{AppState, sd_utils::{dump_sd_file, find_detachable_drives, format_drive, get_logfs, ls_deep, SdFormatError}}};
 
 /**
  * Mainly supported for Ubuntu, not guaranteed on anything else
@@ -91,11 +91,29 @@ async fn sd_dump(State(state): State<AppState>, Json(SdDumpPayload{drive, file, 
     return (StatusCode::OK, format!("Dump {file} from drive {drive}"));
 }
 
+#[derive(Debug, Deserialize)]
+struct SdFormatPayload {
+    drive: String,
+}
+
+async fn sd_format(Json(SdFormatPayload{drive}): Json<SdFormatPayload>) -> impl IntoResponse {
+    match format_drive(&drive) {
+        Ok(_) => (StatusCode::OK, format!("Formatted drive {drive}")),
+        Err(SdFormatError::NotDetachable) =>
+            (StatusCode::BAD_REQUEST, format!("Drive {drive} is not a removable drive")),
+        Err(SdFormatError::DiskOpenFailed) =>
+            (StatusCode::INTERNAL_SERVER_ERROR, format!("Failed to open drive {drive}")),
+        Err(SdFormatError::FormatFailed(e)) =>
+            (StatusCode::INTERNAL_SERVER_ERROR, format!("Failed to format drive {drive}: logfs error {e}")),
+    }
+}
+
 pub fn get_sd_router() -> Router<AppState> {
     return Router::new()
         .route("/sd/list", get(sd_list))
         .route("/sd/show", get(sd_show))
-        .route("/sd/dump", post(sd_dump));
+        .route("/sd/dump", post(sd_dump))
+        .route("/sd/format", post(sd_format));
 }
 
 
@@ -153,9 +171,18 @@ async fn sd_dump_mock(Json(SdDumpPayload{drive, file, overwrite}): Json<SdDumpPa
     return (StatusCode::OK, format!("Dump {file} from drive {drive}"));
 }
 
+async fn sd_format_mock(Json(SdFormatPayload{drive}): Json<SdFormatPayload>) -> impl IntoResponse {
+    match drive.as_str() {
+        "/dev/sdb" => (StatusCode::OK, format!("Formatted drive {drive}")),
+        "/dev/sdc" => (StatusCode::BAD_REQUEST, format!("Drive {drive} is not a removable drive")),
+        _ => return (StatusCode::BAD_REQUEST, format!("Drive {drive} not found")),
+    }
+}
+
 pub fn get_sd_router_mock() -> Router<AppState> {
     return Router::new()
         .route("/sd/list", get(sd_list_mock))
         .route("/sd/show", get(sd_show_mock))
-        .route("/sd/dump", post(sd_dump_mock));
+        .route("/sd/dump", post(sd_dump_mock))
+        .route("/sd/format", post(sd_format_mock));
 }

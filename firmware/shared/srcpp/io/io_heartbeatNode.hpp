@@ -5,7 +5,7 @@ namespace io::heartbeat
 {
 class node
 {
-    static constexpr int HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS = 200U;
+    static constexpr int HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS = 2000U;
 
   public:
     // gives if the heartbeat is checked in.
