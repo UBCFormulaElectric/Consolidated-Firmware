@@ -4,9 +4,6 @@
 #include "io_rtc.hpp"
 #include "io_time.hpp"
 
-#include "FreeRTOS.h"
-#include "task.h"
-
 namespace app::epochClock
 {
 
@@ -124,46 +121,44 @@ result<uint64_t> getEpochMs()
 
 namespace
 {
-    // Cached RTC->monotonic base for getEpochMsFast(). Refreshed on first use and whenever the RTC
-    // is (re)programmed, so the fast clock follows NTP corrections instead of drifting from a stale
-    // base. Read/written from multiple tasks (CAN RX, telem TX), never from an ISR.
-    uint64_t fast_base_epoch_ms = 0;
-    uint32_t fast_base_mono_ms  = 0;
-    bool     fast_base_valid    = false;
+    // Anchor for getEpochMsFast(): the epoch-ms value at monotonic time zero, i.e. the RTC/NTP time
+    // minus the monotonic tick sampled at the same instant. A timestamp is then just
+    // basetime + getCurrentMs(), with no RTC read.
+    //
+    // Set once at startup via anchorBaseTime() (single-threaded) and re-set when the RTC is
+    // reprogrammed by NTP. An NTP correction shifts this only by the small accumulated clock error,
+    // which lives entirely in the low 32 bits, so even a torn read of the non-atomic 64-bit value
+    // yields the old or new base -- never garbage. That's why no lock/guard is needed. The one write
+    // that moves the high word is the very first anchor (0 -> ~1.7e12); anchorBaseTime() runs before
+    // CAN traffic flows, so that one isn't raced. 0 means "not yet anchored".
+    volatile uint64_t fast_basetime_ms = 0;
 
-    void refreshFastBase(const uint64_t epoch_ms)
-    {
-        taskENTER_CRITICAL();
-        fast_base_epoch_ms = epoch_ms;
-        fast_base_mono_ms  = io::time::getCurrentMs();
-        fast_base_valid    = true;
-        taskEXIT_CRITICAL();
-    }
+    void setFastBase(const uint64_t epoch_ms) { fast_basetime_ms = epoch_ms - io::time::getCurrentMs(); }
 } // namespace
+
+result<void> anchorBaseTime()
+{
+    const auto epoch = getEpochMs();
+    if (!epoch)
+        return std::unexpected(epoch.error());
+    setFastBase(*epoch);
+    return {};
+}
 
 result<uint64_t> getEpochMsFast()
 {
     // getEpochMs() does 3 RTC register reads plus 64-bit calendar math, far too expensive to run per
-    // CAN frame in the RX hot path. Snapshot the RTC->monotonic offset once and derive later
-    // timestamps from the cheap monotonic tick. setEpochMs() refreshes the base so an NTP correction
-    // is reflected here too. The same absolute base is written to the log file metadata.
-    taskENTER_CRITICAL();
-    const bool     valid  = fast_base_valid;
-    const uint64_t base_e = fast_base_epoch_ms;
-    const uint32_t base_m = fast_base_mono_ms;
-    taskEXIT_CRITICAL();
-
-    if (!valid)
+    // CAN frame in the RX hot path. Project from the anchored base using only the cheap monotonic
+    // tick. The same basetime is written to the log file metadata, so absolute time stays recoverable
+    // on the host.
+    if (fast_basetime_ms == 0)
     {
-        const auto epoch = getEpochMs();
-        if (!epoch)
-            return std::unexpected(epoch.error());
-        refreshFastBase(*epoch);
-        return *epoch;
+        // anchorBaseTime() should have run at startup; anchor lazily as a fallback.
+        if (const auto err = anchorBaseTime(); !err.has_value())
+            return std::unexpected(err.error());
     }
-
-    // Unsigned wrap makes the elapsed-since-base subtraction correct for sessions under ~49 days.
-    return base_e + static_cast<uint64_t>(io::time::getCurrentMs() - base_m);
+    // Unsigned wrap keeps this correct until the 32-bit monotonic tick wraps (~49 days).
+    return fast_basetime_ms + io::time::getCurrentMs();
 }
 
 result<void> setEpochMs(uint64_t epoch_ms)
@@ -190,7 +185,7 @@ result<void> setEpochMs(uint64_t epoch_ms)
 
     // Re-anchor the fast-clock base to the value we just programmed so getEpochMsFast() picks up the
     // NTP correction instead of continuing from the pre-correction base.
-    refreshFastBase(epoch_ms);
+    setFastBase(epoch_ms);
     return {};
 }
 

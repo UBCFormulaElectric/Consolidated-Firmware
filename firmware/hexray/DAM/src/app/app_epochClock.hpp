@@ -23,8 +23,12 @@ struct DateTime
 // Read both Date and Time from the RTC and return Unix epoch ms.
 result<uint64_t> getEpochMs();
 
-// Cheap epoch ms for hot paths: snapshots the RTC once, then derives timestamps from the monotonic
-// clock (no per-call RTC read). Use this on the CAN RX/telem path instead of getEpochMs().
+// Anchor the fast-clock base to the current RTC time. Call once at startup, after the RTC is known
+// good and before CAN traffic flows. setEpochMs() re-anchors automatically on an NTP correction.
+result<void> anchorBaseTime();
+
+// Cheap epoch ms for hot paths: projects from the anchored base using the monotonic clock (no
+// per-call RTC read). Use this on the CAN RX/telem path instead of getEpochMs().
 result<uint64_t> getEpochMsFast();
 
 // Split Unix epoch ms into {Date, Time} and program both into the RTC.

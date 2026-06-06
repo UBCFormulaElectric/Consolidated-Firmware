@@ -25,6 +25,7 @@
 #include "io_logQueue.hpp"
 #include "io_time.hpp"
 #include "io_fileSystems.hpp"
+#include "io_sd.hpp"
 
 #include "io_canLogging.hpp"
 #include "util_errorCodes.hpp"
@@ -91,9 +92,17 @@ void jobs_initLogFs()
         init_success = false;
     }
 
-    if (const auto err = app::sd::upgrade_sd(); !err.has_value())
+    // Anchor the fast-clock base next to the metadata RTC read, so per-message timestamps project
+    // from (roughly) the same instant the on-disk basetime was captured.
+    if (const auto err = app::epochClock::anchorBaseTime(); !err.has_value())
     {
-        LOG_ERROR("jobs_initLogFs: upgrade_sd failed: %d", static_cast<int>(err.error()));
+        LOG_ERROR("jobs_initLogFs: anchorBaseTime failed: %d", static_cast<int>(err.error()));
+        init_success = false;
+    }
+
+    if (const auto err = io::sd::upgrade(); !err.has_value())
+    {
+        LOG_ERROR("jobs_initLogFs: io::sd::upgrade failed: %d", static_cast<int>(err.error()));
         init_success = false;
     }
 
