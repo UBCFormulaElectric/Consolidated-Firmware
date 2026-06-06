@@ -39,6 +39,8 @@ class Timer
       : duration_ms(in_duration_ms), state(TimerState::IDLE), start_time_ms(0){};
 #endif
 
+    void update_duration(uint32_t duration);
+
     /**                                                                                               \
      * Restart a timer, i.e. set the elapsed time back to 0. Leaves the timer in TIMER_STATE_RUNNING. \
      */

@@ -12,9 +12,9 @@ namespace app::powerManager
 
 struct EfuseConfig
 {
-    bool    efuse_enable{ false };
-    uint8_t timeout{ 0 };
-    uint8_t max_retry{ 0 };
+    bool     efuse_enable{ false };
+    uint32_t timeout{ 0 };
+    uint8_t  max_retry{ 0 };
 };
 
 struct PowerManagerConfig

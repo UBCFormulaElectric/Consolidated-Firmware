@@ -34,23 +34,30 @@ namespace
 
             const bool desired = state_.efuse_configs[ch].efuse_enable;
 
-            if (const bool actual = efuse->isChannelEnabled(); actual == desired)
+            if (const bool actual = efuse->isChannelEnabled(); actual == desired) // already matching
                 continue;
 
             if (retries_[ch] > state_.efuse_configs[ch].max_retry)
+            {
+                // LOG_WARN("max retry exceedded");
                 continue;
+            }
 
-            if (!desired)
+            if (!desired) // turning off
             {
                 efuse->setChannel(false);
                 continue;
             }
 
+            // turning on
             if (!efuse->ok())
                 ++retries_[ch];
 
-            if (const uint8_t timeout = state_.efuse_configs[ch].timeout; timeout != 0)
-                sequencing_timer_ = Timer(timeout);
+            if (const uint32_t timeout = state_.efuse_configs[ch].timeout; timeout != 0)
+            {
+                sequencing_timer_.update_duration(timeout);
+                sequencing_timer_.restart();
+            }
 
             efuse->setChannel(true);
         }
@@ -59,18 +66,15 @@ namespace
 
 void updateConfig(const PowerManagerConfig &new_cfg)
 {
-    state_             = new_cfg;
-    retries_ = {}; 
+    state_   = new_cfg;
+    retries_ = {};
     sequencing_timer_.stop();
-    const bool under_v = can_tx::VC_CHANNEL4_PCM_UV_get();
-    state_.efuse_configs[0].efuse_enable =
-        state_.efuse_configs[0].efuse_enable ? !under_v : state_.efuse_configs[0].efuse_enable;
-    state_.efuse_configs[2].efuse_enable =
-        state_.efuse_configs[2].efuse_enable ? !under_v : state_.efuse_configs[2].efuse_enable;
-    state_.efuse_configs[1].efuse_enable =
-        state_.efuse_configs[1].efuse_enable ? !under_v : state_.efuse_configs[1].efuse_enable;
-    state_.efuse_configs[3].efuse_enable =
-        state_.efuse_configs[3].efuse_enable ? !under_v : state_.efuse_configs[3].efuse_enable;
+
+    const bool pcm_volt_ok = not can_tx::VC_CHANNEL4_PCM_UV_get();
+    state_.efuse_configs[0].efuse_enable &= pcm_volt_ok;
+    state_.efuse_configs[1].efuse_enable &= pcm_volt_ok;
+    state_.efuse_configs[2].efuse_enable &= pcm_volt_ok;
+    state_.efuse_configs[3].efuse_enable &= pcm_volt_ok;
 }
 void efuseProtocolTick_100Hz()
 {
