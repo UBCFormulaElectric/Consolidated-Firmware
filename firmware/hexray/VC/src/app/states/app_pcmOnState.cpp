@@ -20,7 +20,7 @@ namespace pcmOnState
     constexpr float   PCM_MAX_CURRENT     = 40.0f;
     constexpr uint8_t PCM_MAX_RETRIES     = 5;
 
-    constexpr uint32_t PCM_TIMOUT = 100;
+    constexpr uint32_t PCM_TIMOUT = 1000;
 
     static app::Timer pcm_timer{ PCM_TIMOUT };
     static app::Timer pcm_cooldown_timer{ PCM_TIMOUT };
