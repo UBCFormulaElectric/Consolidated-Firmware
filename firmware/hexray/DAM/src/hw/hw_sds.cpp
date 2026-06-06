@@ -4,7 +4,7 @@
 
 #include <cassert>
 
-const hw::SdCard sd1(hsd1, 2000, sd_present);
+const hw::SdCard sd1(hsd1, 1000, sd_present);
 
 const hw::SdCard &hw::getSdFromHandle(const SD_HandleTypeDef *hsd)
 {

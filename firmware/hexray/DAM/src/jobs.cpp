@@ -77,19 +77,25 @@ void jobs_init()
 
 void jobs_initLogFs()
 {
-    const auto log_if_failed = [](auto &&operation, const char *name)
-    {
-        if (const auto err = operation(); !err.has_value())
-        {
-            LOG_ERROR("jobs_initLogFs: %s failed: %d", name, static_cast<int>(err.error()));
-            return false;
-        }
-        return true;
-    };
+    bool init_success = true;
 
-    const bool init_success = log_if_failed(app::sd::init_fs, "init_fs") &&
-                              log_if_failed(app::sd::update_metadata, "update_metadata") &&
-                              log_if_failed(app::sd::upgrade_sd, "upgrade_sd");
+    if (const auto err = app::sd::init_fs(); !err.has_value())
+    {
+        LOG_ERROR("jobs_initLogFs: init_fs failed: %d", static_cast<int>(err.error()));
+        init_success = false;
+    }
+
+    if (const auto err = app::sd::update_metadata(); !err.has_value())
+    {
+        LOG_ERROR("jobs_initLogFs: update_metadata failed: %d", static_cast<int>(err.error()));
+        init_success = false;
+    }
+
+    if (const auto err = app::sd::upgrade_sd(); !err.has_value())
+    {
+        LOG_ERROR("jobs_initLogFs: upgrade_sd failed: %d", static_cast<int>(err.error()));
+        init_success = false;
+    }
 
     if (init_success)
         LOG_INFO("Filesystem initialized successfully");
@@ -124,13 +130,13 @@ void jobs_run100Hz_tick()
 
     dam_shdnLoop.broadcast();
 
-    // io::can_tx::enqueue100HzMsgs();
+    io::can_tx::enqueue100HzMsgs();
 
     app::tsim::tick();
 }
 void jobs_run1kHz_tick()
 {
-    // io::can_tx::enqueueOtherPeriodicMsgs(io::time::getCurrentMs());
+    io::can_tx::enqueueOtherPeriodicMsgs(io::time::getCurrentMs());
 }
 void jobs_runLogging_tick()
 {
