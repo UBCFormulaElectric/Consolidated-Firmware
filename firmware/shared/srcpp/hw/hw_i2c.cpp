@@ -28,6 +28,14 @@ result<void> hw::i2c::device::waitForNotification() const
         return std::unexpected(ErrorCode::TIMEOUT);
     }
 
+    if (d_bus.error.has_value())
+    {
+        const auto error = d_bus.error.value();
+        d_bus.error      = std::nullopt;
+        // LOG_ERROR("I2C transaction failed with error code: 0x%X", error);
+        return std::unexpected(ErrorCode::ERROR);
+    }
+
     return {};
 }
 
@@ -166,5 +174,7 @@ extern "C" void HAL_I2C_MemRxCpltCallback(I2C_HandleTypeDef *hi2c)
 
 extern "C" void HAL_I2C_ErrorCallback(I2C_HandleTypeDef *hi2c)
 {
-    LOG_ERROR("I2C error: 0x%X", hi2c->ErrorCode);
+    const auto &bus = hw::i2c::getBusFromHandle(hi2c);
+    bus.error       = hi2c->ErrorCode;
+    bus.onTransactionCompleteFromISR();
 }
