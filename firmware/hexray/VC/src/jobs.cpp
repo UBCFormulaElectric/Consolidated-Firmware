@@ -23,6 +23,8 @@
 #include "io_time.hpp"
 #include "io_batteryMonitoring.hpp"
 #include "io_canReroute.hpp"
+#include "io_pcm.hpp"
+
 
 #include <util_errorCodes.hpp>
 
@@ -66,6 +68,7 @@ void jobs_run100Hz_tick()
 {
     app::powerManager::efuseProtocolTick_100Hz();
     app::loadswitches::efuse_broadcast();
+    
     if (app::can_alerts::AnyBoardHasFault())
     {
         app::StateMachine::set_next_state(&app::states::fault_state);
@@ -87,6 +90,7 @@ void jobs_run100Hz_tick()
     }
     app::inverter::FaultCheck();
     app::StateMachine::tick100Hz();
+    app::can_tx::VC_PcmEnable_set(io::pcm::enabled());
     hb_monitor.checkIn();
     hb_monitor.broadcastFaults();
     app::shdnLoop::broadcast();
