@@ -1,12 +1,14 @@
 #pragma once
+#include <cstdint>
 
-#define TS_OVERCURRENT_DEBOUNCE_DURATION_MS (100U)
-#define CELLS_IN_PARALLEL (4U)
+// TODO check where these are used??
+inline constexpr int32_t TS_OVERCURRENT_DEBOUNCE_DURATION_MS = 100U;
+inline constexpr int32_t CELLS_IN_PARALLEL                   = 4U;
 // Taken from our cell's datasheet, https://www.molicel.com/wp-content/uploads/INR18650P26A-V2-80087.pdf
-#define MAX_TS_DISCHARGE_CURRENT_PER_CELL_AMPS (-35.0f)
-#define MAX_TS_CHARGE_CURRENT_PER_CELL_AMPS (6.0f)
-#define MAX_TS_DISCHARGE_CURRENT_AMPS (MAX_TS_DISCHARGE_CURRENT_PER_CELL_AMPS * CELLS_IN_PARALLEL)
-#define MAX_TS_CHARGE_CURRENT_AMPS (MAX_TS_CHARGE_CURRENT_PER_CELL_AMPS * CELLS_IN_PARALLEL)
+inline constexpr int32_t MAX_TS_DISCHARGE_CURRENT_PER_CELL_AMPS = -35.0f;
+inline constexpr int32_t MAX_TS_CHARGE_CURRENT_PER_CELL_AMPS    = 6.0f;
+inline constexpr int32_t MAX_TS_DISCHARGE_CURRENT_AMPS = MAX_TS_DISCHARGE_CURRENT_PER_CELL_AMPS * CELLS_IN_PARALLEL;
+inline constexpr int32_t MAX_TS_CHARGE_CURRENT_AMPS    = MAX_TS_CHARGE_CURRENT_PER_CELL_AMPS * CELLS_IN_PARALLEL;
 
 namespace app::ts
 {

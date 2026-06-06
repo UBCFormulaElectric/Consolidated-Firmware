@@ -191,7 +191,7 @@ static void handle_overflow(overflow_data *data, void *lhs, void *rhs, const cha
     const char *reason = type_is_signed(type) ? "signed-integer-overflow" : "unsigned-integer-overflow";
     ubsan_prologue(&data->location, reason);
     LOG_ERROR("%s %c %s cannot be represented in type %s", lhs_val_str, op, rhs_val_str, type->type_name);
-    hw_error(data->location.file_name, static_cast<int>(data->location.row_col.line), reason);
+    hw_error(data->location.file_name, static_cast<int>(data->location.row_col.line & LINE_MASK), reason);
 }
 /**
  * HANDLING POINTER BUGS
@@ -211,7 +211,7 @@ static void handle_null_ptr_deref(const type_mismatch_data_common *data)
         return;
     ubsan_prologue(data->location, "null-ptr-deref");
     LOG_ERROR("%s null pointer of type %s", type_check_kinds[data->type_check_kind], data->type->type_name);
-    hw_error(data->location->file_name, static_cast<int>(data->location->row_col.line), "null-ptr-deref");
+    hw_error(data->location->file_name, static_cast<int>(data->location->row_col.line & LINE_MASK), "null-ptr-deref");
 }
 static void handle_misaligned_access(const type_mismatch_data_common *data, const unsigned long ptr)
 {
@@ -222,7 +222,8 @@ static void handle_misaligned_access(const type_mismatch_data_common *data, cons
         "%s misaligned address %p for type %s", type_check_kinds[data->type_check_kind], reinterpret_cast<void *>(ptr),
         data->type->type_name);
     LOG_ERROR("which requires %ld byte alignment", data->alignment);
-    hw_error(data->location->file_name, static_cast<int>(data->location->row_col.line), "misaligned-access");
+    hw_error(
+        data->location->file_name, static_cast<int>(data->location->row_col.line & LINE_MASK), "misaligned-access");
 }
 static void handle_object_size_mismatch(const type_mismatch_data_common *data, const unsigned long ptr)
 {
@@ -233,7 +234,8 @@ static void handle_object_size_mismatch(const type_mismatch_data_common *data, c
         "%s address %p with insufficient space", type_check_kinds[data->type_check_kind],
         reinterpret_cast<void *>(ptr));
     LOG_ERROR("for an object of type %s", data->type->type_name);
-    hw_error(data->location->file_name, static_cast<int>(data->location->row_col.line), "object-size-mismatch");
+    hw_error(
+        data->location->file_name, static_cast<int>(data->location->row_col.line & LINE_MASK), "object-size-mismatch");
 }
 static void ubsan_type_mismatch_common(const type_mismatch_data_common *data, unsigned long ptr)
 {
@@ -283,7 +285,7 @@ void __ubsan_handle_negate_overflow(void *_data, void *old_val)
     ubsan_prologue(&data->location, "negation-overflow");
     val_to_string(old_val_str, sizeof(old_val_str), data->type, old_val);
     LOG_ERROR("negation of %s cannot be represented in type %s", old_val_str, data->type->type_name);
-    hw_error(data->location.file_name, static_cast<int>(data->location.row_col.line), "negation-overflow");
+    hw_error(data->location.file_name, static_cast<int>(data->location.row_col.line & LINE_MASK), "negation-overflow");
 }
 void __ubsan_handle_divrem_overflow(void *_data, void *lhs, void *rhs)
 {
@@ -310,7 +312,7 @@ void __ubsan_handle_type_mismatch_v1(void *_data, void *ptr)
     const type_mismatch_data_common common_data{ &data->location, data->type, 1UL << data->log_alignment,
                                                  data->type_check_kind };
     ubsan_type_mismatch_common(&common_data, reinterpret_cast<unsigned long>(ptr));
-    hw_error(data->location.file_name, static_cast<int>(data->location.row_col.line), "type-mismatch");
+    hw_error(data->location.file_name, static_cast<int>(data->location.row_col.line & LINE_MASK), "type-mismatch");
 }
 void __ubsan_handle_out_of_bounds(void *_data, void *index)
 {
@@ -323,7 +325,9 @@ void __ubsan_handle_out_of_bounds(void *_data, void *index)
     val_to_string(index_str, sizeof(index_str), data->index_type, index);
     ubsan_prologue(&data->location, "array-index-out-of-bounds");
     LOG_ERROR("index %s is out of range for type %s", index_str, data->array_type->type_name);
-    hw_error(data->location.file_name, static_cast<int>(data->location.row_col.line), "array-index-out-of-bounds");
+    hw_error(
+        data->location.file_name, static_cast<int>(data->location.row_col.line & LINE_MASK),
+        "array-index-out-of-bounds");
 }
 void __ubsan_handle_shift_out_of_bounds(void *_data, void *lhs, void *rhs)
 {
@@ -359,7 +363,8 @@ void __ubsan_handle_shift_out_of_bounds(void *_data, void *lhs, void *rhs)
         LOG_ERROR(
             "left shift of %s by %s places cannot be represented in type %s", lhs_str, rhs_str, lhs_type->type_name);
     }
-    hw_error(data->location.file_name, static_cast<int>(data->location.row_col.line), "shift-out-of-bounds");
+    hw_error(
+        data->location.file_name, static_cast<int>(data->location.row_col.line & LINE_MASK), "shift-out-of-bounds");
 }
 void __ubsan_handle_builtin_unreachable(void *_data)
 {
@@ -369,7 +374,8 @@ void __ubsan_handle_builtin_unreachable(void *_data)
         return;
     }
     ubsan_prologue(&data->location, "builtin-unreachable");
-    hw_error(data->location.file_name, static_cast<int>(data->location.row_col.line), "builtin-unreachable");
+    hw_error(
+        data->location.file_name, static_cast<int>(data->location.row_col.line & LINE_MASK), "builtin-unreachable");
 }
 
 void __ubsan_handle_load_invalid_value(void *_data, void *val)
@@ -381,7 +387,7 @@ void __ubsan_handle_load_invalid_value(void *_data, void *val)
     char val_str[VALUE_LENGTH];
     val_to_string(val_str, sizeof(val_str), data->type, val);
     LOG_ERROR("load of value %s is not a valid value for type %s\n", val_str, data->type->type_name);
-    hw_error(data->location.file_name, static_cast<int>(data->location.row_col.line), "invalid-load");
+    hw_error(data->location.file_name, static_cast<int>(data->location.row_col.line & LINE_MASK), "invalid-load");
 }
 // void __ubsan_handle_alignment_assumption(void *_data, unsigned long ptr, unsigned long align, unsigned long offset)
 // {}
@@ -406,7 +412,7 @@ void __ubsan_handle_nonnull_arg(void *_data)
     LOG_ERROR("null pointer passed as argument %d, declared with nonnull attribute\n", data->arg_index);
     if (location_is_valid(&data->attr_location))
         print_source_location("nonnull attribute declared in ", &data->attr_location);
-    hw_error(data->location.file_name, static_cast<int>(data->location.row_col.line), "nonnull-args");
+    hw_error(data->location.file_name, static_cast<int>(data->location.row_col.line & LINE_MASK), "nonnull-args");
 }
 /**
  * https://android.googlesource.com/kernel/msm/+/android-7.1.0_r0.2/lib/ubsan.c
@@ -423,7 +429,8 @@ void __ubsan_handle_vla_bound_not_positive(void *_data, void *bound)
     char bound_str[VALUE_LENGTH];
     val_to_string(bound_str, sizeof(bound_str), data->type, bound);
     LOG_ERROR("variable length array bound value %s <= 0\n", bound_str);
-    hw_error(data->location.file_name, static_cast<int>(data->location.row_col.line), "vla-bound-not-positive");
+    hw_error(
+        data->location.file_name, static_cast<int>(data->location.row_col.line & LINE_MASK), "vla-bound-not-positive");
 }
 
 void __ubsan_handle_pointer_overflow(void *_data, void *base, void *result)
@@ -470,6 +477,6 @@ void __ubsan_handle_invalid_builtin(void *_data)
     if (suppress_report(&data->location))
         return;
     ubsan_prologue(&data->location, "invalid-builtin");
-    hw_error(data->location.file_name, static_cast<int>(data->location.row_col.line), "invalid-builtin");
+    hw_error(data->location.file_name, static_cast<int>(data->location.row_col.line & LINE_MASK), "invalid-builtin");
 }
 // NOLINTEND(bugprone-reserved-identifier)

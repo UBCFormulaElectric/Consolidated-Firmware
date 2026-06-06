@@ -1,8 +1,5 @@
-#include <cstddef>
-
 #include "app_states.hpp"
 #include "app_precharge.hpp"
-// #include "app_segments.hpp"
 #include "io_irs.hpp"
 #include "io_faultLatch.hpp"
 #include "app_canTx.hpp"
@@ -23,8 +20,11 @@ namespace faultState
 
     static void runOnTick100Hz()
     {
-        // const bool precharge_ok = !app_precharge_limitExceeded(); // Optional condition
-        if (not app::can_alerts::AnyBoardHasFault())
+        // Stay latched in fault until every fault source has cleared. This includes the
+        // hardware-latched bms/imd/bspd latches (which hold FAULT until externally reset
+        // and acknowledged) as well as any other active board fault. Only once no board
+        // reports a fault do we return to init.
+        if (!app::can_alerts::AnyBoardHasFault())
         {
             app::StateMachine::set_next_state(&init_state);
         }
