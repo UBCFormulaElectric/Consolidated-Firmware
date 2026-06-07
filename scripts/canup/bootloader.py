@@ -10,6 +10,7 @@ import math
 import can
 import time
 import intelhex
+import threading
 
 import boards
 
@@ -27,6 +28,8 @@ PROGRAM_CAN_ID_LOWBITS = 0x6
 VERIFY_CAN_ID_LOWBITS = 0x7
 APP_VALIDITY_CAN_ID_LOWBITS = 0x8
 GO_TO_BOOT_CAN_ID_LOWBITS = 0x9
+ERASE_SECTOR_FAILED_ID_LOWBITS = 0xA
+PROGRAM_ID_FAILED_LOWBITS = 0xB
 
 # Verify response options.
 # Keep in sync with:
@@ -199,20 +202,40 @@ class Bootloader:
 
         """
         CAN_FRAME_SIZE = 64 if self.is_fd else 8
+        start_addr = self.ih.minaddr()
+        end_addr = self.ih.minaddr() + self.size_bytes()
+
+        jump_back_address: Optional[int] = None # TODO populate with CAN failure messages
+        run = True
+        # spawn a new thread which populates the above
+        def listener():
+            nonlocal run, jump_back_address
+            while run:
+                can_msg = self._await_can_msg(
+                    validator=lambda x: x== self.board.boot_id_range_start | PROGRAM_ID_FAILED_LOWBITS,
+                    timeout=self.timeout
+                )
+                if can_msg is not None:
+                    k = can_msg.data
+                    # TODO maybe better struct unpacking :sob:
+                    jump_back_address = (k[0] << 24) | (k[1] << 16) | (k[2] << 8) | k[3]
+        listen_thread = threading.Thread(target=listener)
 
         # TODO: Check if binary is aligned to 64 bytes and ensure ending bytes are sent
-        for i, address in enumerate(
-            range(self.ih.minaddr(), self.ih.minaddr() + self.size_bytes(), CAN_FRAME_SIZE)
-        ):
-            if self.ui_callback and i % 128 == 0:
+        address = start_addr
+        while address <= end_addr:
+            # check if we need to go back
+            if jump_back_address is not None:
+                address = jump_back_address
+                jump_back_address = None
+            block = (address - start_addr) // CAN_FRAME_SIZE
+            if self.ui_callback and block % 128 == 0: # update ui only every little while
                 self.ui_callback(
-                    "Programming data", self.size_bytes(), i * CAN_FRAME_SIZE
+                    "Programming data", self.size_bytes(), block * CAN_FRAME_SIZE
                 )
 
-            data = [self.ih[address + i] for i in range(0, 8)]
-
-            success = False
-            while not success:
+            data = [self.ih[address + j] for j in range(0, 8)]
+            while True:
                 try:
                     self.bus.send(
                         can.Message(
@@ -223,11 +246,14 @@ class Bootloader:
                             is_fd=self.is_fd,
                         )
                     )
-                    success = True
+                    break
                 except can.interfaces.vector.exceptions.VectorOperationError:
                     pass
+            address += CAN_FRAME_SIZE
 
-            # time.sleep(0.0001)
+        run = False
+        listen_thread.join()
+
         if self.ui_callback:
             self.ui_callback("Programming data", self.size_bytes(), self.size_bytes())
 

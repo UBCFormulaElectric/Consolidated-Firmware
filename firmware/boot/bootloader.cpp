@@ -224,8 +224,9 @@ void bootloader::init(config &boot_config)
                     // program failed meaning we need to stop and tell the application that program has failed
                     // and stop the bootloader
                     hw::CanMsg reply{};
-                    reply.std_id = { boot_config.BOARD_HIGHBITS | PROGRAM_ID_FAILED_LOWBITS };
-                    reply.dlc    = 0;
+                    reply.std_id               = { boot_config.BOARD_HIGHBITS | PROGRAM_ID_FAILED_LOWBITS };
+                    reply.dlc                  = 4;
+                    reply.getDataAsDWords()[0] = current_address;
                     LOG_IF_ERR(boot_config.can_tx_queue.push(reply));
                     update_in_progress = false;
                     continue;

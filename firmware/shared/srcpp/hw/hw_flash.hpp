@@ -9,9 +9,9 @@
 namespace hw::flash
 {
 #if defined(STM32H733xx)
-inline constexpr size_t WORD_BYTES = 8U * sizeof(uint32_t); // 32B
+inline constexpr size_t WORD_BYTES = 8U * sizeof(uint32_t); // 32B, the smallest amount of data you can write at once
 #elif defined(STM32H562xx)
-inline constexpr size_t WORD_BYTES = 4U * sizeof(uint32_t); // 16B
+inline constexpr size_t WORD_BYTES = 4U * sizeof(uint32_t); // 16B, the smallest amount of data you can write at once
 #endif
 /**
  * @brief Erase a flash sector or page.
