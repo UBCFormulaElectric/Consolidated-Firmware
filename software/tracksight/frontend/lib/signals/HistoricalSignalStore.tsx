@@ -30,11 +30,21 @@ class HistoricalSignalStore extends SignalStore {
 
     hydrateSignal(signal: SignalMetadata, points: HistoricalSignalPoint[]): void {
         const entry = this.getOrCreateSignalData(signal);
+
+        if (signal.type === SignalType.ALERT) {
+            points.forEach((point) => {
+                this.addAlertDataPoint(signal.name, point.timestampMs, point.value);
+            });
+
+            return;
+        }
+        
         if (signal.type === SignalType.ENUM && entry.storeType === SignalType.ENUM) {
             Object.values(signal.enum_signal.enum_values).forEach((enumValue) => {
                 entry.data.enumValuesToNames[enumValue] = [enumValue];
             });
         }
+        
         points.forEach((point) => {
             this.addDataPoint(signal.name, point.timestampMs, point.value);
         });

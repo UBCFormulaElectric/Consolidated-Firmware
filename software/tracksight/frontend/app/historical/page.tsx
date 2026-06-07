@@ -17,6 +17,7 @@ import { HistoricalSignalSource } from "@/lib/api/historicalSignals";
 import { HistoricalSignalStoreProvider } from "@/lib/contexts/signalStores/HistoricalSignalStoreContext";
 import { useHistoricalSessionSelection } from "@/lib/hooks/useHistoricalSessionSelection";
 import { cn } from "@/lib/utils";
+import AlertTimeline from "@/components/widgets/AlertTimeline";
 
 const HISTORIC_WIDGET_STORAGE_KEY = "tracksight_historic_widgets_config_v1";
 const HISTORIC_VIEWPORT_LOCK_STORAGE_KEY = "tracksight_historic_viewport_lock_state_v1";
@@ -117,6 +118,7 @@ function HistoricContent(props: { selectedRange: { min: number; max: number }; s
     return (
         <SyncedGraphContainer initialTimeRange={selectedRange} onViewportSettled={handleViewportSettled}>
             <HistoricalSignalStoreProvider startUtcMs={fetchRange.min} endUtcMs={fetchRange.max} source={selectedSource} selectedRange={selectedRange}>
+                <AlertTimeline />
                 {widgets.length === 0 ? <div className="grid h-full place-items-center text-gray-500">Select signals by adding a widget and choosing signals.</div> : <DataDashboard />}
                 <WidgetAdder />
             </HistoricalSignalStoreProvider>

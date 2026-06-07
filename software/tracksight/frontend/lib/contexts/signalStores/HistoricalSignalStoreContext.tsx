@@ -5,7 +5,7 @@ import { useWidgetManager } from "@/components/widgets/WidgetManagerContext";
 import { fetchHistoricalSignal, HistoricalSignalSource } from "@/lib/api/historicalSignals";
 import { SignalDataStoreProvider } from "@/lib/contexts/signalStores/SignalStoreContext";
 import HistoricalSignalStore from "@/lib/signals/HistoricalSignalStore";
-import { SignalMetadata } from "@/lib/types/Signal";
+import { SignalMetadata, SignalType } from "@/lib/types/Signal";
 
 type HistoricalSignalStoreProviderProps = {
     children: React.ReactNode;
@@ -67,6 +67,35 @@ export const HistoricalSignalStoreProvider = memo(function HistoricalSignalStore
                     }),
                 }))
             );
+
+            {
+                const alertResult = await fetchHistoricalSignal({
+                    signalName: "alert",
+                    startUtcMs,
+                    endUtcMs,
+                    source,
+                });
+
+                alertResult.forEach((point) => {
+                    signalStoreRef.current.hydrateSignal({
+                        name: point.name,
+                        type: SignalType.ALERT,
+                        tx_node: "",
+                        msg_name: "",
+                        id: -1,
+                        min_val: 0,
+                        max_val: 1,
+                        cycle_time_ms: null,
+                    },
+                    [
+                        {
+                            timestampMs: point.timestampMs,
+                            value: point.value,
+                            name: point.name,
+                        },
+                    ]);
+                });
+            }
 
             if (isCancelled) {
                 return;
