@@ -217,6 +217,7 @@ class Bootloader:
                 )
                 if can_msg is not None:
                     k = can_msg.data
+                    assert can_msg.dlc == 4, f"Expected 4 bytes in PROGRAM_ID_FAILED message, got {can_msg.dlc}"
                     # TODO maybe better struct unpacking :sob:
                     jump_back_address = (k[0] << 24) | (k[1] << 16) | (k[2] << 8) | k[3]
         listen_thread = threading.Thread(target=listener)
