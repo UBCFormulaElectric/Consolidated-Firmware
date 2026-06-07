@@ -34,32 +34,43 @@ namespace
 
             const bool desired = state_.efuse_configs[ch].efuse_enable;
 
-            if (const bool actual = efuse->isChannelEnabled(); actual == desired) // already matching
-                continue;
-
-            if (retries_[ch] > state_.efuse_configs[ch].max_retry)
-            {
-                // LOG_WARN("max retry exceedded");
-                continue;
-            }
-
             if (!desired) // turning off
             {
                 efuse->setChannel(false);
                 continue;
             }
-
-            // turning on
-            if (!efuse->ok())
-                ++retries_[ch];
-
-            if (const uint32_t timeout = state_.efuse_configs[ch].timeout; timeout != 0)
+            assert(desired == true);
+            if (efuse->isChannelEnabled()) // already on bruh
             {
-                sequencing_timer_.update_duration(timeout);
-                sequencing_timer_.restart();
-            }
+                if (not efuse->ok()) // pbad
+                {
+                    // retry time
+                    if (retries_[ch] > state_.efuse_configs[ch].max_retry)
+                    {
+                        // LOG_WARN("max retry exceedded");
+                        continue;
+                    }
+                    ++retries_[ch];
 
-            efuse->setChannel(true);
+                    // TODO think about a retry timeout
+                    if (const uint32_t timeout = state_.efuse_configs[ch].timeout; timeout != 0)
+                    {
+                        sequencing_timer_.update_duration(timeout);
+                        sequencing_timer_.restart();
+                    }
+                    efuse->setChannel(false);
+                }
+            }
+            else
+            {
+                // enable it lmaomao
+                if (const uint32_t timeout = state_.efuse_configs[ch].timeout; timeout != 0)
+                {
+                    sequencing_timer_.update_duration(timeout);
+                    sequencing_timer_.restart();
+                }
+                efuse->setChannel(true);
+            }
         }
     }
 } // namespace
