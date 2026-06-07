@@ -224,17 +224,6 @@
       ]
     },
     {
-      "label": "Run Tests: BMS (Hexray)",
-      "type": "shell",
-      "command": "${workspaceFolder}/build_fw_test/firmware/hexray/BMS/hexray_BMS_test",
-      "group": "test",
-      "dependsOn": "Build Tests: BMS (Hexray)",
-      "presentation": {
-        "reveal": "always"
-      },
-      "problemMatcher": []
-    },
-    {
       "label": "Build Chimera: BMS (Hexray)",
       "group": "build",
       "type": "cmake",

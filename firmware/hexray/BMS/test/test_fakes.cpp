@@ -15,6 +15,8 @@
 #include "io_tractiveSystem.hpp"
 #include "io_time.hpp"
 
+#include "app_segments.hpp"
+
 #include "util_errorCodes.hpp"
 #include "util_utils.hpp"
 
@@ -313,22 +315,12 @@ namespace charger
 
 } // namespace io
 
-// Placeholder app::segments accessors used by app_chargeState. Real implementations live in the
-// segments module which is not yet merged in tree. Tests drive these via fakes::segments setters.
+// Placeholder pack-voltage accessor: app::segments has no pack-voltage getter yet, so tests drive it
+// directly. Cell voltage/temp instead go through the real shared module (see fakes::segments below).
 namespace app::segments
 {
-static float fake_max_cell_v = 3.8f;
-static float fake_max_cell_t = 25.0f;
-static float fake_pack_v     = 3.8f * 10.0f * 14.0f; // matches setPackVoltageEvenly default
+static float fake_pack_v = 3.8f * 10.0f * 14.0f; // matches setPackVoltageEvenly default
 
-float getMaxCellVoltage()
-{
-    return fake_max_cell_v;
-}
-float getMaxCellTemp()
-{
-    return fake_max_cell_t;
-}
 float getPackVoltage()
 {
     return fake_pack_v;
@@ -523,13 +515,6 @@ namespace imd
 
 namespace segments
 {
-    // Defined in test_segmentsShared_bridge.cpp (a TU free of the io_adbms placeholder macros).
-    namespace bridge
-    {
-        void pushMaxCellVoltageToShared(float v);
-        void pushMaxCellTempToShared(float t);
-    } // namespace bridge
-
     void setCellVoltages(const std::array<std::array<float, CELLS_PER_SEGMENT>, NUM_SEGMENTS> &voltages)
     {
         for (size_t i = 0; i < NUM_SEGMENTS; i++)
@@ -595,20 +580,37 @@ namespace segments
         aux_regs_storage[segment][cell] = static_cast<uint16_t>(voltage * 1000); // Not sure if conversion is correct
     }
 
+    // Drive the real shared module (app_segments_shared.cpp) by setting every cell/thermistor to the
+    // requested value, so the getters consumed by chargeState (app::segments::shared::getMaxCellVoltage()
+    // / getMaxCellTemperature()) reflect it. The ADBMS poll job is unregistered in tests, so nothing
+    // else overwrites these stats between ticks.
     void setMaxCellVoltage(const float v)
     {
-        app::segments::fake_max_cell_v = v;
-        // Drive the real shared module (app_segments_shared.cpp) so
-        // app::segments::shared::getMaxCellVoltage() — consumed by chargeState — reflects the value.
-        // Implemented in test_segmentsShared_bridge.cpp to avoid the io_adbms macro collision in
-        // this TU (see test_fakes.hpp). The ADBMS poll job is unregistered in tests, so nothing else
-        // overwrites these stats.
-        bridge::pushMaxCellVoltageToShared(v);
+        Cells<result<float>> voltages{};
+        Cells<result<bool>>  owc{};
+        for (uint8_t seg = 0; seg < NUM_SEGMENTS; ++seg)
+        {
+            for (uint8_t cell = 0; cell < CELLS_PER_SEGMENT; ++cell)
+            {
+                voltages[seg][cell] = v;
+                owc[seg][cell]      = false;
+            }
+        }
+        app::segments::shared::setVoltageStats(voltages, owc);
     }
     void setMaxCellTemp(const float t)
     {
-        app::segments::fake_max_cell_t = t;
-        bridge::pushMaxCellTempToShared(t);
+        Therms<result<float>> temps{};
+        Therms<result<bool>>  owc{};
+        for (uint8_t seg = 0; seg < NUM_SEGMENTS; ++seg)
+        {
+            for (uint8_t therm = 0; therm < THERMISTORS_PER_SEGMENT; ++therm)
+            {
+                temps[seg][therm] = t;
+                owc[seg][therm]   = false;
+            }
+        }
+        app::segments::shared::setTemperatureStats(temps, owc);
     }
     void setPackVoltage(const float v)
     {

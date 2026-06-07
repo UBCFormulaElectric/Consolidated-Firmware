@@ -90,7 +90,7 @@ namespace chargeState
 
         // Terminate when cells are essentially full AND Elcon has already tapered down
         // Both conditions required (high V + high I = mid-CV-ramp, low I + low V = idle)
-        if ((max_cell_v >= CELL_V_TERMINATE) && (app::charger::getOutputCurrent() < I_TERMINATE_A))
+        if ((max_cell_v >= CELL_V_TERMINATE) && (app::charger::getOutputCurrent() < I_TERMINATE_A)) // Is the second condittion needed here? "app::charger::getOutputCurrent() < I_TERMINATE_A" will be true immediately when entering charge state...
         {
             app::can_tx::BMS_ChargingDone_set(true); // Is this ever set to false? look into this!!!!!!!!!!!!
             app::charger::setChargingConfig(stop);

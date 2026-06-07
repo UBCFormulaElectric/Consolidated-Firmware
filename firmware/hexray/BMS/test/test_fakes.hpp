@@ -6,26 +6,15 @@
 #include "app_canUtils.hpp"
 #include "app_canTx.hpp"
 #include "io_faultLatch.hpp"
-// #include "io_adbms.hpp"
+#include "io_adbms.hpp" // NUM_SEGMENTS, CELLS_PER_SEGMENT, THERMISTORS_PER_SEGMENT and io::adbms types
 
-// TODO: Remove definintions after io adbms and app segments are added
-namespace io::adbms
-{
-#ifndef NUM_SEGMENTS
-#define NUM_SEGMENTS 10U
-#define CELLS_PER_SEGMENT 14U
-// TODO: Have to change to match adbms regs
-#define AUX_REG_GROUPS 3U
-#define REGS_PER_GROUP 3U
-#define AUX_REGS_PER_SEGMENT (AUX_REG_GROUPS * REGS_PER_GROUP)
-#define MAX_CELL_VOLTAGE_FAULT_V 4.2f
-#define MIN_CELL_VOLTAGE_FAULT_V 2.5f
-#define MAX_CELL_TEMP_FAULT_C (60.0f)
-#endif
-} // namespace io::adbms
-// Remove up to here
+// Note: no `using namespace io::adbms;` here — this header is included widely (incl. before <gtest>),
+// and io::adbms::read / io::adbms::write would clash with POSIX read/write inside gtest.
 
-using namespace io::adbms;
+// ADBMS register-layout constants used only by the test fakes (not exposed by io_adbms.hpp).
+constexpr uint8_t AUX_REG_GROUPS       = 3U;
+constexpr uint8_t REGS_PER_GROUP       = 3U;
+constexpr uint8_t AUX_REGS_PER_SEGMENT = AUX_REG_GROUPS * REGS_PER_GROUP;
 
 namespace fakes
 {
