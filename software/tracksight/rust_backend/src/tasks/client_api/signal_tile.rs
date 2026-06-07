@@ -76,6 +76,10 @@ pub struct SignalTileKey {
 pub struct SignalTilePoint {
     time_utc_ms: i64,
     value: f64,
+    // The actual signal name for this point. For regular signals this matches the
+    // requested signal, but for the "alert" pseudo-signal a single tile contains
+    // many distinct alerts, so we must preserve each point's real name.
+    signal_name: String,
 }
 
 /**
@@ -132,21 +136,43 @@ pub async fn get_signals(
         tile_start_utc = tile_start_utc + Duration::from_millis(tile_duration_ms);
     }
     let source_str = source.to_string();
-
+    
     let get_tile_query = |tile_start: &DateTime<Utc>| -> String {
         let tile_start_str = tile_start.to_rfc3339_opts(chrono::SecondsFormat::Millis, true);
-        format!(r#"
-        import "date"
-        from(bucket: "{}")
-        |> range(start: {tile_start_str}, stop: date.add(d: {tile_duration_ms}ms, to: {tile_start_str}))
-        |> filter(fn: (r) => r["_measurement"] == "{}")
-        |> filter(fn: (r) => r["signal_name"] == "{signal}")
-        |> filter(fn: (r) => r["source"] == "{source_str}")
-        |> toFloat()
-        |> aggregateWindow(every: {resolution_ms}ms, fn: mean, createEmpty: false)"#
-        , &CONFIG.influxdb_bucket, &CONFIG.influxdb_measurement)
+
+        // NOTE(evan): Just return all alerts in the tile if requested so we don't
+        //             have to spam 100 requests to fetch all alerts in a window.
+        // 
+        //             This behaviour mimicks what we do for live data, where we also
+        //             return all alerts always.
+        if signal == "alert" {
+            format!(r#"
+                import "date"
+                from(bucket: "{}")
+                |> range(start: {tile_start_str}, stop: date.add(d: {tile_duration_ms}ms, to: {tile_start_str}))
+                |> filter(fn: (r) => r["_measurement"] == "{}")
+                |> filter(fn: (r) => r["source"] == "{source_str}")
+                |> filter(fn: (r) => r["signal_type"] == "alert")
+                |> toFloat()
+                |> aggregateWindow(every: {resolution_ms}ms, fn: max, createEmpty: false)"#,
+                &CONFIG.influxdb_bucket,
+                &CONFIG.influxdb_measurement
+            )
+        } else {
+            format!(r#"
+                import "date"
+                from(bucket: "{}")
+                |> range(start: {tile_start_str}, stop: date.add(d: {tile_duration_ms}ms, to: {tile_start_str}))
+                |> filter(fn: (r) => r["_measurement"] == "{}")
+                |> filter(fn: (r) => r["signal_name"] == "{signal}")
+                |> filter(fn: (r) => r["source"] == "{source_str}")
+                |> toFloat()
+                |> aggregateWindow(every: {resolution_ms}ms, fn: mean, createEmpty: false)"#, 
+                &CONFIG.influxdb_bucket, 
+                &CONFIG.influxdb_measurement
+            )
+        }
     };
-    
     
     // track current time in ms to prevent caching currently written tiles
     let curr_time_ms = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_millis() as i64;
@@ -181,7 +207,7 @@ pub async fn get_signals(
                         time: time_utc?.into(),
                         value: point.value,
                         measurement: CONFIG.influxdb_measurement.clone(),
-                        signal_name: signal.clone(),
+                        signal_name: point.signal_name,
                         source: source.to_string()
                     })
                 }).collect::<Vec<InfluxSignalRow>>();
@@ -210,6 +236,7 @@ pub async fn get_signals(
                             signal_rows.iter().map(|row| SignalTilePoint {
                                 time_utc_ms: row.time.timestamp_millis(),
                                 value: row.value,
+                                signal_name: row.signal_name.clone(),
                             }).collect::<Vec<SignalTilePoint>>()
                         ).await;
                     }

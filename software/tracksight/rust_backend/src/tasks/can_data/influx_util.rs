@@ -35,6 +35,7 @@ pub fn build_data_point(decoded_signal: DecodedSignal, source: InfluxSignalSourc
         .field("_value", decoded_signal.value)
         .tag("signal_name", &decoded_signal.name)
         .tag("source", source.to_string())
+        .tag("signal_type", format!("{:?}", decoded_signal.signal_type).to_ascii_lowercase())
         .timestamp(decoded_signal.timestamp.unwrap_or_default() as i64)
         .build()
 }
