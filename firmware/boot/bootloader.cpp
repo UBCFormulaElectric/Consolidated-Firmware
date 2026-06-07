@@ -166,7 +166,7 @@ void bootloader::init(config &boot_config)
         }
 
         if (const hw::CanMsg command = can_msg.value();
-            command.std_id == (boot_config.BOARD_HIGHBITS | START_UPDATE_ID_LOWBITS))
+            command.std_id == (boot_config.BOARD_HIGHBITS | START_UPDATE_ID_LOWBITS)) // start update
         {
             // Reset current address to program and update state.
             current_address    = reinterpret_cast<uint32_t>(&__app_metadata_start__);
@@ -178,8 +178,13 @@ void bootloader::init(config &boot_config)
             reply.dlc    = 0;
             LOG_IF_ERR(boot_config.can_tx_queue.push(reply));
         }
-        else if (command.std_id == (boot_config.BOARD_HIGHBITS | ERASE_SECTOR_ID_LOWBITS) && update_in_progress)
+        else if (command.std_id == (boot_config.BOARD_HIGHBITS | ERASE_SECTOR_ID_LOWBITS)) // erase
         {
+            if (not update_in_progress)
+            {
+                LOG_ERROR("Got erase sector command while not in update state");
+                continue;
+            }
             // Erase a flash sector.
             const uint8_t sector = command.data[0];
             const auto    status = hw::flash::eraseSector(sector);
@@ -200,8 +205,13 @@ void bootloader::init(config &boot_config)
             reply.dlc    = 0;
             LOG_IF_ERR(boot_config.can_tx_queue.push(reply));
         }
-        else if (command.std_id == (boot_config.BOARD_HIGHBITS | PROGRAM_ID_LOWBITS) && update_in_progress)
+        else if (command.std_id == (boot_config.BOARD_HIGHBITS | PROGRAM_ID_LOWBITS)) // program
         {
+            if (not update_in_progress)
+            {
+                LOG_ERROR("Got program command while not in update state");
+                continue;
+            }
             // Program 64 bits at the current address.
             // No reply for program command to reduce latency.
             // TODO: Seems kinda fragile
@@ -223,7 +233,7 @@ void bootloader::init(config &boot_config)
                 current_address += sizeof(uint64_t);
             }
         }
-        else if (command.std_id == (boot_config.BOARD_HIGHBITS | VERIFY_ID_LOWBITS))
+        else if (command.std_id == (boot_config.BOARD_HIGHBITS | VERIFY_ID_LOWBITS)) // verify validity
         {
             // Verify received checksum matches the one saved in flash.
             hw::CanMsg reply{};
@@ -235,15 +245,21 @@ void bootloader::init(config &boot_config)
             // Verify command doubles as exit programming state command.
             update_in_progress = false;
         }
-        else if (command.std_id == (boot_config.BOARD_HIGHBITS | GO_TO_APP_LOWBITS) && !update_in_progress)
+        else if (command.std_id == (boot_config.BOARD_HIGHBITS | GO_TO_APP_LOWBITS)) // goto app
         {
+            if (not update_in_progress)
+            {
+                LOG_ERROR("Got go to app command while not in update state");
+                continue;
+            }
             hw::bootup::setBootRequest({ .target        = hw::bootup::BootTarget::APP,
                                          .context       = hw::bootup::BootContext::NONE,
                                          ._unused       = 0xFFFF,
                                          .context_value = 0 });
             NVIC_SystemReset();
         }
-        else if (command.std_id == (boot_config.BOARD_HIGHBITS | GO_TO_BOOT))
+        else if (command.std_id == (boot_config.BOARD_HIGHBITS | GO_TO_BOOT)) // goto boot?? except it just resets
+                                                                              // update
         {
             // Restart bootloader update state when receiving a GO_TO_BOOT command.
             update_in_progress = false;
