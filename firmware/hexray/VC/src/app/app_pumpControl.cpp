@@ -17,7 +17,7 @@ static app::Timer         ramp_timer{ RAMP_DURATION_MS };
 void MonitorPumps()
 {
     const io::unique_semaphore lock{ pwr_pump_i2c_bus_lock };
-    const auto                 rr_ready = rr_pump_efuse.isChannelEnabled() and rr_pump_efuse.ok();
+    const bool                 rr_ready = rr_pump_efuse.isChannelEnabled() and rr_pump_efuse.ok();
 
     if (rr_ready)
     {

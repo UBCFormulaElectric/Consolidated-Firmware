@@ -6,7 +6,7 @@ constexpr hw::i2c::bus i2c_bus_4(hi2c4);
 constexpr hw::i2c::bus i2c_bus_5(hi2c5);
 
 const hw::i2c::device pwr_mon(i2c_bus_4, 0x10, 100);
-const hw::i2c::device pump(i2c_bus_4, 0x2D, 100);
+const hw::i2c::device rr_pump_i2c(i2c_bus_4, 0x2D, 100);
 const hw::i2c::device bat_mon(i2c_bus_5, 0x08, 100);
 
 const hw::i2c::bus &hw::i2c::getBusFromHandle(const I2C_HandleTypeDef *handle)

@@ -11,7 +11,7 @@
 #include "torque_vectoring/datatypes/torque_limits.hpp"
 #include "app_powerManager.hpp"
 #include "app_pumpControl.hpp"
-#include "io_pumpControl.hpp"
+#include "io_pumps.hpp"
 
 using namespace app::can_utils;
 using namespace app::inverter;

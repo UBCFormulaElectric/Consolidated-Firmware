@@ -3,7 +3,7 @@
 #include "io_imus.hpp"
 #include "io_batteryCharging.hpp"
 #include "io_batteryMonitoring.hpp"
-#include "io_pumpControl.hpp"
+#include "io_pumps.hpp"
 #include "io_sbgEllipse.hpp"
 #include "io_powerMonitoring.hpp"
 #include "io_shdnLoopNode.hpp"

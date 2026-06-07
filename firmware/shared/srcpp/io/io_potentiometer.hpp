@@ -61,7 +61,7 @@ class Potentiometer
     [[nodiscard]] result<void> writeWiper(const uint8_t data) const
     {
         const std::array<uint8_t, 2> tx_cmd{ { buildHeader(wiperRegister(), POTENTIOMETER_CMD::WRITE), data } };
-        assert(device.isTargetReady());
+        assert(device.isTargetReady().has_value());
         RETURN_IF_ERR(device.transmit(tx_cmd, false));
         return {};
     }

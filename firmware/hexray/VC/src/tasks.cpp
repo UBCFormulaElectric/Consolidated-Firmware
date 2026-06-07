@@ -19,10 +19,11 @@
 #include "hw_rtosTaskHandler.hpp"
 #include "hw_hardFaultHandler.hpp"
 #include "hw_bootup.hpp"
+#include "hw_i2cs.hpp"
 #include "hw_watchdog.hpp"
 #include "hw_resetReason.hpp"
 #include "hw_runTimeStat.hpp"
-#include "io_pumpControl.hpp"
+#include "io_pumps.hpp"
 
 [[noreturn]] static void tasks_run1Hz(void *arg);
 [[noreturn]] static void tasks_run100Hz(void *arg);

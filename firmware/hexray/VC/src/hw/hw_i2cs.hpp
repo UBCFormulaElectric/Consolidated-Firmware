@@ -4,4 +4,4 @@
 
 extern const hw::i2c::device bat_mon;
 extern const hw::i2c::device pwr_mon;
-extern const hw::i2c::device pump;
+extern const hw::i2c::device rr_pump_i2c;

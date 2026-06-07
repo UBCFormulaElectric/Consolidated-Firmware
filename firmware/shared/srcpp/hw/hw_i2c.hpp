@@ -28,6 +28,17 @@ class bus
 
     mutable std::optional<uint32_t> error = std::nullopt;
 
+    void sweep() const
+    {
+        for (uint8_t i = 0; i < 0x7f; i++)
+        {
+            if (const auto res = HAL_I2C_IsDeviceReady(&handle, static_cast<uint16_t>(i << 1), 10, 100); res == HAL_OK)
+            {
+                LOG_INFO("Device found at address 0x%02x\n", i);
+            }
+        }
+    }
+
   private:
     friend class device;
 
