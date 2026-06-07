@@ -76,9 +76,6 @@ pub struct SignalTileKey {
 pub struct SignalTilePoint {
     time_utc_ms: i64,
     value: f64,
-    // The actual signal name for this point. For regular signals this matches the
-    // requested signal, but for the "alert" pseudo-signal a single tile contains
-    // many distinct alerts, so we must preserve each point's real name.
     signal_name: String,
 }
 
