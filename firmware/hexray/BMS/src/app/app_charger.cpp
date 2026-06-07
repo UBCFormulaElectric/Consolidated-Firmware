@@ -60,6 +60,10 @@ float getAvailableCurrent()
 void broadcast()
 {
     const float availableCurrent = getAvailableCurrent();
-    const float evseDutyCycle   = io::charger::getCPDutyCycle();
+    const float evseDutyCycle    = io::charger::getCPDutyCycle();
+    const float evseFrequency    = io::charger::getCPFrequency();
+    app::can_tx::BMS_EvseDutyCycle_set(evseDutyCycle);
+    app::can_tx::BMS_EvseFrequency_set(evseFrequency);
+    app::can_tx::BMS_EvseAvailableCurrent_set(availableCurrent);
 }
 } // namespace app::charger
