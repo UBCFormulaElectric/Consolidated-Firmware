@@ -300,7 +300,7 @@ async fn signal_sessions(
 
     let time_bigram: Vec<(String, Option<String>)> = match req {
         Ok(starts) => {
-            error_println!("[sessions] influx returned {} DAM_Alive point(s)", starts.len());
+            vprintln!("[sessions] influx returned {} DAM_Alive point(s)", starts.len());
             let mut tb: Vec<(String, Option<String>)> = starts.windows(2)
             .map(|w|
                 (
