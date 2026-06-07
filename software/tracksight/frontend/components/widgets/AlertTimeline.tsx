@@ -305,7 +305,7 @@ function AlertTimeline() {
     globalTimeRangeRef,
     XToTime,
     timeToX,
-    hoverTimestampRef: externalHoverTimestampRef,
+    hoverXRef,
   } = useSyncedGraph();
 
   const XToTimeRef = useRef(XToTime);
@@ -352,10 +352,6 @@ function AlertTimeline() {
       const rightEdge = XToTimeRef.current(rect.width);
       const liveTime = globalTimeRangeRef.current!.max;
 
-      if (mousePos.current !== null) {
-        externalHoverTimestampRef.current = XToTimeRef.current(mousePos.current.x);
-      }
-
       hoverInfo.current = hitTestAlerts(
         mousePos.current,
         renderState.current,
@@ -385,12 +381,12 @@ function AlertTimeline() {
         hoverInfo.current,
       );
 
-      if (externalHoverTimestampRef.current !== null) {
+      if (hoverXRef.current !== null) {
         render_hover_line(
           ctx,
           rect.width,
           rect.height,
-          externalHoverTimestampRef.current,
+          XToTimeRef.current(hoverXRef.current),
           timeToXRef.current,
           false,
         );
@@ -500,12 +496,12 @@ function AlertTimeline() {
       x,
       y: e.clientY - rect.top,
     };
-    externalHoverTimestampRef.current = XToTimeRef.current(x);
+    hoverXRef.current = x;
   };
 
   const handleMouseLeave = () => {
     mousePos.current = null;
-    externalHoverTimestampRef.current = null;
+    hoverXRef.current = null;
   };
 
   return (

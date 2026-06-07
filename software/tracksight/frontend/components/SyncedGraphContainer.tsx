@@ -9,8 +9,7 @@ export interface TimeRange {
 export type SyncedGraphContext_t = {
     // internal
     scalePxPerSecRef: RefObject<number>; // a measure of zoom
-    hoverTimestampRef: RefObject<number | null>; // TODO maybe not here?
-    hoverXRef: RefObject<number | null>; // raw CSS-pixel x of the hover cursor, set by whichever chart owns the hover
+    hoverXRef: RefObject<number | null>;
     globalTimeRangeRef: RefObject<TimeRange | null>;
     scrollLeftRef: RefObject<number>;
 
@@ -296,14 +295,12 @@ export default function SyncedGraphContainer({ children, initialTimeRange, onVie
     const timeToX = useCallback((t: number) => (t - globalTimeRangeRef.current!.min) * scalePxPerSecRef.current - scrollLeftRef.current + LEFT_PAD, [scrollLeftRef, scalePxPerSecRef, globalTimeRangeRef]);
 
     // hover
-    const hoverTimestampRef = useRef<number | null>(null);
     const hoverXRef = useRef<number | null>(null);
 
     // context
     const CTXVAL = useMemo<SyncedGraphContext_t>(
         () => ({
             scalePxPerSecRef,
-            hoverTimestampRef,
             hoverXRef,
             globalTimeRangeRef,
             updateWithTimestamp,
@@ -312,7 +309,7 @@ export default function SyncedGraphContainer({ children, initialTimeRange, onVie
             timeToX,
             XToTime,
         }),
-        [scalePxPerSecRef, hoverTimestampRef, hoverXRef, globalTimeRangeRef, updateWithTimestamp, setTimeRange, scrollLeftRef, timeToX, XToTime]
+        [scalePxPerSecRef, hoverXRef, globalTimeRangeRef, updateWithTimestamp, setTimeRange, scrollLeftRef, timeToX, XToTime]
     );
 
     return (

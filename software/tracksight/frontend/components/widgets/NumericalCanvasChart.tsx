@@ -18,13 +18,7 @@ export default function NumericalCanvasChart({
 }: NumericalGraphWidgetData) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const layoutRef = useRef<ChartLayout | null>(null);
-  const hoverXRef = useRef<number | null>(null);
-  const {
-    globalTimeRangeRef,
-    hoverTimestampRef: externalHoverTimestampRef,
-    hoverXRef: contextHoverXRef,
-    XToTime,
-  } = useSyncedGraph();
+  const { globalTimeRangeRef, hoverXRef, XToTime } = useSyncedGraph();
 
   const { height, timeTickCount } = options;
 
@@ -36,12 +30,7 @@ export default function NumericalCanvasChart({
       return;
     }
 
-    // Recompute hover time from the stored canvas-x using the latest scrollLeft
-    // so the tooltip stays exactly under the cursor even if scroll drifts.
-    // Only the chart currently being hovered owns externalHoverTimestampRef.
-    if (hoverXRef.current !== null) {
-      externalHoverTimestampRef.current = XToTime(hoverXRef.current);
-    }
+    const hoverTimestamp = hoverXRef.current === null ? null : XToTime(hoverXRef.current);
 
     render(
       context,
@@ -56,7 +45,7 @@ export default function NumericalCanvasChart({
         id,
       },
       timeTickCount,
-      externalHoverTimestampRef.current,
+      hoverTimestamp,
       hoveredSignal,
       {
         min: XToTime(CHART_PADDING.left),
@@ -68,12 +57,7 @@ export default function NumericalCanvasChart({
   const { handleMouseMove, handleMouseLeave } = useCanvasHover(
     canvasRef,
     hoverXRef,
-    (x) => {
-      contextHoverXRef.current = x;
-      const t = x === null ? null : XToTime(x);
-      externalHoverTimestampRef.current = t;
-      onHoverTimestampChange?.(t);
-    }
+    (x) => onHoverTimestampChange?.(x === null ? null : XToTime(x))
   );
 
   return (
