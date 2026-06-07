@@ -85,7 +85,7 @@ async fn sd_dump(State(state): State<AppState>, Json(SdDumpPayload{drive, file, 
                 .build().unwrap();
             let _ = state.influx_client.write(&CONFIG.influxdb_bucket, stream::iter([dump_record])).await;
         },
-        Err(e) => return (StatusCode::BAD_REQUEST, format!("Failed to read file {file} from drive {drive}: {e:?}")),
+        Err(e) => return (StatusCode::BAD_REQUEST, format!("Failed to dump file {file} from drive {drive}: {e:?}")),
     }
     
     return (StatusCode::OK, format!("Dump {file} from drive {drive}"));

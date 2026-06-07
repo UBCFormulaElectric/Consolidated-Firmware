@@ -6,7 +6,7 @@ use influxdb2::models::DataPoint;
 use jsoncan_rust::can_database::{CanDatabase, DecodedSignal};
 use logfs::{LogFsErr, logfs::{LogFs, LogFsUnixDisk}};
 
-use crate::{tasks::can_data::influx_util::{InfluxSignalSource, MAX_BATCH_CAPACITY, build_data_point, flush_buffer}, utils::yellow, vprintln};
+use crate::{error_println, tasks::can_data::influx_util::{InfluxSignalSource, MAX_BATCH_CAPACITY, build_data_point, flush_buffer}, utils::yellow, vprintln};
 
 /// CRC-8/SMBUS (poly 0x07, init 0x00, no reflection, no xorout) — matches the
 /// firmware `app_crc8` used by `io_canLogging.c`.
@@ -97,9 +97,9 @@ fn ls_recursive(logfs: &mut LogFs, dir: &str, results: &mut Vec<String>) -> Resu
 
 #[derive(Debug)]
 pub enum SdCardDumpError {
-    LogFsError,
-    FileNotFound,
-    FileReadError,
+    MountError,
+    FileOpenError(LogFsErr),
+    FileReadError(LogFsErr),
 }
 
 pub async fn dump_sd_file(
@@ -110,21 +110,27 @@ pub async fn dump_sd_file(
     let (metadata, bytes) = {
         let mut logfs = match get_logfs(drive.clone()) {
             Ok(logfs) => logfs,
-            Err(_) => return Err(SdCardDumpError::LogFsError),
+            Err(_) => {
+                error_println!("dump_sd_file: failed to mount drive {drive}");
+                return Err(SdCardDumpError::MountError);
+            }
         };
 
         let mut file = match logfs.open(&path, logfs::LogFsOpenFlags_LOGFS_OPEN_RD_ONLY) {
             Ok(f) => f,
-            Err(_) => return Err(SdCardDumpError::FileNotFound),
+            Err(e) => {
+                error_println!("dump_sd_file: failed to open {path} on drive {drive}: {e:?}");
+                return Err(SdCardDumpError::FileOpenError(e));
+            }
         };
 
         let metadata = file.read_metadata(None).map_err(|e| {
-            vprintln!("read_metadata failed: {:?}", e);
-            SdCardDumpError::FileReadError
+            error_println!("dump_sd_file: read_metadata failed for {path}: {e:?}");
+            SdCardDumpError::FileReadError(e)
         })?;
         let data = file.read(None).map_err(|e| {
-            vprintln!("read failed: {:?}", e);
-            SdCardDumpError::FileReadError
+            error_println!("dump_sd_file: read failed for {path}: {e:?}");
+            SdCardDumpError::FileReadError(e)
         })?;
         (metadata, data)
         // logfs and file are dropped here, before any await

@@ -118,7 +118,8 @@ function HistoricContent(props: { selectedRange: { min: number; max: number }; s
     return (
         <SyncedGraphContainer initialTimeRange={selectedRange} onViewportSettled={handleViewportSettled}>
             <HistoricalSignalStoreProvider startUtcMs={fetchRange.min} endUtcMs={fetchRange.max} source={selectedSource} selectedRange={selectedRange}>
-                {/* Remount on session/source change so the append-only AlertTimeline resets its cursors. */}
+                {/* Rendered the same way as the live page; keyed so the append-only AlertTimeline
+                    resets its cursors on session/source change. */}
                 <AlertTimeline key={`${selectedSource}:${selectedRange.min}:${selectedRange.max}`} />
                 {widgets.length === 0 ? <div className="grid h-full place-items-center text-gray-500">Select signals by adding a widget and choosing signals.</div> : <DataDashboard />}
                 <WidgetAdder />

@@ -509,7 +509,7 @@ function AlertTimeline() {
   };
 
   return (
-    <div className="flex flex-col gap-5">
+    <div className="sticky top-0 z-40 flex flex-col gap-5 bg-white">
       <div className="overflow-y-scroll scrollbar-hidden overscroll-none"
         ref={wrapperRef}
         style={{

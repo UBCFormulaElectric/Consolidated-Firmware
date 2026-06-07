@@ -33,20 +33,24 @@ const useDumpSDCardFile = () => {
                 method: "POST",
             });
 
-            if (response.status === 409) {
-                throw new DumpSDCardFileError(response.status, ERROR_CODES.CONFLICT);
-            }
-
-            if (response.status === 400) {
-                throw new DumpSDCardFileError(response.status, ERROR_CODES.MALFORMED);
-            }
-
-            if (response.status === 500) {
-                throw new DumpSDCardFileError(response.status, ERROR_CODES.SERVER_ERROR);
-            }
-
             if (!response.ok) {
-                throw new DumpSDCardFileError(response.status, response.statusText || "Failed to dump file");
+                // Surface the backend's actual error so failures aren't mislabeled
+                // (e.g. a mount/read failure was previously reported as "doesn't exist").
+                const detail = await response.text().catch(() => "");
+
+                if (response.status === 409) {
+                    throw new DumpSDCardFileError(response.status, detail || ERROR_CODES.CONFLICT);
+                }
+
+                if (response.status === 400) {
+                    throw new DumpSDCardFileError(response.status, detail || ERROR_CODES.MALFORMED);
+                }
+
+                if (response.status === 500) {
+                    throw new DumpSDCardFileError(response.status, detail || ERROR_CODES.SERVER_ERROR);
+                }
+
+                throw new DumpSDCardFileError(response.status, detail || response.statusText || "Failed to dump file");
             }
 
             const result = await response.text();
