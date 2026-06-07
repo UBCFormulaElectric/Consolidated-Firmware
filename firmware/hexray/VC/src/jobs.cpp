@@ -90,6 +90,7 @@ void jobs_run100Hz_tick()
     app::StateMachine::tick100Hz();
     app::can_tx::VC_PcmEnable_set(io::pcm::enabled());
     app::loadswitches::efuse_broadcast();
+    app::powerManager::broadcastRetryCounts();
     hb_monitor.checkIn();
     hb_monitor.broadcastFaults();
     app::shdnLoop::broadcast();

@@ -24,6 +24,7 @@ struct PowerManagerConfig
 
 void updateConfig(const PowerManagerConfig &new_cfg);
 void efuseProtocolTick_100Hz();
+void broadcastRetryCounts();
 
 #ifdef TARGET_TEST
 PowerManagerConfig getConfig();

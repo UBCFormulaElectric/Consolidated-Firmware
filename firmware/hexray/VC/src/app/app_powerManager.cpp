@@ -47,7 +47,6 @@ namespace
                     // retry time
                     if (retries_[ch] > state_.efuse_configs[ch].max_retry)
                     {
-                        // LOG_WARN("max retry exceedded");
                         continue;
                     }
                     ++retries_[ch];
@@ -87,6 +86,21 @@ void updateConfig(const PowerManagerConfig &new_cfg)
     state_.efuse_configs[2].efuse_enable &= pcm_volt_ok;
     state_.efuse_configs[3].efuse_enable &= pcm_volt_ok;
 }
+
+void broadcastRetryCounts()
+{
+    app::can_tx::VC_RearRightPumpRetry_set(retries_[0]);
+    app::can_tx::VC_RearLeftPumpRetry_set(retries_[1]);
+    app::can_tx::VC_RightRadiatorRetry_set(retries_[2]);
+    app::can_tx::VC_LeftRadiatorRetry_set(retries_[3]);
+    app::can_tx::VC_LInvRetry_set(retries_[4]);
+    app::can_tx::VC_RInvRetry_set(retries_[5]);
+    app::can_tx::VC_RSMRetry_set(retries_[6]);
+    app::can_tx::VC_BMSRetry_set(retries_[7]);
+    app::can_tx::VC_DAMRetry_set(retries_[8]);
+    app::can_tx::VC_FrontRetry_set(retries_[9]);
+}
+
 void efuseProtocolTick_100Hz()
 {
     switch (sequencing_timer_.updateAndGetState())

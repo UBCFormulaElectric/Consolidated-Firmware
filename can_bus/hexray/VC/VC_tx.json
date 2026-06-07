@@ -442,6 +442,22 @@
       },
       "RightRadiatorFanStatus": {
         "bits": 1
+      },
+      "RearRightPumpRetry": {
+        "min": 0,
+        "max": 10
+      },
+      "RearLeftPumpRetry": {
+        "min": 0,
+        "max": 10
+      },
+      "LeftRadiatorRetry": {
+        "min": 0,
+        "max": 10
+      },
+      "RightRadiatorRetry": {
+        "min": 0,
+        "max": 10
       }
     }
   },
@@ -609,6 +625,34 @@
       },
       "FrontStatus": {
         "bits": 1
+      },
+      "RSMRetry": {
+        "min": 0,
+        "max": 10
+      },
+      "BMSRetry": {
+        "min": 0,
+        "max": 10
+      },
+      "DAMRetry": {
+        "min": 0,
+        "max": 10
+      },
+      "FrontRetry": {
+        "min": 0,
+        "max": 10
+      },
+      "RInvRetry": {
+        "min": 0,
+        "max": 10
+      },
+      "LInvRetry": {
+        "min": 0,
+        "max": 10
+      },
+      "FSMRetry": {
+        "min": 0,
+        "max": 10
       }
     }
   },
