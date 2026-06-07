@@ -56,4 +56,10 @@ float getAvailableCurrent()
 
     return 0.0f; // Sentinel value for invalid/critical conditions
 }
+
+void broadcast()
+{
+    const float availableCurrent = getAvailableCurrent();
+    const float evseDutyCycle   = io::charger::getCPDutyCycle();
+}
 } // namespace app::charger

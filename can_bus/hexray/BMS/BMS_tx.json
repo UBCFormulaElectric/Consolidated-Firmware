@@ -8145,6 +8145,37 @@
       }
     }
   },
+  "EvseCPStatus": {
+    "msg_id": 476,
+    "cycle_time": 10,
+    "description": "Status of the control pilot signal for J1772 plug",
+    "signals":{
+      "CP_Frequency":{
+        "resolution": 1,
+        "min": 0,
+        "max": 2000,
+        "unit": "Hz"
+      },
+      "CP_DutyCycle": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "CP_AvailableCurrent": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 80,
+        "unit": "A"
+    },
+    "allowed_modes":[
+      "DEBUG"
+    ],
+    "data_capture": {
+      "telem_cycle_time": 1000,
+      "log_cycle_time" : 1000
+    }
+  },
   "ElconControls": {
     "msg_id": 403105268,
     "cycle_time": 1000,
