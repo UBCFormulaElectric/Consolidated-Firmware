@@ -2,19 +2,30 @@
 #include "app_timer.hpp"
 #include "app_math.hpp"
 #include "io_tractiveSystem.hpp"
+#include "app_sensor_filter.hpp"
 #include "app_canTx.hpp"
 #include "app_canAlerts.hpp"
 
 inline constexpr float HIGH_RES_MAX_CURRENT_READING = 50.0f;
 inline constexpr float W_TO_KW                      = 1.0e-3f;
 
+static constexpr float TS_VOLTAGE_SAMPLE_RATE_HZ = 100.0f;
+static constexpr float TS_VOLTAGE_CUTOFF_HZ      = 5.0f;
+
 namespace app::ts
 {
 static Timer overcurrent_warning_timer{ TS_OVERCURRENT_DEBOUNCE_DURATION_MS };
 
-float getVoltage()
-{
-    return io::ts::getVoltage();
+static ExponentialFilter ts_voltage_filter = ExponentialFilter::withCutoffFrequency(TS_VOLTAGE_CUTOFF_HZ, TS_VOLTAGE_SAMPLE_RATE_HZ);
+static float ts_filtered_voltage = 0.0f;
+
+void init() {
+    ts_filtered_voltage = io::ts::getVoltage();
+    ts_voltage_filter   = ExponentialFilter::withCutoffFrequency(TS_VOLTAGE_CUTOFF_HZ, TS_VOLTAGE_SAMPLE_RATE_HZ,ts_filtered_voltage);
+}
+
+float getVoltage() {
+    return ts_filtered_voltage;
 }
 
 float getCurrent()
@@ -30,6 +41,8 @@ float getCurrent()
 
 void broadcast()
 {
+    ts_filtered_voltage = ts_voltage_filter.process(io::ts::getVoltage());
+
     const float ts_voltage  = getVoltage();
     const float ts_current  = getCurrent();
     const float ts_power_kw = ts_voltage * ts_current * W_TO_KW;
