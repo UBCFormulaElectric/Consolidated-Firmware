@@ -1,4 +1,19 @@
 {
+  "ErrorCode": {
+    "INVALID_ARGS": 0,
+    "OUT_OF_RANGE": 1,
+    "TIMEOUT": 2,
+    "ERROR": 3,
+    "BUSY": 4,
+    "UNIMPLEMENTED": 5,
+    "RETRY_FAILED": 6,
+    "CHECKSUM_FAIL": 7,
+    "INVALID_READING": 8,
+    "ERROR_INDETERMINATE": 9,
+    "POLL_INVALID": 10, 
+    "NO_SEGMENT_DEFINED" : 11,
+    "NO_ERROR" : 12
+  },
   "SwitchState": {
     "OFF": 0,
     "ON": 1
@@ -25,9 +40,10 @@
     "Cockpit_EStop": 10,
     "BOTS": 11,
     "FR_ILCK": 12,
-    "FL_INERTIA_ILCK": 13,
-    "TSMS": 14,
-    "OK": 15
+    "FL_ILCK": 13,
+    "INERTIA": 14,
+    "TSMS": 15,
+    "OK": 16
   },
   "DriveMode": {
     "VANILLA": 0,

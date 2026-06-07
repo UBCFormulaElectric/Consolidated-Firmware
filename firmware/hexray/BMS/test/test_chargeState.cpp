@@ -1,6 +1,6 @@
 #include "test_fakes.hpp"
 #include "test_BMSBase.hpp"
-#include "states/app_states.hpp"
+#include "app_states.hpp"
 #include "app_precharge.hpp"
 #include "io_irs.hpp"
 #include "app_canAlerts.hpp"
@@ -89,12 +89,11 @@ TEST_F(BmsChargeStateTest, exit_opens_positive_clears_debug_charging_and_sends_s
 // Fault paths
 //
 // Two-step behavior:
-//   Tick 1 (in chargeState): runOnTick100Hz detects the fault, sets the ChargerFault CAN alert,
-//          sends a stop frame, and returns. jobs.cpp then sees AnyBoardHasFault() and queues
-//          fault_state via set_next_state.
-//   Tick 2 (transition):    chargeState runs runOnTick100Hz once more (fault still latched on
-//          ChargerFault), then the state machine transitions to fault_state. runOnExit opens
-//          AIR+, clears Debug_StartCharging, and sends a stop frame.
+//   Tick 1 (in chargeState): runOnTick100Hz detects the fault, calls the charger module
+//          to see if there was a charger fault. If there was, there is a stop command sent to the charger
+//          and the state machine queues a transition to init_state.
+//   Tick 2 (transition):    statemachine runs the run on exit and runOn100Hz
+//          function for the new state on the next tick.
 // =============================================================================
 
 static void ExpectStopFrameSent()
@@ -104,28 +103,22 @@ static void ExpectStopFrameSent()
     EXPECT_TRUE(app::can_tx::BMS_StopCharging_get());
 }
 
-// Drives one tick after a fault is injected and asserts the chargeState fault behavior:
-//   - ChargerFault is set
-//   - Stop frame is on TX
-//   - State has not transitioned yet (still charge_state, fault_state queued for next tick)
-static void ExpectFaultDetectedThisTick()
+TEST_F(BmsChargeStateTest, exit_charging_when_negative_contactor_opens)
 {
-    ASSERT_STATE_EQ(charge_state);
-    EXPECT_TRUE(app::can_tx::BMS_Fault_ChargerFault_get());
-    ExpectStopFrameSent();
-}
-
-TEST_F(BmsChargeStateTest, fault_when_negative_contactor_opens)
-{
+    constexpr uint32_t ir_negative_debounce_period = 200U;
     EnterChargeStateClean();
     fakes::irs::setNegativeState(ContactorState::CONTACTOR_STATE_OPEN);
+    // Need to wait for the debounce period for irs- in order for jobs to send state machine to init
+    // added +20 is because the first tick the timer for debounce is started.
+    LetTimePass(ir_negative_debounce_period + 10);
+    // The state machine is called before jobs in the 100Hz task so runOnExit is called the tick after.
     LetTimePass(10);
-    ExpectFaultDetectedThisTick();
-
-    LetTimePass(10);
-    ASSERT_STATE_EQ(fault_state);
-    EXPECT_EQ(io::irs::positiveState(), ContactorState::CONTACTOR_STATE_OPEN);
+    ExpectStopFrameSent();
     EXPECT_FALSE(app::can_rx::Debug_StartCharging_get());
+    // Allow runOnEntry of init_state to set current state status.
+    LetTimePass(10);
+    ASSERT_STATE_EQ(init_state);
+    EXPECT_EQ(io::irs::positiveState(), ContactorState::CONTACTOR_STATE_OPEN);
 }
 
 // Charger physical disconnect is NOT a fault — it's a clean exit to init, mirrors the
@@ -137,112 +130,81 @@ TEST_F(BmsChargeStateTest, charger_disconnect_returns_to_init_without_fault)
     LetTimePass(10);
 
     ASSERT_STATE_EQ(init_state);
-    EXPECT_FALSE(app::can_tx::BMS_Fault_ChargerFault_get());
     EXPECT_FALSE(app::can_tx::BMS_ChargingDone_get());
     EXPECT_EQ(io::irs::positiveState(), ContactorState::CONTACTOR_STATE_OPEN);
     EXPECT_FALSE(app::can_rx::Debug_StartCharging_get());
     EXPECT_TRUE(app::can_tx::BMS_StopCharging_get());
 }
 
-TEST_F(BmsChargeStateTest, fault_on_elcon_hardware_failure)
+TEST_F(BmsChargeStateTest, exit_charging_on_elcon_hardware_failure)
 {
     EnterChargeStateClean();
     app::can_rx::Elcon_HardwareFailure_update(true);
     LetTimePass(10);
-    ExpectFaultDetectedThisTick();
+    ExpectStopFrameSent();
 
     LetTimePass(10);
-    ASSERT_STATE_EQ(fault_state);
+    ASSERT_STATE_EQ(init_state);
 }
 
-TEST_F(BmsChargeStateTest, fault_on_elcon_over_temperature)
+TEST_F(BmsChargeStateTest, exit_charging_on_elcon_over_temperature)
 {
     EnterChargeStateClean();
     app::can_rx::Elcon_ChargerOverTemperature_update(true);
     LetTimePass(10);
-    ExpectFaultDetectedThisTick();
+    ExpectStopFrameSent();
 
     LetTimePass(10);
-    ASSERT_STATE_EQ(fault_state);
+    ASSERT_STATE_EQ(init_state);
 }
 
-TEST_F(BmsChargeStateTest, fault_on_elcon_input_voltage_error)
+TEST_F(BmsChargeStateTest, exit_charging_on_elcon_input_voltage_error)
 {
     EnterChargeStateClean();
     app::can_rx::Elcon_InputVoltageError_update(true);
     LetTimePass(10);
-    ExpectFaultDetectedThisTick();
+    ExpectStopFrameSent();
 
     LetTimePass(10);
-    ASSERT_STATE_EQ(fault_state);
+    ASSERT_STATE_EQ(init_state);
 }
 
-TEST_F(BmsChargeStateTest, fault_on_elcon_charging_disabled)
+TEST_F(BmsChargeStateTest, exit_charging_on_elcon_charging_disabled)
 {
     EnterChargeStateClean();
     app::can_rx::Elcon_ChargingDisabled_update(true);
     LetTimePass(10);
-    ExpectFaultDetectedThisTick();
+    ExpectStopFrameSent();
 
     LetTimePass(10);
-    ASSERT_STATE_EQ(fault_state);
+    ASSERT_STATE_EQ(init_state);
 }
 
-TEST_F(BmsChargeStateTest, fault_on_elcon_comm_timeout)
+TEST_F(BmsChargeStateTest, exit_charging_on_elcon_comm_timeout)
 {
     EnterChargeStateClean();
     app::can_rx::Elcon_CommunicationTimeout_update(true);
     LetTimePass(10);
-    ExpectFaultDetectedThisTick();
+    ExpectStopFrameSent();
 
     LetTimePass(10);
-    ASSERT_STATE_EQ(fault_state);
+    ASSERT_STATE_EQ(init_state);
 }
 
-// Charger fault is recomputed every tick — clearing the upstream cause clears the alert.
-// However, fault_state is already queued for the next tick at the moment the fault first
-// appears, so the transition still completes. The user must re-issue Debug_StartCharging
-// from init after fault_state clears to charge again.
-TEST_F(BmsChargeStateTest, charger_fault_recomputes_each_tick_but_fault_state_transition_persists)
+// Ensure we exit charging even for a transient fault.
+TEST_F(BmsChargeStateTest, transient_charger_fault_still_exits_charge_state)
 {
     EnterChargeStateClean();
     app::can_rx::Elcon_HardwareFailure_update(true);
     LetTimePass(10);
-    EXPECT_TRUE(app::can_tx::BMS_Fault_ChargerFault_get());
+    ExpectStopFrameSent();
 
     // Clear the Elcon fault before the transition tick.
     app::can_rx::Elcon_HardwareFailure_update(false);
     LetTimePass(10);
 
-    // chargeState recomputed fault=false on the transition tick, clearing the CAN alert.
-    EXPECT_FALSE(app::can_tx::BMS_Fault_ChargerFault_get());
     // But the queued fault_state transition (from the previous tick) still completes.
-    ASSERT_STATE_EQ(fault_state);
-}
-
-TEST_F(BmsChargeStateTest, fault_priority_over_user_disable)
-{
-    // Both fault and !user_enable at the same time. Fault check is first, so we go to
-    // fault_state, not init_state.
-    EnterChargeStateClean();
-    app::can_rx::Elcon_HardwareFailure_update(true);
-    app::can_rx::Debug_StartCharging_update(false);
-    LetTimePass(20);
-
-    ASSERT_STATE_EQ(fault_state);
-}
-
-TEST_F(BmsChargeStateTest, fault_priority_over_termination)
-{
-    // Cells full + low current would normally terminate, but fault takes priority.
-    EnterChargeStateClean();
-    fakes::segments::setMaxCellVoltage(4.18f);
-    app::can_rx::Elcon_OutputCurrent_update(0.5f);
-    app::can_rx::Elcon_HardwareFailure_update(true);
-    LetTimePass(20);
-
-    ASSERT_STATE_EQ(fault_state);
-    EXPECT_FALSE(app::can_tx::BMS_ChargingDone_get());
+    ASSERT_STATE_EQ(init_state);
 }
 
 // =============================================================================

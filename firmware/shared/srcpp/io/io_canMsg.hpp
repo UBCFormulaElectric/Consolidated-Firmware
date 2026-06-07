@@ -1,6 +1,8 @@
 #pragma once
 
 #include <array>
+#include <cassert>
+#include <cstdint>
 #include <span>
 #include "app_canUtils.hpp"
 
@@ -15,6 +17,7 @@ inline constexpr size_t CAN_PAYLOAD_BYTES = 64;
 #else
 #error "Please define what MCU is used."
 #endif
+
 struct CanMsg
 {
     uint32_t                               std_id;
@@ -52,4 +55,5 @@ struct CanMsg
                                                                  CAN_PAYLOAD_BYTES / 8 };
     }
 };
+
 } // namespace io

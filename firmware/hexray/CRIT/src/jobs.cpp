@@ -5,17 +5,17 @@
 #include "app_jsoncan.hpp"
 #include "app_switches.hpp"
 #include "app_leds.hpp"
-#include "app_driveModes.hpp"
 #include "screens/app_screens.hpp"
 #include "app_heartbeatMonitors.hpp"
+#include "app_brightness.hpp"
+#include "app_powerGauge.hpp"
 
 #include "io_canTx.hpp"
 #include "io_time.hpp"
 #include "io_canQueues.hpp"
-
-#ifdef TARGET_EMBEDDED
-#include "hw_pwmOutputs.hpp"
-#endif
+#include "io_leds.hpp"
+#include "io_sevenSeg.hpp"
+#include "io_switches.hpp"
 
 void jobs_init()
 {
@@ -32,15 +32,10 @@ void jobs_init()
     app::can_tx::CRIT_Hash_set(GIT_COMMIT_HASH);
     app::can_tx::CRIT_Clean_set(GIT_COMMIT_CLEAN);
     app::can_tx::CRIT_Heartbeat_set(true);
-
-#ifdef TARGET_EMBEDDED
-    LOG_IF_ERR(led_dimming.start());
-    LOG_IF_ERR(led_dimming.setDutyCycle(100));
-#endif
+    io::can_tx::CRIT_Bootup_sendAperiodic();
 
     app::screens::init();
     app::leds::init();
-    app::driveModes::init();
 }
 
 void jobs_run1Hz_tick()
@@ -51,18 +46,15 @@ void jobs_run100Hz_tick()
 {
     app::leds::setLeds();
     app::screens::tick();
-
-    // io::power_gauge::update({});
-
+    LOG_IF_ERR(io::seven_seg::setBrightness(std::max(static_cast<uint8_t>(5u), app::brightness)));
+    app::power_gauge::update();
     app::switches::broadcast();
-    app::driveModes::broadcast();
 
     // TODO find rising edge
     // if (const bool has_rising_edge = io::switches::telem_mark_get(); has_rising_edge)
     // {
     //     io::can_tx::CRIT_TelemMarkEvent_sendAperiodic();
     // }
-
     hb_monitor.checkIn();
     hb_monitor.broadcastFaults();
 

@@ -19,17 +19,22 @@ services:
       context: ../../../
       dockerfile: software/tracksight/rust_backend/Dockerfile
     # Expose port from container
-    ports:
-      - "${BACKEND_PORT}:${BACKEND_PORT}"
+    network_mode: host
+    extra_hosts:
+      - "influx:127.0.0.1"
+    # ports:
+    #  - "${BACKEND_PORT}:${BACKEND_PORT}"
     # Pass common envs into container
     environment:
       BACKEND_PORT: ${BACKEND_PORT}
       INFLUXDB_PORT: ${INFLUXDB_PORT}
+      DOCKER: "true"
     env_file: envs/backend.env
     # Privileged provides access to all serial ports, not need to pass serial port through
     privileged: true
     volumes:
       - /dev:/dev
+      - /sys:/sys:ro
       # - ../rust_backend:/backend
       # TODO with live health check
     # healthcheck:
@@ -51,6 +56,7 @@ services:
     environment:
       FRONTEND_PORT: ${FRONTEND_PORT}
       BACKEND_PORT: ${BACKEND_PORT}
+    env_file: envs/frontend.env
     ports:
       - "${FRONTEND_PORT}:${FRONTEND_PORT}"
     # depends_on:

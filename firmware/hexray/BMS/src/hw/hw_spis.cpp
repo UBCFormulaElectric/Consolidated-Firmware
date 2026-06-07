@@ -4,7 +4,7 @@
 
 #include <cassert>
 
-static constexpr uint16_t ADBMS_SPI_TIMEOUT_MS = 100;
+static constexpr uint32_t ADBMS_SPI_TIMEOUT_MS = 100;
 
 static hw::spi::bus   isospi_bus(hspi4);
 const hw::spi::device adbms_spi_ls(isospi_bus, spi_cs_ls, ADBMS_SPI_TIMEOUT_MS);

@@ -4,20 +4,23 @@
 #include "app_canTx.hpp"
 #include "app_canUtils.hpp"
 
-static app::Timer negative_opened_debounce_timer{ app::irs::N_DEBOUNCE_PERIOD_MS };
+// Strictly externally linked for unit testing purposes
+static constexpr uint8_t N_DEBOUNCE_PERIOD_MS = 200;
+
+static app::Timer negative_opened_debounce_timer{ N_DEBOUNCE_PERIOD_MS };
 
 namespace app::irs
 {
 bool negativeOpenedDebounced()
 {
-    bool negative_opened = io::irs::negativeState() == app::can_utils::ContactorState::CONTACTOR_STATE_OPEN;
+    const bool negative_opened = io::irs::negativeState() == app::can_utils::ContactorState::CONTACTOR_STATE_OPEN;
     return negative_opened_debounce_timer.runIfCondition(negative_opened) == app::Timer::TimerState::EXPIRED;
 }
 
-void negativeOpenedDebounceTimerRestart()
-{
-    negative_opened_debounce_timer.restart();
-}
+// void negativeOpenedDebounceTimerRestart()
+// {
+//     negative_opened_debounce_timer.restart();
+// }
 
 void broadcast()
 {

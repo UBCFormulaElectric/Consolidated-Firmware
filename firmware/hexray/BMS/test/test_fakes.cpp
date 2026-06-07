@@ -18,8 +18,6 @@
 #include "util_errorCodes.hpp"
 #include "util_utils.hpp"
 
-using namespace app::can_utils;
-using namespace app::can_tx;
 struct FaultLatchParams
 {
     const io::FaultLatch           *arg0;
@@ -219,27 +217,27 @@ namespace io
 {
 namespace irs
 {
-    static ContactorState positive_state  = ContactorState::CONTACTOR_STATE_OPEN;
-    static ContactorState precharge_state = ContactorState::CONTACTOR_STATE_OPEN;
-    static ContactorState negative_state  = ContactorState::CONTACTOR_STATE_OPEN;
+    static auto positive_state  = app::can_utils::ContactorState::CONTACTOR_STATE_OPEN;
+    static auto precharge_state = app::can_utils::ContactorState::CONTACTOR_STATE_OPEN;
+    static auto negative_state  = app::can_utils::ContactorState::CONTACTOR_STATE_OPEN;
 
-    ContactorState negativeState()
+    app::can_utils::ContactorState negativeState()
     {
         return negative_state;
     }
-    void setPositive(const ContactorState state)
+    void setPositive(const app::can_utils::ContactorState state)
     {
         positive_state = state;
     }
-    ContactorState positiveState()
+    app::can_utils::ContactorState positiveState()
     {
         return positive_state;
     }
-    void setPrecharge(const ContactorState state)
+    void setPrecharge(const app::can_utils::ContactorState state)
     {
         precharge_state = state;
     }
-    ContactorState prechargeState()
+    app::can_utils::ContactorState prechargeState()
     {
         return precharge_state;
     }
@@ -299,10 +297,11 @@ namespace imd
 } // namespace imd
 namespace charger
 {
-    static ChargerConnectedType connectionStatus = ChargerConnectedType::CHARGER_DISCONNECTED;
-    static float                evse_dutyCycle   = 0.0f;
+    static app::can_utils::ChargerConnectedType connectionStatus =
+        app::can_utils::ChargerConnectedType::CHARGER_DISCONNECTED;
+    static float evse_dutyCycle = 0.0f;
 
-    ChargerConnectedType getConnectionStatus()
+    app::can_utils::ChargerConnectedType getConnectionStatus()
     {
         return connectionStatus;
     }
@@ -341,8 +340,9 @@ namespace io
 
 namespace shdn
 {
-    node hv_p_ok_node(true, app::can_tx::BMS_HVPShdnOKStatus_set);
-    node hv_n_ok_node(true, app::can_tx::BMS_HVNShdnOKStatus_set);
+    node hv_p_ok_node(app::can_tx::BMS_HVPShdnOKStatus_set);
+    node hv_n_ok_node(app::can_tx::BMS_HVNShdnOKStatus_set);
+    node loop_ok_node(app::can_tx::BMS_ShdnTermOKStatus_set);
 } // namespace shdn
 
 namespace fans
@@ -446,7 +446,7 @@ namespace fakes
 {
 namespace irs
 {
-    void setNegativeState(const ContactorState state)
+    void setNegativeState(const app::can_utils::ContactorState state)
     {
         io::irs::negative_state = state;
     }
@@ -523,6 +523,13 @@ namespace imd
 
 namespace segments
 {
+    // Defined in test_segmentsShared_bridge.cpp (a TU free of the io_adbms placeholder macros).
+    namespace bridge
+    {
+        void pushMaxCellVoltageToShared(float v);
+        void pushMaxCellTempToShared(float t);
+    } // namespace bridge
+
     void setCellVoltages(const std::array<std::array<float, CELLS_PER_SEGMENT>, NUM_SEGMENTS> &voltages)
     {
         for (size_t i = 0; i < NUM_SEGMENTS; i++)
@@ -591,10 +598,17 @@ namespace segments
     void setMaxCellVoltage(const float v)
     {
         app::segments::fake_max_cell_v = v;
+        // Drive the real shared module (app_segments_shared.cpp) so
+        // app::segments::shared::getMaxCellVoltage() — consumed by chargeState — reflects the value.
+        // Implemented in test_segmentsShared_bridge.cpp to avoid the io_adbms macro collision in
+        // this TU (see test_fakes.hpp). The ADBMS poll job is unregistered in tests, so nothing else
+        // overwrites these stats.
+        bridge::pushMaxCellVoltageToShared(v);
     }
     void setMaxCellTemp(const float t)
     {
         app::segments::fake_max_cell_t = t;
+        bridge::pushMaxCellTempToShared(t);
     }
     void setPackVoltage(const float v)
     {
@@ -604,7 +618,7 @@ namespace segments
 
 namespace charger
 {
-    void setConnectionStatus(const ChargerConnectedType status)
+    void setConnectionStatus(const app::can_utils::ChargerConnectedType status)
     {
         io::charger::connectionStatus = status;
     }

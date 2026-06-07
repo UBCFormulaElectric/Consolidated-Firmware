@@ -162,7 +162,11 @@ result<hw::CanMsg> hw::fdcan::receive(const uint32_t rx_fifo) const
     // Copy metadata from HAL's CAN message struct into our custom CAN
     // message struct
     msg.std_id = header.Identifier;
-    msg.dlc    = header.DataLength >> 16; // Data length code needs to be un-shifted by 16 bits.
+#if defined(STM32H733xx)
+    msg.dlc = header.DataLength >> 16; // Data length code needs to be un-shifted by 16 bits.
+#elif defined(STM32H562xx)
+    msg.dlc = header.DataLength;
+#endif
 
     return msg;
 }

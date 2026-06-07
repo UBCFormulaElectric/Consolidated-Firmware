@@ -60,7 +60,8 @@ State poll(bool precharge_for_charging)
 #define HV_SUPPLY_VOLTAGE (588.0f)
     const float threshold_voltage = HV_SUPPLY_VOLTAGE * PRECHARGE_ACC_V_THRESHOLD;
 #else
-    const float threshold_voltage = app::segments::getPackVoltage() * PRECHARGE_ACC_V_THRESHOLD;
+    // TODO: Change back when segments gets a pack voltage getter
+    const float threshold_voltage = 480.0f * PRECHARGE_ACC_V_THRESHOLD;
 #endif
 
     const bool is_air_negative_open =

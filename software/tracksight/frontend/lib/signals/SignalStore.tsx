@@ -26,6 +26,10 @@ type SignalStorageEntry = {
       data: LODAwareEnumSeries
       storeType: SignalType.ENUM
     }
+    | {
+      data: LODAwareEnumSeries
+      storeType: SignalType.BOOLEAN
+    }
   )
 
 abstract class SignalStore {
@@ -90,6 +94,17 @@ abstract class SignalStore {
           storeType: SignalType.ENUM
         } satisfies SignalStorageEntry
         break;
+      case SignalType.BOOLEAN:
+        this.storage[signal.name] = {
+          ...storageBase,
+          data: {
+            enumValuesToNames: { },
+            label: signal.name,
+            lods: [{ sampleIntervalMs: 0, data: [], timestamps: [] }],
+          } satisfies LODAwareEnumSeries,
+          storeType: SignalType.BOOLEAN,
+        };
+        break;
       case SignalType.NUMERICAL:
         this.storage[signal.name] = {
           ...storageBase,
@@ -148,6 +163,35 @@ abstract class SignalStore {
     this.storage[signalName].isSubscribed = false;
   }
 
+  protected clearSignalData(signalName: string): void {
+    const entry = this.storage[signalName];
+
+    if (!entry) return;
+
+    entry.error = null;
+    entry.isSubscribed = true;
+
+    switch (entry.storeType) {
+      case SignalType.ENUM:
+        entry.data.enumValuesToNames = {};
+        entry.data.lods.forEach((lod) => {
+          lod.data.length = 0;
+          lod.timestamps.length = 0;
+        });
+        break;
+      case SignalType.NUMERICAL:
+        entry.data.lods.forEach((lod) => {
+          lod.data.clear();
+          lod.timestamps.length = 0;
+        });
+        break;
+      case SignalType.ALERT:
+        entry.data.data.clear();
+        entry.data.timestamps.length = 0;
+        break;
+    }
+  }
+
   removeSignal(signalName: string): void {
     delete this.storage[signalName];
     delete this.subscriberCounts[signalName];
@@ -165,7 +209,7 @@ abstract class SignalStore {
     if (!entry || entry.storeType === SignalType.ALERT) return;
 
     while (entry.data.lods.length <= lod) {
-      if (entry.storeType === SignalType.ENUM) {
+      if (entry.storeType === SignalType.ENUM || entry.storeType === SignalType.BOOLEAN) {
         entry.data.lods.push({ sampleIntervalMs: 0, data: [], timestamps: [] });
       } else {
         entry.data.lods.push({ sampleIntervalMs: 0, data: new SeriesData(), timestamps: [] });
@@ -185,6 +229,7 @@ abstract class SignalStore {
 
     switch (entry.storeType) {
       case SignalType.ENUM:
+      case SignalType.BOOLEAN:
         entry.data.lods[0].data.push(value);
         entry.data.lods[0].timestamps.push(timestamp);
         break;

@@ -35,6 +35,8 @@ constexpr float VAC_MIN  = 208.0f; // lower end of typical North American grid
 constexpr float CAC_MAX  = 20.0f;  // max current available off of the ac breaker at competition.
 constexpr float CIRC_EFF = 0.8f;   // estimated efficiency of the entire charging circuit (charger + wiring losses etc)
 
+constexpr app::charger::ElconChargingConfig stop{ .max_voltage_v = 0.0f, .max_current_a = 0.0f, .stop_charging = true };
+
 } // namespace
 
 namespace app::states
@@ -68,50 +70,36 @@ namespace chargeState
 
     static void runOnTick100Hz()
     {
+        using namespace app::can_utils;
         const ChargerConnectedType charger_connection_status = io::charger::getConnectionStatus();
-        const bool ext_shutdown = (io::irs::negativeState() == app::can_utils::ContactorState::CONTACTOR_STATE_OPEN);
-        const bool charger_conn =
+        const bool                 charger_conn =
             (charger_connection_status == ChargerConnectedType::CHARGER_CONNECTED_EVSE ||
              charger_connection_status == ChargerConnectedType::CHARGER_CONNECTED_WALL);
 
-        const bool                  user_enable = app::can_rx::Debug_StartCharging_get();
-        const app::charger::ElconRx rx          = app::charger::readElconStatus();
+        const bool                           user_enable  = app::can_rx::Debug_StartCharging_get();
+        const app::charger::ElconFaultConfig fault_status = app::charger::getFaultStatus();
 
-        const float max_cell_v = app::segments::getMaxCellVoltage(); // placeholder func
+        const float max_cell_v = app::segments::shared::getMaxCellVoltage().value;
 
-        // Hard faults: ext_shutdown (negative open) and any Elcon-reported safety condition.
-        const bool fault = ext_shutdown || rx.hardware_failure || rx.charging_state_fault ||
-                           rx.over_temperature || rx.input_voltage_fault || rx.comm_timeout;
-
-        const app::charger::ElconTx stop{ .max_voltage_v = 0.0f, .max_current_a = 0.0f, .stop_charging = true };
-
-        app::can_alerts::faults::ChargerFault_set(fault);
-
-        if (fault)
+        if (!user_enable || !charger_conn || fault_status)
         {
-            app::charger::setTxFrame(stop);
-            return;
-        }
-
-        // User stopped the session OR the charger was unplugged. Either way, send a stop frame and return to init. The user must re-issue Debug_StartCharging to charge again.
-        if (!user_enable || !charger_conn)
-        {
-            app::charger::setTxFrame(stop);
+            app::charger::setChargingConfig(stop);
             app::StateMachine::set_next_state(&init_state);
             return;
         }
 
         // Terminate when cells are essentially full AND Elcon has already tapered down
         // Both conditions required (high V + high I = mid-CV-ramp, low I + low V = idle)
-        if ((max_cell_v >= CELL_V_TERMINATE) && (rx.output_current_a < I_TERMINATE_A))
+        if ((max_cell_v >= CELL_V_TERMINATE) && (app::charger::getOutputCurrent() < I_TERMINATE_A))
         {
             app::can_tx::BMS_ChargingDone_set(true); // Is this ever set to false? look into this!!!!!!!!!!!!
-            app::charger::setTxFrame(stop);
+            app::charger::setChargingConfig(stop);
             app::StateMachine::set_next_state(&init_state);
             return;
         }
 
-        // Derive DC current limit from AC supply capability. Same code path on wall and EVSE (only difference is the available AC current)
+        // Derive DC current limit from AC supply capability. Same code path on wall and EVSE (only difference is the
+        // available AC current)
         float i_max;
         if (charger_connection_status == ChargerConnectedType::CHARGER_CONNECTED_EVSE)
         {
@@ -142,12 +130,12 @@ namespace chargeState
             i_cmd_max = i_max;
         }
 
-        const app::charger::ElconTx tx{
+        const app::charger::ElconChargingConfig tx{
             .max_voltage_v = PACK_VOLTAGE_MAX,
             .max_current_a = i_cmd_max,
             .stop_charging = false,
         };
-        app::charger::setTxFrame(tx);
+        app::charger::setChargingConfig(tx);
     }
 
     static void runOnExit()
@@ -159,8 +147,7 @@ namespace chargeState
         app::can_rx::Debug_StartCharging_update(false);
 
         // Reset command to zero on exit
-        const app::charger::ElconTx tx{ .max_voltage_v = 0.0f, .max_current_a = 0.0f, .stop_charging = true };
-        app::charger::setTxFrame(tx);
+        app::charger::setChargingConfig(stop);
     }
 
 } // namespace chargeState

@@ -3,18 +3,21 @@
 namespace app::charger
 {
 
-struct ElconRx
+struct ElconFaultConfig
 {
-    bool  hardware_failure;
-    bool  over_temperature;
-    bool  input_voltage_fault;
-    bool  charging_state_fault;
-    bool  comm_timeout;
-    float output_voltage_v;
-    float output_current_a;
+    bool hardware_failure;
+    bool over_temperature;
+    bool input_voltage_fault;
+    bool charging_state_fault;
+    bool comm_timeout;
+
+    operator bool() const
+    {
+        return hardware_failure || over_temperature || input_voltage_fault || charging_state_fault || comm_timeout;
+    }
 };
 
-struct ElconTx
+struct ElconChargingConfig
 {
     float max_voltage_v; // physical units
     float max_current_a;
@@ -22,12 +25,14 @@ struct ElconTx
 };
 
 // Read current charger status from CAN→typed struct
-ElconRx readElconStatus();
+ElconFaultConfig getFaultStatus();
 
 // Push a charging command to the BMS CAN TX table
-void setTxFrame(const ElconTx &cmd);
+void setChargingConfig(const ElconChargingConfig &cmd);
 
 // Get available charging current (A) computed from EVSE CP duty cycle.
 // Returns 0.0f when the duty cycle is outside supported ranges.
 float getAvailableCurrent();
+
+float getOutputCurrent();
 } // namespace app::charger
