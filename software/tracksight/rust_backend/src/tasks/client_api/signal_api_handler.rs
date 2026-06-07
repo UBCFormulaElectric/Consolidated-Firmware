@@ -3,13 +3,13 @@ use std::{collections::HashMap, mem, time::{Duration, SystemTime}};
 use axum::{Json, Router, extract::{Path, Query, State}, http::StatusCode, response::IntoResponse, routing::get};
 use chrono::{DateTime, FixedOffset};
 use influxdb2::FromDataPoint;
-use jsoncan_rust::can_database::CanMessage;
+use jsoncan_rust::can_database::{CanMessage, CanSignalType};
 use serde::{Deserialize, Serialize};
 use regex::Regex;
 use serde_json::from_str;
 use tokio::{select, time::sleep};
 
-use crate::{config::CONFIG, dprintln, error_println, tasks::{can_data::influx_util::InfluxSignalSource, client_api::{AppState, signal_tile::{InfluxSignalRow, get_signals}}}, utils::{rfc3339_to_utc, rfc3339_to_utc_str}, vprintln};
+use crate::{config::CONFIG, dprintln, error_println, tasks::{can_data::influx_util::InfluxSignalSource, client_api::{AppState, signal_tile::{InfluxSignalRow, TileAggregation, get_signals}}}, utils::{rfc3339_to_utc, rfc3339_to_utc_str}, vprintln};
 use crate::tasks::client_api::INFLUX_QUERY_TIMEOUT_MS;
 
 /**
@@ -34,6 +34,10 @@ struct SignalMetadata {
     cycle_time_ms: Option<u32>,
     id: u32,
     msg_name: String,
+    // Lowercase signal type ("numerical" | "boolean" | "enum" | "alert") so the
+    // frontend can distinguish alert signals, which are otherwise indistinguishable
+    // from booleans by their 0/1 range alone.
+    signal_type: String,
 }
 
 #[derive(Debug, Serialize)]
@@ -85,6 +89,12 @@ async fn metadata(Query(SignalNameParam { mut name } ): Query<SignalNameParam>, 
                     cycle_time_ms: msg.cycle_time.clone(),
                     id: msg.id,
                     msg_name: msg.name.clone(),
+                    signal_type: match signal.signal_type {
+                        CanSignalType::Numerical => "numerical",
+                        CanSignalType::Boolean => "boolean",
+                        CanSignalType::Enum => "enum",
+                        CanSignalType::Alert => "alert",
+                    }.to_string(),
                 })
             }
         ).collect::<Vec<_>>()
@@ -171,6 +181,8 @@ async fn metadata(Query(SignalNameParam { mut name } ): Query<SignalNameParam>, 
 #[derive(Debug, Deserialize)]
 struct SourceQuery {
     pub source: Option<String>,
+    // Optional downsampling aggregation ("max" for alert/boolean signals); see `TileAggregation`.
+    pub agg: Option<String>,
 }
 
 /**
@@ -180,8 +192,8 @@ struct SourceQuery {
  * By default, fetches from radio source, but specify source in query parameter (e.g. `?source=sd_card`) to fetch from sd card source or `radio` source explicitly
  */
 async fn signal_tiles(
-    Path((signal, start, end)): Path<(String, String, String)>, 
-    Query(SourceQuery{ source }): Query<SourceQuery>,
+    Path((signal, start, end)): Path<(String, String, String)>,
+    Query(SourceQuery{ source, agg }): Query<SourceQuery>,
     State(state): State<AppState>
 ) -> impl IntoResponse {
     // todo optionally check if signal name is valid
@@ -206,7 +218,9 @@ async fn signal_tiles(
         _ => InfluxSignalSource::Radio,
     };
     
-    match get_signals(state.influx_client, source_enum, state.signal_tile_cache.clone(), signal, start_utc, end_utc).await {
+    let aggregation = TileAggregation::from_query(&agg);
+
+    match get_signals(state.influx_client, source_enum, state.signal_tile_cache.clone(), signal, start_utc, end_utc, aggregation).await {
         Ok(res) => {
             dprintln!("Querying signals took {}ms", start_time.elapsed().unwrap().as_millis());
             let total_size: usize = state.signal_tile_cache.iter().map(|(key, value)| {
@@ -239,7 +253,7 @@ struct SessionStarts {
  */
 async fn signal_sessions(
     Path((start, end)): Path<(String, String)>,
-    Query(SourceQuery { source }): Query<SourceQuery>,
+    Query(SourceQuery { source, .. }): Query<SourceQuery>,
     State(state): State<AppState>
 ) -> impl IntoResponse {
     vprintln!("[sessions] request start={:?} end={:?} source={:?}", start, end, source);

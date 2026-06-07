@@ -39,6 +39,27 @@ class HistoricalSignalStore extends SignalStore {
             this.addDataPoint(signal.name, point.timestampMs, point.value);
         });
     }
+
+    /**
+     * Appends alert points into the alert data store, mirroring how `LiveSignalStore`
+     * routes `signal_type === "Alert"` socket data. Consumed by the `AlertTimeline` widget
+     * via `getAlertData()`.
+     */
+    hydrateAlertSignal(signalName: string, points: HistoricalSignalPoint[]): void {
+        points.forEach((point) => {
+            this.addAlertDataPoint(signalName, point.timestampMs, point.value);
+        });
+    }
+
+    /**
+     * Empties the alert data store in place (preserving the object reference handed out by
+     * `getAlertData()`), so a fresh session/source selection doesn't render stale alerts.
+     */
+    clearAlertData(): void {
+        Object.keys(this.alertDataStorage).forEach((signalName) => {
+            delete this.alertDataStorage[signalName];
+        });
+    }
 }
 
 export default HistoricalSignalStore;

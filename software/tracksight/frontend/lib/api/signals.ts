@@ -1,11 +1,26 @@
 import { SignalMetadata, SignalType } from "@/lib/types/Signal";
 
 export const getSignalType = (signal: Omit<SignalMetadata, "type">): SignalMetadata["type"] => {
+  // Prefer the backend-reported type. Alert signals share booleans' 0/1 range, so
+  // they can only be distinguished via this field, not by inference.
+  const backendType = (signal as { signal_type?: string }).signal_type;
+  switch (backendType) {
+    case "alert":
+      return SignalType.ALERT;
+    case "enum":
+      return SignalType.ENUM;
+    case "boolean":
+      return SignalType.BOOLEAN;
+    case "numerical":
+      return SignalType.NUMERICAL;
+  }
+
+  // Fallback inference for backends that don't report a signal type.
   if ("enum_signal" in signal && signal["enum_signal"] !== null) {
     return SignalType.ENUM;
   } else if (signal.max_val === 1 && signal.min_val === 0) {
     return SignalType.BOOLEAN;
-  } else { 
+  } else {
     return SignalType.NUMERICAL;
   }
 };

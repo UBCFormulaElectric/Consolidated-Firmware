@@ -66,7 +66,40 @@ pub struct SignalTileKey {
     signal: String,
     tile_start: DateTime<FixedOffset>,
     resolution_ms: u64,
-    source: InfluxSignalSource
+    source: InfluxSignalSource,
+    aggregation: TileAggregation,
+}
+
+/**
+ * How values within an `aggregateWindow` bucket are collapsed into a single point.
+ *
+ * `Mean` is the default and is appropriate for continuous numerical signals.
+ * `Max` is used for alert/boolean (0/1) signals so that a window where the alert
+ * was active at any point downsamples to 1 instead of being averaged away to a
+ * fraction (which the frontend's `=== 1` activity check would treat as inactive).
+ */
+#[derive(Clone, Hash, Eq, PartialEq, Debug)]
+pub enum TileAggregation {
+    Mean,
+    Max,
+}
+
+impl TileAggregation {
+    /// Flux aggregation function name used inside `aggregateWindow(fn: ...)`.
+    fn flux_fn(&self) -> &'static str {
+        match self {
+            TileAggregation::Mean => "mean",
+            TileAggregation::Max => "max",
+        }
+    }
+
+    /// Parse the `agg` query parameter; defaults to `Mean` when absent/unknown.
+    pub fn from_query(agg: &Option<String>) -> TileAggregation {
+        match agg.as_deref() {
+            Some("max") => TileAggregation::Max,
+            _ => TileAggregation::Mean,
+        }
+    }
 }
 
 /**
@@ -107,9 +140,10 @@ pub async fn get_signals(
     influx_client: Arc<influxdb2::Client>, 
     source: InfluxSignalSource,
     signal_tile_cache: SignalTileCache, 
-    signal: String, 
-    start: DateTime<Utc>, 
-    end: DateTime<Utc>
+    signal: String,
+    start: DateTime<Utc>,
+    end: DateTime<Utc>,
+    aggregation: TileAggregation,
 ) -> Result<Vec<InfluxSignalRow>, (StatusCode, String)> {
     // resolution in seconds
     let resolution_ms = round_resolution_ms((end - start).as_seconds_f64() * 1000.0 / (WINDOW_SIZE as f64));
@@ -133,6 +167,7 @@ pub async fn get_signals(
     }
     let source_str = source.to_string();
 
+    let agg_fn = aggregation.flux_fn();
     let get_tile_query = |tile_start: &DateTime<Utc>| -> String {
         let tile_start_str = tile_start.to_rfc3339_opts(chrono::SecondsFormat::Millis, true);
         format!(r#"
@@ -143,7 +178,7 @@ pub async fn get_signals(
         |> filter(fn: (r) => r["signal_name"] == "{signal}")
         |> filter(fn: (r) => r["source"] == "{source_str}")
         |> toFloat()
-        |> aggregateWindow(every: {resolution_ms}ms, fn: mean, createEmpty: false)"#
+        |> aggregateWindow(every: {resolution_ms}ms, fn: {agg_fn}, createEmpty: false)"#
         , &CONFIG.influxdb_bucket, &CONFIG.influxdb_measurement)
     };
     
@@ -156,7 +191,8 @@ pub async fn get_signals(
             signal: signal.clone(),
             tile_start: (*tile_start).into(),
             resolution_ms,
-            source: source.clone()
+            source: source.clone(),
+            aggregation: aggregation.clone(),
         };
 
         let cache_fetch = signal_tile_cache.get(&tile_key).await;

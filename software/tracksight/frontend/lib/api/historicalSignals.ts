@@ -27,12 +27,17 @@ function parseHistoricalPayload(payloadText: string): HistoricalSignalRow[] {
     return parsed as HistoricalSignalRow[];
 }
 
-export async function fetchHistoricalSignal(params: { signalName: string; startUtcMs: number; endUtcMs: number; source: HistoricalSignalSource }): Promise<HistoricalSignalPoint[]> {
-    const { signalName, startUtcMs, endUtcMs, source } = params;
+export type HistoricalSignalAggregation = "mean" | "max";
+
+export async function fetchHistoricalSignal(params: { signalName: string; startUtcMs: number; endUtcMs: number; source: HistoricalSignalSource; agg?: HistoricalSignalAggregation }): Promise<HistoricalSignalPoint[]> {
+    const { signalName, startUtcMs, endUtcMs, source, agg } = params;
 
     const start = toIsoUtcSeconds(startUtcMs);
     const end = toIsoUtcSeconds(endUtcMs);
-    const url = `${API_BASE_URL}/api/v1/signal/tiles/${encodeURIComponent(signalName)}/${start}/${end}?source=${encodeURIComponent(JSON.stringify(source))}`;
+    // Alert/boolean signals must downsample with `max` so a window containing any
+    // active sample resolves to 1 instead of being averaged away.
+    const aggParam = agg ? `&agg=${encodeURIComponent(agg)}` : "";
+    const url = `${API_BASE_URL}/api/v1/signal/tiles/${encodeURIComponent(signalName)}/${start}/${end}?source=${encodeURIComponent(JSON.stringify(source))}${aggParam}`;
 
     const response = await fetch(url, {
         cache: "no-store",

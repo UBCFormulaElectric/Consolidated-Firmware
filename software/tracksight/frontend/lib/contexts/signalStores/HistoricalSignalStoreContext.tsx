@@ -3,9 +3,11 @@ import React, { memo, useEffect, useMemo, useRef, useState } from "react";
 import { useSyncedGraph } from "@/components/SyncedGraphContainer";
 import { useWidgetManager } from "@/components/widgets/WidgetManagerContext";
 import { fetchHistoricalSignal, HistoricalSignalSource } from "@/lib/api/historicalSignals";
+import { fetchSignalMetadata } from "@/lib/api/signals";
+import { API_BASE_URL } from "@/lib/constants";
 import { SignalDataStoreProvider } from "@/lib/contexts/signalStores/SignalStoreContext";
 import HistoricalSignalStore from "@/lib/signals/HistoricalSignalStore";
-import { SignalMetadata } from "@/lib/types/Signal";
+import { isAlertSignalMetadata, SignalMetadata } from "@/lib/types/Signal";
 
 type HistoricalSignalStoreProviderProps = {
     children: React.ReactNode;
@@ -103,6 +105,61 @@ export const HistoricalSignalStoreProvider = memo(function HistoricalSignalStore
             isCancelled = true;
         };
     }, [endUtcMs, selectedRange, selectedRangeKey, selectedSignals, setTimeRange, source, startUtcMs]);
+
+    // Alert signals aren't widget-selected: the live view streams every alert to all clients,
+    // so historical mirrors that by loading all alert signals across the whole session range
+    // (not the panning viewport). Decoupling from the viewport keeps the append-only
+    // `AlertTimeline` widget from being reset on every pan/zoom.
+    useEffect(() => {
+        let isCancelled = false;
+
+        const loadAlerts = async () => {
+            const store = signalStoreRef.current;
+            store.clearAlertData();
+
+            let alertSignals: SignalMetadata[];
+            try {
+                const allMetadata = await fetchSignalMetadata(API_BASE_URL);
+                alertSignals = allMetadata.filter(isAlertSignalMetadata);
+            } catch {
+                // Metadata fetch failures shouldn't break signal rendering; just skip alerts.
+                return;
+            }
+
+            if (isCancelled || alertSignals.length === 0) {
+                return;
+            }
+
+            const results = await Promise.allSettled(
+                alertSignals.map(async (signal) => ({
+                    name: signal.name,
+                    points: await fetchHistoricalSignal({
+                        signalName: signal.name,
+                        startUtcMs: selectedRange.min,
+                        endUtcMs: selectedRange.max,
+                        source,
+                        agg: "max",
+                    }),
+                }))
+            );
+
+            if (isCancelled) {
+                return;
+            }
+
+            results.forEach((result) => {
+                if (result.status === "fulfilled") {
+                    store.hydrateAlertSignal(result.value.name, result.value.points);
+                }
+            });
+        };
+
+        void loadAlerts();
+
+        return () => {
+            isCancelled = true;
+        };
+    }, [source, selectedRange]);
 
     return (
         <SignalDataStoreProvider signalStore={signalStoreRef}>

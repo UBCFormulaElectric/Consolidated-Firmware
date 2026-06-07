@@ -12,6 +12,7 @@ import { DisplayControlProvider } from "@/components/PausePlayControl";
 import SyncedGraphContainer, { TimeRange } from "@/components/SyncedGraphContainer";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import AlertTimeline from "@/components/widgets/AlertTimeline";
 import { WidgetManager, useWidgetManager } from "@/components/widgets/WidgetManagerContext";
 import { HistoricalSignalSource } from "@/lib/api/historicalSignals";
 import { HistoricalSignalStoreProvider } from "@/lib/contexts/signalStores/HistoricalSignalStoreContext";
@@ -117,6 +118,8 @@ function HistoricContent(props: { selectedRange: { min: number; max: number }; s
     return (
         <SyncedGraphContainer initialTimeRange={selectedRange} onViewportSettled={handleViewportSettled}>
             <HistoricalSignalStoreProvider startUtcMs={fetchRange.min} endUtcMs={fetchRange.max} source={selectedSource} selectedRange={selectedRange}>
+                {/* Remount on session/source change so the append-only AlertTimeline resets its cursors. */}
+                <AlertTimeline key={`${selectedSource}:${selectedRange.min}:${selectedRange.max}`} />
                 {widgets.length === 0 ? <div className="grid h-full place-items-center text-gray-500">Select signals by adding a widget and choosing signals.</div> : <DataDashboard />}
                 <WidgetAdder />
             </HistoricalSignalStoreProvider>
