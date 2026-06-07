@@ -23,6 +23,8 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "hw_hardFaultHandler.hpp"
+
+#include <SEGGER_SYSVIEW_FreeRTOS.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -362,11 +364,11 @@ void UART8_IRQHandler(void)
 void I2C4_EV_IRQHandler(void)
 {
     /* USER CODE BEGIN I2C4_EV_IRQn 0 */
-
+    traceISR_ENTER();
     /* USER CODE END I2C4_EV_IRQn 0 */
     HAL_I2C_EV_IRQHandler(&hi2c4);
     /* USER CODE BEGIN I2C4_EV_IRQn 1 */
-
+    traceISR_EXIT();
     /* USER CODE END I2C4_EV_IRQn 1 */
 }
 
@@ -376,11 +378,11 @@ void I2C4_EV_IRQHandler(void)
 void I2C4_ER_IRQHandler(void)
 {
     /* USER CODE BEGIN I2C4_ER_IRQn 0 */
-
+    traceISR_ENTER();
     /* USER CODE END I2C4_ER_IRQn 0 */
     HAL_I2C_ER_IRQHandler(&hi2c4);
     /* USER CODE BEGIN I2C4_ER_IRQn 1 */
-
+    traceISR_EXIT();
     /* USER CODE END I2C4_ER_IRQn 1 */
 }
 

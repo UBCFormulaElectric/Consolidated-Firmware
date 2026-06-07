@@ -166,7 +166,7 @@ void tasks_runCanRx(void *arg)
 }
 [[noreturn]] static void tasks_batteryMonitoring(void *arg)
 {
-    static const TickType_t period_ms   = 100;
+    static const TickType_t period_ms   = 10;
     static uint32_t         start_ticks = 0;
     start_ticks                         = osKernelGetTickCount();
 
@@ -182,7 +182,7 @@ void tasks_runCanRx(void *arg)
 }
 [[noreturn]] static void tasks_powerMonitoring(void *arg)
 {
-    static const TickType_t period_ms   = 100;
+    static const TickType_t period_ms   = 10;
     static uint32_t         start_ticks = 0;
     start_ticks                         = osKernelGetTickCount();
 
