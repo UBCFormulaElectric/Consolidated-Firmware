@@ -20,35 +20,17 @@ result<uint8_t> pump::getPercentage() const
     return hwToLogical(invert_, percentage_res.value());
 }
 
-result<void> pump::enable(bool enable) const
+bool pump::isReady() const
 {
-    efuse_.setChannel(enable);
-    return {};
-}
-
-result<bool> pump::isEnabled() const
-{
-    return efuse_.isChannelEnabled();
-}
-
-result<bool> pump::ok() const
-{
-    return efuse_.ok();
-}
-
-result<bool> pump::isReady() const
-{
-    auto healthy = ok();
-    if (!healthy)
+    if (!efuse_.ok())
     {
-        return std::unexpected(healthy.error());
+        return false;
     }
-    auto enabled = isEnabled();
-    if (!enabled)
+    if (!efuse_.isChannelEnabled())
     {
-        return std::unexpected(enabled.error());
+        return false;
     }
-    return *healthy && *enabled;
+    return true;
 }
 
 } // namespace io

@@ -13,7 +13,7 @@ class pump
 {
   public:
 #ifdef TARGET_EMBEDDED
-    constexpr explicit pump(const Potentiometer &pot, bool invert, const Efuse &efuse)
+    constexpr explicit pump(const Potentiometer &pot, const bool invert, const Efuse &efuse)
       : pot_{ pot }, invert_{ invert }, efuse_{ efuse }
     {
     }
@@ -23,18 +23,15 @@ class pump
 
     result<void>    setPercentage(uint8_t percentage) const;
     result<uint8_t> getPercentage() const;
-    result<void>    enable(bool enable) const;
-    result<bool>    isEnabled() const;
-    result<bool>    ok() const;
-    result<bool>    isReady() const;
+    bool            isReady() const;
 
   private:
-    static constexpr uint8_t logicalToHw(bool invert, uint8_t percent)
+    static constexpr uint8_t logicalToHw(const bool invert, const uint8_t percent)
     {
         return invert ? static_cast<uint8_t>(100u - percent) : percent;
     }
 
-    static constexpr uint8_t hwToLogical(bool invert, uint8_t percent)
+    static constexpr uint8_t hwToLogical(const bool invert, const uint8_t percent)
     {
         return invert ? static_cast<uint8_t>(100u - percent) : percent;
     }
