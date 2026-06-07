@@ -2,7 +2,7 @@ import React, { memo, useEffect, useMemo, useRef, useState } from "react";
 
 import { useSyncedGraph } from "@/components/SyncedGraphContainer";
 import { useWidgetManager } from "@/components/widgets/WidgetManagerContext";
-import { fetchHistoricalSignal, HistoricalSignalSource } from "@/lib/api/historicalSignals";
+import { fetchHistoricalSignal, HistoricalSignalResult, HistoricalSignalSource } from "@/lib/api/historicalSignals";
 import { SignalDataStoreProvider } from "@/lib/contexts/signalStores/SignalStoreContext";
 import HistoricalSignalStore from "@/lib/signals/HistoricalSignalStore";
 import { SignalMetadata, SignalType } from "@/lib/types/Signal";
@@ -54,16 +54,16 @@ export const HistoricalSignalStoreProvider = memo(function HistoricalSignalStore
             }
 
             setIsLoading(true);
-            signalStoreRef.current.clearSignals(selectedSignals);
 
             const results = await Promise.allSettled(
                 selectedSignals.map(async (signal) => ({
                     signal,
-                    points: await fetchHistoricalSignal({
+                    result: await fetchHistoricalSignal({
                         signalName: signal.name,
                         startUtcMs,
                         endUtcMs,
                         source,
+                        signalType: signal.type,
                     }),
                 }))
             );
@@ -71,30 +71,13 @@ export const HistoricalSignalStoreProvider = memo(function HistoricalSignalStore
             {
                 const alertResult = await fetchHistoricalSignal({
                     signalName: "alert",
+                    signalType: SignalType.ALERT,
                     startUtcMs,
                     endUtcMs,
                     source,
                 });
 
-                alertResult.forEach((point) => {
-                    signalStoreRef.current.hydrateSignal({
-                        name: point.name,
-                        type: SignalType.ALERT,
-                        tx_node: "",
-                        msg_name: "",
-                        id: -1,
-                        min_val: 0,
-                        max_val: 1,
-                        cycle_time_ms: null,
-                    },
-                    [
-                        {
-                            timestampMs: point.timestampMs,
-                            value: point.value,
-                            name: point.name,
-                        },
-                    ]);
-                });
+                signalStoreRef.current.mergeAlerts(alertResult.resolutionMs, startUtcMs, endUtcMs, alertResult.points);
             }
 
             if (isCancelled) {
@@ -102,10 +85,11 @@ export const HistoricalSignalStoreProvider = memo(function HistoricalSignalStore
             }
 
             const failures = results.filter((result) => result.status === "rejected");
-            const successes = results.filter((result): result is PromiseFulfilledResult<{ signal: SignalMetadata; points: { timestampMs: number; value: number; name: string }[] }> => result.status === "fulfilled");
+            const successes = results.filter((result): result is PromiseFulfilledResult<{ signal: SignalMetadata; result: HistoricalSignalResult }> => result.status === "fulfilled");
 
             successes.forEach((result) => {
-                signalStoreRef.current.hydrateSignal(result.value.signal, result.value.points);
+                const { signal, result: signalResult } = result.value;
+                signalStoreRef.current.mergeSignal(signal, signalResult.resolutionMs, startUtcMs, endUtcMs, signalResult.points);
             });
 
             const shouldFitViewport = initializedSelectedRangeKeyRef.current !== selectedRangeKey;

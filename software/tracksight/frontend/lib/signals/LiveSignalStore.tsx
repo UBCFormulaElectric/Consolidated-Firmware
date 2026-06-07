@@ -42,13 +42,24 @@ class LiveSignalStore extends SignalStore {
       if (!this.storage[signalName] && signal_type !== "Alert") return;
 
       const ts = new Date(timestamp).getTime();
-      
+
       if (signal_type === "Alert") {
-        this.addAlertDataPoint(
-          signalName,
-          ts,
-          value
-        );
+        // Alerts are discovered live: create the LOD series on first sight, then append. Its
+        // single live level has no `coveredTiles`, so LOD selection treats it as fully covered.
+        if (!this.storage[signalName]) {
+          this.getOrCreateSignalData({
+            name: signalName,
+            type: SignalType.ALERT,
+            tx_node: "",
+            msg_name: "",
+            id: -1,
+            min_val: 0,
+            max_val: 1,
+            cycle_time_ms: null,
+          });
+        }
+
+        this.addDataPoint(signalName, ts, value);
 
         return;
       }

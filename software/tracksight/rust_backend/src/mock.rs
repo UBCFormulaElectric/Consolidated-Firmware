@@ -37,7 +37,7 @@ pub async fn run_mock_task(
 
                 if i == 1 {
                     let bootup_signal = DecodedSignal {
-                        name: "DAM_Bootup".to_string(),
+                        name: "DAM_Alive".to_string(),
                         value: 1.0,
                         timestamp: None,
                         label: None,

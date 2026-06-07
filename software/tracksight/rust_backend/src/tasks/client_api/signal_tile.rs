@@ -108,10 +108,11 @@ pub async fn get_signals(
     influx_client: Arc<influxdb2::Client>, 
     source: InfluxSignalSource,
     signal_tile_cache: SignalTileCache, 
-    signal: String, 
-    start: DateTime<Utc>, 
-    end: DateTime<Utc>
-) -> Result<Vec<InfluxSignalRow>, (StatusCode, String)> {
+    signal: String,
+    start: DateTime<Utc>,
+    end: DateTime<Utc>,
+    agg: String
+) -> Result<(Vec<InfluxSignalRow>, u64), (StatusCode, String)> {
     // resolution in seconds
     let resolution_ms = round_resolution_ms((end - start).as_seconds_f64() * 1000.0 / (WINDOW_SIZE as f64));
     let tile_duration_ms = TILE_SIZE * resolution_ms;
@@ -156,12 +157,6 @@ pub async fn get_signals(
                 &CONFIG.influxdb_measurement
             )
         } else {
-            let agg = if signal.contains("numerical") {
-                "mean"
-            } else {
-                "max"
-            };
-
             format!(r#"
                 import "date"
                 from(bucket: "{}")
@@ -264,5 +259,6 @@ pub async fn get_signals(
             return Err((StatusCode::REQUEST_TIMEOUT, "InfluxDB query timed out!".to_string()));
         }
     };
-    return Ok(result);
+
+    return Ok((result, resolution_ms));
 }

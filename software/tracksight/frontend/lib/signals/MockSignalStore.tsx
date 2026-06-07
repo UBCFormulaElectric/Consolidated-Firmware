@@ -87,19 +87,30 @@ class MockSignalStore extends SignalStore {
     ALERT_SIGNALS.forEach(signalName => {
       let previousValue = 0;
 
+      this.getOrCreateSignalData({
+        name: signalName,
+        type: SignalType.ALERT,
+        tx_node: "",
+        msg_name: "",
+        id: -1,
+        min_val: 0,
+        max_val: 1,
+        cycle_time_ms: null,
+      });
+
       const intervalId = setInterval(() => {
         const now = Date.now();
         const value = generateRandomAlertValue(previousValue);
         previousValue = value;
 
-        this.addAlertDataPoint(signalName, now, value);
+        this.addDataPoint(signalName, now, value);
       }, 1);
 
       for (let i = 0; i < INITIAL_DATA_POINTS; i++) {
         const timestamp = Date.now() - (INITIAL_DATA_POINTS - i);
         const value = generateRandomAlertValue(previousValue);
         previousValue = value;
-        this.addAlertDataPoint(signalName, timestamp, value);
+        this.addDataPoint(signalName, timestamp, value);
       }
 
       this.signalSubscriptionInterval.set(signalName, intervalId as unknown as number);
