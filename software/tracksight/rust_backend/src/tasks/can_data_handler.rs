@@ -26,7 +26,7 @@ pub async fn run_can_data_handler(
 ) {
     vprintln!("{}", yellow("CAN data task started."));
 
-    let (decoded_signal_tx, _) = broadcast::channel::<DecodedSignal>(32);
+    let (decoded_signal_tx, _) = broadcast::channel::<DecodedSignal>(4096);
 
     // parsed can signal consumers
     let influx_handler_task: tokio::task::JoinHandle<()> = spawn(run_influx_handler(health_check_tx.clone(), decoded_signal_tx.subscribe()));
