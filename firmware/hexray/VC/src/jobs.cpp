@@ -25,7 +25,6 @@
 #include "io_canReroute.hpp"
 #include "io_pcm.hpp"
 
-
 #include <util_errorCodes.hpp>
 
 static void fdcan_tx(const JsonCanMsg &tx_msg)
@@ -103,7 +102,7 @@ void jobs_run1kHz_tick()
 }
 void jobs_runBatteryMonitoring_tick()
 {
-    app::batteryMonitoring::update();
+    LOG_IF_ERR(app::batteryMonitoring::update());
 }
 void jobs_runPowerMonitoring_tick()
 {

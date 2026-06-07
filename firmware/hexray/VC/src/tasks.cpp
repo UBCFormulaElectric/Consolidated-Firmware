@@ -166,27 +166,31 @@ void tasks_runCanRx(void *arg)
 }
 [[noreturn]] static void tasks_batteryMonitoring(void *arg)
 {
-    static const TickType_t period_ms   = 10;
+    static const TickType_t period_ms   = 100;
     static uint32_t         start_ticks = 0;
     start_ticks                         = osKernelGetTickCount();
 
     app::batteryMonitoring::init();
     for (;;)
     {
+        SEGGER_SYSVIEW_MarkStart(0x1010);
         jobs_runBatteryMonitoring_tick();
+        SEGGER_SYSVIEW_MarkStop(0x1010);
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
     }
 }
 [[noreturn]] static void tasks_powerMonitoring(void *arg)
 {
-    static const TickType_t period_ms   = 10;
+    static const TickType_t period_ms   = 100;
     static uint32_t         start_ticks = 0;
     start_ticks                         = osKernelGetTickCount();
 
     for (;;)
     {
+        SEGGER_SYSVIEW_MarkStart(0x1011);
         jobs_runPowerMonitoring_tick();
+        SEGGER_SYSVIEW_MarkStop(0x1011);
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
     }

@@ -218,7 +218,7 @@ result<float> get_voltage_cell(CellReading cell)
 result<float> get_voltage_system(const SystemReading system)
 {
     uint16_t system_voltage = 0;
-    RETURN_IF_ERR(command_read_2byte(system, &system_voltage));
+    RETURN_IF_ERR(command_read_2byte(static_cast<uint8_t>(system), &system_voltage));
     return static_cast<float>(system_voltage) /
            100.0f; //  The units for TOS, PACK, and LD voltages are reported in cV (10mV LSB) by default
 }

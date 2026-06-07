@@ -282,48 +282,48 @@
     }
   },
   "IMU1": {
-        "msg_id": 511,
-        "cycle_time": 10,
-        "description": "IMU1 data",
-        "signals": {
-            "Imu1AccelX": {
-                "resolution": 0.1,
-                "min": -20,
-                "max": 20,
-                "unit": "m/s^2"
-            },
-            "Imu1AccelY": {
-                "resolution": 0.1,
-                "min": -20,
-                "max": 20,
-                "unit": "m/s^2"
-            },
-            "Imu1AccelZ": {
-                "resolution": 0.1,
-                "min": -20,
-                "max": 20,
-                "unit": "m/s^2"
-            },
-            "Imu1GyroX": {
-                "resolution": 0.1,
-                "min": -20,
-                "max": 20,
-                "unit": "deg/s^2"
-            },
-            "Imu1GyroY": {
-                "resolution": 0.1,
-                "min": -20,
-                "max": 20,
-                "unit": "deg/s^2"
-            },
-            "Imu1GyroZ": {
-                "resolution": 0.1,
-                "min": -20,
-                "max": 20,
-                "unit": "deg/s^2"
-            }
-        }
-    },
+    "msg_id": 511,
+    "cycle_time": 10,
+    "description": "IMU1 data",
+    "signals": {
+      "Imu1AccelX": {
+        "resolution": 0.1,
+        "min": -20,
+        "max": 20,
+        "unit": "m/s^2"
+      },
+      "Imu1AccelY": {
+        "resolution": 0.1,
+        "min": -20,
+        "max": 20,
+        "unit": "m/s^2"
+      },
+      "Imu1AccelZ": {
+        "resolution": 0.1,
+        "min": -20,
+        "max": 20,
+        "unit": "m/s^2"
+      },
+      "Imu1GyroX": {
+        "resolution": 0.1,
+        "min": -20,
+        "max": 20,
+        "unit": "deg/s^2"
+      },
+      "Imu1GyroY": {
+        "resolution": 0.1,
+        "min": -20,
+        "max": 20,
+        "unit": "deg/s^2"
+      },
+      "Imu1GyroZ": {
+        "resolution": 0.1,
+        "min": -20,
+        "max": 20,
+        "unit": "deg/s^2"
+      }
+    }
+  },
   "EllipseEkfNavVelocity": {
     "msg_id": 518,
     "cycle_time": 100,
@@ -647,7 +647,7 @@
   },
   "PowerMonitoring": {
     "msg_id": 560,
-    "cycle_time": 10,
+    "cycle_time": null,
     "description": "Power monitoring chip",
     "signals": {
       "PcmChannelVoltage": {
@@ -841,7 +841,7 @@
   },
   "BatteryMonitoring_Data": {
     "msg_id": 562,
-    "cycle_time": 10,
+    "cycle_time": null,
     "description": "Battery monitoring chip and balancing",
     "signals": {
       "CELL1_Voltage": {
