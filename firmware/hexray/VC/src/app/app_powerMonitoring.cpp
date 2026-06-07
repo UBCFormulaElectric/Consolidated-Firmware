@@ -1,12 +1,19 @@
 #include "app_powerMonitoring.hpp"
 #include "io_powerMonitoring.hpp"
+#include "io_semaphore.hpp"
 #include "app_canTx.hpp"
+
+namespace 
+{
+io::semaphore i2c_bus{ true }; // protects i2c_bus_4
+}
 
 namespace app::powerMonitoring
 {
 
 result<void> update()
 {
+    const io::unique_semaphore lock{ i2c_bus };
     static bool init_done = false;
 
     for (int tries = 0; not init_done and tries < 10; tries++)
@@ -37,6 +44,8 @@ result<void> update()
     const auto ch_ext_power   = io::powerMonitoring::read_power(Channel::CH2);
     const auto ch_vbat_power  = io::powerMonitoring::read_power(Channel::CH3);
     const auto ch_pcm_power   = io::powerMonitoring::read_power(Channel::CH4);
+
+    
 
     const bool ch_pcm_voltage_valid   = ch_pcm_voltage.has_value();
     const bool ch_ext_voltage_valid   = ch_ext_voltage.has_value();

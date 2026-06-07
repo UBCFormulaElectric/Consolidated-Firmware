@@ -1,11 +1,16 @@
 #include "app_pumpControl.hpp"
 #include "io_time.hpp"
 #include "io_efuses.hpp"
-#include "app_canTx.hpp"
 #include "io_pumpControl.hpp"
+#include "io_semaphore.hpp"
+#include "app_canTx.hpp"
 
 #define BUFFER 5.0f
 
+namespace
+{
+    io::semaphore i2c_bus { true };
+}
 namespace app::pumpControl
 {
 constexpr float SLOPE            = 1.0f / 2; // if specs have not changed
@@ -21,6 +26,8 @@ static float rampUpSetPoint(uint16_t current_time_ms)
 
 void MonitorPumps()
 {
+    const io::unique_semaphore lock{ i2c_bus };
+
     time_ms += 10;
 
     const auto rr_ready = rr_pump.isReady();

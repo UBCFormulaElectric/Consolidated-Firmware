@@ -13,6 +13,7 @@
 #include "hw_gpio.hpp"
 #include "io_canRx.hpp"
 #include "io_batteryMonitoring.hpp"
+#include "io_semaphore.hpp"
 
 #include "hw_adcs.hpp"
 #include "hw_cans.hpp"
