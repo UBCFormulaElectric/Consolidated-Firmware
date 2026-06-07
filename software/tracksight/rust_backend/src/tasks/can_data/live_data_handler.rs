@@ -2,10 +2,15 @@ use std::sync::Arc;
 
 use socketioxide::extract::SocketRef;
 <<<<<<< HEAD
+<<<<<<< HEAD
 use tokio::select;
 use tokio::sync::broadcast;
 =======
 >>>>>>> 7ea31ddb6 (Jackyao/paired hotfix (#2054))
+=======
+use tokio::select;
+use tokio::sync::broadcast;
+>>>>>>> 4a21fbf61 (i loveee hotfixes (#2062))
 use tokio::sync::{RwLock, broadcast::Receiver, broadcast::error::RecvError};
 
 use crate::dprintln;
@@ -29,6 +34,7 @@ pub async fn run_live_data_handler(
     health_check_tx.send_health_check(Task::LiveDataHandler, true).await;
 
     loop {
+<<<<<<< HEAD
 <<<<<<< HEAD
         select! {
             _ = shutdown_rx.recv() => {
@@ -73,6 +79,10 @@ pub async fn run_live_data_handler(
             // Closed channel is the signal to stop thread
             Err(RecvError::Closed) => {
 >>>>>>> 7ea31ddb6 (Jackyao/paired hotfix (#2054))
+=======
+        select! {
+            _ = shutdown_rx.recv() => {
+>>>>>>> 4a21fbf61 (i loveee hotfixes (#2062))
                 vprintln!("Live data task shutting down.");
                 break;
             }
@@ -104,9 +114,13 @@ pub async fn run_live_data_handler(
                         ) {
                             Ok(_) => {}
                             Err(e) => {
+<<<<<<< HEAD
                                 // error when attempting to send data to client socket,
                                 // likely due to client socket connection problems.
                                 dprintln!("{e}");
+=======
+                                error_println!("{e}");
+>>>>>>> 4a21fbf61 (i loveee hotfixes (#2062))
                             }
                         }
                     }

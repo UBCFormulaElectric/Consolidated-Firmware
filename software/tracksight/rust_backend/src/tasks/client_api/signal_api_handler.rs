@@ -10,10 +10,14 @@ use serde_json::from_str;
 use tokio::{select, time::sleep};
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 use crate::{config::CONFIG, dprintln, error_println, tasks::{can_data::influx_util::InfluxSignalSource, client_api::{AppState, signal_tile::{InfluxSignalRow, get_signals}}}, utils::{rfc3339_to_utc, rfc3339_to_utc_str}, vprintln};
 =======
 use crate::{config::CONFIG, dprintln, error_println, tasks::{can_data::influx_util::InfluxSignalSource, client_api::{AppState, signal_tile::{InfluxSignalRow, get_signals}}}, utils::{rfc3339_to_utc, rfc3339_to_utc_str}};
 >>>>>>> 7ea31ddb6 (Jackyao/paired hotfix (#2054))
+=======
+use crate::{config::CONFIG, dprintln, error_println, tasks::{can_data::influx_util::InfluxSignalSource, client_api::{AppState, signal_tile::{InfluxSignalRow, get_signals}}}, utils::{rfc3339_to_utc, rfc3339_to_utc_str}, vprintln};
+>>>>>>> 4a21fbf61 (i loveee hotfixes (#2062))
 use crate::tasks::client_api::INFLUX_QUERY_TIMEOUT_MS;
 
 /**
@@ -305,10 +309,14 @@ async fn signal_sessions(
     let time_bigram: Vec<(String, Option<String>)> = match req {
         Ok(starts) => {
 <<<<<<< HEAD
+<<<<<<< HEAD
             vprintln!("[sessions] influx returned {} DAM_Alive point(s)", starts.len());
 =======
             error_println!("[sessions] influx returned {} DAM_Alive point(s)", starts.len());
 >>>>>>> 7ea31ddb6 (Jackyao/paired hotfix (#2054))
+=======
+            vprintln!("[sessions] influx returned {} DAM_Alive point(s)", starts.len());
+>>>>>>> 4a21fbf61 (i loveee hotfixes (#2062))
             let mut tb: Vec<(String, Option<String>)> = starts.windows(2)
             .map(|w|
                 (
