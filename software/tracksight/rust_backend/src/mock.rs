@@ -66,7 +66,7 @@ pub async fn run_mock_task(
                         signal_type: CanSignalType::Numerical
                     },
                     DecodedSignal {
-                        name: "BMS_BalancingState".to_string(),
+                        name: "VC_State".to_string(),
                         value: value % 3.0,
                         timestamp: None,
                         label: None,
@@ -92,7 +92,7 @@ pub async fn run_mock_task(
                     panic!("can_queue_tx send error: {}", e);
                 }
 
-                let (id, payload) = can_db.pack("BMS_Balancing", &vec!(signals[1].clone())).unwrap();
+                let (id, payload) = can_db.pack("VC_Vitals", &vec!(signals[1].clone())).unwrap();
                 let mock_payload = CanPayload {
                     can_id: id,
                     payload: payload,
