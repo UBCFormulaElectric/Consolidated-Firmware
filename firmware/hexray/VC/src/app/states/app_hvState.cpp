@@ -7,6 +7,7 @@
 #include "app_startSwitch.hpp"
 #include "app_powerManager.hpp"
 #include "io_log.hpp"
+#include "app_pumpControl.hpp"
 
 using namespace app::can_utils;
 
@@ -40,6 +41,7 @@ namespace hvState
     {
         // Conditions for entering drive state: minimum 50% braking and start switch
         // TODO: change this to a faster method after fault recovery
+        app::pumpControl::MonitorPumps();
         const bool is_brake_actuated = app::can_rx::FSM_BrakeActuated_get();
         if (is_brake_actuated && app::startSwitch::hasRisingEdge())
         {
