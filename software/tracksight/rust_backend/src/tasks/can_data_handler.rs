@@ -29,8 +29,8 @@ pub async fn run_can_data_handler(
     let (decoded_signal_tx, _) = broadcast::channel::<DecodedSignal>(4096);
 
     // parsed can signal consumers
-    let influx_handler_task: tokio::task::JoinHandle<()> = spawn(run_influx_handler(health_check_tx.clone(), decoded_signal_tx.subscribe()));
-    let live_data_handler_task: tokio::task::JoinHandle<()> = spawn(run_live_data_handler(health_check_tx.clone(), decoded_signal_tx.subscribe(), clients));
+    let influx_handler_task: tokio::task::JoinHandle<()> = spawn(run_influx_handler(shutdown_rx.resubscribe(), health_check_tx.clone(), decoded_signal_tx.subscribe()));
+    let live_data_handler_task: tokio::task::JoinHandle<()> = spawn(run_live_data_handler(shutdown_rx.resubscribe(), health_check_tx.clone(), decoded_signal_tx.subscribe(), clients));
     
     health_check_tx.send_health_check(Task::CanDataHandler, true).await;
     
