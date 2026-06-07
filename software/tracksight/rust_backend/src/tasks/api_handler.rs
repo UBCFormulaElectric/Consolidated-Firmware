@@ -1,4 +1,5 @@
 use std::sync::Arc;
+use std::time::Duration;
 use axum::Router;
 use moka::future::Cache;
 use tokio::select;
@@ -57,7 +58,10 @@ pub async fn run_api_handler(
     println!("Server hosted on {} running at http://{}.local:{}", CONFIG.mdns_local_ip, instance_name, CONFIG.backend_port);
 
     // Websocket
-    let (socket_layer, io) = SocketIo::new_layer();
+    let (socket_layer, io) = SocketIo::builder()
+        .ping_interval(Duration::from_millis(5000))
+        .ping_timeout(Duration::from_millis(2000))
+        .build_layer();
 
     let app_state = AppState {
         can_db: can_db,
