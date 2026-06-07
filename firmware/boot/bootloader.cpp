@@ -40,7 +40,7 @@ enum class BootStatus : uint8_t
 };
 
 static bool     update_in_progress;
-static uint32_t current_address;
+static uint32_t current_address; // aka the last known good address
 
 [[noreturn]] static void modifyStackPointerAndStartApp(const uint32_t *address)
 {
@@ -205,35 +205,6 @@ void bootloader::init(config &boot_config)
             reply.dlc    = 0;
             LOG_IF_ERR(boot_config.can_tx_queue.push(reply));
         }
-        else if (command.std_id == (boot_config.BOARD_HIGHBITS | PROGRAM_ID_LOWBITS)) // program
-        {
-            if (not update_in_progress)
-            {
-                LOG_ERROR("Got program command while not in update state");
-                continue;
-            }
-            // Program 64 bits at the current address.
-            // No reply for program command to reduce latency.
-            // TODO: Seems kinda fragile
-            for (uint8_t i = 0; i < command.dlc / 8; i++)
-            {
-                const uint64_t command_packet = command.getDataAsQWords()[i];
-                if (const auto status = boot_config.boardSpecific_program(current_address, command_packet);
-                    not status and status.error() != ErrorCode::ERROR_INDETERMINATE)
-                {
-                    // program failed meaning we need to stop and tell the application that program has failed
-                    // and stop the bootloader
-                    hw::CanMsg reply{};
-                    reply.std_id               = { boot_config.BOARD_HIGHBITS | PROGRAM_ID_FAILED_LOWBITS };
-                    reply.dlc                  = 4;
-                    reply.getDataAsDWords()[0] = current_address;
-                    LOG_IF_ERR(boot_config.can_tx_queue.push(reply));
-                    update_in_progress = false;
-                    continue;
-                }
-                current_address += sizeof(uint64_t);
-            }
-        }
         else if (command.std_id == (boot_config.BOARD_HIGHBITS | VERIFY_ID_LOWBITS)) // verify validity
         {
             // Verify received checksum matches the one saved in flash.
@@ -266,9 +237,41 @@ void bootloader::init(config &boot_config)
             update_in_progress = false;
             current_address    = reinterpret_cast<uint32_t>(&__app_metadata_start__);
         }
+        else if (
+            (command.std_id & 0xFF000000U) == boot_config.BOARD_HIGHBITS and
+            (command.std_id & 0x0000000FU) == PROGRAM_ID_LOWBITS) // program
+        {
+            if (not update_in_progress)
+            {
+                LOG_ERROR("Got program command while not in update state");
+                continue;
+            }
+            // Program 64 bits at the current address.
+            // No reply for program command to reduce latency.
+            // TODO: Seems kinda fragile
+            for (uint8_t i = 0; i < command.dlc / 8; i++)
+            {
+                const uint64_t program_data = command.getDataAsQWords()[i];
+                // const uint32_t in_addr = command.std_id; // TODO
+                if (const auto status = boot_config.boardSpecific_program(current_address, program_data);
+                    not status and status.error() != ErrorCode::ERROR_INDETERMINATE)
+                {
+                    // program failed meaning we need to stop and tell the application that program has failed
+                    // and stop the bootloader
+                    hw::CanMsg reply{};
+                    reply.std_id               = boot_config.BOARD_HIGHBITS | PROGRAM_ID_FAILED_LOWBITS;
+                    reply.dlc                  = 4;
+                    reply.getDataAsDWords()[0] = current_address;
+                    LOG_IF_ERR(boot_config.can_tx_queue.push(reply));
+                    update_in_progress = false;
+                    continue;
+                }
+                current_address += sizeof(uint64_t);
+            }
+        }
         else
         {
-            // LOG_ERROR("got stdid %X", command.std_id);
+            LOG_ERROR("Got unknown CAN command with ID 0x%X", command.std_id);
         }
     }
 }

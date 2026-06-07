@@ -98,7 +98,6 @@ class config
             // check that the addr is valid in this block
             if (block_addr.value() <= address && address < block_addr.value() + hw::flash::WORD_BYTES)
             {
-                // TODO return an error indicating that the last block has not been written yet
                 return std::unexpected(ErrorCode::INVALID_ARGS);
             }
         }
