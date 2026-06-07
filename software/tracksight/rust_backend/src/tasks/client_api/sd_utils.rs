@@ -99,6 +99,7 @@ fn ls_recursive(logfs: &mut LogFs, dir: &str, results: &mut Vec<String>) -> Resu
 pub enum SdCardDumpError {
     MountError,
     FileOpenError(LogFsErr),
+    MetadataReadError(LogFsErr),
     FileReadError(LogFsErr),
 }
 
@@ -126,7 +127,7 @@ pub async fn dump_sd_file(
 
         let metadata = file.read_metadata(None).map_err(|e| {
             error_println!("dump_sd_file: read_metadata failed for {path}: {e:?}");
-            SdCardDumpError::FileReadError(e)
+            SdCardDumpError::MetadataReadError(e)
         })?;
         let data = file.read(None).map_err(|e| {
             error_println!("dump_sd_file: read failed for {path}: {e:?}");
