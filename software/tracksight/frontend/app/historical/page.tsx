@@ -97,8 +97,37 @@ function SourceDropdown(props: { selectedSource: HistoricalSignalSource; onSourc
     );
 }
 
-function HistoricContent(props: { selectedRange: { min: number; max: number }; selectedSource: HistoricalSignalSource }) {
-    const { selectedRange, selectedSource } = props;
+type SyncStatus = { isLoading: boolean; error: string | null };
+
+function SyncStatusPill(props: { status: SyncStatus; sourceLabel: string }) {
+    const { status, sourceLabel } = props;
+
+    if (status.isLoading) {
+        return (
+            <div className="flex items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 px-3 py-1.5 animate-pulse">
+                <div className="h-2 w-2 animate-bounce rounded-full bg-green-500" />
+                <span className="text-sm font-medium text-gray-600">Syncing {sourceLabel} data...</span>
+            </div>
+        );
+    }
+
+    if (status.error) {
+        return (
+            <div className="flex items-center gap-2 rounded-lg border border-red-800 bg-red-300 px-3 py-1.5">
+                <span className="text-sm font-medium text-black">{sourceLabel} sync error</span>
+            </div>
+        );
+    }
+
+    return (
+        <div className="flex items-center gap-2 rounded-lg border border-gray-200 bg-green-100 px-3 py-1.5">
+            <span className="text-sm font-medium text-gray-600">{sourceLabel} Data Synced</span>
+        </div>
+    );
+}
+
+function HistoricContent(props: { selectedRange: { min: number; max: number }; selectedSource: HistoricalSignalSource; onSyncStatusChange: (status: SyncStatus) => void }) {
+    const { selectedRange, selectedSource, onSyncStatusChange } = props;
     const { widgets } = useWidgetManager();
     const [fetchRange, setFetchRange] = useState<TimeRange>(selectedRange);
 
@@ -117,7 +146,7 @@ function HistoricContent(props: { selectedRange: { min: number; max: number }; s
 
     return (
         <SyncedGraphContainer initialTimeRange={selectedRange} onViewportSettled={handleViewportSettled}>
-            <HistoricalSignalStoreProvider startUtcMs={fetchRange.min} endUtcMs={fetchRange.max} source={selectedSource} selectedRange={selectedRange}>
+            <HistoricalSignalStoreProvider startUtcMs={fetchRange.min} endUtcMs={fetchRange.max} source={selectedSource} selectedRange={selectedRange} onStatusChange={onSyncStatusChange}>
                 {/* Rendered the same way as the live page; keyed so the append-only AlertTimeline
                     resets its cursors on session/source change. */}
                 <AlertTimeline key={`${selectedSource}:${selectedRange.min}:${selectedRange.max}`} />
@@ -139,6 +168,8 @@ export default function Historical() {
     // `live` drives the dashboard; `draft` is the staged selection inside the modal.
     const live = useHistoricalSessionSelection(selectedDateKey, selectedSource);
     const draft = useHistoricalSessionSelection(draftDateKey, selectedSource);
+
+    const [syncStatus, setSyncStatus] = useState<SyncStatus>({ isLoading: false, error: null });
 
     const selectedRange = useMemo(() => (live.selectedSession ? { min: live.selectedSession.startUtcMs, max: live.selectedSession.endUtcMs } : null), [live.selectedSession]);
     const sourceLabel = SOURCE_OPTIONS.find((source) => source.value === selectedSource)?.label ?? "Historical";
@@ -174,10 +205,13 @@ export default function Historical() {
                     </button>
                 </div>
 
-                <div className="mx-4 mb-3 text-sm font-medium text-gray-600 shrink-0">Showing {sourceLabel} data. All times shown in UTC.</div>
+                <div className="mx-4 mb-3 flex items-center gap-3 shrink-0">
+                    {selectedRange ? <SyncStatusPill status={syncStatus} sourceLabel={sourceLabel} /> : null}
+                    <span className="text-sm font-medium text-gray-600">Showing {sourceLabel} data. All times shown in UTC.</span>
+                </div>
 
                 <div className="flex-1 min-h-0 relative w-full">
-                    <WidgetManager storageKey={HISTORIC_WIDGET_STORAGE_KEY}>{selectedRange ? <HistoricContent selectedRange={selectedRange} selectedSource={selectedSource} /> : <div className="mx-4 grid h-full place-items-center text-gray-500">{live.query.isPending ? "Loading sessions..." : "No historical session selected."}</div>}</WidgetManager>
+                    <WidgetManager storageKey={HISTORIC_WIDGET_STORAGE_KEY}>{selectedRange ? <HistoricContent selectedRange={selectedRange} selectedSource={selectedSource} onSyncStatusChange={setSyncStatus} /> : <div className="mx-4 grid h-full place-items-center text-gray-500">{live.query.isPending ? "Loading sessions..." : "No historical session selected."}</div>}</WidgetManager>
                 </div>
             </div>
 
