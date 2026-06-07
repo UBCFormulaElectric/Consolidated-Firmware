@@ -4,13 +4,12 @@
 
 #include "io_efuses.hpp"
 #include "io_pumpControl.hpp"
-#include "io_semaphore.hpp"
+#include "io_semaphores.hpp"
 
 constexpr float BUFFER = 50.0f;
 
 namespace
 {
-    io::semaphore i2c_bus { true };
 }
 namespace app::pumpControl
 {
@@ -19,8 +18,8 @@ static app::Timer         ramp_timer{ RAMP_DURATION_MS };
 
 void MonitorPumps()
 {
-    const io::unique_semaphore lock{ i2c_bus };
-    const auto rr_ready = rr_pump.isReady();
+    const io::unique_semaphore lock{ pwr_pump_i2c_bus_lock };
+    const auto                 rr_ready = rr_pump.isReady();
 
     if (rr_ready)
     {

@@ -9,7 +9,7 @@ https://www.zotero.org/groups/5938751/ubc_formula_electric_firmware/collections/
 #include "io_time.hpp"
 #include "io_batteryMonitoring.hpp"
 #include "io_batteryMonitoring_datatypes.hpp"
-#include "io_batteryCharging.hpp"
+#include "io_semaphores.hpp"
 
 #include "util_retry.hpp"
 
@@ -35,36 +35,38 @@ static result<void> protection_init();
 static result<void> fets_init();
 
 /* -------------------- Helpers ------------------------- */
-static result<void> read_register(uint16_t reg, std::span<uint8_t> data)
+static result<void> read_register(const uint16_t reg, const std::span<uint8_t> data)
 {
-    auto result = util::retry([&]() { return bat_mon.memoryRead(reg, data); }, 5);
+    const io::unique_semaphore lock{ pwr_pump_i2c_bus_lock };
+    auto                       result = util::retry([&]() { return bat_mon.memoryRead(reg, data); }, 5);
     return result;
 }
-static result<void> write_register(uint16_t reg, std::span<uint8_t> data)
+static result<void> write_register(const uint16_t reg, const std::span<uint8_t> data)
 {
-    auto result = util::retry([&]() { return bat_mon.memoryWrite(reg, data); }, 5);
+    const io::unique_semaphore lock{ pwr_pump_i2c_bus_lock };
+    auto                       result = util::retry([&]() { return bat_mon.memoryWrite(reg, data); }, 5);
     return result;
 }
 /* -------------------- Commands ------------------------- */
-static result<void> command_read_byte(uint8_t command_addr, uint8_t *data)
+static result<void> command_read_byte(const uint8_t command_addr, uint8_t *data)
 {
     *data = 0;
     RETURN_IF_ERR_SILENT(read_register(command_addr, std::span(data, 1)));
     return {};
 }
-[[maybe_unused]] static result<void> command_write_byte(uint8_t command_addr, uint8_t data)
+[[maybe_unused]] static result<void> command_write_byte(const uint8_t command_addr, uint8_t data)
 {
     RETURN_IF_ERR_SILENT(write_register(command_addr, std::span(&data, 1)));
     return {};
 }
-static result<void> command_read_2byte(uint8_t command_addr, uint16_t *data)
+static result<void> command_read_2byte(const uint8_t command_addr, uint16_t *data)
 {
     uint8_t rx_buffer[2] = { 0, 0 };
     RETURN_IF_ERR(read_register(command_addr, std::span(rx_buffer, 2)));
     *data = static_cast<uint16_t>((rx_buffer[1] << 8) | rx_buffer[0]);
     return {};
 }
-static result<void> command_write_2byte(uint8_t command_addr, uint16_t data)
+static result<void> command_write_2byte(const uint8_t command_addr, const uint16_t data)
 {
     uint8_t tx_buffer[2];
     tx_buffer[0] = static_cast<uint8_t>(data & 0xFF);
@@ -74,15 +76,15 @@ static result<void> command_write_2byte(uint8_t command_addr, uint16_t data)
 }
 /* -------------------- Subcommands ------------------------- */
 // NOTE: Data memory access is conducted in a similar fashion to subcommands, use these helpers for data memory
-[[maybe_unused]] result<void> read_subcommand(uint16_t sub_cmd, std::span<uint8_t> data)
+[[maybe_unused]] result<void> read_subcommand(const uint16_t sub_cmd, const std::span<uint8_t> data)
 {
     if (data.size() > 32u)
     {
         return std::unexpected(ErrorCode::OUT_OF_RANGE);
     }
 
-    uint8_t high_byte = (uint8_t)(sub_cmd >> 8);
-    uint8_t low_byte  = (uint8_t)(sub_cmd & 0x00FF);
+    uint8_t high_byte = static_cast<uint8_t>(sub_cmd >> 8);
+    uint8_t low_byte  = static_cast<uint8_t>(sub_cmd & 0x00FF);
 
     // 1. Write lower byte of subcommand to 0x3E
     RETURN_IF_ERR(write_register(REG_LOWER, std::span<uint8_t>(&low_byte, 1)));
@@ -120,7 +122,7 @@ static result<void> command_write_2byte(uint8_t command_addr, uint16_t data)
     }
 
     // 5. Read buffer starting at 0x40 for the expected length
-    uint8_t buffer_len = total_len - SUBCOMMAND_BYTES;
+    const uint8_t buffer_len = total_len - SUBCOMMAND_BYTES;
     if (buffer_len > data.size())
     {
         return std::unexpected(ErrorCode::OUT_OF_RANGE);
@@ -135,21 +137,19 @@ static result<void> command_write_2byte(uint8_t command_addr, uint16_t data)
     RETURN_IF_ERR(read_register(REG_CHECKSUM, std::span<uint8_t>(&received_checksum, 1)));
 
     uint16_t sum = low_byte + high_byte;
-    for (uint8_t byte : data.first(buffer_len))
+    for (const uint8_t byte : data.first(buffer_len))
     {
         sum += byte;
     }
 
-    uint8_t expected_checksum = static_cast<uint8_t>(~sum);
-
-    if (received_checksum != expected_checksum)
+    if (const uint8_t expected_checksum = static_cast<uint8_t>(~sum); received_checksum != expected_checksum)
     {
         return std::unexpected(ErrorCode::CHECKSUM_FAIL);
     }
 
     return {};
 }
-static result<void> write_subcommand(uint16_t sub_cmd, std::span<uint8_t> data)
+static result<void> write_subcommand(const uint16_t sub_cmd, const std::span<uint8_t> data)
 {
     // The transfer buffer is 32 bytes max
     if (data.size() > 32u)
@@ -172,24 +172,24 @@ static result<void> write_subcommand(uint16_t sub_cmd, std::span<uint8_t> data)
 
     // 3. Calculate Checksum, 8-bit sum of subcommand bytes + data bytes
     uint8_t sum = low_byte + high_byte;
-    for (uint8_t byte : data)
+    for (const uint8_t byte : data)
     {
         sum += byte;
     }
-    uint8_t checksum = ~sum; // Bitwise invert the 8-bit sum
+    const uint8_t checksum = static_cast<uint8_t>(~sum); // Bitwise invert the 8-bit sum
 
     // 4. Calculate Data Length, length = data payload bytes + 4 (for 0x3E, 0x3F, 0x60, 0x61)
-    uint8_t total_len = static_cast<uint8_t>(data.size() + 4);
+    const uint8_t total_len = static_cast<uint8_t>(data.size() + 4);
 
     // 5. Combine Checksum and Length into a single 16-bit word, checksum goes to 0x60 (lower byte), length goes to 0x61
-    uint16_t check_and_len = static_cast<uint16_t>((total_len << 8) | checksum);
+    const uint16_t check_and_len = static_cast<uint16_t>((total_len << 8) | checksum);
 
     // writing length to 0x61 forces the chip to verify the checksum and save the data
     RETURN_IF_ERR(command_write_2byte(REG_CHECKSUM, check_and_len));
 
     return {};
 }
-static result<void> execute_subcommand(uint16_t sub_cmd)
+static result<void> execute_subcommand(const uint16_t sub_cmd)
 {
     uint8_t low_byte  = static_cast<uint8_t>(sub_cmd & 0x00FF);
     uint8_t high_byte = static_cast<uint8_t>(sub_cmd >> 8);
@@ -201,21 +201,21 @@ static result<void> execute_subcommand(uint16_t sub_cmd)
 /* -------------------- Voltage Readings ------------------------- */
 /**
  * @brief Gets the cell voltage
- * @param CellReading The cell you want to read (ie: CellReading::CELL1)
+ * @param cell The cell you want to read (ie: CellReading::CELL1)
  * @return The voltage on success, erorcode if messed up
  */
 result<float> get_voltage_cell(CellReading cell)
 {
     uint16_t cell_voltage = 0;
-    RETURN_IF_ERR(command_read_2byte((uint8_t)cell, &cell_voltage));
+    RETURN_IF_ERR(command_read_2byte(static_cast<uint8_t>(cell), &cell_voltage));
     return static_cast<float>(cell_voltage) / 1000.0f;
 }
 /**
  * @brief Gets the system voltage
- * @param SystemReading The thing u want to read (ie: SystemReding::Pack)
+ * @param system The thing u want to read (ie: SystemReding::Pack)
  * @return The voltage on success, erorcode if messed up
  */
-result<float> get_voltage_system(SystemReading system)
+result<float> get_voltage_system(const SystemReading system)
 {
     uint16_t system_voltage = 0;
     RETURN_IF_ERR(command_read_2byte(system, &system_voltage));
@@ -232,7 +232,7 @@ result<float> get_current()
 {
     uint16_t raw_current = 0;
     RETURN_IF_ERR(command_read_2byte(CMD_GETCURRENT, &raw_current));
-    int16_t signed_current = static_cast<int16_t>(raw_current);
+    const int16_t signed_current = static_cast<int16_t>(raw_current);
     return static_cast<float>(signed_current) / 1000.0f;
 }
 
@@ -257,8 +257,8 @@ result<float> get_temperatureIC()
 {
     uint16_t raw_temp = 0;
     RETURN_IF_ERR(command_read_2byte(CMD_TEMPERATURE_IC, &raw_temp));
-    float temp_kelvin  = static_cast<float>(raw_temp) / 10.0f;
-    float temp_celsius = temp_kelvin - 273.15f;
+    const float temp_kelvin  = static_cast<float>(raw_temp) / 10.0f;
+    float       temp_celsius = temp_kelvin - 273.15f;
     return temp_celsius;
 }
 /**
@@ -303,7 +303,8 @@ result<float> get_temperatureIC()
  */
 result<void> send_balancing_subcommand(CellBalance_BitMask cell)
 {
-    std::array<uint8_t, 2> cell_to_balance = { { (uint8_t)((uint16_t)cell & 0xFF), (uint8_t)((uint16_t)cell >> 8) } };
+    std::array<uint8_t, 2> cell_to_balance = { { static_cast<uint8_t>(static_cast<uint16_t>(cell) & 0xFF),
+                                                 static_cast<uint8_t>(static_cast<uint16_t>(cell) >> 8) } };
     RETURN_IF_ERR(write_subcommand(CB_ACTIVE_CELLS, cell_to_balance));
     return {};
 }
@@ -315,8 +316,7 @@ result<void> send_balancing_subcommand(CellBalance_BitMask cell)
 result<uint16_t> read_balancing_subcommand()
 {
     std::array<uint8_t, 2> buf = { { 0, 0 } };
-    const auto             err = read_subcommand(CB_ACTIVE_CELLS, buf);
-    if (!err)
+    if (const auto err = read_subcommand(CB_ACTIVE_CELLS, buf); !err)
         return std::unexpected(err.error());
     const uint16_t mask = static_cast<uint16_t>(static_cast<uint16_t>(buf[0]) | (static_cast<uint16_t>(buf[1]) << 8));
     return mask;
@@ -325,7 +325,7 @@ result<uint16_t> read_balancing_subcommand()
  * @brief Manually balances every cell that is over a certain voltage
  * @param threshold_mV the threshold in mV you want to surpass
  */
-result<void> send_balancing_above_threshold(uint16_t threshold_mV)
+result<void> send_balancing_above_threshold(const uint16_t threshold_mV)
 {
     std::array<uint8_t, 2> payload = { { static_cast<uint8_t>(threshold_mV & 0xFF),
                                          static_cast<uint8_t>((threshold_mV >> 8) & 0xFF) } };
@@ -402,7 +402,7 @@ result<AlertStatus> read_alarm_status()
     return {};
 }
 
-result<std::array<uint16_t, 5>> get_voltage_UV(uint16_t sub_cmd)
+result<std::array<uint16_t, 5>> get_voltage_UV(const uint16_t sub_cmd)
 {
     CUV                     cuv{};
     std::array<uint16_t, 5> parsed_snapshot_voltages{};
@@ -422,7 +422,7 @@ result<std::array<uint16_t, 5>> get_voltage_UV(uint16_t sub_cmd)
     return parsed_snapshot_voltages;
 }
 
-result<std::array<uint16_t, 5>> get_voltage_OV(uint16_t sub_cmd)
+result<std::array<uint16_t, 5>> get_voltage_OV(const uint16_t sub_cmd)
 {
     COV                     cov{};
     std::array<uint16_t, 5> parsed_snapshot_voltages{};
@@ -481,10 +481,9 @@ result<SafetyStatusB> get_safety_alert_b()
 
 result<void> init()
 {
+    const io::unique_semaphore lock{ pwr_pump_i2c_bus_lock };
     // 1. Is chip responsive
     RETURN_IF_ERR(bat_mon.isTargetReady());
-    RETURN_IF_ERR(pwr_mon.isTargetReady());
-    RETURN_IF_ERR(pump.isTargetReady());
 
     // 2.0 Check to see if chip is in DEEPSLEEP
     ControlStatus control_status{};

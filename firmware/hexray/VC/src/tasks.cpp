@@ -12,18 +12,19 @@
 #include "hw_can.hpp"
 #include "hw_gpio.hpp"
 #include "io_canRx.hpp"
-#include "io_batteryMonitoring.hpp"
 #include "io_semaphore.hpp"
 
 #include "hw_adcs.hpp"
 #include "hw_cans.hpp"
-#include "hw_gpios.hpp"
 #include "hw_rtosTaskHandler.hpp"
 #include "hw_hardFaultHandler.hpp"
 #include "hw_bootup.hpp"
 #include "hw_watchdog.hpp"
 #include "hw_resetReason.hpp"
 #include "hw_runTimeStat.hpp"
+#include "io_pumpControl.hpp"
+
+#include "stm32h7xx_hal_i2c.h"
 
 [[noreturn]] static void tasks_run1Hz(void *arg);
 [[noreturn]] static void tasks_run100Hz(void *arg);
@@ -259,7 +260,7 @@ void tasks_init()
     // r_inv_en.writePin(true);
     // r_rad_fan_en.writePin(true);
     // l_rad_fan_en.writePin(true);
-    //misc_fuse_en.writePin(true);
+    // misc_fuse_en.writePin(true);
     ResetReason reason = hw::resetReason::get();
     app::can_tx::VC_ResetReason_set(static_cast<app::can_utils::CanResetReason>(reason));
     if (reason == RESET_REASON_WATCHDOG)
