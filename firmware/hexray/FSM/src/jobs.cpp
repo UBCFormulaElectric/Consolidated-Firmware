@@ -25,8 +25,8 @@ void jobs_init()
     io::can_tx::init(
         [](const JsonCanMsg &tx_msg)
         {
-            // const io::CanMsg msg = app::jsoncan::copyToCanMsg(tx_msg);
-            // LOG_IF_ERR(can_tx_queue.push(msg));
+            const io::CanMsg msg = app::jsoncan::copyToCanMsg(tx_msg);
+            LOG_IF_ERR(can_tx_queue.push(msg));
         });
 
     io::can_tx::enableMode_FDCAN(app::can_utils::FDCANMode::FDCAN_MODE_DEFAULT, true);
