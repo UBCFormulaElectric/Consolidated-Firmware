@@ -7,6 +7,7 @@ use axum::{Router, routing::get};
 use serde::{Deserialize, Serialize};
 
 use crate::tasks::client_api::AppState;
+use crate::{error_println, vprintln};
 
 /*
     Subscription table for tracking users subscribed to which signal
@@ -26,10 +27,10 @@ struct SubscribeResponse {
 }
 
 async fn subscribe(State(state): State<AppState>, Json(payload): Json<SubscribePayload>) -> impl IntoResponse {
-    println!("Subscribing client {} to signal {}", payload.sid, payload.signal);
+    vprintln!("Subscribing client {} to signal {}", payload.sid, payload.signal);
 
     if !state.can_db.is_signal_valid(&payload.signal) {
-        eprintln!("Client {} failed to subscribe to invalid signal {}", payload.sid, payload.signal);
+        error_println!("Client {} failed to subscribe to invalid signal {}", payload.sid, payload.signal);
         return (StatusCode::BAD_REQUEST, Json(SubscribeResponse {
             msg: None,
             error: Some(format!("Signal {} does not exist", payload.signal)),
@@ -45,7 +46,7 @@ async fn subscribe(State(state): State<AppState>, Json(payload): Json<SubscribeP
 }
 
 async fn unsubscribe(State(state): State<AppState>, Json(payload): Json<SubscribePayload>) -> impl IntoResponse {
-    println!("Unsubscribing client {} from signal {}", payload.sid, payload.signal);
+    vprintln!("Unsubscribing client {} from signal {}", payload.sid, payload.signal);
 
     state.clients.write().await.unsubscribe_client_from_signal(&payload.sid, &payload.signal);
 
