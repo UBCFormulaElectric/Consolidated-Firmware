@@ -13,17 +13,13 @@ class pump
 {
   public:
 #ifdef TARGET_EMBEDDED
-    constexpr explicit pump(const Potentiometer &pot, const bool invert, const Efuse &efuse)
-      : pot_{ pot }, invert_{ invert }, efuse_{ efuse }
-    {
-    }
+    constexpr explicit pump(const Potentiometer &pot, const bool invert) : pot_{ pot }, invert_{ invert } {}
 #elif defined(TARGET_TEST)
     constexpr explicit pump() {}
 #endif
 
     result<void>    setPercentage(uint8_t percentage) const;
     result<uint8_t> getPercentage() const;
-    bool            isReady() const;
 
   private:
     static constexpr uint8_t logicalToHw(const bool invert, const uint8_t percent)
@@ -39,7 +35,6 @@ class pump
 #ifdef TARGET_EMBEDDED
     const Potentiometer &pot_;
     bool                 invert_;
-    const Efuse         &efuse_;
 #endif
 };
 } // namespace io

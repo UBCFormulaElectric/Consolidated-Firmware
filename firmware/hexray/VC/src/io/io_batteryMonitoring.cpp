@@ -37,14 +37,12 @@ static result<void> fets_init();
 /* -------------------- Helpers ------------------------- */
 static result<void> read_register(const uint16_t reg, const std::span<uint8_t> data)
 {
-    const io::unique_semaphore lock{ pwr_pump_i2c_bus_lock };
-    auto                       result = util::retry([&]() { return bat_mon.memoryRead(reg, data); }, 5);
+    auto result = util::retry([&]() { return bat_mon.memoryRead(reg, data); }, 5);
     return result;
 }
 static result<void> write_register(const uint16_t reg, const std::span<uint8_t> data)
 {
-    const io::unique_semaphore lock{ pwr_pump_i2c_bus_lock };
-    auto                       result = util::retry([&]() { return bat_mon.memoryWrite(reg, data); }, 5);
+    auto result = util::retry([&]() { return bat_mon.memoryWrite(reg, data); }, 5);
     return result;
 }
 /* -------------------- Commands ------------------------- */
@@ -481,7 +479,6 @@ result<SafetyStatusB> get_safety_alert_b()
 
 result<void> init()
 {
-    const io::unique_semaphore lock{ pwr_pump_i2c_bus_lock };
     // 1. Is chip responsive
     RETURN_IF_ERR(bat_mon.isTargetReady());
 

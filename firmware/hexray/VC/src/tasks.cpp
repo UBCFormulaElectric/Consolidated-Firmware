@@ -173,9 +173,7 @@ void tasks_runCanRx(void *arg)
     app::batteryMonitoring::init();
     for (;;)
     {
-        SEGGER_SYSVIEW_MarkStart(0x1010);
         jobs_runBatteryMonitoring_tick();
-        SEGGER_SYSVIEW_MarkStop(0x1010);
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
     }
@@ -188,9 +186,7 @@ void tasks_runCanRx(void *arg)
 
     for (;;)
     {
-        SEGGER_SYSVIEW_MarkStart(0x1011);
         jobs_runPowerMonitoring_tick();
-        SEGGER_SYSVIEW_MarkStop(0x1011);
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
     }

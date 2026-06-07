@@ -1,10 +1,8 @@
 #include "app_pumpControl.hpp"
 #include "app_canTx.hpp"
 #include "app_timer.hpp"
-
-#include "io_efuses.hpp"
-#include "io_pumpControl.hpp"
 #include "io_semaphores.hpp"
+#include "io_efuses.hpp"
 
 constexpr float BUFFER = 50.0f;
 
@@ -19,7 +17,7 @@ static app::Timer         ramp_timer{ RAMP_DURATION_MS };
 void MonitorPumps()
 {
     const io::unique_semaphore lock{ pwr_pump_i2c_bus_lock };
-    const auto                 rr_ready = rr_pump.isReady();
+    const auto                 rr_ready = rr_pump_efuse.isChannelEnabled() and rr_pump_efuse.ok();
 
     if (rr_ready)
     {
@@ -34,7 +32,7 @@ void MonitorPumps()
                 break;
         }
         const float percentage = static_cast<float>(ramp_timer.getElapsedTime()) / static_cast<float>(RAMP_DURATION_MS);
-        LOG_IF_ERR(rr_pump.setPercentage(static_cast<uint8_t>(percentage * 100)));
+        // LOG_IF_ERR(rr_pum.setPercentage(static_cast<uint8_t>(percentage * 100)));
         app::can_tx::VC_PumpRampUpSetPoint_set(percentage);
     }
     else

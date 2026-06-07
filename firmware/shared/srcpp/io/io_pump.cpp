@@ -1,11 +1,10 @@
 #include "io_pump.hpp"
-#include "hw_i2cs.hpp"
 
 namespace io
 {
-result<void> pump::setPercentage(uint8_t percent) const
+result<void> pump::setPercentage(const uint8_t percentage) const
 {
-    const uint8_t hw_percent = logicalToHw(invert_, percent);
+    const uint8_t hw_percent = logicalToHw(invert_, percentage);
     return pot_.writePercentage(hw_percent);
 }
 
@@ -19,18 +18,4 @@ result<uint8_t> pump::getPercentage() const
 
     return hwToLogical(invert_, percentage_res.value());
 }
-
-bool pump::isReady() const
-{
-    if (!efuse_.ok())
-    {
-        return false;
-    }
-    if (!efuse_.isChannelEnabled())
-    {
-        return false;
-    }
-    return true;
-}
-
 } // namespace io
