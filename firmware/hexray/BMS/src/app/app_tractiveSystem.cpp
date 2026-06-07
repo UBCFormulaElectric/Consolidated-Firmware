@@ -16,15 +16,19 @@ namespace app::ts
 {
 static Timer overcurrent_warning_timer{ TS_OVERCURRENT_DEBOUNCE_DURATION_MS };
 
-static ExponentialFilter ts_voltage_filter = ExponentialFilter::withCutoffFrequency(TS_VOLTAGE_CUTOFF_HZ, TS_VOLTAGE_SAMPLE_RATE_HZ);
+static ExponentialFilter ts_voltage_filter =
+    ExponentialFilter::withCutoffFrequency(TS_VOLTAGE_CUTOFF_HZ, TS_VOLTAGE_SAMPLE_RATE_HZ);
 static float ts_filtered_voltage = 0.0f;
 
-void init() {
+void init()
+{
     ts_filtered_voltage = io::ts::getVoltage();
-    ts_voltage_filter   = ExponentialFilter::withCutoffFrequency(TS_VOLTAGE_CUTOFF_HZ, TS_VOLTAGE_SAMPLE_RATE_HZ,ts_filtered_voltage);
+    ts_voltage_filter =
+        ExponentialFilter::withCutoffFrequency(TS_VOLTAGE_CUTOFF_HZ, TS_VOLTAGE_SAMPLE_RATE_HZ, ts_filtered_voltage);
 }
 
-float getVoltage() {
+float getVoltage()
+{
     return ts_filtered_voltage;
 }
 
