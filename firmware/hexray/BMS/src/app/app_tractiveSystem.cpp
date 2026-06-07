@@ -27,7 +27,12 @@ void init()
         ExponentialFilter::withCutoffFrequency(TS_VOLTAGE_CUTOFF_HZ, TS_VOLTAGE_SAMPLE_RATE_HZ, ts_filtered_voltage);
 }
 
-float getVoltage()
+void filteredVoltageTick()
+{
+    ts_filtered_voltage = ts_voltage_filter.process(io::ts::getVoltage());
+}
+
+float getFilteredVoltage()
 {
     return ts_filtered_voltage;
 }
@@ -45,9 +50,7 @@ float getCurrent()
 
 void broadcast()
 {
-    ts_filtered_voltage = ts_voltage_filter.process(io::ts::getVoltage());
-
-    const float ts_voltage  = getVoltage();
+    const float ts_voltage  = getFilteredVoltage();
     const float ts_current  = getCurrent();
     const float ts_power_kw = ts_voltage * ts_current * W_TO_KW;
 

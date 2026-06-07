@@ -90,6 +90,7 @@ void jobs_run1Hz_tick()
 void jobs_run100Hz_tick()
 {
     app::StateMachine::tick100Hz();
+    app::ts::filteredVoltageTick();
 
     const bool debug_mode_enabled = app::can_rx::Debug_EnableDebugMode_get();
     io::can_tx::enableMode_FDCAN(app::can_utils::FDCANMode::FDCAN_MODE_DEBUG, debug_mode_enabled);

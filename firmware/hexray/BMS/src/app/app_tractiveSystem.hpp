@@ -21,7 +21,12 @@ void init();
  * Get the TS voltage
  * @return The voltage in (V)
  */
-float getVoltage();
+float getFilteredVoltage();
+
+/**
+ * Tick TS voltage filter; sample rate defined at 100Hz
+ */
+void filteredVoltageTick();
 
 /**
  * Get the TS current by choosing between the low and high resolutions
