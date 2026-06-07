@@ -48,7 +48,8 @@ extern "C" void update_matlab(
     const double delta_fr,
     double       kappas[4],
     double       torque_max[4],
-    double       torque_min[4])
+    double       torque_min[4],
+    double       alphas[4])
 {
     const VehicleState state = { .v_x_mps        = v_x,
                                  .v_y_mps        = v_y,
@@ -78,6 +79,12 @@ extern "C" void update_matlab(
     torque_min[1] = k_torque_min.fr;
     torque_min[2] = k_torque_min.rl;
     torque_min[3] = k_torque_min.rr;
+
+    const auto [alpha_fl, alpha_fr, alpha_rl, alpha_rr] = state.alphas();
+    alphas[0]                                           = alpha_fl;
+    alphas[1]                                           = alpha_fr;
+    alphas[2]                                           = alpha_rl;
+    alphas[3]                                           = alpha_rr;
 }
 
 template <Decimal T> ControlOutputAutonomous<T> update_autonomous(const VehicleState<T> &state)

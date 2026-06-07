@@ -46,12 +46,11 @@ template <Decimal T> struct VehicleState
     [[nodiscard]] wheel_set<T> alphas() const
     {
         const auto [fl_v, fr_v, rl_v, rr_v]         = v_in_tire_frame();
-        const auto [fl_rot, fr_rot, rl_rot, rr_rot] = delta;
         return {
-            std::atan2(fl_v.y, safe_vx(fl_v.x)) - fl_rot,
-            std::atan2(fr_v.y, safe_vx(fr_v.x)) - fr_rot,
-            std::atan2(rl_v.y, safe_vx(rl_v.x)) - rl_rot,
-            std::atan2(rr_v.y, safe_vx(rr_v.x)) - rr_rot,
+            std::atan2(fl_v.y, safe_vx(fl_v.x)),
+            std::atan2(fr_v.y, safe_vx(fr_v.x)),
+            std::atan2(rl_v.y, safe_vx(rl_v.x)),
+            std::atan2(rr_v.y, safe_vx(rr_v.x)),
         };
     }
 
@@ -98,38 +97,47 @@ template <Decimal T> struct VehicleState
                (2.0f * vd_constants::TRACK_WIDTH_m);
     }
 
+    // TODO: NORMAL FORCE CAUSING SIGNIFICANT OCCSILATION IN THE SYSTEM
     [[nodiscard]] wheel_set<T> est_Fz_N() const
     {
-        // static loads
-        static constexpr T STATIC_FRONT_AXLE_LOAD_N =
-            vd_constants::CAR_WEIGHT * (vd_constants::DIST_REAR_AXLE_CG_m / vd_constants::WHEELBASE_m);
-        static constexpr T STATIC_REAR_AXLE_LOAD_N =
-            vd_constants::CAR_WEIGHT * (vd_constants::DIST_FRONT_AXLE_CG_m / vd_constants::WHEELBASE_m);
-        static constexpr T STATIC_FRONT_WHEEL_LOAD_N = 0.5f * STATIC_FRONT_AXLE_LOAD_N;
-        static constexpr T STATIC_REAR_WHEEL_LOAD_N  = 0.5f * STATIC_REAR_AXLE_LOAD_N;
+        // // static loads
+        // static constexpr T STATIC_FRONT_AXLE_LOAD_N =
+        //     vd_constants::CAR_WEIGHT * (vd_constants::DIST_REAR_AXLE_CG_m / vd_constants::WHEELBASE_m);
+        // static constexpr T STATIC_REAR_AXLE_LOAD_N =
+        //     vd_constants::CAR_WEIGHT * (vd_constants::DIST_FRONT_AXLE_CG_m / vd_constants::WHEELBASE_m);
+        // static constexpr T STATIC_FRONT_WHEEL_LOAD_N = 0.5f * STATIC_FRONT_AXLE_LOAD_N;
+        // static constexpr T STATIC_REAR_WHEEL_LOAD_N  = 0.5f * STATIC_REAR_AXLE_LOAD_N;
 
-        // load transfer
-        const T long_load_tf = LONG_ACCEL_TERM_VERTICAL_FORCE();
-        const T lat_load_tf  = LAT_ACCEL_TERM_VERTICAL_FORCE();
+        // // load transfer
+        // const T long_load_tf = LONG_ACCEL_TERM_VERTICAL_FORCE();
+        // const T lat_load_tf  = LAT_ACCEL_TERM_VERTICAL_FORCE();
 
-        // downforce and cop components
-        const T down_force_n = est_downforceFz_N();
-        // Assuming COP is a fraction of the total downforce
-        const T front_cop = dynamicCOPFront(), rear_cop = 1.0f - front_cop, right_cop = dynamicCOPRight(),
-                left_cop = 1.0f - right_cop;
+        // // downforce and cop components
+        // const T down_force_n = est_downforceFz_N();
+        // // Assuming COP is a fraction of the total downforce
+        // const T front_cop = dynamicCOPFront(), rear_cop = 1.0f - front_cop, right_cop = dynamicCOPRight(),
+        //         left_cop = 1.0f - right_cop;
+        // return {
+        //     .fl = std::fmax(
+        //         0.0f,
+        //         STATIC_FRONT_WHEEL_LOAD_N - (0.5f * long_load_tf) - lat_load_tf + down_force_n * front_cop * left_cop),
+        //     .fr = std::fmax(
+        //         0.0f,
+        //         STATIC_FRONT_WHEEL_LOAD_N - (0.5f * long_load_tf) + lat_load_tf + down_force_n * front_cop * right_cop),
+        //     .rl = std::fmax(
+        //         0.0f,
+        //         STATIC_REAR_WHEEL_LOAD_N + (0.5f * long_load_tf) - lat_load_tf + down_force_n * rear_cop * left_cop),
+        //     .rr = std::fmax(
+        //         0.0f,
+        //         STATIC_REAR_WHEEL_LOAD_N + (0.5f * long_load_tf) + lat_load_tf + down_force_n * rear_cop * right_cop),
+        // };
+        // Temporarily pin normal load for allocator debugging.
+        static constexpr T CONSTANT_WHEEL_LOAD_N = vd_constants::CAR_WEIGHT / 4.0f;
         return {
-            .fl = std::fmax(
-                0.0f,
-                STATIC_FRONT_WHEEL_LOAD_N - (0.5f * long_load_tf) - lat_load_tf + down_force_n * front_cop * left_cop),
-            .fr = std::fmax(
-                0.0f,
-                STATIC_FRONT_WHEEL_LOAD_N - (0.5f * long_load_tf) + lat_load_tf + down_force_n * front_cop * right_cop),
-            .rl = std::fmax(
-                0.0f,
-                STATIC_REAR_WHEEL_LOAD_N + (0.5f * long_load_tf) - lat_load_tf + down_force_n * rear_cop * left_cop),
-            .rr = std::fmax(
-                0.0f,
-                STATIC_REAR_WHEEL_LOAD_N + (0.5f * long_load_tf) + lat_load_tf + down_force_n * rear_cop * right_cop),
+            .fl = CONSTANT_WHEEL_LOAD_N,
+            .fr = CONSTANT_WHEEL_LOAD_N,
+            .rl = CONSTANT_WHEEL_LOAD_N,
+            .rr = CONSTANT_WHEEL_LOAD_N,
         };
     }
 

@@ -16,7 +16,8 @@ extern "C"
         double delta_fr,
         double kappas[4],
         double torque_max[4],
-        double torque_min[4]);
+        double torque_min[4],
+        double alphas[4]);
 
     /**
      * Matlab wrapper for kappa_update

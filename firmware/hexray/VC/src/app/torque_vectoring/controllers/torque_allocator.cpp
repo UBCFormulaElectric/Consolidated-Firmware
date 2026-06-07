@@ -20,6 +20,7 @@ namespace app::tv::controllers::allocator
 namespace
 {
     // ---- Optimizer tuning ----
+    // TODO: Should we gain schedule these based on speed? as we go faster prioritize lateral stability?
     constexpr double W_FX = 0.5f;
     constexpr double W_MZ = 0.5f;
     constexpr double W_R  = 15.5f;
@@ -29,6 +30,8 @@ namespace
     constexpr float                   NORMAL_MATRIX_EPS = 1e-6f;
     constexpr float                   STEP_TOLERANCE    = 1e-5f;
     constexpr float                   COST_TOLERANCE    = 1e-6f;
+    constexpr int                     MAX_LINE_SEARCH_ITER = 6;
+    constexpr float                   LINE_SEARCH_SHRINK   = 0.5f;
 
     template <Decimal T> using Vec6     = Eigen::Matrix<T, 6, 1>;
     template <Decimal T> using Vec4     = Eigen::Matrix<T, 4, 1>;
@@ -140,9 +143,23 @@ template <Decimal T>
             SQRT_W_R * kappa[3],
         };
     };
+    const auto costAt = [&](const Vec4<T> &slip) -> float
+    {
+        const DualVec4<T> kappa{
+            autodiff::dual(slip(0)),
+            autodiff::dual(slip(1)),
+            autodiff::dual(slip(2)),
+            autodiff::dual(slip(3)),
+        };
+        const auto residual = residualVector(kappa);
+        const Vec6<T> residual_primal{
+            autodiff::val(residual(0)), autodiff::val(residual(1)), autodiff::val(residual(2)),
+            autodiff::val(residual(3)), autodiff::val(residual(4)), autodiff::val(residual(5)),
+        };
+        return static_cast<float>(residual_primal.squaredNorm());
+    };
 
     Vec4<T>  opt_slip{ 0, 0, 0, 0 }; // output variable
-    float    previous_cost = std::numeric_limits<float>::infinity();
     uint32_t iter;
     for (iter = 0; iter < MAX_ITER; ++iter)
     {
@@ -180,19 +197,40 @@ template <Decimal T>
             break;
         }
 
-        Vec4<T> next_opt_slip = opt_slip + delta;
-        for (int i = 0; i < 4; ++i)
-            next_opt_slip(i) = std::clamp(next_opt_slip(i), -static_cast<T>(SLIP_CLAMP), static_cast<T>(SLIP_CLAMP));
         // Least-squares cost: |r|_2^2
         // This is used only for convergence monitoring; the actual update is driven by J^T J and J^T r above.
         const float cost = residuals_at_kappa_primal.squaredNorm();
-        std::cout << "Iter " << iter << ": cost = " << cost << ", delta = " << delta.transpose().format(CleanFmt)
-                  << "\n";
-        if ((next_opt_slip - opt_slip).norm() < STEP_TOLERANCE || std::fabs(previous_cost - cost) < COST_TOLERANCE)
+        Vec4<T>    next_opt_slip = opt_slip;
+        float      next_cost     = cost;
+        T          alpha         = 1.0f;
+        bool       accepted_step = false;
+        for (int line_search_iter = 0; line_search_iter < MAX_LINE_SEARCH_ITER; ++line_search_iter)
+        {
+            Vec4<T> trial_slip = opt_slip + alpha * delta;
+            for (int i = 0; i < 4; ++i)
+                trial_slip(i) = std::clamp(trial_slip(i), -static_cast<T>(SLIP_CLAMP), static_cast<T>(SLIP_CLAMP));
+
+            const float trial_cost = costAt(trial_slip);
+            if (trial_cost < cost)
+            {
+                next_opt_slip = trial_slip;
+                next_cost     = trial_cost;
+                accepted_step = true;
+                break;
+            }
+
+            alpha *= LINE_SEARCH_SHRINK;
+        }
+
+        std::cout << "Iter " << iter << ": cost = " << cost << ", next_cost = " << next_cost
+                  << ", alpha = " << alpha << ", delta = " << delta.transpose().format(CleanFmt) << "\n";
+        if (!accepted_step)
             break;
 
-        previous_cost = cost;
-        opt_slip      = next_opt_slip;
+        const T step_norm = (next_opt_slip - opt_slip).norm();
+        opt_slip          = next_opt_slip;
+        if (step_norm < STEP_TOLERANCE || std::fabs(cost - next_cost) < COST_TOLERANCE)
+            break;
     }
     if (iter == MAX_ITER)
     {
