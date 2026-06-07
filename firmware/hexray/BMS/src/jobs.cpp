@@ -20,6 +20,7 @@
 #include "app_segments.hpp"
 #include "app_states.hpp"
 #include "app_tractiveSystem.hpp"
+#include "app_charger.hpp"
 
 // io
 #include "app_latches.hpp"
@@ -106,6 +107,7 @@ void jobs_run100Hz_tick()
 
     // Charger connection status
     app::can_tx::BMS_ChargerConnectedType_set(io::charger::getConnectionStatus());
+    app::charger::broadcast();
 
 #ifdef TARGET_HV_SUPPLY
     constexpr bool acc_fault = false;

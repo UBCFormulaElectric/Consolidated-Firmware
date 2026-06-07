@@ -34,5 +34,9 @@ void setChargingConfig(const ElconChargingConfig &cmd);
 // Returns 0.0f when the duty cycle is outside supported ranges.
 float getAvailableCurrent();
 
+// Get the output current of the charger in A, as reported by the Elcon on CAN.
 float getOutputCurrent();
+
+// Broadcast charger-related CAN signals that are updated at 100Hz (EVSE CP duty cycle + frequency, available current)
+void broadcast();
 } // namespace app::charger

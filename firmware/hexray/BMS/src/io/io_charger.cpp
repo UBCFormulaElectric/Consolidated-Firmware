@@ -25,4 +25,9 @@ float getCPDutyCycle()
     return evse_pwm_input.get_dutyCycle();
 }
 
+float getCPFrequency()
+{
+    return evse_pwm_input.get_frequency();
+}
+
 } // namespace io::charger
