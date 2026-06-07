@@ -156,6 +156,12 @@ pub async fn get_signals(
                 &CONFIG.influxdb_measurement
             )
         } else {
+            let agg = if signal.contains("numerical") {
+                "mean"
+            } else {
+                "max"
+            };
+
             format!(r#"
                 import "date"
                 from(bucket: "{}")
@@ -164,7 +170,7 @@ pub async fn get_signals(
                 |> filter(fn: (r) => r["signal_name"] == "{signal}")
                 |> filter(fn: (r) => r["source"] == "{source_str}")
                 |> toFloat()
-                |> aggregateWindow(every: {resolution_ms}ms, fn: mean, createEmpty: false)"#, 
+                |> aggregateWindow(every: {resolution_ms}ms, fn: {agg}, createEmpty: false)"#, 
                 &CONFIG.influxdb_bucket, 
                 &CONFIG.influxdb_measurement
             )
