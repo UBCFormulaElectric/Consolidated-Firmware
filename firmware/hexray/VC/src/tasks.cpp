@@ -24,8 +24,6 @@
 #include "hw_runTimeStat.hpp"
 #include "io_pumpControl.hpp"
 
-#include "stm32h7xx_hal_i2c.h"
-
 [[noreturn]] static void tasks_run1Hz(void *arg);
 [[noreturn]] static void tasks_run100Hz(void *arg);
 [[noreturn]] static void tasks_run1kHz(void *arg);
