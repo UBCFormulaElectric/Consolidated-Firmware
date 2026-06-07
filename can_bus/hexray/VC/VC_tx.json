@@ -444,20 +444,16 @@
         "bits": 1
       },
       "RearRightPumpRetry": {
-        "min": 0,
-        "max": 10
+        "bits": 8
       },
       "RearLeftPumpRetry": {
-        "min": 0,
-        "max": 10
+        "bits": 8
       },
       "LeftRadiatorRetry": {
-        "min": 0,
-        "max": 10
+        "bits": 8
       },
       "RightRadiatorRetry": {
-        "min": 0,
-        "max": 10
+        "bits": 8
       }
     }
   },
@@ -627,32 +623,25 @@
         "bits": 1
       },
       "RSMRetry": {
-        "min": 0,
-        "max": 10
+        "bits": 8
       },
       "BMSRetry": {
-        "min": 0,
-        "max": 10
+        "bits": 8
       },
       "DAMRetry": {
-        "min": 0,
-        "max": 10
+        "bits": 8
       },
       "FrontRetry": {
-        "min": 0,
-        "max": 10
+        "bits": 8
       },
       "RInvRetry": {
-        "min": 0,
-        "max": 10
+        "bits": 8
       },
       "LInvRetry": {
-        "min": 0,
-        "max": 10
+        "bits": 8
       },
       "FSMRetry": {
-        "min": 0,
-        "max": 10
+        "bits": 8
       }
     }
   },
