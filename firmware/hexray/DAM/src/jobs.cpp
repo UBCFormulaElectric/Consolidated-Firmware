@@ -113,13 +113,7 @@ void jobs_initLogFs()
 
 void jobs_run1Hz_tick()
 {
-    if (app::sd::isLogOpen())
-    {
-        if (const auto err = fs.sync(app::sd::getLogFd()); !err)
-        {
-            LOG_ERROR("Log sync failed: %d", static_cast<int>(err.error()));
-        }
-    }
+    app::sd::requestSync();
     io::can_tx::enqueue1HzMsgs();
 }
 void jobs_run100Hz_tick()
@@ -150,7 +144,10 @@ void jobs_run1kHz_tick()
 }
 void jobs_runLogging_tick()
 {
-    const auto msg = log_queue.pop();
+    constexpr uint32_t logging_poll_ms = 100U;
+
+    const auto msg = log_queue.pop(logging_poll_ms);
+    app::sd::service();
     if (!msg || !app::sd::isLogOpen())
         return;
 

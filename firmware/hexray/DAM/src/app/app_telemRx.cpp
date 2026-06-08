@@ -93,8 +93,7 @@ namespace
                     return;
                 }
 
-                if (const auto err = app::sd::update_metadata(); !err.has_value())
-                    LOG_ERROR("telemRx: sd metadata update failed: %d", static_cast<int>(err.error()));
+                app::sd::requestMetadataUpdate();
 
                 break;
             }

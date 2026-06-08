@@ -6,6 +6,7 @@
 #include "util_errorCodes.hpp"
 
 #include <array>
+#include <atomic>
 #include <expected>
 #include <cstdio>
 
@@ -17,6 +18,8 @@ namespace
     std::array<char, 32>  LOG_PATH_BUF{};
     uint32_t              log_fd   = 0;
     bool                  log_open = false;
+    std::atomic<bool>     metadata_update_requested{ false };
+    std::atomic<bool>     sync_requested{ false };
 } // namespace
 
 std::expected<void, io::FileSystem::FileSystemError> init_fs()
@@ -97,6 +100,30 @@ std::expected<void, ErrorCode> update_metadata()
         return std::unexpected(ErrorCode::ERROR);
 
     return {};
+}
+
+void requestMetadataUpdate()
+{
+    metadata_update_requested.store(true, std::memory_order_relaxed);
+}
+
+void requestSync()
+{
+    sync_requested.store(true, std::memory_order_relaxed);
+}
+
+void service()
+{
+    if (metadata_update_requested.exchange(false, std::memory_order_relaxed))
+    {
+        if (const auto err = update_metadata(); !err.has_value())
+            LOG_ERROR("sd service: metadata update failed: %d", static_cast<int>(err.error()));
+    }
+    if (sync_requested.exchange(false, std::memory_order_relaxed) && log_open)
+    {
+        if (const auto err = fs.sync(log_fd); !err.has_value())
+            LOG_ERROR("sd service: sync failed: %d", static_cast<int>(err.error()));
+    }
 }
 
 uint32_t getLogFd()
