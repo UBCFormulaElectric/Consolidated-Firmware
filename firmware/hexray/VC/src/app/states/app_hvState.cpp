@@ -20,8 +20,8 @@ namespace hvState
         LOG_INFO("entering hv state!");
         static constexpr app::powerManager::PowerManagerConfig power_manager_state = {
             .efuse_configs = { {
-                { false, 200, 5 }, // rr_pump
-                { true, 200, 5 },  // rl_pump
+                { true, 200, 5 },  // rr_pump
+                { false, 200, 5 }, // rl_pump
                 { true, 200, 5 },  // r_rad_fan
                 { true, 200, 5 },  // l_rad_fan
                 { true, 0, 5 },    // f_inv
@@ -35,6 +35,8 @@ namespace hvState
         app::powerManager::updateConfig(power_manager_state);
 
         app::can_tx::VC_State_set(VCState::VC_HV_ON_STATE);
+
+        app::pumpControl::restart();
     }
 
     static void runOnTick100Hz(void)
@@ -43,7 +45,7 @@ namespace hvState
         {
             app::StateMachine::set_next_state(&init_state);
         }
-        else 
+        else
         {
             // Conditions for entering drive state: minimum 50% braking and start switch
             // TODO: change this to a faster method after fault recovery

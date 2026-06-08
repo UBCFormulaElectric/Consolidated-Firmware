@@ -5,6 +5,7 @@
 #include "hw_utils.hpp"
 #include "FreeRTOS.h"
 #include "task.h"
+#include "util_errorCodes.hpp"
 
 namespace hw::i2c
 {
@@ -65,6 +66,10 @@ class device
      */
     [[nodiscard]] result<void> isTargetReady(const bool read = false) const
     {
+        if (d_bus.taskInProgress != nullptr)
+        {
+            return std::unexpected(ErrorCode::BUSY);
+        }
         return utils::convertHalStatus(HAL_I2C_IsDeviceReady(
             &d_bus.handle, static_cast<uint16_t>(targetAddress << 1 | read), NUM_DEVICE_READY_TRIALS, timeoutMs));
     }
