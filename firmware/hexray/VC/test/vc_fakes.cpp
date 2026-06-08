@@ -9,7 +9,7 @@
 #include "io_shdnLoopNode.hpp"
 #include "io_efuse_TI_TPS25.hpp"
 #include "io_efuse_TI_TPS28.hpp"
-#include "io_vcShdn.hpp"
+#include "io_semaphores.hpp"
 
 // imus
 io::imu IMU1;
@@ -18,7 +18,6 @@ io::imu IMU3;
 
 // pumps
 const io::pump rr_pump;
-const io::pump rl_pump;
 
 // efuses
 io::TI_TPS28_Efuse f_inv_efuse;
@@ -41,173 +40,170 @@ const io::shdn::node rear_right_motor_interlock_node(app::can_tx::VC_RearRightMo
 const io::shdn::node splitter_box_interlock_node(app::can_tx::VC_MSDOrEMeterOKStatus_set);
 
 // Shutdown loop nodes
-namespace fakes
+namespace fakes::io
 {
-namespace io
+namespace pcm
 {
-    namespace pcm
+    static bool enable_pin;
+}
+namespace powerMonitoring
+{
+    static float ch_pcm_voltage = 0.0f;
+    static float ch_pcm_current = 0.0f;
+    static float ch_pcm_power   = 0.0f;
+
+    static float ch_ext_voltage = 0.0f;
+    static float ch_ext_current = 0.0f;
+    static float ch_ext_power   = 0.0f;
+
+    static float ch_vbat_voltage = 0.0f;
+    static float ch_vbat_current = 0.0f;
+    static float ch_vbat_power   = 0.0f;
+
+    static float ch_boost_voltage = 0.0f;
+    static float ch_boost_current = 0.0f;
+    static float ch_boost_power   = 0.0f;
+
+    void set_reading_voltage(const Channel channel, const float voltage)
     {
-        static bool enable_pin;
+        switch (channel)
+        {
+            case CH1:
+                fakes::io::powerMonitoring::ch_pcm_voltage = voltage;
+                break;
+            case CH2:
+                fakes::io::powerMonitoring::ch_ext_voltage = voltage;
+                break;
+            case CH3:
+                fakes::io::powerMonitoring::ch_vbat_voltage = voltage;
+                break;
+            case CH4:
+                fakes::io::powerMonitoring::ch_boost_voltage = voltage;
+                break;
+            default:
+                break;
+        }
     }
-    namespace powerMonitoring
+    void set_reading_current(const Channel channel, const float current)
     {
-        static float ch_pcm_voltage = 0.0f;
-        static float ch_pcm_current = 0.0f;
-        static float ch_pcm_power   = 0.0f;
-
-        static float ch_ext_voltage = 0.0f;
-        static float ch_ext_current = 0.0f;
-        static float ch_ext_power   = 0.0f;
-
-        static float ch_vbat_voltage = 0.0f;
-        static float ch_vbat_current = 0.0f;
-        static float ch_vbat_power   = 0.0f;
-
-        static float ch_boost_voltage = 0.0f;
-        static float ch_boost_current = 0.0f;
-        static float ch_boost_power   = 0.0f;
-
-        void set_reading_voltage(Channel channel, float voltage)
+        switch (channel)
         {
-            switch (channel)
-            {
-                case CH1:
-                    fakes::io::powerMonitoring::ch_pcm_voltage = voltage;
-                    break;
-                case CH2:
-                    fakes::io::powerMonitoring::ch_ext_voltage = voltage;
-                    break;
-                case CH3:
-                    fakes::io::powerMonitoring::ch_vbat_voltage = voltage;
-                    break;
-                case CH4:
-                    fakes::io::powerMonitoring::ch_boost_voltage = voltage;
-                    break;
-                default:
-                    break;
-            }
+            case CH1:
+                fakes::io::powerMonitoring::ch_pcm_current = current;
+                break;
+            case CH2:
+                fakes::io::powerMonitoring::ch_ext_current = current;
+                break;
+            case CH3:
+                fakes::io::powerMonitoring::ch_vbat_current = current;
+                break;
+            case CH4:
+                fakes::io::powerMonitoring::ch_boost_current = current;
+                break;
+            default:
+                break;
         }
-        void set_reading_current(Channel channel, float current)
-        {
-            switch (channel)
-            {
-                case CH1:
-                    fakes::io::powerMonitoring::ch_pcm_current = current;
-                    break;
-                case CH2:
-                    fakes::io::powerMonitoring::ch_ext_current = current;
-                    break;
-                case CH3:
-                    fakes::io::powerMonitoring::ch_vbat_current = current;
-                    break;
-                case CH4:
-                    fakes::io::powerMonitoring::ch_boost_current = current;
-                    break;
-                default:
-                    break;
-            }
-        }
-        void set_reading_power(Channel channel, float power)
-        {
-            switch (channel)
-            {
-                case CH1:
-                    fakes::io::powerMonitoring::ch_pcm_power = power;
-                    break;
-                case CH2:
-                    fakes::io::powerMonitoring::ch_ext_power = power;
-                    break;
-                case CH3:
-                    fakes::io::powerMonitoring::ch_vbat_power = power;
-                    break;
-                case CH4:
-                    fakes::io::powerMonitoring::ch_boost_power = power;
-                    break;
-                default:
-                    break;
-            }
-        }
-    } // namespace powerMonitoring
-
-    namespace sbgEllipse
+    }
+    void set_reading_power(const Channel channel, const float power)
     {
-        ::io::sbgEllipse::Attitude     attitude{ 0.0f, 0.0f, 0.0f };
-        ::io::sbgEllipse::VelocityData velocity{ 0u, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
-        uint32_t                       solution_mode  = 0;
-        uint32_t                       timestamp_us   = 0;
-        uint8_t                        overflow_count = 0;
-        uint32_t                       com_status     = 0;
-        uint16_t                       general_status = 0;
-        bool                           initialized    = false;
-        result<void>                   init_status    = {};
+        switch (channel)
+        {
+            case CH1:
+                fakes::io::powerMonitoring::ch_pcm_power = power;
+                break;
+            case CH2:
+                fakes::io::powerMonitoring::ch_ext_power = power;
+                break;
+            case CH3:
+                fakes::io::powerMonitoring::ch_vbat_power = power;
+                break;
+            case CH4:
+                fakes::io::powerMonitoring::ch_boost_power = power;
+                break;
+            default:
+                break;
+        }
+    }
+} // namespace powerMonitoring
 
-        void reset_init()
-        {
-            initialized = false;
-        }
-        void imu_status_set(bool status)
-        {
-            init_status = status ? std::expected<void, ErrorCode>{} : std::unexpected(ErrorCode::TIMEOUT);
-        }
+namespace sbgEllipse
+{
+    ::io::sbgEllipse::Attitude     attitude{ 0.0f, 0.0f, 0.0f };
+    ::io::sbgEllipse::VelocityData velocity{ 0u, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
+    uint32_t                       solution_mode  = 0;
+    uint32_t                       timestamp_us   = 0;
+    uint8_t                        overflow_count = 0;
+    uint32_t                       com_status     = 0;
+    uint16_t                       general_status = 0;
+    bool                           initialized    = false;
+    result<void>                   init_status    = {};
 
-        bool get_init()
-        {
-            return initialized;
-        }
+    void reset_init()
+    {
+        initialized = false;
+    }
+    void imu_status_set(const bool status)
+    {
+        init_status = status ? std::expected<void, ErrorCode>{} : std::unexpected(ErrorCode::TIMEOUT);
+    }
 
-        result<void> init()
-        {
-            if (init_status.has_value())
-            {
-                initialized = true;
-                return {};
-            }
-            else
-            {
-                return std::unexpected(init_status.error());
-            }
-        }
+    bool get_init()
+    {
+        return initialized;
+    }
 
-        void setAttitude(float roll, float pitch, float yaw)
+    result<void> init()
+    {
+        if (init_status.has_value())
         {
-            attitude = ::io::sbgEllipse::Attitude{ roll, pitch, yaw };
+            initialized = true;
+            return {};
         }
-        void setVelocity(
-            uint32_t status,
-            float    north,
-            float    east,
-            float    down,
-            float    north_std_dev,
-            float    east_std_dev,
-            float    down_std_dev)
+        else
         {
-            velocity =
-                ::io::sbgEllipse::VelocityData{ status, north, east, down, north_std_dev, east_std_dev, down_std_dev };
+            return std::unexpected(init_status.error());
         }
-        void setSolutionMode(uint32_t mode)
-        {
-            solution_mode = mode;
-        }
-        void setTimestampUs(uint32_t timestamp)
-        {
-            timestamp_us = timestamp;
-        }
-        void setOverflowCount(uint8_t overflow)
-        {
-            overflow_count = overflow;
-        }
-        void setComStatus(uint32_t status)
-        {
-            com_status = status;
-        }
-        void setGeneralStatus(uint16_t status)
-        {
-            general_status = status;
-        }
-    } // namespace sbgEllipse
+    }
 
-} // namespace io
-} // namespace fakes
+    void setAttitude(const float roll, const float pitch, const float yaw)
+    {
+        attitude = ::io::sbgEllipse::Attitude{ roll, pitch, yaw };
+    }
+    void setVelocity(
+        const uint32_t status,
+        const float    north,
+        const float    east,
+        const float    down,
+        const float    north_std_dev,
+        const float    east_std_dev,
+        const float    down_std_dev)
+    {
+        velocity =
+            ::io::sbgEllipse::VelocityData{ status, north, east, down, north_std_dev, east_std_dev, down_std_dev };
+    }
+    void setSolutionMode(const uint32_t mode)
+    {
+        solution_mode = mode;
+    }
+    void setTimestampUs(const uint32_t timestamp)
+    {
+        timestamp_us = timestamp;
+    }
+    void setOverflowCount(const uint8_t overflow)
+    {
+        overflow_count = overflow;
+    }
+    void setComStatus(const uint32_t status)
+    {
+        com_status = status;
+    }
+    void setGeneralStatus(const uint16_t status)
+    {
+        general_status = status;
+    }
+} // namespace sbgEllipse
+
+} // namespace fakes::io
 
 namespace io
 {
@@ -296,11 +292,11 @@ namespace imus
 {
     float papps_pedal_percentage = 0.0f;
     bool  brake_actuation_state  = false;
-    void  set_papps_pedal_percentage(float percentage)
+    void  set_papps_pedal_percentage(const float percentage)
     {
         papps_pedal_percentage = percentage;
     }
-    void set_BrakeActuated_state(bool actuated)
+    void set_BrakeActuated_state(const bool actuated)
     {
         brake_actuation_state = actuated;
     }
@@ -308,7 +304,7 @@ namespace imus
 
 namespace powerMonitoring
 {
-    result<float> read_power(Channel ch)
+    result<float> read_power(const Channel ch)
     {
         std::expected<float, ErrorCode> result{ std::unexpected(ErrorCode::INVALID_ARGS) };
         switch (ch)
@@ -326,7 +322,7 @@ namespace powerMonitoring
         }
         return result;
     }
-    result<float> read_current(Channel ch)
+    result<float> read_current(const Channel ch)
     {
         std::expected<float, ErrorCode> result{ std::unexpected(ErrorCode::INVALID_ARGS) };
         switch (ch)
@@ -344,7 +340,7 @@ namespace powerMonitoring
         }
         return result;
     }
-    result<float> read_voltage(Channel ch)
+    result<float> read_voltage(const Channel ch)
     {
         std::expected<float, ErrorCode> result{ std::unexpected(ErrorCode::INVALID_ARGS) };
         switch (ch)
@@ -391,7 +387,7 @@ namespace sbgEllipse
         return fakes::io::sbgEllipse::init();
     }
 
-    const ::io::sbgEllipse::Attitude getEkfEulerAngles()
+    Attitude getEkfEulerAngles()
     {
         return fakes::io::sbgEllipse::attitude;
     }
@@ -399,7 +395,7 @@ namespace sbgEllipse
     {
         return fakes::io::sbgEllipse::solution_mode;
     }
-    const ::io::sbgEllipse::VelocityData getEkfNavVelocityData()
+    VelocityData getEkfNavVelocityData()
     {
         return fakes::io::sbgEllipse::velocity;
     }
@@ -435,3 +431,5 @@ namespace pcm
 } // namespace pcm
 
 } // namespace io
+
+const io::semaphore pwr_pump_i2c_bus_lock{ false };

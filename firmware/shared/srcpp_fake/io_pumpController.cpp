@@ -19,7 +19,7 @@ void set_pumps_enable(bool enabled)
 } // namespace fakes::io::pumpController
 namespace io
 {
-std::expected<void, ErrorCode> pump::setPercentage(uint8_t percentage) const
+std::expected<void, ErrorCode> pump::setPercentage(const uint8_t percentage) const
 {
     fakes::io::pumpController::pump_percentage = percentage;
     return {};
@@ -28,26 +28,5 @@ std::expected<void, ErrorCode> pump::setPercentage(uint8_t percentage) const
 std::expected<uint8_t, ErrorCode> pump::getPercentage() const
 {
     return fakes::io::pumpController::pump_percentage;
-}
-
-std::expected<void, ErrorCode> pump::enable(bool enable) const
-{
-    fakes::io::pumpController::pumps_enabled_state = enable;
-    return {};
-}
-
-std::expected<bool, ErrorCode> pump::isEnabled() const
-{
-    return fakes::io::pumpController::pumps_enabled_state;
-}
-
-std::expected<bool, ErrorCode> pump::ok() const
-{
-    return fakes::io::pumpController::pumps_ok_state;
-}
-
-std::expected<bool, ErrorCode> pump::isReady() const
-{
-    return fakes::io::pumpController::pumps_ok_state && fakes::io::pumpController::pumps_enabled_state;
 }
 } // namespace io
