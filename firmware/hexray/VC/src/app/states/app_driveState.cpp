@@ -72,20 +72,27 @@ static void driveStateRunOnEntry()
 
 static void driveStateRunOnTick100Hz(void)
 {
-    efuseProtocolTick_100Hz();
-    app::pumpControl::MonitorPumps();
-    // if (!driveStatePassPreCheck())
-    // {
-    //     send_torque(NO_TORQUE_Nm, NO_TORQUE_Nm, NO_TORQUE_Nm, NO_TORQUE_Nm);
-    //     // TODO: set speed requests to 0 as well
-    //     return;
-    // }
+    if (app::can_rx::BMS_State_get() == app::can_utils::BmsState::BMS_INIT_STATE)
+    {
+            app::StateMachine::set_next_state(&init_state);
+    }
+    else 
+    {
+        efuseProtocolTick_100Hz();
+        app::pumpControl::MonitorPumps();
+        // if (!driveStatePassPreCheck())
+        // {
+        //     send_torque(NO_TORQUE_Nm, NO_TORQUE_Nm, NO_TORQUE_Nm, NO_TORQUE_Nm);
+        //     // TODO: set speed requests to 0 as well
+        //     return;
+        // }
 
-    // TODO: add driving algorithm handling here
-    // just for spinning wheels
-    apps = app::can_rx::FSM_PappsMappedPedalPercentage_get();
-    const float torque = apps * MAX_TORQUE_REQUEST_Nm / 100.0f;
-    send_torque(torque, torque, torque, torque);
+        // TODO: add driving algorithm handling here
+        // just for spinning wheels
+        apps = app::can_rx::FSM_PappsMappedPedalPercentage_get();
+        const float torque = apps * MAX_TORQUE_REQUEST_Nm / 100.0f;
+        send_torque(torque, torque, torque, torque);
+    }
 }
 
 static void driveStateRunOnExit(void)

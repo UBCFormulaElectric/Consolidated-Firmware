@@ -39,15 +39,22 @@ namespace hvState
 
     static void runOnTick100Hz(void)
     {
-        // Conditions for entering drive state: minimum 50% braking and start switch
-        // TODO: change this to a faster method after fault recovery
-        app::pumpControl::MonitorPumps();
-        const bool is_brake_actuated = app::can_rx::FSM_BrakeActuated_get();
-        if (is_brake_actuated && app::startSwitch::hasRisingEdge())
+        if (app::can_rx::BMS_State_get() == app::can_utils::BmsState::BMS_INIT_STATE)
         {
-            // Transition to drive state when start-up conditions are passed (see
-            // EV.10.4.3):
-            app::StateMachine::set_next_state(&drive_state);
+            app::StateMachine::set_next_state(&init_state);
+        }
+        else 
+        {
+            // Conditions for entering drive state: minimum 50% braking and start switch
+            // TODO: change this to a faster method after fault recovery
+            app::pumpControl::MonitorPumps();
+            const bool is_brake_actuated = app::can_rx::FSM_BrakeActuated_get();
+            if (is_brake_actuated && app::startSwitch::hasRisingEdge())
+            {
+                // Transition to drive state when start-up conditions are passed (see
+                // EV.10.4.3):
+                app::StateMachine::set_next_state(&drive_state);
+            }
         }
     }
 

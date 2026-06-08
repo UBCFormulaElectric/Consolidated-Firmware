@@ -66,60 +66,67 @@ namespace pcmOnState
 
     static void runOnTick100Hz(void)
     {
-        const float pcm_curr_voltage = app::can_tx::VC_PcmChannelVoltage_get();
-        switch (pcm_retry_states)
+        if (app::can_rx::BMS_State_get() == app::can_utils::BmsState::BMS_INIT_STATE) 
         {
-            case PCM_ON_STATE:
-            {
-                switch (pcm_timer.updateAndGetState())
-                {
-                    case app::Timer::TimerState::IDLE:
-                        pcm_timer.restart();
-                        break;
-                    case app::Timer::TimerState::RUNNING:
-                        if (pcmOnDone(pcm_curr_voltage))
-                        {
-                            app::StateMachine::set_next_state(&hvInit_state);
-                            return;
-                        }
-                        break;
-                    case app::Timer::TimerState::EXPIRED:
-                        pcm_retry_states = PCM_COOLDOWN_STATE;
-                        pcm_retries++;
-                        app::can_tx::VC_PcmRetryCount_set(pcm_retries);
-                        pcm_timer.stop();
-                        break;
-                    default:
-                        break;
-                }
-                break;
-            }
-            case PCM_COOLDOWN_STATE:
-                switch (pcm_cooldown_timer.updateAndGetState())
-                {
-                    case app::Timer::TimerState::IDLE:
-                        pcm_cooldown_timer.restart();
-                        break;
-                    case app::Timer::TimerState::RUNNING:
-                        break;
-                    case app::Timer::TimerState::EXPIRED:
-                        pcm_retry_states = PCM_ON_STATE;
-                        pcm_cooldown_timer.stop();
-                        break;
-                    default:
-                        break;
-                }
-                break;
-            default:
-                break;
+            app::StateMachine::set_next_state(&init_state);
         }
-        io::pcm::set(pcm_retry_states == PCM_ON_STATE);
-
-        pcm_prev_voltage = pcm_curr_voltage;
-        if (pcm_retries >= PCM_MAX_RETRIES)
+        else 
         {
-            app::can_alerts::infos::PcmUnderVoltage_set(true);
-            app::StateMachine::set_next_state(&fault_state);
+            const float pcm_curr_voltage = app::can_tx::VC_PcmChannelVoltage_get();
+            switch (pcm_retry_states)
+            {
+                case PCM_ON_STATE:
+                {
+                    switch (pcm_timer.updateAndGetState())
+                    {
+                        case app::Timer::TimerState::IDLE:
+                            pcm_timer.restart();
+                            break;
+                        case app::Timer::TimerState::RUNNING:
+                            if (pcmOnDone(pcm_curr_voltage))
+                            {
+                                app::StateMachine::set_next_state(&hvInit_state);
+                                return;
+                            }
+                            break;
+                        case app::Timer::TimerState::EXPIRED:
+                            pcm_retry_states = PCM_COOLDOWN_STATE;
+                            pcm_retries++;
+                            app::can_tx::VC_PcmRetryCount_set(pcm_retries);
+                            pcm_timer.stop();
+                            break;
+                        default:
+                            break;
+                    }
+                    break;
+                }
+                case PCM_COOLDOWN_STATE:
+                    switch (pcm_cooldown_timer.updateAndGetState())
+                    {
+                        case app::Timer::TimerState::IDLE:
+                            pcm_cooldown_timer.restart();
+                            break;
+                        case app::Timer::TimerState::RUNNING:
+                            break;
+                        case app::Timer::TimerState::EXPIRED:
+                            pcm_retry_states = PCM_ON_STATE;
+                            pcm_cooldown_timer.stop();
+                            break;
+                        default:
+                            break;
+                    }
+                    break;
+                default:
+                    break;
+            }
+            io::pcm::set(pcm_retry_states == PCM_ON_STATE);
+
+            pcm_prev_voltage = pcm_curr_voltage;
+            if (pcm_retries >= PCM_MAX_RETRIES)
+            {
+                app::can_alerts::infos::PcmUnderVoltage_set(true);
+                app::StateMachine::set_next_state(&fault_state);
+            }
         }
     }
 
