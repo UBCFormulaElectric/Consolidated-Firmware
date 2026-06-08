@@ -78,7 +78,7 @@ static void driveStateRunOnTick100Hz(void)
     }
     else
     {
-        efuseProtocolTick_100Hz();
+       // efuseProtocolTick_100Hz();
         app::pumpControl::MonitorPumps();
         // if (!driveStatePassPreCheck())
         // {
