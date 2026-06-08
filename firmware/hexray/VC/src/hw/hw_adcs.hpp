@@ -20,5 +20,5 @@ extern const hw::adc adc_rsm;
 inline void adcChipsInit()
 {
     LOG_IF_ERR(Adc_Chip1.init());
-    LOG_IF_ERR(Adc_Chip2.init());
+    LOG_IF_ERR(Adc_Chip2.init(false));
 }

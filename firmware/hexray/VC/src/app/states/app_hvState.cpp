@@ -20,21 +20,23 @@ namespace hvState
         LOG_INFO("entering hv state!");
         static constexpr app::powerManager::PowerManagerConfig power_manager_state = {
             .efuse_configs = { {
-                { false, 200, 5 }, // rr_pump
-                { true, 200, 5 },  // rl_pump
-                { true, 200, 5 },  // r_rad_fan
-                { true, 200, 5 },  // l_rad_fan
-                { true, 0, 5 },    // f_inv
-                { true, 0, 5 },    // r_inv
-                { true, 0, 5 },    // rsm
-                { true, 0, 5 },    // bms
-                { true, 0, 5 },    // dam
-                { true, 0, 5 },    // front
+                { true, 200, 5 }, // rr_pump
+                { true, 200, 5 }, // rl_pump
+                { true, 200, 5 }, // r_rad_fan
+                { true, 200, 5 }, // l_rad_fan
+                { true, 0, 5 },   // f_inv
+                { true, 0, 5 },   // r_inv
+                { true, 0, 5 },   // rsm
+                { true, 0, 5 },   // bms
+                { true, 0, 5 },   // dam
+                { true, 0, 5 },   // front
             } }
         };
         app::powerManager::updateConfig(power_manager_state);
 
         app::can_tx::VC_State_set(VCState::VC_HV_ON_STATE);
+
+        app::pumpControl::restart();
     }
 
     static void runOnTick100Hz(void)

@@ -11,13 +11,18 @@ namespace
 }
 namespace app::pumpControl
 {
-static constexpr uint32_t RAMP_DURATION_MS = 200;
+static constexpr uint32_t RAMP_DURATION_MS = 2000;
 static app::Timer         ramp_timer{ RAMP_DURATION_MS };
+static constexpr uint8_t  MAX_PUMP_VALUE = 50;
+
+void restart()
+{
+    ramp_timer.restart();
+}
 
 void MonitorPumps()
 {
-    const io::unique_semaphore lock{ pwr_pump_i2c_bus_lock };
-    const bool                 rr_ready = rr_pump_efuse.isChannelEnabled() and rr_pump_efuse.ok();
+    const bool rr_ready = rr_pump_efuse.isChannelEnabled() and rr_pump_efuse.ok();
 
     if (rr_ready)
     {
@@ -32,8 +37,12 @@ void MonitorPumps()
                 break;
         }
         const float percentage = static_cast<float>(ramp_timer.getElapsedTime()) / static_cast<float>(RAMP_DURATION_MS);
-        // LOG_IF_ERR(rr_pum.setPercentage(static_cast<uint8_t>(percentage * 100)));
-        app::can_tx::VC_PumpRampUpSetPoint_set(percentage);
+        const uint8_t percentage_u8 = static_cast<uint8_t>(percentage * MAX_PUMP_VALUE);
+        {
+            const io::unique_semaphore lock{ pwr_pump_i2c_bus_lock };
+            LOG_IF_ERR(rr_pump.setPercentage(percentage_u8));
+        }
+        app::can_tx::VC_PumpRampUpSetPoint_set(percentage_u8);
     }
     else
     {
