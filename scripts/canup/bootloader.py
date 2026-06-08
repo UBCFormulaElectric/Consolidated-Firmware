@@ -221,6 +221,7 @@ class Bootloader:
                     # TODO maybe better struct unpacking :sob:
                     jump_back_address = (k[0] << 24) | (k[1] << 16) | (k[2] << 8) | k[3]
         listen_thread = threading.Thread(target=listener)
+        listen_thread.start()
 
         # TODO: Check if binary is aligned to 64 bytes and ensure ending bytes are sent
         address = start_addr
