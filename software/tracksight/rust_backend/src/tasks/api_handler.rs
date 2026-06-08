@@ -86,13 +86,13 @@ pub async fn run_api_handler(
     // default socketio endpoint
     io.ns("/", |socket: SocketRef| async move {
         let client_id = socket.id.to_string();
-        println!("{} connected", client_id);
+        vprintln!("{} connected", client_id);
 
         clients.write().await.add_client(&client_id, &socket);
 
         socket.on_disconnect(async move || {
             clients.write().await.remove_client(&client_id);
-            println!("{} disconnected", client_id);
+            vprintln!("{} disconnected", client_id);
         });
     });
 

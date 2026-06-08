@@ -17,8 +17,23 @@ RUN sed -i 's#src/main.rs#dummy.rs#' Cargo.toml
 RUN cargo build --release
 RUN sed -i 's#dummy.rs#src/main.rs#' Cargo.toml
 
-# Build actual backend
-RUN cargo build --release
+# Verbosity option
+ARG DOCKER_VERBOSITY
+
+# Build actual backend based on verbosity
+RUN if [ -n "$DOCKER_VERBOSITY" ]; then \
+        if [ "$DOCKER_VERBOSITY" = "VERBOSE" ]; then \
+            RUN cargo build --release --features verbose; \
+        elif [ "$DOCKER_VERBOSITY" = "DEBUG" ]; then \
+            RUN cargo build --release --features debug; \
+        else \
+            RUN cargo build --release; \
+        fi; \
+    else \
+        RUN cargo build --release \
+    fi
+
+
 # Runtime set up
 FROM debian:bookworm
 
