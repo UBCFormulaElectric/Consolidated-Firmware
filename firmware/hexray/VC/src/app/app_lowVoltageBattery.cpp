@@ -256,14 +256,10 @@ result<void> update()
     const uint16_t c3_mV   = static_cast<uint16_t>(cell3_voltage.value_or(0.0f) * 1000.0f);
     const uint16_t c4_mV   = static_cast<uint16_t>(cell4_voltage.value_or(0.0f) * 1000.0f);
     const uint16_t diff_mV = static_cast<uint16_t>(imbalance_magnitude * 1000.0f);
-    LOG_INFO("Cell voltages: C1=%umV C2=%umV C3=%umV C4=%umV", c1_mV, c2_mV, c3_mV, c4_mV);
 
     if (const auto mask = io::batteryMonitoring::read_balancing_subcommand(); mask.has_value())
     {
         active_balance_mask = mask.value();
-        LOG_INFO(
-            "Balance status: Difference =%umV  Balancing mask=0x%04X", static_cast<unsigned>(diff_mV),
-            static_cast<uint16_t>(mask.value()));
     }
 
     // 4. Charging
@@ -273,9 +269,6 @@ result<void> update()
         app::can_tx::VC_Charging_set(charge_enable);
         charge_enable ? io::batteryCharging::charger_enable() : io::batteryCharging::charger_disable();
         const bool charger_gpio_status = io::batteryCharging::check_status();
-        LOG_INFO(
-            "Charging GPIO: cmd=%u fb=%u", static_cast<unsigned>(charge_enable ? 1u : 0u),
-            static_cast<unsigned>(charger_gpio_status ? 1u : 0u));
     }
     else
     {
