@@ -24,7 +24,7 @@ enum class POTENTIOMETER_WIPER : uint8_t
 class Potentiometer
 {
 #ifdef TARGET_EMBEDDED
-    static constexpr float   MAX_WIPER_VALUE     = 255.0f;
+    static constexpr uint8_t MAX_WIPER_VALUE     = 255;
     static constexpr float   MIN_WIPER_VALUE     = 0.0f;
     static constexpr uint8_t POT_WIPER0_REGISTER = 0x0;
     static constexpr uint8_t POT_WIPER1_REGISTER = 0x1;
