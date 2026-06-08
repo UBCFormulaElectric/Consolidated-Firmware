@@ -8,10 +8,6 @@ services:
     extends:
       file: ../common.yml
       service: backend
-    # Used to build backend with different verbosity levels
-    # build:
-    #   args: 
-    #     DOCKER_VERBOSITY: "VERBOSE" # or "DEBUG"
   frontend:
     extends:
       file: ../common.yml
