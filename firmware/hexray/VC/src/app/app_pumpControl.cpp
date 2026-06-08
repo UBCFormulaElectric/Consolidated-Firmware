@@ -49,6 +49,10 @@ void MonitorPumps()
         // stops the flow to reramp up to a setpoint
         ramp_timer.stop();
         app::can_tx::VC_PumpRampUpSetPoint_set(0);
+        {
+            const io::unique_semaphore lock{ pwr_pump_i2c_bus_lock };
+            LOG_IF_ERR(rr_pump.setPercentage(0));
+        }
     }
 
     app::can_tx::VC_PumpFailure_set(not rr_ready);
