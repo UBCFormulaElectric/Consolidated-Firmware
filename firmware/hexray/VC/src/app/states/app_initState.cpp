@@ -7,6 +7,7 @@
 #include "app_canAlerts.hpp"
 #include "torque_vectoring/datatypes/torque_limits.hpp"
 #include "io_log.hpp"
+#include "io_pcm.hpp"
 
 using namespace app::can_utils;
 using namespace app::tv::datatypes;
@@ -75,6 +76,8 @@ namespace initState
     static void                                        runOnEntry(void)
     {
         LOG_INFO("entering init state!");
+
+        io::pcm::set(false);
 
         app::can_rx::clear_board_rx_table(app::can_utils::CanNode::VC_NODE);
 

@@ -2,11 +2,11 @@
 #include "app_canTx.hpp"
 #include "app_canRx.hpp"
 #include "app_canAlerts.hpp"
-#include "io_log.hpp"
 #include "app_canUtils.hpp"
 #include "app_inverter.hpp"
 #include "app_powerManager.hpp"
 #include "io_log.hpp"
+#include "io_pcm.hpp"
 
 using namespace app::can_utils;
 
@@ -16,6 +16,7 @@ namespace faultState
 {
     static void runOnEntry(void)
     {
+        io::pcm::set(false);
         static const app::powerManager::PowerManagerConfig power_manager_state = { .efuse_configs = { {
                                                                                        { false, 200, 5 }, // rr_pump
                                                                                        { false, 200, 5 }, // rl_pump
