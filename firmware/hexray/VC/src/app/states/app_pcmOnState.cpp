@@ -66,11 +66,11 @@ namespace pcmOnState
 
     static void runOnTick100Hz(void)
     {
-        if (app::can_rx::BMS_State_get() == app::can_utils::BmsState::BMS_INIT_STATE) 
+        if (app::can_rx::BMS_State_get() == app::can_utils::BmsState::BMS_INIT_STATE)
         {
             app::StateMachine::set_next_state(&init_state);
         }
-        else 
+        else
         {
             const float pcm_curr_voltage = app::can_tx::VC_PcmChannelVoltage_get();
             switch (pcm_retry_states)

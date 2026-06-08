@@ -80,13 +80,14 @@ namespace hvInitState
         {
             app::StateMachine::set_next_state(&init_state);
         }
-        else 
+        else
         {
-            const bool inv_bsystemReady = app::can_rx::INVFL_bSystemReady_get() && app::can_rx::INVFR_bSystemReady_get() &&
-                                        app::can_rx::INVRL_bSystemReady_get() && app::can_rx::INVRR_bSystemReady_get();
+            const bool inv_bsystemReady =
+                app::can_rx::INVFL_bSystemReady_get() && app::can_rx::INVFR_bSystemReady_get() &&
+                app::can_rx::INVRL_bSystemReady_get() && app::can_rx::INVRR_bSystemReady_get();
 
             const bool inverter_dc_quit = app::can_rx::INVFL_bQuitDcOn_get() && app::can_rx::INVFR_bQuitDcOn_get() &&
-                                        app::can_rx::INVRL_bQuitDcOn_get() && app::can_rx::INVRR_bQuitDcOn_get();
+                                          app::can_rx::INVRL_bQuitDcOn_get() && app::can_rx::INVRR_bQuitDcOn_get();
 
             const bool inverter_invOn_quit =
                 app::can_rx::INVFL_bQuitInverterOn_get() && app::can_rx::INVFR_bQuitInverterOn_get() &&
@@ -194,7 +195,7 @@ namespace hvInitState
                 app::can_tx::VC_InverterState_set(current_inverter_state);
             }
 
-        //reset_inverter_power_requests();
+            // reset_inverter_power_requests();
             switch (current_inverter_state)
             {
                 case VCInverterState::INV_READY_FOR_DRIVE:

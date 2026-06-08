@@ -43,7 +43,7 @@ namespace hvState
         {
             app::StateMachine::set_next_state(&init_state);
         }
-        else 
+        else
         {
             // Conditions for entering drive state: minimum 50% braking and start switch
             // TODO: change this to a faster method after fault recovery
