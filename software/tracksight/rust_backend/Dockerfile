@@ -21,17 +21,11 @@ RUN sed -i 's#dummy.rs#src/main.rs#' Cargo.toml
 ARG DOCKER_VERBOSITY
 
 # Build actual backend based on verbosity
-RUN if [ -n "$DOCKER_VERBOSITY" ]; then \
-        if [ "$DOCKER_VERBOSITY" = "VERBOSE" ]; then \
-            RUN cargo build --release --features verbose; \
-        elif [ "$DOCKER_VERBOSITY" = "DEBUG" ]; then \
-            RUN cargo build --release --features debug; \
-        else \
-            RUN cargo build --release; \
-        fi; \
-    else \
-        RUN cargo build --release \
-    fi
+RUN case "$DOCKER_VERBOSITY" in \
+        VERBOSE) cargo build --release --features verbose ;; \
+        DEBUG)   cargo build --release --features debug ;; \
+        *)       cargo build --release ;; \
+    esac
 
 
 # Runtime set up
