@@ -13,6 +13,7 @@
 #include "app_stateMachine.hpp"
 #include "app_timer.hpp"
 #include "app_commitInfo.hpp"
+#include "app_pumpControl.hpp"
 #include "app_vcShdnLoop.hpp"
 #include "app_shdnLast.hpp"
 
@@ -85,13 +86,25 @@ void jobs_run100Hz_tick()
     }
     app::inverter::FaultCheck();
     app::StateMachine::tick100Hz();
+
+    // pcm state broadcasting
     app::can_tx::VC_PcmEnable_set(io::pcm::enabled());
+
+    // efuse set
     app::powerManager::efuseProtocolTick_100Hz();
     app::powerManager::broadcastRetryCounts();
+
+    // heartbeats
     hb_monitor.checkIn();
     hb_monitor.broadcastFaults();
+
+    // shdn
     app::shdnLoop::broadcast();
     app::shdnLast::broadcast();
+
+    // pumps
+    app::pumpControl::MonitorPumps();
+
     io::can_tx::enqueue100HzMsgs();
 }
 void jobs_run1kHz_tick()

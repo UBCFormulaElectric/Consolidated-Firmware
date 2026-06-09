@@ -67,7 +67,7 @@ static void driveStateRunOnEntry()
     send_torque(NO_TORQUE_Nm, NO_TORQUE_Nm, NO_TORQUE_Nm, NO_TORQUE_Nm);
 }
 
-static void driveStateRunOnTick100Hz(void)
+static void driveStateRunOnTick100Hz()
 {
     if (can_rx::BMS_State_get() == BmsState::BMS_INIT_STATE)
     {
@@ -76,7 +76,6 @@ static void driveStateRunOnTick100Hz(void)
     else
     {
         // efuseProtocolTick_100Hz();
-        pumpControl::MonitorPumps();
         // if (!driveStatePassPreCheck())
         // {
         //     send_torque(NO_TORQUE_Nm, NO_TORQUE_Nm, NO_TORQUE_Nm, NO_TORQUE_Nm);
@@ -92,7 +91,7 @@ static void driveStateRunOnTick100Hz(void)
     }
 }
 
-static void driveStateRunOnExit(void)
+static void driveStateRunOnExit()
 {
     // disable inverters
     LOG_INFO("exiting drive state!");
@@ -102,8 +101,8 @@ static void driveStateRunOnExit(void)
 }
 
 State drive_state = { .name              = "DRIVE",
-                           .run_on_entry      = driveStateRunOnEntry,
-                           .run_on_tick_1Hz   = nullptr,
-                           .run_on_tick_100Hz = driveStateRunOnTick100Hz,
-                           .run_on_exit       = driveStateRunOnExit };
+                      .run_on_entry      = driveStateRunOnEntry,
+                      .run_on_tick_1Hz   = nullptr,
+                      .run_on_tick_100Hz = driveStateRunOnTick100Hz,
+                      .run_on_exit       = driveStateRunOnExit };
 } // namespace app::states

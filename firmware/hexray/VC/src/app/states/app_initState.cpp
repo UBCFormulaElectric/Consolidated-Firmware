@@ -110,7 +110,6 @@ namespace initState
 
     static void runOnTick100Hz()
     {
-        pumpControl::MonitorPumps();
         if (const ContactorState air_minus_closed = can_rx::BMS_IrNegative_get();
             air_minus_closed == ContactorState::CONTACTOR_STATE_CLOSED)
         {
