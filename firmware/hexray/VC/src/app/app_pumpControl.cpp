@@ -3,6 +3,7 @@
 #include "app_timer.hpp"
 #include "io_semaphores.hpp"
 #include "io_efuses.hpp"
+#include "io_pumps.hpp"
 
 constexpr float BUFFER = 50.0f;
 
@@ -24,8 +25,7 @@ void restart()
 
 void MonitorPumps()
 {
-    const bool rl_ready = rl_pump_efuse.isChannelEnabled() and rl_pump_efuse.ok();
-    if (rl_ready)
+    if (rl_pump_efuse.isChannelEnabled() and rl_pump_efuse.ok())
     {
         switch (ramp_timer_rl.updateAndGetState())
         {
@@ -40,16 +40,14 @@ void MonitorPumps()
         const float percentage =
             static_cast<float>(ramp_timer_rl.getElapsedTime()) / static_cast<float>(RAMP_DURATION_MS);
         const auto percentage_u8 = static_cast<uint8_t>(percentage * MAX_PUMP_VALUE);
-        app::can_tx::VC_PumpRampUpSetPoint_set(percentage_u8);
+        app::can_tx::VC_RLPumpSetpoint_set(percentage_u8);
     }
     else
     {
         // stops the flow to reramp up to a setpoint
         ramp_timer_rl.stop();
-        app::can_tx::VC_PumpRampUpSetPoint_set(0);
+        app::can_tx::VC_RLPumpSetpoint_set(0);
     }
-    app::can_tx::VC_PumpFailure_set(not rl_ready);
-    app::can_tx::VC_RsmTurnOnPump_set(rl_ready);
 
     if (rr_pump_efuse.isChannelEnabled() and rr_pump_efuse.ok())
     {
@@ -79,6 +77,7 @@ void MonitorPumps()
         {
             const io::unique_semaphore lock{ pwr_pump_i2c_bus_lock };
             LOG_IF_ERR(rr_pump.setPercentage(0));
+            app::can_tx::VC_RRPumpSetpoint_set(0);
         }
     }
 }

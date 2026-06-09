@@ -388,11 +388,8 @@
     "cycle_time": 10,
     "description": "All pump descriptions",
     "signals": {
-      "PumpFailure": {
-        "bits": 1
-      },
       "RLPumpSetpoint": {
-        "resolution": 0.1,
+        "resolution": 1,
         "min": 0,
         "max": 100,
         "unit": "%"
@@ -410,9 +407,6 @@
     "cycle_time": 10,
     "description": "Efuse info for RL Pump/RR Pump/F pump/L Rad/R Rad efuses.",
     "signals": {
-      "RsmTurnOnPump": {
-        "bits": 1
-      },
       "RearLeftPumpCurrent": {
         "resolution": 0.01,
         "min": 0,
