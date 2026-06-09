@@ -7,7 +7,7 @@ namespace io::imd
 float getFrequency()
 {
     // Frequency set to 0Hz if the signal is DC or not present, as per pwm input driver.
-    imd_pwm_input.pwm_isActive();
+    assert(imd_pwm_input.pwm_isActive());
     return imd_pwm_input.get_frequency();
 }
 
