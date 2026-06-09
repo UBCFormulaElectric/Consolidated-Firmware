@@ -288,7 +288,7 @@ void tasks_runAdbmsAux(void *arg)
 
 void BMS_StartAllTasks()
 {
-    Task1kHz.start();
+    //Task1kHz.start();
     Task1Hz.start();
     Task100Hz.start();
     TaskCanRx.start();

@@ -31,7 +31,7 @@ namespace prechargeChargeState
             return;
         }
 
-        switch (app::precharge::poll(false))
+        switch (app::precharge::poll(true))
         {
             case app::precharge::State::RUNNING:
                 io::irs::setPrecharge(app::can_utils::ContactorState::CONTACTOR_STATE_CLOSED);
