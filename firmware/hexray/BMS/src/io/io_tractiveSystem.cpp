@@ -16,17 +16,6 @@ constexpr float TS_VOLTAGE_DIV = (20e3f / (6 * 1e6f + 20e3f)); // Voltage divide
 constexpr float R_ERROR_COMPENSATION = 1.0f;
 
 
-// // Current Sensor error calibration parameters (based on experimental data)
-// // TODO: Rerun sensor calibration with new mounting
-constexpr float OUTPUT1_DISCHARGING_ERROR_SLOPE  = 0.5028f;
-constexpr float OUTPUT1_DISCHARGING_ERROR_OFFSET = -0.0894f;
-constexpr float OUTPUT1_CHARGING_ERROR_SLOPE     = 0.5045f;
-constexpr float OUTPUT1_CHARGING_ERROR_OFFSET    = -0.2677f;
-
-constexpr float OUTPUT2_DISCHARGING_ERROR_SLOPE  = 0.2417f;
-constexpr float OUTPUT2_DISCHARGING_ERROR_OFFSET = 2.3634f;
-constexpr float OUTPUT2_CHARGING_ERROR_SLOPE     = 0.2324f;
-constexpr float OUTPUT2_CHARGING_ERROR_OFFSET    = 2.4038f;
 
 
 // TS Current Sensing
@@ -37,14 +26,16 @@ constexpr float OFFSET_V = 2.5f;
 constexpr float HIGH_RES_SENS_VA = 26.7e-3f;
 constexpr float LOW_RES_SENS_VA = 4e-3f;
 
+// TS Current Sensing Calibration
+constexpr float OUTPUT1_CHARGING_ERROR_SLOPE     = -0.009863f;
+constexpr float OUTPUT1_CHARGING_ERROR_OFFSET    = -2.751494f;
+constexpr float OUTPUT1_DISCHARGING_ERROR_SLOPE  = -0.009940f;
+constexpr float OUTPUT1_DISCHARGING_ERROR_OFFSET = -2.806835f;
 
-
-
-
-constexpr float OUTPUT_1_OFFSET = 2.5f; // Offset voltage of output 1.
-constexpr float OUTPUT_1_SENSITIVITY = (1.0f / 40.0e-3f); // Sensitivity of output 1: 40mV/A
-constexpr float OUTPUT_2_OFFSET = 2.5f; // Offset voltage of output 2.
-constexpr float OUTPUT_2_SENSITIVITY = (1.0f / 5.2e-3f); // Sensitivity of output 2: 5.2mV/A
+constexpr float OUTPUT2_CHARGING_ERROR_SLOPE     = -0.020666f;
+constexpr float OUTPUT2_CHARGING_ERROR_OFFSET    = -18.145014f;
+constexpr float OUTPUT2_DISCHARGING_ERROR_SLOPE  = -0.019513f;
+constexpr float OUTPUT2_DISCHARGING_ERROR_OFFSET = -18.518876f;
 
 
 
@@ -93,43 +84,32 @@ float getVoltage(void)
     }
 }
 
+// Charging => current >= 0, discharging => current < 0
 float getCurrentHighResolution()
 {
     const float cs_in_1 = MAX(ts_isense_50a.getVoltage(), 0.0f) * TSI_TO_CSIN;
-    const float high_res_current = (cs_in_1 - OFFSET_V) / HIGH_RES_SENS_VA;
+    const float reported_current = -((cs_in_1 - OFFSET_V) / HIGH_RES_SENS_VA);
 
-    // Error Calibration for High Resolution Current Sensor (based on calibration data)
-    // float high_res_curr_calibration = 0.0f;
-    // if (high_res_current > -0.2f)
-    // {
-    //     high_res_curr_calibration =
-    //         high_res_current * OUTPUT1_DISCHARGING_ERROR_SLOPE + OUTPUT1_DISCHARGING_ERROR_OFFSET;
-    // }
-    // else
-    // {
-    //     high_res_curr_calibration = high_res_current * OUTPUT1_CHARGING_ERROR_SLOPE + OUTPUT1_CHARGING_ERROR_OFFSET;
-    // }
+    // Error calibration for the high resolution current sensor (channel 1).
+    const float slope  = (reported_current >= 0.0f) ? OUTPUT1_CHARGING_ERROR_SLOPE : OUTPUT1_DISCHARGING_ERROR_SLOPE;
+    const float offset = (reported_current >= 0.0f) ? OUTPUT1_CHARGING_ERROR_OFFSET : OUTPUT1_DISCHARGING_ERROR_OFFSET;
+    const float error  = reported_current * slope + offset;
 
-    return -(high_res_current);
+    return reported_current - error;
 }
 
+// Charging => current >= 0, discharging => current < 0
 float getCurrentLowResolution()
 {
     const float cs_in_2 = MAX(ts_isense_400a.getVoltage(), 0.0f) * TSI_TO_CSIN;
-    const float low_res_current = (cs_in_2 - OFFSET_V) / HIGH_RES_SENS_VA;
+    const float reported_current = -((cs_in_2 - OFFSET_V) / LOW_RES_SENS_VA);
 
-    // Error Calibration for Low Resolution Current Sensor (based on calibration data)
-    // float low_res_curr_calibration = 0.0f;
-    // if (low_res_current > -0.2f)
-    // {
-    //     low_res_curr_calibration = low_res_current * OUTPUT2_DISCHARGING_ERROR_SLOPE + OUTPUT2_DISCHARGING_ERROR_OFFSET;
-    // }
-    // else
-    // {
-    //     low_res_curr_calibration = low_res_current * OUTPUT2_CHARGING_ERROR_SLOPE + OUTPUT2_CHARGING_ERROR_OFFSET;
-    // }
+    // Error calibration for the low resolution current sensor (channel 2).
+    const float slope  = (reported_current >= 0.0f) ? OUTPUT2_CHARGING_ERROR_SLOPE : OUTPUT2_DISCHARGING_ERROR_SLOPE;
+    const float offset = (reported_current >= 0.0f) ? OUTPUT2_CHARGING_ERROR_OFFSET : OUTPUT2_DISCHARGING_ERROR_OFFSET;
+    const float error  = reported_current * slope + offset;
 
-    return -(low_res_current);
+    return reported_current - error;
 }
 
 bool getVoltageSnsDiagState()
