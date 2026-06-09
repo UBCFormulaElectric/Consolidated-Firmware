@@ -8186,8 +8186,6 @@
       "MaxChargingVoltage": {
         "start_bit": 0,
         "bits": 16,
-        "min": 0,
-        "max": 10000,
         "scale": 0.1,
         "offset": 0,
         "unit": "V",
@@ -8196,8 +8194,6 @@
       "MaxChargingCurrent": {
         "start_bit": 16,
         "bits": 16,
-        "min": 0,
-        "max": 1000,
         "scale": 0.1,
         "offset": 0,
         "unit": "A",
