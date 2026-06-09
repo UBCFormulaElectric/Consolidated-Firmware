@@ -5,9 +5,11 @@
 #include "app_canRx.hpp"
 #include "app_canUtils.hpp"
 #include "app_canAlerts.hpp"
+#include "app_pumpControl.hpp"
 #include "torque_vectoring/datatypes/torque_limits.hpp"
 #include "io_log.hpp"
 #include "io_pcm.hpp"
+#include "app_pumpControl.hpp"
 
 using namespace app::can_utils;
 using namespace app::tv::datatypes;
@@ -61,19 +63,20 @@ namespace initState
         app::can_tx::VC_INVRRbErrorReset_set(false);
     }
 
-    static const app::powerManager::PowerManagerConfig power_manager_state = { .efuse_configs = { {
-                                                                                   { false, 200, 5 }, // rr_pump
-                                                                                   { false, 200, 5 }, // rl_pump
-                                                                                   { false, 200, 5 }, // r_rad_fan
-                                                                                   { false, 200, 5 }, // l_rad_fan
-                                                                                   { false, 0, 5 },   // f_inv
-                                                                                   { false, 0, 5 },   // r_inv
-                                                                                   { true, 0, 5 },    // rsm
-                                                                                   { true, 0, 5 },    // bms
-                                                                                   { true, 0, 5 },    // dam
-                                                                                   { true, 0, 5 },    // front
-                                                                               } } };
-    static void                                        runOnEntry(void)
+    static constexpr app::powerManager::PowerManagerConfig power_manager_state = { .efuse_configs = { {
+                                                                                       { true, 200, 5 },  // rr_pump
+                                                                                       { true, 200, 5 },  // rl_pump
+                                                                                       { false, 200, 5 }, // r_rad_fan
+                                                                                       { false, 200, 5 }, // l_rad_fan
+                                                                                       { false, 0, 5 },   // f_inv
+                                                                                       { false, 0, 5 },   // r_inv
+                                                                                       { true, 0, 5 },    // rsm
+                                                                                       { true, 0, 5 },    // bms
+                                                                                       { true, 0, 5 },    // dam
+                                                                                       { true, 0, 5 },    // front
+                                                                                   } } };
+
+    static void runOnEntry()
     {
         LOG_INFO("entering init state!");
 
@@ -102,18 +105,20 @@ namespace initState
         app::can_tx::VC_INVFRTorqueLimitNegative_set(torque_limits::NO_TORQUE_Nm);
         app::can_tx::VC_INVRLTorqueLimitNegative_set(torque_limits::NO_TORQUE_Nm);
         app::can_tx::VC_INVRRTorqueLimitNegative_set(torque_limits::NO_TORQUE_Nm);
+        app::pumpControl::restart();
     }
 
-    static void runOnTick100Hz(void)
+    static void runOnTick100Hz()
     {
-        const ContactorState air_minus_closed = app::can_rx::BMS_IrNegative_get();
-        if (air_minus_closed == ContactorState::CONTACTOR_STATE_CLOSED)
+        app::pumpControl::MonitorPumps();
+        if (const ContactorState air_minus_closed = app::can_rx::BMS_IrNegative_get();
+            air_minus_closed == ContactorState::CONTACTOR_STATE_CLOSED)
         {
             app::StateMachine::set_next_state(&inverterOn_state);
         }
     }
 
-    static void runOnExit(void)
+    static void runOnExit()
     {
         LOG_INFO("exiting init state!");
     }
