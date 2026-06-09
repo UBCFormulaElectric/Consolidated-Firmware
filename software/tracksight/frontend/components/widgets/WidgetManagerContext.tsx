@@ -30,37 +30,35 @@ export function useWidgetManager() {
 }
 
 function WidgetSerialize(widgets: WidgetData[]): string {
-    return JSON.stringify(widgets.map((widget) => {
-        if (widget.type === "enumTimeline") {
+    return JSON.stringify(
+        widgets.map((widget) => {
+            if (widget.type === "enumTimeline") {
+                return {
+                    ...widget,
+                    options: {
+                        ...widget.options,
+                        colorPalette: Object.fromEntries(
+                            Object.entries(widget.options.colorPalette).map(([signalName, enumColors]) => [
+                                signalName,
+                                {
+                                    color: enumColors.color.hex(),
+                                    enumValueColors: Object.fromEntries(Object.entries(enumColors.enumValueColors).map(([enumVal, color]) => [enumVal, color.hex()])),
+                                },
+                            ])
+                        ),
+                    },
+                };
+            }
+
             return {
                 ...widget,
                 options: {
                     ...widget.options,
-                    colorPalette: Object.fromEntries(Object.entries(widget.options.colorPalette).map(([signalName, enumColors]) => [
-                        signalName,
-                        {
-                            color: enumColors.color.hex(),
-                            enumValueColors: Object.fromEntries(Object.entries(enumColors.enumValueColors).map(([enumVal, color]) => [
-                                enumVal,
-                                color.hex(),
-                            ])),
-                        },
-                    ])),
+                    colorPalette: Object.fromEntries(Object.entries(widget.options.colorPalette).map(([signalName, color]) => [signalName, color.hex()])),
                 },
             };
-        }
-
-        return {
-            ...widget,
-            options: {
-                ...widget.options,
-                colorPalette: Object.fromEntries(Object.entries(widget.options.colorPalette).map(([signalName, color]) => [
-                    signalName,
-                    color.hex(),
-                ])),
-            },
-        };
-    }));
+        })
+    );
 }
 
 function WidgetDeserialize(widgetString: string): WidgetData[] {
@@ -86,16 +84,15 @@ function WidgetDeserialize(widgetString: string): WidgetData[] {
                 options: {
                     height: candidate.options.height,
                     timeTickCount: candidate.options.timeTickCount,
-                    colorPalette: Object.fromEntries(Object.entries(candidate.options.colorPalette).map(([signalName, palette]) => [
-                        signalName,
-                        {
-                            color: chroma((palette as { color: string }).color),
-                            enumValueColors: Object.fromEntries(Object.entries((palette as { enumValueColors: Record<string, string> }).enumValueColors).map(([enumVal, color]) => [
-                                enumVal,
-                                chroma(color),
-                            ])),
-                        },
-                    ])),
+                    colorPalette: Object.fromEntries(
+                        Object.entries(candidate.options.colorPalette).map(([signalName, palette]) => [
+                            signalName,
+                            {
+                                color: chroma((palette as { color: string }).color),
+                                enumValueColors: Object.fromEntries(Object.entries((palette as { enumValueColors: Record<string, string> }).enumValueColors).map(([enumVal, color]) => [enumVal, chroma(color)])),
+                            },
+                        ])
+                    ),
                 },
             } satisfies WidgetData;
         }
@@ -107,10 +104,7 @@ function WidgetDeserialize(widgetString: string): WidgetData[] {
                 signals: candidate.signals,
                 data: candidate.data,
                 options: {
-                    colorPalette: Object.fromEntries(Object.entries(candidate.options.colorPalette).map(([signalName, color]) => [
-                        signalName,
-                        chroma(color as string),
-                    ])),
+                    colorPalette: Object.fromEntries(Object.entries(candidate.options.colorPalette).map(([signalName, color]) => [signalName, chroma(color as string)])),
                     height: candidate.options.height,
                     timeTickCount: candidate.options.timeTickCount,
                 },
@@ -152,93 +146,107 @@ function removeSignalFromWidget(widget: WidgetData, signalName: string): WidgetD
 export function WidgetManager({ children, storageKey = LOCAL_STORAGE_KEY }: { children: ReactNode; storageKey?: string }) {
     const [widgets, setWidgets, isInitialized] = useLocalState<WidgetData[]>(storageKey, [], WidgetSerialize, WidgetDeserialize);
 
-    const appendWidget = useCallback((newWidget: WidgetData) => {
-        setWidgets((prev) => [...prev, { ...newWidget, id: uuidv4() }]);
-    }, [setWidgets]);
-
-    const removeWidget = useCallback((widgetToRemove: string) => {
-        setWidgets((prev) => {
-            const widgetIndex = prev.findIndex((widget) => widget.id === widgetToRemove);
-            if (widgetIndex === -1) {
-                IS_DEBUG && console.warn("Widget to remove not found");
-                return prev;
-            }
-
-            const nextWidgets = [...prev];
-            nextWidgets.splice(widgetIndex, 1);
-            return nextWidgets;
-        });
-    }, [setWidgets]);
-
-    const appendSignal = useCallback(<T extends WidgetType, Widget extends Extract<WidgetData, { type: T }>>(widget: Widget, newSignal: Widget["signals"][number]) => {
-        setWidgets((prev) => {
-            const widgetIndex = prev.findIndex((candidate) => candidate.id === widget.id);
-            if (widgetIndex === -1) {
-                IS_DEBUG && console.warn("Widget to edit not found");
-                return prev;
-            }
-
-            const existingWidget = prev[widgetIndex] as Widget;
-            if (existingWidget.signals.some((signal) => signal.name === newSignal.name)) {
-                IS_DEBUG && console.warn(`Signal already exists in widget: ${newSignal.name}`);
-                return prev;
-            }
-
-            const nextWidgets = [...prev];
-            nextWidgets[widgetIndex] = {
-                ...existingWidget,
-                // TODO(evan): I'll fix these generics in the future 🙏🏽 promise.
-                // NOTE(evan): any cast shifts the burden of type safety to the caller, which is bad
-                //             so it should be fixed eventually, but currently the only callers
-                //             are the enum and numerical signal pickers which are fully sound
-                //             and already guard their own types correctly.
-                signals: [...existingWidget.signals, newSignal] as any,
-            };
-            return nextWidgets;
-        });
-    }, [setWidgets]);
-
-    const removeSignal = useCallback((widget: WidgetData, nameOfSignalToRemove: string) => {
-        setWidgets((prev) => {
-            const widgetIndex = prev.findIndex((candidate) => candidate.id === widget.id);
-            if (widgetIndex === -1) {
-                IS_DEBUG && console.warn("Widget to edit not found");
-                return prev;
-            }
-
-            const nextWidgets = [...prev];
-            nextWidgets[widgetIndex] = removeSignalFromWidget(prev[widgetIndex], nameOfSignalToRemove);
-            return nextWidgets;
-        });
-    }, [setWidgets]);
-
-    const updateWidget = useCallback(<T extends WidgetType, Widget extends Extract<WidgetData, { type: T }>>(widget: Widget, updater: (prevWidget: Widget) => Widget) => {
-        setWidgets((prev) => {
-            const widgetIndex = prev.findIndex((candidate) => candidate.id === widget.id);
-            if (widgetIndex === -1) {
-                IS_DEBUG && console.warn("Widget to update not found");
-                return prev;
-            }
-
-            const nextWidgets = [...prev];
-            nextWidgets[widgetIndex] = updater(prev[widgetIndex] as Widget);
-            return nextWidgets;
-        });
-    }, [setWidgets]);
-
-    const contextValue = useMemo<WidgetManagerContext>(() => ({
-        widgets,
-        appendWidget,
-        removeWidget,
-        appendSignal,
-        removeSignal,
-        updateWidget,
-        initializedFromLocalStorage: isInitialized,
-    }), [widgets, appendWidget, removeWidget, appendSignal, removeSignal, updateWidget, isInitialized]);
-
-    return (
-        <WidgetManagerContext value={contextValue}>
-            {children}
-        </WidgetManagerContext>
+    const appendWidget = useCallback(
+        (newWidget: WidgetData) => {
+            setWidgets((prev) => [...prev, { ...newWidget, id: uuidv4() }]);
+        },
+        [setWidgets]
     );
+
+    const removeWidget = useCallback(
+        (widgetToRemove: string) => {
+            setWidgets((prev) => {
+                const widgetIndex = prev.findIndex((widget) => widget.id === widgetToRemove);
+                if (widgetIndex === -1) {
+                    IS_DEBUG && console.warn("Widget to remove not found");
+                    return prev;
+                }
+
+                const nextWidgets = [...prev];
+                nextWidgets.splice(widgetIndex, 1);
+                return nextWidgets;
+            });
+        },
+        [setWidgets]
+    );
+
+    const appendSignal = useCallback(
+        <T extends WidgetType, Widget extends Extract<WidgetData, { type: T }>>(widget: Widget, newSignal: Widget["signals"][number]) => {
+            setWidgets((prev) => {
+                const widgetIndex = prev.findIndex((candidate) => candidate.id === widget.id);
+                if (widgetIndex === -1) {
+                    IS_DEBUG && console.warn("Widget to edit not found");
+                    return prev;
+                }
+
+                const existingWidget = prev[widgetIndex] as Widget;
+                if (existingWidget.signals.some((signal) => signal.name === newSignal.name)) {
+                    IS_DEBUG && console.warn(`Signal already exists in widget: ${newSignal.name}`);
+                    return prev;
+                }
+
+                const nextWidgets = [...prev];
+                nextWidgets[widgetIndex] = {
+                    ...existingWidget,
+                    // TODO(evan): I'll fix these generics in the future 🙏🏽 promise.
+                    // NOTE(evan): any cast shifts the burden of type safety to the caller, which is bad
+                    //             so it should be fixed eventually, but currently the only callers
+                    //             are the enum and numerical signal pickers which are fully sound
+                    //             and already guard their own types correctly.
+                    signals: [...existingWidget.signals, newSignal] as any,
+                };
+                return nextWidgets;
+            });
+        },
+        [setWidgets]
+    );
+
+    const removeSignal = useCallback(
+        (widget: WidgetData, nameOfSignalToRemove: string) => {
+            setWidgets((prev) => {
+                const widgetIndex = prev.findIndex((candidate) => candidate.id === widget.id);
+                if (widgetIndex === -1) {
+                    IS_DEBUG && console.warn("Widget to edit not found");
+                    return prev;
+                }
+
+                const nextWidgets = [...prev];
+                nextWidgets[widgetIndex] = removeSignalFromWidget(prev[widgetIndex], nameOfSignalToRemove);
+                return nextWidgets;
+            });
+        },
+        [setWidgets]
+    );
+
+    const updateWidget = useCallback(
+        <T extends WidgetType, Widget extends Extract<WidgetData, { type: T }>>(widget: Widget, updater: (prevWidget: Widget) => Widget) => {
+            setWidgets((prev) => {
+                const widgetIndex = prev.findIndex((candidate) => candidate.id === widget.id);
+                if (widgetIndex === -1) {
+                    IS_DEBUG && console.warn("Widget to update not found");
+                    return prev;
+                }
+
+                const nextWidgets = [...prev];
+                nextWidgets[widgetIndex] = updater(prev[widgetIndex] as Widget);
+                return nextWidgets;
+            });
+        },
+        [setWidgets]
+    );
+
+    const contextValue = useMemo<WidgetManagerContext>(
+        () => ({
+            widgets,
+            appendWidget,
+            removeWidget,
+            appendSignal,
+            removeSignal,
+            updateWidget,
+            initializedFromLocalStorage: isInitialized,
+        }),
+        [widgets, appendWidget, removeWidget, appendSignal, removeSignal, updateWidget, isInitialized]
+    );
+
+    return <WidgetManagerContext value={contextValue}>{children}</WidgetManagerContext>;
 }
