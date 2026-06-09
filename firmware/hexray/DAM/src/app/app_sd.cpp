@@ -59,21 +59,21 @@ std::expected<void, ErrorCode> update_metadata()
     if (!log_open)
         return std::unexpected(ErrorCode::INVALID_ARGS);
 
-    const auto epoch_ms = app::epochClock::getEpochMs();
+    const auto epoch_ms = app::epochClock::getEpochMsFast();
     if (!epoch_ms.has_value())
     {
         LOG_ERROR("Failed to get current epoch ms");
         return std::unexpected(ErrorCode::ERROR);
     }
 
-    // Update basetime: basetime = ntp_time - now_ms
-    const uint64_t now_ms    = io::time::getCurrentMs();
-    const uint64_t base_time = epoch_ms.value() - now_ms;
+    // Update basetime: basetime = ntp_time - ms_since_boot
+    const uint64_t ms_since_boot = io::time::getCurrentMs();
+    const uint64_t base_time     = epoch_ms.value() - ms_since_boot;
 
     const auto dt = app::epochClock::dateTimeFromEpoch(base_time);
     if (!dt)
     {
-        LOG_ERROR("Failed to convert base_time to DateTime");
+        LOG_ERROR("Failed to convert basetime to DateTime");
         return std::unexpected(ErrorCode::ERROR);
     }
 

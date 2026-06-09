@@ -511,7 +511,7 @@ static void MX_USART2_UART_Init(void)
     {
         Error_Handler();
     }
-    if (HAL_UARTEx_DisableFifoMode(&huart2) != HAL_OK)
+    if (HAL_UARTEx_EnableFifoMode(&huart2) != HAL_OK)
     {
         Error_Handler();
     }
