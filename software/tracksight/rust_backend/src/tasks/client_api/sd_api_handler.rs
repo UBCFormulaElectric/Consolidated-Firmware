@@ -67,7 +67,11 @@ async fn sd_dump(State(state): State<AppState>, Json(SdDumpPayload{drive, file, 
     match dumped_res {
         Ok(vec) => {
             if vec.iter().find(|row| row.dumped).is_some() {
-                return (StatusCode::CONFLICT, format!("File {file} already exists in database (overwrite not implemented)."));
+                if let Some(true) = overwrite {
+                    // dump again, not actually overwrite, kinda a misnomer but o well
+                } else {
+                    return (StatusCode::CONFLICT, format!("File {file} already dumped to database!"));
+                }
             }
         },
         Err(_) => return (StatusCode::INTERNAL_SERVER_ERROR, format!("Failed to query database for existing dumps of file")),
