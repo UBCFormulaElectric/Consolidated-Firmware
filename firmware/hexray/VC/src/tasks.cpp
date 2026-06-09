@@ -221,7 +221,7 @@ static void VC_StartAllTasks()
     TaskCanRx.start();
     TaskCan1Tx.start();
     TaskCan2Tx.start();
-    TaskBatteryMonitoring.start();
+    // TaskBatteryMonitoring.start();
     TaskPowerMonitoring.start();
 }
 

@@ -29,7 +29,17 @@ void hw::Uart::onTxTransactionCompleteFromISR() const
 
 void hw::Uart::onRxTransactionCompleteFromISR() const
 {
-    assert(rxTaskInProgress != nullptr);
+    if (rx_pending)
+    {
+        assert(receive_callback != nullptr);
+        receive_callback();
+        return;
+    }
+
+    if (rxTaskInProgress == nullptr)
+    {
+        return;
+    }
 
     BaseType_t higherPriorityTaskWoken = pdFALSE;
     vTaskNotifyGiveFromISR(rxTaskInProgress, &higherPriorityTaskWoken);
@@ -38,9 +48,7 @@ void hw::Uart::onRxTransactionCompleteFromISR() const
 
 void hw::Uart::onErrorFromISR() const
 {
-    // just wake both up lmao
     BaseType_t higherPriorityTaskWoken = pdFALSE;
-    assert(txTaskInProgress != nullptr || rxTaskInProgress != nullptr);
     if (txTaskInProgress != nullptr)
     {
         vTaskNotifyGiveFromISR(txTaskInProgress, &higherPriorityTaskWoken);
@@ -167,11 +175,20 @@ std::expected<void, ErrorCode> hw::Uart::receiveCallback(std::span<uint8_t> rx) 
         return std::unexpected(ErrorCode::BUSY); // There is a task currently in progress!
 
     rx_pending = true;
+    auto status = callback_dma ? HAL_UARTEx_ReceiveToIdle_DMA(&handle, rx.data(), static_cast<uint16_t>(rx.size()))
+                               : HAL_UART_Receive_IT(&handle, rx.data(), static_cast<uint16_t>(rx.size()));
+    if (status == HAL_BUSY && callback_dma)
+    {
+        (void)HAL_UART_AbortReceive(&handle);
+        status = HAL_UARTEx_ReceiveToIdle_DMA(&handle, rx.data(), static_cast<uint16_t>(rx.size()));
+    }
+    if (status != HAL_OK)
+    {
+        rx_pending = false;
+        return hw::utils::convertHalStatus(status);
+    }
 
-    if (callback_dma)
-        return hw::utils::convertHalStatus(HAL_UART_Receive_DMA(&handle, rx.data(), static_cast<uint16_t>(rx.size())));
-    else
-        return hw::utils::convertHalStatus(HAL_UART_Receive_IT(&handle, rx.data(), static_cast<uint16_t>(rx.size())));
+    return {};
 }
 
 result<std::size_t> hw::Uart::receiveToIdle(std::span<uint8_t> rx, const uint32_t timeout) const
@@ -257,7 +274,8 @@ static const char *uart_error_to_name(const uint32_t err)
 
 extern "C" void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
 {
-    LOG_ERROR("UART error: %s", uart_error_to_name(HAL_UART_GetError(huart)));
+    const uint32_t error = HAL_UART_GetError(huart);
+    LOG_ERROR("UART error: %s (0x%08lx)", uart_error_to_name(error), static_cast<unsigned long>(error));
 
     // Clear sticky receive error flags so the next receive call isn't stuck on
     // ORE/NE/FE left over from this fault. Without this the peripheral keeps
@@ -265,6 +283,7 @@ extern "C" void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
     __HAL_UART_CLEAR_OREFLAG(huart);
     __HAL_UART_CLEAR_NEFLAG(huart);
     __HAL_UART_CLEAR_FEFLAG(huart);
+    __HAL_UART_CLEAR_FLAG(huart, UART_CLEAR_RTOF);
 
     const hw::Uart &bus = hw::getUartFromHandle(huart);
     bus.onErrorFromISR();
