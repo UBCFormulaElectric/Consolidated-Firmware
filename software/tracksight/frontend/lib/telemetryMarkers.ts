@@ -1,13 +1,7 @@
 "use client";
 
 export type TelemetryMarker = {
-    id: string;
     timestampMs: number;
-    messageName: string;
-    source: string;
-    canId?: string;
-    value?: string | number;
-    details?: Record<string, string | number | boolean | null>;
 };
 
 const STORAGE_KEY = "tracksight_telem_button_markers_v1";
@@ -57,10 +51,9 @@ export function getVisibleTelemetryMarkers(startTimeMs: number, endTimeMs: numbe
     return getTelemetryMarkers().filter((marker) => marker.timestampMs >= startTimeMs && marker.timestampMs <= endTimeMs);
 }
 
-export function addTelemetryMarker(marker: Omit<TelemetryMarker, "id"> & { id?: string }) {
+export function addTelemetryMarker(marker: TelemetryMarker) {
     const nextMarker: TelemetryMarker = {
         ...marker,
-        id: marker.id ?? `${marker.messageName}-${marker.timestampMs}-${Math.random().toString(36).slice(2)}`,
     };
 
     writeMarkersToStorage([...getTelemetryMarkers(), nextMarker].sort((left, right) => left.timestampMs - right.timestampMs));

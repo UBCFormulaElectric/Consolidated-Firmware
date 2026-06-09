@@ -2,7 +2,6 @@
 
 import { useAlertDataStores } from "@/lib/contexts/signalStores/SignalStoreContext";
 import { getVisibleTelemetryMarkers, TelemetryMarker } from "@/lib/telemetryMarkers";
-import { Righteous } from "next/font/google";
 import { RefObject, useEffect, useRef } from "react";
 import { useSyncedGraph } from "../SyncedGraphContainer";
 import { AlertSeries } from "./CanvasChartTypes";
