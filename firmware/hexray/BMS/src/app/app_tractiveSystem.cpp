@@ -12,7 +12,7 @@ namespace app::ts
 {
 static Timer overcurrent_warning_timer{ TS_OVERCURRENT_DEBOUNCE_DURATION_MS };
 
-float getVoltage() 
+float getVoltage()
 {
     return io::ts::getVoltage();
 }
