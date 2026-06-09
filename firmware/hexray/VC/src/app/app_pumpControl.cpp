@@ -18,14 +18,13 @@ static constexpr uint8_t  MAX_PUMP_VALUE = 50;
 
 void restart()
 {
-    ramp_timer_rl.restart();
-    ramp_timer_rr.restart();
+    ramp_timer_rl.stop();
+    ramp_timer_rr.stop();
 }
 
 void MonitorPumps()
 {
     const bool rl_ready = rl_pump_efuse.isChannelEnabled() and rl_pump_efuse.ok();
-
     if (rl_ready)
     {
         switch (ramp_timer_rl.updateAndGetState())
@@ -40,11 +39,7 @@ void MonitorPumps()
         }
         const float percentage =
             static_cast<float>(ramp_timer_rl.getElapsedTime()) / static_cast<float>(RAMP_DURATION_MS);
-        const uint8_t percentage_u8 = static_cast<uint8_t>(percentage * MAX_PUMP_VALUE);
-        // {
-        //     const io::unique_semaphore lock{ pwr_pump_i2c_bus_lock };
-        //     LOG_IF_ERR(rr_pump.setPercentage(percentage_u8));
-        // }
+        const auto percentage_u8 = static_cast<uint8_t>(percentage * MAX_PUMP_VALUE);
         app::can_tx::VC_PumpRampUpSetPoint_set(percentage_u8);
     }
     else
@@ -53,13 +48,39 @@ void MonitorPumps()
         ramp_timer_rl.stop();
         app::can_tx::VC_PumpRampUpSetPoint_set(0);
     }
-    {
-        const io::unique_semaphore lock{ pwr_pump_i2c_bus_lock };
-        LOG_IF_ERR(rr_pump.setPercentage(0));
-    }
+    app::can_tx::VC_PumpFailure_set(not rl_ready);
+    app::can_tx::VC_RsmTurnOnPump_set(rl_ready);
 
-    // app::can_tx::VC_PumpFailure_set(not rl_ready);
-    // app::can_tx::VC_RsmTurnOnPump_set(rl_ready);
+    if (rr_pump_efuse.isChannelEnabled() and rr_pump_efuse.ok())
+    {
+        switch (ramp_timer_rr.updateAndGetState())
+        {
+            case Timer::TimerState::IDLE:
+                ramp_timer_rr.restart();
+                break;
+            case Timer::TimerState::RUNNING:
+            case Timer::TimerState::EXPIRED:
+            default:
+                break;
+        }
+        {
+            const io::unique_semaphore lock{ pwr_pump_i2c_bus_lock };
+            const float                percentage =
+                static_cast<float>(ramp_timer_rr.getElapsedTime()) / static_cast<float>(RAMP_DURATION_MS);
+            const auto percentage_u8 = static_cast<uint8_t>(percentage * MAX_PUMP_VALUE);
+            LOG_IF_ERR(rr_pump.setPercentage(percentage_u8));
+            app::can_tx::VC_RRPumpSetpoint_set(percentage_u8);
+        }
+    }
+    else
+    {
+        // stops the flow to reramp up to a setpoint
+        ramp_timer_rr.stop();
+        {
+            const io::unique_semaphore lock{ pwr_pump_i2c_bus_lock };
+            LOG_IF_ERR(rr_pump.setPercentage(0));
+        }
+    }
 }
 
 #ifdef TARGET_TEST

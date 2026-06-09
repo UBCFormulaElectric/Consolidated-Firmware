@@ -391,8 +391,14 @@
       "PumpFailure": {
         "bits": 1
       },
-      "PumpRampUpSetPoint": {
+      "RLPumpSetpoint": {
         "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "RRPumpSetpoint": {
+        "resolution": 1,
         "min": 0,
         "max": 100,
         "unit": "%"
