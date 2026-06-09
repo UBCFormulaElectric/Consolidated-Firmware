@@ -9,7 +9,7 @@ use regex::Regex;
 use serde_json::from_str;
 use tokio::{select, time::sleep};
 
-use crate::{config::CONFIG, dprintln, tasks::{can_data::influx_util::InfluxSignalSource, client_api::{AppState, signal_tile::{InfluxSignalRow, get_signals}}}, utils::{rfc3339_to_utc, rfc3339_to_utc_str}};
+use crate::{config::CONFIG, dprintln, error_println, tasks::{can_data::influx_util::InfluxSignalSource, client_api::{AppState, signal_tile::{InfluxSignalRow, get_signals}}}, utils::{rfc3339_to_utc, rfc3339_to_utc_str}, vprintln};
 use crate::tasks::client_api::INFLUX_QUERY_TIMEOUT_MS;
 
 /**
@@ -242,31 +242,45 @@ async fn signal_sessions(
     Query(SourceQuery { source }): Query<SourceQuery>,
     State(state): State<AppState>
 ) -> impl IntoResponse {
-    let (start_utc, end_utc) = 
-        if let (Some(s), Some(e)) = 
+    vprintln!("[sessions] request start={:?} end={:?} source={:?}", start, end, source);
+
+    let (start_utc, end_utc) =
+        if let (Some(s), Some(e)) =
         (rfc3339_to_utc_str(&start), rfc3339_to_utc_str(&end)) {
             (s, e)
         } else {
+            vprintln!("[sessions] BAD_REQUEST: bad date format start={:?} end={:?}", start, end);
             return (StatusCode::BAD_REQUEST, "Bad date format, should be RFC3339 format".to_string());
         };
 
 
     let source_str = match source {
         Some(s) => {
-            if let Ok(_) = from_str::<InfluxSignalSource>(&s) {
-                s
-            } else {
-                return (StatusCode::BAD_REQUEST, "Bad source!".to_string());
+            // `s` arrives JSON-encoded (e.g. `"Radio"` with quotes); deserialize
+            // and use the enum's lowercase Display so the Flux filter matches the
+            // tag value written by build_data_point (e.g. `radio`), not the raw
+            // quoted string.
+            match from_str::<InfluxSignalSource>(&s) {
+                Ok(parsed) => parsed.to_string(),
+                Err(_) => {
+                    error_println!("[sessions] BAD_REQUEST: bad source={:?}", s);
+                    return (StatusCode::BAD_REQUEST, "Bad source!".to_string());
+                }
             }
         }
-        _ => "radio".to_string(),
+        _ => InfluxSignalSource::Radio.to_string(),
     };
+
+    vprintln!(
+        "[sessions] querying bucket={} measurement={} range=[{}, {}] source={}",
+        &CONFIG.influxdb_bucket, &CONFIG.influxdb_measurement, start_utc, end_utc, source_str
+    );
 
     let car_on_query = format!(r#"
         from(bucket: "{}")
         |> range(start: time(v: "{start_utc}"), stop: time(v: "{end_utc}"))
         |> filter(fn: (r) => r["_measurement"] == "{}")
-        |> filter(fn: (r) => r["signal_name"] == "Bootup")
+        |> filter(fn: (r) => r["signal_name"] == "DAM_Alive")
         |> filter(fn: (r) => r["source"] == "{source_str}")
         |> sort(columns: ["_time"])
         "#, &CONFIG.influxdb_bucket, &CONFIG.influxdb_measurement);
@@ -280,18 +294,33 @@ async fn signal_sessions(
         }
     };
 
-    let time_bigram: Vec<(String, String)> = match req {
-        Ok(starts) => starts.windows(2)
-            .map(|w| 
+    fn to_unix(w: &SessionStarts) -> String {
+        return w.time.timestamp_millis().to_string();
+    }
+
+    let time_bigram: Vec<(String, Option<String>)> = match req {
+        Ok(starts) => {
+            vprintln!("[sessions] influx returned {} DAM_Alive point(s)", starts.len());
+            let mut tb: Vec<(String, Option<String>)> = starts.windows(2)
+            .map(|w|
                 (
-                    w[0].time.to_rfc3339_opts(chrono::SecondsFormat::Millis, true), 
-                    w[1].time.to_rfc3339_opts(chrono::SecondsFormat::Millis, true)
+                    to_unix(&w[0]),
+                    Some(to_unix(&w[1]))
                 )
             )
-            .collect(),
-        Err(e) => return (StatusCode::INTERNAL_SERVER_ERROR, format!("Error occurred while fetching session starts: {}", e)),
+            .collect();
+            if let Some(last) = starts.last() {
+                tb.push((to_unix(last), None));
+            }
+            tb
+        },
+        Err(e) => {
+            error_println!("[sessions] INTERNAL_SERVER_ERROR: influx query failed: {}", e);
+            return (StatusCode::INTERNAL_SERVER_ERROR, format!("Error occurred while fetching session starts: {}", e));
+        },
     };
 
+    vprintln!("[sessions] returning {} session(s)", time_bigram.len());
     return (StatusCode::OK, serde_json::to_string(&time_bigram).unwrap());
 }
 

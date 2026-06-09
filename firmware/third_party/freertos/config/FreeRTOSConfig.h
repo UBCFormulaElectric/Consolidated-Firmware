@@ -5,6 +5,8 @@
 #elif defined(STM32H562xx)
 #define configENABLE_TRUSTZONE 0
 #include "FreeRTOSConfig_H5.h"
+#elif defined(STM32F412Rx)
+#include "FreeRtosConfig_F4.h"
 #else
 #error "Unsupported STM32 target: add the correct FreeRTOS config include for this MCU."
 #endif

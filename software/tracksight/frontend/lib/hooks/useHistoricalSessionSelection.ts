@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 
+import { HistoricalSignalSource } from "@/lib/api/historicalSignals";
 import { HistoricalSession } from "@/lib/api/historicalSessions";
 import { useHistoricalSessions } from "@/lib/hooks/useHistoricalSessions";
 
@@ -11,8 +12,8 @@ import { useHistoricalSessions } from "@/lib/hooks/useHistoricalSessions";
  * Call it once per independent selection surface (e.g. once for the live
  * dashboard, once for the draft state inside the selection modal).
  */
-export function useHistoricalSessionSelection(dateKey: string) {
-    const query = useHistoricalSessions(dateKey);
+export function useHistoricalSessionSelection(dateKey: string, source: HistoricalSignalSource) {
+    const query = useHistoricalSessions(dateKey, source);
     const sessions = useMemo(() => query.data ?? [], [query.data]);
     const [selectedSessionId, setSelectedSessionId] = useState<string | null>(null);
 

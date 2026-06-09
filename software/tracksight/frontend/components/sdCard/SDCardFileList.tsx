@@ -18,11 +18,13 @@ type SDCardFileListProps = {
 const SDCardFileListFrame = (props: { children: React.ReactNode }) => {
   return (
     <div
-      className="border border-black rounded h-full flex flex-col overflow-y-scroll scrollbar-hidden"
+      className="border border-black rounded h-full flex flex-col overflow-hidden"
       style={PANEL_SIZE}
     >
-      <span className="font-bold text-lg border-b border-black w-full p-4 bg-gray-100">Files</span>
-      {props.children}
+      <span className="shrink-0 font-bold text-lg border-b border-black w-full p-4 bg-gray-100">Files</span>
+      <div className="flex-1 min-h-0 overflow-y-scroll overscroll-contain scrollbar-hidden -mb-px">
+        {props.children}
+      </div>
     </div>
   );
 };

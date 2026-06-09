@@ -100,10 +100,10 @@ function(stm32f412rx_cube_library
             "${DRIVERS_DIR}/STM32F4xx_HAL_Driver/Inc/Legacy"
             "${FREERTOS_DIR}/include"
             "${FREERTOS_DIR}/CMSIS_RTOS_V2"
-            "${FREERTOS_DIR}/portable/GCC/ARM_CM4F"
+            "${FREERTOS_DIR}/portable/GCC/ARM_CM4F" # TODO check
             "${DRIVERS_DIR}/CMSIS/Device/ST/STM32F4xx/Include"
             "${DRIVERS_DIR}/CMSIS/Include"
-            "${THIRD_PARTY_DIR}/freertos"
+            "${THIRD_PARTY_DIR}/freertos/config"
 
             # SEGGER SystemView includes.
             "${THIRD_PARTY_DIR}/sysview"
@@ -195,7 +195,6 @@ function(stm32h733xx_cube_library
         CUBEMX_INCLUDE_DIRS
         USB_ENABLED
         ARM_CORE
-        USE_HEXRAY_FREERTOS_CONFIG
 )
     set(DRIVERS_DIR "${STM32CUBEH7_SOURCE_DIR}/Drivers")
     set(FREERTOS_DIR "${STM32CUBEH7_SOURCE_DIR}/Middlewares/Third_Party/FreeRTOS/Source")
@@ -217,7 +216,7 @@ function(stm32h733xx_cube_library
             "${FREERTOS_DIR}/portable/GCC/ARM_CM7/r0p1"
             "${DRIVERS_DIR}/CMSIS/Device/ST/STM32H7xx/Include"
             "${DRIVERS_DIR}/CMSIS/Include"
-            "${THIRD_PARTY_DIR}/freertos"
+            "${THIRD_PARTY_DIR}/freertos/config"
 
             # SEGGER SystemView includes.
             "${THIRD_PARTY_DIR}/sysview"
@@ -225,12 +224,6 @@ function(stm32h733xx_cube_library
             "${SEGGER_SYSTEMVIEW_SOURCE_DIR}/Config"
             "${SEGGER_SYSTEMVIEW_SOURCE_DIR}/Sample/FreeRTOSV10"
     )
-
-    if (USE_HEXRAY_FREERTOS_CONFIG) # this is temporary during the transition
-        list(APPEND STM32CUBE_INCLUDE_DIRS
-                "${THIRD_PARTY_DIR}/freertos/config"
-        )
-    endif ()
 
     # HAL sources.
     set(STM32_HAL_SRCS ${HAL_SRCS})
