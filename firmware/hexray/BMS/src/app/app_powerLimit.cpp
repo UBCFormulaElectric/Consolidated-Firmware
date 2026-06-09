@@ -157,8 +157,7 @@ void broadcast()
     float charge_c_lim    = getChargeCurrentLimit();
 
     // Get power limits
-    // Assuming app::ts or app_tractiveSystem for getVoltage
-    const float ts_voltage = app::ts::getFilteredVoltage();
+    const float ts_voltage = app::ts::getVoltage();
 
     float discharge_p_lim = std::min(getDischargePowerLimit(), discharge_c_lim * ts_voltage);
     float charge_p_lim    = std::min(getChargePowerLimit(), charge_c_lim * ts_voltage);

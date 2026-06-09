@@ -18,15 +18,11 @@ namespace app::ts
 void init();
 
 /**
- * Get the TS voltage
+ * Get the TS voltage. Settling/noise is handled in hardware via a long ADC
+ * sampling time on the vsense channels; no software filter is applied.
  * @return The voltage in (V)
  */
-float getFilteredVoltage();
-
-/**
- * Tick TS voltage filter; sample rate defined at 100Hz
- */
-void filteredVoltageTick();
+float getVoltage();
 
 /**
  * Get the TS current by choosing between the low and high resolutions

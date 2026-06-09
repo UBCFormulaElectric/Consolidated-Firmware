@@ -54,7 +54,7 @@ State poll(bool precharge_for_charging)
             break;
     }
 
-    const float ts_voltage = app::ts::getFilteredVoltage();
+    const float ts_voltage = app::ts::getVoltage();
 
 #ifdef TARGET_HV_SUPPLY
 #define HV_SUPPLY_VOLTAGE (588.0f)
