@@ -207,25 +207,26 @@ class Bootloader:
 
         jump_back_address: Optional[int] = None # TODO populate with CAN failure messages
         run = True
+        stop_listner = threading.Event()
         # spawn a new thread which populates the above
         def listener():
             nonlocal run, jump_back_address
-            while run:
+            while run and jump_back_address is None:
                 can_msg = self._await_can_msg(
-                    validator=lambda x: x== self.board.boot_id_range_start | PROGRAM_ID_FAILED_LOWBITS,
-                    timeout=self.timeout
+                    validator=lambda x: x== self.board.boot_id_range_start | PROGRAM_ID_FAILED_LOWBITS
                 )
+                print(f"Received CAN message during programming: {can_msg}")
                 if can_msg is not None:
                     k = can_msg.data
                     assert can_msg.dlc == 4, f"Expected 4 bytes in PROGRAM_ID_FAILED message, got {can_msg.dlc}"
                     # TODO maybe better struct unpacking :sob:
                     jump_back_address = (k[0] << 24) | (k[1] << 16) | (k[2] << 8) | k[3]
-        listen_thread = threading.Thread(target=listener)
+        listen_thread = threading.Thread(target=listener, args=(stop_listner))
         listen_thread.start()
 
         # TODO: Check if binary is aligned to 64 bytes and ensure ending bytes are sent
         address = start_addr
-        while address <= end_addr:
+        while address < end_addr:
             # check if we need to go back
             if jump_back_address is not None:
                 address = jump_back_address
@@ -236,7 +237,10 @@ class Bootloader:
                     "Programming data", self.size_bytes(), block * CAN_FRAME_SIZE
                 )
 
+            #frame_size = min(CAN_FRAME_SIZE, end_addr - address)
+            #data = [self.ih[address + j] for j in range(frame_size)]
             data = [self.ih[address + j] for j in range(0, 8)]
+
             while True:
                 try:
                     self.bus.send(
@@ -252,8 +256,8 @@ class Bootloader:
                 except can.interfaces.vector.exceptions.VectorOperationError:
                     pass
             address += CAN_FRAME_SIZE
-
-        run = False
+        stop_listner.set()
+        #run = False
         listen_thread.join()
 
         if self.ui_callback:
