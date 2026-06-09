@@ -1,11 +1,10 @@
 #pragma once
 
-#include <cstdint>
-#include <expected>
 #include "util_errorCodes.hpp"
 #include "io_pump.hpp"
-#include "io_efuse.hpp"
 #include "io_potentiometer.hpp"
+
+#include <expected>
 
 namespace io
 {

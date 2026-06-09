@@ -88,7 +88,7 @@ class RSMChimeraConfig : public chimera_v2::config
         switch (inn->name.rsm_net_name)
         {
             case rsm_I2cNetName_I2C_R_PUMP:
-                return std::cref(r_pump);
+                return std::cref(rl_pump_i2c);
             default:
             case rsm_I2cNetName_I2C_NET_NAME_UNSPECIFIED:
                 LOG_INFO("Chimera: Unspecified I2C net name");

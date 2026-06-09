@@ -5,14 +5,12 @@
 #include "io_efuses.hpp"
 #include "io_pumps.hpp"
 
-constexpr float BUFFER = 50.0f;
-
 namespace
 {
 }
 namespace app::pumpControl
 {
-static constexpr uint32_t RAMP_DURATION_MS = 2000;
+static constexpr uint32_t RAMP_DURATION_MS = 5000;
 static app::Timer         ramp_timer_rl{ RAMP_DURATION_MS };
 static app::Timer         ramp_timer_rr{ RAMP_DURATION_MS };
 static constexpr uint8_t  MAX_PUMP_VALUE = 50;
@@ -21,6 +19,13 @@ void restart()
 {
     ramp_timer_rl.stop();
     ramp_timer_rr.stop();
+
+    app::can_tx::VC_RLPumpSetpoint_set(0);
+    {
+        const io::unique_semaphore lock{ pwr_pump_i2c_bus_lock };
+        LOG_IF_ERR(rr_pump.setPercentage(0));
+        app::can_tx::VC_RRPumpSetpoint_set(0);
+    }
 }
 
 void MonitorPumps()

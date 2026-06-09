@@ -127,7 +127,7 @@ namespace suspension
     }
 } // namespace suspension
 
-namespace rPump
+namespace rl_pump
 {
     result<void> setPercentage(uint8_t value)
     {
