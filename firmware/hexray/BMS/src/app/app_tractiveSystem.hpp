@@ -18,8 +18,7 @@ namespace app::ts
 void init();
 
 /**
- * Get the TS voltage. Settling/noise is handled in hardware via a long ADC
- * sampling time on the vsense channels; no software filter is applied.
+ * Get the TS voltage
  * @return The voltage in (V)
  */
 float getVoltage();

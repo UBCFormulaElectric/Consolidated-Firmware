@@ -15,9 +15,6 @@ static Timer overcurrent_warning_timer{ TS_OVERCURRENT_DEBOUNCE_DURATION_MS };
 void init() {}
 
 float getVoltage() {
-    // TS voltage settling/noise is handled in hardware via a long ADC sampling
-    // time on the vsense channels (810.5 cycles, configured in CubeMX). No
-    // software filter is applied.
     return io::ts::getVoltage();
 }
 
