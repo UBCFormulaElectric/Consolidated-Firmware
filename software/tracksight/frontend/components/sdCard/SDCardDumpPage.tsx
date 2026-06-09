@@ -36,7 +36,7 @@ const SDCardDumpPage = (props: SDCardDumpPageProps) => {
         isLoading={isLoading}
         error={error}
       />
-      <div className="flex-1 flex h-full">
+      <div className="flex-1 flex min-h-0">
         <SDCardFileNavigator sdCard={selectedSDCard} />
       </div>
     </>
