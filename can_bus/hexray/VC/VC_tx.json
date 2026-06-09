@@ -291,21 +291,21 @@
         "signed": true,
         "min": -50,
         "max": 50,
-        "unit": "m/s^2"
+        "unit": "g"
       },
       "Imu1AccelerationY": {
         "resolution": 0.001,
         "signed": true,
         "min": -50,
         "max": 50,
-        "unit": "m/s^2"
+        "unit": "g"
       },
       "Imu1AccelerationZ": {
         "resolution": 0.001,
         "signed": true,
         "min": -50,
         "max": 50,
-        "unit": "m/s^2"
+        "unit": "g"
       }
     }
   },
@@ -319,21 +319,21 @@
         "signed": true,
         "min": -50,
         "max": 50,
-        "unit": "m/s^2"
+        "unit": "g"
       },
       "Imu2AccelerationY": {
         "resolution": 0.001,
         "signed": true,
         "min": -50,
         "max": 50,
-        "unit": "m/s^2"
+        "unit": "g"
       },
       "Imu2AccelerationZ": {
         "resolution": 0.001,
         "signed": true,
         "min": -50,
         "max": 50,
-        "unit": "m/s^2"
+        "unit": "g"
       }
     }
   },
@@ -347,21 +347,21 @@
         "signed": true,
         "min": -50,
         "max": 50,
-        "unit": "m/s^2"
+        "unit": "g"
       },
       "Imu3AccelerationY": {
         "resolution": 0.001,
         "signed": true,
         "min": -50,
         "max": 50,
-        "unit": "m/s^2"
+        "unit": "g"
       },
       "Imu3AccelerationZ": {
         "resolution": 0.001,
         "signed": true,
         "min": -50,
         "max": 50,
-        "unit": "m/s^2"
+        "unit": "g"
       }
     }
   },

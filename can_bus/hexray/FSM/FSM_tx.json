@@ -139,21 +139,21 @@
         "signed": true,
         "min": -20,
         "max": 20,
-        "unit": "m/s^2"
+        "unit": "g"
       },
       "AccelY": {
         "resolution": 0.1,
         "signed": true,
         "min": -20,
         "max": 20,
-        "unit": "m/s^2"
+        "unit": "g"
       },
       "AccelZ": {
         "resolution": 0.1,
         "signed": true,
         "min": -20,
         "max": 20,
-        "unit": "m/s^2"
+        "unit": "g"
       },
       "GyroX": {
         "resolution": 0.1,
