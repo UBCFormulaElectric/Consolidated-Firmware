@@ -17,7 +17,7 @@ namespace faultState
     static void runOnEntry()
     {
         io::pcm::set(false);
-        static const app::powerManager::PowerManagerConfig power_manager_state = {
+        static constexpr app::powerManager::PowerManagerConfig power_manager_state = {
             .front_efuse     = { true, 0, 5 },    // front
             .rsm_efuse       = { true, 0, 5 },    // rsm
             .bms_efuse       = { true, 0, 5 },    // bms

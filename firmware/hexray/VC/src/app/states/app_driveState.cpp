@@ -1,24 +1,21 @@
-#include "app_states.hpp"
-#include "app_bspdwarning.hpp"
-#include "app_canTx.hpp"
 #include "app_canRx.hpp"
-#include "app_canAlerts.hpp"
-#include "io_log.hpp"
+#include "app_canTx.hpp"
 #include "app_canUtils.hpp"
-#include "app_canAlerts.hpp"
 #include "app_inverter.hpp"
 #include "app_powerManager.hpp"
-#include "torque_vectoring/datatypes/torque_limits.hpp"
-#include "app_powerManager.hpp"
 #include "app_pumpControl.hpp"
-#include "io_pumps.hpp"
+#include "app_states.hpp"
+
+#include "torque_vectoring/datatypes/torque_limits.hpp"
+
+#include "io_log.hpp"
 
 using namespace app::can_utils;
 using namespace app::inverter;
 using namespace app::powerManager;
 using namespace app::tv::datatypes::torque_limits;
 
-static const app::powerManager::PowerManagerConfig power_manager_state = {
+static constexpr PowerManagerConfig power_manager_state = {
     .front_efuse     = { true, 0, 5 },   // front
     .rsm_efuse       = { true, 0, 5 },   // rsm
     .bms_efuse       = { true, 0, 5 },   // bms
