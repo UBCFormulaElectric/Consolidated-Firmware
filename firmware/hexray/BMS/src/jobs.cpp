@@ -34,6 +34,7 @@
 #include "io_semaphore.hpp"
 #include "io_time.hpp"
 #include "io_notify.hpp"
+#include "io_irs.hpp"
 
 using io::adbms::Cells;
 using io::adbms::OpenWireSwitch;
@@ -47,7 +48,7 @@ using io::adbms::Therms;
 static void jsoncan_transmit_func(const JsonCanMsg &tx_msg)
 {
     const io::CanMsg msg = app::jsoncan::copyToCanMsg(tx_msg);
-    const auto       res = can_tx_queue.push(msg);
+    const auto       res = vehicle_can_tx_queue.push(msg);
     LOG_IF_ERR(res);
     if (not res)
     {
@@ -57,7 +58,13 @@ static void jsoncan_transmit_func(const JsonCanMsg &tx_msg)
 
 static void charger_transmit_func(const JsonCanMsg &tx_msg)
 {
-    UNUSED(tx_msg);
+    const io::CanMsg msg = app::jsoncan::copyToCanMsg(tx_msg);
+    const auto       res = charger_can_tx_queue.push(msg);
+    LOG_IF_ERR(res);
+    if (not res)
+    {
+        LOG_ERROR("failed on can id %d", tx_msg.std_id);
+    }
 }
 
 void jobs_init()
@@ -67,7 +74,8 @@ void jobs_init()
     io::can_tx::enableMode_charger(app::can_utils::chargerMode::CHARGER_MODE_DEFAULT, true);
 
     can_rx_queue.init();
-    can_tx_queue.init();
+    vehicle_can_tx_queue.init();
+    charger_can_tx_queue.init();
 
     app::can_tx::BMS_Hash_set(GIT_COMMIT_HASH);
     app::can_tx::BMS_Clean_set(GIT_COMMIT_CLEAN);
@@ -93,6 +101,7 @@ void jobs_run100Hz_tick()
 
     const bool debug_mode_enabled = app::can_rx::Debug_EnableDebugMode_get();
     io::can_tx::enableMode_FDCAN(app::can_utils::FDCANMode::FDCAN_MODE_DEBUG, debug_mode_enabled);
+    io::can_tx::enableMode_charger(app::can_utils::chargerMode::CHARGER_MODE_DEBUG, debug_mode_enabled);
 
     app::ts::broadcast();
     app::shdn::bms_shdnLoop.broadcast();
@@ -102,8 +111,7 @@ void jobs_run100Hz_tick()
     hb_monitor.checkIn();
     hb_monitor.broadcastFaults();
 
-    // TODO: Enable fans for endurance when contactors are closed.
-    io::fans::tick(false);
+    io::fans::tick(io::irs::positiveState() == app::can_utils::ContactorState::CONTACTOR_STATE_CLOSED);
 
     // Charger connection status
     app::can_tx::BMS_ChargerConnectedType_set(io::charger::getConnectionStatus());

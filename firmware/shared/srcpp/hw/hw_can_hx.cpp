@@ -37,9 +37,23 @@ result<void> hw::fdcan::tx(FDCAN_TxHeaderTypeDef &tx_header, const CanMsg &msg) 
     }
     return hw::utils::convertHalStatus(HAL_FDCAN_AddMessageToTxFifoQ(hfdcan, &tx_header, msg.data.data()));
 }
-void hw::fdcan::init() const
+void hw::fdcan::init(const bool should_start) const
 {
     assert(!ready);
+    // Start the FDCAN peripheral.
+    if (should_start)
+    {
+        assert(start());
+    }
+    ready    = true;
+    this->up = should_start;
+}
+
+result<void> hw::fdcan::start() const
+{
+    if (up)
+        return {};
+    // up == false
     // Configure a single filter bank that accepts any message.
     FDCAN_FilterTypeDef filter;
     filter.IdType       = FDCAN_EXTENDED_ID; // 29 bit ID
@@ -56,24 +70,50 @@ void hw::fdcan::init() const
 #endif
 
     const auto configure_filter_status = hw::utils::convertHalStatus(HAL_FDCAN_ConfigFilter(hfdcan, &filter));
-    assert(configure_filter_status.has_value());
+    RETURN_IF_ERR_SILENT(configure_filter_status);
+
+    // const auto global_filter_res = hw::utils::convertHalStatus(HAL_FDCAN_ConfigGlobalFilter(
+    //     hfdcan,
+    //     FDCAN_ACCEPT_IN_RX_FIFO0,   // non-matching standard frames → FIFO0
+    //     FDCAN_ACCEPT_IN_RX_FIFO0,   // non-matching extended frames → FIFO0
+    //     FDCAN_REJECT_REMOTE_STD,
+    //     FDCAN_REJECT_REMOTE_EXT
+    // ));
+    // RETURN_IF_ERR_SILENT(global_filter_res);
 
     // Configure interrupt mode for CAN peripheral.
     const auto configure_notis_ok = hw::utils::convertHalStatus(HAL_FDCAN_ActivateNotification(
         hfdcan, FDCAN_IT_RX_FIFO0_NEW_MESSAGE | FDCAN_IT_RX_FIFO1_NEW_MESSAGE | FDCAN_IT_BUS_OFF | FDCAN_IT_TX_COMPLETE,
         FDCAN_TX_BUFFER0));
-    assert(configure_notis_ok.has_value());
+    RETURN_IF_ERR_SILENT(configure_notis_ok);
 
-    // Start the FDCAN peripheral.
-    const auto start_status = hw::utils::convertHalStatus(HAL_FDCAN_Start(hfdcan));
-    assert(start_status.has_value());
-    ready = true;
+    const auto res = hw::utils::convertHalStatus(HAL_FDCAN_Start(hfdcan));
+    up             = res.has_value();
+    return res;
+}
+
+result<void> hw::fdcan::stop() const
+{
+    if (not up)
+    {
+        return {};
+    }
+    // up == true
+    const auto res = hw::utils::convertHalStatus(HAL_FDCAN_Stop(hfdcan));
+    up             = not res.has_value();
+    return res;
 }
 
 void hw::fdcan::deinit() const
 {
     assert(HAL_FDCAN_Stop(hfdcan) == HAL_OK);
     assert(HAL_FDCAN_DeInit(hfdcan) == HAL_OK);
+    this->up = false;
+}
+
+bool hw::fdcan::is_up() const
+{
+    return up;
 }
 
 result<void> hw::fdcan::can_transmit(const CanMsg &msg) const

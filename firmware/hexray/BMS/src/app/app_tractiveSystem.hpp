@@ -1,7 +1,10 @@
 #pragma once
+
 #include <cstdint>
 
-// TODO check where these are used??
+inline constexpr float HIGH_RES_MAX_CURRENT_READING = 50.0f;
+inline constexpr float W_TO_KW                      = 1.0e-3f;
+
 inline constexpr int32_t TS_OVERCURRENT_DEBOUNCE_DURATION_MS = 100U;
 inline constexpr int32_t CELLS_IN_PARALLEL                   = 4U;
 // Taken from our cell's datasheet, https://www.molicel.com/wp-content/uploads/INR18650P26A-V2-80087.pdf

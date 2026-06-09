@@ -81,7 +81,7 @@ class BaseCan
      * Initialize CAN driver.
      * @param can_handle STM32 HAL CAN handle.
      */
-    virtual void init() const = 0;
+    virtual void init(const bool should_start = true) const = 0;
 
     /**
      * Stop and deinitialize the CAN peripheral.
@@ -124,7 +124,7 @@ class can final : public BaseCan
 
     constexpr CAN_HandleTypeDef *getHcan() const { return hcan; }
 
-    void init() const override;
+    void init(const bool should_start = true) const override;
 
     void deinit() const override;
 
@@ -140,6 +140,8 @@ class fdcan final : public BaseCan
     FDCAN_HandleTypeDef *const hfdcan;
     result<void>               tx(FDCAN_TxHeaderTypeDef &tx_header, const CanMsg &msg) const;
 
+    mutable bool up = false;
+
   public:
     ~fdcan() override = default;
     consteval explicit fdcan(FDCAN_HandleTypeDef &hfdcan_in, void (*const receive_callback_in)(const CanMsg &rx_msg))
@@ -147,7 +149,7 @@ class fdcan final : public BaseCan
 
     constexpr FDCAN_HandleTypeDef *getHfdcan() const { return hfdcan; }
 
-    void init() const override;
+    void init(const bool should_start = true) const override;
 
     void deinit() const override;
 
@@ -156,6 +158,12 @@ class fdcan final : public BaseCan
     [[nodiscard]] result<void> fdcan_transmit(const CanMsg &msg) const;
 
     [[nodiscard]] result<CanMsg> receive(uint32_t rx_fifo) const override;
+
+    result<void> start() const;
+
+    result<void> stop() const;
+
+    bool is_up() const;
 };
 
 const fdcan &fdcan_getHandle(const FDCAN_HandleTypeDef *hfdcan);

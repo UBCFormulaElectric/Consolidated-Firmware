@@ -2,6 +2,7 @@
 
 #include <cassert>
 
+#include "io_charger.hpp"
 #include "app_states.hpp"
 #include "app_precharge.hpp"
 #include "io_irs.hpp"
@@ -22,6 +23,14 @@ namespace prechargeChargeState
 
     static void runOnTick100Hz()
     {
+        if (io::charger::getConnectionStatus() == app::can_utils::ChargerConnectedType::CHARGER_DISCONNECTED)
+        {
+            LOG_ERROR("Charger disconnected during precharge, aborting charge");
+            app::can_rx::Debug_StartCharging_update(false);
+            app::StateMachine::set_next_state(&init_state);
+            return;
+        }
+
         switch (app::precharge::poll(false))
         {
             case app::precharge::State::RUNNING:
@@ -57,9 +66,6 @@ namespace prechargeChargeState
                 assert(false && "Invalid precharge state");
                 break;
         }
-
-        // TODO: Go back to init state if the charger is disconnected?
-        // Might need to handle this in all charger-related states.
     }
 
     static void runOnExit()

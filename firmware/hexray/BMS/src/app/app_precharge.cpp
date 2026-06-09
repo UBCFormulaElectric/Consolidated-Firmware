@@ -112,4 +112,10 @@ bool limitExceeded()
     return precharge_limit_exceeded;
 }
 
+void resetLimitExceeded()
+{
+    precharge_limit_exceeded = false;
+    num_precharge_failures   = 0U;
+}
+
 } // namespace app::precharge

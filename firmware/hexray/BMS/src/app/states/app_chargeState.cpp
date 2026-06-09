@@ -30,7 +30,6 @@ constexpr float PACK_VOLTAGE_MAX = 140.0f * CELL_V_MAX_CHARGE;
 constexpr float CHARGER_EFFICIENCY = 0.93f; // average DC-side efficiency of the Elcon
 constexpr float MAX_DC_CURRENT     = 12.0f; // 1C standard limit of DC input current to the pack
 
-// TODO: Double-check these constants, refer to FIRM-175 I think the receptacle is 208V and max amperage is 20A
 constexpr float VAC_MIN  = 208.0f; // lower end of typical North American grid
 constexpr float CAC_MAX  = 20.0f;  // max current available off of the ac breaker at competition.
 constexpr float CIRC_EFF = 0.8f;   // estimated efficiency of the entire charging circuit (charger + wiring losses etc)
@@ -90,9 +89,12 @@ namespace chargeState
 
         // Terminate when cells are essentially full AND Elcon has already tapered down
         // Both conditions required (high V + high I = mid-CV-ramp, low I + low V = idle)
-        if ((max_cell_v >= CELL_V_TERMINATE) && (app::charger::getOutputCurrent() < I_TERMINATE_A)) // Is the second condittion needed here? "app::charger::getOutputCurrent() < I_TERMINATE_A" will be true immediately when entering charge state...
+        if ((max_cell_v >= CELL_V_TERMINATE) &&
+            (app::charger::getOutputCurrent() <
+             I_TERMINATE_A)) // Is the second condittion needed here? "app::charger::getOutputCurrent() < I_TERMINATE_A"
+                             // will be true immediately when entering charge state...
         {
-            app::can_tx::BMS_ChargingDone_set(true); // Is this ever set to false? look into this!!!!!!!!!!!!
+            app::can_tx::BMS_ChargingDone_set(true);
             app::charger::setChargingConfig(stop);
             app::StateMachine::set_next_state(&init_state);
             return;
@@ -100,39 +102,35 @@ namespace chargeState
 
         // Derive DC current limit from AC supply capability. Same code path on wall and EVSE (only difference is the
         // available AC current)
-        float i_max;
+        float i_cmd_max;
         if (charger_connection_status == ChargerConnectedType::CHARGER_CONNECTED_EVSE)
         {
             const float evse_iac         = app::charger::getAvailableCurrent();
             const float clamped_evse_iac = (evse_iac > CAC_MAX * CIRC_EFF) ? CAC_MAX * CIRC_EFF : evse_iac;
-            i_max                        = calcDcCurrentLimit(clamped_evse_iac);
+            i_cmd_max                    = calcDcCurrentLimit(clamped_evse_iac);
         }
         else
         {
-            i_max = calcDcCurrentLimit(CAC_MAX * CIRC_EFF);
+            i_cmd_max = calcDcCurrentLimit(CAC_MAX * CIRC_EFF);
         }
 
+        float i_cmd;
         // CC/CV is implicit given the Elcon needs max V and max I commands
         // Per cell CC/CV fallback (if pack is unbalanced or not using EVSE).
         // Clamp to 0 at/above the per-cell max so we never command negative current.
-        float i_cmd_max; // Look into this more. make sure u know it!!!!
-        if (max_cell_v >= CELL_V_MAX_CHARGE)
-        {
-            i_cmd_max = 0.0f;
-        }
-        else if (max_cell_v > CELL_V_TAPER_START)
+        if (max_cell_v > CELL_V_TAPER_START)
         {
             const float frac = (CELL_V_MAX_CHARGE - max_cell_v) / (CELL_V_MAX_CHARGE - CELL_V_TAPER_START);
-            i_cmd_max        = i_max * frac;
+            i_cmd            = i_cmd_max * frac;
         }
         else
         {
-            i_cmd_max = i_max;
+            i_cmd = i_cmd_max;
         }
 
         const app::charger::ElconChargingConfig tx{
             .max_voltage_v = PACK_VOLTAGE_MAX,
-            .max_current_a = i_cmd_max,
+            .max_current_a = i_cmd,
             .stop_charging = false,
         };
         app::charger::setChargingConfig(tx);
