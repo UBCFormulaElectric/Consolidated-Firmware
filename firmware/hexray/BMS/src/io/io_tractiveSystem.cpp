@@ -99,18 +99,18 @@ float getCurrentHighResolution()
     const float high_res_current = (cs_in_1 - OFFSET_V) / HIGH_RES_SENS_VA;
 
     // Error Calibration for High Resolution Current Sensor (based on calibration data)
-    float high_res_curr_calibration = 0.0f;
-    if (high_res_current > -0.2f)
-    {
-        high_res_curr_calibration =
-            high_res_current * OUTPUT1_DISCHARGING_ERROR_SLOPE + OUTPUT1_DISCHARGING_ERROR_OFFSET;
-    }
-    else
-    {
-        high_res_curr_calibration = high_res_current * OUTPUT1_CHARGING_ERROR_SLOPE + OUTPUT1_CHARGING_ERROR_OFFSET;
-    }
+    // float high_res_curr_calibration = 0.0f;
+    // if (high_res_current > -0.2f)
+    // {
+    //     high_res_curr_calibration =
+    //         high_res_current * OUTPUT1_DISCHARGING_ERROR_SLOPE + OUTPUT1_DISCHARGING_ERROR_OFFSET;
+    // }
+    // else
+    // {
+    //     high_res_curr_calibration = high_res_current * OUTPUT1_CHARGING_ERROR_SLOPE + OUTPUT1_CHARGING_ERROR_OFFSET;
+    // }
 
-    return -(high_res_current + high_res_curr_calibration);
+    return -(high_res_current);
 }
 
 float getCurrentLowResolution()
@@ -119,17 +119,17 @@ float getCurrentLowResolution()
     const float low_res_current = (cs_in_2 - OFFSET_V) / HIGH_RES_SENS_VA;
 
     // Error Calibration for Low Resolution Current Sensor (based on calibration data)
-    float low_res_curr_calibration = 0.0f;
-    if (low_res_current > -0.2f)
-    {
-        low_res_curr_calibration = low_res_current * OUTPUT2_DISCHARGING_ERROR_SLOPE + OUTPUT2_DISCHARGING_ERROR_OFFSET;
-    }
-    else
-    {
-        low_res_curr_calibration = low_res_current * OUTPUT2_CHARGING_ERROR_SLOPE + OUTPUT2_CHARGING_ERROR_OFFSET;
-    }
+    // float low_res_curr_calibration = 0.0f;
+    // if (low_res_current > -0.2f)
+    // {
+    //     low_res_curr_calibration = low_res_current * OUTPUT2_DISCHARGING_ERROR_SLOPE + OUTPUT2_DISCHARGING_ERROR_OFFSET;
+    // }
+    // else
+    // {
+    //     low_res_curr_calibration = low_res_current * OUTPUT2_CHARGING_ERROR_SLOPE + OUTPUT2_CHARGING_ERROR_OFFSET;
+    // }
 
-    return -(low_res_current + low_res_curr_calibration);
+    return -(low_res_current);
 }
 
 bool getVoltageSnsDiagState()

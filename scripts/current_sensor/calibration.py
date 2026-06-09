@@ -74,37 +74,6 @@ def prompt_effective_current(point_index: int) -> float | None:
             print("Could not parse a number, try again.")
 
 
-def compute_error_calibration(
-    adc_voltages: list[float],
-    effective_currents: list[float],
-    sensor_name: str,
-    output_label: str,
-) -> None:
-    """Compute and print error-calibration constants for one sensor.
-
-    Derives OUTPUT<N>_{DISCHARGING,CHARGING}_ERROR_{SLOPE,OFFSET} by fitting
-    the residual between the raw sensor current estimate and the true current.
-    """
-    raw_currents = [(v * TSI_TO_CSIN - OFFSET_V) / HIGH_RES_SENS_VA for v in adc_voltages]
-    # calibration_target satisfies: -(raw + calibration) == effective_current
-    cal_targets = [-ec - rc for ec, rc in zip(effective_currents, raw_currents)]
-
-    discharge_x = [rc for rc in raw_currents if rc > CURRENT_THRESHOLD]
-    discharge_y = [ct for rc, ct in zip(raw_currents, cal_targets) if rc > CURRENT_THRESHOLD]
-    charge_x    = [rc for rc in raw_currents if rc <= CURRENT_THRESHOLD]
-    charge_y    = [ct for rc, ct in zip(raw_currents, cal_targets) if rc <= CURRENT_THRESHOLD]
-
-    print(f"\n  {sensor_name} error calibration constants ({output_label}):")
-
-    for regime, xs, ys in (("DISCHARGING", discharge_x, discharge_y), ("CHARGING", charge_x, charge_y)):
-        if len(xs) < MIN_POINTS:
-            print(f"    [WARNING] Not enough {regime.lower()} points ({len(xs)}) — skipping fit")
-            continue
-        intercept, slope = linear_fit(xs, ys)
-        print(f"    constexpr float {output_label}_{regime}_ERROR_SLOPE  = {slope:.4f}f;")
-        print(f"    constexpr float {output_label}_{regime}_ERROR_OFFSET = {intercept:.4f}f;")
-
-
 def save_and_print_results(rows: list[CalibrationPoint]) -> None:
     fieldnames = ["effective_sensor_current"]
     fieldnames.extend(f"adc_voltage_{sensor.name}_v" for sensor in SENSORS)
@@ -143,7 +112,6 @@ def save_and_print_results(rows: list[CalibrationPoint]) -> None:
             f"adc_voltage_v = {adc_from_current_slope:.8f} * current_a "
             f"+ {adc_from_current_intercept:.8f}"
         )
-        compute_error_calibration(adc_voltages, measured_currents, sensor.name, sensor.output_label)
 
     print(f"\nSaved raw data to {CSV_PATH}")
 
