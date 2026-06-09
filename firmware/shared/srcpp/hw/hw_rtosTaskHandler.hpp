@@ -11,7 +11,7 @@ class StaticTask
     template <size_t SizeWords> struct StaticTaskStack
     {
         static_assert(SizeWords % 2 == 0, "Stack size must be a multiple of 8 bytes (2 words) for proper alignment.");
-        alignas(8) uint32_t data[SizeWords] = {};
+        alignas(8) volatile uint32_t data[SizeWords] = {};
     };
 
   private:
