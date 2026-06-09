@@ -121,16 +121,9 @@ result<uint64_t> getEpochMs()
 
 namespace
 {
-    // Anchor for getEpochMsFast(): the epoch-ms value at monotonic time zero, i.e. the RTC/NTP time
-    // minus the monotonic tick sampled at the same instant. A timestamp is then just
-    // basetime + getCurrentMs(), with no RTC read.
-    //
-    // Set once at startup via anchorBaseTime() (single-threaded) and re-set when the RTC is
-    // reprogrammed by NTP. An NTP correction shifts this only by the small accumulated clock error,
-    // which lives entirely in the low 32 bits, so even a torn read of the non-atomic 64-bit value
-    // yields the old or new base -- never garbage. That's why no lock/guard is needed. The one write
-    // that moves the high word is the very first anchor (0 -> ~1.7e12); anchorBaseTime() runs before
-    // CAN traffic flows, so that one isn't raced. 0 means "not yet anchored".
+    // Fast epoch base: (RTC/NTP ms - monotonic ms) sampled once.
+    // getEpochMsFast() = base + getCurrentMs() (no RTC read).
+    // NTP re-anchors only tweak low bits, so torn reads are old/new base; 0 means "not anchored".
     volatile uint64_t fast_basetime_ms = 0;
 
     void setFastBase(const uint64_t epoch_ms)
