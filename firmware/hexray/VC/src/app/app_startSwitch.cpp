@@ -6,12 +6,12 @@ namespace app::startSwitch
 
 bool hasRisingEdge(void)
 {
-    static app::can_utils::SwitchState last_switch_state  = app::can_utils::SwitchState::OFF;
-    const app::can_utils::SwitchState  start_switch_state = app::can_rx::CRIT_StartButton_get();
+    static can_utils::SwitchState last_switch_state  = can_utils::SwitchState::OFF;
+    const can_utils::SwitchState  start_switch_state = can_rx::CRIT_StartButton_get();
 
     const bool has_rising_edge =
-        (start_switch_state == app::can_utils::SwitchState::ON &&
-         last_switch_state == app::can_utils::SwitchState::OFF);
+        (start_switch_state == can_utils::SwitchState::ON &&
+         last_switch_state == can_utils::SwitchState::OFF);
     last_switch_state = start_switch_state;
     return has_rising_edge;
 }

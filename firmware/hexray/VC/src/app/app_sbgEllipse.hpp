@@ -25,5 +25,5 @@ bool sbgInitOk();
  *
  * POSITION represents the highest accuracy mode
  */
-app::can_utils::VcEkfStatus getEkfSolutionMode(void);
+can_utils::VcEkfStatus getEkfSolutionMode(void);
 } // namespace app::sbgEllipse

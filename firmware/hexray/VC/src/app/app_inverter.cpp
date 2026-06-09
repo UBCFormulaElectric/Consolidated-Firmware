@@ -74,7 +74,7 @@ void app::inverter::inverter_enable_toggle(bool fl, bool fr, bool rl, bool rr)
 
 void app::inverter::set_torque_limit_negative(float fl_Nm, float fr_Nm, float rl_Nm, float rr_Nm)
 {
-    using app::tv::datatypes::torque_limits::TORQUE_REQUEST;
+    using tv::datatypes::torque_limits::TORQUE_REQUEST;
 
     inverter_handle_FL.can_torque_limit_negative(TORQUE_REQUEST(fl_Nm));
     inverter_handle_FR.can_torque_limit_negative(TORQUE_REQUEST(fr_Nm));
@@ -84,7 +84,7 @@ void app::inverter::set_torque_limit_negative(float fl_Nm, float fr_Nm, float rl
 
 void app::inverter::set_torque_limit_positive(float fl_Nm, float fr_Nm, float rl_Nm, float rr_Nm)
 {
-    using app::tv::datatypes::torque_limits::TORQUE_REQUEST;
+    using tv::datatypes::torque_limits::TORQUE_REQUEST;
 
     inverter_handle_FL.can_torque_limit_positive(TORQUE_REQUEST(fl_Nm));
     inverter_handle_FR.can_torque_limit_positive(TORQUE_REQUEST(fr_Nm));
@@ -94,7 +94,7 @@ void app::inverter::set_torque_limit_positive(float fl_Nm, float fr_Nm, float rl
 
 void app::inverter::send_torque(float fl_Nm, float fr_Nm, float rl_Nm, float rr_Nm)
 {
-    using app::tv::datatypes::torque_limits::TORQUE_REQUEST;
+    using tv::datatypes::torque_limits::TORQUE_REQUEST;
 
     inverter_handle_FL.can_torque_setpoint(TORQUE_REQUEST(fl_Nm));
     inverter_handle_FR.can_torque_setpoint(TORQUE_REQUEST(fr_Nm));
@@ -170,7 +170,7 @@ app::inverter::FaultHandlerState app::inverter::FaultHandler(void)
 
     if (lockout())
     {
-        return app::inverter::FaultHandlerState::INV_FAULT_LOCKOUT;
+        return INV_FAULT_LOCKOUT;
     }
 
     const bool fl_fault = inverter_handle_FL.can_error_bit();
@@ -184,11 +184,11 @@ app::inverter::FaultHandlerState app::inverter::FaultHandler(void)
     {
         LOG_INFO("retry -> all inverter errors cleared");
         retry_count = 0u;
-        return app::inverter::FaultHandlerState::INV_FAULT_RECOVERED;
+        return INV_FAULT_RECOVERED;
     }
 
     // Now start a new retry cycle is fault persist after TIMEOUT = 1000 ms of retrying
-    const app::Timer::TimerState state = retry_timer.runIfCondition(!inverter_fault);
+    const Timer::TimerState state = retry_timer.runIfCondition(!inverter_fault);
 
     if (fl_fault)
         inverter_start_retry_routine(inverter_handle_FL);
@@ -199,7 +199,7 @@ app::inverter::FaultHandlerState app::inverter::FaultHandler(void)
     if (rr_fault)
         inverter_start_retry_routine(inverter_handle_RR);
 
-    if (state == app::Timer::TimerState::EXPIRED)
+    if (state == Timer::TimerState::EXPIRED)
     {
         // First end the retry cycle so we can reset it again
         inverter_handle_FL.error_reset(false);
@@ -208,40 +208,40 @@ app::inverter::FaultHandlerState app::inverter::FaultHandler(void)
         inverter_handle_RR.error_reset(false);
         if (retry_count == RETRY_LIMIT)
         {
-            return app::inverter::FaultHandlerState::INV_FAULT_LOCKOUT;
+            return INV_FAULT_LOCKOUT;
         }
         retry_count++;
     }
 
-    return app::inverter::FaultHandlerState::INV_FAULT_RETRY;
+    return INV_FAULT_RETRY;
 }
 
 void app::inverter::FaultCheck(void)
 {
-    const app::State *curr = app::StateMachine::get_current_state();
+    const State *curr = StateMachine::get_current_state();
 
     if (!lockout())
     {
-        app::can_tx::VC_Fault_InvLockoutFault_set(false);
+        can_tx::VC_Fault_InvLockoutFault_set(false);
     }
 
-    if (!inverter_status() || curr == &app::states::inverter_fault_handling_state)
+    if (!inverter_status() || curr == &states::inverter_fault_handling_state)
     {
         return;
     }
 
     // We do not want to go back to HV or Drive while we haven't passed HV_INIT again
-    if (curr == &app::states::hv_state || curr == &app::states::drive_state)
+    if (curr == &states::hv_state || curr == &states::drive_state)
     {
-        state_to_recover_after_fault = &app::states::hvInit_state;
+        state_to_recover_after_fault = &states::hvInit_state;
     }
     else
     {
-        state_to_recover_after_fault = const_cast<app::State *>(curr);
+        state_to_recover_after_fault = const_cast<State *>(curr);
     }
 
     // LOG_INFO("inverter state in appinv %s", state_to_recover_after_fault->name);
-    app::StateMachine::set_next_state(&app::states::inverter_fault_handling_state);
+    StateMachine::set_next_state(&states::inverter_fault_handling_state);
 }
 
 app::State *app::inverter::recovery_state(void)

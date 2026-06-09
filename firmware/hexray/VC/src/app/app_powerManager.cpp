@@ -14,34 +14,42 @@ namespace
     Timer               sequencing_timer_{ 0 };
 
     constexpr Efuses<const io::Efuse *> efuses = {
-        &rr_pump_efuse, &rl_pump_efuse, &r_rad_fan_efuse, &l_rad_fan_efuse, &f_inv_efuse,
-        &r_inv_efuse,   &rsm_efuse,     &bms_efuse,       &dam_efuse,       &front_efuse,
+        .front_efuse     = &front_efuse,
+        .rsm_efuse       = &rsm_efuse,
+        .bms_efuse       = &bms_efuse,
+        .dam_efuse       = &dam_efuse,
+        .f_inv_efuse     = &f_inv_efuse,
+        .r_inv_efuse     = &r_inv_efuse,
+        .r_rad_fan_efuse = &r_rad_fan_efuse,
+        .l_rad_fan_efuse = &l_rad_fan_efuse,
+        .rr_pump_efuse   = &rr_pump_efuse,
+        .rl_pump_efuse   = &rl_pump_efuse,
     };
 
     constexpr Efuses efuse_status_setters = {
-        app::can_tx::VC_RearRightPumpStatus_set,
-        app::can_tx::VC_RearLeftPumpStatus_set,
-        app::can_tx::VC_RightRadiatorFanStatus_set,
-        app::can_tx::VC_LeftRadiatorFanStatus_set,
-        app::can_tx::VC_FrontInvertersStatus_set,
-        app::can_tx::VC_RearInvertersStatus_set,
-        app::can_tx::VC_RSMStatus_set,
-        app::can_tx::VC_BMSStatus_set,
-        app::can_tx::VC_DAMStatus_set,
-        app::can_tx::VC_FrontStatus_set,
+        .front_efuse     = can_tx::VC_FrontStatus_set,
+        .rsm_efuse       = can_tx::VC_RSMStatus_set,
+        .bms_efuse       = can_tx::VC_BMSStatus_set,
+        .dam_efuse       = can_tx::VC_DAMStatus_set,
+        .f_inv_efuse     = can_tx::VC_FrontInvertersStatus_set,
+        .r_inv_efuse     = can_tx::VC_RearInvertersStatus_set,
+        .r_rad_fan_efuse = can_tx::VC_RightRadiatorFanStatus_set,
+        .l_rad_fan_efuse = can_tx::VC_LeftRadiatorFanStatus_set,
+        .rr_pump_efuse   = can_tx::VC_RearRightPumpStatus_set,
+        .rl_pump_efuse   = can_tx::VC_RearLeftPumpStatus_set,
     };
 
     constexpr Efuses efuse_current_setters = {
-        app::can_tx::VC_RearRightPumpCurrent_set,
-        app::can_tx::VC_RearLeftPumpCurrent_set,
-        app::can_tx::VC_RightRadiatorFanCurrent_set,
-        app::can_tx::VC_LeftRadiatorFanCurrent_set,
-        app::can_tx::VC_FrontInvertersCurrent_set,
-        app::can_tx::VC_RearInvertersCurrent_set,
-        app::can_tx::VC_RSMCurrent_set,
-        app::can_tx::VC_BMSCurrent_set,
-        app::can_tx::VC_DAMCurrent_set,
-        app::can_tx::VC_FrontCurrent_set,
+        .front_efuse     = can_tx::VC_FrontCurrent_set,
+        .rsm_efuse       = can_tx::VC_RSMCurrent_set,
+        .bms_efuse       = can_tx::VC_BMSCurrent_set,
+        .dam_efuse       = can_tx::VC_DAMCurrent_set,
+        .f_inv_efuse     = can_tx::VC_FrontInvertersCurrent_set,
+        .r_inv_efuse     = can_tx::VC_RearInvertersCurrent_set,
+        .r_rad_fan_efuse = can_tx::VC_RightRadiatorFanCurrent_set,
+        .l_rad_fan_efuse = can_tx::VC_LeftRadiatorFanCurrent_set,
+        .rr_pump_efuse   = can_tx::VC_RearRightPumpCurrent_set,
+        .rl_pump_efuse   = can_tx::VC_RearLeftPumpCurrent_set,
     };
 
     std::array<uint8_t, NUM_EFUSE_CHANNELS> retries_{};
@@ -113,16 +121,16 @@ void updateConfig(const Efuses<EfuseConfig> &new_cfg)
 
 void broadcastRetryCounts()
 {
-    app::can_tx::VC_RearRightPumpRetry_set(retries_[0]);
-    app::can_tx::VC_RearLeftPumpRetry_set(retries_[1]);
-    app::can_tx::VC_RightRadiatorRetry_set(retries_[2]);
-    app::can_tx::VC_LeftRadiatorRetry_set(retries_[3]);
-    app::can_tx::VC_LInvRetry_set(retries_[4]);
-    app::can_tx::VC_RInvRetry_set(retries_[5]);
-    app::can_tx::VC_RSMRetry_set(retries_[6]);
-    app::can_tx::VC_BMSRetry_set(retries_[7]);
-    app::can_tx::VC_DAMRetry_set(retries_[8]);
-    app::can_tx::VC_FrontRetry_set(retries_[9]);
+    can_tx::VC_RearRightPumpRetry_set(retries_[0]);
+    can_tx::VC_RearLeftPumpRetry_set(retries_[1]);
+    can_tx::VC_RightRadiatorRetry_set(retries_[2]);
+    can_tx::VC_LeftRadiatorRetry_set(retries_[3]);
+    can_tx::VC_LInvRetry_set(retries_[4]);
+    can_tx::VC_RInvRetry_set(retries_[5]);
+    can_tx::VC_RSMRetry_set(retries_[6]);
+    can_tx::VC_BMSRetry_set(retries_[7]);
+    can_tx::VC_DAMRetry_set(retries_[8]);
+    can_tx::VC_FrontRetry_set(retries_[9]);
 }
 
 void efuseProtocolTick_100Hz()
