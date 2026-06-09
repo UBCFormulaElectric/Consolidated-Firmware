@@ -4,20 +4,20 @@
 
 namespace io::rPump
 {
-const Potentiometer rPump{ r_pump, io::POTENTIOMETER_WIPER::WIPER0 };
+const Potentiometer rPump{ r_pump, POTENTIOMETER_WIPER::WIPER0 };
 
-result<void> isPumpReady()
+result<void> ready()
 {
     return r_pump.isTargetReady();
 }
 
-result<void> setPercentage(uint8_t percentage)
+result<void> setPercentage(const uint8_t percentage)
 {
     return rPump.writePercentage(percentage);
 }
 
-result<void> readPercentage(uint8_t &dest)
+result<uint8_t> readPercentage()
 {
-    return rPump.readPercentage(dest);
+    return rPump.readPercentage();
 }
 } // namespace io::rPump

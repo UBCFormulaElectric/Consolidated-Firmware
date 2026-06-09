@@ -44,15 +44,17 @@ extern "C"
     /* USER CODE BEGIN EC */
     extern ADC_HandleTypeDef   hadc1;
     extern ADC_HandleTypeDef   hadc3;
+    extern DMA_HandleTypeDef   hdma_adc1;
+    extern DMA_HandleTypeDef   hdma_adc3;
     extern CRC_HandleTypeDef   hcrc;
     extern FDCAN_HandleTypeDef hfdcan1;
     extern FDCAN_HandleTypeDef hfdcan2;
+    extern IWDG_HandleTypeDef  hiwdg1;
+    extern SD_HandleTypeDef    hsd1;
     extern SPI_HandleTypeDef   hspi4;
     extern TIM_HandleTypeDef   htim1;
     extern TIM_HandleTypeDef   htim3;
     extern TIM_HandleTypeDef   htim5;
-    extern SD_HandleTypeDef    hsd1;
-    extern IWDG_HandleTypeDef  hiwdg1;
     extern PCD_HandleTypeDef   hpcd_USB_OTG_HS;
     /* USER CODE END EC */
 
@@ -69,19 +71,21 @@ extern "C"
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
-#define TIM5_PWM_MIN_FREQUENCY 1
+#define TIM1_IC_PRESCALER 1
+#define TIM5_PWM_MIN_FREQUENCY 775
 #define TIM3_PRESCALER 10
-#define TIMx_FREQUENCY 256000000
-#define LSI_FREQUENCY 32000
-#define TIM1_AUTO_RELOAD_REG 0xFFFF
+#define TIM5_PRESCALER (((TIMx_FREQUENCY / TIM5_AUTO_RELOAD_REG) / TIM5_PWM_MIN_FREQUENCY * TIM5_IC_PRESCALER) - 1U)
 #define TIM5_AUTO_RELOAD_REG 0xFFFF
 #define ADC_FREQUENCY 1000
+#define TIM1_AUTO_RELOAD_REG 0xFFFF
+#define TIM5_IC_PRESCALER 8
+#define TIMx_FREQUENCY 256000000
 #define IWDG_RESET_FREQUENCY 5
 #define IWDG_WINDOW_DISABLE_VALUE 4095
 #define IWDG_PRESCALER 4
-#define TIM5_PRESCALER (TIMx_FREQUENCY / TIM5_AUTO_RELOAD_REG / TIM5_PWM_MIN_FREQUENCY)
-#define TIM1_PRESCALER (TIMx_FREQUENCY / TIM1_AUTO_RELOAD_REG / TIM1_PWM_MIN_FREQUENCY)
-#define TIM1_PWM_MIN_FREQUENCY 1
+#define LSI_FREQUENCY 32000
+#define TIM1_PWM_MIN_FREQUENCY 8
+#define TIM1_PRESCALER (((TIMx_FREQUENCY / TIM1_AUTO_RELOAD_REG) / TIM1_PWM_MIN_FREQUENCY * TIM1_IC_PRESCALER) - 1U)
 #define SPI_SCK_Pin GPIO_PIN_2
 #define SPI_SCK_GPIO_Port GPIOE
 #define IR_P_EN_Pin GPIO_PIN_3

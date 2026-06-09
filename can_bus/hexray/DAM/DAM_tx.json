@@ -35,7 +35,15 @@
     "msg_id": 808,
     "cycle_time": null,
     "description": "Async bootup message!",
-    "signals": {}
+    "signals": {
+      "Alive": {
+        "bits": 1
+      }
+    },
+    "data_capture": {
+      "telem_cycle_time": 1000,
+      "log_cycle_time" : 1000
+    }
   },
   "CommitInfo": {
     "msg_id": 809,

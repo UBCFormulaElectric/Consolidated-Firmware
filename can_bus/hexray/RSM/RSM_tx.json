@@ -39,7 +39,7 @@
   },
   "CommitInfo": {
     "msg_id": 709,
-    "cycle_time": 100,
+    "cycle_time": 1000,
     "description": "RSM Commit Info",
     "signals": {
       "Hash": {
@@ -114,7 +114,7 @@
   },
   "Brakes": {
     "msg_id": 712,
-    "cycle_time": 1000,
+    "cycle_time": 100,
     "description": "Front and rear brake pressures",
     "signals": {
       "RearBrakePressure": {
@@ -130,7 +130,7 @@
   },
   "ShdnNodeStatus": {
     "msg_id": 713,
-    "cycle_time": 10,
+    "cycle_time": 100,
     "description": "RSM shutdown nodes",
     "signals": {
       "RearLeftMotorInterlock": {
@@ -140,7 +140,7 @@
   },
   "RearPumpPercentage": {
     "msg_id": 714,
-    "cycle_time": 1000,
+    "cycle_time": 100,
     "description": "Rear pump information",
     "signals": {
       "RPumpPercentage": {
@@ -274,7 +274,7 @@
   },
   "TireSensor": {
     "msg_id": 798,
-    "cycle_time": 100,
+    "cycle_time": 1000,
     "description": "Tire sensor information",
     "signals": {
       "TireTemperature": {

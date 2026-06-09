@@ -5,12 +5,14 @@
 #include "app_jsoncan.hpp"
 #include "app_canTx.hpp"
 #include "app_canAlerts.hpp"
+#include "app_lowVoltageBattery.hpp"
 
 #include "io_time.hpp"
 #include "io_canQueues.hpp"
 #include "hw_can.hpp"
 #include "hw_gpio.hpp"
 #include "io_canRx.hpp"
+#include "io_batteryMonitoring.hpp"
 
 #include "hw_adcs.hpp"
 #include "hw_cans.hpp"
@@ -28,6 +30,7 @@
 [[noreturn]] static void tasks_runCan1Tx(void *arg);
 [[noreturn]] static void tasks_runCan2Tx(void *arg);
 [[noreturn]] static void tasks_runCanRx(void *arg);
+[[noreturn]] static void tasks_batteryMonitoring(void *arg);
 [[noreturn]] static void tasks_powerMonitoring(void *arg);
 
 // Define the task with StaticTask Class
@@ -38,6 +41,7 @@ static hw::rtos::StaticTask::StaticTaskStack<512>  Task1HzStack;
 static hw::rtos::StaticTask::StaticTaskStack<512>  TaskCanRxStack;
 static hw::rtos::StaticTask::StaticTaskStack<512>  TaskCan1TxStack;
 static hw::rtos::StaticTask::StaticTaskStack<512>  TaskCan2TxStack;
+static hw::rtos::StaticTask::StaticTaskStack<1024> BatteryMonitoringStack;
 static hw::rtos::StaticTask::StaticTaskStack<512>  TaskPowerMonitoringStack;
 
 static hw::rtos::StaticTask Task100Hz(osPriorityHigh, "Task100Hz", tasks_run100Hz, Task100HzStack);
@@ -46,6 +50,8 @@ static hw::rtos::StaticTask Task1Hz(osPriorityAboveNormal, "Task1Hz", tasks_run1
 static hw::rtos::StaticTask TaskCanRx(osPriorityNormal, "TaskCanRx", tasks_runCanRx, TaskCanRxStack);
 static hw::rtos::StaticTask TaskCan1Tx(osPriorityNormal, "TaskCanTx", tasks_runCan1Tx, TaskCan1TxStack);
 static hw::rtos::StaticTask TaskCan2Tx(osPriorityNormal, "TaskCanTx", tasks_runCan2Tx, TaskCan2TxStack);
+static hw::rtos::StaticTask
+    TaskBatteryMonitoring(osPriorityNormal, "TaskBatteryMonitoring", tasks_batteryMonitoring, BatteryMonitoringStack);
 static hw::rtos::StaticTask
     TaskPowerMonitoring(osPriorityNormal, "TaskPowerMonitoring", tasks_powerMonitoring, TaskPowerMonitoringStack);
 
@@ -156,8 +162,20 @@ void tasks_runCanRx(void *arg)
         io::can_rx::updateRxTableWithMessage(app::jsoncan::copyFromCanMsg(msg.value()));
     }
 }
+[[noreturn]] static void tasks_batteryMonitoring(void *arg)
+{
+    static const TickType_t period_ms   = 10;
+    static uint32_t         start_ticks = 0;
+    start_ticks                         = osKernelGetTickCount();
 
-// lowk js copied from last years task
+    app::batteryMonitoring::init();
+    for (;;)
+    {
+        jobs_runBatteryMonitoring_tick();
+        start_ticks += period_ms;
+        osDelayUntil(start_ticks);
+    }
+}
 [[noreturn]] static void tasks_powerMonitoring(void *arg)
 {
     static const TickType_t period_ms   = 10;
@@ -180,6 +198,7 @@ static void VC_StartAllTasks()
     TaskCanRx.start();
     TaskCan1Tx.start();
     TaskCan2Tx.start();
+    TaskBatteryMonitoring.start();
     TaskPowerMonitoring.start();
 }
 
@@ -233,6 +252,13 @@ void tasks_init()
     rsm_en.writePin(true);
     front_en.writePin(true);
     bms_en.writePin(true);
+    rl_pump_en.writePin(true);
+    rr_pump_en.writePin(true);
+    f_inv_en.writePin(true);
+    r_inv_en.writePin(true);
+    r_rad_fan_en.writePin(true);
+    l_rad_fan_en.writePin(true);
+    misc_fuse_en.writePin(true);
     ResetReason reason = hw::resetReason::get();
     app::can_tx::VC_ResetReason_set(static_cast<app::can_utils::CanResetReason>(reason));
     if (reason == RESET_REASON_WATCHDOG)
@@ -240,6 +266,7 @@ void tasks_init()
         LOG_WARN("Detected watchdog timeout on the previous boot cycle!");
         app::can_alerts::infos::WatchdogTimeout_set(true);
     }
+
     jobs_init();
     osKernelInitialize();
     VC_StartAllTasks();

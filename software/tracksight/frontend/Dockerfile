@@ -6,4 +6,6 @@ COPY software/tracksight/frontend .
 RUN npm install ----legacy-peer-deps
 RUN npm run build
 
+ENV DOCKER=true
+
 EXPOSE $FRONTEND_PORT

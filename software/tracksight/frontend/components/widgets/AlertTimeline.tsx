@@ -4,24 +4,38 @@ import { useAlertDataStores } from "@/lib/contexts/signalStores/SignalStoreConte
 import { RefObject, useEffect, useRef } from "react";
 import { AlertSeries } from "./CanvasChartTypes";
 import { useSyncedGraph } from "../SyncedGraphContainer";
-import { render_tooltip, CHART_PADDING } from "./render";
+import { render_hover_line } from "./render";
 
 const INITIAL_SLIP_STREAM_LANES = 5;
 const MAX_SLIP_STREAM_LANES = 5;
+const SLIP_STREAM_TOP_PADDING_LANES = 1;
+
 const SLIP_STREAM_GAP = 5;
-const PROCESSING_INTERVAL_MS = 1;
+const SLIP_STREAM_LANE_HEIGHT = 32;
 const SLIP_STREAM_ROUNDING_RADIUS = 8;
 const SLIP_STREAM_ROUNDING_SPEED = 0.5;
+
+const PROCESSING_INTERVAL_MS = 1;
+
 const LABEL_FONT = "11px sans-serif";
 const LABEL_PADDING = 8;
+
 const TOOLTIP_FONT = "11px sans-serif";
+
 const TOOLTIP_PADDING_X = 8;
 const TOOLTIP_PADDING_Y = 4;
+
 const TOOLTIP_TRIANGLE_SIZE = 5;
+
 const TOOLTIP_GAP = 2;
+
 const TOOLTIP_COLOR = "#000000ac";
 const TOOLTIP_TEXT_COLOR = "white";
 const TOOLTIP_BORDER_COLOR = "black";
+
+const containerHeightForLanes = (lanes: number) =>
+  (lanes + SLIP_STREAM_TOP_PADDING_LANES) * SLIP_STREAM_LANE_HEIGHT +
+  (lanes + SLIP_STREAM_TOP_PADDING_LANES - 1) * SLIP_STREAM_GAP;
 
 type HoverInfo = {
   alertIndex: number;
@@ -128,7 +142,7 @@ const hitTestAlerts = (
 
   const { x: mouseX, y: mouseY } = mousePos;
   const laneGap = SLIP_STREAM_GAP;
-  const heightPerLane = (height - (slipStreamLanes - 1) * laneGap) / slipStreamLanes;
+  const heightPerLane = SLIP_STREAM_LANE_HEIGHT;
   const pixelsPerMs = width / (rightEdge - leftEdge);
 
   for (let i = state.length - 1; i >= 0; i--) {
@@ -136,7 +150,7 @@ const hitTestAlerts = (
     if (alert.streamIndex >= slipStreamLanes) continue;
     if (alert.endTime && alert.endTime < leftEdge) continue;
 
-    const laneY = alert.streamIndex * (heightPerLane + laneGap);
+    const laneY = (alert.streamIndex + SLIP_STREAM_TOP_PADDING_LANES) * (heightPerLane + laneGap);
     if (mouseY < laneY || mouseY > laneY + heightPerLane) continue;
 
     const alertStartX = alert.startTime < leftEdge ? 0 : (alert.startTime - leftEdge) * pixelsPerMs;
@@ -172,7 +186,7 @@ const renderAlertTimeline = (
   ctx.clearRect(0, 0, width, height);
 
   const laneGap = SLIP_STREAM_GAP;
-  const heightPerLane = (height - (slipStreamLanes - 1) * laneGap) / slipStreamLanes;
+  const heightPerLane = SLIP_STREAM_LANE_HEIGHT;
 
   const pixelsPerMillisecond = width / (rightEdge - leftEdge);
 
@@ -180,7 +194,7 @@ const renderAlertTimeline = (
     if (alert.streamIndex >= slipStreamLanes) return;
     if (alert.endTime && alert.endTime < leftEdge) return;
 
-    const laneY = alert.streamIndex * (heightPerLane + laneGap);
+    const laneY = (alert.streamIndex + SLIP_STREAM_TOP_PADDING_LANES) * (heightPerLane + laneGap);
 
     const isStartBeforeView = alert.startTime < leftEdge;
 
@@ -192,7 +206,7 @@ const renderAlertTimeline = (
     const isOffLeftEdge = alert.startTime < leftEdge;
 
     const endTime = alert.endTime ?? liveTime;
-    
+
     // NOTE(evan): The rounding instantly going away jumps out at ur eyes so 
     //             smoothe it it doesn't look good if u stare at it but because it
     //             doesn't jump out you shouldn't see it most of the time.
@@ -236,10 +250,10 @@ const renderAlertTimeline = (
 
   if (!hover || hover.alertIndex >= state.length) return;
   const alert = state[hover.alertIndex];
-  
+
   if (alert.streamIndex >= slipStreamLanes) return;
 
-  const laneY = alert.streamIndex * (heightPerLane + laneGap);
+  const laneY = (alert.streamIndex + SLIP_STREAM_TOP_PADDING_LANES) * (heightPerLane + laneGap);
   const alertStartX = alert.startTime < leftEdge ? 0 : (alert.startTime - leftEdge) * pixelsPerMillisecond;
   const alertEndX = alert.endTime ? (alert.endTime - leftEdge) * pixelsPerMillisecond : (liveTime - leftEdge) * pixelsPerMillisecond;
   const visibleStartX = Math.max(alertStartX, 0);
@@ -252,9 +266,9 @@ const renderAlertTimeline = (
   const textWidth = ctx.measureText(alert.signal).width;
   const tooltipWidth = textWidth + TOOLTIP_PADDING_X * 2;
   const tooltipHeight = 14 + TOOLTIP_PADDING_Y * 2;
-  
+
   const isAboveTooltip = laneY + heightPerLane + tooltipHeight + TOOLTIP_TRIANGLE_SIZE + TOOLTIP_GAP > bottom;
-  
+
   const triangleTop = isAboveTooltip ? laneY - TOOLTIP_GAP : barBottom + TOOLTIP_GAP;
   const tooltipTop = isAboveTooltip ? triangleTop - TOOLTIP_TRIANGLE_SIZE : triangleTop + TOOLTIP_TRIANGLE_SIZE;
 
@@ -291,7 +305,7 @@ function AlertTimeline() {
     globalTimeRangeRef,
     XToTime,
     timeToX,
-    hoverXRef: contextHoverXRef,
+    hoverTimestampRef: externalHoverTimestampRef,
   } = useSyncedGraph();
 
   const XToTimeRef = useRef(XToTime);
@@ -338,6 +352,10 @@ function AlertTimeline() {
       const rightEdge = XToTimeRef.current(rect.width);
       const liveTime = globalTimeRangeRef.current!.max;
 
+      if (mousePos.current !== null) {
+        externalHoverTimestampRef.current = XToTimeRef.current(mousePos.current.x);
+      }
+
       hoverInfo.current = hitTestAlerts(
         mousePos.current,
         renderState.current,
@@ -367,19 +385,14 @@ function AlertTimeline() {
         hoverInfo.current,
       );
 
-      if (contextHoverXRef.current !== null) {
-        // Derive the hover timestamp fresh from raw screen-x each frame so the
-        // crosshair tracks the cursor correctly even when the chart is auto-scrolling.
-        const hoverTime = XToTimeRef.current(contextHoverXRef.current);
-        render_tooltip(
+      if (externalHoverTimestampRef.current !== null) {
+        render_hover_line(
           ctx,
           rect.width,
           rect.height,
-          hoverTime,
-          [],
+          externalHoverTimestampRef.current,
           timeToXRef.current,
-          wrapperRef.current?.scrollTop ?? 0,
-          false
+          false,
         );
       }
 
@@ -414,9 +427,7 @@ function AlertTimeline() {
       );
 
       if (scrollableRef.current) {
-        const newHeight = slipStreamLanes.current * 32 + (slipStreamLanes.current - 1) * SLIP_STREAM_GAP;
-
-        scrollableRef.current.style.height = `${newHeight}px`;
+        scrollableRef.current.style.height = `${containerHeightForLanes(slipStreamLanes.current)}px`;
       }
 
       renderState.current = newRenderState;
@@ -430,7 +441,52 @@ function AlertTimeline() {
       clearInterval(intervalId);
     };
   }, [data.current]);
-  
+
+  useEffect(() => {
+    const wrapper = wrapperRef.current;
+    if (!wrapper) return;
+
+    const findScrollableAncestor = (el: HTMLElement | null): HTMLElement | Window => {
+      let node = el?.parentElement ?? null;
+
+      while (node) {
+        if (node === document.body) break;
+
+        const style = getComputedStyle(node);
+        const overflowY = style.overflowY;
+
+        const canScroll = (overflowY === "auto" || overflowY === "scroll" || overflowY === "overlay") && node.scrollHeight > node.clientHeight;
+
+        if (canScroll) return node;
+
+        node = node.parentElement;
+      }
+      return window;
+    };
+
+    const handleWheel = (e: WheelEvent) => {
+      const deltaY = e.deltaY;
+      if (deltaY === 0) return;
+
+      const atTop = wrapper.scrollTop <= 0;
+      const atBottom = wrapper.scrollTop + wrapper.clientHeight >= wrapper.scrollHeight - 1;
+
+      const wouldChain = (deltaY < 0 && atTop) || (deltaY > 0 && atBottom);
+      if (!wouldChain) return;
+
+      e.preventDefault();
+
+      const ancestor = findScrollableAncestor(wrapper);
+      ancestor.scrollBy({ top: deltaY });
+    };
+
+    wrapper.addEventListener("wheel", handleWheel, { passive: false });
+
+    return () => {
+      wrapper.removeEventListener("wheel", handleWheel);
+    };
+  }, []);
+
   const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current;
     if (!canvas) {
@@ -439,14 +495,17 @@ function AlertTimeline() {
     }
 
     const rect = canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
     mousePos.current = {
-      x: e.clientX - rect.left,
+      x,
       y: e.clientY - rect.top,
     };
+    externalHoverTimestampRef.current = XToTimeRef.current(x);
   };
 
   const handleMouseLeave = () => {
     mousePos.current = null;
+    externalHoverTimestampRef.current = null;
   };
 
   return (
@@ -454,14 +513,14 @@ function AlertTimeline() {
       <div className="overflow-y-scroll scrollbar-hidden overscroll-none"
         ref={wrapperRef}
         style={{
-          maxHeight: `${MAX_SLIP_STREAM_LANES * 32 + (MAX_SLIP_STREAM_LANES - 1) * SLIP_STREAM_GAP}px`,
+          maxHeight: `${containerHeightForLanes(MAX_SLIP_STREAM_LANES)}px`,
         }}
       >
         <div
           className="relative flex w-full"
           ref={scrollableRef}
           style={{
-            height: `${INITIAL_SLIP_STREAM_LANES * 32}px`,
+            height: `${containerHeightForLanes(INITIAL_SLIP_STREAM_LANES)}px`,
           }}
         >
           <canvas
