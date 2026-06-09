@@ -218,8 +218,6 @@ void tasks_init()
 #endif
 
     LOG_INFO("VC Reset!");
-    osKernelInitialize();
-    jobs_init();
     fdcan1.init();
     invcan.init();
 
