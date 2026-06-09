@@ -81,11 +81,12 @@ void updateConfig(const PowerManagerConfig &new_cfg)
     retries_ = {};
     sequencing_timer_.stop();
 
-    const bool pcm_volt_ok = not can_tx::VC_CHANNEL4_PCM_UV_get();
-    state_.efuse_configs[0].efuse_enable &= pcm_volt_ok;
-    state_.efuse_configs[1].efuse_enable &= pcm_volt_ok;
-    state_.efuse_configs[2].efuse_enable &= pcm_volt_ok;
-    state_.efuse_configs[3].efuse_enable &= pcm_volt_ok;
+    // TODO these are completely unnecessary checks which should
+    // const bool pcm_volt_ok = not can_tx::VC_CHANNEL4_PCM_UV_get();
+    // state_.l_rad_fan_efuse.efuse_enable &= pcm_volt_ok;
+    // state_.r_rad_fan_efuse.efuse_enable &= pcm_volt_ok;
+    // state_.rl_pump_efuse.efuse_enable &= pcm_volt_ok;
+    // state_.rr_pump_efuse.efuse_enable &= pcm_volt_ok;
 }
 
 void broadcastRetryCounts()
