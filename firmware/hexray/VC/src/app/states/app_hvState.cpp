@@ -2,7 +2,6 @@
 #include "app_states.hpp"
 #include "app_canTx.hpp"
 #include "app_canRx.hpp"
-#include "app_canAlerts.hpp"
 #include "app_canUtils.hpp"
 #include "app_startSwitch.hpp"
 #include "app_powerManager.hpp"
@@ -15,22 +14,21 @@ namespace app::states
 {
 namespace hvState
 {
-    static void runOnEntry(void)
+    static void runOnEntry()
     {
         LOG_INFO("entering hv state!");
-        static constexpr app::powerManager::PowerManagerConfig power_manager_state = {
-            .efuse_configs = { {
-                { true, 200, 5 }, // rr_pump
-                { true, 200, 5 }, // rl_pump
-                { true, 200, 5 }, // r_rad_fan
-                { true, 200, 5 }, // l_rad_fan
-                { true, 0, 5 },   // f_inv
-                { true, 0, 5 },   // r_inv
-                { true, 0, 5 },   // rsm
-                { true, 0, 5 },   // bms
-                { true, 0, 5 },   // dam
-                { true, 0, 5 },   // front
-            } }
+        static constexpr powerManager::PowerManagerConfig power_manager_state = {
+            .rr_pump_efuse   = { true, 200, 5 }, // rr_pump
+            .rl_pump_efuse   = { true, 200, 5 }, // rl_pump
+            .r_rad_fan_efuse = { true, 200, 5 }, // r_rad_fan
+            .l_rad_fan_efuse = { true, 200, 5 }, // l_rad_fan
+            .f_inv_efuse     = { true, 0, 5 },   // f_inv
+            .r_inv_efuse     = { true, 0, 5 },   // r_inv
+            .rsm_efuse       = { true, 0, 5 },   // rsm
+            .bms_efuse       = { true, 0, 5 },   // bms
+            .dam_efuse       = { true, 0, 5 },   // dam
+            .front_efuse     = { true, 0, 5 },   // front
+
         };
         app::powerManager::updateConfig(power_manager_state);
 
@@ -39,7 +37,7 @@ namespace hvState
         app::pumpControl::restart();
     }
 
-    static void runOnTick100Hz(void)
+    static void runOnTick100Hz()
     {
         if (app::can_rx::BMS_State_get() == app::can_utils::BmsState::BMS_INIT_STATE)
         {
@@ -60,7 +58,7 @@ namespace hvState
         }
     }
 
-    static void runOnExit(void)
+    static void runOnExit()
     {
         LOG_INFO("exiting hv state!");
     }

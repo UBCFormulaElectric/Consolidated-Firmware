@@ -19,7 +19,21 @@ struct EfuseConfig
 
 struct PowerManagerConfig
 {
-    std::array<EfuseConfig, NUM_EFUSE_CHANNELS> efuse_configs{};
+    EfuseConfig front_efuse;
+    EfuseConfig rsm_efuse;
+    EfuseConfig bms_efuse;
+    EfuseConfig dam_efuse;
+    EfuseConfig f_inv_efuse;
+    EfuseConfig r_inv_efuse;
+    EfuseConfig r_rad_fan_efuse;
+    EfuseConfig l_rad_fan_efuse;
+    EfuseConfig rr_pump_efuse;
+    EfuseConfig rl_pump_efuse;
+
+    std::span<const EfuseConfig> as_span() const
+    {
+        return std::span{ &rr_pump_efuse, sizeof(this) / sizeof(EfuseConfig) };
+    }
 };
 
 void updateConfig(const PowerManagerConfig &new_cfg);

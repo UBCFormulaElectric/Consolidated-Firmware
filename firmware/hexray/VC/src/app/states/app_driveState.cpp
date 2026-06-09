@@ -18,18 +18,18 @@ using namespace app::inverter;
 using namespace app::powerManager;
 using namespace app::tv::datatypes::torque_limits;
 
-static const app::powerManager::PowerManagerConfig power_manager_state = { .efuse_configs = { {
-                                                                               { true, 200, 5 }, // rr_pump
-                                                                               { true, 200, 5 }, // rl_pump
-                                                                               { true, 200, 5 }, // r_rad_fan
-                                                                               { true, 200, 5 }, // l_rad_fan
-                                                                               { true, 0, 5 },   // f_inv
-                                                                               { true, 0, 5 },   // r_inv
-                                                                               { true, 0, 5 },   // rsm
-                                                                               { true, 0, 5 },   // bms
-                                                                               { true, 0, 5 },   // dam
-                                                                               { true, 0, 5 },   // front
-                                                                           } } };
+static const app::powerManager::PowerManagerConfig power_manager_state = {
+    .front_efuse     = { true, 0, 5 },   // front
+    .rsm_efuse       = { true, 0, 5 },   // rsm
+    .bms_efuse       = { true, 0, 5 },   // bms
+    .dam_efuse       = { true, 0, 5 },   // dam
+    .f_inv_efuse     = { true, 0, 5 },   // f_inv
+    .r_inv_efuse     = { true, 0, 5 },   // r_inv
+    .r_rad_fan_efuse = { true, 200, 5 }, // r_rad_fan
+    .l_rad_fan_efuse = { true, 200, 5 }, // l_rad_fan
+    .rr_pump_efuse   = { true, 200, 5 }, // rr_pump
+    .rl_pump_efuse   = { true, 200, 5 }, // rl_pump
+};
 
 static volatile float apps = 0.0f;
 
@@ -78,7 +78,7 @@ static void driveStateRunOnTick100Hz(void)
     }
     else
     {
-       // efuseProtocolTick_100Hz();
+        // efuseProtocolTick_100Hz();
         app::pumpControl::MonitorPumps();
         // if (!driveStatePassPreCheck())
         // {

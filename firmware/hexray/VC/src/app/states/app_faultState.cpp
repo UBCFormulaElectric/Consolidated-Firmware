@@ -14,36 +14,35 @@ namespace app::states
 {
 namespace faultState
 {
-    static void runOnEntry(void)
+    static void runOnEntry()
     {
         io::pcm::set(false);
-        static const app::powerManager::PowerManagerConfig power_manager_state = { .efuse_configs = { {
-                                                                                       { false, 200, 5 }, // rr_pump
-                                                                                       { false, 200, 5 }, // rl_pump
-                                                                                       { false, 200, 5 }, // r_rad_fan
-                                                                                       { false, 200, 5 }, // l_rad_fan
-                                                                                       { false, 0, 5 },   // f_inv
-                                                                                       { false, 0, 5 },   // r_inv
-                                                                                       { true, 0, 5 },    // rsm
-                                                                                       { true, 0, 5 },    // bms
-                                                                                       { true, 0, 5 },    // dam
-                                                                                       { true, 0, 5 },    // front
-                                                                                   } } };
+        static const app::powerManager::PowerManagerConfig power_manager_state = {
+            .front_efuse     = { true, 0, 5 },    // front
+            .rsm_efuse       = { true, 0, 5 },    // rsm
+            .bms_efuse       = { true, 0, 5 },    // bms
+            .dam_efuse       = { true, 0, 5 },    // dam
+            .f_inv_efuse     = { false, 0, 5 },   // f_inv
+            .r_inv_efuse     = { false, 0, 5 },   // r_inv
+            .r_rad_fan_efuse = { false, 200, 5 }, // r_rad_fan
+            .l_rad_fan_efuse = { false, 200, 5 }, // l_rad_fan
+            .rr_pump_efuse   = { false, 200, 5 }, // rr_pump
+            .rl_pump_efuse   = { false, 200, 5 }, // rl_pump
+        };
         app::powerManager::updateConfig(power_manager_state);
         app::can_tx::VC_State_set(VCState::VC_FAULT_STATE);
         LOG_INFO("entering fault state!");
     }
 
-    static void runOnTick100Hz(void)
+    static void runOnTick100Hz()
     {
-        const bool fault_cleared = !app::can_alerts::AnyBoardHasFault();
-        if (fault_cleared)
+        if (!app::can_alerts::AnyBoardHasFault())
         {
             app::StateMachine::set_next_state(&init_state);
         }
     }
 
-    static void runOnExit(void)
+    static void runOnExit()
     {
         LOG_INFO("exiting fault state!");
     }

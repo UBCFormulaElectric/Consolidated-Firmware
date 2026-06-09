@@ -20,7 +20,7 @@ namespace hvInitState
 
     static Timer start_up_timer{ INV_QUIT_TIMEOUT_MS };
 
-    static void reset_inverter_power_requests(void)
+    static void reset_inverter_power_requests()
     {
         app::can_tx::VC_INVFLbInverterOn_set(false);
         app::can_tx::VC_INVFRbInverterOn_set(false);
@@ -36,22 +36,22 @@ namespace hvInitState
         app::can_tx::VC_INVRLbDcOn_set(false);
     }
 
-    static void runOnEntry(void)
+    static void runOnEntry()
     {
         LOG_INFO("entering hv init state!");
 
-        static const app::powerManager::PowerManagerConfig power_manager_state = { .efuse_configs = { {
-                                                                                       { true, 200, 5 }, // rr_pump
-                                                                                       { true, 200, 5 }, // rl_pump
-                                                                                       { true, 200, 5 }, // r_rad_fan
-                                                                                       { true, 200, 5 }, // l_rad_fan
-                                                                                       { true, 0, 5 },   // f_inv
-                                                                                       { true, 0, 5 },   // r_inv
-                                                                                       { true, 0, 5 },   // rsm
-                                                                                       { true, 0, 5 },   // bms
-                                                                                       { true, 0, 5 },   // dam
-                                                                                       { true, 0, 5 },   // front
-                                                                                   } } };
+        static constexpr app::powerManager::PowerManagerConfig power_manager_state = {
+            .front_efuse     = { true, 0, 5 },   // front
+            .rsm_efuse       = { true, 0, 5 },   // rsm
+            .bms_efuse       = { true, 0, 5 },   // bms
+            .dam_efuse       = { true, 0, 5 },   // dam
+            .f_inv_efuse     = { true, 0, 5 },   // f_inv
+            .r_inv_efuse     = { true, 0, 5 },   // r_inv
+            .r_rad_fan_efuse = { true, 200, 5 }, // r_rad_fan
+            .l_rad_fan_efuse = { true, 200, 5 }, // l_rad_fan
+            .rr_pump_efuse   = { true, 200, 5 }, // rr_pump
+            .rl_pump_efuse   = { true, 200, 5 }, // rl_pump
+        };
         app::powerManager::updateConfig(power_manager_state);
 
         app::can_tx::VC_State_set(VCState::VC_HV_INIT_STATE);
@@ -74,7 +74,7 @@ namespace hvInitState
         app::can_tx::VC_INVRLTorqueLimitPositive_set(NO_TORQUE);
     }
 
-    static void runOnTick100Hz(void)
+    static void runOnTick100Hz()
     {
         if (app::can_rx::BMS_State_get() == app::can_utils::BmsState::BMS_INIT_STATE)
         {
@@ -228,7 +228,7 @@ namespace hvInitState
         }
     }
 
-    static void runOnExit(void)
+    static void runOnExit()
     {
         current_inverter_state = VCInverterState::INV_SYSTEM_READY;
         start_up_timer.stop();

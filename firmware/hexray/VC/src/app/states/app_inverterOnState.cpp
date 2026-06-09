@@ -12,27 +12,27 @@ namespace app::states
 {
 namespace inverterOnState
 {
-    static void runOnEntry(void)
+    static void runOnEntry()
     {
         LOG_INFO("entering inverter on state!");
-        static const app::powerManager::PowerManagerConfig power_manager_state = { .efuse_configs = { {
-                                                                                       { false, 0, 5 }, // rr_pump
-                                                                                       { false, 0, 5 }, // rl_pump
-                                                                                       { false, 0, 5 }, // r_rad_fan
-                                                                                       { false, 0, 5 }, // l_rad_fan
-                                                                                       { true, 0, 5 },  // f_inv
-                                                                                       { true, 0, 5 },  // r_inv
-                                                                                       { true, 0, 5 },  // rsm
-                                                                                       { true, 0, 5 },  // bms
-                                                                                       { true, 0, 5 },  // dam
-                                                                                       { true, 0, 5 },  // front
-                                                                                   } } };
+        static constexpr app::powerManager::PowerManagerConfig power_manager_state = {
+            .front_efuse     = { true, 0, 5 },  // front
+            .rsm_efuse       = { true, 0, 5 },  // rsm
+            .bms_efuse       = { true, 0, 5 },  // bms
+            .dam_efuse       = { true, 0, 5 },  // dam
+            .f_inv_efuse     = { true, 0, 5 },  // f_inv
+            .r_inv_efuse     = { true, 0, 5 },  // r_inv
+            .r_rad_fan_efuse = { false, 0, 5 }, // r_rad_fan
+            .l_rad_fan_efuse = { false, 0, 5 }, // l_rad_fan
+            .rr_pump_efuse   = { false, 0, 5 }, // rr_pump
+            .rl_pump_efuse   = { false, 0, 5 }, // rl_pump
+        };
         app::powerManager::updateConfig(power_manager_state);
 
         app::can_tx::VC_State_set(VCState::VC_INVERTER_ON_STATE);
     }
 
-    static void runOnTick100Hz(void)
+    static void runOnTick100Hz()
     {
         const bool inverters_bsystemReady =
             app::can_rx::INVFL_bSystemReady_get() && app::can_rx::INVFR_bSystemReady_get() &&
@@ -44,7 +44,7 @@ namespace inverterOnState
         }
     }
 
-    static void runOnExit(void)
+    static void runOnExit()
     {
         LOG_INFO("exiting inverter on state!");
     }

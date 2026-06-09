@@ -25,6 +25,7 @@ namespace
 
     void sequenceWhileIdle()
     {
+        const std::span<const EfuseConfig> configs = state_.as_span();
         for (size_t ch = 0; ch < NUM_EFUSE_CHANNELS; ch++)
         {
             if (sequencing_timer_.updateAndGetState() != Timer::TimerState::IDLE)
@@ -32,7 +33,7 @@ namespace
             const io::Efuse *efuse = efuses[ch];
             assert(efuse != nullptr);
 
-            const bool desired = state_.efuse_configs[ch].efuse_enable;
+            const bool desired = configs[ch].efuse_enable;
 
             if (!desired) // turning off
             {
@@ -45,14 +46,14 @@ namespace
                 if (not efuse->ok()) // pbad
                 {
                     // retry time
-                    if (retries_[ch] > state_.efuse_configs[ch].max_retry)
+                    if (retries_[ch] > configs[ch].max_retry)
                     {
                         continue;
                     }
                     ++retries_[ch];
 
                     // TODO think about a retry timeout
-                    if (const uint32_t timeout = state_.efuse_configs[ch].timeout; timeout != 0)
+                    if (const uint32_t timeout = configs[ch].timeout; timeout != 0)
                     {
                         sequencing_timer_.update_duration(timeout);
                         sequencing_timer_.restart();
@@ -63,7 +64,7 @@ namespace
             else
             {
                 // enable it lmaomao
-                if (const uint32_t timeout = state_.efuse_configs[ch].timeout; timeout != 0)
+                if (const uint32_t timeout = configs[ch].timeout; timeout != 0)
                 {
                     sequencing_timer_.update_duration(timeout);
                     sequencing_timer_.restart();

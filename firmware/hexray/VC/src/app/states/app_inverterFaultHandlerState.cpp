@@ -1,6 +1,5 @@
 #include "app_states.hpp"
 #include "app_canTx.hpp"
-#include "app_canRx.hpp"
 #include "app_canAlerts.hpp"
 #include "io_log.hpp"
 #include "app_canUtils.hpp"
@@ -13,7 +12,7 @@ namespace app::states
 namespace inverterFaultHandler
 {
 
-    static void runOnEntry(void)
+    static void runOnEntry()
     {
         LOG_INFO("entering inverter fault handler state!");
 
@@ -21,7 +20,7 @@ namespace inverterFaultHandler
         app::can_alerts::infos::InverterRetry_set(true);
     }
 
-    static void runOnTick100Hz(void)
+    static void runOnTick100Hz()
     {
         switch (inverter::FaultHandler())
         {
@@ -42,7 +41,7 @@ namespace inverterFaultHandler
         }
     }
 
-    static void runOnExit(void)
+    static void runOnExit()
     {
         LOG_INFO("exiting inverter fault handler state!");
         app::can_alerts::infos::InverterRetry_set(false);
