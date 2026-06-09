@@ -16,8 +16,8 @@ namespace inverterFaultHandler
     {
         LOG_INFO("entering inverter fault handler state!");
 
-        app::can_tx::VC_State_set(VCState::VC_INVERTER_FAULT_HANDELER);
-        app::can_alerts::infos::InverterRetry_set(true);
+        can_tx::VC_State_set(VCState::VC_INVERTER_FAULT_HANDELER);
+        can_alerts::infos::InverterRetry_set(true);
     }
 
     static void runOnTick100Hz()
@@ -26,13 +26,13 @@ namespace inverterFaultHandler
         {
             case inverter::FaultHandlerState::INV_FAULT_RECOVERED:
             {
-                app::StateMachine::set_next_state(inverter::recovery_state());
+                StateMachine::set_next_state(inverter::recovery_state());
                 break;
             }
             case inverter::FaultHandlerState::INV_FAULT_LOCKOUT:
             {
-                app::can_tx::VC_Fault_InvLockoutFault_set(true);
-                app::StateMachine::set_next_state(&fault_state);
+                can_tx::VC_Fault_InvLockoutFault_set(true);
+                StateMachine::set_next_state(&fault_state);
                 break;
             }
             case inverter::FaultHandlerState::INV_FAULT_RETRY:
@@ -44,7 +44,7 @@ namespace inverterFaultHandler
     static void runOnExit()
     {
         LOG_INFO("exiting inverter fault handler state!");
-        app::can_alerts::infos::InverterRetry_set(false);
+        can_alerts::infos::InverterRetry_set(false);
     }
 
 } // namespace inverterFaultHandler

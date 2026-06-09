@@ -17,7 +17,7 @@ namespace bmsOnStates
     {
         LOG_INFO("entering bms on state!");
 
-        static constexpr app::powerManager::PowerManagerConfig power_manager_state = {
+        static constexpr powerManager::Efuses<powerManager::EfuseConfig> power_manager_state = {
             .front_efuse     = { true, 0, 5 },  // front
             .rsm_efuse       = { true, 0, 5 },  // rsm
             .bms_efuse       = { true, 0, 5 },  // bms
@@ -31,21 +31,21 @@ namespace bmsOnStates
         };
         app::powerManager::updateConfig(power_manager_state);
 
-        app::can_tx::VC_State_set(VCState::VC_BMS_ON_STATE);
+        can_tx::VC_State_set(VCState::VC_BMS_ON_STATE);
     }
 
     static void runOnTick100Hz()
     {
-        if (app::can_alerts::BoardHasFault(can_utils::CanNode::BMS_NODE))
+        if (can_alerts::BoardHasFault(CanNode::BMS_NODE))
         {
-            app::StateMachine::set_next_state(&fault_state);
+            StateMachine::set_next_state(&fault_state);
         }
         // Once we have succesfully transitioned here, the BMS will read the state of the VC based on the associated CAN
         // message and then transition to the appropriate stage Note that if the BMS transitons to drive state we
         // transition to PCM_ON state
-        if (app::can_rx::BMS_State_get() == BmsState::BMS_DRIVE_STATE)
+        if (can_rx::BMS_State_get() == BmsState::BMS_DRIVE_STATE)
         {
-            app::StateMachine::set_next_state(&pcmOn_state);
+            StateMachine::set_next_state(&pcmOn_state);
         }
     }
 

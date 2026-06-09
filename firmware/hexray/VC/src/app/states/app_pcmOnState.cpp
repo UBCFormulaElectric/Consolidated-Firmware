@@ -22,8 +22,8 @@ namespace pcmOnState
 
     constexpr uint32_t PCM_TIMOUT = 1000;
 
-    static app::Timer pcm_timer{ PCM_TIMOUT };
-    static app::Timer pcm_cooldown_timer{ PCM_TIMOUT };
+    static Timer pcm_timer{ PCM_TIMOUT };
+    static Timer pcm_cooldown_timer{ PCM_TIMOUT };
     static uint8_t    pcm_retries;
     static float      pcm_prev_voltage;
 
@@ -43,7 +43,7 @@ namespace pcmOnState
     static void runOnEntry()
     {
         LOG_INFO("entering pcm on state!");
-        static constexpr app::powerManager::PowerManagerConfig power_manager_state = {
+        static constexpr powerManager::Efuses<powerManager::EfuseConfig> power_manager_state = {
             .front_efuse     = { true, 0, 5 },    // front
             .rsm_efuse       = { true, 0, 5 },    // rsm
             .bms_efuse       = { true, 0, 5 },    // bms
@@ -57,42 +57,42 @@ namespace pcmOnState
         };
         app::powerManager::updateConfig(power_manager_state);
 
-        app::can_tx::VC_State_set(VCState::VC_PCM_ON_STATE);
+        can_tx::VC_State_set(VCState::VC_PCM_ON_STATE);
         pcm_prev_voltage = 0.0f;
         pcm_retries      = 0;
         pcm_retry_states = PCM_ON_STATE;
-        app::can_alerts::infos::PcmUnderVoltage_set(false);
+        can_alerts::infos::PcmUnderVoltage_set(false);
     }
 
     static void runOnTick100Hz()
     {
-        if (app::can_rx::BMS_State_get() == app::can_utils::BmsState::BMS_INIT_STATE)
+        if (can_rx::BMS_State_get() == BmsState::BMS_INIT_STATE)
         {
-            app::StateMachine::set_next_state(&init_state);
+            StateMachine::set_next_state(&init_state);
         }
         else
         {
-            const float pcm_curr_voltage = app::can_tx::VC_PcmChannelVoltage_get();
+            const float pcm_curr_voltage = can_tx::VC_PcmChannelVoltage_get();
             switch (pcm_retry_states)
             {
                 case PCM_ON_STATE:
                 {
                     switch (pcm_timer.updateAndGetState())
                     {
-                        case app::Timer::TimerState::IDLE:
+                        case Timer::TimerState::IDLE:
                             pcm_timer.restart();
                             break;
-                        case app::Timer::TimerState::RUNNING:
+                        case Timer::TimerState::RUNNING:
                             if (pcmOnDone(pcm_curr_voltage))
                             {
-                                app::StateMachine::set_next_state(&hvInit_state);
+                                StateMachine::set_next_state(&hvInit_state);
                                 return;
                             }
                             break;
-                        case app::Timer::TimerState::EXPIRED:
+                        case Timer::TimerState::EXPIRED:
                             pcm_retry_states = PCM_COOLDOWN_STATE;
                             pcm_retries++;
-                            app::can_tx::VC_PcmRetryCount_set(pcm_retries);
+                            can_tx::VC_PcmRetryCount_set(pcm_retries);
                             pcm_timer.stop();
                             break;
                         default:
@@ -103,12 +103,12 @@ namespace pcmOnState
                 case PCM_COOLDOWN_STATE:
                     switch (pcm_cooldown_timer.updateAndGetState())
                     {
-                        case app::Timer::TimerState::IDLE:
+                        case Timer::TimerState::IDLE:
                             pcm_cooldown_timer.restart();
                             break;
-                        case app::Timer::TimerState::RUNNING:
+                        case Timer::TimerState::RUNNING:
                             break;
-                        case app::Timer::TimerState::EXPIRED:
+                        case Timer::TimerState::EXPIRED:
                             pcm_retry_states = PCM_ON_STATE;
                             pcm_cooldown_timer.stop();
                             break;
@@ -124,8 +124,8 @@ namespace pcmOnState
             pcm_prev_voltage = pcm_curr_voltage;
             if (pcm_retries >= PCM_MAX_RETRIES)
             {
-                app::can_alerts::infos::PcmUnderVoltage_set(true);
-                app::StateMachine::set_next_state(&fault_state);
+                can_alerts::infos::PcmUnderVoltage_set(true);
+                StateMachine::set_next_state(&fault_state);
             }
         }
     }

@@ -15,7 +15,7 @@ using namespace app::inverter;
 using namespace app::powerManager;
 using namespace app::tv::datatypes::torque_limits;
 
-static constexpr PowerManagerConfig power_manager_state = {
+static constexpr Efuses<EfuseConfig> power_manager_state = {
     .front_efuse     = { true, 0, 5 },   // front
     .rsm_efuse       = { true, 0, 5 },   // rsm
     .bms_efuse       = { true, 0, 5 },   // bms
@@ -55,7 +55,7 @@ static void driveStateRunOnEntry()
     LOG_INFO("entering drive state!");
 
     // enable inverters
-    app::can_tx::VC_State_set(VCState::VC_DRIVE_STATE);
+    can_tx::VC_State_set(VCState::VC_DRIVE_STATE);
     updateConfig(power_manager_state);
 
     // Ensure inverters are enabled
@@ -69,14 +69,14 @@ static void driveStateRunOnEntry()
 
 static void driveStateRunOnTick100Hz(void)
 {
-    if (app::can_rx::BMS_State_get() == app::can_utils::BmsState::BMS_INIT_STATE)
+    if (can_rx::BMS_State_get() == BmsState::BMS_INIT_STATE)
     {
-        app::StateMachine::set_next_state(&init_state);
+        StateMachine::set_next_state(&init_state);
     }
     else
     {
         // efuseProtocolTick_100Hz();
-        app::pumpControl::MonitorPumps();
+        pumpControl::MonitorPumps();
         // if (!driveStatePassPreCheck())
         // {
         //     send_torque(NO_TORQUE_Nm, NO_TORQUE_Nm, NO_TORQUE_Nm, NO_TORQUE_Nm);
@@ -86,7 +86,7 @@ static void driveStateRunOnTick100Hz(void)
 
         // TODO: add driving algorithm handling here
         // just for spinning wheels
-        apps               = app::can_rx::FSM_PappsMappedPedalPercentage_get();
+        apps               = can_rx::FSM_PappsMappedPedalPercentage_get();
         const float torque = apps * MAX_TORQUE_REQUEST_Nm / 100.0f;
         send_torque(torque, torque, torque, torque);
     }
@@ -101,7 +101,7 @@ static void driveStateRunOnExit(void)
     set_torque_limit_positive(NO_TORQUE_Nm, NO_TORQUE_Nm, NO_TORQUE_Nm, NO_TORQUE_Nm);
 }
 
-app::State drive_state = { .name              = "DRIVE",
+State drive_state = { .name              = "DRIVE",
                            .run_on_entry      = driveStateRunOnEntry,
                            .run_on_tick_1Hz   = nullptr,
                            .run_on_tick_100Hz = driveStateRunOnTick100Hz,

@@ -15,7 +15,7 @@ namespace inverterOnState
     static void runOnEntry()
     {
         LOG_INFO("entering inverter on state!");
-        static constexpr app::powerManager::PowerManagerConfig power_manager_state = {
+        static constexpr powerManager::Efuses<powerManager::EfuseConfig> power_manager_state = {
             .front_efuse     = { true, 0, 5 },  // front
             .rsm_efuse       = { true, 0, 5 },  // rsm
             .bms_efuse       = { true, 0, 5 },  // bms
@@ -29,18 +29,18 @@ namespace inverterOnState
         };
         app::powerManager::updateConfig(power_manager_state);
 
-        app::can_tx::VC_State_set(VCState::VC_INVERTER_ON_STATE);
+        can_tx::VC_State_set(VCState::VC_INVERTER_ON_STATE);
     }
 
     static void runOnTick100Hz()
     {
         const bool inverters_bsystemReady =
-            app::can_rx::INVFL_bSystemReady_get() && app::can_rx::INVFR_bSystemReady_get() &&
-            app::can_rx::INVRL_bSystemReady_get() && app::can_rx::INVRR_bSystemReady_get();
+            can_rx::INVFL_bSystemReady_get() && can_rx::INVFR_bSystemReady_get() &&
+            can_rx::INVRL_bSystemReady_get() && can_rx::INVRR_bSystemReady_get();
 
         if (inverters_bsystemReady)
         {
-            app::StateMachine::set_next_state(&bmsOn_state);
+            StateMachine::set_next_state(&bmsOn_state);
         }
     }
 

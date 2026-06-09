@@ -15,7 +15,6 @@
 #include "app_commitInfo.hpp"
 #include "app_vcShdnLoop.hpp"
 #include "app_shdnLast.hpp"
-#include "app_loadswitches.hpp"
 
 #include "io_canMsg.hpp"
 #include "io_canTx.hpp"
@@ -88,7 +87,6 @@ void jobs_run100Hz_tick()
     app::StateMachine::tick100Hz();
     app::can_tx::VC_PcmEnable_set(io::pcm::enabled());
     app::powerManager::efuseProtocolTick_100Hz();
-    app::loadswitches::efuse_broadcast();
     app::powerManager::broadcastRetryCounts();
     hb_monitor.checkIn();
     hb_monitor.broadcastFaults();

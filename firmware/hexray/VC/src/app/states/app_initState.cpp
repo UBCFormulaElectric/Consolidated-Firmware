@@ -21,49 +21,49 @@ namespace initState
 {
     static void reset_inverter_rx()
     {
-        app::can_rx::INVFL_bSystemReady_update(false);
-        app::can_rx::INVFR_bSystemReady_update(false);
-        app::can_rx::INVRL_bSystemReady_update(false);
-        app::can_rx::INVRR_bSystemReady_update(false);
-        app::can_rx::INVFL_bQuitDcOn_update(false);
-        app::can_rx::INVFR_bQuitDcOn_update(false);
-        app::can_rx::INVRL_bQuitDcOn_update(false);
-        app::can_rx::INVRR_bQuitDcOn_update(false);
-        app::can_rx::INVFL_bQuitInverterOn_update(false);
-        app::can_rx::INVFR_bQuitInverterOn_update(false);
-        app::can_rx::INVRL_bQuitInverterOn_update(false);
-        app::can_rx::INVRR_bQuitInverterOn_update(false);
-        app::can_rx::INVFL_bError_update(false);
-        app::can_rx::INVFR_bError_update(false);
-        app::can_rx::INVRL_bError_update(false);
-        app::can_rx::INVRR_bError_update(false);
-        app::can_rx::INVFL_ErrorInfo_update(0u);
-        app::can_rx::INVFR_ErrorInfo_update(0u);
-        app::can_rx::INVRL_ErrorInfo_update(0u);
-        app::can_rx::INVRR_ErrorInfo_update(0u);
+        can_rx::INVFL_bSystemReady_update(false);
+        can_rx::INVFR_bSystemReady_update(false);
+        can_rx::INVRL_bSystemReady_update(false);
+        can_rx::INVRR_bSystemReady_update(false);
+        can_rx::INVFL_bQuitDcOn_update(false);
+        can_rx::INVFR_bQuitDcOn_update(false);
+        can_rx::INVRL_bQuitDcOn_update(false);
+        can_rx::INVRR_bQuitDcOn_update(false);
+        can_rx::INVFL_bQuitInverterOn_update(false);
+        can_rx::INVFR_bQuitInverterOn_update(false);
+        can_rx::INVRL_bQuitInverterOn_update(false);
+        can_rx::INVRR_bQuitInverterOn_update(false);
+        can_rx::INVFL_bError_update(false);
+        can_rx::INVFR_bError_update(false);
+        can_rx::INVRL_bError_update(false);
+        can_rx::INVRR_bError_update(false);
+        can_rx::INVFL_ErrorInfo_update(0u);
+        can_rx::INVFR_ErrorInfo_update(0u);
+        can_rx::INVRL_ErrorInfo_update(0u);
+        can_rx::INVRR_ErrorInfo_update(0u);
     }
 
     static void reset_inverter_tx()
     {
-        app::can_tx::VC_INVFLbDcOn_set(false);
-        app::can_tx::VC_INVFRbDcOn_set(false);
-        app::can_tx::VC_INVRLbDcOn_set(false);
-        app::can_tx::VC_INVRRbDcOn_set(false);
-        app::can_tx::VC_INVFLbEnable_set(false);
-        app::can_tx::VC_INVFRbEnable_set(false);
-        app::can_tx::VC_INVRLbEnable_set(false);
-        app::can_tx::VC_INVRRbEnable_set(false);
-        app::can_tx::VC_INVFLbInverterOn_set(false);
-        app::can_tx::VC_INVFRbInverterOn_set(false);
-        app::can_tx::VC_INVRLbInverterOn_set(false);
-        app::can_tx::VC_INVRRbInverterOn_set(false);
-        app::can_tx::VC_INVFLbErrorReset_set(false);
-        app::can_tx::VC_INVFRbErrorReset_set(false);
-        app::can_tx::VC_INVRLbErrorReset_set(false);
-        app::can_tx::VC_INVRRbErrorReset_set(false);
+        can_tx::VC_INVFLbDcOn_set(false);
+        can_tx::VC_INVFRbDcOn_set(false);
+        can_tx::VC_INVRLbDcOn_set(false);
+        can_tx::VC_INVRRbDcOn_set(false);
+        can_tx::VC_INVFLbEnable_set(false);
+        can_tx::VC_INVFRbEnable_set(false);
+        can_tx::VC_INVRLbEnable_set(false);
+        can_tx::VC_INVRRbEnable_set(false);
+        can_tx::VC_INVFLbInverterOn_set(false);
+        can_tx::VC_INVFRbInverterOn_set(false);
+        can_tx::VC_INVRLbInverterOn_set(false);
+        can_tx::VC_INVRRbInverterOn_set(false);
+        can_tx::VC_INVFLbErrorReset_set(false);
+        can_tx::VC_INVFRbErrorReset_set(false);
+        can_tx::VC_INVRLbErrorReset_set(false);
+        can_tx::VC_INVRRbErrorReset_set(false);
     }
 
-    static constexpr app::powerManager::PowerManagerConfig power_manager_state = {
+    static constexpr powerManager::Efuses<powerManager::EfuseConfig> power_manager_state = {
         .front_efuse     = { true, 0, 5 },
         .rsm_efuse       = { true, 0, 5 },
         .bms_efuse       = { true, 0, 5 },
@@ -82,39 +82,39 @@ namespace initState
 
         io::pcm::set(false);
 
-        app::can_rx::clear_board_rx_table(app::can_utils::CanNode::VC_NODE);
+        can_rx::clear_board_rx_table(CanNode::VC_NODE);
 
         app::powerManager::updateConfig(power_manager_state);
-        app::can_tx::VC_State_set(VCState::VC_INIT_STATE);
+        can_tx::VC_State_set(VCState::VC_INIT_STATE);
 
-        app::can_alerts::infos::InverterRetry_set(false);
+        can_alerts::infos::InverterRetry_set(false);
         reset_inverter_rx();
         reset_inverter_tx();
 
-        app::can_tx::VC_INVFLTorqueSetpoint_set(torque_limits::NO_TORQUE_Nm);
-        app::can_tx::VC_INVFRTorqueSetpoint_set(torque_limits::NO_TORQUE_Nm);
-        app::can_tx::VC_INVRLTorqueSetpoint_set(torque_limits::NO_TORQUE_Nm);
-        app::can_tx::VC_INVRRTorqueSetpoint_set(torque_limits::NO_TORQUE_Nm);
+        can_tx::VC_INVFLTorqueSetpoint_set(torque_limits::NO_TORQUE_Nm);
+        can_tx::VC_INVFRTorqueSetpoint_set(torque_limits::NO_TORQUE_Nm);
+        can_tx::VC_INVRLTorqueSetpoint_set(torque_limits::NO_TORQUE_Nm);
+        can_tx::VC_INVRRTorqueSetpoint_set(torque_limits::NO_TORQUE_Nm);
 
-        app::can_tx::VC_INVFLTorqueLimitPositive_set(torque_limits::NO_TORQUE_Nm);
-        app::can_tx::VC_INVFRTorqueLimitPositive_set(torque_limits::NO_TORQUE_Nm);
-        app::can_tx::VC_INVRLTorqueLimitPositive_set(torque_limits::NO_TORQUE_Nm);
-        app::can_tx::VC_INVRRTorqueLimitPositive_set(torque_limits::NO_TORQUE_Nm);
+        can_tx::VC_INVFLTorqueLimitPositive_set(torque_limits::NO_TORQUE_Nm);
+        can_tx::VC_INVFRTorqueLimitPositive_set(torque_limits::NO_TORQUE_Nm);
+        can_tx::VC_INVRLTorqueLimitPositive_set(torque_limits::NO_TORQUE_Nm);
+        can_tx::VC_INVRRTorqueLimitPositive_set(torque_limits::NO_TORQUE_Nm);
 
-        app::can_tx::VC_INVFLTorqueLimitNegative_set(torque_limits::NO_TORQUE_Nm);
-        app::can_tx::VC_INVFRTorqueLimitNegative_set(torque_limits::NO_TORQUE_Nm);
-        app::can_tx::VC_INVRLTorqueLimitNegative_set(torque_limits::NO_TORQUE_Nm);
-        app::can_tx::VC_INVRRTorqueLimitNegative_set(torque_limits::NO_TORQUE_Nm);
-        app::pumpControl::restart();
+        can_tx::VC_INVFLTorqueLimitNegative_set(torque_limits::NO_TORQUE_Nm);
+        can_tx::VC_INVFRTorqueLimitNegative_set(torque_limits::NO_TORQUE_Nm);
+        can_tx::VC_INVRLTorqueLimitNegative_set(torque_limits::NO_TORQUE_Nm);
+        can_tx::VC_INVRRTorqueLimitNegative_set(torque_limits::NO_TORQUE_Nm);
+        pumpControl::restart();
     }
 
     static void runOnTick100Hz()
     {
-        app::pumpControl::MonitorPumps();
-        if (const ContactorState air_minus_closed = app::can_rx::BMS_IrNegative_get();
+        pumpControl::MonitorPumps();
+        if (const ContactorState air_minus_closed = can_rx::BMS_IrNegative_get();
             air_minus_closed == ContactorState::CONTACTOR_STATE_CLOSED)
         {
-            app::StateMachine::set_next_state(&inverterOn_state);
+            StateMachine::set_next_state(&inverterOn_state);
         }
     }
 

@@ -17,7 +17,7 @@ namespace faultState
     static void runOnEntry()
     {
         io::pcm::set(false);
-        static constexpr app::powerManager::PowerManagerConfig power_manager_state = {
+        static constexpr powerManager::Efuses<powerManager::EfuseConfig> power_manager_state = {
             .front_efuse     = { true, 0, 5 },    // front
             .rsm_efuse       = { true, 0, 5 },    // rsm
             .bms_efuse       = { true, 0, 5 },    // bms
@@ -30,15 +30,15 @@ namespace faultState
             .rl_pump_efuse   = { false, 200, 5 }, // rl_pump
         };
         app::powerManager::updateConfig(power_manager_state);
-        app::can_tx::VC_State_set(VCState::VC_FAULT_STATE);
+        can_tx::VC_State_set(VCState::VC_FAULT_STATE);
         LOG_INFO("entering fault state!");
     }
 
     static void runOnTick100Hz()
     {
-        if (!app::can_alerts::AnyBoardHasFault())
+        if (!can_alerts::AnyBoardHasFault())
         {
-            app::StateMachine::set_next_state(&init_state);
+            StateMachine::set_next_state(&init_state);
         }
     }
 

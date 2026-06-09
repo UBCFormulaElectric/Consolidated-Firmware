@@ -1,31 +1,53 @@
 #include "app_powerManager.hpp"
-#include "io_efuse_TI_TPS28.hpp"
-#include "io_efuse_TI_TPS25.hpp"
 #include "app_canTx.hpp"
+#include "app_timer.hpp"
+#include "io_efuses.hpp"
+
+#include <cassert>
 
 namespace app::powerManager
 {
 namespace
 {
-    PowerManagerConfig                                          state_{};
-    Timer                                                       sequencing_timer_{ 0 };
-    constexpr std::array<const io::Efuse *, NUM_EFUSE_CHANNELS> efuses = { {
-        &rr_pump_efuse,
-        &rl_pump_efuse,
-        &r_rad_fan_efuse,
-        &l_rad_fan_efuse,
-        &f_inv_efuse,
-        &r_inv_efuse,
-        &rsm_efuse,
-        &bms_efuse,
-        &dam_efuse,
-        &front_efuse,
-    } };
-    std::array<uint8_t, NUM_EFUSE_CHANNELS>                     retries_{};
+    constexpr size_t    NUM_EFUSE_CHANNELS = 10;
+    Efuses<EfuseConfig> state_{};
+    Timer               sequencing_timer_{ 0 };
+
+    constexpr Efuses<const io::Efuse *> efuses = {
+        &rr_pump_efuse, &rl_pump_efuse, &r_rad_fan_efuse, &l_rad_fan_efuse, &f_inv_efuse,
+        &r_inv_efuse,   &rsm_efuse,     &bms_efuse,       &dam_efuse,       &front_efuse,
+    };
+
+    constexpr Efuses efuse_status_setters = {
+        app::can_tx::VC_RearRightPumpStatus_set,
+        app::can_tx::VC_RearLeftPumpStatus_set,
+        app::can_tx::VC_RightRadiatorFanStatus_set,
+        app::can_tx::VC_LeftRadiatorFanStatus_set,
+        app::can_tx::VC_FrontInvertersStatus_set,
+        app::can_tx::VC_RearInvertersStatus_set,
+        app::can_tx::VC_RSMStatus_set,
+        app::can_tx::VC_BMSStatus_set,
+        app::can_tx::VC_DAMStatus_set,
+        app::can_tx::VC_FrontStatus_set,
+    };
+
+    constexpr Efuses efuse_current_setters = {
+        app::can_tx::VC_RearRightPumpCurrent_set,
+        app::can_tx::VC_RearLeftPumpCurrent_set,
+        app::can_tx::VC_RightRadiatorFanCurrent_set,
+        app::can_tx::VC_LeftRadiatorFanCurrent_set,
+        app::can_tx::VC_FrontInvertersCurrent_set,
+        app::can_tx::VC_RearInvertersCurrent_set,
+        app::can_tx::VC_RSMCurrent_set,
+        app::can_tx::VC_BMSCurrent_set,
+        app::can_tx::VC_DAMCurrent_set,
+        app::can_tx::VC_FrontCurrent_set,
+    };
+
+    std::array<uint8_t, NUM_EFUSE_CHANNELS> retries_{};
 
     void sequenceWhileIdle()
     {
-        const std::span<const EfuseConfig> configs = state_.as_span();
         for (size_t ch = 0; ch < NUM_EFUSE_CHANNELS; ch++)
         {
             if (sequencing_timer_.updateAndGetState() != Timer::TimerState::IDLE)
@@ -33,7 +55,7 @@ namespace
             const io::Efuse *efuse = efuses[ch];
             assert(efuse != nullptr);
 
-            const bool desired = configs[ch].efuse_enable;
+            const bool desired = state_[ch].efuse_enable;
 
             if (!desired) // turning off
             {
@@ -46,14 +68,14 @@ namespace
                 if (not efuse->ok()) // pbad
                 {
                     // retry time
-                    if (retries_[ch] > configs[ch].max_retry)
+                    if (retries_[ch] > state_[ch].max_retry)
                     {
                         continue;
                     }
                     ++retries_[ch];
 
                     // TODO think about a retry timeout
-                    if (const uint32_t timeout = configs[ch].timeout; timeout != 0)
+                    if (const uint32_t timeout = state_[ch].timeout; timeout != 0)
                     {
                         sequencing_timer_.update_duration(timeout);
                         sequencing_timer_.restart();
@@ -64,7 +86,7 @@ namespace
             else
             {
                 // enable it lmaomao
-                if (const uint32_t timeout = configs[ch].timeout; timeout != 0)
+                if (const uint32_t timeout = state_[ch].timeout; timeout != 0)
                 {
                     sequencing_timer_.update_duration(timeout);
                     sequencing_timer_.restart();
@@ -75,7 +97,7 @@ namespace
     }
 } // namespace
 
-void updateConfig(const PowerManagerConfig &new_cfg)
+void updateConfig(const Efuses<EfuseConfig> &new_cfg)
 {
     state_   = new_cfg;
     retries_ = {};
@@ -108,20 +130,30 @@ void efuseProtocolTick_100Hz()
     switch (sequencing_timer_.updateAndGetState())
     {
         case Timer::TimerState::RUNNING:
+            break;
         default:
-            return;
-
+            assert(false);
+            break;
         case Timer::TimerState::EXPIRED:
             sequencing_timer_.stop();
             // fallthrough so we can start the next sequence right after
             [[fallthrough]];
         case Timer::TimerState::IDLE:
             sequenceWhileIdle();
-            return;
+            break;
+    }
+
+    // broadcast new state
+    for (size_t ch = 0; ch < NUM_EFUSE_CHANNELS; ch++)
+    {
+        const io::Efuse *efuse = efuses[ch];
+        assert(efuse != nullptr);
+        efuse_status_setters[ch](efuse->isChannelEnabled());
+        efuse_current_setters[ch](efuse->getChannelCurrent());
     }
 }
 #ifdef TARGET_TEST
-PowerManagerConfig getConfig()
+Efuses<EfuseConfig> getConfig()
 {
     return state_;
 }

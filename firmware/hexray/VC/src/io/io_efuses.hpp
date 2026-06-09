@@ -1,14 +1,7 @@
 #pragma once
 
-#include "efuse/io_efuse.hpp"
 #include "efuse/io_efuse_TI_TPS25.hpp"
 #include "efuse/io_efuse_TI_TPS28.hpp"
-
-#include <array>
-#include <functional>
-
-constexpr inline size_t                                                        NUM_EFUSE_CHANNELS = 10;
-extern std::array<std::reference_wrapper<const io::Efuse>, NUM_EFUSE_CHANNELS> efuses;
 
 #ifdef TARGET_EMBEDDED
 extern const io::TI_TPS28_Efuse f_inv_efuse;
