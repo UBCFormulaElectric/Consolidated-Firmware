@@ -11,20 +11,17 @@
 namespace io::ts
 {
 
-constexpr float AMPLIFIER_GAIN = 1.0f; // Isolated amplifier gain
-constexpr float TS_VOLTAGE_DIV = (20e3f / (6 * 1e6f + 20e3f)); // Voltage divider for the TS+ voltage sensing
+constexpr float AMPLIFIER_GAIN       = 1.0f;                         // Isolated amplifier gain
+constexpr float TS_VOLTAGE_DIV       = (20e3f / (6 * 1e6f + 20e3f)); // Voltage divider for the TS+ voltage sensing
 constexpr float R_ERROR_COMPENSATION = 1.0f;
 
-
-
-
 // TS Current Sensing
-constexpr float LOW_SIDE_R = 33e3f;
-constexpr float HIGH_SIDE_R = 60.4e3f;
-constexpr float TSI_TO_CSIN = (LOW_SIDE_R + HIGH_SIDE_R) / HIGH_SIDE_R;
-constexpr float OFFSET_V = 2.5f;
+constexpr float LOW_SIDE_R       = 33e3f;
+constexpr float HIGH_SIDE_R      = 60.4e3f;
+constexpr float TSI_TO_CSIN      = (LOW_SIDE_R + HIGH_SIDE_R) / HIGH_SIDE_R;
+constexpr float OFFSET_V         = 2.5f;
 constexpr float HIGH_RES_SENS_VA = 26.7e-3f;
-constexpr float LOW_RES_SENS_VA = 4e-3f;
+constexpr float LOW_RES_SENS_VA  = 4e-3f;
 
 // TS Current Sensing Calibration
 constexpr float OUTPUT1_CHARGING_ERROR_SLOPE     = -0.009863f;
@@ -36,9 +33,6 @@ constexpr float OUTPUT2_CHARGING_ERROR_SLOPE     = -0.020666f;
 constexpr float OUTPUT2_CHARGING_ERROR_OFFSET    = -18.145014f;
 constexpr float OUTPUT2_DISCHARGING_ERROR_SLOPE  = -0.019513f;
 constexpr float OUTPUT2_DISCHARGING_ERROR_OFFSET = -18.518876f;
-
-
-
 
 float getVoltage(void)
 {
@@ -87,7 +81,7 @@ float getVoltage(void)
 // Charging => current >= 0, discharging => current < 0
 float getCurrentHighResolution()
 {
-    const float cs_in_1 = MAX(ts_isense_50a.getVoltage(), 0.0f) * TSI_TO_CSIN;
+    const float cs_in_1          = MAX(ts_isense_50a.getVoltage(), 0.0f) * TSI_TO_CSIN;
     const float reported_current = -((cs_in_1 - OFFSET_V) / HIGH_RES_SENS_VA);
 
     // Error calibration for the high resolution current sensor (channel 1).
@@ -101,7 +95,7 @@ float getCurrentHighResolution()
 // Charging => current >= 0, discharging => current < 0
 float getCurrentLowResolution()
 {
-    const float cs_in_2 = MAX(ts_isense_400a.getVoltage(), 0.0f) * TSI_TO_CSIN;
+    const float cs_in_2          = MAX(ts_isense_400a.getVoltage(), 0.0f) * TSI_TO_CSIN;
     const float reported_current = -((cs_in_2 - OFFSET_V) / LOW_RES_SENS_VA);
 
     // Error calibration for the low resolution current sensor (channel 2).

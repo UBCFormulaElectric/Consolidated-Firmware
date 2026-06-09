@@ -182,7 +182,7 @@ char USBD_PRODUCT_STRING_FS[] = "bms";
 {
     SEGGER_SYSVIEW_Conf();
     assert(hw::usb::init());
-    adcChipsInit();  
+    adcChipsInit();
     LOG_INFO("BMS Reset!");
     osKernelInitialize();
     TaskChimera.start();
