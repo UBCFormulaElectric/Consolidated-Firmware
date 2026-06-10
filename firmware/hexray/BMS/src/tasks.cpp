@@ -51,10 +51,8 @@ static hw::rtos::StaticTask Task100Hz(osPriorityHigh, "Task100Hz", tasks_run100H
 static hw::rtos::StaticTask TaskCanRx(osPriorityBelowNormal, "TaskCanRx", tasks_runCanRx, TaskCanRxStack);
 static hw::rtos::StaticTask TaskVehicleCanTx(osPriorityBelowNormal, "TaskVehicleCanTx", tasks_runVehicleCanTx, TaskVehicleCanTxStack);
 static hw::rtos::StaticTask TaskChargerCanTx(osPriorityBelowNormal, "TaskChargerCanTx", tasks_runChargerCanTx, TaskChargerCanTxStack);
-static hw::rtos::StaticTask
-    TaskAdbmsVoltages(osPriorityNormal, "TaskAdbmsVoltages", tasks_runAdbmsVoltages, TaskAdbmsVoltagesStack);
-static hw::rtos::StaticTask
-    TaskAdbmsConfigs(osPriorityHigh, "TaskAdbmsConfigs", tasks_runAdbmsConfigs, TaskAdbmsConfigsStack);
+static hw::rtos::StaticTask TaskAdbmsVoltages(osPriorityNormal, "TaskAdbmsVoltages", tasks_runAdbmsVoltages, TaskAdbmsVoltagesStack);
+static hw::rtos::StaticTask TaskAdbmsConfigs(osPriorityHigh, "TaskAdbmsConfigs", tasks_runAdbmsConfigs, TaskAdbmsConfigsStack);
 static hw::rtos::StaticTask TaskAdbmsAux(osPriorityNormal, "TaskAdbmsAux", tasks_runAdbmsAux, TaskAdbmsAuxStack);
 
 // static hw::runtimeStat::monitor<TASK_COUNT> runtimeMonitor(
