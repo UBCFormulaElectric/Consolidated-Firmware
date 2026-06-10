@@ -13,9 +13,11 @@ import SyncedGraphContainer, { TimeRange } from "@/components/SyncedGraphContain
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { WidgetManager, useWidgetManager } from "@/components/widgets/WidgetManagerContext";
+import { fetchHistoricalMarkers } from "@/lib/api/historicalMarkers";
 import { HistoricalSignalSource } from "@/lib/api/historicalSignals";
 import { HistoricalSignalStoreProvider } from "@/lib/contexts/signalStores/HistoricalSignalStoreContext";
 import { useHistoricalSessionSelection } from "@/lib/hooks/useHistoricalSessionSelection";
+import { clearRemoteTelemetryMarkers, setRemoteTelemetryMarkers } from "@/lib/telemetryMarkers";
 import { cn } from "@/lib/utils";
 
 const HISTORIC_WIDGET_STORAGE_KEY = "tracksight_historic_widgets_config_v1";
@@ -104,6 +106,30 @@ function HistoricContent(props: { selectedRange: { min: number; max: number }; s
     useEffect(() => {
         setFetchRange(selectedRange);
     }, [selectedRange, selectedSource]);
+
+    useEffect(() => {
+        let isCancelled = false;
+
+        const loadMarkers = async () => {
+            try {
+                const markers = await fetchHistoricalMarkers(fetchRange.min, fetchRange.max, selectedSource);
+                if (isCancelled) return;
+                setRemoteTelemetryMarkers(markers);
+            } catch (error) {
+                if (!isCancelled) {
+                    console.error("Failed to load historical markers:", error);
+                    clearRemoteTelemetryMarkers();
+                }
+            }
+        };
+
+        void loadMarkers();
+
+        return () => {
+            isCancelled = true;
+            clearRemoteTelemetryMarkers();
+        };
+    }, [fetchRange.max, fetchRange.min, selectedSource]);
 
     const handleViewportSettled = useCallback(
         (viewportRange: TimeRange) => {
