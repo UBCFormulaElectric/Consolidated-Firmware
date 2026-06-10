@@ -11,14 +11,17 @@ using namespace io::imus;
 void init()
 {
     auto ec1 = IMU1.init();
+    /* ye im done w ts, wallah im done
     auto ec2 = IMU2.init();
     auto ec3 = IMU3.init();
+    */
     if (ec1)
         warnings::Imu1InitFailed_set(not ec1.has_value());
-    if (ec2)
+    /*if (ec2)
         warnings::Imu2InitFailed_set(not ec2.has_value());
     if (ec3)
         warnings::Imu3InitFailed_set(not ec3.has_value());
+    */
 }
 
 void broadcast()
@@ -27,12 +30,13 @@ void broadcast()
     const auto accel1 = IMU1.getAccelAll();
     const auto gyro1  = IMU1.getGyroAll();
     // IMU2 data broadcasting
+    /*
     const auto accel2 = IMU2.getAccelAll();
     const auto gyro2  = IMU2.getGyroAll();
     // IMU3 data broadcasting
     const auto accel3 = IMU3.getAccelAll();
     const auto gyro3  = IMU3.getGyroAll();
-
+    */
     // If either accel or gyro fails for an IMU, set a fault alert
     // for that IMU and skip broadcasting data for that IMU
     if (!accel1 || !gyro1)
@@ -46,6 +50,7 @@ void broadcast()
     app::can_tx::VC_Imu1AngularVelocityPitch_set(gyro1 ? gyro1->y : 0.0f);
     app::can_tx::VC_Imu1AngularVelocityYaw_set(gyro1 ? gyro1->z : 0.0f);
 
+    /*
     if (!accel2 || !gyro2)
         infos::Imu2Fault_set(true);
 
@@ -69,8 +74,8 @@ void broadcast()
     app::can_tx::VC_Imu3AngularVelocityRoll_set(gyro3 ? gyro3->x : 0.0f);
     app::can_tx::VC_Imu3AngularVelocityPitch_set(gyro3 ? gyro3->y : 0.0f);
     app::can_tx::VC_Imu3AngularVelocityYaw_set(gyro3 ? gyro3->z : 0.0f);
+*/
 }
-
 // TODO: state estimation for which IMU is faulty if any and maybe a way to determine if the IMU is giving bad data but
 // not fully broken (ex: values are all 0 or not changing at all) and then use the good IMUs to estimate what the bad
 // IMU should be outputting and broadcast that instead, and set a fault alert for that IMU as well. Could also use this
