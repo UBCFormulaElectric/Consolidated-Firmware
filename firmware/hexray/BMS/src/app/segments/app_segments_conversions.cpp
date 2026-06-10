@@ -20,40 +20,27 @@ namespace app::segments
 {
 using io::adbms::Cells, io::adbms::Segments;
 
-result<void> startPoll::secondaryCellAdc(const io::adbms::OpenWireSwitch owcSwitch)
+result<void> startContinuous::secondaryCellAdc(const io::adbms::OpenWireSwitch owcSwitch)
 {
     if (const auto start = io::adbms::command::owcCells(owcSwitch); !start)
     {
         health::setAll(health::ErrorBit::OWC_ADC_POLL);
         return std::unexpected(start.error());
     }
-    io::time::delay(SECONDARY_CELL_CONV_TIME_MS);
-    if (const auto poll = io::adbms::command::pollSecondaryCellsAdc(); !poll)
-    {
-        health::setAll(health::ErrorBit::OWC_ADC_POLL);
-        return std::unexpected(poll.error());
-    }
     health::resetAll(health::ErrorBit::OWC_ADC_POLL);
     return {};
 }
 
-result<void> startPoll::cellAdc()
+result<void> startContinuous::cellAdc()
 {
     if (const auto start = io::adbms::command::startCellsAdc(); !start)
     {
         health::setAll(health::ErrorBit::CELL_ADC_POLL);
         return std::unexpected(start.error());
     }
-    io::time::delay(CELL_CONV_TIME_MS);
-    if (const auto poll = io::adbms::command::pollCellsAdc(); !poll)
-    {
-        health::setAll(health::ErrorBit::CELL_ADC_POLL);
-        return std::unexpected(poll.error());
-    }
     health::resetAll(health::ErrorBit::CELL_ADC_POLL);
     return {};
 }
-
 result<void> startPoll::auxAdc()
 {
     if (const auto start = io::adbms::command::startAuxAdc(); !start)

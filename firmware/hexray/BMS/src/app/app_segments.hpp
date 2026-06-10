@@ -146,10 +146,13 @@ namespace alerts
 // app_segments_conversions.cpp
 namespace startPoll
 {
-    [[nodiscard]] result<void> secondaryCellAdc(io::adbms::OpenWireSwitch owcSwitch);
-    [[nodiscard]] result<void> cellAdc();
     [[nodiscard]] result<void> auxAdc();
 } // namespace startPoll
+
+namespace startContinuous {
+    [[nodiscard]] result<void> secondaryCellAdc(io::adbms::OpenWireSwitch owcSwitch);
+    [[nodiscard]] result<void> cellAdc();
+} // namespace startContinuous
 
 namespace conversion
 {

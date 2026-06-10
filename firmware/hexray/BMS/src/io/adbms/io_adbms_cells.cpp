@@ -25,12 +25,12 @@ result<void> clear::filteredCell()
 
 result<void> command::startCellsAdc()
 {
-    return sendCmd(ADCV_BASE);
+    return sendCmd(ADCV_BASE || CONT);
 }
 
 result<void> command::owcCells(const OpenWireSwitch owcSwitch)
 {
-    const uint16_t cmd = (owcSwitch == OpenWireSwitch::EVEN_CHANNELS) ? (ADSV_BASE | OW0) : (ADSV_BASE | OW1);
+    const uint16_t cmd = (owcSwitch == OpenWireSwitch::EVEN_CHANNELS) ? (ADSV_BASE | OW0 | CONT) : (ADSV_BASE | OW1 | CONT);
     return sendCmd(cmd);
 }
 
