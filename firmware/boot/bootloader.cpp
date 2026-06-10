@@ -13,6 +13,7 @@
 #include "io_queue.hpp"
 #include <expected>
 #include "util_errorCodes.hpp"
+#include "util_retry.hpp"
 
 // App code block. Start/size included from the linker script.
 // Info needed by the bootloader to boot safely. Currently takes up the the first kB
@@ -39,8 +40,8 @@ enum class BootStatus : uint8_t
     BOOT_STATUS_NO_APP
 };
 
-static bool     update_in_progress;
-static uint32_t current_address; // aka the last known good address
+static bool update_in_progress;
+// static uint32_t current_address; // aka the last known good address
 
 [[noreturn]] static void modifyStackPointerAndStartApp(const uint32_t *address)
 {
@@ -251,8 +252,9 @@ void bootloader::init(config &boot_config)
             // TODO: Seems kinda fragile
             for (uint8_t i = 0; i < command.dlc / 8; i++)
             {
-                const uint64_t program_data = command.getDataAsQWords()[i];
-                // const uint32_t in_addr = command.std_id; // TODO
+                const uint64_t program_data    = command.getDataAsQWords()[i];
+                const uint32_t block_addr      = (command.std_id & 0x00FFFFF0U) >> 4;
+                const uint32_t current_address = reinterpret_cast<uint32_t>(&__app_metadata_start__) + 8 * block_addr;
                 if (const auto status = boot_config.boardSpecific_program(current_address, program_data);
                     not status and status.error() != ErrorCode::ERROR_INDETERMINATE)
                 {
@@ -266,7 +268,20 @@ void bootloader::init(config &boot_config)
                     update_in_progress = false;
                     continue;
                 }
-                current_address += sizeof(uint64_t);
+
+                if (const auto first_unprogrammed_addr = boot_config.getFirstUnprogrammedAddress();
+                    first_unprogrammed_addr.has_value())
+                {
+                    if (current_address >= first_unprogrammed_addr.value())
+                    {
+                        // GO BACK!!!
+                    }
+                }
+                else
+                {
+                    LOG_IF_ERR(boot_config.flush());
+                }
+                // current_address += sizeof(uint64_t);
             }
         }
         else

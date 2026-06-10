@@ -204,24 +204,23 @@ class Bootloader:
         CAN_FRAME_SIZE = 64 if self.is_fd else 8
         start_addr = self.ih.minaddr()
         end_addr = self.ih.minaddr() + self.size_bytes()
+        print(f"start addr is {start_addr}, end addr is {end_addr}")
 
         jump_back_address: Optional[int] = None # TODO populate with CAN failure messages
-        run = True
         stop_listner = threading.Event()
         # spawn a new thread which populates the above
-        def listener():
-            nonlocal run, jump_back_address
-            while run and jump_back_address is None:
+        def listener(stop_listener: threading.Event):
+            nonlocal jump_back_address # this magically works??
+            while not stop_listener.is_set():
                 can_msg = self._await_can_msg(
                     validator=lambda x: x== self.board.boot_id_range_start | PROGRAM_ID_FAILED_LOWBITS
                 )
-                print(f"Received CAN message during programming: {can_msg}")
                 if can_msg is not None:
                     k = can_msg.data
                     assert can_msg.dlc == 4, f"Expected 4 bytes in PROGRAM_ID_FAILED message, got {can_msg.dlc}"
                     # TODO maybe better struct unpacking :sob:
                     jump_back_address = (k[0] << 24) | (k[1] << 16) | (k[2] << 8) | k[3]
-        listen_thread = threading.Thread(target=listener, args=(stop_listner))
+        listen_thread = threading.Thread(target=listener, args=(stop_listner,))
         listen_thread.start()
 
         # TODO: Check if binary is aligned to 64 bytes and ensure ending bytes are sent
@@ -241,12 +240,12 @@ class Bootloader:
             #data = [self.ih[address + j] for j in range(frame_size)]
             data = [self.ih[address + j] for j in range(0, 8)]
 
+            wire_block_num = block << 4
             while True:
                 try:
                     self.bus.send(
                         can.Message(
-                            arbitration_id=self.board.boot_id_range_start
-                            | PROGRAM_CAN_ID_LOWBITS,
+                            arbitration_id=self.board.boot_id_range_start | wire_block_num,
                             data=data,
                             is_extended_id=True,
                             is_fd=self.is_fd,

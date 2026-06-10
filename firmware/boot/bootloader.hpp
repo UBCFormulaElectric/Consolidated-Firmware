@@ -9,6 +9,7 @@
 #include <span>
 #include <expected>
 #include <optional>
+#include <algorithm>
 
 // Keep CAN protocol in sync with:
 // canup/bootloader.py
@@ -30,6 +31,20 @@ namespace bootloader
 {
 class config
 {
+    struct BlockBufferInfo
+    {
+        size_t                                                     start_addr;
+        std::array<std::byte, hw::flash::WORD_BYTES>               buffer{};
+        std::array<bool, hw::flash::WORD_BYTES / sizeof(uint64_t)> filled{};
+        explicit BlockBufferInfo(const size_t _start_addr) : start_addr(_start_addr)
+        {
+            buffer.fill(std::byte{ 0 });
+            filled.fill(false);
+        }
+    };
+
+    std::optional<BlockBufferInfo> block_buffer = std::nullopt;
+
   public:
     io::queue<hw::CanMsg, 256> &can_tx_queue;
     io::queue<hw::CanMsg, 256> &can_rx_queue;
@@ -37,10 +52,6 @@ class config
     uint32_t BOARD_HIGHBITS{ 0 };
     uint32_t _GIT_COMMIT_HASH{ 0 };
     bool     _GIT_COMMIT_CLEAN{ false };
-    // if this is nullopt, then flash is clean
-    std::optional<uint32_t>                                    block_addr = std::nullopt;
-    std::array<std::byte, hw::flash::WORD_BYTES>               block_buffer{};
-    std::array<bool, hw::flash::WORD_BYTES / sizeof(uint64_t)> block_buffer_filled{};
 
 #if defined(STM32H733xx) || defined(STM32H562xx)
     hw::fdcan &fdcan_handle;
@@ -89,24 +100,36 @@ class config
     {
         assert(address % sizeof(uint64_t) == 0); // must write 8 bytes at a time
         const uint32_t block_offset = address % hw::flash::WORD_BYTES;
-        if (not block_addr.has_value())
+        if (not block_buffer.has_value())
         {
-            block_addr = address - block_offset;
+            if (block_offset != 0) // namely the address is NOT aligned
+            {
+                return std::unexpected(ErrorCode::INVALID_ARGS); // starting program address is invalid
+            }
+            block_buffer = BlockBufferInfo(address);
         }
         else
         {
             // check that the addr is valid in this block
-            if (block_addr.value() <= address && address < block_addr.value() + hw::flash::WORD_BYTES)
+            if (const size_t block_start_addr = block_buffer.value().start_addr;
+                block_start_addr <= address && address < block_start_addr + hw::flash::WORD_BYTES)
             {
                 return std::unexpected(ErrorCode::INVALID_ARGS);
             }
         }
-        assert(block_addr.has_value());
-        assert(block_addr.value() % hw::flash::WORD_BYTES == 0);
+        assert(block_buffer.has_value());
 
-        std::memcpy(&block_buffer[block_offset], &data, sizeof(data));
-        block_buffer_filled[block_offset / sizeof(uint64_t)] = true;
+        {
+            BlockBufferInfo &block_buffer_val = block_buffer.value();
+            assert(block_buffer_val.start_addr % hw::flash::WORD_BYTES == 0);
+            std::memcpy(&block_buffer_val.buffer[block_offset], &data, sizeof(data));
+            block_buffer_val.filled[block_offset / sizeof(uint64_t)] = true;
+        }
+        return {};
+    }
 
+    virtual result<void> flush()
+    {
         // On the STM32H733xx microcontroller, the smallest amount of memory you can
         // program at a time is 32 bytes (one "flash word" FLASH_WORD_BYTES = 32B).
         // On the STM32H562xx microcontroller, the largest amount of memory you can
@@ -115,15 +138,39 @@ class config
         // data. So we keep track of the data to program in a buffer in RAM, until the buffer is full, and then we can
         // write the entire flash word. This implementation only works if the binary size is a multiple of 32 bytes, or
         // the buffer won't fill up for the last few bytes so won't be written into flash. This is guaranteed by canup.
-
-        if (block_offset + sizeof(uint64_t) != hw::flash::WORD_BYTES)
+        if (not block_buffer.has_value())
         {
-            // have not filled the buffer yet
             return std::unexpected(ErrorCode::ERROR_INDETERMINATE);
         }
-        const auto res = hw::flash::programFlash(address / hw::flash::WORD_BYTES * hw::flash::WORD_BYTES, block_buffer);
-        block_addr     = std::nullopt;
-        return res;
+        {
+            BlockBufferInfo &block_buffer_val = block_buffer.value();
+            if (std::ranges::all_of(block_buffer_val.filled, [](const bool filled) { return filled; }))
+            {
+                return std::unexpected(ErrorCode::ERROR_INDETERMINATE);
+            }
+            const auto flash_res = hw::flash::programFlash(
+                block_buffer_val.start_addr / hw::flash::WORD_BYTES * hw::flash::WORD_BYTES,
+                block_buffer.value().buffer);
+            RETURN_IF_ERR(flash_res);
+        }
+        block_buffer = std::nullopt;
+        return {};
+    }
+
+    virtual std::optional<size_t> getFirstUnprogrammedAddress()
+    {
+        assert(block_buffer.has_value());
+        {
+            const BlockBufferInfo &block_buffer_val = block_buffer.value();
+            for (size_t i = 0; i < block_buffer_val.filled.size(); i++)
+            {
+                if (not block_buffer_val.filled[i])
+                {
+                    return block_buffer_val.start_addr + i * sizeof(uint64_t);
+                }
+            }
+        }
+        return std::nullopt;
     }
 };
 
