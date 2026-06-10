@@ -122,6 +122,7 @@ pub fn get_sd_router() -> Router<AppState> {
         .route("/sd/dump", post(sd_dump))
         .route("/sd/format", post(sd_format));
 }
+<<<<<<< HEAD
 
 
 // TODO remove mock after done
@@ -193,3 +194,5 @@ pub fn get_sd_router_mock() -> Router<AppState> {
         .route("/sd/dump", post(sd_dump_mock))
         .route("/sd/format", post(sd_format_mock));
 }
+=======
+>>>>>>> 4d7825470 (socket disconnect (#2067))
