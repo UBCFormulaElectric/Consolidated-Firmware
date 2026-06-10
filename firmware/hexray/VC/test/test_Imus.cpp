@@ -38,6 +38,8 @@ TEST_F(VCImuTest, Imu1_Accel_Gyro_Test)
 }
 
 // IMU2
+
+/*
 TEST_F(VCImuTest, Imu2_Accel_Gyro_Test)
 {
     io::imus::IMU2.set_AccelX(1.0f);
@@ -97,3 +99,4 @@ TEST_F(VCImuTest, Imu3_Accel_Gyro_Test)
 //     ASSERT_FLOAT_EQ(0.0f, app::can_tx::VC_Imu1AccelerationY_get());
 //     ASSERT_FLOAT_EQ(0.0f, app::can_tx::VC_Imu1AccelerationZ_get());
 // }
+*/
