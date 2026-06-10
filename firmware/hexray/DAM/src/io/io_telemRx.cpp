@@ -4,8 +4,6 @@
 #include <span>
 
 #include "hw_uarts.hpp"
-#include "io_log.hpp"
-
 result<std::span<const uint8_t>> io::telemRx::read(std::span<uint8_t> scratch)
 {
     // ReceiveToIdle keeps the peripheral armed for the whole scratch buffer in
@@ -14,9 +12,6 @@ result<std::span<const uint8_t>> io::telemRx::read(std::span<uint8_t> scratch)
     // the half-buffer mark was hit.
     const auto rx_result = _900k_uart.receiveToIdle(scratch);
     if (!rx_result)
-    {
-        LOG_ERROR("telemRx: UART receive failed: %d", static_cast<int>(rx_result.error()));
-        return std::unexpected(ErrorCode::ERROR);
-    }
+        return std::unexpected(rx_result.error());
     return std::span<const uint8_t>{ scratch.data(), *rx_result };
 }
