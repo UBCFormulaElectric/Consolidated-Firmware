@@ -43,6 +43,8 @@ class LiveSignalStore extends SignalStore {
       const ts = new Date(timestamp).getTime();
 
       if (signal_type === "Marker") {
+        if (!signalName.endsWith("TelemMarkEvent")) return;
+
         addTelemetryMarker({
           timestampMs: ts,
         });

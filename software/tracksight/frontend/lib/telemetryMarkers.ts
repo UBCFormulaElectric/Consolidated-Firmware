@@ -8,6 +8,22 @@ const STORAGE_KEY = "tracksight_telem_button_markers_v1";
 const MAX_MARKERS = 500;
 
 let markerCache: TelemetryMarker[] | null = null;
+let remoteMarkerCache: TelemetryMarker[] = [];
+
+function normalizeMarkers(markers: TelemetryMarker[]): TelemetryMarker[] {
+    const timestamps = new Set<number>();
+
+    markers.forEach((marker) => {
+        if (marker && typeof marker.timestampMs === "number") {
+            timestamps.add(marker.timestampMs);
+        }
+    });
+
+    return Array.from(timestamps)
+        .sort((left, right) => left - right)
+        .slice(-MAX_MARKERS)
+        .map((timestampMs) => ({ timestampMs }));
+}
 
 function canUseStorage() {
     return typeof window !== "undefined" && typeof window.localStorage !== "undefined";
@@ -33,7 +49,7 @@ function readMarkersFromStorage(): TelemetryMarker[] {
 }
 
 function writeMarkersToStorage(markers: TelemetryMarker[]) {
-    markerCache = markers.slice(-MAX_MARKERS);
+    markerCache = normalizeMarkers(markers);
     if (!canUseStorage()) return;
 
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(markerCache));
@@ -48,7 +64,7 @@ export function getTelemetryMarkers(): TelemetryMarker[] {
 }
 
 export function getVisibleTelemetryMarkers(startTimeMs: number, endTimeMs: number): TelemetryMarker[] {
-    return getTelemetryMarkers().filter((marker) => marker.timestampMs >= startTimeMs && marker.timestampMs <= endTimeMs);
+    return normalizeMarkers([...getTelemetryMarkers(), ...remoteMarkerCache]).filter((marker) => marker.timestampMs >= startTimeMs && marker.timestampMs <= endTimeMs);
 }
 
 export function addTelemetryMarker(marker: TelemetryMarker) {
@@ -58,4 +74,12 @@ export function addTelemetryMarker(marker: TelemetryMarker) {
 
     writeMarkersToStorage([...getTelemetryMarkers(), nextMarker].sort((left, right) => left.timestampMs - right.timestampMs));
     return nextMarker;
+}
+
+export function setRemoteTelemetryMarkers(markers: TelemetryMarker[]) {
+    remoteMarkerCache = normalizeMarkers(markers);
+}
+
+export function clearRemoteTelemetryMarkers() {
+    remoteMarkerCache = [];
 }
