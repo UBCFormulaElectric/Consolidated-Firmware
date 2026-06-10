@@ -24,6 +24,7 @@
         "INVRL_RLInverterInfo2",
         "INVRR_RRInverterInfo2",
         "BMS_LatchStatus",
-        "BMS_PowerLimit"
+        "BMS_PowerLimit",
+        "Debug_SetTorqueRequest"
     ]
 }

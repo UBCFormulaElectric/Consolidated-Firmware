@@ -87,8 +87,14 @@ static void driveStateRunOnTick100Hz()
         // TODO: add driving algorithm handling here
         // just for spinning wheels
         apps               = can_rx::FSM_PappsMappedPedalPercentage_get();
-        const float torque = apps * MAX_TORQUE_REQUEST_Nm / 100.0f;
-        send_torque(torque, torque, torque, torque);
+        const float torque_request = apps * MAX_TORQUE_REQUEST_Nm / 100.0f;
+        const float torque_fl =  app::can_rx::Debug_TorqueRequest_FL_get();
+        const float torque_fr =  app::can_rx::Debug_TorqueRequest_FR_get();
+        const float torque_rl =  app::can_rx::Debug_TorqueRequest_RL_get();
+        const float torque_rr =  app::can_rx::Debug_TorqueRequest_RR_get();
+
+        //const float torque_request = app::can_utils::
+        send_torque(torque_fl, torque_fr, torque_rl, torque_rr);
         if (startSwitch::hasRisingEdge())
         {
             StateMachine::set_next_state(&hv_state);
