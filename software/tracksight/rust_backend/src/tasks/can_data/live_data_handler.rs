@@ -5,6 +5,7 @@ use tokio::select;
 use tokio::sync::broadcast;
 use tokio::sync::{RwLock, broadcast::Receiver, broadcast::error::RecvError};
 
+use crate::dprintln;
 use crate::utils::yellow;
 use crate::{error_println, tasks::{HealthCheckSender, HealthCheckSenderExt, Task, client_api::subtable_clients::Clients}, vprintln};
 
@@ -81,7 +82,9 @@ pub async fn run_live_data_handler(
                         ) {
                             Ok(_) => {}
                             Err(e) => {
-                                error_println!("{e}");
+                                // error when attempting to send data to client socket,
+                                // likely due to client socket connection problems.
+                                dprintln!("{e}");
                             }
                         }
                     }
