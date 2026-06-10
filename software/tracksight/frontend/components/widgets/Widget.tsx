@@ -11,7 +11,8 @@ import NumericalCanvasChart from "./NumericalCanvasChart";
 import { NumericalSignalPicker } from "./NumericalSignalPicker";
 import { useWidgetManager } from "./WidgetManagerContext";
 import { BooleanSignalMetadata, EnumSignalMetadata, isEnumSignalMetadata, NumericalSignalMetadata, SignalMetadata } from "@/lib/types/Signal";
-import { EnumTimelineWidgetData, NumericalGraphWidgetData, WidgetData } from "@/lib/types/Widget";
+import { EnumTimelineWidgetData, NumericalGraphWidgetData, WidgetData, DiagnosticCardWidgetData } from "@/lib/types/Widget";
+import { DiagnosticCardWidget } from "./DiagnosticCardWidget";
 
 function buildEnumPalette(signal: EnumSignalMetadata | BooleanSignalMetadata): { color: Color; enumValueColors: Record<number, Color> } {
   const enumValues = (
@@ -278,6 +279,17 @@ export function Widget(props: WidgetData & { hoveredSignal: RefObject<string | n
   const { updateWidget } = useWidgetManager();
 
   switch (props.type) {
+    case "diagnosticCard": {
+      const widget = props as DiagnosticCardWidgetData;
+      return (
+        <>
+          <WidgetConfiguration id={widget.id} />
+          <div className="px-6 pb-6 h-full">
+            <DiagnosticCardWidget {...widget} />
+          </div>
+        </>
+      );
+    }
     case "numericalGraph": {
       const widget = props as NumericalGraphWidgetData;
       const handleRemoveSignal = (signalName: string) => {

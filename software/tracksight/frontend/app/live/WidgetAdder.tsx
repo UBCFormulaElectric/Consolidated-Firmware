@@ -43,6 +43,18 @@ export function WidgetAdder() {
     setIsOpen(false);
   };
 
+  const handleAddDiagnostic = () => {
+    appendWidget({
+      id: "",
+      type: "diagnosticCard",
+      metric: "packet_loss",
+      options: {
+        label: "Packet Loss",
+      },
+    });
+    setIsOpen(false);
+  };
+
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
       <div className="w-full flex justify-center">
@@ -56,6 +68,9 @@ export function WidgetAdder() {
         </button>
         <button onClick={handleAddNumerical} className="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm text-gray-700 border-t border-gray-100">
           Add Numerical Widget
+        </button>
+        <button onClick={handleAddDiagnostic} className="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm text-gray-700 border-t border-gray-100">
+          Add Diagnostic Widget
         </button>
       </PopoverContent>
     </Popover>
