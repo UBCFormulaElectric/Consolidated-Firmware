@@ -82,7 +82,7 @@
       }
     }
   },
-    "SetTorqueRequest": {
+  "SetTorqueRequest": {
     "msg_id": 1007,
     "cycle_time": 10,
     "description": "Override torque req",
@@ -92,17 +92,17 @@
         "min": 0,
         "max": 20
       },
-            "TorqueRequest_FR": {
+      "TorqueRequest_FR": {
         "resolution": 0.1,
         "min": 0,
         "max": 20
       },
-            "TorqueRequest_RL": {
+      "TorqueRequest_RL": {
         "resolution": 0.1,
         "min": 0,
         "max": 20
       },
-            "TorqueRequest_RR": {
+      "TorqueRequest_RR": {
         "resolution": 0.1,
         "min": 0,
         "max": 20

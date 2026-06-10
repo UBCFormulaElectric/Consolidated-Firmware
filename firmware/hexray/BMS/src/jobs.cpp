@@ -1,7 +1,6 @@
 #include "jobs.hpp"
 #include "util_errorCodes.hpp"
 
-#include <algorithm>
 #include <ranges>
 
 // app
@@ -102,7 +101,10 @@ void jobs_run100Hz_tick()
     hb_monitor.broadcastFaults();
 
     // TODO: Enable fans for endurance when contactors are closed.
-    io::fans::tick(false);
+    // io::fans::tick(app::can_rx::VC_State_get() == app::can_utils::VCState::VC_DRIVE_STATE);
+    io::fans::tick(true);
+    app::can_tx::BMS_FanStatus_set(true);
+    app::can_tx::BMS_FanPgood_set(fan_pgood.readPin());
 
     // Charger connection status
     app::can_tx::BMS_ChargerConnectedType_set(io::charger::getConnectionStatus());
