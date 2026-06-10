@@ -4,6 +4,7 @@
 #include "app_inverter.hpp"
 #include "app_powerManager.hpp"
 #include "app_pumpControl.hpp"
+#include "app_startSwitch.hpp"
 #include "app_states.hpp"
 
 #include "torque_vectoring/datatypes/torque_limits.hpp"
@@ -89,9 +90,9 @@ static void driveStateRunOnTick100Hz()
         const float torque = apps * MAX_TORQUE_REQUEST_Nm / 100.0f;
         send_torque(torque, torque, torque, torque);
         if (startSwitch::hasRisingEdge())
-            {
-                StateMachine::set_next_state(&hv_state);
-            }
+        {
+            StateMachine::set_next_state(&hv_state);
+        }
     }
 }
 
