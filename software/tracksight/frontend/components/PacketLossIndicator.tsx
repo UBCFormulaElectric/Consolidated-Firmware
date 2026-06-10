@@ -5,7 +5,7 @@ import { useSocket } from "@/lib/hooks/signals/useSocket";
 
 const MAX_HISTORY = 60;
 
-export function DiagnosticOverlay() {
+export function PacketLossIndicator() {
   const [value, setValue] = useState<number | null>(null);
   const [history, setHistory] = useState<number[]>([]);
   const [isHovered, setIsHovered] = useState(false);
@@ -32,9 +32,9 @@ export function DiagnosticOverlay() {
 
   const sparklinePoints = useMemo(() => {
     if (history.length < 2) return "";
-    const width = 120;
-    const height = 30;
-    const maxVal = Math.max(5, ...history); // Scale to at least 5% for visibility
+    const width = 100;
+    const height = 20;
+    const maxVal = Math.max(5, ...history);
     return history
       .map((val, i) => {
         const x = (i / (MAX_HISTORY - 1)) * width;
@@ -48,48 +48,46 @@ export function DiagnosticOverlay() {
     <div
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      className={`fixed top-20 right-6 z-[100] flex flex-col items-center justify-center p-3 bg-white/80 backdrop-blur-sm rounded-lg shadow-lg border border-gray-200 transition-all duration-300 ease-in-out pointer-events-auto ${
-        isHovered ? "w-40 h-32" : "w-20 h-16"
-      }`}
+      className="relative flex items-center px-3 py-1 rounded-md transition-colors hover:bg-gray-50 cursor-default"
     >
-      <span className="text-[10px] font-bold text-gray-400 uppercase tracking-tighter mb-0.5">
-        Packet Loss
-      </span>
-      <div className="flex flex-col items-center">
-        <div className="flex items-baseline gap-0.5">
-          <span className={`${isHovered ? "text-2xl" : "text-xl"} font-black text-gray-800 tabular-nums transition-all`}>
+      <div className="flex flex-col items-end mr-2">
+        <span className="text-[9px] font-bold text-gray-400 uppercase tracking-tighter leading-none">
+          Packet Loss
+        </span>
+        <div className="flex items-baseline gap-0.5 leading-none">
+          <span className="text-sm font-black text-gray-800 tabular-nums">
             {value !== null ? value.toFixed(1) : "--"}
           </span>
-          <span className="text-xs font-bold text-gray-400">%</span>
+          <span className="text-[10px] font-bold text-gray-400">%</span>
         </div>
-        
-        {!isHovered && value !== null && (
-          <div className="mt-1 w-10 bg-gray-200 rounded-full h-1 overflow-hidden">
-            <div
-              className={`h-full transition-all duration-500 ${
-                value > 5 ? "bg-red-500" : value > 1 ? "bg-yellow-500" : "bg-green-500"
-              }`}
-              style={{ width: `${Math.min(100, value)}%` }}
-            />
-          </div>
-        )}
+      </div>
 
-        {isHovered && (
-          <div className="mt-2 w-full flex flex-col items-center animate-in fade-in zoom-in duration-200">
-             <svg width="120" height="30" className="overflow-visible">
+      <div className={`w-1.5 h-6 rounded-full overflow-hidden bg-gray-100`}>
+        <div
+          className={`w-full transition-all duration-500 ${
+            value !== null && value > 5 ? "bg-red-500" : value !== null && value > 1 ? "bg-yellow-500" : "bg-green-500"
+          }`}
+          style={{ height: `${value !== null ? Math.min(100, value * 10) : 0}%`, marginTop: 'auto' }}
+        />
+      </div>
+
+      {isHovered && (
+        <div className="absolute top-full right-0 mt-1 p-3 bg-white rounded-lg shadow-xl border border-gray-100 z-[60] animate-in fade-in slide-in-from-top-1 duration-200">
+          <div className="flex flex-col items-center">
+             <svg width="100" height="20" className="overflow-visible">
                 <polyline
                   fill="none"
                   stroke={value !== null && value > 5 ? "#ef4444" : value !== null && value > 1 ? "#eab308" : "#22c55e"}
-                  strokeWidth="2"
+                  strokeWidth="1.5"
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   points={sparklinePoints}
                 />
              </svg>
-             <span className="text-[8px] text-gray-400 mt-2 uppercase font-bold tracking-widest">60s History</span>
+             <span className="text-[8px] text-gray-400 mt-2 uppercase font-bold tracking-widest whitespace-nowrap">60s History</span>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }
