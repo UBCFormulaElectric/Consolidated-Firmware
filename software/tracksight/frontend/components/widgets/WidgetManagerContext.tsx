@@ -14,7 +14,7 @@ interface WidgetManagerContext {
     initializedFromLocalStorage: boolean;
     appendWidget: (newWidget: WidgetData) => void;
     removeWidget: (widgetToRemove: string) => void;
-    appendSignal: <T extends WidgetType, Widget extends Extract<WidgetData, { type: T }>>(widget: Widget, newSignal: Widget["signals"][number]) => void;
+    appendSignal: <T extends WidgetType, Widget extends Extract<WidgetData, { type: T }>>(widget: Widget, newSignal: any) => void;
     removeSignal: (widget: WidgetData, nameOfSignalToRemove: string) => void;
     updateWidget: <T extends WidgetType, Widget extends Extract<WidgetData, { type: T }>>(widget: Widget, updater: (prevWidget: Widget) => Widget) => void;
 }
@@ -31,6 +31,10 @@ export function useWidgetManager() {
 
 function WidgetSerialize(widgets: WidgetData[]): string {
     return JSON.stringify(widgets.map((widget) => {
+        if (widget.type === "diagnosticCard") {
+            return widget;
+        }
+
         if (widget.type === "enumTimeline") {
             return {
                 ...widget,
@@ -77,6 +81,15 @@ function WidgetDeserialize(widgetString: string): WidgetData[] {
 
         const candidate = widget as any;
 
+        if (candidate.type === "diagnosticCard") {
+            return {
+                id: candidate.id,
+                type: "diagnosticCard",
+                metric: candidate.metric,
+                options: candidate.options,
+            } satisfies WidgetData;
+        }
+
         if (candidate.type === "enumTimeline") {
             return {
                 id: candidate.id,
@@ -122,6 +135,10 @@ function WidgetDeserialize(widgetString: string): WidgetData[] {
 }
 
 function removeSignalFromWidget(widget: WidgetData, signalName: string): WidgetData {
+    if (widget.type === "diagnosticCard") {
+        return widget;
+    }
+
     if (widget.type === "enumTimeline") {
         const nextPalette = { ...widget.options.colorPalette };
         delete nextPalette[signalName];
@@ -170,7 +187,7 @@ export function WidgetManager({ children, storageKey = LOCAL_STORAGE_KEY }: { ch
         });
     }, [setWidgets]);
 
-    const appendSignal = useCallback(<T extends WidgetType, Widget extends Extract<WidgetData, { type: T }>>(widget: Widget, newSignal: Widget["signals"][number]) => {
+    const appendSignal = useCallback(<T extends WidgetType, Widget extends Extract<WidgetData, { type: T }>>(widget: Widget, newSignal: any) => {
         setWidgets((prev) => {
             const widgetIndex = prev.findIndex((candidate) => candidate.id === widget.id);
             if (widgetIndex === -1) {
@@ -178,8 +195,13 @@ export function WidgetManager({ children, storageKey = LOCAL_STORAGE_KEY }: { ch
                 return prev;
             }
 
-            const existingWidget = prev[widgetIndex] as Widget;
-            if (existingWidget.signals.some((signal) => signal.name === newSignal.name)) {
+            const existingWidget = prev[widgetIndex] as any;
+            if (!("signals" in existingWidget)) {
+                IS_DEBUG && console.warn("Widget does not support signals");
+                return prev;
+            }
+
+            if (existingWidget.signals.some((signal: any) => signal.name === newSignal.name)) {
                 IS_DEBUG && console.warn(`Signal already exists in widget: ${newSignal.name}`);
                 return prev;
             }
