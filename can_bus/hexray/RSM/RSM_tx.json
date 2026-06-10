@@ -29,6 +29,10 @@
       "WatchdogTimeoutTask": {
         "bits": 32
       }
+    },
+    "data_capture": {
+      "telem_cycle_time": 1000,
+      "log_cycle_time" : 1000
     }
   },
   "Bootup": {
