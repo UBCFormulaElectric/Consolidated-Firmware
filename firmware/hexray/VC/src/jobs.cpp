@@ -84,7 +84,12 @@ void jobs_run100Hz_tick()
         default:
             break;
     }
-    app::inverter::FaultCheck();
+    
+    if (app::StateMachine::get_current_state() == &app::states::hvInit_state || app::StateMachine::get_current_state() == &app::states::hv_state || app::StateMachine::get_current_state() == &app::states::drive_state || app::StateMachine::get_current_state() == &app::states::inverter_fault_handling_state)
+    {
+        app::inverter::FaultCheck();
+    }
+
     app::StateMachine::tick100Hz();
 
     // pcm state broadcasting
