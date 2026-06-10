@@ -2,6 +2,7 @@ import SignalStore from "@/lib/signals/SignalStore";
 import socket from "@/lib/realtime/socket";
 import { SignalMetadata, SignalType } from "../types/Signal";
 import propagateHaar from "../utils/propagateHaar";
+import { addTelemetryMarker } from "../telemetryMarkers";
 
 type SignalSubscriptionCallbacks = {
   onSuccess?: () => void;
@@ -36,12 +37,21 @@ class LiveSignalStore extends SignalStore {
         name: string;
         timestamp: number;
         value: number;
-        signal_type: "Numerical" | "Alert" | "Enum" | "Boolean";
+        signal_type: "Numerical" | "Alert" | "Enum" | "Boolean" | "Marker";
       };
 
-      if (!this.storage[signalName] && signal_type !== "Alert") return;
-
       const ts = new Date(timestamp).getTime();
+
+      if (signal_type === "Marker") {
+        addTelemetryMarker({
+          timestampMs: ts,
+        });
+
+        this.updateWithTimestamp(ts);
+        return;
+      }
+
+      if (!this.storage[signalName] && signal_type !== "Alert") return;
       
       if (signal_type === "Alert") {
         this.addAlertDataPoint(

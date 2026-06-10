@@ -24,7 +24,7 @@ function readMarkersFromStorage(): TelemetryMarker[] {
         if (!Array.isArray(parsed)) return [];
 
         return parsed
-            .filter((marker): marker is TelemetryMarker => marker !== null && typeof marker === "object" && typeof marker.id === "string" && typeof marker.timestampMs === "number" && typeof marker.messageName === "string" && typeof marker.source === "string") // someone kill typescript
+            .filter((marker): marker is TelemetryMarker => marker !== null && typeof marker === "object" && typeof marker.timestampMs === "number")
             .sort((left, right) => left.timestampMs - right.timestampMs)
             .slice(-MAX_MARKERS);
     } catch {
