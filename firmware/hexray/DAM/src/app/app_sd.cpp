@@ -1,4 +1,5 @@
 #include "app_bootcount.hpp"
+#include "app_crc32.hpp"
 #include "app_epochClock.hpp"
 #include "io_filesystem.hpp"
 #include "io_fileSystems.hpp"
@@ -15,11 +16,31 @@ namespace app::sd
 namespace
 {
     constexpr const char *DEFAULT_LOG_PATH = "/boot.bin"; // Fallback path
-    std::array<char, 32>  LOG_PATH_BUF{};
+    std::array<char, 48>  LOG_PATH_BUF{};
     uint32_t              log_fd   = 0;
     bool                  log_open = false;
     std::atomic<bool>     metadata_update_requested{ false };
     std::atomic<bool>     sync_requested{ false };
+
+    [[nodiscard]] uint32_t makeBootFilenameHash(uint32_t boot_num) noexcept
+    {
+        const auto now_ms = io::time::getCurrentMs();
+        char       scratch[32]{};
+        const auto len = std::snprintf(
+            scratch, sizeof(scratch), "%lu_%lu", static_cast<unsigned long>(boot_num),
+            static_cast<unsigned long>(now_ms));
+        if (len < 0)
+            return 0u;
+        return app::crc32::finalize(app::crc32::update(app::crc32::init(), scratch, static_cast<size_t>(len)));
+    }
+
+    [[nodiscard]] const char *formatBootFilename(uint32_t boot_num, uint32_t hash) noexcept
+    {
+        std::snprintf(
+            LOG_PATH_BUF.data(), LOG_PATH_BUF.size(), "/boot_%lu_%08lx.bin", static_cast<unsigned long>(boot_num),
+            static_cast<unsigned long>(hash));
+        return LOG_PATH_BUF.data();
+    }
 } // namespace
 
 std::expected<void, io::FileSystem::FileSystemError> init_fs()
@@ -33,16 +54,15 @@ std::expected<void, io::FileSystem::FileSystemError> init_fs()
     const char *log_path = DEFAULT_LOG_PATH;
     if (const auto boot_num = app::bootcount::update(fs); boot_num) // update bootcount
     {
-        std::snprintf(
-            LOG_PATH_BUF.data(), LOG_PATH_BUF.size(), "/boot_%lu.bin", static_cast<unsigned long>(boot_num.value()));
-        log_path = LOG_PATH_BUF.data(); // file name = boot_x.bin where x is the boot number
+        const auto filename_hash = makeBootFilenameHash(static_cast<uint32_t>(boot_num.value()));
+        log_path                 = formatBootFilename(static_cast<uint32_t>(boot_num.value()), filename_hash);
     }
     else
     {
         return std::unexpected(boot_num.error());
     }
 
-    if (const auto r = fs.open(log_path); r.has_value())
+    if (const auto r = fs.open(log_path); r.has_value()) // filename: boot_{boot_num}_{hash}.bin
     {
         log_fd   = r.value();
         log_open = true;

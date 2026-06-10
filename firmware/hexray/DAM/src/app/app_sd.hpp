@@ -15,6 +15,7 @@ std::expected<void, io::FileSystem::FileSystemError> init_fs();
 /**
  * Updates the metadata of the given file descriptor with the corrected DAM basetime.
  * Writes seconds, minutes, hour, day, weekday, month, year (in that order) in the first 7 bytes of the metadata block.
+ * Boot files are created with a hashed suffix, e.g. "/boot_1_ab12cd34.bin".
  * @return ErrorCode status if failure
  */
 std::expected<void, ErrorCode> update_metadata();

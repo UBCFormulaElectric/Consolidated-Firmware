@@ -94,6 +94,7 @@ namespace
                 }
 
                 app::sd::requestMetadataUpdate();
+                LOG_INFO("telemRx: Metadata update successful");
 
                 break;
             }
