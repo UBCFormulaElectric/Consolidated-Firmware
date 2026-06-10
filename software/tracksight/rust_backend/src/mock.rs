@@ -34,7 +34,9 @@ pub async fn run_mock_task(
                 break;
             }
             _ = diag_interval.tick() => {
-                _diag_tx.send(0.0).ok();
+                // Simulate a varying packet loss between 2.5% and 7.5% for testing
+                let simulated_loss = 5.0 + (i as f64 * TAU / 50.0).sin() * 2.5;
+                _diag_tx.send(simulated_loss).ok();
             }
             _ = async {
                 // Simulate sending mock CAN payloads
