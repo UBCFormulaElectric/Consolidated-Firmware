@@ -17,6 +17,7 @@ pub async fn run_mock_task(
     mut shutdown_rx: broadcast::Receiver<()>, 
     health_check_tx: HealthCheckSender, 
     can_queue_tx: broadcast::Sender<CanPayload>, 
+    _diag_tx: broadcast::Sender<f64>,
     can_db: Arc<CanDatabase>
 ) {
     vprintln!("{}", yellow("Mock task started."));
@@ -24,11 +25,16 @@ pub async fn run_mock_task(
 
     health_check_tx.send_health_check(Task::SerialHandler, true).await;
     
+    let mut diag_interval = tokio::time::interval(tokio::time::Duration::from_secs(1));
+    
     loop {
         select! {
             _ = shutdown_rx.recv() => {
                 vprintln!("Mock task shutting down.");
                 break;
+            }
+            _ = diag_interval.tick() => {
+                _diag_tx.send(0.0).ok();
             }
             _ = async {
                 // Simulate sending mock CAN payloads
