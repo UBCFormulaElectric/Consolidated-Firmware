@@ -1208,6 +1208,10 @@
         "max": 100,
         "unit": "%"
       }
+    },
+     "data_capture": {
+      "telem_cycle_time": 1000,
+      "log_cycle_time" : 1000
     }
   },
   "EMeterTeamMessage1": {
@@ -1221,6 +1225,10 @@
       "TeamSignal2": {
         "bits": 32
       }
+    },
+     "data_capture": {
+      "telem_cycle_time": 1000,
+      "log_cycle_time" : 1000
     }
   },
   "EMeterTeamMessage2": {
@@ -1234,6 +1242,10 @@
       "TeamSignal4": {
         "bits": 32
       }
+    },
+     "data_capture": {
+      "telem_cycle_time": 1000,
+      "log_cycle_time" : 1000
     }
   }
 }
