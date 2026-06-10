@@ -326,6 +326,10 @@
         "max": 100,
         "unit": "%"
       }
+    },
+     "data_capture": {
+      "telem_cycle_time": 1000,
+      "log_cycle_time" : 1000
     }
   }
 }
