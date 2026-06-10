@@ -32,7 +32,15 @@ export type NumericalGraphWidgetSchema = {
     };
 };
 
-export type WidgetSchema = NumericalGraphWidgetSchema | EnumTimelineWidgetSchema;
+export type DiagnosticCardWidgetSchema = {
+    type: "diagnosticCard";
+    metric: "packet_loss";
+    options: {
+        label: string;
+    };
+};
+
+export type WidgetSchema = NumericalGraphWidgetSchema | EnumTimelineWidgetSchema | DiagnosticCardWidgetSchema;
 
 type WidgetType = WidgetSchema["type"];
 
@@ -52,7 +60,9 @@ export type NumericalGraphWidgetData = BaseWidgetRenderer &
         signals: NumericalSignalMetadata[];
     };
 
-type WidgetData = EnumTimelineWidgetData | NumericalGraphWidgetData;
+export type DiagnosticCardWidgetData = BaseWidgetRenderer & DiagnosticCardWidgetSchema;
+
+type WidgetData = EnumTimelineWidgetData | NumericalGraphWidgetData | DiagnosticCardWidgetData;
 
 type WidgetRendererProps = WidgetData;
 type WidgetRenderer = FC<WidgetRendererProps>;
