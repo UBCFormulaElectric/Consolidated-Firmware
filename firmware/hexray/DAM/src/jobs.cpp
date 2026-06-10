@@ -87,12 +87,8 @@ void jobs_initLogFs()
         init_success = false;
     }
 
-    if (const auto err = app::sd::update_metadata(); !err.has_value())
-    {
-        LOG_ERROR("jobs_initLogFs: update_metadata failed: %d", static_cast<int>(err.error()));
-        init_success = false;
-    }
-
+    app::sd::requestMetadataUpdate();
+    LOG_INFO("jobs_initLogFs: Metadata update requests in init");
     // Anchor the fast-clock base next to the metadata RTC read, so per-message timestamps project
     // from (roughly) the same instant the on-disk basetime was captured.
     if (const auto err = app::epochClock::anchorBaseTime(); !err.has_value())
