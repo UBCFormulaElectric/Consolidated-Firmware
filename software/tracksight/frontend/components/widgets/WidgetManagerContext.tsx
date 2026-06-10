@@ -31,10 +31,6 @@ export function useWidgetManager() {
 
 function WidgetSerialize(widgets: WidgetData[]): string {
     return JSON.stringify(widgets.map((widget) => {
-        if (widget.type === "diagnosticCard") {
-            return widget;
-        }
-
         if (widget.type === "enumTimeline") {
             return {
                 ...widget,
@@ -81,15 +77,6 @@ function WidgetDeserialize(widgetString: string): WidgetData[] {
 
         const candidate = widget as any;
 
-        if (candidate.type === "diagnosticCard") {
-            return {
-                id: candidate.id,
-                type: "diagnosticCard",
-                metric: candidate.metric,
-                options: candidate.options,
-            } satisfies WidgetData;
-        }
-
         if (candidate.type === "enumTimeline") {
             return {
                 id: candidate.id,
@@ -135,10 +122,6 @@ function WidgetDeserialize(widgetString: string): WidgetData[] {
 }
 
 function removeSignalFromWidget(widget: WidgetData, signalName: string): WidgetData {
-    if (widget.type === "diagnosticCard") {
-        return widget;
-    }
-
     if (widget.type === "enumTimeline") {
         const nextPalette = { ...widget.options.colorPalette };
         delete nextPalette[signalName];
