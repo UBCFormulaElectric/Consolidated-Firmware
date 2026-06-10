@@ -209,9 +209,6 @@ void jobs_runAdbmsVoltages_tick()
     result<void>         voltages_poll_ok;
     Cells<result<float>> cell_voltages;
 
-    result<void>                                                                         owc_voltages_poll_ok;
-    std::array<Cells<result<float>>, static_cast<size_t>(OpenWireSwitch::CHANNEL_COUNT)> owc_voltages;
-
     {
         const io::unique_semaphore h{ health_lock };
         // Cell Voltages
@@ -219,7 +216,30 @@ void jobs_runAdbmsVoltages_tick()
         voltages_poll_ok = app::segments::startPoll::cellAdc();
         if (voltages_poll_ok)
             cell_voltages = app::segments::conversion::cellVoltage();
-        // Cell Open Wire Check
+    }
+
+    app::segments::shared::setVoltageStats(cell_voltages);
+
+    app::segments::broadcast::voltageStats();
+
+    {
+        io::unique_semaphore h{ health_lock };
+        app::segments::broadcast::segmentHealthError();
+    }
+
+    app::segments::broadcast::debug::cellVoltages(cell_voltages, voltages_poll_ok);
+}
+
+void jobs_runAdbmsCellOwc_tick()
+{
+    sync_done.wait();
+    LOG_INFO("Starting cell open wire check poll and conversion");
+
+    result<void>                                                                         owc_voltages_poll_ok;
+    std::array<Cells<result<float>>, static_cast<size_t>(OpenWireSwitch::CHANNEL_COUNT)> owc_voltages;
+
+    {
+        const io::unique_semaphore h{ health_lock };
         for (const OpenWireSwitch channel : { OpenWireSwitch::ODD_CHANNELS, OpenWireSwitch::EVEN_CHANNELS })
         {
             const auto poll1 = app::segments::startPoll::secondaryCellAdc(channel);
@@ -238,16 +258,12 @@ void jobs_runAdbmsVoltages_tick()
     const Cells<result<bool>> cell_owc = app::segments::calculate::cellOwc(owc_voltages);
 
     app::segments::shared::setCellOwc(cell_owc);
-    app::segments::shared::setVoltageStats(cell_voltages);
-
-    app::segments::broadcast::voltageStats();
 
     {
         io::unique_semaphore h{ health_lock };
         app::segments::broadcast::segmentHealthError();
     }
 
-    app::segments::broadcast::debug::cellVoltages(cell_voltages, voltages_poll_ok);
     app::segments::broadcast::debug::cellOwc(cell_owc, owc_voltages_poll_ok);
 }
 

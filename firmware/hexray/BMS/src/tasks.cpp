@@ -23,7 +23,7 @@
 #include "hw_pwms.hpp"
 // #include "hw_runTimeStat.hpp"
 
-constexpr size_t         TASK_COUNT = 8;
+constexpr size_t         TASK_COUNT = 9;
 [[noreturn]] static void tasks_run1Hz(void *arg);
 [[noreturn]] static void tasks_run100Hz(void *arg);
 [[noreturn]] static void tasks_run1kHz(void *arg);
@@ -32,6 +32,7 @@ constexpr size_t         TASK_COUNT = 8;
 [[noreturn]] static void tasks_runAdbmsVoltages(void *arg);
 [[noreturn]] static void tasks_runAdbmsConfigs(void *arg);
 [[noreturn]] static void tasks_runAdbmsAux(void *arg);
+[[noreturn]] static void tasks_runAdbmsCellOwc(void *arg);
 
 static hw::rtos::StaticTask::StaticTaskStack<512>      Task1kHzStack;
 static hw::rtos::StaticTask::StaticTaskStack<512>      Task1HzStack;
@@ -41,6 +42,7 @@ static hw::rtos::StaticTask::StaticTaskStack<512>      TaskCanTxStack;
 static hw::rtos::StaticTask::StaticTaskStack<1024 * 3> TaskAdbmsVoltagesStack;
 static hw::rtos::StaticTask::StaticTaskStack<1024 * 3> TaskAdbmsConfigsStack;
 static hw::rtos::StaticTask::StaticTaskStack<1024 * 3> TaskAdbmsAuxStack;
+static hw::rtos::StaticTask::StaticTaskStack<1024 * 3> TaskAdbmsCellOwcStack;
 
 static hw::rtos::StaticTask Task1kHz(osPriorityRealtime, "Task1kHz", tasks_run1kHz, Task1kHzStack);
 static hw::rtos::StaticTask Task1Hz(osPriorityAboveNormal, "Task1Hz", tasks_run1Hz, Task1HzStack);
@@ -52,6 +54,8 @@ static hw::rtos::StaticTask
 static hw::rtos::StaticTask
     TaskAdbmsConfigs(osPriorityHigh, "TaskAdbmsConfigs", tasks_runAdbmsConfigs, TaskAdbmsConfigsStack);
 static hw::rtos::StaticTask TaskAdbmsAux(osPriorityNormal, "TaskAdbmsAux", tasks_runAdbmsAux, TaskAdbmsAuxStack);
+static hw::rtos::StaticTask
+    TaskAdbmsCellOwc(osPriorityNormal, "TaskAdbmsCellOwc", tasks_runAdbmsCellOwc, TaskAdbmsCellOwcStack);
 
 // static hw::runtimeStat::monitor<TASK_COUNT> runtimeMonitor(
 //     {
@@ -264,6 +268,21 @@ void tasks_runAdbmsAux(void *arg)
     }
 }
 
+void tasks_runAdbmsCellOwc(void *arg)
+{
+    const uint32_t period_ms   = 1000U;
+    uint32_t       start_ticks = osKernelGetTickCount();
+
+    forever
+    {
+        SEGGER_SYSVIEW_MarkStart(0xdd);
+        jobs_runAdbmsCellOwc_tick();
+        SEGGER_SYSVIEW_MarkStop(0xdd);
+        start_ticks += period_ms;
+        osDelayUntil(start_ticks);
+    }
+}
+
 void BMS_StartAllTasks()
 {
     Task1kHz.start();
@@ -274,6 +293,7 @@ void BMS_StartAllTasks()
     TaskAdbmsVoltages.start();
     TaskAdbmsConfigs.start();
     TaskAdbmsAux.start();
+    TaskAdbmsCellOwc.start();
 }
 
 void tasks_preInit()
