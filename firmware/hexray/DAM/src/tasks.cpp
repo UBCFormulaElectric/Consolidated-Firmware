@@ -180,8 +180,7 @@ void tasks_runLogging(void *arg)
             }
 
             osDelay(faultBackoffMs);
-            faultBackoffMs =
-                (faultBackoffMs > faultBackoffMaxMs / 2U) ? faultBackoffMaxMs : faultBackoffMs * 2U;
+            faultBackoffMs = (faultBackoffMs > faultBackoffMaxMs / 2U) ? faultBackoffMaxMs : faultBackoffMs * 2U;
             continue;
         }
 
@@ -209,9 +208,9 @@ void tasks_runTelemRx(void *arg)
     // fills / half-fills). 64 bytes is several frames worth of headroom at
     // 57600 baud without delaying ingest — a single idle gap of ~1 byte time
     // (~174 us) already wakes the task.
-    constexpr auto     telemRxChunkSize  = 64U;
-    constexpr uint32_t faultBackoffMinMs = 50U;
-    constexpr uint32_t faultBackoffMaxMs = 1000U;
+    constexpr auto                        telemRxChunkSize  = 64U;
+    constexpr uint32_t                    faultBackoffMinMs = 50U;
+    constexpr uint32_t                    faultBackoffMaxMs = 1000U;
     std::array<uint8_t, telemRxChunkSize> scratch{};
     bool                                  radioLinkFaulted = false;
     uint32_t                              faultBackoffMs   = faultBackoffMinMs;
@@ -227,8 +226,7 @@ void tasks_runTelemRx(void *arg)
             }
 
             osDelay(faultBackoffMs);
-            faultBackoffMs =
-                (faultBackoffMs > faultBackoffMaxMs / 2U) ? faultBackoffMaxMs : faultBackoffMs * 2U;
+            faultBackoffMs = (faultBackoffMs > faultBackoffMaxMs / 2U) ? faultBackoffMaxMs : faultBackoffMs * 2U;
             continue;
         }
 

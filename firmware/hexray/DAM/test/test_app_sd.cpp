@@ -64,7 +64,8 @@ class AppSdTest : public ::testing::Test
 
         // app::sd keeps static state: the log stays open for the whole test
         // binary, so wipe stale artifacts and run init_fs() exactly once.
-        static const bool init_ok = [] {
+        static const bool init_ok = []
+        {
             removeArtifacts();
             return app::sd::init_fs().has_value();
         }();

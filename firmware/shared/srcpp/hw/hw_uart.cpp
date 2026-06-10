@@ -41,11 +41,10 @@ void hw::Uart::onRxTransactionCompleteFromISR() const
 
 void hw::Uart::onErrorFromISR(const uint32_t hal_error) const
 {
-    BaseType_t higherPriorityTaskWoken = pdFALSE;
-    constexpr uint32_t rx_error_flags =
-        HAL_UART_ERROR_PE | HAL_UART_ERROR_NE | HAL_UART_ERROR_FE | HAL_UART_ERROR_ORE;
-    const bool rx_fault  = (hal_error & rx_error_flags) != 0U;
-    const bool dma_fault = (hal_error & HAL_UART_ERROR_DMA) != 0U;
+    BaseType_t         higherPriorityTaskWoken = pdFALSE;
+    constexpr uint32_t rx_error_flags = HAL_UART_ERROR_PE | HAL_UART_ERROR_NE | HAL_UART_ERROR_FE | HAL_UART_ERROR_ORE;
+    const bool         rx_fault       = (hal_error & rx_error_flags) != 0U;
+    const bool         dma_fault      = (hal_error & HAL_UART_ERROR_DMA) != 0U;
 
     if (txTaskInProgress != nullptr && (dma_fault || !rx_fault))
     {
