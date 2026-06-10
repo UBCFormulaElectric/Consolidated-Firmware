@@ -217,7 +217,7 @@ void bootloader::init(config &boot_config)
         }
         else if (command.std_id == (boot_config.BOARD_HIGHBITS | GO_TO_APP_LOWBITS)) // goto app
         {
-            if (not update_in_progress)
+            if (update_in_progress)
             {
                 LOG_ERROR("Got go to app command while not in update state");
                 continue;
@@ -228,8 +228,7 @@ void bootloader::init(config &boot_config)
                                          .context_value = 0 });
             NVIC_SystemReset();
         }
-        else if (command.std_id == (boot_config.BOARD_HIGHBITS | GO_TO_BOOT)) // goto boot?? except it just resets
-                                                                              // update
+        else if (command.std_id == (boot_config.BOARD_HIGHBITS | GO_TO_BOOT)) // goto boot
         {
             // Restart bootloader update state when receiving a GO_TO_BOOT command.
             update_in_progress = false;

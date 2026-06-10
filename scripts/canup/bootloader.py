@@ -66,54 +66,64 @@ class Bootloader:
         self.ui_callback: Callable = ui_callback
         self.is_fd = is_fd
 
-    def goto_bootloader(self) -> bool:
+    def goto_bootloader(self, retry: bool = False, retry_delay: float = 0.5) -> bool:
         """
         Pushes all boards to bootloader mode.
         :throws: TimeoutError if the boards do not respond
-        :return: None
+        :return: True when the bootloader acknowledges the command.
         """
-        self.bus.send(
-            can.Message(
-                # arbitration_id=board_config.app_id_range_start + 8,
-                arbitration_id=(
-                    self.board.boot_id_range_start | GO_TO_BOOT_CAN_ID_LOWBITS
+        while True:
+            self.bus.send(
+                can.Message(
+                    arbitration_id=(
+                        self.board.boot_id_range_start | GO_TO_BOOT_CAN_ID_LOWBITS
+                    ),
+                    data=[],
+                    is_extended_id=True,
+                    is_fd=self.is_fd,
                 ),
-                data=[],
-                is_extended_id=True,
-                is_fd=self.is_fd,
-            ),
-            timeout=10,
-        )
-        # TODO add retry protocol
-        return (
-            self._await_can_msg(
-                lambda msg: msg.arbitration_id
-                == (self.board.boot_id_range_start | MCU_10HZ_STATUS_CAN_ID_LOWBITS),
-                5,
+                timeout=10,
             )
-            is not None
-        )
+            if (
+                self._await_can_msg(
+                    lambda msg: msg.arbitration_id
+                    in (
+                        self.board.boot_id_range_start | GO_TO_BOOT_CAN_ID_LOWBITS,
+                        self.board.boot_id_range_start | MCU_10HZ_STATUS_CAN_ID_LOWBITS,
+                    ),
+                    5,
+                )
+                is not None
+            ):
+                return True
+            if not retry:
+                return False
+            time.sleep(retry_delay)
 
-    def goto_app(self) -> bool:
-        self.bus.send(
-            can.Message(
-                arbitration_id=self.board.boot_id_range_start | GO_TO_APP_LOWBITS,
-                data=[],
-                is_extended_id=True,
-                is_fd=self.is_fd,
-            ),
-            timeout=10,
-        )
-        # TODO add retry protocol
-        return (
-            self._await_can_msg(
-                lambda msg: msg.arbitration_id == self.board.app_id_range_start + 0,
-                5,
+    def goto_app(self, retry: bool = False, retry_delay: float = 0.5) -> bool:
+        while True:
+            self.bus.send(
+                can.Message(
+                    arbitration_id=self.board.boot_id_range_start | GO_TO_APP_LOWBITS,
+                    data=[],
+                    is_extended_id=True,
+                    is_fd=self.is_fd,
+                ),
+                timeout=10,
             )
-            is not None
-        )
+            if (
+                self._await_can_msg(
+                    lambda msg: msg.arbitration_id == self.board.app_id_range_start + 0,
+                    5,
+                )
+                is not None
+            ):
+                return True
+            if not retry:
+                return False
+            time.sleep(retry_delay)
 
-    def start_update(self) -> bool:
+    def start_update(self, retry: bool = False, retry_delay: float = 0.5) -> bool:
         """
         Command a board's bootloader to enter update mode by sending the
         "start update" commmand. Await a response.
@@ -129,21 +139,24 @@ class Bootloader:
             return (
                 True
                 if msg.arbitration_id
-                == self.board.boot_id_range_start | UPDATE_ACK_ID_LOWBITS
+                == (self.board.boot_id_range_start | UPDATE_ACK_ID_LOWBITS)
                 else None
             )
 
-        self.bus.send(
-            can.Message(
-                arbitration_id=self.board.boot_id_range_start | START_UPDATE_ID_LOWBITS,
-                data=[],
-                is_extended_id=True,
-                is_fd=self.is_fd,
+        while True:
+            self.bus.send(
+                can.Message(
+                    arbitration_id=self.board.boot_id_range_start | START_UPDATE_ID_LOWBITS,
+                    data=[],
+                    is_extended_id=True,
+                    is_fd=self.is_fd,
+                )
             )
-        )
-        return (
-            self._await_can_msg(validator=_validator, timeout=self.timeout) is not None
-        )
+            if self._await_can_msg(validator=_validator, timeout=self.timeout) is not None:
+                return True
+            if not retry:
+                return False
+            time.sleep(retry_delay)
 
     def erase_sectors(self, sectors) -> bool:
         """
@@ -161,7 +174,7 @@ class Bootloader:
             return (
                 True
                 if msg.arbitration_id
-                == self.board.boot_id_range_start | ERASE_SECTOR_COMPLETE_CAN_ID_LOWBITS
+                == (self.board.boot_id_range_start | ERASE_SECTOR_COMPLETE_CAN_ID_LOWBITS)
                 else None
             )
 
@@ -206,21 +219,22 @@ class Bootloader:
         end_addr = self.ih.minaddr() + self.size_bytes()
         print(f"start addr is {start_addr}, end addr is {end_addr}")
 
-        jump_back_address: Optional[int] = None # TODO populate with CAN failure messages
-        stop_listner = threading.Event()
+        jump_back_address: Optional[int] = None  # TODO populate with CAN failure messages
+        stop_listener = threading.Event()
         # spawn a new thread which populates the above
         def listener(stop_listener: threading.Event):
-            nonlocal jump_back_address # this magically works??
+            nonlocal jump_back_address
             while not stop_listener.is_set():
                 can_msg = self._await_can_msg(
-                    validator=lambda x: x== self.board.boot_id_range_start | PROGRAM_ID_FAILED_LOWBITS
+                    validator=lambda msg: msg.arbitration_id == (self.board.boot_id_range_start | PROGRAM_ID_FAILED_LOWBITS),
+                    timeout=1,
                 )
                 if can_msg is not None:
                     k = can_msg.data
                     assert can_msg.dlc == 4, f"Expected 4 bytes in PROGRAM_ID_FAILED message, got {can_msg.dlc}"
                     # TODO maybe better struct unpacking :sob:
                     jump_back_address = (k[0] << 24) | (k[1] << 16) | (k[2] << 8) | k[3]
-        listen_thread = threading.Thread(target=listener, args=(stop_listner,))
+        listen_thread = threading.Thread(target=listener, args=(stop_listener,))
         listen_thread.start()
 
         # TODO: Check if binary is aligned to 64 bytes and ensure ending bytes are sent
@@ -255,8 +269,7 @@ class Bootloader:
                 except can.interfaces.vector.exceptions.VectorOperationError:
                     pass
             address += CAN_FRAME_SIZE
-        stop_listner.set()
-        #run = False
+        stop_listener.set()
         listen_thread.join()
 
         if self.ui_callback:
@@ -282,7 +295,7 @@ class Bootloader:
             return (
                 True
                 if msg.arbitration_id
-                == self.board.boot_id_range_start | APP_VALIDITY_CAN_ID_LOWBITS
+                == (self.board.boot_id_range_start | APP_VALIDITY_CAN_ID_LOWBITS)
                 else None
             )
 
@@ -313,7 +326,7 @@ class Bootloader:
             """1-D intersection to check if an app's hex and a flash sector share any addresses."""
             return a_max >= b_min and b_max >= a_min
 
-        if not self.start_update():
+        if not self.start_update(retry=True):
             raise RuntimeError(
                 f"Bootloader for {self.board.name} did not respond to command to start a firmware update."
             )
