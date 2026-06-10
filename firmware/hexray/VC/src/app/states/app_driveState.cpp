@@ -88,6 +88,10 @@ static void driveStateRunOnTick100Hz()
         apps               = can_rx::FSM_PappsMappedPedalPercentage_get();
         const float torque = apps * MAX_TORQUE_REQUEST_Nm / 100.0f;
         send_torque(torque, torque, torque, torque);
+        if (startSwitch::hasRisingEdge())
+            {
+                StateMachine::set_next_state(&hv_state);
+            }
     }
 }
 
@@ -95,7 +99,6 @@ static void driveStateRunOnExit()
 {
     // disable inverters
     LOG_INFO("exiting drive state!");
-    inverter_enable_toggle(false, false, false, false);
     set_torque_limit_negative(NO_TORQUE_Nm, NO_TORQUE_Nm, NO_TORQUE_Nm, NO_TORQUE_Nm);
     set_torque_limit_positive(NO_TORQUE_Nm, NO_TORQUE_Nm, NO_TORQUE_Nm, NO_TORQUE_Nm);
 }
