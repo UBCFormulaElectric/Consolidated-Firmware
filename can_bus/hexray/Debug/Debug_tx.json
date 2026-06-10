@@ -81,5 +81,17 @@
         "bits": 1
       }
     }
+  },
+    "SetTorqueRequest": {
+    "msg_id": 1007,
+    "cycle_time": 10,
+    "description": "Override torque req",
+    "signals": {
+      "TorqueRequest": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 20
+      }
+    }
   }
 }
