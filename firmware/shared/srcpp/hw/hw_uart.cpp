@@ -7,6 +7,13 @@
 
 // constexpr size_t MAX_SPI_BUFFER = 256;
 
+static void clear_uart_rx_error_flags(UART_HandleTypeDef *huart)
+{
+    __HAL_UART_CLEAR_OREFLAG(huart);
+    __HAL_UART_CLEAR_NEFLAG(huart);
+    __HAL_UART_CLEAR_FEFLAG(huart);
+}
+
 void hw::Uart::deinit() const
 {
     HAL_UART_DeInit(&handle);
@@ -14,7 +21,8 @@ void hw::Uart::deinit() const
 
 void hw::Uart::onTxTransactionCompleteFromISR() const
 {
-    assert(txTaskInProgress != nullptr);
+    if (txTaskInProgress == nullptr)
+        return;
 
     BaseType_t higherPriorityTaskWoken = pdFALSE;
     vTaskNotifyGiveFromISR(txTaskInProgress, &higherPriorityTaskWoken);
@@ -23,24 +31,28 @@ void hw::Uart::onTxTransactionCompleteFromISR() const
 
 void hw::Uart::onRxTransactionCompleteFromISR() const
 {
-    assert(rxTaskInProgress != nullptr);
+    if (rxTaskInProgress == nullptr)
+        return;
 
     BaseType_t higherPriorityTaskWoken = pdFALSE;
     vTaskNotifyGiveFromISR(rxTaskInProgress, &higherPriorityTaskWoken);
     portYIELD_FROM_ISR(higherPriorityTaskWoken);
 }
 
-void hw::Uart::onErrorFromISR() const
+void hw::Uart::onErrorFromISR(const uint32_t hal_error) const
 {
-    // just wake both up lmao
     BaseType_t higherPriorityTaskWoken = pdFALSE;
-    assert(txTaskInProgress != nullptr || rxTaskInProgress != nullptr);
-    if (txTaskInProgress != nullptr)
+    constexpr uint32_t rx_error_flags =
+        HAL_UART_ERROR_PE | HAL_UART_ERROR_NE | HAL_UART_ERROR_FE | HAL_UART_ERROR_ORE;
+    const bool rx_fault  = (hal_error & rx_error_flags) != 0U;
+    const bool dma_fault = (hal_error & HAL_UART_ERROR_DMA) != 0U;
+
+    if (txTaskInProgress != nullptr && (dma_fault || !rx_fault))
     {
         vTaskNotifyGiveFromISR(txTaskInProgress, &higherPriorityTaskWoken);
         last_write_fault = true;
     }
-    if (rxTaskInProgress != nullptr)
+    if (rxTaskInProgress != nullptr && (rx_fault || dma_fault || hal_error == HAL_UART_ERROR_NONE))
     {
         vTaskNotifyGiveFromISR(rxTaskInProgress, &higherPriorityTaskWoken);
         last_read_fault = true;
@@ -62,8 +74,12 @@ result<void> hw::Uart::waitForRxNotification(const uint32_t timeoutMs) const
     }
     if (last_read_fault)
     {
+        (void)HAL_UART_AbortReceive(&handle);
+        clear_uart_rx_error_flags(&handle);
+        rxTaskInProgress = nullptr;
         return std::unexpected(ErrorCode::ERROR);
     }
+    rxTaskInProgress = nullptr;
     return {};
 }
 
@@ -81,8 +97,10 @@ result<void> hw::Uart::waitForTxNotification(const uint32_t timeoutMs) const
     }
     if (last_write_fault)
     {
+        txTaskInProgress = nullptr;
         return std::unexpected(ErrorCode::ERROR);
     }
+    txTaskInProgress = nullptr;
     return {};
 }
 
@@ -104,6 +122,7 @@ result<void> hw::Uart::transmit(const std::span<const uint8_t> tx, const uint32_
 
     // Save current task before starting a UART transaction.
     txTaskInProgress = xTaskGetCurrentTaskHandle();
+    last_write_fault = false;
 
     auto exit = utils::convertHalStatus(HAL_UART_Transmit_IT(&handle, tx.data(), static_cast<uint16_t>(tx.size())));
     if (not exit.has_value())
@@ -175,13 +194,18 @@ result<std::size_t> hw::Uart::receiveToIdle(std::span<uint8_t> rx, const uint32_
         utils::convertHalStatus(HAL_UARTEx_ReceiveToIdle_IT(&handle, rx.data(), static_cast<uint16_t>(rx.size())));
     if (not armed.has_value())
     {
+        (void)HAL_UART_AbortReceive(&handle);
+        clear_uart_rx_error_flags(&handle);
         rxTaskInProgress = nullptr;
         return std::unexpected(armed.error());
     }
 
     const result<void> waited = waitForRxNotification(timeout);
     if (!waited)
+    {
+        rxTaskInProgress = nullptr;
         return std::unexpected(waited.error());
+    }
 
     return static_cast<std::size_t>(last_rx_size);
 }
@@ -209,38 +233,15 @@ extern "C" void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
     bus.onTxTransactionCompleteFromISR();
 }
 
-static const char *uart_error_to_name(const uint32_t err)
-{
-    switch (err)
-    {
-        case HAL_UART_ERROR_NONE:
-            return "NONE";
-        case HAL_UART_ERROR_PE:
-            return "Parity Error";
-        case HAL_UART_ERROR_NE:
-            return "Noise Error";
-        case HAL_UART_ERROR_FE:
-            return "Frame Error";
-        case HAL_UART_ERROR_ORE:
-            return "Overrun Error";
-        case HAL_UART_ERROR_DMA:
-            return "DMA Error";
-        default:
-            return "UNKNOWN";
-    }
-}
-
 extern "C" void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
 {
-    LOG_ERROR("UART error: %s", uart_error_to_name(HAL_UART_GetError(huart)));
+    const uint32_t hal_error = HAL_UART_GetError(huart);
 
     // Clear sticky receive error flags so the next receive call isn't stuck on
     // ORE/NE/FE left over from this fault. Without this the peripheral keeps
     // signalling the same error and we stay deaf.
-    __HAL_UART_CLEAR_OREFLAG(huart);
-    __HAL_UART_CLEAR_NEFLAG(huart);
-    __HAL_UART_CLEAR_FEFLAG(huart);
+    clear_uart_rx_error_flags(huart);
 
     const hw::Uart &bus = hw::getUartFromHandle(huart);
-    bus.onErrorFromISR();
+    bus.onErrorFromISR(hal_error);
 }

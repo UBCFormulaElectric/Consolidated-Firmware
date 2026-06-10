@@ -147,6 +147,12 @@ void tasks_runLogging(void *arg)
 }
 [[noreturn]] static void tasks_runTelemTx(void *arg)
 {
+    constexpr uint32_t telemTxTimeoutMs  = 100U;
+    constexpr uint32_t faultBackoffMinMs = 50U;
+    constexpr uint32_t faultBackoffMaxMs = 1000U;
+    bool               radioLinkFaulted  = false;
+    uint32_t           faultBackoffMs    = faultBackoffMinMs;
+
     forever
     {
         const auto result = telem_tx_queue.pop();
@@ -168,13 +174,30 @@ void tasks_runLogging(void *arg)
         }
 
         const auto  bytes     = std::visit([](const auto &m) { return m.asBytes(); }, entry);
-        const auto  tx_result = _900k_uart.transmit(bytes);
+        const auto  tx_result = _900k_uart.transmit(bytes, telemTxTimeoutMs);
         const auto *can_msg   = std::get_if<io::telemMessage::TelemCanMsg>(&entry);
         if (not tx_result)
         {
-            LOG_ERROR("Failed to transmit telem message: %d", static_cast<int>(tx_result.error()));
+            if (!radioLinkFaulted)
+            {
+                LOG_ERROR("telemTx: radio transmit failed: %s", error_code_to_string(tx_result.error()));
+                radioLinkFaulted = true;
+            }
+
+            osDelay(faultBackoffMs);
+            faultBackoffMs =
+                (faultBackoffMs > faultBackoffMaxMs / 2U) ? faultBackoffMaxMs : faultBackoffMs * 2U;
+            continue;
         }
-        else if (can_msg != nullptr)
+
+        if (radioLinkFaulted)
+        {
+            LOG_INFO("telemTx: radio transmit recovered");
+            radioLinkFaulted = false;
+            faultBackoffMs   = faultBackoffMinMs;
+        }
+
+        if (can_msg != nullptr)
         {
             // LOG_INFO("UART telem sent: type=CAN can_id=0x%03lX", static_cast<unsigned long>(can_msg->msg.can_id));
         }
@@ -191,16 +214,36 @@ void tasks_runTelemRx(void *arg)
     // fills / half-fills). 64 bytes is several frames worth of headroom at
     // 57600 baud without delaying ingest — a single idle gap of ~1 byte time
     // (~174 us) already wakes the task.
-    constexpr auto                        telemRxChunkSize = 64U;
+    constexpr auto     telemRxChunkSize  = 64U;
+    constexpr uint32_t faultBackoffMinMs = 50U;
+    constexpr uint32_t faultBackoffMaxMs = 1000U;
     std::array<uint8_t, telemRxChunkSize> scratch{};
+    bool                                  radioLinkFaulted = false;
+    uint32_t                              faultBackoffMs   = faultBackoffMinMs;
     forever
     {
         const auto rx_result = io::telemRx::read(scratch);
         if (!rx_result)
         {
-            LOG_ERROR("read() failed with error: %d", static_cast<int>(rx_result.error()));
+            if (!radioLinkFaulted)
+            {
+                LOG_ERROR("telemRx: radio receive failed: %s", error_code_to_string(rx_result.error()));
+                radioLinkFaulted = true;
+            }
+
+            osDelay(faultBackoffMs);
+            faultBackoffMs =
+                (faultBackoffMs > faultBackoffMaxMs / 2U) ? faultBackoffMaxMs : faultBackoffMs * 2U;
             continue;
         }
+
+        if (radioLinkFaulted)
+        {
+            LOG_INFO("telemRx: radio receive recovered");
+            radioLinkFaulted = false;
+            faultBackoffMs   = faultBackoffMinMs;
+        }
+
         app::telemRx::ingest(*rx_result);
         xTaskNotifyGive(static_cast<TaskHandle_t>(TaskTelemParse.id()));
     }
@@ -288,10 +331,10 @@ static void DAM_StartAllTasks()
     TaskCanRx.start();
     Task1kHz.start();
     Task1Hz.start();
-    // TaskLogging.start();
-    // TaskTelemTx.start();
-    // TaskTelemRx.start();
-    // TaskTelemParse.start();
+    TaskLogging.start();
+    TaskTelemTx.start();
+    TaskTelemRx.start();
+    TaskTelemParse.start();
 }
 
 void tasks_preInit()
