@@ -40,9 +40,6 @@ enum class BootStatus : uint8_t
     BOOT_STATUS_NO_APP
 };
 
-static bool update_in_progress;
-// static uint32_t current_address; // aka the last known good address
-
 [[noreturn]] static void modifyStackPointerAndStartApp(const uint32_t *address)
 {
     // Disable interrupts before jumping.
@@ -254,7 +251,7 @@ void bootloader::init(config &boot_config)
             {
                 const uint64_t program_data    = command.getDataAsQWords()[i];
                 const uint32_t block_addr      = (command.std_id & 0x00FFFFF0U) >> 4;
-                const uint32_t current_address = reinterpret_cast<uint32_t>(&__app_metadata_start__) + 8 * block_addr;
+                const uint32_t current_address = reinterpret_cast<uint32_t>(&__app_metadata_start__) + (hw::CAN_PAYLOAD_BYTES * block_addr) + (hw::CAN_PAYLOAD_BYTES * i);
                 if (const auto status = boot_config.boardSpecific_program(current_address, program_data);
                     not status and status.error() != ErrorCode::ERROR_INDETERMINATE)
                 {
@@ -275,6 +272,13 @@ void bootloader::init(config &boot_config)
                     if (current_address >= first_unprogrammed_addr.value())
                     {
                         // GO BACK!!!
+                        hw::CanMsg reply{};
+                        reply.std_id               = boot_config.BOARD_HIGHBITS | PROGRAM_ID_FAILED_LOWBITS;
+                        reply.dlc                  = 4;
+                        reply.getDataAsDWords()[0] = first_unprogrammed_addr.value();
+                        LOG_IF_ERR(boot_config.can_tx_queue.push(reply));
+                        update_in_progress = false;
+                        break;
                     }
                 }
                 else
