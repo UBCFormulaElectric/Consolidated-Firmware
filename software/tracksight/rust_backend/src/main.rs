@@ -60,9 +60,9 @@ async fn main() {
     // this is equivalent to queue in old backend
     // use broadcast instead of mpsc, probably only one serial source but multiple consumers
     // TODO figure out buffer size
-    let (can_queue_tx, can_queue_rx) = broadcast::channel::<CanPayload>(32);
+    let (can_queue_tx, can_queue_rx) = broadcast::channel::<CanPayload>(4096);
     // used for the frontend to send messages to DAM
-    let (client_out_msg_tx, client_out_msg_rx) = broadcast::channel::<TelemetryOutgoingMessage>(32);
+    let (client_out_msg_tx, client_out_msg_rx) = broadcast::channel::<TelemetryOutgoingMessage>(4096);
 
     // track which clients subscribe to which signals
     // maps signal name to client ids
