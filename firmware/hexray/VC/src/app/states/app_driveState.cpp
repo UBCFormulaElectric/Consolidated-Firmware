@@ -30,27 +30,24 @@ static constexpr Efuses<EfuseConfig> power_manager_state = {
 };
 
 static volatile float apps = 0.0f;
+static float previous_apps_error_fl = 0.0f;
+static float previous_apps_error_fr = 0.0f;
+static float previous_apps_error_rl = 0.0f;
+static float previous_apps_error_rr = 0.0f;
+
+const float kp = 0.1f;
+const float kd = 0.01f;
+
+static float pd_control(float curr_error, float &previous_error){
+    float derivative = curr_error - previous_error;
+    float kp_term = kp * curr_error;
+    float kd_term = kd * derivative;
+    previous_error = curr_error;
+    return kp_term + kd_term;
+}
 
 namespace app::states
 {
-// static bool driveStatePassPreCheck()
-// {
-//     // check inverter warnings
-//     app::inverter::FaultCheck();
-
-//     // check board warnings
-//     // if (app::can_alerts::AnyBoardHasWarning())
-//     //     return false;
-
-//     // check possibly other faults
-//     apps = app::can_rx::FSM_PappsMappedPedalPercentage_get();
-
-//     if (app::bspdWarning::checkSoftwareBspd(apps))
-//         return false;
-
-//     return true;
-// }
-
 static void driveStateRunOnEntry()
 {
     LOG_INFO("entering drive state!");
@@ -85,16 +82,21 @@ static void driveStateRunOnTick100Hz()
         // }
 
         // TODO: add driving algorithm handling here
-        // just for spinning wheels
         apps               = can_rx::FSM_PappsMappedPedalPercentage_get();
         const float torque_request = apps * MAX_TORQUE_REQUEST_Nm / 100.0f;
-        const float torque_fl =  app::can_rx::Debug_TorqueRequest_FL_get();
-        const float torque_fr =  app::can_rx::Debug_TorqueRequest_FR_get();
-        const float torque_rl =  app::can_rx::Debug_TorqueRequest_RL_get();
-        const float torque_rr =  app::can_rx::Debug_TorqueRequest_RR_get();
 
-        //const float torque_request = app::can_utils::
-        send_torque(torque_fl, torque_fr, torque_rl, torque_rr);
+        // inverters expect smoother signal
+        // just for spinning wheels
+        static float torque_fl =  app::can_rx::Debug_TorqueRequest_FL_get();
+        static float torque_fr =  app::can_rx::Debug_TorqueRequest_FR_get();
+        static float torque_rl =  app::can_rx::Debug_TorqueRequest_RL_get();    
+        static float torque_rr =  app::can_rx::Debug_TorqueRequest_RR_get();
+        static float pd_output_fl = pd_control(torque_fl, previous_apps_error_fl);
+        static float pd_output_fr = pd_control(torque_fr, previous_apps_error_fr);
+        static float pd_output_rl = pd_control(torque_rl, previous_apps_error_rl);
+        static float pd_output_rr = pd_control(torque_rr, previous_apps_error_rr);
+        send_torque(pd_output_fl, pd_output_fr, pd_output_rl, pd_output_rr);
+        
         if (startSwitch::hasRisingEdge())
         {
             StateMachine::set_next_state(&hv_state);
