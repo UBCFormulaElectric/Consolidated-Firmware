@@ -82,16 +82,15 @@ namespace hvInitState
         }
         else
         {
-            const bool inv_bsystemReady =
-                can_rx::INVFL_bSystemReady_get() && can_rx::INVFR_bSystemReady_get() &&
-                can_rx::INVRL_bSystemReady_get() && can_rx::INVRR_bSystemReady_get();
+            const bool inv_bsystemReady = can_rx::INVFL_bSystemReady_get() && can_rx::INVFR_bSystemReady_get() &&
+                                          can_rx::INVRL_bSystemReady_get() && can_rx::INVRR_bSystemReady_get();
 
             const bool inverter_dc_quit = can_rx::INVFL_bQuitDcOn_get() && can_rx::INVFR_bQuitDcOn_get() &&
                                           can_rx::INVRL_bQuitDcOn_get() && can_rx::INVRR_bQuitDcOn_get();
 
-            const bool inverter_invOn_quit =
-                can_rx::INVFL_bQuitInverterOn_get() && can_rx::INVFR_bQuitInverterOn_get() &&
-                can_rx::INVRL_bQuitInverterOn_get() && can_rx::INVRR_bQuitInverterOn_get();
+            const bool inverter_invOn_quit = can_rx::INVFL_bQuitInverterOn_get() &&
+                                             can_rx::INVFR_bQuitInverterOn_get() &&
+                                             can_rx::INVRL_bQuitInverterOn_get() && can_rx::INVRR_bQuitInverterOn_get();
 
             for (bool retry_transition = true; retry_transition;)
             {

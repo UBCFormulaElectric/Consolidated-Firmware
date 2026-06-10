@@ -34,9 +34,8 @@ namespace inverterOnState
 
     static void runOnTick100Hz()
     {
-        const bool inverters_bsystemReady =
-            can_rx::INVFL_bSystemReady_get() && can_rx::INVFR_bSystemReady_get() &&
-            can_rx::INVRL_bSystemReady_get() && can_rx::INVRR_bSystemReady_get();
+        const bool inverters_bsystemReady = can_rx::INVFL_bSystemReady_get() && can_rx::INVFR_bSystemReady_get() &&
+                                            can_rx::INVRL_bSystemReady_get() && can_rx::INVRR_bSystemReady_get();
 
         if (inverters_bsystemReady)
         {

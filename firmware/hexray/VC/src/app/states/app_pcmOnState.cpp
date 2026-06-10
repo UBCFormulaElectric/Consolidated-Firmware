@@ -22,10 +22,10 @@ namespace pcmOnState
 
     constexpr uint32_t PCM_TIMOUT = 1000;
 
-    static Timer pcm_timer{ PCM_TIMOUT };
-    static Timer pcm_cooldown_timer{ PCM_TIMOUT };
-    static uint8_t    pcm_retries;
-    static float      pcm_prev_voltage;
+    static Timer   pcm_timer{ PCM_TIMOUT };
+    static Timer   pcm_cooldown_timer{ PCM_TIMOUT };
+    static uint8_t pcm_retries;
+    static float   pcm_prev_voltage;
 
     enum : uint8_t
     {

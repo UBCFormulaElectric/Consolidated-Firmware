@@ -138,7 +138,7 @@ namespace rl_pump
     {
         return fakes::io::rPump::percentage;
     }
-} // namespace rPump
+} // namespace rl_pump
 
 namespace tireTemp
 {
