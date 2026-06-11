@@ -245,7 +245,7 @@ void tasks_init()
     hw::runtimeStat::init(htim7);
     fdcan1.init();
     invcan.init();
-    
+
     adcChipsInit();
 
     if (hw::bootup::BootRequest boot_request = hw::bootup::getBootRequest();

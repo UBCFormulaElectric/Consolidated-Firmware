@@ -296,7 +296,8 @@ const PositionData getEkfNavPositionData(void)
 void msgRxCallback(void)
 {
     BaseType_t higher_priority_task_woken;
-    if (xStreamBufferSendFromISR(uart_sbuf_handle, uart_dma_buf, sizeof(uart_dma_buf), &higher_priority_task_woken) <sizeof(uart_dma_buf))
+    if (xStreamBufferSendFromISR(uart_sbuf_handle, uart_dma_buf, sizeof(uart_dma_buf), &higher_priority_task_woken) <
+        sizeof(uart_dma_buf))
     {
         sbg_queue_overflow_count++;
         LOG_WARN("SBG Ellipse IMU queue overflow: %d", sbg_queue_overflow_count);
