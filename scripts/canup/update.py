@@ -184,7 +184,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # Load config and binary.
-    c = list(
+    c: list[boards.Board] = list(
         {
             board
             for config_name in args.config.split(",")

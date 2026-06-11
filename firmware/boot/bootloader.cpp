@@ -40,6 +40,8 @@ enum class BootStatus : uint8_t
     BOOT_STATUS_NO_APP
 };
 
+static bool update_in_progress = false;
+
 [[noreturn]] static void modifyStackPointerAndStartApp(const uint32_t *address)
 {
     // Disable interrupts before jumping.
@@ -167,7 +169,7 @@ void bootloader::init(config &boot_config)
             command.std_id == (boot_config.BOARD_HIGHBITS | START_UPDATE_ID_LOWBITS)) // start update
         {
             // Reset current address to program and update state.
-            current_address    = reinterpret_cast<uint32_t>(&__app_metadata_start__);
+            // current_address    = reinterpret_cast<uint32_t>(&__app_metadata_start__);
             update_in_progress = true;
 
             // Send ACK message that programming has started.
@@ -232,7 +234,7 @@ void bootloader::init(config &boot_config)
         {
             // Restart bootloader update state when receiving a GO_TO_BOOT command.
             update_in_progress = false;
-            current_address    = reinterpret_cast<uint32_t>(&__app_metadata_start__);
+            // current_address    = reinterpret_cast<uint32_t>(&__app_metadata_start__);
         }
         else if (
             (command.std_id & 0xFF000000U) == boot_config.BOARD_HIGHBITS and
@@ -250,7 +252,8 @@ void bootloader::init(config &boot_config)
             {
                 const uint64_t program_data    = command.getDataAsQWords()[i];
                 const uint32_t block_addr      = (command.std_id & 0x00FFFFF0U) >> 4;
-                const uint32_t current_address = reinterpret_cast<uint32_t>(&__app_metadata_start__) + (hw::CAN_PAYLOAD_BYTES * block_addr) + (hw::CAN_PAYLOAD_BYTES * i);
+                const uint32_t current_address = reinterpret_cast<uint32_t>(&__app_metadata_start__) +
+                                                 (hw::CAN_PAYLOAD_BYTES * block_addr) + (hw::CAN_PAYLOAD_BYTES * i);
                 if (const auto status = boot_config.boardSpecific_program(current_address, program_data);
                     not status and status.error() != ErrorCode::ERROR_INDETERMINATE)
                 {

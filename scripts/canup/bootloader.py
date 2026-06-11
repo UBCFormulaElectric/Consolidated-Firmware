@@ -234,6 +234,7 @@ class Bootloader:
                     assert can_msg.dlc == 4, f"Expected 4 bytes in PROGRAM_ID_FAILED message, got {can_msg.dlc}"
                     # TODO maybe better struct unpacking :sob:
                     jump_back_address = (k[0] << 24) | (k[1] << 16) | (k[2] << 8) | k[3]
+                    print(f"jumpback received to {jump_back_address}")
         listen_thread = threading.Thread(target=listener, args=(stop_listener,))
         listen_thread.start()
 
@@ -259,7 +260,7 @@ class Bootloader:
                 try:
                     self.bus.send(
                         can.Message(
-                            arbitration_id=self.board.boot_id_range_start | wire_block_num,
+                            arbitration_id=self.board.boot_id_range_start | wire_block_num | PROGRAM_CAN_ID_LOWBITS,
                             data=data,
                             is_extended_id=True,
                             is_fd=self.is_fd,
