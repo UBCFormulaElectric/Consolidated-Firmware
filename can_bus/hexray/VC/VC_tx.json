@@ -1172,19 +1172,37 @@
         "max": 100,
         "unit": "%"
       },
-      "TaskRunCanTxCpuUsageMax": {
+      "TaskRunCan1TxCpuUsageMax": {
         "resolution": 0.1,
         "min": 0,
         "max": 100,
         "unit": "%"
       },
-      "TaskRunCanTxCpuUsage": {
+      "TaskRunCan1TxCpuUsage": {
         "resolution": 0.1,
         "min": 0,
         "max": 100,
         "unit": "%"
       },
-      "TaskRunCanTxStackUsage": {
+      "TaskRunCan1TxStackUsage": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRunCan2TxCpuUsageMax": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRunCan2TxCpuUsage": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRunCan2TxStackUsage": {
         "resolution": 0.1,
         "min": 0,
         "max": 100,
@@ -1203,6 +1221,24 @@
         "unit": "%"
       },
       "TaskRunCanRxStackUsage": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      }, 
+      "TaskRunPowerMonitoringCpuUsageMax": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRunPowerMonitoringCpuUsage": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRunPowerMonitoringStackUsage": {
         "resolution": 0.1,
         "min": 0,
         "max": 100,
