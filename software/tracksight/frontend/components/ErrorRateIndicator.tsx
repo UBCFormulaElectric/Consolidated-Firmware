@@ -52,7 +52,7 @@ export function ErrorRateIndicator() {
     >
       <div className="flex flex-col items-end mr-2">
         <span className="text-[9px] font-bold text-gray-400 uppercase tracking-tighter leading-none">
-          Error Rate
+          Error Rate (1m)
         </span>
         <div className="flex items-baseline gap-0.5 leading-none">
           <span className="text-sm font-black text-gray-800 tabular-nums">
@@ -84,7 +84,7 @@ export function ErrorRateIndicator() {
                   points={sparklinePoints}
                 />
              </svg>
-             <span className="text-[8px] text-gray-400 mt-2 uppercase font-bold tracking-widest whitespace-nowrap">60s History</span>
+             <span className="text-[8px] text-gray-400 mt-2 uppercase font-bold tracking-widest whitespace-nowrap">1m Rolling</span>
           </div>
         </div>
       )}

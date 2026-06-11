@@ -2,8 +2,11 @@ use tokio::select;
 use tokio::io::{AsyncReadExt, AsyncWriteExt, ReadHalf, WriteHalf};
 use tokio::sync::{broadcast, mpsc};
 use tokio_serial::{SerialPortBuilderExt, SerialStream};
+use std::collections::VecDeque;
 use std::io::{Error, ErrorKind};
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
+
+const ERROR_RATE_WINDOW_SECS: usize = 60;
 
 use crate::config::CONFIG;
 use crate::tasks::{HealthCheckSender, HealthCheckSenderExt, ResultExt, Task};
@@ -59,9 +62,11 @@ pub async fn run_serial_task(
         tokio::spawn(packet_sender_handler(shutdown_rx, serial_write, out_msg_rx, client_out_msg_rx))
     };
 
-    // metrics
+    // metrics: per-second counts rolled into a 60s window for error rate
     let mut success_count = 0u64;
     let mut error_count = 0u64;
+    let mut error_rate_history: VecDeque<(u64, u64)> =
+        VecDeque::with_capacity(ERROR_RATE_WINDOW_SECS);
     let mut diag_interval = tokio::time::interval(Duration::from_secs(1));
 
     // no set up involved with packet sender and reader thread, send health check
@@ -79,18 +84,22 @@ pub async fn run_serial_task(
                 panic!("packet_reader exited unexpectedly: {res:?}");
             }
             _ = diag_interval.tick() => {
-                let total = success_count + error_count;
-                if total > 0 {
-                    // fraction of received packets that failed to parse (bad magic/length/CRC)
-                    let error_rate = (error_count as f64 / total as f64) * 100.0;
-                    diag_tx.send(error_rate).ok();
-                    // Reset counts for the next interval to show real-time error rate
-                    success_count = 0;
-                    error_count = 0;
-                } else {
-                    // even if no packets, send 0.0 to show "active" 0% error rate
-                    diag_tx.send(0.0).ok();
+                error_rate_history.push_back((success_count, error_count));
+                if error_rate_history.len() > ERROR_RATE_WINDOW_SECS {
+                    error_rate_history.pop_front();
                 }
+                success_count = 0;
+                error_count = 0;
+
+                let window_success: u64 = error_rate_history.iter().map(|(s, _)| s).sum();
+                let window_error: u64 = error_rate_history.iter().map(|(_, e)| e).sum();
+                let window_total = window_success + window_error;
+                let error_rate = if window_total > 0 {
+                    (window_error as f64 / window_total as f64) * 100.0
+                } else {
+                    0.0
+                };
+                diag_tx.send(error_rate).ok();
             }
             Some(out) = in_msg_rx.recv() => {
                 match out {
