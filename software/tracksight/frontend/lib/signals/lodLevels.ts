@@ -1,6 +1,3 @@
-// NOTE(evan): Mirror of `RESOLUTIONS_MS` in rust_backend/src/tasks/client_api/signal_tile.rs.
-export const RESOLUTIONS_MS = [10, 100, 500, 1000, 10000, 60000, 600000, 3600000] as const;
-
 // NOTE(evan): Mirror of `TILE_SIZE` (points per tile) in signal_tile.rs.
 export const TILE_SIZE = 512;
 

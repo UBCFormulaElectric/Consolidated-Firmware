@@ -45,7 +45,6 @@ type MousePosition = {
   y: number;
 } | null;
 
-/** A single contiguous on-period of one alert (fault) signal, placed in a packed lane. */
 type AlertBar = {
   signal: string;
   lane: number;
@@ -58,15 +57,6 @@ type AlertModel = {
   laneCount: number;
 };
 
-/**
- * Build the alert bars for the current viewport from the LOD-aware alert series. For each
- * signal we pick the LOD level coverage allows, turn its 0/1 samples into on-periods, then pack
- * all bars across all signals into lanes via greedy interval colouring (deterministic given the
- * start-time sort, so lanes stay stable frame-to-frame).
- *
- * This is a pure function of (selected level per signal, that level's samples), so the caller
- * only re-runs it when that signature changes — not every frame.
- */
 const computeAlertModel = (
   alertSeries: { [signalName: string]: LODAwareAlertSeries },
   leftEdge: number,
@@ -120,10 +110,6 @@ const computeAlertModel = (
   return { bars, laneCount: laneEndTimes.length };
 };
 
-/**
- * Signature of the inputs to `computeAlertModel` — the selected LOD level and its sample count
- * per signal. When this is unchanged the bars/lanes are identical, so we can skip recomputing.
- */
 const modelSignature = (
   alertSeries: { [signalName: string]: LODAwareAlertSeries },
   leftEdge: number,

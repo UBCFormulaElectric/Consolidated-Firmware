@@ -39,10 +39,12 @@ pub struct InfluxSignalRow {
  * This determines the minimum number of points to fetch given time window
  * This also dictates API latency for fresh data, i.e. cache misses
  */
-const WINDOW_SIZE: u64 = 2096;
+const WINDOW_SIZE: u64 = 256;
 /**
  * Number of points per tile, each point being 16 bytes 
  * This dictates size of cache, as well as performance of fetching missed tiles
+ * 
+ * NOTE(evan): This is mirrored in the frontend in the lodLevels.ts fiel, so if you change this, change that too!
  */
 const TILE_SIZE: u64 = 512; 
 /**
@@ -84,7 +86,7 @@ pub struct SignalTilePoint {
  * For resolutions too small or too large, round to smallest or largest resolution respectively
  * Otherwise, always round down to nearest resolution
  */
-const RESOLUTIONS_MS: [u64; 8] = [10, 100, 500, 1000, 10000, 60000, 600000, 3600000];
+const RESOLUTIONS_MS: [u64; 10] = [10, 20, 50, 100, 500, 1000, 10000, 60000, 600000, 3600000];
 fn round_resolution_ms(res_ms: f64) -> u64 {
     if res_ms < RESOLUTIONS_MS[0] as f64 {
         return RESOLUTIONS_MS[0];

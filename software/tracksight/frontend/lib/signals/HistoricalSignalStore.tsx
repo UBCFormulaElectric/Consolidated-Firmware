@@ -32,10 +32,6 @@ class HistoricalSignalStore extends SignalStore {
         this.markAsUnsubscribed(signal.name);
     }
 
-    /**
-     * Merge a fetched window for a single widget signal into the LOD level for its resolution.
-     * Enum metadata is (re)applied so the renderer can label values.
-     */
     mergeSignal(signal: SignalMetadata, resolutionMs: number, requestStartMs: number, requestEndMs: number, points: HistoricalSignalPoint[]): void {
         const entry = this.getOrCreateSignalData(signal);
 
@@ -48,12 +44,6 @@ class HistoricalSignalStore extends SignalStore {
         this.mergeHistoricalPoints(signal.name, resolutionMs, requestStartMs, requestEndMs, points);
     }
 
-    /**
-     * Merge a fetched window of the `"alert"` pseudo-signal, which fans out into many fault
-     * series. Coverage is marked for every known alert series (not just the ones present in
-     * this response) because a tile with no points means the fault was simply off there — its
-     * level is still covered.
-     */
     mergeAlerts(resolutionMs: number, requestStartMs: number, requestEndMs: number, points: HistoricalSignalPoint[]): void {
         const pointsByName = new Map<string, HistoricalSignalPoint[]>();
         points.forEach((point) => {

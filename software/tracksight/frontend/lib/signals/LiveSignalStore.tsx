@@ -1,7 +1,8 @@
 import SignalStore from "@/lib/signals/SignalStore";
 import socket from "@/lib/realtime/socket";
 import { SignalMetadata, SignalType } from "../types/Signal";
-import propagateHaar from "../utils/propagateHaar";
+import propagateHaar, { HaarLodBuffer } from "../utils/propagateHaar";
+import propagateMode, { ModeLodBuffer } from "../utils/propagateMode";
 
 type SignalSubscriptionCallbacks = {
   onSuccess?: () => void;
@@ -15,10 +16,7 @@ const NUM_LOD_LEVELS = 10;
 class LiveSignalStore extends SignalStore {
   private subscribeToSignal: SignalMutationFunction;
   private unsubscribeFromSignal: SignalMutationFunction;
-  private waveletBuffers: Map<string, Array<{
-    timestamp: number;
-    value: number;
-  }[] | null>>;
+  private lodBuffers: Map<string, HaarLodBuffer[] | ModeLodBuffer[]>;
 
   constructor(
     updateWithTimestamp: (timestamp: number) => void,
@@ -29,7 +27,7 @@ class LiveSignalStore extends SignalStore {
 
     this.subscribeToSignal = subscribeToSignal;
     this.unsubscribeFromSignal = unsubscribeFromSignal;
-    this.waveletBuffers = new Map();
+    this.lodBuffers = new Map();
 
     socket.on("data", (payload) => {
       const { name: signalName, timestamp, value, signal_type } = payload as {
@@ -44,8 +42,6 @@ class LiveSignalStore extends SignalStore {
       const ts = new Date(timestamp).getTime();
 
       if (signal_type === "Alert") {
-        // Alerts are discovered live: create the LOD series on first sight, then append. Its
-        // single live level has no `coveredTiles`, so LOD selection treats it as fully covered.
         if (!this.storage[signalName]) {
           this.getOrCreateSignalData({
             name: signalName,
@@ -66,24 +62,23 @@ class LiveSignalStore extends SignalStore {
 
       this.addDataPoint(signalName, ts, value);
 
-      if (signal_type !== "Numerical") return;
+      if (signal_type !== "Numerical" && signal_type !== "Enum" && signal_type !== "Boolean") return;
 
-      const waveletBuffer = this.waveletBuffers.get(signalName);
+      const lodBuffer = this.lodBuffers.get(signalName);
 
-      if (!waveletBuffer) {
-        throw new Error(`Received data for signal ${signalName} which is not initialized in waveletBuffers`);
+      if (!lodBuffer) {
+        throw new Error(`Received data for signal ${signalName} which is not initialized in lodBuffers`);
       }
 
-      propagateHaar(
-        waveletBuffer,
-        0,
-        ts,
-        value,
-        (level, intervalMs, timestamp, value) => {
-          this.addDataPointAtLOD(signalName, level, intervalMs, timestamp, value);
-        },
-        NUM_LOD_LEVELS
-      );
+      const onLodSample = (level: number, intervalMs: number, timestamp: number, value: number) => {
+        this.addDataPointAtLOD(signalName, level, intervalMs, timestamp, value);
+      };
+
+      if (signal_type === "Numerical") {
+        propagateHaar(lodBuffer as HaarLodBuffer[], 0, ts, value, onLodSample, NUM_LOD_LEVELS);
+      } else {
+        propagateMode(lodBuffer as ModeLodBuffer[], 0, ts, { [value]: 1 }, onLodSample, NUM_LOD_LEVELS);
+      }
     });
 
     socket.on("connect", () => {
@@ -105,9 +100,7 @@ class LiveSignalStore extends SignalStore {
 
     if (this.getSubscriberCount(signal.name) !== 1) return signalData.data as any;
 
-    if (signal.type === SignalType.NUMERICAL) {
-      this.waveletBuffers.set(signal.name, new Array(NUM_LOD_LEVELS).fill(null));
-    }
+    if (signal.type !== SignalType.ALERT) this.lodBuffers.set(signal.name, new Array(NUM_LOD_LEVELS).fill(null));
 
     this.subscribeToSignal(signal.name, {
       onError: (error) => {
@@ -124,7 +117,7 @@ class LiveSignalStore extends SignalStore {
     if (!shouldCleanup) return;
 
     this.markAsUnsubscribed(signal.name);
-    this.waveletBuffers.delete(signal.name);
+    this.lodBuffers.delete(signal.name);
 
     this.unsubscribeFromSignal(signal.name, {
       onSuccess: () => {
