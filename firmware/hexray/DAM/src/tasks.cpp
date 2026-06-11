@@ -86,7 +86,6 @@ void tasks_run1Hz(void *arg)
         watchdog1hz.checkIn();
 
         start_ticks += period_ms;
-        io::time::delayUntil(start_ticks);
         osDelayUntil(start_ticks);
     }
 }
