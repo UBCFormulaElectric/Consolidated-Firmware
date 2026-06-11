@@ -5,7 +5,7 @@ import { useSocket } from "@/lib/hooks/signals/useSocket";
 
 const MAX_HISTORY = 60;
 
-export function PacketLossIndicator() {
+export function ErrorRateIndicator() {
   const [value, setValue] = useState<number | null>(null);
   const [history, setHistory] = useState<number[]>([]);
   const [isHovered, setIsHovered] = useState(false);
@@ -13,7 +13,7 @@ export function PacketLossIndicator() {
 
   useEffect(() => {
     const handleDiagnostic = (payload: any) => {
-      if (payload.type === "packet_loss") {
+      if (payload.type === "error_rate") {
         const val = payload.value;
         setValue(val);
         setHistory((prev) => {
@@ -52,7 +52,7 @@ export function PacketLossIndicator() {
     >
       <div className="flex flex-col items-end mr-2">
         <span className="text-[9px] font-bold text-gray-400 uppercase tracking-tighter leading-none">
-          Packet Loss
+          Error Rate
         </span>
         <div className="flex items-baseline gap-0.5 leading-none">
           <span className="text-sm font-black text-gray-800 tabular-nums">

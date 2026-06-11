@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { PacketLossIndicator } from "@/components/PacketLossIndicator";
+import { ErrorRateIndicator } from "@/components/ErrorRateIndicator";
 
 function Navbar() {
   return (
@@ -11,7 +11,7 @@ function Navbar() {
           <Link href="/historical">Historical Data</Link>
           <Link href="/sd/dump">SD Card Dump</Link>
         </div>
-        <PacketLossIndicator />
+        <ErrorRateIndicator />
       </div>
     </nav>
   );

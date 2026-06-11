@@ -61,7 +61,7 @@ pub async fn run_serial_task(
 
     // metrics
     let mut success_count = 0u64;
-    let mut drop_count = 0u64;
+    let mut error_count = 0u64;
     let mut diag_interval = tokio::time::interval(Duration::from_secs(1));
 
     // no set up involved with packet sender and reader thread, send health check
@@ -79,22 +79,23 @@ pub async fn run_serial_task(
                 panic!("packet_reader exited unexpectedly: {res:?}");
             }
             _ = diag_interval.tick() => {
-                let total = success_count + drop_count;
+                let total = success_count + error_count;
                 if total > 0 {
-                    let loss_percentage = (drop_count as f64 / total as f64) * 100.0;
-                    diag_tx.send(loss_percentage).ok();
-                    // Reset counts for the next interval to show real-time loss
+                    // fraction of received packets that failed to parse (bad magic/length/CRC)
+                    let error_rate = (error_count as f64 / total as f64) * 100.0;
+                    diag_tx.send(error_rate).ok();
+                    // Reset counts for the next interval to show real-time error rate
                     success_count = 0;
-                    drop_count = 0;
+                    error_count = 0;
                 } else {
-                    // even if no packets, send 0.0 to show "active" 0% loss
+                    // even if no packets, send 0.0 to show "active" 0% error rate
                     diag_tx.send(0.0).ok();
                 }
             }
             Some(out) = in_msg_rx.recv() => {
                 match out {
                     SerialReaderOutput::InvalidData => {
-                        drop_count += 1;
+                        error_count += 1;
                     },
                     SerialReaderOutput::Message(msg) => {
                         success_count += 1;

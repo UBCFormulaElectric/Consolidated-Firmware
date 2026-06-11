@@ -32,7 +32,7 @@ pub async fn run_live_data_handler(
                 vprintln!("Live data task shutting down.");
                 break;
             }
-            Ok(loss_percentage) = diag_rx.recv() => {
+            Ok(error_rate) = diag_rx.recv() => {
                 let rwlock_clients = clients.read().await;
                 let clients = rwlock_clients.get_clients();
                 let client_sockets: Vec<&SocketRef> = clients.iter()
@@ -41,10 +41,10 @@ pub async fn run_live_data_handler(
 
                 for socket in client_sockets {
                     match socket.emit(
-                        "diagnostic", 
+                        "diagnostic",
                         &serde_json::json!({
-                            "type": "packet_loss",
-                            "value": loss_percentage,
+                            "type": "error_rate",
+                            "value": error_rate,
                         })
                     ) {
                         Ok(_) => {}
