@@ -42,8 +42,6 @@ class LiveSignalStore extends SignalStore {
       const ts = new Date(timestamp).getTime();
 
       if (signal_type === "Alert") {
-        // Alerts are discovered live: create the LOD series on first sight, then append. Its
-        // single live level has no `coveredTiles`, so LOD selection treats it as fully covered.
         if (!this.storage[signalName]) {
           this.getOrCreateSignalData({
             name: signalName,

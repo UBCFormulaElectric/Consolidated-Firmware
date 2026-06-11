@@ -58,7 +58,6 @@ function HistoricContent(props: { selectedRange: { min: number; max: number }; s
 export default function Historical() {
     const { source, selectedRange, selectedSession, isModalOpen, openModal } = useHistoricalSelection();
 
-    // Auto-open the modal once when landing with nothing selected yet.
     const hasAutoOpenedRef = useRef(false);
     useEffect(() => {
         if (!hasAutoOpenedRef.current && !selectedSession && !isModalOpen) {

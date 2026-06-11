@@ -45,8 +45,6 @@ abstract class SignalStore {
     [signalName: string]: SignalStorageEntry
   };
 
-  // Names of the dynamically-discovered alert (fault) signals, so consumers like the alert
-  // timeline can enumerate them without scanning all of `storage`.
   protected alertSignalNames: Set<string>;
 
   protected subscriberCounts: { [signalName: string]: number };
@@ -63,7 +61,6 @@ abstract class SignalStore {
   abstract getReferenceToSignal<T extends SignalMetadata>(signal: T): SignalStoreReturnType<T>;
   abstract purgeReferenceToSignal(signal: SignalMetadata): void;
 
-  /** The alert (fault) series currently in the store, keyed by signal name. */
   public getAlertSeries(): { [signalName: string]: LODAwareAlertSeries } {
     const result: { [signalName: string]: LODAwareAlertSeries } = {};
     this.alertSignalNames.forEach((name) => {
@@ -221,12 +218,6 @@ abstract class SignalStore {
     return newLod;
   }
 
-  /**
-   * Merge a fetched historical window into the LOD level for its resolution: mark the requested
-   * span's tiles as covered (even where the backend returned no points), dedupe-merge the
-   * points, and expand the global time range. Never clears — re-fetching an overlapping range
-   * is idempotent.
-   */
   mergeHistoricalPoints(signalName: string, resolutionMs: number, requestStartMs: number, requestEndMs: number, points: LevelPoint[]): void {
     const entry = this.storage[signalName];
     if (!entry || resolutionMs <= 0) return;
