@@ -100,10 +100,10 @@ function(stm32f412rx_cube_library
             "${DRIVERS_DIR}/STM32F4xx_HAL_Driver/Inc/Legacy"
             "${FREERTOS_DIR}/include"
             "${FREERTOS_DIR}/CMSIS_RTOS_V2"
-            "${FREERTOS_DIR}/portable/GCC/ARM_CM4F" # TODO check
+            "${FREERTOS_DIR}/portable/GCC/ARM_CM4F"
             "${DRIVERS_DIR}/CMSIS/Device/ST/STM32F4xx/Include"
             "${DRIVERS_DIR}/CMSIS/Include"
-            "${THIRD_PARTY_DIR}/freertos/config"
+            "${THIRD_PARTY_DIR}/freertos"
 
             # SEGGER SystemView includes.
             "${THIRD_PARTY_DIR}/sysview"

@@ -42,12 +42,6 @@ bool start_get()
     return getDebouncedstate(io::switches::start_get(), start_signal);
 }
 
-bool telem_get()
-{
-    static Signal telem_signal(DEBOUNCE_TIME, DEBOUNCE_TIME);
-    return getDebouncedstate(io::switches::telem_mark_get(), telem_signal);
-}
-
 void broadcast()
 {
     // update the state from the switches
@@ -55,6 +49,5 @@ void broadcast()
     app::can_tx::CRIT_LaunchControlSwitch_set(static_cast<SwitchState>(launch_control_get()));
     app::can_tx::CRIT_RegenSwitch_set(static_cast<SwitchState>(regen_get()));
     app::can_tx::CRIT_StartButton_set(static_cast<SwitchState>(start_get()));
-    app::can_tx::CRIT_TelemSwitch_set(static_cast<SwitchState>(telem_get()));
 }
 } // namespace app::switches
