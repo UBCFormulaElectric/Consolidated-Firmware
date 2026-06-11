@@ -280,42 +280,37 @@ void bootloader::init(config &boot_config)
             // No reply for program command to reduce latency.
             // TODO: Seems kinda fragile
             const uint32_t block_addr = (command.std_id & 0x00FFFFF0U) >> 4;
-            for (uint8_t i = 0; i < dlcToBytes(static_cast<uint8_t>(command.dlc)); i++)
+            for (uint8_t i = 0; i < dlcToBytes(static_cast<uint8_t>(command.dlc)) / 8; i++)
             {
                 const uint64_t program_data    = command.getDataAsQWords()[i];
                 const uint32_t current_address = reinterpret_cast<uint32_t>(&__app_metadata_start__) +
-                                                 (hw::CAN_PAYLOAD_BYTES * 8 * block_addr) + i * 8 * sizeof(uint64_t);
-
-                LOG_INFO("at address: 0x%lX, %d", current_address, i);
+                                                 (hw::CAN_PAYLOAD_BYTES * block_addr) + i * sizeof(uint64_t);
                 if (const auto status = boot_config.boardSpecific_program(current_address, program_data); not status)
                 {
                     LOG_IF_ERR(status);
                     // program failed meaning we need to stop and tell the application that program has failed
                     // and stop the bootloader
-                    // hw::CanMsg reply{};
-                    // reply.std_id               = boot_config.BOARD_HIGHBITS | PROGRAM_ID_FAILED_LOWBITS;
-                    // reply.dlc                  = 4;
-                    // reply.getDataAsDWords()[0] = current_address;
-                    // LOG_IF_ERR(boot_config.can_tx_queue.push(reply));
-                    // update_in_progress = false;
-                    continue;
+                    hw::CanMsg reply{};
+                    reply.std_id               = boot_config.BOARD_HIGHBITS | PROGRAM_ID_FAILED_LOWBITS;
+                    reply.dlc                  = 4;
+                    reply.getDataAsDWords()[0] = boot_config.getFirstUnprogrammedAddress().value_or(
+                        reinterpret_cast<uint32_t>(&__app_metadata_start__));
+                    LOG_IF_ERR(boot_config.can_tx_queue.push(reply));
+                    break; // throw the block away
                 }
 
                 if (const auto first_unprogrammed_addr = boot_config.getFirstUnprogrammedAddress();
                     first_unprogrammed_addr.has_value())
                 {
-                    LOG_INFO("next up: 0x%lX", first_unprogrammed_addr.value());
                     if (current_address >= first_unprogrammed_addr.value())
                     {
                         // GO BACK!!!
-                        LOG_INFO("GO BACK!");
                         hw::CanMsg reply{};
                         reply.std_id               = boot_config.BOARD_HIGHBITS | PROGRAM_ID_FAILED_LOWBITS;
                         reply.dlc                  = 4;
                         reply.getDataAsDWords()[0] = first_unprogrammed_addr.value();
                         LOG_IF_ERR(boot_config.can_tx_queue.push(reply));
-                        update_in_progress = false; // TODO remove
-                        break;
+                        break; // throw the block away
                     }
                     // otherwise ok
                 }

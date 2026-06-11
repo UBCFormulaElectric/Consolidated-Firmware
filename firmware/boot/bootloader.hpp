@@ -3,6 +3,7 @@
 #include "hw_flash.hpp"
 #include "hw_can.hpp"
 #include "io_queue.hpp"
+#include "io_time.hpp"
 
 #include <cstddef>
 #include <cstring>
@@ -100,7 +101,7 @@ class config
     virtual result<void> boardSpecific_program(const uint32_t address, const uint64_t data)
     {
         assert(address % sizeof(uint64_t) == 0); // must write 8 bytes at a time
-        const uint32_t block_offset = address % (hw::flash::WORD_BYTES * 8);
+        const uint32_t block_offset = address % hw::flash::WORD_BYTES;
         if (not block_buffer.has_value())
         {
             if (block_offset != 0) // namely the address is NOT aligned
@@ -116,11 +117,11 @@ class config
         {
             // check that the addr is valid in this block
             if (const size_t block_start_addr = block_buffer.value().start_addr;
-                not(block_start_addr <= address && address < block_start_addr + hw::flash::WORD_BYTES * 8))
+                not(block_start_addr <= address && address < block_start_addr + hw::flash::WORD_BYTES))
             {
                 LOG_ERROR(
                     "Got address 0x%X to program, but expected in range [0x%X, 0x%X)", address, block_start_addr,
-                    block_start_addr + hw::flash::WORD_BYTES * 8);
+                    block_start_addr + hw::flash::WORD_BYTES);
                 return std::unexpected(ErrorCode::INVALID_ARGS);
             }
         }
@@ -130,7 +131,7 @@ class config
             BlockBufferInfo &block_buffer_val = block_buffer.value();
             assert(block_buffer_val.start_addr % hw::flash::WORD_BYTES == 0);
             std::memcpy(&block_buffer_val.buffer[block_offset], &data, sizeof(data));
-            block_buffer_val.filled_64[block_offset / (sizeof(uint64_t) * 8)] = true;
+            block_buffer_val.filled_64[block_offset / sizeof(uint64_t)] = true;
         }
         return {};
     }
@@ -155,9 +156,11 @@ class config
             {
                 return std::unexpected(ErrorCode::ERROR);
             }
-            const auto flash_res = hw::flash::programFlash(
-                block_buffer_val.start_addr / hw::flash::WORD_BYTES * hw::flash::WORD_BYTES,
-                block_buffer.value().buffer);
+
+            const uint32_t flash_addr = block_buffer_val.start_addr / hw::flash::WORD_BYTES * hw::flash::WORD_BYTES;
+            LOG_INFO("flashing to %lX == %lX", block_buffer_val.start_addr, flash_addr);
+            io::time::delay(1);
+            const auto flash_res = hw::flash::programFlash(flash_addr, block_buffer.value().buffer);
             RETURN_IF_ERR(flash_res);
         }
         block_buffer = std::nullopt;
@@ -173,7 +176,7 @@ class config
             {
                 if (not block_buffer_val.filled_64[i])
                 {
-                    return block_buffer_val.start_addr + i * sizeof(uint64_t) * 8;
+                    return block_buffer_val.start_addr + i * sizeof(uint64_t);
                 }
             }
         }
