@@ -164,13 +164,35 @@ static io::notify::Notifier sync_done;
 
 void jobs_runAdbmsConfigs_tick()
 {
-    const Segments<result<bool>> res             = app::segments::config::sync();
-    bool                         all_segments_ok = true;
+    bool all_segments_ok = true;
+
+    const Segments<result<bool>> smth_res = app::segments::config::smth();
+    {
+        const io::unique_semaphore h{ health_lock };
+        for (size_t seg = 0; seg < NUM_SEGMENTS; seg++)
+        {
+            const auto &seg_res = smth_res[seg];
+            app::segments::health::setOrReset(seg, app::segments::health::ErrorBit::UNREACHABLE, not seg_res);
+            if (!seg_res)
+            {
+                all_segments_ok = false;
+                LOG_ERROR("Failed to run reachable check on segment %d: %s", seg, error_code_to_string(seg_res.error()));
+                continue;
+            }
+            if (!seg_res.value())
+            {
+                all_segments_ok = false;
+                LOG_ERROR("Failed to reach segment %d: Spi link break detected", seg);
+            }
+        }
+    }
+
+    const Segments<result<bool>> sync_res             = app::segments::config::sync();
     {
         const io::unique_semaphore h{ health_lock };
         for (size_t seg_num = 0; seg_num < NUM_SEGMENTS; seg_num++)
         {
-            const auto &seg_res = res[seg_num];
+            const auto &seg_res = sync_res[seg_num];
             app::segments::health::setOrReset(seg_num, app::segments::health::ErrorBit::CONFIG, not seg_res);
             if (!seg_res)
             {
@@ -185,18 +207,21 @@ void jobs_runAdbmsConfigs_tick()
             }
         }
     }
-    // TODO handle this properly
+
+    const Segments<uint8_t> mismatches = io::adbms::misc::getCmdCountMismatches();
 
     {
         const io::unique_semaphore h{ health_lock };
         app::segments::broadcast::segmentHealthError();
     }
-
-    app::segments::broadcast::cmdCountMismatch();
+    {
+        const io::unique_semaphore c { cmd_count_lock };
+        app::segments::broadcast::cmdCountMismatch(mismatches);
+    }
 
     if (all_segments_ok)
     {
-        LOG_INFO("All configs ok! Notifying...");
+        LOG_INFO("All segments reachable and synced! Notifying...");
         sync_done.notify();
     }
 }
@@ -213,7 +238,7 @@ void jobs_runAdbmsVoltages_tick()
         const io::unique_semaphore h{ health_lock };
         // Cell Voltages
         LOG_IF_ERR(io::adbms::clear::cell());
-        voltages_poll_ok = app::segments::startPoll::cellAdc();
+        voltages_poll_ok = app::segments::startContinuous::cellAdc();
         if (voltages_poll_ok)
             cell_voltages = app::segments::conversion::cellVoltage();
     }
@@ -242,8 +267,8 @@ void jobs_runAdbmsCellOwc_tick()
         const io::unique_semaphore h{ health_lock };
         for (const OpenWireSwitch channel : { OpenWireSwitch::ODD_CHANNELS, OpenWireSwitch::EVEN_CHANNELS })
         {
-            const auto poll1 = app::segments::startPoll::secondaryCellAdc(channel);
-            const auto poll2 = app::segments::startPoll::secondaryCellAdc(channel);
+            const auto poll1 = app::segments::startContinuous::secondaryCellAdc(channel);
+            const auto poll2 = app::segments::startContinuous::secondaryCellAdc(channel);
             if (poll1 && poll2)
             {
                 owc_voltages[static_cast<size_t>(channel)] = app::segments::conversion::cellOwcVoltages();

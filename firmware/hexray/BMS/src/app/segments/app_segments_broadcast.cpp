@@ -440,14 +440,17 @@ namespace debug
     }
 } // namespace debug
 
-void cmdCountMismatch()
+void cmdCountMismatch(const Segments<uint8_t> &mismatches)
 {
-    const Segments<uint8_t> mismatches = io::adbms::getCmdCountMismatches();
     for (size_t seg = 0U; seg < NUM_SEGMENTS; seg++)
     {
         segment_cmdcnt_buffer[seg] = mismatches[seg];
     }
     segment_cmdcnt_buffer.send();
+}
+
+void spiLinkStats(const SpiBusReach) {
+    
 }
 
 void segmentHealthError()

@@ -77,12 +77,16 @@ namespace broadcast
         void cellOwc(const io::adbms::Cells<result<bool>> &owc_results, const result<void> &poll_ok);
         void balancing(const io::adbms::Cells<bool> &discharge_enabled, const io::adbms::Cells<uint8_t> &pwm_duty);
     } // namespace debug
-    void segmentHealthError();
-    void voltageStats();
-    void temperatureStats();
-    void segmentVoltageStats();
-    void packVoltage();
-    void cmdCountMismatch();
+    namespace shared {
+        void segmentHealthError();
+        void voltageStats();
+        void temperatureStats();
+        void segmentVoltageStats();
+        void packVoltage();
+    }
+    namespace 
+    void cmdCountMismatch(const Segments<uint8_t>);
+    void spiLinkStats(const SpiBusReach);
 } // namespace broadcast
 
 // app_segments_health.cpp
@@ -99,6 +103,7 @@ namespace health
         SEG_VOLTAGE,
         STATUS,
         CONFIG,
+        UNREACHABLE,
         NUM_ERROR_BITS
     };
 
@@ -136,10 +141,7 @@ namespace shared
 // app_segments_alerts.cpp
 namespace alerts
 {
-    void init();
-    // Evaluates all warning/fault/info conditions through their debounce timers and
-    // calls the matching app::can_alerts setters. Returns true iff at least one
-    // fault entry is currently firing — drive bms_ok_latch off this directly.
+    void init();.
     bool tick();
 } // namespace alerts
 

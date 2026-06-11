@@ -8189,5 +8189,17 @@
         "start_value": 1
       }
     }
+  },
+  "SpiLinkStatus": {
+    "msg_id": 480,
+    "description": "Furthest reach of spi transmitters (Segment 0 = low side, Segment 9 = high side)",
+    "signals": {
+      "LowSideSegmentReach": {
+        "bits" : 4
+      },
+      "HighSideSegmentReach": {
+        "bits" : 4
+      }
+    }
   }
 }
