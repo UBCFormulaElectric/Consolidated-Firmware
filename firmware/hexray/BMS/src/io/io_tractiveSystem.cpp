@@ -6,8 +6,6 @@
 #include <cassert>
 #include <cmath>
 
-// Percent error used to compensate for resistor errors. Determined from testing with the HW
-// TODO: Test with HW to determine compensation
 namespace io::ts
 {
 
