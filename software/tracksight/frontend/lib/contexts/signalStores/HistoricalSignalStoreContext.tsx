@@ -34,9 +34,11 @@ export const HistoricalSignalStoreProvider = memo(function HistoricalSignalStore
     const selectedSignals = useMemo(() => {
         const signalsByName = new Map<string, SignalMetadata>();
         widgets.forEach((widget) => {
-            widget.signals.forEach((signal) => {
-                signalsByName.set(signal.name, signal);
-            });
+            if ("signals" in widget) {
+                widget.signals.forEach((signal) => {
+                    signalsByName.set(signal.name, signal);
+                });
+            }
         });
         return [...signalsByName.values()];
     }, [widgets]);
