@@ -111,7 +111,11 @@ void jobs_run100Hz_tick()
     hb_monitor.checkIn();
     hb_monitor.broadcastFaults();
 
-    io::fans::tick(io::irs::positiveState() == app::can_utils::ContactorState::CONTACTOR_STATE_CLOSED);
+    const bool vc_drive_state         = app::can_rx::VC_State_get() == app::can_utils::VCState::VC_DRIVE_STATE;
+    const bool cell_balancing_request = app::can_rx::Debug_CellBalancing_Request_get();
+    const bool charging_request       = app::can_rx::Debug_StartCharging_get();
+    const bool fans_enabled           = vc_drive_state || cell_balancing_request || charging_request;
+    io::fans::tick(fans_enabled);
 
     // Charger connection status
     app::can_tx::BMS_ChargerConnectedType_set(io::charger::getConnectionStatus());

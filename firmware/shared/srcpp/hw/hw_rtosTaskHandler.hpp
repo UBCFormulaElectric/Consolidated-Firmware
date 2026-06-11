@@ -20,7 +20,10 @@ class StaticTask
         uint32_t    *data;
         const size_t size;
         // ReSharper disable once CppNonExplicitConvertingConstructor
-        template <size_t T> constexpr StaticTaskStackRef(StaticTaskStack<T> &s) : data(s.data), size(T) {}
+        template <size_t T>
+        constexpr StaticTaskStackRef(StaticTaskStack<T> &s) : data(const_cast<uint32_t *>(s.data)), size(T)
+        {
+        }
         StaticTaskStackRef() = delete;
     };
 
