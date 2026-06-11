@@ -40,9 +40,6 @@ using io::adbms::Segments;
 using io::adbms::ThermGpios;
 using io::adbms::Therms;
 
-// spi_bus_lock is now handled inside the io::adbms SPI functions (recursive mutex around the bus).
-// io::semaphore spi_bus_lock(true, 0x90210);
-
 static void jsoncan_transmit_func(const JsonCanMsg &tx_msg)
 {
     const io::CanMsg msg = app::jsoncan::copyToCanMsg(tx_msg);
@@ -208,15 +205,17 @@ void jobs_runAdbmsConfigs_tick()
         }
     }
 
-    const Segments<uint8_t> mismatches = io::adbms::misc::getCmdCountMismatches();
+    const Segments<uint8_t>      mismatches = io::adbms::misc::getCmdCountMismatches();
+    const io::adbms::SpiBusReach spi_reach  = io::adbms::misc::getSpiBusReach();
 
     {
         const io::unique_semaphore h{ health_lock };
-        app::segments::broadcast::segmentHealthError();
+        app::segments::broadcast::shared::segmentHealthError();
     }
     {
         const io::unique_semaphore c { cmd_count_lock };
-        app::segments::broadcast::cmdCountMismatch(mismatches);
+        app::segments::broadcast::misc::cmdCountMismatch(mismatches);
+        app::segments::broadcast::misc::spiLinkStats(spi_reach);
     }
 
     if (all_segments_ok)
@@ -245,11 +244,11 @@ void jobs_runAdbmsVoltages_tick()
 
     app::segments::shared::setVoltageStats(cell_voltages);
 
-    app::segments::broadcast::voltageStats();
+    app::segments::broadcast::shared::voltageStats();
 
     {
         io::unique_semaphore h{ health_lock };
-        app::segments::broadcast::segmentHealthError();
+        app::segments::broadcast::shared::segmentHealthError();
     }
 
     app::segments::broadcast::debug::cellVoltages(cell_voltages, voltages_poll_ok);
@@ -286,7 +285,7 @@ void jobs_runAdbmsCellOwc_tick()
 
     {
         io::unique_semaphore h{ health_lock };
-        app::segments::broadcast::segmentHealthError();
+        app::segments::broadcast::shared::segmentHealthError();
     }
 
     app::segments::broadcast::debug::cellOwc(cell_owc, owc_voltages_poll_ok);
@@ -345,12 +344,12 @@ void jobs_runAdbmsAux_tick()
     app::segments::shared::setSegmentVoltageStats(seg_voltages);
     app::segments::shared::setPackVoltage(pack_voltage);
 
-    app::segments::broadcast::packVoltage();
-    app::segments::broadcast::temperatureStats();
-    app::segments::broadcast::segmentVoltageStats();
+    app::segments::broadcast::shared::packVoltage();
+    app::segments::broadcast::shared::temperatureStats();
+    app::segments::broadcast::shared::segmentVoltageStats();
     {
         io::unique_semaphore h{ health_lock };
-        app::segments::broadcast::segmentHealthError();
+        app::segments::broadcast::shared::segmentHealthError();
     }
     app::segments::broadcast::debug::thermTemps(therm_temps, therm_voltages_poll_ok);
     app::segments::broadcast::debug::thermOwc(therm_owc, therm_voltages_poll_ok);

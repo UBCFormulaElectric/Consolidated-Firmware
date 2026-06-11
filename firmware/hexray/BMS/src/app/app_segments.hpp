@@ -84,9 +84,11 @@ namespace broadcast
         void segmentVoltageStats();
         void packVoltage();
     }
-    namespace 
-    void cmdCountMismatch(const Segments<uint8_t>);
-    void spiLinkStats(const SpiBusReach);
+    namespace misc {
+        void cmdCountMismatch(const io::adbms::Segments<uint8_t> &mismatches);
+        void spiLinkStats(const io::adbms::SpiBusReach &reach);
+    }
+    
 } // namespace broadcast
 
 // app_segments_health.cpp

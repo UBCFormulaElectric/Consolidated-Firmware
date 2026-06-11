@@ -440,6 +440,8 @@ namespace debug
     }
 } // namespace debug
 
+namespace misc
+{
 void cmdCountMismatch(const Segments<uint8_t> &mismatches)
 {
     for (size_t seg = 0U; seg < NUM_SEGMENTS; seg++)
@@ -449,9 +451,13 @@ void cmdCountMismatch(const Segments<uint8_t> &mismatches)
     segment_cmdcnt_buffer.send();
 }
 
-void spiLinkStats(const SpiBusReach) {
-    
+void spiLinkStats(const io::adbms::SpiBusReach &reach)
+{
+    can_tx::BMS_LowSideSegmentReach_set(reach.ls_reach);
+    can_tx::BMS_HighSideSegmentReach_set(reach.hs_reach);
+    tx::BMS_SpiLinkStatus_sendAperiodic();
 }
+} // namespace misc
 
 void segmentHealthError()
 {
