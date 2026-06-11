@@ -163,7 +163,7 @@ void jobs_runAdbmsConfigs_tick()
 {
     bool all_segments_ok = true;
 
-    const Segments<result<bool>> smth_res = app::segments::config::smth();
+    const Segments<result<bool>> smth_res = app::segments::reach::check();
     {
         const io::unique_semaphore h{ health_lock };
         for (size_t seg = 0; seg < NUM_SEGMENTS; seg++)
@@ -173,13 +173,13 @@ void jobs_runAdbmsConfigs_tick()
             if (!seg_res)
             {
                 all_segments_ok = false;
-                LOG_ERROR("Failed to run reachable check on segment %d: %s", seg, error_code_to_string(seg_res.error()));
+                LOG_ERROR("Failed to run reachable check on segment %d: %s", (int)seg, error_code_to_string(seg_res.error()));
                 continue;
             }
             if (!seg_res.value())
             {
                 all_segments_ok = false;
-                LOG_ERROR("Failed to reach segment %d: Spi link break detected", seg);
+                LOG_ERROR("Failed to reach segment %d: SPI link break detected", (int)seg);
             }
         }
     }
@@ -194,29 +194,32 @@ void jobs_runAdbmsConfigs_tick()
             if (!seg_res)
             {
                 all_segments_ok = false;
-                LOG_ERROR("Failed to sync config on segment %d: %s", seg_num, error_code_to_string(seg_res.error()));
+                LOG_ERROR("Failed to sync config on segment %d: %s", (int)seg_num, error_code_to_string(seg_res.error()));
                 continue;
             }
             if (!seg_res.value())
             {
                 all_segments_ok = false;
-                LOG_ERROR("Failed to sync config on segment %d: ADBMS config did not match in-memory config", seg_num);
+                LOG_ERROR("Failed to sync config on segment %d: ADBMS config did not match in-memory config", (int)seg_num);
             }
         }
     }
 
-    const Segments<uint8_t>      mismatches = io::adbms::misc::getCmdCountMismatches();
-    const io::adbms::SpiBusReach spi_reach  = io::adbms::misc::getSpiBusReach();
+    {
+        const io::unique_semaphore c { internal_lock };
+        const Segments<uint8_t>      mismatches = io::adbms::misc::getCmdCountMismatches();
+        const io::adbms::SpiBusReach spi_reach  = io::adbms::misc::getSpiBusReach();
+    }
 
     {
         const io::unique_semaphore h{ health_lock };
-        app::segments::broadcast::shared::segmentHealthError();
+        const std::array<std::bitset<NUM_HEALTH_BITS>, MAX_NUM_SEGMENTS> health = app::segments::health::getAll();
     }
-    {
-        const io::unique_semaphore c { cmd_count_lock };
-        app::segments::broadcast::misc::cmdCountMismatch(mismatches);
-        app::segments::broadcast::misc::spiLinkStats(spi_reach);
-    }
+    
+    app::segments::broadcast::segmentHealthError(health);
+    app::segments::broadcast::cmdCountMismatch(mismatches);
+    app::segments::broadcast::spiLinkStats(spi_reach);
+
 
     if (all_segments_ok)
     {
@@ -244,11 +247,11 @@ void jobs_runAdbmsVoltages_tick()
 
     app::segments::shared::setVoltageStats(cell_voltages);
 
-    app::segments::broadcast::shared::voltageStats();
+    app::segments::broadcast::voltageStats();
 
     {
         io::unique_semaphore h{ health_lock };
-        app::segments::broadcast::shared::segmentHealthError();
+        app::segments::broadcast::segmentHealthError();
     }
 
     app::segments::broadcast::debug::cellVoltages(cell_voltages, voltages_poll_ok);
@@ -285,7 +288,7 @@ void jobs_runAdbmsCellOwc_tick()
 
     {
         io::unique_semaphore h{ health_lock };
-        app::segments::broadcast::shared::segmentHealthError();
+        app::segments::broadcast::segmentHealthError();
     }
 
     app::segments::broadcast::debug::cellOwc(cell_owc, owc_voltages_poll_ok);
@@ -344,12 +347,12 @@ void jobs_runAdbmsAux_tick()
     app::segments::shared::setSegmentVoltageStats(seg_voltages);
     app::segments::shared::setPackVoltage(pack_voltage);
 
-    app::segments::broadcast::shared::packVoltage();
-    app::segments::broadcast::shared::temperatureStats();
-    app::segments::broadcast::shared::segmentVoltageStats();
+    app::segments::broadcast::packVoltage();
+    app::segments::broadcast::temperatureStats();
+    app::segments::broadcast::segmentVoltageStats();
     {
         io::unique_semaphore h{ health_lock };
-        app::segments::broadcast::shared::segmentHealthError();
+        app::segments::broadcast::segmentHealthError();
     }
     app::segments::broadcast::debug::thermTemps(therm_temps, therm_voltages_poll_ok);
     app::segments::broadcast::debug::thermOwc(therm_owc, therm_voltages_poll_ok);

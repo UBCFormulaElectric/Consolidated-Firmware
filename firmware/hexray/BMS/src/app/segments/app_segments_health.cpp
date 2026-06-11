@@ -7,9 +7,7 @@
 
 namespace
 {
-inline constexpr size_t NUM_HEALTH_BITS = static_cast<size_t>(app::segments::health::ErrorBit::NUM_ERROR_BITS);
-
-std::array<std::bitset<NUM_HEALTH_BITS>, MAX_NUM_SEGMENTS> segment_health{};
+std::array<std::bitset<app::segments::health::NUM_HEALTH_BITS>, MAX_NUM_SEGMENTS> segment_health{};
 } // namespace
 
 io::semaphore health_lock{ true };
@@ -47,6 +45,12 @@ bool getAnyError(const size_t seg)
 {
     assert(health_lock.is_held());
     return segment_health[seg].any();
+}
+
+std::array<std::bitset<NUM_HEALTH_BITS>, MAX_NUM_SEGMENTS> getAll()
+{
+    assert(health_lock.is_held());
+    return segment_health;
 }
 
 } // namespace app::segments::health

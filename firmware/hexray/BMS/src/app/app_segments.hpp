@@ -1,11 +1,15 @@
 #pragma once
 #include <array>
+#include <bitset>
 #include <expected>
 #include <utility>
 
 #include "util_errorCodes.hpp"
 #include "io_adbms.hpp"
 #include "io_semaphore.hpp"
+
+// Maximum number of segments the firmware can address.
+inline constexpr uint8_t MAX_NUM_SEGMENTS = 10U;
 
 // Minimum conversion times
 inline constexpr uint8_t CELL_CONV_TIME_MS           = 2U;
@@ -56,6 +60,17 @@ namespace config
     [[nodiscard]] io::adbms::Segments<result<bool>> sync();
 } // namespace config
 
+// app_segments_reach.cpp
+namespace reach
+{
+    /**
+     * Checks whether each segment is reachable over the isoSPI bus.
+     * Per segment: an error means the check itself failed; a false value means
+     * the segment is unreachable (SPI link break); true means reachable.
+     */
+    [[nodiscard]] io::adbms::Segments<result<bool>> check();
+} // namespace reach
+
 // app_segments_balancing.cpp
 namespace balancing
 {
@@ -77,18 +92,14 @@ namespace broadcast
         void cellOwc(const io::adbms::Cells<result<bool>> &owc_results, const result<void> &poll_ok);
         void balancing(const io::adbms::Cells<bool> &discharge_enabled, const io::adbms::Cells<uint8_t> &pwm_duty);
     } // namespace debug
-    namespace shared {
-        void segmentHealthError();
-        void voltageStats();
-        void temperatureStats();
-        void segmentVoltageStats();
-        void packVoltage();
-    }
-    namespace misc {
-        void cmdCountMismatch(const io::adbms::Segments<uint8_t> &mismatches);
-        void spiLinkStats(const io::adbms::SpiBusReach &reach);
-    }
-    
+
+    void segmentHealthError();
+    void voltageStats();
+    void temperatureStats();
+    void segmentVoltageStats();
+    void packVoltage();
+    void cmdCountMismatch(const io::adbms::Segments<uint8_t> &mismatches);
+    void spiLinkStats(const io::adbms::SpiBusReach &reach);
 } // namespace broadcast
 
 // app_segments_health.cpp
@@ -109,11 +120,14 @@ namespace health
         NUM_ERROR_BITS
     };
 
+    inline constexpr size_t NUM_HEALTH_BITS = static_cast<size_t>(ErrorBit::NUM_ERROR_BITS);
+
     void resetAll(ErrorBit bit);
     void setAll(ErrorBit bit);
     void setOrReset(size_t seg, ErrorBit bit, bool has_error);
     bool getError(size_t seg, ErrorBit bit);
     bool getAnyError(size_t seg);
+    std::array<std::bitset<NUM_HEALTH_BITS>, MAX_NUM_SEGMENTS> getAll();
 } // namespace health
 
 // app_segments_shared.cpp
