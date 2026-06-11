@@ -2,17 +2,23 @@
 #include "io_irs.hpp"
 #include "app_canTx.hpp"
 #include "app_canUtils.hpp"
+#include "io_tractiveSystem.hpp"
 
+constexpr float MIN_TS_VOLTAGE_V = 0.0f;
 namespace app::states
 {
 namespace driveState
 {
     static void driveStateRunOnEntry()
     {
-        ::app::can_tx::BMS_State_set(::app::can_utils::BmsState::BMS_DRIVE_STATE);
+        app::can_tx::BMS_State_set(::app::can_utils::BmsState::BMS_DRIVE_STATE);
     }
 
-    static void driveStateRunOnTick100Hz() {}
+    static void driveStateRunOnTick100Hz() {
+        if (io::ts::getVoltage() < MIN_TS_VOLTAGE_V) {
+             app::StateMachine::set_next_state(&init_state);
+        }
+    }
 
     static void driveStateRunOnExit()
     {
