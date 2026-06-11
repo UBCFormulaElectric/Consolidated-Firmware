@@ -4,21 +4,33 @@
 #include <span>
 #include "util_errorCodes.hpp"
 
-enum AlertOvUvBits : uint8_t
+union AlertOvUvBits
 {
-    ALERT_OV_CH1 = (1u << 0),
-    ALERT_OV_CH2 = (1u << 1),
-    ALERT_OV_CH3 = (1u << 2),
-    ALERT_OV_CH4 = (1u << 3),
-    ALERT_UV_CH1 = (1u << 4),
-    ALERT_UV_CH2 = (1u << 5),
-    ALERT_UV_CH3 = (1u << 6),
-    ALERT_UV_CH4 = (1u << 7),
+    struct __attribute__((packed))
+    {
+        uint32_t CH4OV : 1;
+        uint32_t CH3OV : 1;
+        uint32_t CH2OV : 1;
+        uint32_t CH1OV : 1;
+        uint32_t CH4UV : 1;
+        uint32_t CH3UV : 1;
+        uint32_t CH2UV : 1;
+        uint32_t CH1UV : 1;
+    } bits;
+    uint8_t alert_status;
+#ifdef TARGET_EMBEDDED
+    static_assert(sizeof(bits) == sizeof(alert_status));
+#endif
 };
+
+/**
+ * NOTE: CH1 is meant to represent PCM and CH4 is meant to represent BOOST, however the nets were swapped on
+ * schematic, so I am js gonna swap in app layer
+ */
 
 enum Channel : uint8_t
 {
-    CH1,
+    CH1 = 1,
     CH2,
     CH3,
     CH4

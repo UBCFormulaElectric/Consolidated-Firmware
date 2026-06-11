@@ -1,7 +1,7 @@
+#include "app_thermistors.hpp"
 #include <array>
-#include "app_thermistor.hpp"
 
-#define ADBMS_THERMISTOR_LUT_SIZE 201U
+static constexpr uint32_t ADBMS_THERMISTOR_LUT_SIZE = 201U;
 namespace
 {
 constexpr std::array<const float, ADBMS_THERMISTOR_LUT_SIZE> adbms_ntc10k_lut_buffer = {

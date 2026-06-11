@@ -5,7 +5,8 @@ WORKDIR /backend
 
 RUN apt-get update && apt-get install -y \
     pkg-config \
-    libudev-dev
+    libudev-dev \
+    clang
 
 COPY software/tracksight/rust_backend/Cargo.toml .
 COPY software/tracksight/rust_backend/src src
@@ -16,8 +17,17 @@ RUN sed -i 's#src/main.rs#dummy.rs#' Cargo.toml
 RUN cargo build --release
 RUN sed -i 's#dummy.rs#src/main.rs#' Cargo.toml
 
-# Build actual backend
-RUN cargo build --release
+# Verbosity option
+ARG DOCKER_VERBOSITY
+
+# Build actual backend based on verbosity
+RUN case "$DOCKER_VERBOSITY" in \
+        VERBOSE) cargo build --release --features verbose ;; \
+        DEBUG)   cargo build --release --features debug ;; \
+        *)       cargo build --release ;; \
+    esac
+
+
 # Runtime set up
 FROM debian:bookworm
 

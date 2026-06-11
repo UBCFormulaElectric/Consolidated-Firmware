@@ -30,6 +30,7 @@ file(GLOB_RECURSE IO_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/io/
 set(IO_SHARED_SRCS
         "${SHARED_IO_INCLUDE_DIR_CPP}/io_time.cpp"
         "${SHARED_IO_INCLUDE_DIR_CPP}/io_imu.cpp"
+        "${SHARED_IO_INCLUDE_DIR_CPP}/io_shdnLoopNode.cpp"
 )
 set(IO_INCLUDE_DIRS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io"
@@ -127,13 +128,15 @@ if ("${TARGET}" STREQUAL "binary")
     )
 
     target_link_libraries("hexray_RSM_app.elf" PRIVATE "hexray_RSM_stm32" "hexray_RSM_commit_info" "hexray_RSM_jsoncan" "m")
-    target_compile_definitions("hexray_RSM_app.elf" PRIVATE "HAL_SPI_MODULE_ENABLED" NO_BOOTLOADER)
+    target_compile_definitions("hexray_RSM_app.elf" PRIVATE "HAL_SPI_MODULE_ENABLED")
 
     add_chimera_stm32h5("hexray_RSM_chimera" "${CHIMERA_SRCS}" "${CHIMERA_INCLUDE_DIRS}" "hexray_chimera_v2_proto_cm33")
     target_link_libraries("hexray_RSM_chimera.elf" PRIVATE "hexray_RSM_stm32")
     target_compile_definitions("hexray_RSM_chimera.elf" PRIVATE "HAL_SPI_MODULE_ENABLED")
 
     if ("${BOOTLOAD}" STREQUAL "ON")
+        target_compile_definitions("hexray_RSM_app.elf" PRIVATE BOOTLOAD)
+
         # Bootloader files.
         file(GLOB BOOT_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/boot/*.cpp")
         file(GLOB BOOT_CUBEMX_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Src/*.c")
@@ -161,6 +164,7 @@ elseif ("${TARGET}" STREQUAL "test")
     set(FAKE_SRCS
             "${SHARED_FAKES_DIR_CPP}/io_time.cpp"
             "${SHARED_FAKES_DIR_CPP}/io_imu.cpp"
+            "${SHARED_FAKES_DIR_CPP}/io_shdnLoopNode.cpp"
     )
     set(SRCS ${APP_SRCS} ${APP_SHARED_SRCS} ${JOBS_SRC} ${TEST_SRCS} ${FAKE_SRCS})
     set(INCLUDE_DIRS

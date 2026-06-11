@@ -42,6 +42,10 @@
         "bits": 16,
         "signed": true
       }
+    },
+    "data_capture": {
+      "telem_cycle_time": 1000,
+      "log_cycle_time" : 1000
     }
   },
   "INVFRSetPoints": {
@@ -87,6 +91,10 @@
         "bits": 16,
         "signed": true
       }
+    },
+    "data_capture": {
+      "telem_cycle_time": 1000,
+      "log_cycle_time" : 1000
     }
   },
   "INVRLSetPoints": {
@@ -132,6 +140,10 @@
         "bits": 16,
         "signed": true
       }
+    },
+    "data_capture": {
+      "telem_cycle_time": 1000,
+      "log_cycle_time" : 1000
     }
   },
   "INVRRSetPoints": {
@@ -177,6 +189,10 @@
         "bits": 16,
         "signed": true
       }
+    },
+    "data_capture": {
+      "telem_cycle_time": 1000,
+      "log_cycle_time" : 1000
     }
   },
   "Vitals": {
@@ -239,6 +255,10 @@
       "Clean": {
         "bits": 1
       }
+    },
+    "data_capture": {
+      "telem_cycle_time": 1000,
+      "log_cycle_time" : 1000
     }
   },
   "VehicleDynamics": {
@@ -279,6 +299,10 @@
         "resolution": 0.1,
         "signed": true
       }
+    },
+    "data_capture": {
+      "telem_cycle_time": 1000,
+      "log_cycle_time" : 1000
     }
   },
   "Imu1LinearData": {
@@ -307,6 +331,10 @@
         "max": 50,
         "unit": "m/s^2"
       }
+    },
+    "data_capture": {
+      "telem_cycle_time": 1000,
+      "log_cycle_time" : 1000
     }
   },
   "Imu2LinearData": {
@@ -409,6 +437,10 @@
         "max": 35,
         "unit": "m/s"
       }
+    },
+    "data_capture": {
+      "telem_cycle_time": 1000,
+      "log_cycle_time" : 1000
     }
   },
   "Imu1AngularData": {
@@ -437,6 +469,10 @@
         "max": 360,
         "unit": "deg/s"
       }
+    },
+    "data_capture": {
+      "telem_cycle_time": 1000,
+      "log_cycle_time" : 1000
     }
   },
   "Imu2AngularData": {
@@ -498,11 +534,18 @@
   "GlobalShdnNodeStatus": {
     "msg_id": 535,
     "cycle_time": 100,
-    "description": "Global Shutdown Node Status",
+    "description": "Global Shutdown Node Status. Consistency shows that everything after first faulted node is actually faulted",
     "signals": {
       "FirstFaultNode": {
         "enum": "ShutdownNode"
+      },
+      "ShdnLoopConsistent": {
+        "bits": 1
       }
+    },
+    "data_capture": {
+      "telem_cycle_time": 1000,
+      "log_cycle_time" : 1000
     }
   },
   "PumpStatus": {
@@ -519,6 +562,10 @@
         "max": 100,
         "unit": "%"
       }
+    },
+    "data_capture": {
+      "telem_cycle_time": 1000,
+      "log_cycle_time" : 1000
     }
   },
   "ConnectorBoardEfuse": {
@@ -565,6 +612,10 @@
       "RightRadiatorFanStatus": {
         "bits": 1
       }
+    },
+    "data_capture": {
+      "telem_cycle_time": 1000,
+      "log_cycle_time" : 1000
     }
   },
   "ShdnNodeStatus": {
@@ -584,6 +635,10 @@
       "MSDOrEMeterOKStatus": {
         "bits": 1
       }
+    },
+    "data_capture": {
+      "telem_cycle_time": 1000,
+      "log_cycle_time" : 1000
     }
   },
   "EllipseTime": {
@@ -595,6 +650,10 @@
         "bits": 32,
         "unit": "us"
       }
+    },
+    "data_capture": {
+      "telem_cycle_time": 1000,
+      "log_cycle_time" : 1000
     }
   },
   "EllipseStatus": {
@@ -617,6 +676,10 @@
       "EllipseQueueOverflowCount": {
         "bits": 8
       }
+    },
+    "data_capture": {
+      "telem_cycle_time": 1000,
+      "log_cycle_time" : 1000
     }
   },
   "EllipseAngularVelocity": {
@@ -643,6 +706,10 @@
         "resolution": 1,
         "unit": "deg/s"
       }
+    },
+    "data_capture": {
+      "telem_cycle_time": 1000,
+      "log_cycle_time" : 1000
     }
   },
   "EllipseEulerAngles": {
@@ -671,6 +738,10 @@
         "signed": true,
         "unit": "deg"
       }
+    },
+    "data_capture": {
+      "telem_cycle_time": 1000,
+      "log_cycle_time" : 1000
     }
   },
   "MainBoardEfuse": {
@@ -732,6 +803,10 @@
       "FrontStatus": {
         "bits": 1
       }
+    },
+    "data_capture": {
+      "telem_cycle_time": 1000,
+      "log_cycle_time" : 1000
     }
   },
   "PowerMonitoring": {
@@ -765,49 +840,49 @@
       },
       "ChannelOneCurrent": {
         "resolution": 0.1,
-        "min": 0.0,
+        "min": -25.0,
         "max": 25.0,
         "unit": "A"
       },
       "ChannelTwoCurrent": {
         "resolution": 0.1,
-        "min": 0.0,
+        "min": -25.0,
         "max": 25.0,
         "unit": "A"
       },
       "ChannelThreeCurrent": {
         "resolution": 0.1,
-        "min": 0.0,
+        "min": -25.0,
         "max": 25.0,
         "unit": "A"
       },
       "ChannelFourCurrent": {
         "resolution": 0.1,
-        "min": 0.0,
+        "min": -25.0,
         "max": 25.0,
         "unit": "A"
       },
       "ChannelOnePower": {
         "resolution": 0.1,
-        "min": 0.0,
+        "min": -800.0,
         "max": 800.0,
         "unit": "W"
       },
       "ChannelTwoPower": {
         "resolution": 0.1,
-        "min": 0.0,
+        "min": -800.0,
         "max": 800.0,
         "unit": "W"
       },
       "ChannelThreePower": {
         "resolution": 0.1,
-        "min": 0.0,
+        "min": -800.0,
         "max": 800.0,
         "unit": "W"
       },
       "ChannelFourPower": {
         "resolution": 0.1,
-        "min": 0.0,
+        "min": -800.0,
         "max": 800.0,
         "unit": "W"
       },
@@ -871,10 +946,163 @@
       "CHANNEL4_POWER_VALID": {
         "bits": 1
       }
+    },
+    "data_capture": {
+      "telem_cycle_time": 1000,
+      "log_cycle_time" : 1000
+    }
+  },
+  "BatteryMonitoring_Faults": {
+    "msg_id": 561,
+    "cycle_time": null,
+    "description": "Battery monitoring chip faults and charging",
+    "signals": {
+      "CELL1_VOVSnapshot": {
+        "resolution": 0.001,
+        "min": 0.0,
+        "max": 4.5,
+        "unit": "V"
+      },
+      "CELL2_VOVSnapshot": {
+        "resolution": 0.001,
+        "min": 0.0,
+        "max": 4.5,
+        "unit": "V"
+      },
+      "CELL3_VOVSnapshot": {
+        "resolution": 0.001,
+        "min": 0.0,
+        "max": 4.5,
+        "unit": "V"
+      },
+      "CELL4_VOVSnapshot": {
+        "resolution": 0.001,
+        "min": 0.0,
+        "max": 4.5,
+        "unit": "V"
+      },
+      "CELL1_VUVSnapshot": {
+        "resolution": 0.001,
+        "min": 0.0,
+        "max": 4.5,
+        "unit": "V"
+      },
+      "CELL2_VUVSnapshot": {
+        "resolution": 0.001,
+        "min": 0.0,
+        "max": 4.5,
+        "unit": "V"
+      },
+      "CELL3_VUVSnapshot": {
+        "resolution": 0.001,
+        "min": 0.0,
+        "max": 4.5,
+        "unit": "V"
+      },
+      "CELL4_VUVSnapshot": {
+        "resolution": 0.001,
+        "min": 0.0,
+        "max": 4.5,
+        "unit": "V"
+      }
+    },
+    "data_capture": {
+      "telem_cycle_time": 1000,
+      "log_cycle_time" : 1000
+    }
+  },
+  "BatteryMonitoring_Data": {
+    "msg_id": 562,
+    "cycle_time": 100,
+    "description": "Battery monitoring chip and balancing",
+    "signals": {
+      "CELL1_Voltage": {
+        "resolution": 0.001,
+        "min": 0.0,
+        "max": 4.5,
+        "unit": "V"
+      },
+      "CELL2_Voltage": {
+        "resolution": 0.001,
+        "min": 0.0,
+        "max": 4.5,
+        "unit": "V"
+      },
+      "CELL3_Voltage": {
+        "resolution": 0.001,
+        "min": 0.0,
+        "max": 4.5,
+        "unit": "V"
+      },
+      "CELL4_Voltage": {
+        "resolution": 0.001,
+        "min": 0.0,
+        "max": 4.5,
+        "unit": "V"
+      },
+      "PACK_Voltage": {
+        "resolution": 0.001,
+        "min": 0.0,
+        "max": 17.0,
+        "unit": "V"
+      },
+      "LOAD_Voltage": {
+        "resolution": 0.001,
+        "min": 0.0,
+        "max": 17.0,
+        "unit": "V"
+      },
+      "SenseCurrent": {
+        "resolution": 0.001,
+        "min": 0.0,
+        "max": 0.1,
+        "unit": "A"
+      },
+      "BalancingState": {
+        "resolution": 1,
+        "min": 0,
+        "max": 2,
+        "description": "0=DISABLED, 1=SETTLE, 2=BALANCE"
+      },
+      "ImbalanceMagnitude": {
+        "resolution": 0.001,
+        "min": 0,
+        "max": 1,
+        "unit": "V"
+      },
+      "BalancingLeader": {
+        "resolution": 1,
+        "min": 0,
+        "max": 3
+      },
+      "BalancingCell": {
+        "resolution": 1,
+        "min": 0,
+        "max": 32
+      },
+      "Balancing": {
+        "bits": 1
+      },
+      "CELL_VOV": {
+        "bits": 1
+      },
+      "CELL_VUV": {
+        "bits": 1
+      },
+      "ICOverTemperature": {
+        "bits": 1
+      },
+      "Charging": {
+        "bits": 1
+      }
+    },
+    "data_capture": {
+      "telem_cycle_time": 1000,
+      "log_cycle_time" : 1000
     }
   },
   "CPUDataLogInfo": {
-    "msg_id": 561,
+    "msg_id": 563,
     "cycle_time": 100,
     "description": "VC cpu and stack information",
     "signals": {
@@ -1016,6 +1244,10 @@
         "max": 100,
         "unit": "%"
       }
+    },
+     "data_capture": {
+      "telem_cycle_time": 1000,
+      "log_cycle_time" : 1000
     }
   },
   "EMeterTeamMessage1": {
@@ -1029,12 +1261,16 @@
       "TeamSignal2": {
         "bits": 32
       }
+    },
+     "data_capture": {
+      "telem_cycle_time": 1000,
+      "log_cycle_time" : 1000
     }
   },
   "EMeterTeamMessage2": {
     "msg_id": 782,
     "cycle_time": null,
-    "description": "EMeter Team Message 1",
+    "description": "EMeter Team Message 2",
     "signals": {
       "TeamSignal3": {
         "bits": 32
@@ -1042,6 +1278,10 @@
       "TeamSignal4": {
         "bits": 32
       }
+    },
+     "data_capture": {
+      "telem_cycle_time": 1000,
+      "log_cycle_time" : 1000
     }
   }
 }

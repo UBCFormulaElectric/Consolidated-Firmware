@@ -10,14 +10,14 @@ namespace app::irs
 {
 bool negativeOpenedDebounced()
 {
-    bool negative_opened = io::irs::negativeState() == app::can_utils::ContactorState::CONTACTOR_STATE_OPEN;
+    const bool negative_opened = io::irs::negativeState() == app::can_utils::ContactorState::CONTACTOR_STATE_OPEN;
     return negative_opened_debounce_timer.runIfCondition(negative_opened) == app::Timer::TimerState::EXPIRED;
 }
 
-void negativeOpenedDebounceTimerRestart()
-{
-    negative_opened_debounce_timer.restart();
-}
+// void negativeOpenedDebounceTimerRestart()
+// {
+//     negative_opened_debounce_timer.restart();
+// }
 
 void broadcast()
 {

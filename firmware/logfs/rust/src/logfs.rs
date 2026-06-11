@@ -120,13 +120,17 @@ impl LogFsFile {
                 }
             }
             None => {
-                // Reset the iterator by reading 0 bytes from end
+                // Reset the iterator by reading 0 bytes from end. `logfs_read`
+                // does CHECK_ARG(buf) and rejects a null pointer with
+                // LOGFS_ERR_INVALID_ARG, so pass a valid (non-null) buffer even
+                // though zero bytes are read.
                 let mut num_read: u32 = 0;
+                let mut dummy = [0u8; 1];
                 let err = unsafe {
                     logfs_read(
                         self.fs,
                         &mut self.file,
-                        std::ptr::null_mut(),
+                        dummy.as_mut_ptr() as *mut _,
                         0,
                         LogFsReadFlags_LOGFS_READ_END,
                         &mut num_read,
@@ -168,6 +172,27 @@ impl LogFsFile {
 
                 Ok(file_data)
             }
+        }
+    }
+
+    pub fn read_metadata(&mut self, size: Option<u32>) -> Result<Vec<u8>, LogFsErr> {
+        let size = size.unwrap_or(self.block_size);
+        let mut buf = vec![0u8; size as usize];
+        let mut num_read: u32 = 0;
+        let err = unsafe {
+            logfs_readMetadata(
+                self.fs,
+                &mut self.file,
+                buf.as_mut_ptr() as *mut _,
+                size,
+                &mut num_read,
+            )
+        };
+        if err == LogFsErr_LOGFS_ERR_OK {
+            buf.truncate(num_read as usize);
+            Ok(buf)
+        } else {
+            Err(err)
         }
     }
 
@@ -258,25 +283,15 @@ impl LogFs {
         }
     }
 
-    pub fn cat(&mut self, path: &str, decode: Option<&str>) -> Result<Vec<u8>, LogFsErr> {
+    /// Read a file's metadata block and data. CAN decoding lives in the
+    /// consumer (TrackSight backend) since it requires a CanDatabase, which
+    /// this crate has no dependency on.
+    pub fn cat(&mut self, path: &str) -> Result<(Vec<u8>, Vec<u8>), LogFsErr> {
         match self.open(path, LogFsOpenFlags_LOGFS_OPEN_RD_ONLY) {
             Ok(mut file) => {
-                // Read metadata
-                // TODO: Implement metadata read
-                let data = file.read(None);
-                if let Some("can") = decode {
-                    // TODO: Implement CAN decode branch
-                    println!("TODO: decode == 'can' branch");
-                }
-
-                match data {
-                    Ok(data) => {
-                        return Ok(data);
-                    }
-                    Err(e) => {
-                        return Err(e);
-                    }
-                }
+                let metadata = file.read_metadata(None)?;
+                let data = file.read(None)?;
+                Ok((metadata, data))
             }
             Err(e) => {
                 println!("Open error: {:?}", e);

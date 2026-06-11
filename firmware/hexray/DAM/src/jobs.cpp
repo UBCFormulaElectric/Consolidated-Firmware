@@ -13,6 +13,7 @@
 #include "app_commitInfo.hpp"
 #include "app_epochClock.hpp"
 #include "app_tsim.hpp"
+#include "app_damShdnLoop.hpp"
 
 #include "io_canMsg.hpp"
 #include "io_canQueues.hpp"
@@ -73,6 +74,7 @@ void jobs_init()
     app::can_tx::DAM_Clean_set(GIT_COMMIT_CLEAN);
     io::can_tx::enableMode_FDCAN(app::can_utils::FDCANMode::FDCAN_MODE_DEFAULT, true);
     app::can_tx::DAM_Heartbeat_set(true);
+    app::can_tx::DAM_Alive_set(1);
     io::can_tx::DAM_Bootup_sendAperiodic();
     app::epochClock::logDateTime("Boot RTC time (GMT)");
 
@@ -144,6 +146,7 @@ void jobs_run1Hz_tick()
             LOG_ERROR("Log sync failed: %d", static_cast<int>(err.error()));
         }
     }
+    io::can_tx::enqueue1HzMsgs();
 }
 void jobs_run100Hz_tick()
 {
@@ -160,6 +163,8 @@ void jobs_run100Hz_tick()
 
     hb_monitor.checkIn();
     hb_monitor.broadcastFaults();
+
+    dam_shdnLoop.broadcast();
 
     io::can_tx::enqueue100HzMsgs();
 

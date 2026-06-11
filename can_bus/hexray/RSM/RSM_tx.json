@@ -29,6 +29,10 @@
       "WatchdogTimeoutTask": {
         "bits": 32
       }
+    },
+    "data_capture": {
+      "telem_cycle_time": 1000,
+      "log_cycle_time" : 1000
     }
   },
   "Bootup": {
@@ -39,7 +43,7 @@
   },
   "CommitInfo": {
     "msg_id": 709,
-    "cycle_time": 100,
+    "cycle_time": 1000,
     "description": "RSM Commit Info",
     "signals": {
       "Hash": {
@@ -48,6 +52,10 @@
       "Clean": {
         "bits": 1
       }
+    },
+     "data_capture": {
+      "telem_cycle_time": 1000,
+      "log_cycle_time" : 1000
     }
   },
   "SuspensionTravel": {
@@ -67,6 +75,10 @@
         "max": 10,
         "unit": "cm"
       }
+    },
+     "data_capture": {
+      "telem_cycle_time": 1000,
+      "log_cycle_time" : 1000
     }
   },
   "IMU": {
@@ -110,11 +122,15 @@
         "max": 20,
         "unit": "deg/s^2"
       }
+    },
+     "data_capture": {
+      "telem_cycle_time": 1000,
+      "log_cycle_time" : 1000
     }
   },
   "Brakes": {
     "msg_id": 712,
-    "cycle_time": 1000,
+    "cycle_time": 100,
     "description": "Front and rear brake pressures",
     "signals": {
       "RearBrakePressure": {
@@ -126,21 +142,29 @@
       "BrakeActuated": {
         "bits": 1
       }
+    },
+     "data_capture": {
+      "telem_cycle_time": 1000,
+      "log_cycle_time" : 1000
     }
   },
   "ShdnNodeStatus": {
     "msg_id": 713,
-    "cycle_time": 10,
+    "cycle_time": 100,
     "description": "RSM shutdown nodes",
     "signals": {
       "RearLeftMotorInterlock": {
         "bits": 1
       }
+    },
+     "data_capture": {
+      "telem_cycle_time": 1000,
+      "log_cycle_time" : 1000
     }
   },
   "RearPumpPercentage": {
     "msg_id": 714,
-    "cycle_time": 1000,
+    "cycle_time": 100,
     "description": "Rear pump information",
     "signals": {
       "RPumpPercentage": {
@@ -149,6 +173,10 @@
         "max": 100,
         "unit": "%"
       }
+    },
+     "data_capture": {
+      "telem_cycle_time": 1000,
+      "log_cycle_time" : 1000
     }
   },
   "CPUDataLogInfo": {
@@ -258,6 +286,10 @@
         "max": 100,
         "unit": "%"
       }
+    },
+     "data_capture": {
+      "telem_cycle_time": 1000,
+      "log_cycle_time" : 1000
     }
   },
   "Coolant": {
@@ -270,11 +302,15 @@
         "max": 100,
         "unit": "L/min"
       }
+    },
+     "data_capture": {
+      "telem_cycle_time": 1000,
+      "log_cycle_time" : 1000
     }
   },
   "TireSensor": {
     "msg_id": 798,
-    "cycle_time": 100,
+    "cycle_time": 1000,
     "description": "Tire sensor information",
     "signals": {
       "TireTemperature": {
@@ -283,6 +319,10 @@
         "max": 200,
         "unit": "°C"
       }
+    },
+     "data_capture": {
+      "telem_cycle_time": 1000,
+      "log_cycle_time" : 1000
     }
   }
 }

@@ -9,7 +9,7 @@ use crate::utils::yellow;
 use crate::tasks::{HealthCheckSender, HealthCheckSenderExt, Task};
 use crate::tasks::telem_message::CanPayload;
 use crate::tasks::client_api::subtable_clients::Clients;
-use crate::{vprintln};
+use crate::{error_println, vprintln};
 
 use jsoncan_rust::can_database::{CanDatabase, DecodedSignal};
 
@@ -26,15 +26,15 @@ pub async fn run_can_data_handler(
 ) {
     vprintln!("{}", yellow("CAN data task started."));
 
-    let (decoded_signal_tx, _) = broadcast::channel::<DecodedSignal>(32);
+    let (decoded_signal_tx, _) = broadcast::channel::<DecodedSignal>(4096);
 
     // parsed can signal consumers
-    let influx_handler_task: tokio::task::JoinHandle<()> = spawn(run_influx_handler(health_check_tx.clone(), decoded_signal_tx.subscribe()));
-    let live_data_handler_task: tokio::task::JoinHandle<()> = spawn(run_live_data_handler(health_check_tx.clone(), decoded_signal_tx.subscribe(), clients));
+    let influx_handler_task: tokio::task::JoinHandle<()> = spawn(run_influx_handler(shutdown_rx.resubscribe(), health_check_tx.clone(), decoded_signal_tx.subscribe()));
+    let live_data_handler_task: tokio::task::JoinHandle<()> = spawn(run_live_data_handler(shutdown_rx.resubscribe(), health_check_tx.clone(), decoded_signal_tx.subscribe(), clients));
     
     health_check_tx.send_health_check(Task::CanDataHandler, true).await;
     
-    loop {
+    'outer: loop {
         select! {
             _ = shutdown_rx.recv() => {
                 vprintln!("CAN data task shutting down.");
@@ -49,8 +49,8 @@ pub async fn run_can_data_handler(
 
                 for signal in decoded_signals {
                     if !decoded_signal_tx.send(signal).is_ok() {
-                        eprintln!("Parsed can data signal consumers are all closed");
-                        break;
+                        error_println!("Parsed can data signal consumers are all closed");
+                        break 'outer;
                     }
                 }
             }

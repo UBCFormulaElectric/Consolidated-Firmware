@@ -313,10 +313,10 @@ static void DAM_StartAllTasks()
     TaskCanRx.start();
     Task1kHz.start();
     Task1Hz.start();
-    TaskLogging.start();
-    TaskTelemTx.start();
-    TaskTelemRx.start();
-    TaskTelemParse.start();
+    // TaskLogging.start();
+    // TaskTelemTx.start();
+    // TaskTelemRx.start();
+    // TaskTelemParse.start();
 }
 
 void tasks_preInit()

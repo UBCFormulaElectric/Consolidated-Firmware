@@ -10,8 +10,8 @@ void node::broadcast() const
 {
     can_broadcast(is_ok());
 }
-void node::set_status(bool status)
+void node::set_status(bool _status)
 {
-    this->status = status;
+    this->status = _status;
 }
 } // namespace io::shdn

@@ -18,6 +18,7 @@
 #include "main.h"
 #include "hw_watchdog.hpp"
 #include "hw_resetReason.hpp"
+#include "hw_pwms.hpp"
 #include "hw_bootup.hpp"
 #include "hw_runTimeStat.hpp"
 
@@ -222,4 +223,11 @@ void tasks_tim_callback(const TIM_HandleTypeDef *tim)
         hw::runtimeStat::inc();
     }
 #endif
+}
+void tasks_handle_arr_rollover_callback(TIM_HandleTypeDef *htim)
+{
+    if (htim == &flow_meter_config.get_timer_handle())
+    {
+        flow_meter_config.increment_arrRolloverCount();
+    }
 }

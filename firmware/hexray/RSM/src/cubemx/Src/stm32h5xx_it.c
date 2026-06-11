@@ -61,7 +61,9 @@ extern DMA_QListTypeDef    List_GPDMA1_Channel0;
 extern DMA_HandleTypeDef   handle_GPDMA1_Channel0;
 extern ADC_HandleTypeDef   hadc1;
 extern FDCAN_HandleTypeDef hfdcan1;
+extern I2C_HandleTypeDef   hi2c2;
 extern SPI_HandleTypeDef   hspi3;
+extern TIM_HandleTypeDef   htim1;
 extern TIM_HandleTypeDef   htim3;
 extern TIM_HandleTypeDef   htim7;
 extern PCD_HandleTypeDef   hpcd_USB_DRD_FS;
@@ -226,6 +228,34 @@ void FDCAN1_IT1_IRQHandler(void)
 }
 
 /**
+ * @brief This function handles TIM1 Update interrupt.
+ */
+void TIM1_UP_IRQHandler(void)
+{
+    /* USER CODE BEGIN TIM1_UP_IRQn 0 */
+
+    /* USER CODE END TIM1_UP_IRQn 0 */
+    HAL_TIM_IRQHandler(&htim1);
+    /* USER CODE BEGIN TIM1_UP_IRQn 1 */
+
+    /* USER CODE END TIM1_UP_IRQn 1 */
+}
+
+/**
+ * @brief This function handles TIM1 Capture Compare interrupt.
+ */
+void TIM1_CC_IRQHandler(void)
+{
+    /* USER CODE BEGIN TIM1_CC_IRQn 0 */
+
+    /* USER CODE END TIM1_CC_IRQn 0 */
+    HAL_TIM_IRQHandler(&htim1);
+    /* USER CODE BEGIN TIM1_CC_IRQn 1 */
+
+    /* USER CODE END TIM1_CC_IRQn 1 */
+}
+
+/**
  * @brief This function handles TIM3 global interrupt.
  */
 void TIM3_IRQHandler(void)
@@ -265,6 +295,34 @@ void TIM7_IRQHandler(void)
     /* USER CODE BEGIN TIM7_IRQn 1 */
 
     /* USER CODE END TIM7_IRQn 1 */
+}
+
+/**
+ * @brief This function handles I2C2 Event interrupt.
+ */
+void I2C2_EV_IRQHandler(void)
+{
+    /* USER CODE BEGIN I2C2_EV_IRQn 0 */
+
+    /* USER CODE END I2C2_EV_IRQn 0 */
+    HAL_I2C_EV_IRQHandler(&hi2c2);
+    /* USER CODE BEGIN I2C2_EV_IRQn 1 */
+
+    /* USER CODE END I2C2_EV_IRQn 1 */
+}
+
+/**
+ * @brief This function handles I2C2 Error interrupt.
+ */
+void I2C2_ER_IRQHandler(void)
+{
+    /* USER CODE BEGIN I2C2_ER_IRQn 0 */
+
+    /* USER CODE END I2C2_ER_IRQn 0 */
+    HAL_I2C_ER_IRQHandler(&hi2c2);
+    /* USER CODE BEGIN I2C2_ER_IRQn 1 */
+
+    /* USER CODE END I2C2_ER_IRQn 1 */
 }
 
 /**
