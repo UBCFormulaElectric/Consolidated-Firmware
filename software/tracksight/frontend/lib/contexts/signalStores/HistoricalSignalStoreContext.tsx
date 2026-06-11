@@ -48,11 +48,6 @@ export const HistoricalSignalStoreProvider = memo(function HistoricalSignalStore
 
         const load = async () => {
             setError(null);
-            if (selectedSignals.length === 0) {
-                setIsLoading(false);
-                return;
-            }
-
             setIsLoading(true);
 
             const results = await Promise.allSettled(
