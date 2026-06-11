@@ -141,7 +141,7 @@ void tasks_runLogging(void *arg)
 }
 [[noreturn]] static void tasks_runTelemTx(void *arg)
 {
-    constexpr uint32_t telemTxTimeoutMs  = 100U;
+    constexpr uint32_t telemTxTimeoutMs  = 500U;
     constexpr uint32_t faultBackoffMinMs = 50U;
     constexpr uint32_t faultBackoffMaxMs = 1000U;
     bool               radioLinkFaulted  = false;
@@ -172,6 +172,9 @@ void tasks_runLogging(void *arg)
         const auto *can_msg   = std::get_if<io::telemMessage::TelemCanMsg>(&entry);
         if (not tx_result)
         {
+            if (tx_result.error() == ErrorCode::TIMEOUT)
+                continue;
+
             if (!radioLinkFaulted)
             {
                 LOG_ERROR("telemTx: radio transmit failed: %s", error_code_to_string(tx_result.error()));
