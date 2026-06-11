@@ -279,6 +279,7 @@ TEST_F(BmsStateMachineTest, precharge_charge_latches_after_retries)
     fakes::irs::setNegativeState(app::can_utils::ContactorState::CONTACTOR_STATE_CLOSED);
     app::can_rx::Debug_StartCharging_update(true);
     app::StateMachine::set_current_state(&app::states::precharge_charge_state);
+    fakes::charger::setConnectionStatus(app::can_utils::ChargerConnectedType::CHARGER_CONNECTED_EVSE);
     // Simulate closing precharge contactor before voltage rise.
     LetTimePass(10);
 

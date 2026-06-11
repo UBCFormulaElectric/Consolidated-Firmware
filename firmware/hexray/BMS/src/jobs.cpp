@@ -49,10 +49,10 @@ static void jsoncan_transmit_func(const JsonCanMsg &tx_msg)
 {
     const io::CanMsg msg = app::jsoncan::copyToCanMsg(tx_msg);
     const auto       res = vehicle_can_tx_queue.push(msg);
-    //LOG_IF_ERR(res);
+    // LOG_IF_ERR(res);
     if (not res)
     {
-        //LOG_ERROR("failed on can id %d", tx_msg.std_id);
+        // LOG_ERROR("failed on can id %d", tx_msg.std_id);
     }
 }
 

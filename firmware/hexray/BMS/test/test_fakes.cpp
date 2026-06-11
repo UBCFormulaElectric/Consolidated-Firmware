@@ -302,6 +302,7 @@ namespace charger
     static app::can_utils::ChargerConnectedType connectionStatus =
         app::can_utils::ChargerConnectedType::CHARGER_DISCONNECTED;
     static float evse_dutyCycle = 0.0f;
+    static float evse_frequency = 0.0f;
 
     app::can_utils::ChargerConnectedType getConnectionStatus()
     {
@@ -310,6 +311,10 @@ namespace charger
     float getCPDutyCycle()
     {
         return evse_dutyCycle;
+    }
+    float getCPFrequency()
+    {
+        return evse_frequency;
     }
 } // namespace charger
 
@@ -627,6 +632,10 @@ namespace charger
     void setCPDutyCycle(const float duty_cycle)
     {
         io::charger::evse_dutyCycle = duty_cycle;
+    }
+    void setCPFrequency(const float frequency)
+    {
+        io::charger::evse_frequency = frequency;
     }
 } // namespace charger
 } // namespace fakes

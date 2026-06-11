@@ -1,6 +1,8 @@
+// TODO: Separate mocks and fakes from the fakes file for some clarity.
 #include "io_canQueues.hpp"
 
-io::queue<io::CanMsg, 250> can_tx_queue{ "" };
+io::queue<io::CanMsg, 128> charger_can_tx_queue{ "" };
+io::queue<io::CanMsg, 250> vehicle_can_tx_queue{ "" };
 io::queue<io::CanMsg, 128> can_rx_queue{ "" };
 
 #include "io_adbms.hpp"

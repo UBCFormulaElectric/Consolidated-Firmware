@@ -49,10 +49,14 @@ static hw::rtos::StaticTask Task1kHz(osPriorityRealtime, "Task1kHz", tasks_run1k
 static hw::rtos::StaticTask Task1Hz(osPriorityAboveNormal, "Task1Hz", tasks_run1Hz, Task1HzStack);
 static hw::rtos::StaticTask Task100Hz(osPriorityHigh, "Task100Hz", tasks_run100Hz, Task100HzStack);
 static hw::rtos::StaticTask TaskCanRx(osPriorityBelowNormal, "TaskCanRx", tasks_runCanRx, TaskCanRxStack);
-static hw::rtos::StaticTask TaskVehicleCanTx(osPriorityBelowNormal, "TaskVehicleCanTx", tasks_runVehicleCanTx, TaskVehicleCanTxStack);
-static hw::rtos::StaticTask TaskChargerCanTx(osPriorityBelowNormal, "TaskChargerCanTx", tasks_runChargerCanTx, TaskChargerCanTxStack);
-static hw::rtos::StaticTask TaskAdbmsVoltages(osPriorityNormal, "TaskAdbmsVoltages", tasks_runAdbmsVoltages, TaskAdbmsVoltagesStack);
-static hw::rtos::StaticTask TaskAdbmsConfigs(osPriorityHigh, "TaskAdbmsConfigs", tasks_runAdbmsConfigs, TaskAdbmsConfigsStack);
+static hw::rtos::StaticTask
+    TaskVehicleCanTx(osPriorityBelowNormal, "TaskVehicleCanTx", tasks_runVehicleCanTx, TaskVehicleCanTxStack);
+static hw::rtos::StaticTask
+    TaskChargerCanTx(osPriorityBelowNormal, "TaskChargerCanTx", tasks_runChargerCanTx, TaskChargerCanTxStack);
+static hw::rtos::StaticTask
+    TaskAdbmsVoltages(osPriorityNormal, "TaskAdbmsVoltages", tasks_runAdbmsVoltages, TaskAdbmsVoltagesStack);
+static hw::rtos::StaticTask
+    TaskAdbmsConfigs(osPriorityHigh, "TaskAdbmsConfigs", tasks_runAdbmsConfigs, TaskAdbmsConfigsStack);
 static hw::rtos::StaticTask TaskAdbmsAux(osPriorityNormal, "TaskAdbmsAux", tasks_runAdbmsAux, TaskAdbmsAuxStack);
 
 // static hw::runtimeStat::monitor<TASK_COUNT> runtimeMonitor(
@@ -223,7 +227,7 @@ void tasks_runVehicleCanTx(void *arg)
 
         const auto &m       = msg.value();
         auto        can_msg = hw::CanMsg{ m.std_id, m.dlc, m.data };
-        
+
         if (not fdcan2.is_up())
         {
             continue;
@@ -286,7 +290,7 @@ void tasks_runAdbmsAux(void *arg)
 
 void BMS_StartAllTasks()
 {
-    //Task1kHz.start();
+    // Task1kHz.start();
     Task1Hz.start();
     Task100Hz.start();
     TaskCanRx.start();
