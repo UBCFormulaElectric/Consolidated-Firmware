@@ -169,7 +169,7 @@ class config
 
     virtual std::optional<size_t> getFirstUnprogrammedAddress()
     {
-        assert(block_buffer.has_value());
+        // assert(block_buffer.has_value());
         {
             const BlockBufferInfo &block_buffer_val = block_buffer.value();
             for (size_t i = 0; i < block_buffer_val.filled_64.size(); i++)

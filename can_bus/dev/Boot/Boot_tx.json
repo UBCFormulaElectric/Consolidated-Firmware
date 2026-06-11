@@ -71,7 +71,11 @@
     "msg_id": 469762056,
     "cycle_time": null,
     "description": "",
-    "signals": {}
+    "signals": {
+      "ChecksumPass": {
+        "bits": 1
+      }
+    }
   },
   "H5Dev_GoToBootCmd": {
     "msg_id": 469762057,

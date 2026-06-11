@@ -238,6 +238,7 @@ void bootloader::init(config &boot_config)
         }
         else if (command.std_id == (boot_config.BOARD_HIGHBITS | VERIFY_ID_LOWBITS)) // verify validity
         {
+            assert(not boot_config.getFirstUnprogrammedAddress().has_value());
             // Verify received checksum matches the one saved in flash.
             hw::CanMsg reply{};
             reply.std_id  = boot_config.BOARD_HIGHBITS | APP_VALIDITY_ID_LOWBITS;
