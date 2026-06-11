@@ -48,10 +48,6 @@
       "Clean": {
         "bits": 1
       }
-    },
-    "data_capture": {
-      "telem_cycle_time": 1000,
-      "log_cycle_time" : 1000
     }
   },
   "ButtonsAndSwitches": {
@@ -71,16 +67,9 @@
       "TorqueVectoringSwitch": {
         "enum": "SwitchState"
       },
-      "TelemSwitch": {
-        "enum": "SwitchState"
-      },
       "DriveMode": {
         "enum": "DriveMode"
       }
-    },
-    "data_capture": {
-      "telem_cycle_time": 1000,
-      "log_cycle_time" : 1000
     }
   },
   "TelemMarkEvent": {
@@ -196,10 +185,6 @@
         "max": 100,
         "unit": "%"
       }
-    },
-    "data_capture": {
-      "telem_cycle_time": 1000,
-      "log_cycle_time" : 1000
     }
   }
 }
