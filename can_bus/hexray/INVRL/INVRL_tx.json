@@ -48,6 +48,7 @@
       "RawCurrent": {
         "start_bit": 32,
         "bits": 16,
+        "resolution": 0.1,
         "signed": true,
         "unit": "A",
         "start_value": 0
