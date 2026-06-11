@@ -50,11 +50,6 @@ void jobs_run100Hz_tick()
     app::power_gauge::update();
     app::switches::broadcast();
 
-    // TODO find rising edge
-    // if (const bool has_rising_edge = io::switches::telem_mark_get(); has_rising_edge)
-    // {
-    //     io::can_tx::CRIT_TelemMarkEvent_sendAperiodic();
-    // }
     hb_monitor.checkIn();
     hb_monitor.broadcastFaults();
 
