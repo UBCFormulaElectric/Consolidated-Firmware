@@ -21,7 +21,7 @@
 #include "hw_bootup.hpp"
 #include "hw_gpios.hpp"
 #include "hw_pwms.hpp"
-// #include "hw_runTimeStat.hpp"
+#include "hw_runTimeStat.hpp"
 
 constexpr size_t         TASK_COUNT = 8;
 [[noreturn]] static void tasks_run1Hz(void *arg);
