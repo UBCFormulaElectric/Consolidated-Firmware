@@ -31,7 +31,7 @@ void broadcast()
     app::can_tx::VC_EllipseTimestamp_set(timestamp_us);
 
     // EKF
-    const static io::sbgEllipse::VelocityData VelData            = io::sbgEllipse::getEkfNavVelocityData();
+    const io::sbgEllipse::VelocityData VelData            = io::sbgEllipse::getEkfNavVelocityData();
     float                                     ekf_vel_N          = VelData.north;
     float                                     ekf_vel_E          = VelData.east;
     float                                     ekf_vel_D          = VelData.down;

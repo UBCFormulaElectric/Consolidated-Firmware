@@ -14,12 +14,6 @@ void hw::Uart::deinit() const
 
 void hw::Uart::onTxTransactionCompleteFromISR() const
 {
-    if (rx_pending)
-    {
-        assert(receive_callback != nullptr);
-        receive_callback();
-        return;
-    }
     assert(txTaskInProgress != nullptr);
 
     BaseType_t higherPriorityTaskWoken = pdFALSE;
