@@ -214,7 +214,7 @@ class Bootloader:
         by computing a checksum.
 
         """
-        CAN_FRAME_SIZE = 64 if self.is_fd else 8
+        CAN_FRAME_SIZE_BYTES = 64 if self.is_fd else 8
         start_addr = self.ih.minaddr()
         end_addr = self.ih.minaddr() + self.size_bytes()
         print(f"start addr is {start_addr}, end addr is {end_addr}")
@@ -233,8 +233,8 @@ class Bootloader:
                     k = can_msg.data
                     assert can_msg.dlc == 4, f"Expected 4 bytes in PROGRAM_ID_FAILED message, got {can_msg.dlc}"
                     # TODO maybe better struct unpacking :sob:
-                    jump_back_address = (k[0] << 24) | (k[1] << 16) | (k[2] << 8) | k[3]
-                    print(f"jumpback received to {jump_back_address}")
+                    jump_back_address = (k[3] << 24) | (k[2] << 16) | (k[1] << 8) | k[0]
+                    print(f"jumpback received to {hex(jump_back_address)}")
         listen_thread = threading.Thread(target=listener, args=(stop_listener,))
         listen_thread.start()
 
@@ -245,16 +245,15 @@ class Bootloader:
             if jump_back_address is not None:
                 address = jump_back_address
                 jump_back_address = None
-            block = (address - start_addr) // CAN_FRAME_SIZE
+            block = (address - start_addr) // CAN_FRAME_SIZE_BYTES
             if self.ui_callback and block % 128 == 0: # update ui only every little while
                 self.ui_callback(
-                    "Programming data", self.size_bytes(), block * CAN_FRAME_SIZE
+                    "Programming data", self.size_bytes(), block * CAN_FRAME_SIZE_BYTES
                 )
 
-            #frame_size = min(CAN_FRAME_SIZE, end_addr - address)
+            #frame_size = min(CAN_FRAME_SIZE_BYTES, end_addr - address)
             #data = [self.ih[address + j] for j in range(frame_size)]
-            data = [self.ih[address + j] for j in range(0, 8)]
-
+            data = [self.ih[address + j] for j in range(0, CAN_FRAME_SIZE_BYTES)]
             wire_block_num = block << 4
             while True:
                 try:
@@ -269,7 +268,7 @@ class Bootloader:
                     break
                 except can.interfaces.vector.exceptions.VectorOperationError:
                     pass
-            address += CAN_FRAME_SIZE
+            address += CAN_FRAME_SIZE_BYTES
         stop_listener.set()
         listen_thread.join()
 

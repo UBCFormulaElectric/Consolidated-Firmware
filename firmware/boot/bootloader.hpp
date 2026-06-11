@@ -104,6 +104,9 @@ class config
         {
             if (block_offset != 0) // namely the address is NOT aligned
             {
+                LOG_ERROR(
+                    "Got unaligned address 0x%X to program, but expected aligned to 0x%X", address,
+                    hw::flash::WORD_BYTES);
                 return std::unexpected(ErrorCode::INVALID_ARGS); // starting program address is invalid
             }
             block_buffer = BlockBufferInfo(address);
@@ -114,6 +117,9 @@ class config
             if (const size_t block_start_addr = block_buffer.value().start_addr;
                 block_start_addr <= address && address < block_start_addr + hw::flash::WORD_BYTES)
             {
+                LOG_ERROR(
+                    "Got address 0x%X to program, but expected in range [0x%X, 0x%X)", address, block_start_addr,
+                    block_start_addr + hw::flash::WORD_BYTES);
                 return std::unexpected(ErrorCode::INVALID_ARGS);
             }
         }
