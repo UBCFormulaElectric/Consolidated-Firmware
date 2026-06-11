@@ -51,6 +51,7 @@ set(HW_SHARED_SRCS
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_bootup.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_resetReason.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_fmac.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_runTimeStat.cpp"
 )
 set(HW_INCLUDE_DIRS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"
@@ -135,7 +136,6 @@ if ("${TARGET}" STREQUAL "binary")
             "${CUBEMX_INCLUDE_DIRS}"
             TRUE
             "${ARM_CORE}"
-            TRUE
     )
 
     # JSONCAN
@@ -152,6 +152,8 @@ if ("${TARGET}" STREQUAL "binary")
     target_compile_definitions("hexray_VC_app.elf" PRIVATE VC)
 
     if ("${BOOTLOAD}" STREQUAL "ON")
+        target_compile_definitions("hexray_VC_app.elf" PRIVATE BOOTLOAD)
+
         # Bootloader files.
         file(GLOB BOOT_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/boot/*.cpp")
         file(GLOB BOOT_CUBEMX_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Src/*.c")

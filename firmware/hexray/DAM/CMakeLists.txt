@@ -53,6 +53,8 @@ set(HW_SHARED_SRCS
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_pwmOutput.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_resetReason.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_bootup.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_runTimeStat.cpp"
+
 )
 set(HW_INCLUDE_DIRS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"
@@ -140,6 +142,8 @@ if ("${TARGET}" STREQUAL "binary")
     target_link_libraries("hexray_DAM_chimera.elf" PRIVATE "hexray_DAM_stm32")
 
     if ("${BOOTLOAD}" STREQUAL "ON")
+        target_compile_definitions("hexray_DAM_app.elf" PRIVATE BOOTLOAD)
+
         file(GLOB BOOT_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/boot/*.cpp")
         file(GLOB BOOT_CUBEMX_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Src/*.c")
         set(BOOT_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/boot" "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Inc")
