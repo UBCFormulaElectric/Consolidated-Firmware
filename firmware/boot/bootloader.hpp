@@ -35,11 +35,11 @@ class config
     {
         size_t                                                     start_addr;
         std::array<std::byte, hw::flash::WORD_BYTES>               buffer{};
-        std::array<bool, hw::flash::WORD_BYTES / sizeof(uint64_t)> filled{};
+        std::array<bool, hw::flash::WORD_BYTES / sizeof(uint64_t)> filled_64{};
         explicit BlockBufferInfo(const size_t _start_addr) : start_addr(_start_addr)
         {
             buffer.fill(std::byte{ 0 });
-            filled.fill(false);
+            filled_64.fill(false);
         }
     };
 
@@ -92,6 +92,7 @@ class config
     virtual void boardSpecific_tick(){};
 
     /**
+     * Programs a uint64_t into the internal buffer
      * @param address memory address to write to
      * @param data data to write
      * @return
@@ -99,7 +100,7 @@ class config
     virtual result<void> boardSpecific_program(const uint32_t address, const uint64_t data)
     {
         assert(address % sizeof(uint64_t) == 0); // must write 8 bytes at a time
-        const uint32_t block_offset = address % hw::flash::WORD_BYTES;
+        const uint32_t block_offset = address % (hw::flash::WORD_BYTES * 8);
         if (not block_buffer.has_value())
         {
             if (block_offset != 0) // namely the address is NOT aligned
@@ -115,11 +116,11 @@ class config
         {
             // check that the addr is valid in this block
             if (const size_t block_start_addr = block_buffer.value().start_addr;
-                block_start_addr <= address && address < block_start_addr + hw::flash::WORD_BYTES)
+                not(block_start_addr <= address && address < block_start_addr + hw::flash::WORD_BYTES * 8))
             {
                 LOG_ERROR(
                     "Got address 0x%X to program, but expected in range [0x%X, 0x%X)", address, block_start_addr,
-                    block_start_addr + hw::flash::WORD_BYTES);
+                    block_start_addr + hw::flash::WORD_BYTES * 8);
                 return std::unexpected(ErrorCode::INVALID_ARGS);
             }
         }
@@ -129,7 +130,7 @@ class config
             BlockBufferInfo &block_buffer_val = block_buffer.value();
             assert(block_buffer_val.start_addr % hw::flash::WORD_BYTES == 0);
             std::memcpy(&block_buffer_val.buffer[block_offset], &data, sizeof(data));
-            block_buffer_val.filled[block_offset / sizeof(uint64_t)] = true;
+            block_buffer_val.filled_64[block_offset / (sizeof(uint64_t) * 8)] = true;
         }
         return {};
     }
@@ -146,13 +147,13 @@ class config
         // the buffer won't fill up for the last few bytes so won't be written into flash. This is guaranteed by canup.
         if (not block_buffer.has_value())
         {
-            return std::unexpected(ErrorCode::ERROR_INDETERMINATE);
+            return std::unexpected(ErrorCode::BUSY);
         }
         {
             BlockBufferInfo &block_buffer_val = block_buffer.value();
-            if (std::ranges::all_of(block_buffer_val.filled, [](const bool filled) { return filled; }))
+            if (std::ranges::any_of(block_buffer_val.filled_64, [](const bool filled) { return not filled; }))
             {
-                return std::unexpected(ErrorCode::ERROR_INDETERMINATE);
+                return std::unexpected(ErrorCode::ERROR);
             }
             const auto flash_res = hw::flash::programFlash(
                 block_buffer_val.start_addr / hw::flash::WORD_BYTES * hw::flash::WORD_BYTES,
@@ -168,11 +169,11 @@ class config
         assert(block_buffer.has_value());
         {
             const BlockBufferInfo &block_buffer_val = block_buffer.value();
-            for (size_t i = 0; i < block_buffer_val.filled.size(); i++)
+            for (size_t i = 0; i < block_buffer_val.filled_64.size(); i++)
             {
-                if (not block_buffer_val.filled[i])
+                if (not block_buffer_val.filled_64[i])
                 {
-                    return block_buffer_val.start_addr + i * sizeof(uint64_t);
+                    return block_buffer_val.start_addr + i * sizeof(uint64_t) * 8;
                 }
             }
         }

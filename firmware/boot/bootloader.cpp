@@ -282,9 +282,9 @@ void bootloader::init(config &boot_config)
             const uint32_t block_addr = (command.std_id & 0x00FFFFF0U) >> 4;
             for (uint8_t i = 0; i < dlcToBytes(static_cast<uint8_t>(command.dlc)); i++)
             {
-                const uint64_t program_data = command.getDataAsQWords()[i];
-                const uint32_t current_address =
-                    reinterpret_cast<uint32_t>(&__app_metadata_start__) + (hw::CAN_PAYLOAD_BYTES * block_addr) + 8 * i;
+                const uint64_t program_data    = command.getDataAsQWords()[i];
+                const uint32_t current_address = reinterpret_cast<uint32_t>(&__app_metadata_start__) +
+                                                 (hw::CAN_PAYLOAD_BYTES * 8 * block_addr) + i * 8 * sizeof(uint64_t);
 
                 LOG_INFO("at address: 0x%lX, %d", current_address, i);
                 if (const auto status = boot_config.boardSpecific_program(current_address, program_data); not status)
