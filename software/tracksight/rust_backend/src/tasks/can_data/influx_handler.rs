@@ -1,5 +1,5 @@
 use influxdb2::{Client, models::DataPoint};
-use tokio::{select, sync::broadcast::{self, Receiver, error::RecvError}};
+use tokio::{select, sync::broadcast::{Receiver, error::RecvError}};
 
 use crate::{error_println, tasks::{ShutdownReceiver, can_data::influx_util::{InfluxSignalSource, MAX_BATCH_CAPACITY, build_data_point, flush_buffer}}, utils::yellow};
 use crate::{config::CONFIG, tasks::{HealthCheckSender, HealthCheckSenderExt, ResultExt, Task}, vprintln};
@@ -71,6 +71,4 @@ pub async fn run_influx_handler(
     }
     
     flush_buffer(&mut batch_buffer, &influx_client).await;
-    
-    vprintln!("{}", yellow("Influx task ended."));
 }

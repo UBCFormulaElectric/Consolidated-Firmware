@@ -7,10 +7,10 @@ pub mod can_data_handler;
 
 use std::{collections::HashSet, sync::{Arc, OnceLock}, time::Duration};
 
-use serde::{Deserialize, Serialize};
+use serde::{Serialize};
 use tokio::{select, sync::{RwLock, broadcast, mpsc}, time::sleep};
 
-use crate::{utils::{red, yellow}, vprintln};
+use crate::{utils::{red}, vprintln};
 
 /**
  * BACKEND TELEMETRY
@@ -71,8 +71,6 @@ pub async fn run_backend_telemetry_logger(mut shutdown_rx: ShutdownReceiver) {
             }
         }
     }
-
-    vprintln!("{}", yellow("Backend telemetry logger task ended."));
 }
 
 /**

@@ -2,7 +2,6 @@ use std::sync::Arc;
 
 use socketioxide::extract::SocketRef;
 use tokio::select;
-use tokio::sync::broadcast;
 use tokio::sync::{RwLock, broadcast::Receiver, broadcast::error::RecvError};
 
 use crate::dprintln;
@@ -81,6 +80,4 @@ pub async fn run_live_data_handler(
         }
     }
     }
-
-    vprintln!("{}", yellow("Live data task ended."));
 }

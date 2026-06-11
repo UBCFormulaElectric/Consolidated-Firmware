@@ -59,6 +59,5 @@ pub async fn run_can_data_handler(
     drop(decoded_signal_tx); // Closing channel signals the other tasks to shutdown
     let _ = influx_handler_task.await;
     let _ = live_data_handler_task.await;
-    vprintln!("{}", yellow("CAN data task ended."));
 }
 

@@ -122,5 +122,4 @@ pub async fn run_api_handler(
             println!("Error occurred");
         }
     }
-    vprintln!("{}", yellow("API handler task ended."));
 }

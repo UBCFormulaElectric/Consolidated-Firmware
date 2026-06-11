@@ -178,7 +178,7 @@ async fn main() {
         let (task, task_res) = res.unwrap();
         match task_res {
             Ok(_) => {
-                vprintln!("{}", yellow(format!("{task:?} ended successfuly")));
+                println!("{}", yellow(format!("{task:?} ended successfully.")));
             },
             Err(e) => {
                 error_println!("{task:?} panicked with error: {e:?}");

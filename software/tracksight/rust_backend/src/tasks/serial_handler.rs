@@ -98,7 +98,6 @@ pub async fn run_serial_task(
     }
     packet_reader.await.ok();
     packet_sender.await.ok();
-    vprintln!("{}", yellow("Serial handler task ended."));
 }
 
 //

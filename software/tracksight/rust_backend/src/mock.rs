@@ -97,6 +97,4 @@ pub async fn run_mock_task(
             } => {}
         }
     }
-
-    vprintln!("{}", yellow("Mock task ended."));
 }
