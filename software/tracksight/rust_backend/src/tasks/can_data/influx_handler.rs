@@ -1,7 +1,7 @@
 use influxdb2::{Client, models::DataPoint};
 use tokio::{select, sync::broadcast::{self, Receiver, error::RecvError}};
 
-use crate::{error_println, tasks::can_data::influx_util::{InfluxSignalSource, MAX_BATCH_CAPACITY, build_data_point, flush_buffer}, utils::yellow};
+use crate::{error_println, tasks::{ShutdownReceiver, can_data::influx_util::{InfluxSignalSource, MAX_BATCH_CAPACITY, build_data_point, flush_buffer}}, utils::yellow};
 use crate::{config::CONFIG, tasks::{HealthCheckSender, HealthCheckSenderExt, ResultExt, Task}, vprintln};
 
 use jsoncan_rust::can_database::DecodedSignal;
@@ -12,7 +12,7 @@ use jsoncan_rust::can_database::DecodedSignal;
  * this task consumes the messages and writes them to influxdb
  */
 pub async fn run_influx_handler(
-    mut shutdown_rx: broadcast::Receiver<()>, 
+    mut shutdown_rx: ShutdownReceiver, 
     health_check_tx: HealthCheckSender,
     mut decoded_signal_rx: Receiver<DecodedSignal>
 ) {

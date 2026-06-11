@@ -5,11 +5,79 @@ pub mod can_data;
 pub mod client_api;
 pub mod can_data_handler;
 
-use std::{collections::HashSet, time::Duration};
+use std::{collections::HashSet, sync::{Arc, OnceLock}, time::Duration};
 
-use tokio::{select, sync::{broadcast, mpsc}, time::sleep};
+use serde::{Deserialize, Serialize};
+use tokio::{select, sync::{RwLock, broadcast, mpsc}, time::sleep};
 
-use crate::{utils::red, vprintln};
+use crate::{utils::{red, yellow}, vprintln};
+
+/**
+ * BACKEND TELEMETRY
+ */
+// i think i like this much better than current implementation of health check
+// replace health check with this pattern
+
+#[derive(Debug, Clone, Serialize)]
+struct BackendTelemetryState {
+    total_crc_checks: u64,
+    failed_crc_checks: u64,
+}
+
+pub enum BackendTelemetry {
+    CrcCheck(bool)
+}
+
+static BACKEND_TELEMETRY_TX: OnceLock<mpsc::Sender<BackendTelemetry>> = OnceLock::new();
+static BACKEND_TELEMETRY_STATE: OnceLock<Arc<RwLock<BackendTelemetryState>>>  = OnceLock::new();
+
+pub fn get_backend_telem_tx() -> &'static mpsc::Sender<BackendTelemetry> {
+    BACKEND_TELEMETRY_TX.get().expect("Backend telemetry channel not initialized")
+}
+
+pub fn get_backend_telem_state() -> &'static Arc<RwLock<BackendTelemetryState>> {
+    BACKEND_TELEMETRY_STATE
+        .get()
+        .expect("Backend telemetry state not initialized")
+}
+
+pub async fn run_backend_telemetry_logger(mut shutdown_rx: ShutdownReceiver) {
+    let (telem_tx, mut telem_rx) = mpsc::channel::<BackendTelemetry>(4096);
+    BACKEND_TELEMETRY_TX.set(telem_tx).unwrap();
+
+    let state = Arc::new(RwLock::new(BackendTelemetryState {
+        total_crc_checks: 0,
+        failed_crc_checks: 0,
+    }));
+
+    BACKEND_TELEMETRY_STATE.set(state.clone()).unwrap();
+    
+    loop {
+        select! {
+            _ = shutdown_rx.recv() => {
+                vprintln!("Backend telemetry logger task shutting down.");
+                break;
+            }
+            Some(telem) = telem_rx.recv() => {
+                let mut state = state.write().await;
+                match telem {
+                    BackendTelemetry::CrcCheck(success) => {
+                        state.total_crc_checks += 1;
+                        if !success {
+                            state.failed_crc_checks += 1;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    vprintln!("{}", yellow("Backend telemetry logger task ended."));
+}
+
+/**
+ * HEALTH CHECK
+ */
 
 // im not even going to lie
 // this is kind of an overkill for a health check on tasks
@@ -30,6 +98,7 @@ pub enum Task {
     CanDataHandler,
     InfluxHandler,
     LiveDataHandler,
+    BackendTelemetryLogger
 }
 
 impl Task {

@@ -10,7 +10,7 @@ use tokio::task::{JoinError, JoinSet};
 
 use crate::config::CONFIG;
 use crate::tasks::telem_message::TelemetryOutgoingMessage;
-use crate::tasks::{HealthCheckError, Task};
+use crate::tasks::{HealthCheckError, Task, run_backend_telemetry_logger};
 use crate::tasks::can_data::load_can_database;
 use crate::utils::{green};
 
@@ -75,6 +75,12 @@ async fn main() {
     let mut health_check = HealthCheck::new();
     
     // start tasks
+    spawn_task(
+        &mut tasks, 
+        Task::BackendTelemetryLogger, 
+        run_backend_telemetry_logger(shutdown_rx.resubscribe())
+    );
+
     spawn_task(
         &mut tasks,
         Task::ApiHandler,

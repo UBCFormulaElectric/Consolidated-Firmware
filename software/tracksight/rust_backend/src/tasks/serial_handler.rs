@@ -6,7 +6,7 @@ use std::io::{Error, ErrorKind};
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
 use crate::config::CONFIG;
-use crate::tasks::{HealthCheckSender, HealthCheckSenderExt, ResultExt, Task};
+use crate::tasks::{HealthCheckSender, HealthCheckSenderExt, ResultExt, ShutdownReceiver, Task};
 use crate::tasks::telem_message::{CRC32_CALC, TelemetryOutgoingMessage};
 use crate::utils::yellow;
 use crate::{dprintln, vprintln};
@@ -16,7 +16,7 @@ use super::telem_message::{TelemetryIncomingMessage, CanPayload};
  * Handling serial signals from radio. Main task
  */
 pub async fn run_serial_task(
-    mut shutdown_rx: broadcast::Receiver<()>,
+    mut shutdown_rx: ShutdownReceiver,
     health_check_tx: HealthCheckSender,
     can_queue_tx: broadcast::Sender<CanPayload>,
     client_out_msg_rx: broadcast::Receiver<TelemetryOutgoingMessage>,
@@ -35,9 +35,9 @@ pub async fn run_serial_task(
     let (serial_read, serial_write) = tokio::io::split(serial_port);
     
     // communicate between serial reader and this function
-    let (in_msg_tx, mut in_msg_rx) = mpsc::channel::<TelemetryIncomingMessage>(32);
+    let (in_msg_tx, mut in_msg_rx) = mpsc::channel::<TelemetryIncomingMessage>(4096);
     // communicate between this function and serial sender
-    let (out_msg_tx, out_msg_rx) = mpsc::channel::<TelemetryOutgoingMessage>(32);
+    let (out_msg_tx, out_msg_rx) = mpsc::channel::<TelemetryOutgoingMessage>(4096);
 
     // spawn blocking packet reader
     // the reader thread will allow the handler thread to be async

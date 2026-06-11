@@ -10,6 +10,7 @@ use jsoncan_rust::can_database::CanDatabase;
 use tower_http::cors::{CorsLayer, Any};
 use mdns_sd::{ServiceDaemon, ServiceInfo};
 
+use crate::tasks::client_api::misc_api_handler::get_misc_router;
 use crate::tasks::client_api::signal_tile::LRU_CACHE_CAPACITY;
 use crate::tasks::client_api::transmit_api_handler::get_transmit_router;
 use crate::tasks::telem_message::TelemetryOutgoingMessage;
@@ -102,6 +103,7 @@ pub async fn run_api_handler(
         .nest("/api/v1/", get_signal_router())
         .nest("/api/v1/", get_sd_router())
         .nest("/api/v1/", get_transmit_router())
+        .nest("/api/v1/", get_misc_router())
         .with_state(app_state)
         .layer(cors)
         .into_make_service();

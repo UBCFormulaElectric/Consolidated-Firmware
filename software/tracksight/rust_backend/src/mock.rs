@@ -3,7 +3,7 @@ use std::{f64::consts::{TAU}, sync::Arc, time::{SystemTime, UNIX_EPOCH}};
 use jsoncan_rust::can_database::{CanDatabase, CanSignalType, DecodedSignal};
 use tokio::{select, sync::broadcast};
 
-use crate::utils::yellow;
+use crate::{tasks::ShutdownReceiver, utils::yellow};
 use crate::{tasks::{HealthCheckSender, HealthCheckSenderExt, Task}, tasks::telem_message::CanPayload, vprintln};
 
 /*
@@ -14,7 +14,7 @@ use crate::{tasks::{HealthCheckSender, HealthCheckSenderExt, Task}, tasks::telem
  * Mocks serial handler
  */
 pub async fn run_mock_task(
-    mut shutdown_rx: broadcast::Receiver<()>, 
+    mut shutdown_rx: ShutdownReceiver, 
     health_check_tx: HealthCheckSender, 
     can_queue_tx: broadcast::Sender<CanPayload>, 
     can_db: Arc<CanDatabase>

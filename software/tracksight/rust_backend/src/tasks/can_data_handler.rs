@@ -6,7 +6,7 @@ use tokio::sync::{RwLock, broadcast};
 use crate::tasks::can_data::influx_handler::run_influx_handler;
 use crate::tasks::can_data::live_data_handler::run_live_data_handler;
 use crate::utils::yellow;
-use crate::tasks::{HealthCheckSender, HealthCheckSenderExt, Task};
+use crate::tasks::{HealthCheckSender, HealthCheckSenderExt, ShutdownReceiver, Task};
 use crate::tasks::telem_message::CanPayload;
 use crate::tasks::client_api::subtable_clients::Clients;
 use crate::{error_println, vprintln};
@@ -18,7 +18,7 @@ use jsoncan_rust::can_database::{CanDatabase, DecodedSignal};
  * Uses JsonCan config to parse CAN messages and broadcasts to other tasks
  */
 pub async fn run_can_data_handler(
-    mut shutdown_rx: broadcast::Receiver<()>, 
+    mut shutdown_rx: ShutdownReceiver, 
     health_check_tx: HealthCheckSender,
     mut can_queue_rx: broadcast::Receiver<CanPayload>,
     clients: Arc<RwLock<Clients>>,

@@ -6,6 +6,7 @@ use tokio::sync::broadcast;
 use tokio::sync::{RwLock, broadcast::Receiver, broadcast::error::RecvError};
 
 use crate::dprintln;
+use crate::tasks::ShutdownReceiver;
 use crate::utils::yellow;
 use crate::{error_println, tasks::{HealthCheckSender, HealthCheckSenderExt, Task, client_api::subtable_clients::Clients}, vprintln};
 
@@ -16,7 +17,7 @@ use jsoncan_rust::can_database::{CanSignalType, DecodedSignal};
  * this task will handle "forwarding" live data to clients via sockets
  */
 pub async fn run_live_data_handler(
-    mut shutdown_rx: broadcast::Receiver<()>, 
+    mut shutdown_rx: ShutdownReceiver, 
     health_check_tx: HealthCheckSender,
     mut can_signals_rx: Receiver<DecodedSignal>,
     clients: Arc<RwLock<Clients>>
