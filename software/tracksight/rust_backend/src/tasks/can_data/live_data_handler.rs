@@ -115,18 +115,12 @@ pub async fn run_live_data_handler(
                             Ok(_) => {}
                             Err(e) => {
 <<<<<<< HEAD
-<<<<<<< HEAD
                                 // error when attempting to send data to client socket,
                                 // likely due to client socket connection problems.
                                 dprintln!("{e}");
 =======
                                 error_println!("{e}");
 >>>>>>> 4a21fbf61 (i loveee hotfixes (#2062))
-=======
-                                // error when attempting to send data to client socket,
-                                // likely due to client socket connection problems.
-                                dprintln!("{e}");
->>>>>>> 4d7825470 (socket disconnect (#2067))
                             }
                         }
                     }

@@ -18,27 +18,25 @@ services:
     build:
       context: ../../../
       dockerfile: software/tracksight/rust_backend/Dockerfile
-      # Used to build backend with different verbosity levels
-      # args: 
-      #   DOCKER_VERBOSITY: "VERBOSE" # or "DEBUG"
-    # Let backend know it's running in docker
-    environment:
-      DOCKER: "true"
     # Expose port from container
     network_mode: host
     extra_hosts:
       - "influx:127.0.0.1"
     # ports:
     #  - "${BACKEND_PORT}:${BACKEND_PORT}"
+    # Pass common envs into container
+    environment:
+      BACKEND_PORT: ${BACKEND_PORT}
+      INFLUXDB_PORT: ${INFLUXDB_PORT}
+      DOCKER: "true"
     env_file: envs/backend.env
     # Privileged provides access to all serial ports, not need to pass serial port through
     privileged: true
     volumes:
       - /dev:/dev
       - /sys:/sys:ro
-    depends_on:
-      influx:
-        condition: service_healthy
+      # - ../rust_backend:/backend
+      # TODO with live health check
     # healthcheck:
     #   # Ping server every 30s in case something breaks.
     #   test: [ "CMD", "curl", "-f", "http://localhost:${BACKEND_PORT}/api/health" ]
