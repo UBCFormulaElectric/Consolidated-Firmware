@@ -19,8 +19,8 @@
 #include "hw_watchdog.hpp"
 #include "hw_resetReason.hpp"
 #include "hw_pwms.hpp"
-
 #include "hw_bootup.hpp"
+#include "hw_runTimeStat.hpp"
 
 constexpr size_t         TASK_COUNT = 5;
 [[noreturn]] static void tasks_run1Hz(void *arg);
@@ -45,6 +45,22 @@ static hw::rtos::StaticTask TaskImu(osPriorityHigh, "TaskImu", tasks_runImu, Tas
 static hw::rtos::StaticTask TaskCanTx(osPriorityNormal, "TaskCanTx", tasks_runCanTx, TaskCanTxStack);
 static hw::rtos::StaticTask TaskCanRx(osPriorityLow, "TaskCanRx", tasks_runCanRx, TaskCanRxStack);
 
+static hw::runtimeStat::monitor<TASK_COUNT> runtimeMonitor{
+    { app::can_tx::RSM_CoreCpuUsage_set, app::can_tx::RSM_CoreCpuUsageMax_set },
+    {
+        { { Task1kHz, app::can_tx::RSM_TaskRun1kHzCpuUsage_set, app::can_tx::RSM_TaskRun1kHzCpuUsageMax_set,
+            app::can_tx::RSM_TaskRun1kHzStackUsage_set },
+          { Task1Hz, app::can_tx::RSM_TaskRun1HzCpuUsage_set, app::can_tx::RSM_TaskRun1HzCpuUsageMax_set,
+            app::can_tx::RSM_TaskRun1HzStackUsage_set },
+          { Task100Hz, app::can_tx::RSM_TaskRun100HzCpuUsage_set, app::can_tx::RSM_TaskRun100HzCpuUsageMax_set,
+            app::can_tx::RSM_TaskRun100HzStackUsage_set },
+          { TaskCanRx, app::can_tx::RSM_TaskRunCanRxCpuUsage_set, app::can_tx::RSM_TaskRunCanRxCpuUsageMax_set,
+            app::can_tx::RSM_TaskRunCanRxStackUsage_set },
+          { TaskCanTx, app::can_tx::RSM_TaskRunCanTxCpuUsage_set, app::can_tx::RSM_TaskRunCanTxCpuUsageMax_set,
+            app::can_tx::RSM_TaskRunCanTxStackUsage_set } },
+    },
+};
+
 static hw::watchdog::monitor<TASK_COUNT> monitor{
     hiwdg,
     [](const hw::watchdog::instance &i) { LOG_INFO("Software watchdog timeout for task %d", i.task_id); },
@@ -61,6 +77,7 @@ void tasks_run1Hz(void *arg)
     {
         jobs_run1Hz_tick();
 
+        runtimeMonitor.checkin();
         watchdog1hz.checkIn();
 
         start_ticks += period_ms;
@@ -182,6 +199,7 @@ void tasks_init()
 
     adcchipsInit();
     can1.init();
+    hw::runtimeStat::init(htim7);
     const ResetReason reason = hw::resetReason::get();
     app::can_tx::RSM_ResetReason_set(static_cast<app::can_utils::CanResetReason>(reason));
     if (reason == RESET_REASON_WATCHDOG)
@@ -220,6 +238,15 @@ void tasks_init()
     forever {}
 }
 
+void tasks_tim_callback(const TIM_HandleTypeDef *tim)
+{
+#ifndef USE_CHIMERA
+    if (tim == &htim7)
+    {
+        hw::runtimeStat::inc();
+    }
+#endif
+}
 void tasks_handle_arr_rollover_callback(TIM_HandleTypeDef *htim)
 {
     if (htim == &flow_meter_config.get_timer_handle())

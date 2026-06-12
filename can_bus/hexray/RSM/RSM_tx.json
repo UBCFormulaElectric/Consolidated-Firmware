@@ -29,6 +29,10 @@
       "WatchdogTimeoutTask": {
         "bits": 32
       }
+    },
+    "data_capture": {
+      "telem_cycle_time": 1000,
+      "log_cycle_time" : 1000
     }
   },
   "Bootup": {
@@ -48,6 +52,10 @@
       "Clean": {
         "bits": 1
       }
+    },
+     "data_capture": {
+      "telem_cycle_time": 1000,
+      "log_cycle_time" : 1000
     }
   },
   "SuspensionTravel": {
@@ -67,6 +75,10 @@
         "max": 10,
         "unit": "cm"
       }
+    },
+     "data_capture": {
+      "telem_cycle_time": 1000,
+      "log_cycle_time" : 1000
     }
   },
   "IMU": {
@@ -116,6 +128,10 @@
         "max": 20,
         "unit": "deg/s"
       }
+    },
+     "data_capture": {
+      "telem_cycle_time": 1000,
+      "log_cycle_time" : 1000
     }
   },
   "Brakes": {
@@ -132,6 +148,10 @@
       "BrakeActuated": {
         "bits": 1
       }
+    },
+     "data_capture": {
+      "telem_cycle_time": 1000,
+      "log_cycle_time" : 1000
     }
   },
   "ShdnNodeStatus": {
@@ -142,6 +162,10 @@
       "RearLeftMotorInterlock": {
         "bits": 1
       }
+    },
+     "data_capture": {
+      "telem_cycle_time": 1000,
+      "log_cycle_time" : 1000
     }
   },
   "RearPumpPercentage": {
@@ -155,6 +179,10 @@
         "max": 100,
         "unit": "%"
       }
+    },
+     "data_capture": {
+      "telem_cycle_time": 1000,
+      "log_cycle_time" : 1000
     }
   },
   "CPUDataLogInfo": {
@@ -264,6 +292,10 @@
         "max": 100,
         "unit": "%"
       }
+    },
+     "data_capture": {
+      "telem_cycle_time": 1000,
+      "log_cycle_time" : 1000
     }
   },
   "Coolant": {
@@ -276,6 +308,10 @@
         "max": 100,
         "unit": "L/min"
       }
+    },
+     "data_capture": {
+      "telem_cycle_time": 1000,
+      "log_cycle_time" : 1000
     }
   },
   "TireSensor": {
@@ -289,6 +325,10 @@
         "max": 200,
         "unit": "°C"
       }
+    },
+     "data_capture": {
+      "telem_cycle_time": 1000,
+      "log_cycle_time" : 1000
     }
   }
 }

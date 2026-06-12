@@ -48,6 +48,10 @@
       "Clean": {
         "bits": 1
       }
+    },
+    "data_capture": {
+      "telem_cycle_time": 1000,
+      "log_cycle_time" : 1000
     }
   },
   "Steering": {
@@ -61,6 +65,10 @@
         "max": 110,
         "unit": "deg"
       }
+    },
+    "data_capture": {
+      "telem_cycle_time": 1000,
+      "log_cycle_time" : 1000
     }
   },
   "Apps": {
@@ -92,6 +100,10 @@
         "max": 100,
         "unit": "%"
       }
+    },
+    "data_capture": {
+      "telem_cycle_time": 1000,
+      "log_cycle_time" : 1000
     }
   },
   "Brake": {
@@ -108,6 +120,10 @@
       "BrakeActuated": {
         "bits": 1
       }
+    },
+    "data_capture": {
+      "telem_cycle_time": 1000,
+      "log_cycle_time" : 1000
     }
   },
   "Suspension": {
@@ -127,6 +143,10 @@
         "max": 50,
         "unit": "cm"
       }
+    },
+    "data_capture": {
+      "telem_cycle_time": 1000,
+      "log_cycle_time" : 1000
     }
   },
   "IMU": {
@@ -176,6 +196,10 @@
         "max": 20,
         "unit": "deg/s"
       }
+    },
+    "data_capture": {
+      "telem_cycle_time": 1000,
+      "log_cycle_time" : 1000
     }
   },
   "ShdnNodeStatus": {
@@ -195,6 +219,10 @@
       "FrontRightILCKOKStatus": {
         "bits": 1
       }
+    },
+    "data_capture": {
+      "telem_cycle_time": 1000,
+      "log_cycle_time" : 1000
     }
   },
   "CPUDataLogInfo": {
@@ -304,6 +332,10 @@
         "max": 100,
         "unit": "%"
       }
+    },
+     "data_capture": {
+      "telem_cycle_time": 1000,
+      "log_cycle_time" : 1000
     }
   }
 }
