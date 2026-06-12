@@ -167,9 +167,9 @@ function SessionStep({ sessions, selectedSessionId, onSessionSelect, isLoading, 
 
     return (
         <div className="max-h-72 overflow-y-auto rounded border border-black">
-            {sessions.map((session) => {
+            {sessions.toReversed().map((session) => {
                 const isSelected = session.id === selectedSessionId;
-                
+
                 return (
                     <button key={session.id} type="button" onClick={() => onSessionSelect(session.id)} className={cn("flex w-full items-center gap-3 border-b border-black px-4 py-3 text-left transition-colors last:border-b-0 hover:cursor-pointer", isSelected ? "bg-blue-100 text-blue-500" : "text-gray-800 hover:bg-blue-100/50")}>
                         <Clock3 className={cn("size-5 shrink-0", isSelected ? "text-blue-500" : "opacity-75")} />
@@ -194,16 +194,16 @@ export default function HistoricalSelectionModal() {
 
     useEffect(() => {
         if (!isModalOpen) return;
-        
+
         const committedDate = selectedSession ? startOfUtcDay(selectedSession.startUtcMs) : null;
-        
+
         setDraftSource(source);
         setDraftDate(committedDate);
         setDraftSessionId(selectedSession?.id ?? null);
 
         setDisplayMonth(firstOfUtcMonth(committedDate ?? getUtcToday()));
-        
-        
+
+
         setStep(initialStep);
     }, [isModalOpen, initialStep]);
 
@@ -237,7 +237,7 @@ export default function HistoricalSelectionModal() {
 
     const handleLoadData = () => {
         if (!draftSession) return;
-        
+
         applySelection(draftSource, draftSession);
     };
 
