@@ -44,6 +44,7 @@ pub async fn run_can_data_handler(
     mut shutdown_rx: broadcast::Receiver<()>, 
     health_check_tx: HealthCheckSender,
     mut can_queue_rx: broadcast::Receiver<CanPayload>,
+    diag_rx: broadcast::Receiver<f64>,
     clients: Arc<RwLock<Clients>>,
     can_db: Arc<CanDatabase>
 ) {
@@ -53,7 +54,7 @@ pub async fn run_can_data_handler(
 
     // parsed can signal consumers
     let influx_handler_task: tokio::task::JoinHandle<()> = spawn(run_influx_handler(shutdown_rx.resubscribe(), health_check_tx.clone(), decoded_signal_tx.subscribe()));
-    let live_data_handler_task: tokio::task::JoinHandle<()> = spawn(run_live_data_handler(shutdown_rx.resubscribe(), health_check_tx.clone(), decoded_signal_tx.subscribe(), clients));
+    let live_data_handler_task: tokio::task::JoinHandle<()> = spawn(run_live_data_handler(shutdown_rx.resubscribe(), health_check_tx.clone(), decoded_signal_tx.subscribe(), diag_rx, clients));
     
     health_check_tx.send_health_check(Task::CanDataHandler, true).await;
     

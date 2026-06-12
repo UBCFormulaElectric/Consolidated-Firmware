@@ -1,13 +1,17 @@
 import Link from "next/link";
+import { ErrorRateIndicator } from "@/components/ErrorRateIndicator";
 
 function Navbar() {
   return (
     <nav className="fixed top-0 left-0 z-50 h-min w-screen bg-white border-b border-b-gray-200">
-      <div className="flex flex-row items-center gap-6 select-none px-8 py-4">
-        <Link href="/">Home</Link>
-        <Link href="/live">Live Data</Link>
-        <Link href="/historical">Historical Data</Link>
-        <Link href="/sd/dump">SD Card Dump</Link>
+      <div className="flex flex-row items-center justify-between px-8 py-4 select-none">
+        <div className="flex flex-row items-center gap-6">
+          <Link href="/">Home</Link>
+          <Link href="/live">Live Data</Link>
+          <Link href="/historical">Historical Data</Link>
+          <Link href="/sd/dump">SD Card Dump</Link>
+        </div>
+        <ErrorRateIndicator />
       </div>
     </nav>
   );

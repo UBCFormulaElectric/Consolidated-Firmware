@@ -14,7 +14,7 @@ interface WidgetManagerContext {
     initializedFromLocalStorage: boolean;
     appendWidget: (newWidget: WidgetData) => void;
     removeWidget: (widgetToRemove: string) => void;
-    appendSignal: <T extends WidgetType, Widget extends Extract<WidgetData, { type: T }>>(widget: Widget, newSignal: Widget["signals"][number]) => void;
+    appendSignal: <T extends WidgetType, Widget extends Extract<WidgetData, { type: T }>>(widget: Widget, newSignal: any) => void;
     removeSignal: (widget: WidgetData, nameOfSignalToRemove: string) => void;
     updateWidget: <T extends WidgetType, Widget extends Extract<WidgetData, { type: T }>>(widget: Widget, updater: (prevWidget: Widget) => Widget) => void;
 }
@@ -171,7 +171,7 @@ export function WidgetManager({ children, storageKey = LOCAL_STORAGE_KEY }: { ch
     );
 
     const appendSignal = useCallback(
-        <T extends WidgetType, Widget extends Extract<WidgetData, { type: T }>>(widget: Widget, newSignal: Widget["signals"][number]) => {
+        <T extends WidgetType, Widget extends Extract<WidgetData, { type: T }>>(widget: Widget, newSignal: any) => {
             setWidgets((prev) => {
                 const widgetIndex = prev.findIndex((candidate) => candidate.id === widget.id);
                 if (widgetIndex === -1) {
@@ -179,8 +179,13 @@ export function WidgetManager({ children, storageKey = LOCAL_STORAGE_KEY }: { ch
                     return prev;
                 }
 
-                const existingWidget = prev[widgetIndex] as Widget;
-                if (existingWidget.signals.some((signal) => signal.name === newSignal.name)) {
+                const existingWidget = prev[widgetIndex] as any;
+                if (!("signals" in existingWidget)) {
+                    IS_DEBUG && console.warn("Widget does not support signals");
+                    return prev;
+                }
+
+                if (existingWidget.signals.some((signal: any) => signal.name === newSignal.name)) {
                     IS_DEBUG && console.warn(`Signal already exists in widget: ${newSignal.name}`);
                     return prev;
                 }
