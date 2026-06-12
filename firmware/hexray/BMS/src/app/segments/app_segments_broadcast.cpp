@@ -164,12 +164,12 @@ using io::adbms::Cells, io::adbms::Segments, io::adbms::Therms;
 
 namespace debug
 {
-    void cellVoltages(const Cells<result<float>> &voltages, const result<void> &poll_ok)
+    void cellVoltages(const Cells<result<float>> &voltages, const result<void> &start_ok)
     {
-        if (!poll_ok)
+        if (!start_ok)
         {
             cell_voltage_setters.fill(-0.1f);
-            cell_voltage_error_setters.fill(toCanErr(poll_ok.error()));
+            cell_voltage_error_setters.fill(toCanErr(start_ok.error()));
             cell_voltage_setters.send();
             cell_voltage_error_setters.send();
             return;
@@ -456,57 +456,62 @@ void spiLinkStats(const io::adbms::SpiBusReach &reach)
     tx::BMS_SpiLinkStatus_sendAperiodic();
 }
 
-void segmentHealthError()
+void segmentHealthError(const health::Snapshot &health)
 {
     for (size_t seg = 0U; seg < MAX_NUM_SEGMENTS; seg++)
     {
         for (size_t bit = 0U; bit < NUM_HEALTH_BITS; bit++)
         {
-            const size_t idx = seg * NUM_HEALTH_BITS + bit;
-            segment_health_errors_buffer[idx] =
-                (seg < NUM_SEGMENTS) && app::segments::health::getError(seg, static_cast<health::ErrorBit>(bit));
+            const size_t idx                  = seg * NUM_HEALTH_BITS + bit;
+            segment_health_errors_buffer[idx] = (seg < NUM_SEGMENTS) && health[seg].test(bit);
         }
     }
     segment_health_errors_buffer.send();
 }
 
-void voltageStats()
+void max_voltage_cell(const CellParam<float> &max)
 {
-    const auto [min_seg, min_cell, min_voltage] = app::segments::shared::getMinCellVoltage();
-    const auto [max_seg, max_cell, max_voltage] = app::segments::shared::getMaxCellVoltage();
-    can_tx::BMS_MinCellVoltage_set(min_voltage);
-    can_tx::BMS_MinCellVoltageSegment_set(min_seg);
-    can_tx::BMS_MinCellVoltageCell_set(min_cell);
-    can_tx::BMS_MaxCellVoltage_set(max_voltage);
-    can_tx::BMS_MaxCellVoltageSegment_set(max_seg);
-    can_tx::BMS_MaxCellVoltageCell_set(max_cell);
+    can_tx::BMS_MaxCellVoltage_set(max.value);
+    can_tx::BMS_MaxCellVoltageSegment_set(max.segment);
+    can_tx::BMS_MaxCellVoltageCell_set(max.cell);
 }
 
-void temperatureStats()
+void min_voltage_cell(const CellParam<float> &min)
 {
-    const auto [min_seg, min_cell, min_temp] = app::segments::shared::getMinCellTemperature();
-    const auto [max_seg, max_cell, max_temp] = app::segments::shared::getMaxCellTemperature();
-    can_tx::BMS_MinCellTemp_set(min_temp);
-    can_tx::BMS_MinCellTempSegment_set(min_seg);
-    can_tx::BMS_MinCellTempCell_set(min_cell);
-    can_tx::BMS_MaxCellTemp_set(max_temp);
-    can_tx::BMS_MaxCellTempSegment_set(max_seg);
-    can_tx::BMS_MaxCellTempCell_set(max_cell);
+    can_tx::BMS_MinCellVoltage_set(min.value);
+    can_tx::BMS_MinCellVoltageSegment_set(min.segment);
+    can_tx::BMS_MinCellVoltageCell_set(min.cell);
 }
 
-void segmentVoltageStats()
+void maxTempCell(const CellParam<float> &max)
 {
-    const auto [min_seg, min_seg_voltage] = app::segments::shared::getMinSegmentVoltage();
-    const auto [max_seg, max_seg_voltage] = app::segments::shared::getMaxSegmentVoltage();
-    can_tx::BMS_MinSegmentVoltage_set(min_seg_voltage);
-    can_tx::BMS_MinSegmentVoltageSegment_set(min_seg);
-    can_tx::BMS_MaxSegmentVoltage_set(max_seg_voltage);
-    can_tx::BMS_MaxSegmentVoltageSegment_set(max_seg);
+    can_tx::BMS_MaxCellTemp_set(max.value);
+    can_tx::BMS_MaxCellTempSegment_set(max.segment);
+    can_tx::BMS_MaxCellTempCell_set(max.cell);
 }
 
-void packVoltage()
+void minTempCell(const CellParam<float> &min)
 {
-    can_tx::BMS_PackVoltage_set(app::segments::shared::getPackVoltage().value_or(-0.1f));
+    can_tx::BMS_MinCellTemp_set(min.value);
+    can_tx::BMS_MinCellTempSegment_set(min.segment);
+    can_tx::BMS_MinCellTempCell_set(min.cell);
+}
+
+void maxVoltageSeg(const SegmentParam<float> &max)
+{
+    can_tx::BMS_MaxSegmentVoltage_set(max.value);
+    can_tx::BMS_MaxSegmentVoltageSegment_set(max.segment);
+}
+
+void minVoltageSeg(const SegmentParam<float> &min)
+{
+    can_tx::BMS_MinSegmentVoltage_set(min.value);
+    can_tx::BMS_MinSegmentVoltageSegment_set(min.segment);
+}
+
+void packVoltage(const result<float> &pack)
+{
+    can_tx::BMS_PackVoltage_set(pack.value_or(-0.1f));
 }
 
 } // namespace app::segments::broadcast

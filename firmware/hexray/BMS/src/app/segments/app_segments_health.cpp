@@ -35,6 +35,13 @@ void setOrReset(const size_t seg, ErrorBit bit, bool has_error)
     segment_health[seg].set(static_cast<size_t>(bit), has_error);
 }
 
+void setOrResetAll(ErrorBit bit, bool has_error)
+{
+    assert(health_lock.is_held());
+    for (auto &bs : segment_health)
+        bs.set(static_cast<size_t>(bit), has_error);
+}
+
 bool getError(const size_t seg, ErrorBit bit)
 {
     assert(health_lock.is_held());

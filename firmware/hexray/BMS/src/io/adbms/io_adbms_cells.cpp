@@ -23,6 +23,10 @@ result<void> clear::filteredCell()
     return sendCmd(CLRFC);
 }
 
+result<void> clear::secondaryCell() {
+    return sendCmd(CLRSPIN);
+}
+
 result<void> command::startCellsAdc()
 {
     return sendCmd(ADCV_BASE || CONT);

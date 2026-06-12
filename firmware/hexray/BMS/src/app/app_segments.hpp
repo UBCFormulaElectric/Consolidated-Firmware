@@ -18,6 +18,7 @@ inline constexpr uint8_t AUX_CONV_TIME_MS            = 18U;
 
 extern io::semaphore spi_bus_lock;
 extern io::semaphore health_lock;
+extern io::semaphore shared_lock;
 
 namespace app::segments
 {
@@ -79,6 +80,38 @@ namespace balancing
     void disable();
 } // namespace balancing
 
+// app_segments_health.cpp
+namespace health
+{
+    enum class ErrorBit : size_t
+    {
+        CELL_ADC_START,
+        AUX_ADC_START,
+        AUX_ADC_POLL,
+        OWC_ADC_START,
+        CELL_VOLTAGE,
+        CELL_OWC_VOLTAGE,
+        THERM_VOLTAGE,
+        SEG_VOLTAGE,
+        STATUS,
+        CONFIG,
+        UNREACHABLE,
+        NUM_ERROR_BITS
+    };
+
+    inline constexpr size_t NUM_HEALTH_BITS = static_cast<size_t>(ErrorBit::NUM_ERROR_BITS);
+
+    using Snapshot = std::array<std::bitset<NUM_HEALTH_BITS>, MAX_NUM_SEGMENTS>;
+
+    void     resetAll(ErrorBit bit);
+    void     setAll(ErrorBit bit);
+    void     setOrReset(size_t seg, ErrorBit bit, bool has_error);
+    void     setOrResetAll(ErrorBit bit, bool has_error);
+    bool     getError(size_t seg, ErrorBit bit);
+    bool     getAnyError(size_t seg);
+    Snapshot getAll();
+} // namespace health
+
 // app_segments_broadcast.cpp
 namespace broadcast
 {
@@ -93,42 +126,17 @@ namespace broadcast
         void balancing(const io::adbms::Cells<bool> &discharge_enabled, const io::adbms::Cells<uint8_t> &pwm_duty);
     } // namespace debug
 
-    void segmentHealthError();
-    void voltageStats();
-    void temperatureStats();
-    void segmentVoltageStats();
-    void packVoltage();
+    void segmentHealthError(const health::Snapshot &health);
+    void max_voltage_cell(const CellParam<float> &max);
+    void min_voltage_cell(const CellParam<float> &min);
+    void maxTempCell(const CellParam<float> &max);
+    void minTempCell(const CellParam<float> &min);
+    void maxVoltageSeg(const SegmentParam<float> &max);
+    void minVoltageSeg(const SegmentParam<float> &min);
+    void packVoltage(const result<float> &pack);
     void cmdCountMismatch(const io::adbms::Segments<uint8_t> &mismatches);
     void spiLinkStats(const io::adbms::SpiBusReach &reach);
 } // namespace broadcast
-
-// app_segments_health.cpp
-namespace health
-{
-    enum class ErrorBit : size_t
-    {
-        CELL_ADC_POLL,
-        AUX_ADC_POLL,
-        OWC_ADC_POLL,
-        CELL_VOLTAGE,
-        CELL_OWC_VOLTAGE,
-        THERM_VOLTAGE,
-        SEG_VOLTAGE,
-        STATUS,
-        CONFIG,
-        UNREACHABLE,
-        NUM_ERROR_BITS
-    };
-
-    inline constexpr size_t NUM_HEALTH_BITS = static_cast<size_t>(ErrorBit::NUM_ERROR_BITS);
-
-    void resetAll(ErrorBit bit);
-    void setAll(ErrorBit bit);
-    void setOrReset(size_t seg, ErrorBit bit, bool has_error);
-    bool getError(size_t seg, ErrorBit bit);
-    bool getAnyError(size_t seg);
-    std::array<std::bitset<NUM_HEALTH_BITS>, MAX_NUM_SEGMENTS> getAll();
-} // namespace health
 
 // app_segments_shared.cpp
 namespace shared
@@ -160,12 +168,6 @@ namespace alerts
     void init();.
     bool tick();
 } // namespace alerts
-
-// app_segments_conversions.cpp
-namespace startPoll
-{
-    [[nodiscard]] result<void> auxAdc();
-} // namespace startPoll
 
 namespace startContinuous {
     [[nodiscard]] result<void> secondaryCellAdc(io::adbms::OpenWireSwitch owcSwitch);

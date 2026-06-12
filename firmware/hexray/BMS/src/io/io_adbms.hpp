@@ -292,9 +292,10 @@ namespace command
 namespace clear
 {
     [[nodiscard]] result<void> aux();
+    [[nodiscard]] result<void> flags();
     [[nodiscard]] result<void> cell();
+    [[nodiscard]] result<void> secondaryCell();
     [[nodiscard]] result<void> filteredCell();
-    [[nodiscard]] result<void> stat();
 } // namespace clear
 
 namespace misc

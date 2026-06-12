@@ -66,6 +66,7 @@ inline constexpr uint16_t RDPWMB = 0x0023U;
 // Clear
 inline constexpr uint16_t CLRCELL = 0x0711U;
 inline constexpr uint16_t CLRAUX  = 0x0712U;
+inline constexpr uint16_t CLRSPIN = 0x0716U;
 inline constexpr uint16_t CLRFLAG = 0x0717U;
 inline constexpr uint16_t CLOVUV  = 0x0715U;
 inline constexpr uint16_t CLRFC   = 0x0714U;
