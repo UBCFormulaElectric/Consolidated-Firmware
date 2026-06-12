@@ -100,7 +100,7 @@ class config
      * @param data data to write
      * @return
      */
-    virtual result<void> boardSpecific_program(const uint32_t address, const uint64_t data)
+    result<void> program(const uint32_t address, const uint64_t data)
     {
         assert(address % sizeof(uint64_t) == 0); // must write 8 bytes at a time
         const uint32_t block_offset = address % hw::flash::WORD_BYTES;
@@ -138,7 +138,7 @@ class config
         return {};
     }
 
-    virtual result<void> flush()
+    result<void> flush()
     {
         // On the STM32H733xx microcontroller, the smallest amount of memory you can
         // program at a time is 32 bytes (one "flash word" FLASH_WORD_BYTES = 32B).
@@ -167,7 +167,7 @@ class config
         return {};
     }
 
-    virtual std::optional<size_t> getFirstUnprogrammedAddress()
+    std::optional<size_t> getFirstUnprogrammedAddress() const
     {
         {
             const BlockBufferInfo &block_buffer_val = block_buffer.value();

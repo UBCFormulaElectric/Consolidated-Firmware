@@ -310,7 +310,7 @@ void bootloader::init(config &boot_config)
                 const uint64_t program_data    = command.getDataAsQWords()[i];
                 const uint32_t current_address = reinterpret_cast<uint32_t>(&__app_metadata_start__) +
                                                  (hw::CAN_PAYLOAD_BYTES * block_addr) + i * sizeof(uint64_t);
-                if (const auto status = boot_config.boardSpecific_program(current_address, program_data); not status)
+                if (const auto status = boot_config.program(current_address, program_data); not status)
                 {
                     LOG_IF_ERR(status);
                     // program failed meaning we need to stop and tell the application that program has failed
