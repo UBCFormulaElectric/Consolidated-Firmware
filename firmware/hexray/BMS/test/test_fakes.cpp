@@ -167,52 +167,7 @@ namespace bspdtest
     }
 } // namespace bspdtest
 
-namespace adbms
-{
-    bool started_therm_adc_conversion = false;
-    bool started_cell_adc_conversion  = false;
-
-    result<void> sendCommand(const uint16_t command)
-    {
-        UNUSED(command);
-        return {};
-    }
-
-    result<void> poll(uint16_t cmd, uint8_t *poll_buf, uint16_t poll_buf_len)
-    {
-        UNUSED(cmd);
-        std::memset(poll_buf, 0, poll_buf_len);
-        return {};
-    }
-
-    void
-        readRegGroup(uint16_t cmd, uint16_t regs[NUM_SEGMENTS][REGS_PER_GROUP], result<void> comm_success[NUM_SEGMENTS])
-    {
-        UNUSED(cmd);
-        std::memset(regs, 0, NUM_SEGMENTS * REGS_PER_GROUP * sizeof(uint16_t));
-        for (size_t i = 0; i < NUM_SEGMENTS; i++)
-        {
-            comm_success[i] = {};
-        }
-    }
-
-    result<void> writeRegGroup(uint16_t cmd, uint16_t regs[NUM_SEGMENTS][REGS_PER_GROUP])
-    {
-        UNUSED(cmd);
-        UNUSED(regs);
-        return {};
-    }
-
-    result<void> sendBalanceCommand(void)
-    {
-        return {};
-    }
-
-    result<void> sendStopBalanceCommand(void)
-    {
-        return {};
-    }
-} // namespace adbms
+// ADBMS reads/writes are mocked in bmsMocks.cpp.
 
 } // namespace io
 
@@ -315,73 +270,7 @@ namespace imd
     }
 } // namespace imd
 
-namespace segments
-{
-    void setCellVoltages(const std::array<std::array<float, CELLS_PER_SEGMENT>, NUM_SEGMENTS> &voltages)
-    {
-        for (size_t i = 0; i < NUM_SEGMENTS; i++)
-        {
-            for (size_t j = 0; j < CELLS_PER_SEGMENT; j++)
-            {
-                voltage_regs[i][j] = static_cast<uint16_t>(voltages[i][j] * 1e4f);
-            }
-        }
-    }
-
-    void setCellVoltage(const size_t segment, const size_t cell, const float voltage)
-    {
-        voltage_regs[segment][cell] = static_cast<uint16_t>(voltage * 1e4f);
-    }
-
-    void setCellTemperatures(const std::array<std::array<float, AUX_REGS_PER_SEGMENT>, NUM_SEGMENTS> &temperatures)
-    {
-        for (size_t i = 0; i < NUM_SEGMENTS; i++)
-        {
-            for (size_t j = 0; j < AUX_REGS_PER_SEGMENT; j++)
-            {
-                float T_k = temperatures[i][j] + 273.15f;
-                float k   = -3610.0f * (1.0f / T_k - 1.0f / 298.15f);
-
-                aux_regs_storage[i][j] = static_cast<uint16_t>(3.0f / (1.0f + exp2f(k)));
-            }
-        }
-    }
-
-    void setPackVoltageEvenly(const float pack_voltage)
-    {
-        const float cell_voltage = pack_voltage / (NUM_SEGMENTS * CELLS_PER_SEGMENT);
-        std::array<std::array<float, CELLS_PER_SEGMENT>, NUM_SEGMENTS> v{};
-        for (size_t i = 0; i < NUM_SEGMENTS; i++)
-        {
-            for (size_t j = 0; j < CELLS_PER_SEGMENT; j++)
-            {
-                v[i][j] = cell_voltage;
-            }
-        }
-        setCellVoltages(v);
-    }
-
-    void setExpectedVoltageSelfTestValue(const uint16_t value)
-    {
-        expected_self_test_value = value;
-    }
-
-    void SetAuxRegs(const float voltage)
-    {
-        for (size_t i = 0; i < NUM_SEGMENTS; i++)
-        {
-            for (size_t j = 0; j < AUX_REGS_PER_SEGMENT; j++)
-            {
-                aux_regs_storage[i][j] = static_cast<uint16_t>(voltage * 1000); // Not sure if conversion is correct
-            }
-        }
-    }
-
-    void SetAuxReg(const uint8_t segment, const uint8_t cell, const float voltage)
-    {
-        aux_regs_storage[segment][cell] = static_cast<uint16_t>(voltage * 1000); // Not sure if conversion is correct
-    }
-} // namespace segments
+// fakes::segments::* setters are implemented in bmsMocks.cpp alongside the ADBMS read mocks.
 
 namespace charger
 {

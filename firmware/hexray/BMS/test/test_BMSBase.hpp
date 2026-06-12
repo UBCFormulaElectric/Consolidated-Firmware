@@ -29,7 +29,7 @@ class BMSBaseTest : public EcuTestBase
         // TODO: Change back to using constants once segments is added
         // fakes::segments::setPackVoltageEvenly(3.8f * NUM_SEGMENTS * CELLS_PER_SEGMENT);
         fakes::segments::setPackVoltageEvenly(3.8f * 10 * 14);
-        fakes::segments::SetAuxRegs(15.0f); // Approx. 25C
+        fakes::segments::SetAuxRegs(25.0f); // 25C
 
         fakes::ts::setVoltage(0.0f);
 
