@@ -4,9 +4,7 @@
 
 namespace
 {
-// Tracks which semaphore instances are currently held. The test build is
-// single-threaded, so a simple set keyed by instance is enough to make the
-// is_held() assertions in application code meaningful.
+
 std::unordered_set<const io::semaphore *> &held_semaphores()
 {
     static std::unordered_set<const io::semaphore *> held;
