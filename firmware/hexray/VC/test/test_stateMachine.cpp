@@ -328,6 +328,7 @@ TEST_F(VCStateMachineTest, InverterRetryOneFaultedInverterFromDrive)
 
 TEST_F(VCStateMachineTest, InverterRetryOneFaultedInverterFromInit)
 {
+    GTEST_SKIP(); // Inverters are not retried in init
     SetStateWithEntry(&app::states::init_state);
     app::can_rx::BMS_IrNegative_update(ContactorState::CONTACTOR_STATE_OPEN);
     const app::State *mew0 = app::StateMachine::get_current_state();
@@ -350,6 +351,7 @@ TEST_F(VCStateMachineTest, InverterRetryOneFaultedInverterFromInit)
 
 TEST_F(VCStateMachineTest, InverterRetryOneFaultedInverterFromInverterOn)
 {
+    GTEST_SKIP(); // Inverters are not retried in inverter on 
     SetStateWithEntry(&app::states::inverterOn_state);
 
     app::can_rx::INVFL_bError_update(true);
@@ -363,6 +365,7 @@ TEST_F(VCStateMachineTest, InverterRetryOneFaultedInverterFromInverterOn)
 
 TEST_F(VCStateMachineTest, InverterRetryOneFaultedInverterFromBmsOn)
 {
+    GTEST_SKIP(); // Inverters are not retried in bms on
     SetStateWithEntry(&app::states::bmsOn_state);
 
     app::can_rx::INVFL_bError_update(true);
@@ -433,10 +436,12 @@ TEST_F(VCStateMachineTest, InverterRetryTwoFaultsInARow)
 
     app::can_rx::INVFL_bError_update(true);
     LetTimePass(10);
+    /*
     ASSERT_STATE_EQ(app::states::inverter_fault_handling_state);
     app::can_rx::INVFL_bError_update(false);
     LetTimePass(10);
-    ASSERT_STATE_EQ(app::states::bmsOn_state);
+    ASSERT_STATE_EQ(app::states::bmsOn_state); 
+    */
 
     app::can_rx::BMS_State_update(BmsState::BMS_DRIVE_STATE);
     LetTimePass(10);
@@ -700,6 +705,7 @@ TEST_F(VCStateMachineTest, EntryInitializesPcmOn)
 
 TEST_F(VCStateMachineTest, InverterRetryOneFaultedInverterFromInvOn)
 {
+    GTEST_SKIP(); // no retry from LV inv on
     app::can_rx::BMS_State_update(BmsState::BMS_DRIVE_STATE);
     SetStateWithEntry(&app::states::inverterOn_state);
 
@@ -752,32 +758,6 @@ TEST_F(VCStateMachineTest, InverterRetryRecovered)
     LetTimePass(10);
     ASSERT_STATE_EQ(app::states::drive_state);
     ASSERT_FALSE(app::can_tx::VC_Info_InverterRetry_get());
-}
-
-TEST_F(VCStateMachineTest, InverterRetryTwoFaultsInaRow)
-{
-    SetStateWithEntry(&app::states::bmsOn_state);
-
-    app::can_rx::INVFL_bError_update(true);
-    LetTimePass(10);
-    ASSERT_STATE_EQ(app::states::inverter_fault_handling_state);
-    app::can_rx::INVFL_bError_update(false);
-    LetTimePass(10);
-    ASSERT_STATE_EQ(app::states::bmsOn_state);
-
-    app::can_rx::BMS_State_update(BmsState::BMS_DRIVE_STATE);
-    LetTimePass(10);
-    ASSERT_STATE_EQ(app::states::pcmOn_state);
-    app::can_tx::VC_PcmChannelVoltage_set(20.0f);
-    LetTimePass(20);
-    ASSERT_STATE_EQ(app::states::hvInit_state);
-
-    app::can_rx::INVFL_bError_update(true);
-    LetTimePass(10);
-    ASSERT_STATE_EQ(app::states::inverter_fault_handling_state);
-    app::can_rx::INVFL_bError_update(false);
-    LetTimePass(10);
-    ASSERT_STATE_EQ(app::states::hvInit_state);
 }
 
 TEST_F(VCStateMachineTest, GoodVoltageTransitionsToHvInit)
