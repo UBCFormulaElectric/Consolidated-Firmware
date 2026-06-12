@@ -14,8 +14,7 @@ import { useRef } from "react";
 export default function EnumCanvasChart({ id, options, signals, hoveredSignal, onHoverTimestampChange }: EnumTimelineWidgetData) {
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
     const layoutRef = useRef<ChartLayout | null>(null);
-    const hoverXRef = useRef<number | null>(null);
-    const { globalTimeRangeRef, hoverTimestampRef: externalHoverTimestampRef, hoverXRef: contextHoverXRef, XToTime } = useSyncedGraph();
+    const { globalTimeRangeRef, hoverXRef, XToTime } = useSyncedGraph();
 
     const { height, timeTickCount } = options;
     const canvasHeight = Math.max(height, CHART_PADDING.top + 30 + signals.length * 40 + Math.max(0, signals.length - 1) * 40 + CHART_PADDING.bottom);
@@ -28,12 +27,7 @@ export default function EnumCanvasChart({ id, options, signals, hoveredSignal, o
             return;
         }
 
-        // Recompute hover time from the stored canvas-x using the latest scrollLeft
-        // so the tooltip stays exactly under the cursor even if scroll drifts.
-        // Only the chart currently being hovered owns externalHoverTimestampRef.
-        if (hoverXRef.current !== null) {
-            externalHoverTimestampRef.current = XToTime(hoverXRef.current);
-        }
+        const hoverTimestamp = hoverXRef.current === null ? null : XToTime(hoverXRef.current);
 
         render(
             context,
@@ -48,7 +42,7 @@ export default function EnumCanvasChart({ id, options, signals, hoveredSignal, o
                 id,
             },
             timeTickCount,
-            externalHoverTimestampRef.current,
+            hoverTimestamp,
             hoveredSignal,
             {
                 min: XToTime(CHART_PADDING.left),
@@ -58,12 +52,7 @@ export default function EnumCanvasChart({ id, options, signals, hoveredSignal, o
         );
     });
 
-    const { handleMouseMove, handleMouseLeave } = useCanvasHover(canvasRef, hoverXRef, (x) => {
-        contextHoverXRef.current = x;
-        const t = x === null ? null : XToTime(x);
-        externalHoverTimestampRef.current = t;
-        onHoverTimestampChange?.(t);
-    });
+    const { handleMouseMove, handleMouseLeave } = useCanvasHover(canvasRef, hoverXRef, (x) => onHoverTimestampChange?.(x === null ? null : XToTime(x)));
 
     return <canvas className="block w-full" ref={canvasRef} style={{ height: canvasHeight }} onMouseMove={handleMouseMove} onMouseLeave={handleMouseLeave} />;
 }
