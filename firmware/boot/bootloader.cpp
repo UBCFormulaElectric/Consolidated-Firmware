@@ -289,13 +289,11 @@ void bootloader::init(config &boot_config)
             // No reply for program command to reduce latency.
             // TODO: Seems kinda fragile
             const uint32_t block_addr = (command.std_id & 0x00FFFFF0U) >> 4;
-            // LOG_INFO("Got program command for block %d, to %d", block_addr, expected_block_num);
             if (block_addr != expected_block_num)
             {
                 if ((io::time::getCurrentMs() - last_jumpback_sent_time) > 1000 or
                     expected_block_num != last_jumpback_location)
                 {
-                    LOG_INFO("sending jumpback");
                     last_jumpback_sent_time = io::time::getCurrentMs();
                     last_jumpback_location  = expected_block_num;
 
@@ -329,7 +327,7 @@ void bootloader::init(config &boot_config)
                     if (current_address >= first_unprogrammed_addr.value())
                     {
                         // GO BACK!!!
-                        LOG_INFO("wtf");
+                        LOG_ERROR("wtf");
                         hw::CanMsg reply{ boot_config.BOARD_HIGHBITS | PROGRAM_ID_FAILED_LOWBITS, 4, {} };
                         reply.getDataAsDWords()[0] = expected_block_num;
                         LOG_IF_ERR(boot_config.can_tx_queue.push(reply));
@@ -343,10 +341,8 @@ void bootloader::init(config &boot_config)
                     LOG_IF_ERR(boot_config.flush());
                 }
             }
-            LOG_INFO("block_addr: %d", block_addr);
             if (block_addr == expected_total_blocks)
             {
-                LOG_INFO("recieved block %d successfully", block_addr);
                 hw::CanMsg reply{ boot_config.BOARD_HIGHBITS | PROGRAM_DONE_LOWBITS, 0, {} };
                 LOG_IF_ERR(boot_config.can_tx_queue.push(reply));
             }

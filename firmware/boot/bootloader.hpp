@@ -160,8 +160,7 @@ class config
             }
 
             const uint32_t flash_addr = block_buffer_val.start_addr / hw::flash::WORD_BYTES * hw::flash::WORD_BYTES;
-            io::time::delay(1);
-            const auto flash_res = hw::flash::programFlash(flash_addr, block_buffer.value().buffer);
+            const auto     flash_res  = hw::flash::programFlash(flash_addr, block_buffer.value().buffer);
             RETURN_IF_ERR(flash_res);
         }
         block_buffer = std::nullopt;
@@ -170,7 +169,6 @@ class config
 
     virtual std::optional<size_t> getFirstUnprogrammedAddress()
     {
-        // assert(block_buffer.has_value());
         {
             const BlockBufferInfo &block_buffer_val = block_buffer.value();
             for (size_t i = 0; i < block_buffer_val.filled_64.size(); i++)
