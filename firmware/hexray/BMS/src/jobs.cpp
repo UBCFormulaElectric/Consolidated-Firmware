@@ -212,13 +212,13 @@ void jobs_runAdbmsConfigs_tick()
         }
     }
 
-    Segments<uint8_t>      mismatches;
-    io::adbms::SpiBusReach spi_reach;
-    {
-        const io::unique_semaphore c{ internal_lock };
-        mismatches = io::adbms::misc::getCmdCountMismatches();
-        spi_reach  = io::adbms::misc::getSpiBusReach();
-    }
+    // Segments<uint8_t>      mismatches;
+    // io::adbms::SpiBusReach spi_reach;
+    // {
+    //     const io::unique_semaphore c{ internal_lock };
+    //     mismatches = io::adbms::misc::getCmdCountMismatches();
+    //     spi_reach  = io::adbms::misc::getSpiBusReach();
+    // }
 
     std::array<std::bitset<app::segments::health::NUM_HEALTH_BITS>, MAX_NUM_SEGMENTS> health;
     {
@@ -227,8 +227,8 @@ void jobs_runAdbmsConfigs_tick()
     }
 
     app::segments::broadcast::segmentHealthError(health);
-    app::segments::broadcast::cmdCountMismatch(mismatches);
-    app::segments::broadcast::spiLinkStats(spi_reach);
+    // app::segments::broadcast::cmdCountMismatch(mismatches);
+    // app::segments::broadcast::spiLinkStats(spi_reach);
 
     if (all_segments_ok)
     {

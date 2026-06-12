@@ -449,12 +449,12 @@ void cmdCountMismatch(const Segments<uint8_t> &mismatches)
     segment_cmdcnt_buffer.send();
 }
 
-void spiLinkStats(const io::adbms::SpiBusReach &reach)
-{
-    can_tx::BMS_LowSideSegmentReach_set(reach.ls_reach);
-    can_tx::BMS_HighSideSegmentReach_set(reach.hs_reach);
-    tx::BMS_SpiLinkStatus_sendAperiodic();
-}
+// void spiLinkStats(const io::adbms::SpiBusReach &reach)
+// {
+    // can_tx::BMS_LowSideSegmentReach_set(reach.ls_reach);
+    // can_tx::BMS_HighSideSegmentReach_set(reach.hs_reach);
+    // tx::BMS_SpiLinkStatus_sendAperiodic();
+// }
 
 void segmentHealthError(const health::Snapshot &health)
 {

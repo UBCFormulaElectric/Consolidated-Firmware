@@ -134,22 +134,22 @@ namespace broadcast
     void minVoltageSeg(const SegmentParam<float> &min);
     void packVoltage(const result<float> &pack);
     void cmdCountMismatch(const io::adbms::Segments<uint8_t> &mismatches);
-    void spiLinkStats(const io::adbms::SpiBusReach &reach);
+    // void spiLinkStats(const io::adbms::SpiBusReach &reach);
 } // namespace broadcast
 
 // app_segments_shared.cpp
 namespace shared
 {
-    io::adbms::Cells<result<float>>    getLatestVoltages();
-    CellParam<float>                   getMinCellVoltage();
-    CellParam<float>                   getMaxCellVoltage();
-    CellParam<float>                   getMinCellTemperature();
-    CellParam<float>                   getMaxCellTemperature();
-    io::adbms::Cells<result<bool>>     getLatestCellOwc();
-    io::adbms::Therms<result<bool>>    getLatestThermOwc();
-    SegmentParam<float>                getMinSegmentVoltage();
-    SegmentParam<float>                getMaxSegmentVoltage();
-    result<float>                      getPackVoltage();
+    io::adbms::Cells<result<float>> getLatestVoltages();
+    CellParam<float>                getMinCellVoltage();
+    CellParam<float>                getMaxCellVoltage();
+    CellParam<float>                getMinCellTemperature();
+    CellParam<float>                getMaxCellTemperature();
+    io::adbms::Cells<result<bool>>  getLatestCellOwc();
+    io::adbms::Therms<result<bool>> getLatestThermOwc();
+    SegmentParam<float>             getMinSegmentVoltage();
+    SegmentParam<float>             getMaxSegmentVoltage();
+    result<float>                   getPackVoltage();
 
     void setCellOwc(const io::adbms::Cells<result<bool>> &owc);
     void setVoltageStats(const io::adbms::Cells<result<float>> &latest);
