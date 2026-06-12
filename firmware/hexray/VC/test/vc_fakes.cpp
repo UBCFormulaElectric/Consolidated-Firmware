@@ -141,6 +141,7 @@ namespace sbgEllipse
     {
         return {};
     }
+    void           handleLogs() {}
     const Attitude getEkfEulerAngles()
     {
         return Attitude{ 0.0f, 0.0f, 0.0f };

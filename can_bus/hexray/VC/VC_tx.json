@@ -714,28 +714,28 @@
   },
   "EllipseEulerAngles": {
     "msg_id": 557,
-    "cycle_time": 1000,
+    "cycle_time": 100,
     "description": "Euler angles from the SBG Ellipse N sensor.",
     "signals": {
       "EulerAnglesRoll": {
+        "resolution": 0.01,
+        "signed": true,
         "min": -180,
         "max": 180,
-        "resolution": 0.1,
-        "signed": true,
         "unit": "deg"
       },
       "EulerAnglesPitch": {
+        "resolution": 0.01,
+        "signed": true,
         "min": -180,
         "max": 180,
-        "resolution": 0.1,
-        "signed": true,
         "unit": "deg"
       },
       "EulerAnglesYaw": {
+        "resolution": 0.01,
+        "signed": true,
         "min": -180,
         "max": 180,
-        "resolution": 0.1,
-        "signed": true,
         "unit": "deg"
       }
     },

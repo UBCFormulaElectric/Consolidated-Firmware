@@ -18,6 +18,7 @@
 #include "io_time.hpp"
 #include "io_batteryMonitoring.hpp"
 #include "io_canReroute.hpp"
+#include "io_sbgEllipse.hpp"
 
 #include <util_errorCodes.hpp>
 
@@ -45,8 +46,6 @@ void jobs_init()
 
     io::can_reroute::init(fdcan_tx, invcan_tx);
 
-    app::sbgEllipse::init();
-
     app::can_tx::VC_Hash_set(GIT_COMMIT_HASH);
     app::can_tx::VC_Clean_set(GIT_COMMIT_CLEAN);
     app::can_tx::VC_Heartbeat_set(true);
@@ -56,10 +55,6 @@ void jobs_init()
 void jobs_run1Hz_tick() {}
 void jobs_run100Hz_tick()
 {
-    const uint32_t k = app::can_rx::BMS_ChargePowerLimit_get();
-    LOG_INFO("%d", k);
-
-    app::sbgEllipse::broadcast();
     hb_monitor.checkIn();
     hb_monitor.broadcastFaults();
 
@@ -79,4 +74,11 @@ void jobs_runBatteryMonitoring_tick()
 void jobs_runPowerMonitoring_tick()
 {
     LOG_IF_ERR(app::powerMonitoring::update());
+}
+void jobs_runSbgEllipse_tick()
+{
+    // Drain and parse any UART data accumulated in the stream buffer, then
+    // push the latest sensor values onto the CAN tables.
+    io::sbgEllipse::handleLogs();
+    app::sbgEllipse::broadcast();
 }

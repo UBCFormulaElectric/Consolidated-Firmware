@@ -7,3 +7,4 @@ void jobs_run1kHz_tick(void);
 void jobs_runChimera_tick(void);
 void jobs_runBatteryMonitoring_tick(void);
 void jobs_runPowerMonitoring_tick(void);
+void jobs_runSbgEllipse_tick(void);
