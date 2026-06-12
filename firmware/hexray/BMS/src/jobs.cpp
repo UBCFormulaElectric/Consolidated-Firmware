@@ -162,28 +162,6 @@ void jobs_runAdbmsConfigs_tick()
 {
     bool all_segments_ok = true;
 
-    const Segments<result<bool>> check_res = app::segments::reach::check();
-    {
-        const io::unique_semaphore h{ health_lock };
-        for (size_t seg = 0; seg < NUM_SEGMENTS; seg++)
-        {
-            const auto &seg_res = check_res[seg];
-            app::segments::health::setOrReset(seg, app::segments::health::ErrorBit::UNREACHABLE, not seg_res);
-            if (!seg_res)
-            {
-                all_segments_ok = false;
-                LOG_ERROR(
-                    "Failed to run reachable check on segment %d: %s", (int)seg, error_code_to_string(seg_res.error()));
-                continue;
-            }
-            if (!seg_res.value())
-            {
-                all_segments_ok = false;
-                LOG_ERROR("Failed to reach segment %d: SPI link break detected", (int)seg);
-            }
-        }
-    }
-
     const Segments<result<bool>> sync_res = app::segments::config::sync();
     {
         const io::unique_semaphore h{ health_lock };
@@ -207,14 +185,6 @@ void jobs_runAdbmsConfigs_tick()
         }
     }
 
-    // Segments<uint8_t>      mismatches;
-    // io::adbms::SpiBusReach spi_reach;
-    // {
-    //     const io::unique_semaphore c{ internal_lock };
-    //     mismatches = io::adbms::misc::getCmdCountMismatches();
-    //     spi_reach  = io::adbms::misc::getSpiBusReach();
-    // }
-
     std::array<std::bitset<app::segments::health::NUM_HEALTH_BITS>, MAX_NUM_SEGMENTS> health;
     {
         const io::unique_semaphore h{ health_lock };
@@ -222,8 +192,6 @@ void jobs_runAdbmsConfigs_tick()
     }
 
     app::segments::broadcast::segmentHealthError(health);
-    // app::segments::broadcast::cmdCountMismatch(mismatches);
-    // app::segments::broadcast::spiLinkStats(spi_reach);
 
     if (all_segments_ok)
     {
