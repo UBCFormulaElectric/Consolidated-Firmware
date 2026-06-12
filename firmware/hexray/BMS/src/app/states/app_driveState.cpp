@@ -2,13 +2,19 @@
 #include "io_irs.hpp"
 #include "app_canTx.hpp"
 #include "app_canUtils.hpp"
-#include "io_tractiveSystem.hpp"
+#include "app_tractiveSystem.hpp"
+#include "app_timer.hpp"
+#include "io_semaphore.hpp"
 
-constexpr float MIN_TS_VOLTAGE_V = 0.0f;
+constexpr float    TS_UNDERVOLTAGE_DELTA_V           = 20.0f;
+constexpr float    TS_UNDERVOLTAGE_IMMEDIATE_DELTA_V = 50.0f;
+constexpr uint32_t TS_UNDERVOLTAGE_DEBOUNCE_MS       = 500U;
 namespace app::states
 {
 namespace driveState
 {
+    static app::Timer ts_undervoltage_debounce(TS_UNDERVOLTAGE_DEBOUNCE_MS);
+
     static void driveStateRunOnEntry()
     {
         app::can_tx::BMS_State_set(::app::can_utils::BmsState::BMS_DRIVE_STATE);
@@ -16,7 +22,15 @@ namespace driveState
 
     static void driveStateRunOnTick100Hz()
     {
-        if (io::ts::getVoltage() < MIN_TS_VOLTAGE_V)
+        // TODO: comment in and add shared lock here
+        // io::unique_semaphore s{ shared_lock };
+        // {
+        //     const float ts_voltage_drop_v = app::segments::getPackVoltage() - app::ts::getVoltage();
+        // }
+        const float ts_voltage_drop_v = 0;
+        const bool  ts_uv             = ts_voltage_drop_v < TS_UNDERVOLTAGE_DELTA_V;
+        const bool  ts_uv_immediate   = ts_voltage_drop_v < TS_UNDERVOLTAGE_IMMEDIATE_DELTA_V;
+        if (ts_undervoltage_debounce.runIfCondition(ts_uv) == app::Timer::TimerState::EXPIRED || ts_uv_immediate)
         {
             app::StateMachine::set_next_state(&init_state);
         }
