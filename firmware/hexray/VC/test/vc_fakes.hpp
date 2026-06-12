@@ -9,12 +9,6 @@
 namespace fakes::io
 {
 
-namespace loadswitches
-{
-    void setChannelEnabled(int channel, bool enabled);
-    void setChannelCurrent(int channel, float current);
-} // namespace loadswitches
-
 namespace powerMonitoring
 {
     void set_reading_voltage(Channel channel, float voltage);

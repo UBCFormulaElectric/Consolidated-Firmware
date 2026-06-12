@@ -92,9 +92,8 @@ void reset()
 {
     // finished_ramp_up = false;
     // time_ms          = 0;
-    app::can_tx::VC_PumpFailure_set(false);
-    app::can_tx::VC_RsmTurnOnPump_set(false);
-    app::can_tx::VC_PumpRampUpSetPoint_set(0.0f);
+    app::can_tx::VC_RLPumpSetpoint_set(0.0f);
+    app::can_tx::VC_RRPumpSetpoint_set(0.0f);
 }
 #endif
 } // namespace app::pumpControl

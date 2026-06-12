@@ -167,7 +167,7 @@ Efuses<EfuseConfig> getConfig()
 }
 bool getEfuse(int channel)
 {
-    return state_.efuse_configs[channel].efuse_enable;
+    return state_[channel].efuse_enable;
 }
 
 #endif

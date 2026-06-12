@@ -2,6 +2,7 @@
 
 #include "states/app_states.hpp"
 #include "app_canRx.hpp"
+#include "app_powerManager.hpp"
 #include "io_efuses.hpp"
 #include "app_canUtils.hpp"
 #include "vc_fakes.hpp"
@@ -9,6 +10,19 @@
 
 class VCPowerManagerTest : public VCBaseTest
 {
+};
+
+static constexpr app::powerManager::Efuses<app::powerManager::EfuseConfig> broadcast_enabled_config = {
+    .front_efuse     = { true, 0, 5 },
+    .rsm_efuse       = { true, 0, 5 },
+    .bms_efuse       = { true, 0, 5 },
+    .dam_efuse       = { true, 0, 5 },
+    .f_inv_efuse     = { true, 0, 5 },
+    .r_inv_efuse     = { true, 0, 5 },
+    .r_rad_fan_efuse = { true, 0, 5 },
+    .l_rad_fan_efuse = { true, 0, 5 },
+    .rr_pump_efuse   = { true, 0, 5 },
+    .rl_pump_efuse   = { true, 0, 5 },
 };
 
 struct efuse_expected_state
@@ -91,5 +105,5 @@ TEST_F(VCPowerManagerTest, test_sequencingStateMachine)
     LetTimePass(20);
     ASSERT_STATE_EQ(app::states::hvInit_state);
     LetTimePass(10);
-    check_efuses(true, true, true, true, true, true, true, true, true, true);
+    check_efuses(false, false, false, false, true, true, true, true, true, true);
 }

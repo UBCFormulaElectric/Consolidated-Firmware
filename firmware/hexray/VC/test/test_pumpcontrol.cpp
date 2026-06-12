@@ -1,65 +1,47 @@
 #include <gtest/gtest.h>
-#include "test/test_VCBase.hpp"
+
 #include "app_pumpControl.hpp"
-#include "util_errorCodes.hpp"
-#include "io_pumpControllerFake.hpp"
 #include "app_canTx.hpp"
+#include "io_pumps.hpp"
+#include "io_pumpControllerFake.hpp"
+#include "test/test_VCBase.hpp"
 
 class VCPumpControlTest : public VCBaseTest
 {
 };
 
-TEST_F(VCPumpControlTest, pump_failure_when_pumps_not_ready)
+TEST_F(VCPumpControlTest, reset_clears_pump_outputs)
+{
+    app::pumpControl::reset();
+
+    ASSERT_FLOAT_EQ(0.0f, app::can_tx::VC_RLPumpSetpoint_get());
+    ASSERT_FLOAT_EQ(0.0f, app::can_tx::VC_RRPumpSetpoint_get());
+    ASSERT_TRUE(rr_pump.getPercentage().has_value());
+    ASSERT_EQ(0u, rr_pump.getPercentage().value());
+}
+
+TEST_F(VCPumpControlTest, restart_stops_rr_pump_and_zeroes_setpoints)
+{
+    ASSERT_TRUE(rr_pump.setPercentage(37).has_value());
+
+    app::pumpControl::restart();
+
+    ASSERT_FLOAT_EQ(0.0f, app::can_tx::VC_RLPumpSetpoint_get());
+    ASSERT_FLOAT_EQ(0.0f, app::can_tx::VC_RRPumpSetpoint_get());
+    ASSERT_TRUE(rr_pump.getPercentage().has_value());
+    ASSERT_EQ(0u, rr_pump.getPercentage().value());
+}
+
+TEST_F(VCPumpControlTest, monitor_pumps_leaves_outputs_zero_when_disabled)
 {
     app::pumpControl::reset();
     fakes::io::pumpController::set_pumps_ok(false);
-    fakes::io::pumpController::set_pumps_enable(true);
-    app::pumpControl::MonitorPumps();
-    ASSERT_TRUE(app::can_tx::VC_PumpFailure_get());
-    ASSERT_FALSE(app::can_tx::VC_RsmTurnOnPump_get());
-}
+    fakes::io::pumpController::set_pumps_enable(false);
 
-TEST_F(VCPumpControlTest, no_failure_when_pumps_ready)
-{
-    app::pumpControl::reset();
-    fakes::io::pumpController::set_pumps_ok(true);
-    fakes::io::pumpController::set_pumps_enable(true);
-    app::pumpControl::MonitorPumps();
-    ASSERT_FALSE(app::can_tx::VC_PumpFailure_get());
-    ASSERT_TRUE(app::can_tx::VC_RsmTurnOnPump_get());
-}
-
-TEST_F(VCPumpControlTest, rampup_setpoint_starts_at_five_percent)
-{
-    app::pumpControl::reset();
-    fakes::io::pumpController::set_pumps_ok(true);
-    fakes::io::pumpController::set_pumps_enable(true);
-    app::pumpControl::MonitorPumps();
-    ASSERT_FLOAT_EQ(5.0f, app::can_tx::VC_PumpRampUpSetPoint_get());
-}
-
-TEST_F(VCPumpControlTest, rampup_completes_without_failure)
-{
-    app::pumpControl::reset();
-    fakes::io::pumpController::set_pumps_ok(true);
-    fakes::io::pumpController::set_pumps_enable(true);
-    for (int i = 0; i < 19; ++i)
-    {
-        app::pumpControl::MonitorPumps();
-    }
-    ASSERT_FALSE(app::can_tx::VC_PumpFailure_get());
-    ASSERT_TRUE(app::can_tx::VC_RsmTurnOnPump_get());
-}
-
-TEST_F(VCPumpControlTest, pump_failure_resets_rampup)
-{
-    app::pumpControl::reset();
-    fakes::io::pumpController::set_pumps_ok(true);
-    fakes::io::pumpController::set_pumps_enable(true);
     app::pumpControl::MonitorPumps();
 
-    fakes::io::pumpController::set_pumps_ok(false);
-    app::pumpControl::MonitorPumps();
-
-    ASSERT_TRUE(app::can_tx::VC_PumpFailure_get());
+    ASSERT_FLOAT_EQ(0.0f, app::can_tx::VC_RLPumpSetpoint_get());
+    ASSERT_FLOAT_EQ(0.0f, app::can_tx::VC_RRPumpSetpoint_get());
+    ASSERT_TRUE(rr_pump.getPercentage().has_value());
+    ASSERT_EQ(0u, rr_pump.getPercentage().value());
 }

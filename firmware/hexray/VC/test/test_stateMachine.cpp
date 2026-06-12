@@ -6,6 +6,7 @@
 #include "app_canUtils.hpp"
 #include "app_startSwitch.hpp"
 #include "io_pcm.hpp"
+#include "io_log.hpp"
 #include "states/app_states.hpp"
 
 using namespace app::can_utils;
@@ -15,6 +16,7 @@ static void SetStateWithEntry(const app::State *state)
     app::StateMachine::set_current_state(state);
     state->run_on_entry();
     app::can_rx::BMS_IrNegative_update(ContactorState::CONTACTOR_STATE_CLOSED);
+    app::can_rx::BMS_Heartbeat_update(true);
 }
 
 static void SetAllSystemReady(const bool ready)
@@ -156,6 +158,7 @@ TEST_F(VCStateMachineTest, BmsOnTransitionsToPcmOnOnlyInDriveState)
 TEST_F(VCStateMachineTest, HvInitEntryInitializesStateAndOutputs)
 {
     SetStateWithEntry(&app::states::hvInit_state);
+    app::can_rx::BMS_State_update(BmsState::BMS_DRIVE_STATE);
 
     EXPECT_EQ(app::can_tx::VC_State_get(), VCState::VC_HV_INIT_STATE);
     EXPECT_EQ(app::can_tx::VC_INVFRTorqueSetpoint_get(), 0);
@@ -167,6 +170,7 @@ TEST_F(VCStateMachineTest, HvInitEntryInitializesStateAndOutputs)
 TEST_F(VCStateMachineTest, HvInitSystemReadyTransitionsToDcOn)
 {
     SetStateWithEntry(&app::states::hvInit_state);
+    app::can_rx::BMS_State_update(BmsState::BMS_DRIVE_STATE);
     SetAllSystemReady(true);
 
     LetTimePass(10);
@@ -179,7 +183,9 @@ TEST_F(VCStateMachineTest, HvInitSystemReadyTransitionsToDcOn)
 
 TEST_F(VCStateMachineTest, HvInitDcOnQuitTransitionsToEnable)
 {
+    app::can_rx::BMS_State_update(BmsState::BMS_DRIVE_STATE);
     SetStateWithEntry(&app::states::hvInit_state);
+    LetTimePass(10);
     SetAllSystemReady(true);
     LetTimePass(10);
 
@@ -196,6 +202,7 @@ TEST_F(VCStateMachineTest, HvInitDcOnQuitTransitionsToEnable)
 TEST_F(VCStateMachineTest, HvInitEnableQuitTransitionsToHv)
 {
     SetStateWithEntry(&app::states::hvInit_state);
+    app::can_rx::BMS_State_update(BmsState::BMS_DRIVE_STATE);
     SetAllSystemReady(true);
     LetTimePass(10);
 
@@ -210,12 +217,14 @@ TEST_F(VCStateMachineTest, HvInitEnableQuitTransitionsToHv)
 
 TEST_F(VCStateMachineTest, HvEntryInitializesState)
 {
+    app::can_rx::BMS_State_update(BmsState::BMS_DRIVE_STATE);
     SetStateWithEntry(&app::states::hv_state);
     EXPECT_EQ(app::can_tx::VC_State_get(), VCState::VC_HV_ON_STATE);
 }
 
 TEST_F(VCStateMachineTest, HvDoesNotEnterDriveWithoutBrakeAndStart)
 {
+    app::can_rx::BMS_State_update(BmsState::BMS_DRIVE_STATE);
     SetStateWithEntry(&app::states::hv_state);
 
     app::can_rx::CRIT_StartButton_update(SwitchState::OFF);
@@ -226,6 +235,7 @@ TEST_F(VCStateMachineTest, HvDoesNotEnterDriveWithoutBrakeAndStart)
 
 TEST_F(VCStateMachineTest, HvBrakeAndStartRisingEdgeTransitionsToDrive)
 {
+    app::can_rx::BMS_State_update(BmsState::BMS_DRIVE_STATE);
     SetStateWithEntry(&app::states::hv_state);
 
     app::can_rx::CRIT_StartButton_update(SwitchState::OFF);
@@ -239,6 +249,7 @@ TEST_F(VCStateMachineTest, HvBrakeAndStartRisingEdgeTransitionsToDrive)
 
 TEST_F(VCStateMachineTest, DriveStateEntryKeepsDriveState)
 {
+    app::can_rx::BMS_State_update(BmsState::BMS_DRIVE_STATE);
     SetStateWithEntry(&app::states::drive_state);
 
     LetTimePass(20);
@@ -249,6 +260,7 @@ TEST_F(VCStateMachineTest, PcmOnEntryInitializesState)
 {
     // test is being chopped on remote CI but it passes locally so we skip for now mew
     GTEST_SKIP();
+    app::can_rx::BMS_State_update(BmsState::BMS_DRIVE_STATE);
     SetStateWithEntry(&app::states::pcmOn_state);
 
     EXPECT_EQ(app::can_tx::VC_State_get(), VCState::VC_PCM_ON_STATE);
@@ -257,6 +269,7 @@ TEST_F(VCStateMachineTest, PcmOnEntryInitializesState)
 
 TEST_F(VCStateMachineTest, PcmGoodVoltageTransitionsToHvInit)
 {
+    app::can_rx::BMS_State_update(BmsState::BMS_DRIVE_STATE);
     SetStateWithEntry(&app::states::pcmOn_state);
     app::can_rx::BMS_IrNegative_update(app::can_utils::ContactorState::CONTACTOR_STATE_CLOSED);
     app::can_tx::VC_PcmChannelVoltage_set(20.0f);
@@ -269,26 +282,29 @@ TEST_F(VCStateMachineTest, PcmGoodVoltageTransitionsToHvInit)
 TEST_F(VCStateMachineTest, PcmUnderVoltageRetriesThenFaultsAndAutoRecovers)
 {
     SetStateWithEntry(&app::states::pcmOn_state);
+    app::can_rx::BMS_State_update(BmsState::BMS_DRIVE_STATE);
     app::can_rx::BMS_IrNegative_update(app::can_utils::ContactorState::CONTACTOR_STATE_CLOSED);
     app::can_tx::VC_PcmChannelVoltage_set(16.0f);
     ASSERT_EQ(app::can_tx::VC_PcmRetryCount_get(), 0);
 
-    LetTimePass(20);
+    LetTimePass(30);
     EXPECT_TRUE(io::pcm::enabled());
 
     for (uint8_t retry = 0; retry < 4; retry++)
     {
-        LetTimePass(110);
+        app::can_rx::BMS_Heartbeat_update(true);
+        LetTimePass(1010); // in order for pcm retry count to increase, we must make sure we pass the cooldown timer
         EXPECT_FALSE(io::pcm::enabled());
         ASSERT_EQ(app::can_tx::VC_PcmRetryCount_get(), static_cast<uint8_t>(retry + 1));
         io::pcm::set(true);
-        LetTimePass(110);
+        app::can_rx::BMS_Heartbeat_update(true);
+        LetTimePass(1010);
     }
 
     EXPECT_TRUE(io::pcm::enabled());
     ASSERT_STATE_EQ(app::states::pcmOn_state);
     // last try
-    LetTimePass(110);
+    LetTimePass(1010);
     EXPECT_FALSE(io::pcm::enabled());
     ASSERT_EQ(app::can_tx::VC_PcmRetryCount_get(), 5);
     EXPECT_TRUE(app::can_tx::VC_Info_PcmUnderVoltage_get());
@@ -297,6 +313,7 @@ TEST_F(VCStateMachineTest, PcmUnderVoltageRetriesThenFaultsAndAutoRecovers)
 
 TEST_F(VCStateMachineTest, InverterRetryOneFaultedInverterFromDrive)
 {
+    app::can_rx::BMS_State_update(BmsState::BMS_DRIVE_STATE);
     SetStateWithEntry(&app::states::drive_state);
 
     app::can_rx::INVFL_bError_update(true);
@@ -359,6 +376,7 @@ TEST_F(VCStateMachineTest, InverterRetryOneFaultedInverterFromBmsOn)
 
 TEST_F(VCStateMachineTest, InverterRetryOneFaultedInverterFromHvInit)
 {
+    app::can_rx::BMS_State_update(BmsState::BMS_DRIVE_STATE);
     SetStateWithEntry(&app::states::hvInit_state);
 
     app::can_rx::INVFL_bError_update(true);
@@ -372,6 +390,7 @@ TEST_F(VCStateMachineTest, InverterRetryOneFaultedInverterFromHvInit)
 
 TEST_F(VCStateMachineTest, InverterRetryOneFaultedInverterFromHv)
 {
+    app::can_rx::BMS_State_update(BmsState::BMS_DRIVE_STATE);
     SetStateWithEntry(&app::states::hv_state);
 
     app::can_rx::INVFL_bError_update(true);
@@ -386,6 +405,7 @@ TEST_F(VCStateMachineTest, InverterRetryOneFaultedInverterFromHv)
 
 TEST_F(VCStateMachineTest, InverterRetryMoreThanOneFaultedInverter)
 {
+    app::can_rx::BMS_State_update(BmsState::BMS_DRIVE_STATE);
     SetStateWithEntry(&app::states::drive_state);
 
     SetAllInverterErrors(true);
@@ -395,6 +415,7 @@ TEST_F(VCStateMachineTest, InverterRetryMoreThanOneFaultedInverter)
 
 TEST_F(VCStateMachineTest, InverterFaultLockoutTransitionsToFault)
 {
+    app::can_rx::BMS_State_update(BmsState::BMS_DRIVE_STATE);
     SetStateWithEntry(&app::states::drive_state);
 
     app::can_rx::INVFL_bError_update(true);
@@ -465,6 +486,7 @@ TEST_F(VCStateMachineTest, AirMinusOpenDebounceReturnsBmsOnToInit)
 
 TEST_F(VCStateMachineTest, AirMinusOpenDebounceReturnsPcmOnToInit)
 {
+    app::can_rx::BMS_State_update(BmsState::BMS_DRIVE_STATE);
     SetStateWithEntry(&app::states::pcmOn_state);
     app::can_tx::VC_PcmChannelVoltage_set(28.0f);
     app::can_rx::BMS_IrNegative_update(ContactorState::CONTACTOR_STATE_OPEN);
@@ -490,6 +512,7 @@ TEST_F(VCStateMachineTest, BmsOnTransitionnToHvInit)
 
 TEST_F(VCStateMachineTest, EntryInitializesStateAndOutputs)
 {
+    app::can_rx::BMS_State_update(BmsState::BMS_DRIVE_STATE);
     SetStateWithEntry(&app::states::hvInit_state);
 
     ASSERT_EQ(app::can_tx::VC_State_get(), VCState::VC_HV_INIT_STATE);
@@ -501,6 +524,7 @@ TEST_F(VCStateMachineTest, EntryInitializesStateAndOutputs)
 
 TEST_F(VCStateMachineTest, SystemReadyTransitionsToDcOn)
 {
+    app::can_rx::BMS_State_update(BmsState::BMS_DRIVE_STATE);
     SetStateWithEntry(&app::states::hvInit_state);
     SetAllSystemReady(true);
 
@@ -513,6 +537,7 @@ TEST_F(VCStateMachineTest, SystemReadyTransitionsToDcOn)
 
 TEST_F(VCStateMachineTest, DcOnQuitTransitionsToEnable)
 {
+    app::can_rx::BMS_State_update(BmsState::BMS_DRIVE_STATE);
     SetStateWithEntry(&app::states::hvInit_state);
     SetAllSystemReady(true);
     LetTimePass(10);
@@ -528,6 +553,7 @@ TEST_F(VCStateMachineTest, DcOnQuitTransitionsToEnable)
 
 TEST_F(VCStateMachineTest, EnableQuitTransitionsToInverterOn)
 {
+    app::can_rx::BMS_State_update(BmsState::BMS_DRIVE_STATE);
     SetStateWithEntry(&app::states::hvInit_state);
     SetAllSystemReady(true);
     LetTimePass(10);
@@ -543,6 +569,7 @@ TEST_F(VCStateMachineTest, EnableQuitTransitionsToInverterOn)
 
 TEST_F(VCStateMachineTest, ReadyForDriveWithRetryFlagGoesToDriveState)
 {
+    app::can_rx::BMS_State_update(BmsState::BMS_DRIVE_STATE);
     SetStateWithEntry(&app::states::hvInit_state);
     SetAllSystemReady(true);
     LetTimePass(10);
@@ -566,6 +593,7 @@ TEST_F(VCStateMachineTest, ReadyForDriveWithRetryFlagGoesToDriveState)
 
 TEST_F(VCStateMachineTest, DriveStateRetrytoHvInit)
 {
+    app::can_rx::BMS_State_update(BmsState::BMS_DRIVE_STATE);
     SetStateWithEntry(&app::states::drive_state);
     SetAllInverterErrors(true);
     LetTimePass(10);
@@ -593,12 +621,14 @@ TEST_F(VCStateMachineTest, DriveStateRetrytoHvInit)
 
 TEST_F(VCStateMachineTest, EntryInitializesState)
 {
+    app::can_rx::BMS_State_update(BmsState::BMS_DRIVE_STATE);
     SetStateWithEntry(&app::states::hv_state);
     EXPECT_EQ(app::can_tx::VC_State_get(), VCState::VC_HV_ON_STATE);
 }
 
 TEST_F(VCStateMachineTest, NoTransitionWithoutBrakeAndStart)
 {
+    app::can_rx::BMS_State_update(BmsState::BMS_DRIVE_STATE);
     SetStateWithEntry(&app::states::hv_state);
 
     app::can_rx::CRIT_StartButton_update(SwitchState::OFF);
@@ -609,6 +639,7 @@ TEST_F(VCStateMachineTest, NoTransitionWithoutBrakeAndStart)
 
 TEST_F(VCStateMachineTest, fault_and_open_irs_gives_fault_state)
 {
+    app::can_rx::BMS_State_update(BmsState::BMS_DRIVE_STATE);
     SetStateWithEntry(&app::states::hv_state);
 
     app::can_rx::BMS_IrNegative_update(ContactorState::CONTACTOR_STATE_OPEN);
@@ -620,6 +651,7 @@ TEST_F(VCStateMachineTest, fault_and_open_irs_gives_fault_state)
 
 TEST_F(VCStateMachineTest, NoTransitionWithoutBrakeEvenIfStart)
 {
+    app::can_rx::BMS_State_update(BmsState::BMS_DRIVE_STATE);
     SetStateWithEntry(&app::states::hv_state);
 
     app::can_rx::CRIT_StartButton_update(SwitchState::OFF);
@@ -658,6 +690,7 @@ TEST_F(VCStateMachineTest, RegenSwitchOffSetsNotAvailable)
 
 TEST_F(VCStateMachineTest, EntryInitializesPcmOn)
 {
+    app::can_rx::BMS_State_update(BmsState::BMS_DRIVE_STATE);
     SetStateWithEntry(&app::states::pcmOn_state);
 
     EXPECT_EQ(app::can_tx::VC_State_get(), VCState::VC_PCM_ON_STATE);
@@ -667,6 +700,7 @@ TEST_F(VCStateMachineTest, EntryInitializesPcmOn)
 
 TEST_F(VCStateMachineTest, InverterRetryOneFaultedInverterFromInvOn)
 {
+    app::can_rx::BMS_State_update(BmsState::BMS_DRIVE_STATE);
     SetStateWithEntry(&app::states::inverterOn_state);
 
     app::can_rx::INVFL_bError_update(true);
@@ -680,6 +714,7 @@ TEST_F(VCStateMachineTest, InverterRetryOneFaultedInverterFromInvOn)
 
 TEST_F(VCStateMachineTest, InverterFaultLockout)
 {
+    app::can_rx::BMS_State_update(BmsState::BMS_DRIVE_STATE);
     SetStateWithEntry(&app::states::drive_state);
 
     app::can_rx::INVFL_bError_update(true);
@@ -692,6 +727,7 @@ TEST_F(VCStateMachineTest, InverterFaultLockout)
 
 TEST_F(VCStateMachineTest, InverterRetryRecovered)
 {
+    app::can_rx::BMS_State_update(BmsState::BMS_DRIVE_STATE);
     SetStateWithEntry(&app::states::drive_state);
 
     app::can_rx::INVFL_bError_update(true);
@@ -746,6 +782,7 @@ TEST_F(VCStateMachineTest, InverterRetryTwoFaultsInaRow)
 
 TEST_F(VCStateMachineTest, GoodVoltageTransitionsToHvInit)
 {
+    app::can_rx::BMS_State_update(BmsState::BMS_DRIVE_STATE);
     SetStateWithEntry(&app::states::pcmOn_state);
     app::can_tx::VC_PcmChannelVoltage_set(20.0f);
 

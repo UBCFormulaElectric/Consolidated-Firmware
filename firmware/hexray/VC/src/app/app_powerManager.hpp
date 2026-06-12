@@ -29,7 +29,7 @@ template <typename T> struct Efuses
 
     std::span<const T> as_span() const
     {
-        return std::span{ reinterpret_cast<const T *>(this), sizeof(this) / sizeof(T) };
+        return std::span{ reinterpret_cast<const T *>(this), sizeof(*this) / sizeof(T) };
     }
 
     T operator[](size_t idx) const
