@@ -469,14 +469,14 @@ void segmentHealthError(const health::Snapshot &health)
     segment_health_errors_buffer.send();
 }
 
-void max_voltage_cell(const CellParam<float> &max)
+void maxVoltageCell(const CellParam<float> &max)
 {
     can_tx::BMS_MaxCellVoltage_set(max.value);
     can_tx::BMS_MaxCellVoltageSegment_set(max.segment);
     can_tx::BMS_MaxCellVoltageCell_set(max.cell);
 }
 
-void min_voltage_cell(const CellParam<float> &min)
+void minVoltageCell(const CellParam<float> &min)
 {
     can_tx::BMS_MinCellVoltage_set(min.value);
     can_tx::BMS_MinCellVoltageSegment_set(min.segment);

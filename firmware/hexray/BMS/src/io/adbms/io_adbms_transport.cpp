@@ -3,11 +3,15 @@
 #include "io_adbms_cmdcount.hpp"
 #include "io_adbms_protocol.hpp"
 #include "util_errorCodes.hpp"
+#include "io_semaphore.hpp"
 
 #include <algorithm>
 #include <cstring>
 
 using namespace std;
+
+// Guards io::adbms internal state (command-count mismatches, SPI bus reach) read via io::adbms::misc.
+io::semaphore internal_lock{ true };
 
 namespace io::adbms
 {

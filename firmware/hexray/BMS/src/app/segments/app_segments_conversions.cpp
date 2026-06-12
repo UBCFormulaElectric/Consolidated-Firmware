@@ -94,4 +94,5 @@ Cells<result<float>> conversion::cellOwcVoltages()
     }
     return out_cell_owc;
 }
+
 } // namespace app::segments

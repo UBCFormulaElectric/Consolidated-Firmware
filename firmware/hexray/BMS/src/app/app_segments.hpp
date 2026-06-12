@@ -19,6 +19,8 @@ inline constexpr uint8_t AUX_CONV_TIME_MS            = 18U;
 extern io::semaphore spi_bus_lock;
 extern io::semaphore health_lock;
 extern io::semaphore shared_lock;
+// Guards io::adbms internal state (command-count mismatches, SPI bus reach).
+extern io::semaphore internal_lock;
 
 namespace app::segments
 {
@@ -127,8 +129,8 @@ namespace broadcast
     } // namespace debug
 
     void segmentHealthError(const health::Snapshot &health);
-    void max_voltage_cell(const CellParam<float> &max);
-    void min_voltage_cell(const CellParam<float> &min);
+    void maxVoltageCell(const CellParam<float> &max);
+    void minVoltageCell(const CellParam<float> &min);
     void maxTempCell(const CellParam<float> &max);
     void minTempCell(const CellParam<float> &min);
     void maxVoltageSeg(const SegmentParam<float> &max);
@@ -165,11 +167,12 @@ namespace shared
 // app_segments_alerts.cpp
 namespace alerts
 {
-    void init();.
+    void init();
     bool tick();
 } // namespace alerts
 
-namespace startContinuous {
+namespace startContinuous
+{
     [[nodiscard]] result<void> secondaryCellAdc(io::adbms::OpenWireSwitch owcSwitch);
     [[nodiscard]] result<void> cellAdc();
 } // namespace startContinuous
