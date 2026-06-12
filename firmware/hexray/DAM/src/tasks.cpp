@@ -7,6 +7,7 @@
 
 #include "app_jsoncan.hpp"
 #include "app_canTx.hpp"
+#include "app_canUtils.hpp"
 #include "app_canAlerts.hpp"
 #include "app_canDataCapture.hpp"
 #include "app_epochClock.hpp"
@@ -339,6 +340,20 @@ void tasks_runCanRx(void *arg)
             // so the on-disk layout matches the shared Quintuna format and can
             // be decoded by firmware/logfs/python/logfs/can_logger.py.
             (void)log_queue.push(can_msg);
+        }
+        // Special alerts: aperiodic frames without data_capture still need telem forwarding.
+        if (can_msg.std_id == app::can_utils::CRIT_TelemMarkEvent_Signals::MSG_ID)
+        {
+            const auto epoch_ms = app::epochClock::getEpochMsFast();
+            if (epoch_ms)
+            {
+                (void)telem_tx_queue.push(io::telemMessage::TelemCanMsg(can_msg, *epoch_ms));
+            }
+            else
+            {
+                LOG_WARN(
+                    "telem RX timestamp unavailable, dropping CAN 0x%03lX", static_cast<unsigned long>(can_msg.std_id));
+            }
         }
     }
 }
