@@ -2123,7 +2123,7 @@
       }
     }
   },
-  "CellOpenWireCheck": {
+  "CellOpenWireCheckOk": {
     "msg_id": 431,
     "cycle_time": null,
     "allowed_modes": [
@@ -3433,7 +3433,7 @@
       }
     }
   },
-  "ThermistorOpenWireCheck": {
+  "ThermistorOpenWireCheckOk": {
     "msg_id": 432,
     "cycle_time": null,
     "allowed_modes": [

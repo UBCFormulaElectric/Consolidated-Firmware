@@ -16,9 +16,9 @@ CellParam<float>     latest_max_cell_voltage{};
 CellParam<float> latest_max_therm_temperature{};
 CellParam<float> latest_min_therm_temperature{};
 
-Cells<result<bool>> latest_cell_owc{};
+Cells<result<bool>> latest_cell_owc_ok{};
 
-Therms<result<bool>> latest_therm_owc{};
+Therms<result<bool>> latest_therm_owc_ok{};
 
 SegmentParam<float> latest_max_segment_voltage{};
 SegmentParam<float> latest_min_segment_voltage{};
@@ -62,16 +62,16 @@ CellParam<float> getMaxCellTemperature()
     return latest_max_therm_temperature;
 }
 
-Cells<result<bool>> getLatestCellOwc()
+Cells<result<bool>> getLatestCellOwcOk()
 {
     assert(shared_lock.is_held());
-    return latest_cell_owc;
+    return latest_cell_owc_ok;
 }
 
-Therms<result<bool>> getLatestThermOwc()
+Therms<result<bool>> getLatestThermOwcOk()
 {
     assert(shared_lock.is_held());
-    return latest_therm_owc;
+    return latest_therm_owc_ok;
 }
 
 SegmentParam<float> getMinSegmentVoltage()
@@ -92,10 +92,10 @@ result<float> getPackVoltage()
     return pack_voltage;
 }
 
-void setCellOwc(const Cells<result<bool>> &latest)
+void setCellOwcOk(const Cells<result<bool>> &latest)
 {
     assert(shared_lock.is_held());
-    latest_cell_owc = latest;
+    latest_cell_owc_ok = latest;
 }
 
 void setVoltageStats(const Cells<result<float>> &latest)
@@ -123,10 +123,10 @@ void setVoltageStats(const Cells<result<float>> &latest)
     latest_max_cell_voltage = max;
 }
 
-void setThermistorOwc(const Therms<result<bool>> &latest)
+void setThermistorOwcOk(const Therms<result<bool>> &latest)
 {
     assert(shared_lock.is_held());
-    latest_therm_owc = latest;
+    latest_therm_owc_ok = latest;
 }
 
 void setTemperatureStats(const Therms<result<float>> &latest)

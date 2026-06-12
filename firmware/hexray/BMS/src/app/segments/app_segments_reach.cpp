@@ -8,7 +8,12 @@ using io::adbms::Segments;
 
 Segments<result<bool>> check()
 {
-    return {};
+    Segments<result<bool>> out;
+    for (uint8_t seg = 0U; seg < NUM_SEGMENTS; seg++)
+    {
+        out[seg] = true;
+    }
+    return out;
 }
 
 } // namespace app::segments::reach

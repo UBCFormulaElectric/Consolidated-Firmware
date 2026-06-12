@@ -81,10 +81,10 @@ bool isCellOvertempFault()
 bool anyCellOpenWire()
 {
     assert(shared_lock.is_held());
-    for (const io::adbms::Cells<result<bool>>         cells = app::segments::shared::getLatestCellOwc();
+    for (const io::adbms::Cells<result<bool>>         cells = app::segments::shared::getLatestCellOwcOk();
          const io::adbms::SegmentCells<result<bool>> &segment : cells)
         for (const auto &cell : segment)
-            if (cell.has_value() && cell.value())
+            if (cell.has_value() && !cell.value()) // value()==false => open wire detected
                 return true;
     return false;
 }
@@ -92,10 +92,10 @@ bool anyCellOpenWire()
 bool anyThermOpenWire()
 {
     assert(shared_lock.is_held());
-    for (const io::adbms::Therms<result<bool>>         therms = app::segments::shared::getLatestThermOwc();
+    for (const io::adbms::Therms<result<bool>>         therms = app::segments::shared::getLatestThermOwcOk();
          const io::adbms::SegmentTherms<result<bool>> &segment : therms)
         for (const auto &therm : segment)
-            if (therm.has_value() && therm.value())
+            if (therm.has_value() && !therm.value()) // value()==false => open wire detected
                 return true;
     return false;
 }
@@ -139,7 +139,7 @@ Timer startup_blanking{ STARTUP_BLANKING_MS };
 bool runEntries(const std::span<Entry> entries)
 {
     bool any_fired = false;
-    for (auto [cond, setter, timer] : entries)
+    for (auto &[cond, setter, timer] : entries)
     {
         const bool fired = timer.runIfCondition(cond()) == Timer::TimerState::EXPIRED;
         setter(fired);
@@ -153,11 +153,11 @@ namespace app::segments::alerts
 {
 void init()
 {
-    for (auto [_c, _s, t] : warning_entries)
+    for (auto &[_c, _s, t] : warning_entries)
         t.stop();
-    for (auto [_c, _s, t] : fault_entries)
+    for (auto &[_c, _s, t] : fault_entries)
         t.stop();
-    for (auto [_c, _s, t] : info_entries)
+    for (auto &[_c, _s, t] : info_entries)
         t.stop();
     startup_blanking.restart();
 }

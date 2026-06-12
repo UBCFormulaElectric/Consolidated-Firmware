@@ -244,12 +244,15 @@ void tasks_runAdbmsVoltages(void *arg)
 void tasks_runAdbmsConfigs(void *arg)
 {
     constexpr uint32_t period_ms = 100U;
+    uint32_t       start_ticks = osKernelGetTickCount();
 
     forever
     {
         SEGGER_SYSVIEW_MarkStart(0xbb);
         jobs_runAdbmsConfigs_tick();
         SEGGER_SYSVIEW_MarkStop(0xbb);
+        start_ticks += period_ms;
+        osDelayUntil(start_ticks);
     }
 }
 

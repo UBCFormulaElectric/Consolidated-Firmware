@@ -30,7 +30,7 @@ void updateCellsToBalance()
 {
     const Cells<result<float>> cell_voltages                   = app::segments::shared::getLatestVoltages();
     const auto [min_cell_seg, min_cell_cell, min_cell_voltage] = app::segments::shared::getMinCellVoltage();
-    const Cells<result<bool>> cell_owc                         = app::segments::shared::getLatestCellOwc();
+    const Cells<result<bool>> cell_owc_ok                      = app::segments::shared::getLatestCellOwcOk();
 
     for (uint8_t seg = 0; seg < NUM_SEGMENTS; seg++)
     {
@@ -39,7 +39,7 @@ void updateCellsToBalance()
         bool segment_ok = true;
         for (uint8_t cell = 0; cell < CELLS_PER_SEGMENT; cell++)
         {
-            if (!cell_voltages[seg][cell] || !cell_owc[seg][cell].value_or(false))
+            if (!cell_voltages[seg][cell] || !cell_owc_ok[seg][cell].value_or(false))
             {
                 segment_ok = false;
                 break;

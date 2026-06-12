@@ -116,17 +116,12 @@ void jobs_run100Hz_tick()
 #endif
     using FaultLatchState = io::FaultLatch::FaultLatchState;
     bms_ok_latch.setCurrentStatus(acc_fault ? FaultLatchState::FAULT : FaultLatchState::OK);
-    bms_ok_latch.setCurrentStatus(FaultLatchState::OK);
     app::latches::broadcast();
 
     // Update CAN signals for BMS latch statuses.
     const bool imd_latched_ok  = imd_ok_latch.getLatchedStatus() == FaultLatchState::OK;
     const bool bspd_latched_ok = bspd_ok_latch.getLatchedStatus() == FaultLatchState::OK;
     const bool bms_latched_ok  = bms_ok_latch.getLatchedStatus() == FaultLatchState::OK;
-
-    app::can_alerts::faults::ImdLatched_set(not imd_latched_ok);
-    app::can_alerts::faults::HardwareBspdLatched_set(not bspd_latched_ok);
-    app::can_alerts::faults::BmsLatched_set(not bms_latched_ok);
 
     app::can_tx::BMS_BmsCurrentlyOk_set(bms_ok_latch.getCurrentStatus() == FaultLatchState::OK);
     app::can_tx::BMS_ImdCurrentlyOk_set(imd_ok_latch.getCurrentStatus() == FaultLatchState::OK);
@@ -243,16 +238,25 @@ void jobs_runAdbmsVoltages_tick()
     LOG_INFO("Starting voltage readings");
     LOG_IF_ERR(io::adbms::clear::cell());
 
-    result<void> cell_voltages_start_ok = io::adbms::command::startCellsAdc();
+    const result<void> cell_voltage_start_ok = io::adbms::command::startCellsAdc();
     {
         const io::unique_semaphore h{ health_lock };
         app::segments::health::setOrResetAll(
-            app::segments::health::ErrorBit::CELL_ADC_START, not cell_voltages_start_ok);
+            app::segments::health::ErrorBit::CELL_ADC_START, not cell_voltage_start_ok);
+    }
+    if (not cell_voltage_start_ok)
+    {
+        app::segments::broadcast::debug::cellVoltages(Cells<result<float>>{}, cell_voltage_start_ok);
+        return;
     }
 
-    if (not cell_voltages_start_ok)
+    const result<void> cell_voltage_poll_ok = io::adbms::command::pollCellsAdc();
     {
-        app::segments::broadcast::debug::cellVoltages(Cells<result<float>>{}, cell_voltages_start_ok);
+        const io::unique_semaphore h{ health_lock };
+        app::segments::health::setOrResetAll(app::segments::health::ErrorBit::AUX_ADC_POLL, not cell_voltage_poll_ok);
+    }
+    if (not cell_voltage_poll_ok){
+        app::segments::broadcast::debug::cellVoltages(Cells<result<float>>{}, cell_voltage_poll_ok);
         return;
     }
 
@@ -296,15 +300,27 @@ void jobs_runAdbmsCellOwc_tick()
     for (const OpenWireSwitch channel : { OpenWireSwitch::ODD_CHANNELS, OpenWireSwitch::EVEN_CHANNELS })
     {
         LOG_IF_ERR(io::adbms::clear::secondaryCell());
-        const auto owc_start_ok = io::adbms::command::owcCells(channel);
+
+        const auto owc_voltage_start_ok = io::adbms::command::owcCells(channel);
         {
             const io::unique_semaphore h{ health_lock };
-            app::segments::health::setOrResetAll(app::segments::health::ErrorBit::OWC_ADC_START, not owc_start_ok);
+            app::segments::health::setOrResetAll(app::segments::health::ErrorBit::OWC_ADC_START, not owc_voltage_start_ok);
+        }
+        if (not owc_voltage_start_ok)
+        {
+            app::segments::broadcast::debug::cellOwcOk(Cells<result<bool>>{}, owc_voltage_start_ok);
+            return;
         }
 
-        if (not owc_start_ok)
+        const auto owc_voltage_poll_ok = io::adbms::command::pollSecondaryCellsAdc();
         {
-            app::segments::broadcast::debug::cellOwc(Cells<result<bool>>{}, owc_start_ok);
+            const io::unique_semaphore h{ health_lock };
+            app::segments::health::setOrResetAll(
+                app::segments::health::ErrorBit::AUX_ADC_POLL, not owc_voltage_poll_ok);
+        }
+        if (not owc_voltage_poll_ok)
+        {
+            app::segments::broadcast::debug::cellOwcOk(Cells<result<bool>>{}, owc_voltage_poll_ok);
             return;
         }
 
@@ -326,11 +342,11 @@ void jobs_runAdbmsCellOwc_tick()
         }
     }
 
-    const Cells<result<bool>> cell_owc = app::segments::calculate::cellOwc(owc_voltages);
+    const Cells<result<bool>> cell_owc_ok = app::segments::calculate::cellOwcOk(owc_voltages);
 
     {
         io::unique_semaphore s{ shared_lock };
-        app::segments::shared::setCellOwc(cell_owc);
+        app::segments::shared::setCellOwcOk(cell_owc_ok);
     }
 
     app::segments::health::Snapshot health;
@@ -340,7 +356,7 @@ void jobs_runAdbmsCellOwc_tick()
     }
 
     app::segments::broadcast::segmentHealthError(health);
-    app::segments::broadcast::debug::cellOwc(cell_owc, result<void>{});
+    app::segments::broadcast::debug::cellOwcOk(cell_owc_ok, result<void>{});
 }
 
 void jobs_runAdbmsAux_tick()
@@ -369,7 +385,7 @@ void jobs_runAdbmsAux_tick()
         if (not therm_voltage_start_ok)
         {
             app::segments::broadcast::debug::thermTemps(Therms<result<float>>{}, therm_voltage_start_ok);
-            app::segments::broadcast::debug::thermOwc(Therms<result<bool>>{}, therm_voltage_start_ok);
+            app::segments::broadcast::debug::thermOwcOk(Therms<result<bool>>{}, therm_voltage_start_ok);
             return;
         }
 
@@ -382,7 +398,7 @@ void jobs_runAdbmsAux_tick()
         if (not therm_voltage_poll_ok)
         {
             app::segments::broadcast::debug::thermTemps(Therms<result<float>>{}, therm_voltage_poll_ok);
-            app::segments::broadcast::debug::thermOwc(Therms<result<bool>>{}, therm_voltage_poll_ok);
+            app::segments::broadcast::debug::thermOwcOk(Therms<result<bool>>{}, therm_voltage_poll_ok);
             return;
         }
 
@@ -393,7 +409,7 @@ void jobs_runAdbmsAux_tick()
     const Segments<io::adbms::StatusGroupsRes> status       = io::adbms::read::status();
 
     const Therms<result<float>> therm_temps = app::segments::calculate::thermTemps(therm_voltages);
-    const Therms<result<bool>>  therm_owc   = app::segments::calculate::thermOwc(therm_voltages);
+    const Therms<result<bool>>  therm_owc_ok = app::segments::calculate::thermOwcOk(therm_voltages);
 
     result<float>                      pack_voltage;
     app::segments::CellParam<float>    max_temp;
@@ -402,7 +418,7 @@ void jobs_runAdbmsAux_tick()
     app::segments::SegmentParam<float> min_voltage;
     {
         io::unique_semaphore s{ shared_lock };
-        app::segments::shared::setThermistorOwc(therm_owc);
+        app::segments::shared::setThermistorOwcOk(therm_owc_ok);
         app::segments::shared::setTemperatureStats(therm_temps);
         app::segments::shared::setSegmentVoltageStats(seg_voltages);
         pack_voltage = app::segments::shared::getPackVoltage();
@@ -424,7 +440,7 @@ void jobs_runAdbmsAux_tick()
     app::segments::broadcast::segmentVoltageStats(min_voltage, max_voltage);
 
     app::segments::broadcast::debug::thermTemps(therm_temps, result<void>{});
-    app::segments::broadcast::debug::thermOwc(therm_owc, result<void>{});
+    app::segments::broadcast::debug::thermOwcOk(therm_owc_ok, result<void>{});
     app::segments::broadcast::debug::segVoltages(seg_voltages);
     app::segments::broadcast::debug::status(status);
 }

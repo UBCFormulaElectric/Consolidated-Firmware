@@ -81,10 +81,10 @@ BroadcastBuffer<bool, MAX_NUM_SEGMENTS * CELLS_PER_SEGMENT, io::can_tx::BMS_Cell
     cell_ov_buffer(app::can_tx::BMS_CellOverVoltage_getData());
 BroadcastBuffer<bool, MAX_NUM_SEGMENTS * CELLS_PER_SEGMENT, io::can_tx::BMS_CellUnderVoltage_sendAperiodic>
     cell_uv_buffer(app::can_tx::BMS_CellUnderVoltage_getData());
-BroadcastBuffer<bool, MAX_NUM_SEGMENTS * CELLS_PER_SEGMENT, io::can_tx::BMS_CellOpenWireCheck_sendAperiodic>
-    cell_owc_ok_buffer(app::can_tx::BMS_CellOpenWireCheck_getData());
-BroadcastBuffer<bool, MAX_NUM_SEGMENTS * CELLS_PER_SEGMENT, io::can_tx::BMS_ThermistorOpenWireCheck_sendAperiodic>
-    therm_owc_ok_buffer(app::can_tx::BMS_ThermistorOpenWireCheck_getData());
+BroadcastBuffer<bool, MAX_NUM_SEGMENTS * CELLS_PER_SEGMENT, io::can_tx::BMS_CellOpenWireCheckOk_sendAperiodic>
+    cell_owc_ok_buffer(app::can_tx::BMS_CellOpenWireCheckOk_getData());
+BroadcastBuffer<bool, MAX_NUM_SEGMENTS * CELLS_PER_SEGMENT, io::can_tx::BMS_ThermistorOpenWireCheckOk_sendAperiodic>
+    therm_owc_ok_buffer(app::can_tx::BMS_ThermistorOpenWireCheckOk_getData());
 BroadcastBuffer<bool, MAX_NUM_SEGMENTS * CELLS_PER_SEGMENT, io::can_tx::BMS_CellDischargeEnabled_sendAperiodic>
     cell_discharge_enabled_buffer(app::can_tx::BMS_CellDischargeEnabled_getData());
 
@@ -194,7 +194,7 @@ namespace debug
         cell_voltage_error_setters.send();
     }
 
-    void cellOwc(const Cells<result<bool>> &owc_results, const result<void> &poll_ok)
+    void cellOwcOk(const Cells<result<bool>> &owc_results, const result<void> &poll_ok)
     {
         if (!poll_ok)
         {
@@ -279,7 +279,7 @@ namespace debug
         cell_temperature_error_setters.send();
     }
 
-    void thermOwc(const Therms<result<bool>> &therm_owc, const result<void> &poll_ok)
+    void thermOwcOk(const Therms<result<bool>> &therm_owc, const result<void> &poll_ok)
     {
         if (!poll_ok)
         {

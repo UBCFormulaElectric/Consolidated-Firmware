@@ -117,10 +117,10 @@ namespace broadcast
     {
         void cellVoltages(const io::adbms::Cells<result<float>> &voltages, const result<void> &poll_ok);
         void thermTemps(const io::adbms::Therms<result<float>> &temps, const result<void> &poll_ok);
-        void thermOwc(const io::adbms::Therms<result<bool>> &therm_owc, const result<void> &poll_ok);
+        void thermOwcOk(const io::adbms::Therms<result<bool>> &therm_owc, const result<void> &poll_ok);
         void segVoltages(const io::adbms::Segments<result<float>> &seg_voltages);
         void status(const io::adbms::Segments<io::adbms::StatusGroupsRes> &status);
-        void cellOwc(const io::adbms::Cells<result<bool>> &owc_results, const result<void> &poll_ok);
+        void cellOwcOk(const io::adbms::Cells<result<bool>> &owc_results, const result<void> &poll_ok);
         void balancing(const io::adbms::Cells<bool> &discharge_enabled, const io::adbms::Cells<uint8_t> &pwm_duty);
     } // namespace debug
 
@@ -141,15 +141,15 @@ namespace shared
     CellParam<float>                getMaxCellVoltage();
     CellParam<float>                getMinCellTemperature();
     CellParam<float>                getMaxCellTemperature();
-    io::adbms::Cells<result<bool>>  getLatestCellOwc();
-    io::adbms::Therms<result<bool>> getLatestThermOwc();
+    io::adbms::Cells<result<bool>>  getLatestCellOwcOk();
+    io::adbms::Therms<result<bool>> getLatestThermOwcOk();
     SegmentParam<float>             getMinSegmentVoltage();
     SegmentParam<float>             getMaxSegmentVoltage();
     result<float>                   getPackVoltage();
 
-    void setCellOwc(const io::adbms::Cells<result<bool>> &owc);
+    void setCellOwcOk(const io::adbms::Cells<result<bool>> &owc);
     void setVoltageStats(const io::adbms::Cells<result<float>> &latest);
-    void setThermistorOwc(const io::adbms::Therms<result<bool>> &owc);
+    void setThermistorOwcOk(const io::adbms::Therms<result<bool>> &owc);
     void setTemperatureStats(const io::adbms::Therms<result<float>> &latest);
     void setSegmentVoltageStats(const io::adbms::Segments<result<float>> &latest);
 } // namespace shared
@@ -173,13 +173,13 @@ namespace conversion
 // app_segments_calculation.cpp
 namespace calculate
 {
-    io::adbms::Cells<result<bool>> cellOwc(
+    io::adbms::Cells<result<bool>> cellOwcOk(
         const std::array<io::adbms::Cells<result<float>>, static_cast<size_t>(io::adbms::OpenWireSwitch::CHANNEL_COUNT)>
             &owc_voltages);
     io::adbms::Therms<result<float>> thermTemps(
         const std::array<io::adbms::ThermGpios<result<float>>, static_cast<size_t>(ThermistorMux::THERMISTOR_MUX_COUNT)>
             &therm_voltages);
-    io::adbms::Therms<result<bool>> thermOwc(
+    io::adbms::Therms<result<bool>> thermOwcOk(
         const std::array<io::adbms::ThermGpios<result<float>>, static_cast<size_t>(ThermistorMux::THERMISTOR_MUX_COUNT)>
             &therm_voltages);
 } // namespace calculate
