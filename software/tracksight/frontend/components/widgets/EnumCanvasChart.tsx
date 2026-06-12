@@ -6,6 +6,7 @@ import render, { CHART_PADDING, render_empty } from "@/components/widgets/render
 import { useSignalDataStores } from "@/lib/contexts/signalStores/SignalStoreContext";
 import { useCanvasHover } from "@/lib/hooks/useCanvasHover";
 import { useCanvasRenderLoop } from "@/lib/hooks/useCanvasRenderLoop";
+import { getVisibleTelemetryMarkers } from "@/lib/telemetryMarkers";
 import { EnumTimelineWidgetData } from "@/lib/types/Widget";
 import { useRef } from "react";
 
@@ -52,7 +53,8 @@ export default function EnumCanvasChart({ id, options, signals, hoveredSignal, o
             {
                 min: XToTime(CHART_PADDING.left),
                 max: XToTime(cssWidth - CHART_PADDING.right),
-            }
+            },
+            getVisibleTelemetryMarkers(XToTime(CHART_PADDING.left), XToTime(cssWidth - CHART_PADDING.right))
         );
     });
 
