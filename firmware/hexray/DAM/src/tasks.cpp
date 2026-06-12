@@ -51,21 +51,20 @@ static hw::rtos::StaticTask::StaticTaskStack<512>  TaskCanRxStack;
 static hw::rtos::StaticTask::StaticTaskStack<512>  Task1kHzStack;
 static hw::rtos::StaticTask::StaticTaskStack<512>  Task1HzStack;
 static hw::rtos::StaticTask::StaticTaskStack<1024> TaskLoggingStack;
-static hw::rtos::StaticTask::StaticTaskStack<512>  TaskTelemStack;
 static hw::rtos::StaticTask::StaticTaskStack<512>  TaskTelemRxStack;
 static hw::rtos::StaticTask::StaticTaskStack<512>  TaskTelemParseStack;
 static hw::rtos::StaticTask::StaticTaskStack<512>  TaskTelemTxStack;
 
-static hw::rtos::StaticTask Task100Hz(osPriorityRealtime, "Task100Hz", tasks_run100Hz, Task100HzStack);
-static hw::rtos::StaticTask TaskCanTx(osPriorityAboveNormal, "TaskCanTx", tasks_runCanTx, TaskCanTxStack);
-static hw::rtos::StaticTask TaskCanRx(osPriorityHigh, "TaskCanRx", tasks_runCanRx, TaskCanRxStack);
-static hw::rtos::StaticTask Task1kHz(osPriorityBelowNormal, "Task1kHz", tasks_run1kHz, Task1kHzStack);
-static hw::rtos::StaticTask Task1Hz(osPriorityBelowNormal, "Task1Hz", tasks_run1Hz, Task1HzStack);
+static hw::rtos::StaticTask Task1kHz(osPriorityRealtime, "Task1kHz", tasks_run1kHz, Task1kHzStack);
+static hw::rtos::StaticTask Task100Hz(osPriorityHigh, "Task100Hz", tasks_run100Hz, Task100HzStack);
+static hw::rtos::StaticTask Task1Hz(osPriorityAboveNormal, "Task1Hz", tasks_run1Hz, Task1HzStack);
+static hw::rtos::StaticTask TaskCanRx(osPriorityNormal, "TaskCanRx", tasks_runCanRx, TaskCanRxStack);
+static hw::rtos::StaticTask TaskCanTx(osPriorityNormal, "TaskCanTx", tasks_runCanTx, TaskCanTxStack);
 static hw::rtos::StaticTask TaskLogging(osPriorityBelowNormal, "TaskLogging", tasks_runLogging, TaskLoggingStack);
-static hw::rtos::StaticTask TaskTelemRx(osPriorityHigh, "TaskTelemRx", tasks_runTelemRx, TaskTelemRxStack);
+static hw::rtos::StaticTask TaskTelemRx(osPriorityBelowNormal, "TaskTelemRx", tasks_runTelemRx, TaskTelemRxStack);
 static hw::rtos::StaticTask
     TaskTelemParse(osPriorityBelowNormal, "TaskTelemParse", tasks_runTelemParse, TaskTelemParseStack);
-static hw::rtos::StaticTask TaskTelemTx(osPriorityHigh, "TaskTelemTx", tasks_runTelemTx, TaskTelemTxStack);
+static hw::rtos::StaticTask TaskTelemTx(osPriorityBelowNormal, "TaskTelemTx", tasks_runTelemTx, TaskTelemTxStack);
 
 static hw::runtimeStat::monitor<TASK_COUNT> runtimeMonitor{
     { app::can_tx::DAM_CoreCpuUsage_set, app::can_tx::DAM_CoreCpuUsageMax_set },

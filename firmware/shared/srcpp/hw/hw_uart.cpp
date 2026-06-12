@@ -88,7 +88,10 @@ result<void> hw::Uart::waitForTxNotification(const uint32_t timeoutMs) const
     if (const bool transaction_timed_out = num_notifications; transaction_timed_out == 0)
     {
         // If the transaction didn't complete within the timeout, manually abort it.
-        (void)HAL_UART_AbortTransmit_IT(&handle);
+        if (handle.hdmatx != nullptr)
+            (void)HAL_UART_AbortTransmit(&handle);
+        else
+            (void)HAL_UART_AbortTransmit_IT(&handle);
         LOG_WARN("UART transaction timed out");
         return std::unexpected(ErrorCode::TIMEOUT);
     }
@@ -121,7 +124,14 @@ result<void> hw::Uart::transmit(const std::span<const uint8_t> tx, const uint32_
     txTaskInProgress = xTaskGetCurrentTaskHandle();
     last_write_fault = false;
 
-    auto exit = utils::convertHalStatus(HAL_UART_Transmit_IT(&handle, tx.data(), static_cast<uint16_t>(tx.size())));
+    // Use DMA when a TX DMA channel is linked for this UART (configured in the
+    // board's CubeMX MSP); otherwise fall back to interrupt-driven TX. DMA keeps
+    // the per-frame ISR cost flat as the baud rate scales, instead of taking a
+    // FIFO interrupt every few bytes.
+    auto exit =
+        (handle.hdmatx != nullptr)
+            ? utils::convertHalStatus(HAL_UART_Transmit_DMA(&handle, tx.data(), static_cast<uint16_t>(tx.size())))
+            : utils::convertHalStatus(HAL_UART_Transmit_IT(&handle, tx.data(), static_cast<uint16_t>(tx.size())));
     if (not exit.has_value())
     {
         // Mark this transaction as no longer in progress.

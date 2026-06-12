@@ -113,6 +113,7 @@ if ("${TARGET}" STREQUAL "binary")
             "stm32h5xx_hal_rtc_ex.c"
             "stm32h5xx_hal_iwdg.c"
             "stm32h5xx_hal_dma.c"
+            "stm32h5xx_hal_dma_ex.c"
     )
     set(CUBEMX_INCLUDE_DIRS_ ${CUBEMX_INCLUDE_DIRS} ${SYSTEM_INCLUDE_DIRS})
     stm32h562xx_cube_library(

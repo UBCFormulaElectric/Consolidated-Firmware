@@ -109,6 +109,28 @@ void jobs_initLogFs()
 
 void jobs_run1Hz_tick()
 {
+    // DEBUG: re-send the bootup frame once, ~5s after boot, to test whether a delayed
+    // copy survives the telem path when the boot-time copy (sent in jobs_init) doesn't.
+    static uint32_t seconds_since_boot = 0;
+    if (++seconds_since_boot == 5U)
+    {
+        LOG_INFO("debug: re-sending DAM_Bootup at t=%lus", static_cast<unsigned long>(seconds_since_boot));
+        io::can_tx::DAM_Bootup_sendAperiodic();
+    }
+
+    {
+        static uint32_t last_telem_tx_overflow = 0;
+        const uint32_t  overflow                 = telem_tx_queue.get_overflowCount();
+        if (overflow != last_telem_tx_overflow)
+        {
+            LOG_WARN(
+                "telem_tx_queue overflow count: %lu (+%lu)",
+                static_cast<unsigned long>(overflow),
+                static_cast<unsigned long>(overflow - last_telem_tx_overflow));
+            last_telem_tx_overflow = overflow;
+        }
+    }
+
     app::sd::requestSync();
     io::can_tx::enqueue1HzMsgs();
 }
