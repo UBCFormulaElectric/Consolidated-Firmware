@@ -45,10 +45,13 @@ static hw::rtos::StaticTask::StaticTaskStack<512>  TaskCan1TxStack;
 static hw::rtos::StaticTask::StaticTaskStack<512>  TaskCan2TxStack;
 static hw::rtos::StaticTask::StaticTaskStack<1024> BatteryMonitoringStack;
 static hw::rtos::StaticTask::StaticTaskStack<512>  TaskPowerMonitoringStack;
-// SBG eCom parsing puts a ~4 KB SbgEComLogUnion on the stack per
-// sbgEComHandleOneLog() call, so this task needs a much deeper stack than the
-// other periodic tasks.
-static hw::rtos::StaticTask::StaticTaskStack<4096> TaskSbgEllipseStack;
+// SBG eCom parsing is stack-heavy: sbgEComHandleOneLog() alone uses ~8.2 KB
+// (a raw payload buffer plus the SbgEComLogUnion), and the full call chain
+// (tasks_sbgEllipse -> handleLogs -> sbgEComHandleOneLog -> protocol receive)
+// peaks around ~8.8 KB. With preemption/FPU context-save headroom the floor is
+// ~9 KB (~2304 words); 3072 words (12 KB) leaves a safe margin. Do not shrink
+// below ~2560 words.
+static hw::rtos::StaticTask::StaticTaskStack<3072> TaskSbgEllipseStack;
 
 static hw::rtos::StaticTask Task100Hz(osPriorityHigh, "Task100Hz", tasks_run100Hz, Task100HzStack);
 static hw::rtos::StaticTask Task1kHz(osPriorityRealtime, "Task1kHz", tasks_run1kHz, Task1kHzStack);
