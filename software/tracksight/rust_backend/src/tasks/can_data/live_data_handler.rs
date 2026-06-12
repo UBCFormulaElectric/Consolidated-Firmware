@@ -5,6 +5,7 @@ use tokio::select;
 use tokio::sync::broadcast;
 use tokio::sync::{RwLock, broadcast::Receiver, broadcast::error::RecvError};
 
+use crate::dprintln;
 use crate::utils::yellow;
 use crate::{error_println, tasks::{HealthCheckSender, HealthCheckSenderExt, Task, client_api::subtable_clients::Clients}, vprintln};
 
@@ -18,6 +19,7 @@ pub async fn run_live_data_handler(
     mut shutdown_rx: broadcast::Receiver<()>, 
     health_check_tx: HealthCheckSender,
     mut can_signals_rx: Receiver<DecodedSignal>,
+    mut diag_rx: Receiver<f64>,
     clients: Arc<RwLock<Clients>>
 ) {
     vprintln!("{}", yellow("Live data task started."));
@@ -29,6 +31,28 @@ pub async fn run_live_data_handler(
             _ = shutdown_rx.recv() => {
                 vprintln!("Live data task shutting down.");
                 break;
+            }
+            Ok(error_rate) = diag_rx.recv() => {
+                let rwlock_clients = clients.read().await;
+                let clients = rwlock_clients.get_clients();
+                let client_sockets: Vec<&SocketRef> = clients.iter()
+                    .filter_map(|c| rwlock_clients.get_client_socket(c))
+                    .collect();
+
+                for socket in client_sockets {
+                    match socket.emit(
+                        "diagnostic",
+                        &serde_json::json!({
+                            "type": "error_rate",
+                            "value": error_rate,
+                        })
+                    ) {
+                        Ok(_) => {}
+                        Err(e) => {
+                            error_println!("Diagnostic emit error: {e}");
+                        }
+                    }
+                }
             }
             cs = can_signals_rx.recv() => {
                 match cs {
@@ -58,7 +82,9 @@ pub async fn run_live_data_handler(
                         ) {
                             Ok(_) => {}
                             Err(e) => {
-                                error_println!("{e}");
+                                // error when attempting to send data to client socket,
+                                // likely due to client socket connection problems.
+                                dprintln!("{e}");
                             }
                         }
                     }

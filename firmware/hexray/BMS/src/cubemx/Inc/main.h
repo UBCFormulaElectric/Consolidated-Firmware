@@ -55,6 +55,7 @@ extern "C"
     extern TIM_HandleTypeDef   htim1;
     extern TIM_HandleTypeDef   htim3;
     extern TIM_HandleTypeDef   htim5;
+    extern TIM_HandleTypeDef   htim7;
     extern PCD_HandleTypeDef   hpcd_USB_OTG_HS;
     /* USER CODE END EC */
 
