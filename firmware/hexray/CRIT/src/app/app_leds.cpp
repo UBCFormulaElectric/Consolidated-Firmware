@@ -5,7 +5,6 @@
 #include "app_brightness.hpp"
 #include "io_leds.hpp"
 #include "app_canAlerts.hpp"
-#include "io_switches.hpp"
 
 namespace app::leds
 {
@@ -85,7 +84,7 @@ void setLeds()
         switches::regen_get(),
         switches::torque_vectoring_get(),
         !can_rx::BMS_ImdCurrentlyOk_get(),
-        io::switches::telem_mark_get(),
+        !can_rx::BMS_BmsCurrentlyOk_get(),
         !can_rx::BMS_BspdCurrentlyOk_get(),
     }));
     LOG_IF_ERR(io::leds::setBrightness(app::brightness));
