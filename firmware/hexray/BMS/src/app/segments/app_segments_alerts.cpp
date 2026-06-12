@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <cassert>
 #include <iterator>
 
 #include "app_segments.hpp"
@@ -37,14 +38,17 @@ float maxTempLimit(const float base_limit)
 
 bool minCellUnder(const float threshold)
 {
+    assert(shared_lock.is_held());
     return app::segments::shared::getMinCellVoltage().value < threshold;
 }
 bool maxCellOver(const float threshold)
 {
+    assert(shared_lock.is_held());
     return app::segments::shared::getMaxCellVoltage().value > threshold;
 }
 bool maxTempOver(const float threshold)
 {
+    assert(shared_lock.is_held());
     return app::segments::shared::getMaxCellTemperature().value > maxTempLimit(threshold);
 }
 
@@ -76,6 +80,7 @@ bool isCellOvertempFault()
 
 bool anyCellOpenWire()
 {
+    assert(shared_lock.is_held());
     for (const io::adbms::Cells<result<bool>>         cells = app::segments::shared::getLatestCellOwc();
          const io::adbms::SegmentCells<result<bool>> &segment : cells)
         for (const auto &cell : segment)
@@ -86,6 +91,7 @@ bool anyCellOpenWire()
 
 bool anyThermOpenWire()
 {
+    assert(shared_lock.is_held());
     for (const io::adbms::Therms<result<bool>>         therms = app::segments::shared::getLatestThermOwc();
          const io::adbms::SegmentTherms<result<bool>> &segment : therms)
         for (const auto &therm : segment)
@@ -96,7 +102,7 @@ bool anyThermOpenWire()
 
 bool anyHealthError()
 {
-    io::unique_semaphore s{ health_lock };
+    assert(health_lock.is_held());    
     for (size_t seg = 0; seg < NUM_SEGMENTS; ++seg)
         if (app::segments::health::getAnyError(seg))
             return true;

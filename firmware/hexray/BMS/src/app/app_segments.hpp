@@ -19,7 +19,6 @@ inline constexpr uint8_t AUX_CONV_TIME_MS            = 18U;
 extern io::semaphore spi_bus_lock;
 extern io::semaphore health_lock;
 extern io::semaphore shared_lock;
-// Guards io::adbms internal state (command-count mismatches, SPI bus reach).
 extern io::semaphore internal_lock;
 
 namespace app::segments
