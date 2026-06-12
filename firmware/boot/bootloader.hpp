@@ -3,7 +3,6 @@
 #include "hw_flash.hpp"
 #include "hw_can.hpp"
 #include "io_queue.hpp"
-#include "io_time.hpp"
 
 #include <cstddef>
 #include <cstring>
