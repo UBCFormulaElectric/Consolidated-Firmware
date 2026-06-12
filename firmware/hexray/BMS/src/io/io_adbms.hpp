@@ -10,7 +10,6 @@
 #include <cstdint>
 #include <cstring>
 #include <expected>
-#include <utility>
 
 // Physical daisy-chain dimensions for this ECU.
 inline constexpr uint8_t NUM_SEGMENTS            = 10;
@@ -207,6 +206,7 @@ struct StatusGroupsRes
     result<STATE> stat_e;
 };
 
+// Base array types. Kept inside io::adbms so generic names don't collide at global scope.
 template <typename T> using Segments          = std::array<T, NUM_SEGMENTS>;
 template <typename T> using SegmentCells      = std::array<T, CELLS_PER_SEGMENT>;
 template <typename T> using SegmentTherms     = std::array<T, THERMISTORS_PER_SEGMENT>;
@@ -214,23 +214,6 @@ template <typename T> using SegmentThermGpios = std::array<T, THERM_GPIOS_PER_SE
 template <typename T> using Cells             = Segments<SegmentCells<T>>;
 template <typename T> using Therms            = Segments<SegmentTherms<T>>;
 template <typename T> using ThermGpios        = Segments<SegmentThermGpios<T>>;
-
-
-enum class IsoSpiMode
-{
-    Forward, // LS only (healthy / break above all segments)
-    Reverse, // HS only (break below all segments)
-    Dual,    // both ends (mid-chain break)
-};
-
-// Snapshot of reversible-isoSPI link health for reporting (e.g. broadcast::spiLinkStats).
-struct SpiBusReach
-{
-    IsoSpiMode mode;             // current drive mode
-    uint8_t    ls_reach;         // segments reachable from the low-side end (from segment 0 up)
-    uint8_t    hs_reach;         // segments reachable from the high-side end (from segment N-1 down)
-    uint32_t   dual_drive_count; // monotonic count of transitions into Dual (mid-chain break) mode
-};
 
 namespace write
 {
@@ -284,8 +267,7 @@ namespace command
     [[nodiscard]] result<void> pollAuxAdc();
     [[nodiscard]] result<void> startBalance();
     [[nodiscard]] result<void> stopBalance();
-    // Wakes both isoSPI transceivers, probes for a break, and selects the drive mode (Forward/Reverse/Dual).
-    [[nodiscard]] result<void> detectBreaks();
+
     [[nodiscard]] result<void> owcCells(OpenWireSwitch owcSwitch);
 } // namespace command
 
@@ -296,12 +278,9 @@ namespace clear
     [[nodiscard]] result<void> cell();
     [[nodiscard]] result<void> secondaryCell();
     [[nodiscard]] result<void> filteredCell();
+    [[nodiscard]] result<void> stat();
 } // namespace clear
 
-namespace misc
-{
-    [[nodiscard]] Segments<uint8_t> getCmdCountMismatches();
-    // Current reversible-isoSPI link health (mode + per-end reachability + dual-drive count).
-    [[nodiscard]] SpiBusReach getSpiBusReach();
-} // namespace misc
+// random bullshit
+Segments<uint8_t> getCmdCountMismatches();
 } // namespace io::adbms

@@ -1,130 +1,28 @@
-#pragma once
-
+#include "io_adbms_internal.hpp"
 #include "io_adbms.hpp"
+#include "util_errorCodes.hpp"
+#include "hw_spis.hpp"
 
 #include <FreeRTOS.h>
 #include <semphr.h>
 
-#include <array>
-#include <span>
+#include <cstring>
+#include <algorithm>
 
 using namespace std;
 
-namespace io::adbms
+namespace
 {
-
-// ============================== ADBMS6830 command set ==============================
-// Transaction framing constants.
-inline constexpr uint8_t CMD_BYTES = 2;
-inline constexpr uint8_t PEC_BYTES = 2;
-
-// Config
-inline constexpr uint16_t WRCFGA = 0x0001U;
-inline constexpr uint16_t WRCFGB = 0x0024U;
-inline constexpr uint16_t RDCFGA = 0x0002U;
-inline constexpr uint16_t RDCFGB = 0x0026U;
-
-// Cell voltages (C-ADC) — A..E only; 14 cells → Group F unused.
-inline constexpr uint16_t RDCVA = 0x0004U;
-inline constexpr uint16_t RDCVB = 0x0006U;
-inline constexpr uint16_t RDCVC = 0x0008U;
-inline constexpr uint16_t RDCVD = 0x000AU;
-inline constexpr uint16_t RDCVE = 0x0009U;
-
-// Redundant cell voltages (S-ADC) — A..E only.
-inline constexpr uint16_t RDSVA = 0x0003U;
-inline constexpr uint16_t RDSVB = 0x0005U;
-inline constexpr uint16_t RDSVC = 0x0007U;
-inline constexpr uint16_t RDSVD = 0x000DU;
-inline constexpr uint16_t RDSVE = 0x000EU;
-
-// Filtered cell voltages — A..E only.
-inline constexpr uint16_t RDFCA = 0x0012U;
-inline constexpr uint16_t RDFCB = 0x0013U;
-inline constexpr uint16_t RDFCC = 0x0014U;
-inline constexpr uint16_t RDFCD = 0x0015U;
-inline constexpr uint16_t RDFCE = 0x0016U;
-
-// AUX & Status
-inline constexpr uint16_t RDAUXA  = 0x0019U;
-inline constexpr uint16_t RDAUXB  = 0x001AU;
-inline constexpr uint16_t RDAUXC  = 0x001BU;
-inline constexpr uint16_t RDAUXD  = 0x001FU;
-inline constexpr uint16_t RDSTATA = 0x0030U;
-inline constexpr uint16_t RDSTATB = 0x0031U;
-inline constexpr uint16_t RDSTATC = 0x0032U;
-inline constexpr uint16_t RDSTATD = 0x0033U;
-inline constexpr uint16_t RDSTATE = 0x0034U;
-inline constexpr uint16_t RDASALL = 0x0035U;
-
-// PWM
-inline constexpr uint16_t WRPWMA = 0x0020U;
-inline constexpr uint16_t WRPWMB = 0x0021U;
-inline constexpr uint16_t RDPWMA = 0x0022U;
-inline constexpr uint16_t RDPWMB = 0x0023U;
-
-// Clear
-inline constexpr uint16_t CLRCELL = 0x0711U;
-inline constexpr uint16_t CLRAUX  = 0x0712U;
-inline constexpr uint16_t CLRSPIN = 0x0716U;
-inline constexpr uint16_t CLRFLAG = 0x0717U;
-inline constexpr uint16_t CLOVUV  = 0x0715U;
-inline constexpr uint16_t CLRFC   = 0x0714U;
-
-// Poll
-inline constexpr uint16_t PLADC  = 0x0718U;
-inline constexpr uint16_t PLCADC = 0x071CU;
-inline constexpr uint16_t PLSADC = 0x071DU;
-inline constexpr uint16_t PLAUX  = 0x071EU;
-inline constexpr uint16_t PLAUX2 = 0x071FU;
-
-// Discharge
-inline constexpr uint16_t MUTE   = 0x0028U;
-inline constexpr uint16_t UNMUTE = 0x0029U;
-
-// Start
-inline constexpr uint16_t ADCV_BASE  = 0x0270U;
-inline constexpr uint16_t ADSV_BASE  = 0x0168U;
-inline constexpr uint16_t ADAX_BASE  = 0x0410U;
-inline constexpr uint16_t ADAX2_BASE = 0x0400U;
-
-// Snapshot
-inline constexpr uint16_t SNAP   = 0x002DU;
-inline constexpr uint16_t UNSNAP = 0x002FU;
-
-// Counter resets — RSTCC clears the command counter
-inline constexpr uint16_t RSTCC = 0x002EU;
-
-// ADCV and ADSV option bits
-inline constexpr uint16_t RD   = 1U << 8; // redundant C + S ADC
-inline constexpr uint16_t CONT = 1U << 7; // continuous mode
-inline constexpr uint16_t DCP  = 1U << 4; // discharge during conversion
-inline constexpr uint16_t RSTF = 1U << 2; // reset IIR filters
-inline constexpr uint16_t OW1  = 1U << 1; // open wire
-inline constexpr uint16_t OW0  = 1U << 0;
-
-// ADAX and ADAX2 option bits
-inline constexpr uint16_t OW  = 1U << 8; // open wire
-inline constexpr uint16_t PUP = 1U << 7; // pull up or down current sources
-inline constexpr uint16_t CH4 = 1U << 6; // channel select
-inline constexpr uint16_t CH3 = 1U << 3;
-inline constexpr uint16_t CH2 = 1U << 2;
-inline constexpr uint16_t CH1 = 1U << 1;
-inline constexpr uint16_t CH0 = 1U << 0;
-
-// Poll commands return a packed readiness bitmap
-inline constexpr uint32_t POLL_STATUS_READY  = __builtin_bswap32(0xFFFFFFFFU >> (2 * NUM_SEGMENTS));
-inline constexpr uint8_t  POLL_RETRIES        = 5U;
-inline constexpr uint8_t  POLL_RETRY_DELAY_MS = 3U;
-
-inline constexpr uint16_t DEFAULT_REGISTER_VALUE = 0x8000;
-// ==================================================================================
-
 /**
  * Serializes access to the ADBMS SPI bus so the concurrent ADBMS tasks (voltages, configs, aux) can't interleave
  * transactions. Recursive because readRegGroup() re-enters sendCmd() via the RSTCC recovery path.
  */
-SemaphoreHandle_t spiMutex();
+SemaphoreHandle_t spiMutex()
+{
+    static StaticSemaphore_t storage;
+    static SemaphoreHandle_t handle = xSemaphoreCreateRecursiveMutexStatic(&storage);
+    return handle;
+}
 
 class SpiLock
 {
@@ -140,7 +38,6 @@ class SpiLock
     SpiLock &operator=(SpiLock &&)      = delete;
 };
 
-// consteval (implicitly inline) PEC lookup-table generator shared by the wire-format classes below.
 consteval std::array<uint16_t, 256> pecTable(const uint16_t poly, const uint16_t size)
 {
     const auto MSB_SIZE  = static_cast<uint16_t>(1 << (size - 1));
@@ -177,7 +74,10 @@ template <std::integral T> T swapEndianness(const T value)
     }
     return out;
 }
+} // namespace
 
+namespace io::adbms
+{
 /**
  * This represents the wire representation of a register group read from the chip, which consists of the raw bytes
  * followed by the PEC10.
@@ -291,5 +191,183 @@ struct __attribute__((packed)) WriteCmd
 
     [[nodiscard]] span<uint8_t> into_span() { return { reinterpret_cast<uint8_t *>(this), sizeof(WriteCmd) }; }
 };
+
+namespace
+{
+    Segments<uint8_t> expected_cmd_count{};
+    Segments<uint8_t> last_cmd_count_mismatches{};
+
+    bool commandIncrements(const uint16_t cmd)
+    {
+        // ADCV_BASE = 0x0260, bits 9+6+5 constant; bits 8(RD), 7(CONT), 4(DCP), 2(RSTF), 1-0(OW) vary.
+        if ((cmd & 0x0668U) == (ADCV_BASE & 0x0668U))
+            return true;
+        // ADSV_BASE = 0x0168, bits 8+6+5+3 constant; bits 7(CONT), 4(DCP), 1-0(OW) vary.
+        if ((cmd & 0x076CU) == (ADSV_BASE & 0x076CU))
+            return true;
+        // ADAX_BASE = 0x0410, bits 10+4 constant; bits 8(OW), 7(PUP), 6(CH4), 3-0(CH3..CH0) vary.
+        if ((cmd & 0x0630U) == (ADAX_BASE & 0x0630U))
+            return true;
+        // ADAX2_BASE = 0x0400, bits 10+9..4 all constant; only CH[3:0] (bits 3-0) vary.
+        if ((cmd & 0x07F0U) == ADAX2_BASE)
+            return true;
+
+        switch (cmd)
+        {
+            // Writes
+            case WRCFGA:
+            case WRCFGB:
+            case WRPWMA:
+            case WRPWMB:
+            // Clears
+            case CLRCELL:
+            case CLRFC:
+            case CLRAUX:
+            case CLRFLAG:
+            case CLOVUV:
+            // Polls
+            case PLADC:
+            case PLCADC:
+            case PLSADC:
+            case PLAUX:
+            case PLAUX2:
+            // Discharge / snapshot
+            case MUTE:
+            case UNMUTE:
+            case SNAP:
+            case UNSNAP:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    /**
+     * Note that RX commands DO NOT need to increment the expected command counter
+     * @param cmd
+     */
+    void postTxUpdateCmdCount(const uint16_t cmd)
+    {
+        if (cmd == RSTCC)
+        {
+            expected_cmd_count.fill(0);
+            return;
+        }
+        if (!commandIncrements(cmd))
+            return;
+        for (auto &cc : expected_cmd_count)
+        {
+            cc = (cc == 63U) ? 1U : static_cast<uint8_t>(cc + 1U);
+        }
+    }
+
+    Segments<bool> detectCmdCountMismatches(const Segments<RegGroupPayload> &rx)
+    {
+        Segments<bool> mismatches{};
+        for (size_t seg = 0U; seg < NUM_SEGMENTS; ++seg)
+        {
+            const auto a = rx[seg].cmd_count();
+            const auto b = expected_cmd_count[seg];
+            // LOG_INFO("Segment %u: cmd count = %u, expected = %u", seg, a, b);
+            mismatches[seg] = a != b;
+        }
+        return mismatches;
+    }
+
+    void handleCmdCountMismatches(const Segments<bool> &mismatches)
+    {
+        for (size_t i = 0; i < NUM_SEGMENTS; ++i)
+        {
+            last_cmd_count_mismatches[i] += mismatches[i];
+        }
+        if (!ranges::any_of(mismatches, [](const bool m) { return m; }))
+            return;
+        (void)sendCmd(RSTCC);
+    }
+} // namespace
+
+Segments<uint8_t> getExpectedCmdCount()
+{
+    return expected_cmd_count;
+}
+
+Segments<uint8_t> getCmdCountMismatches()
+{
+    return last_cmd_count_mismatches;
+}
+
+result<void> sendCmd(const uint16_t cmd)
+{
+    const SpiLock lock;
+    const Cmd     tx_cmd{ cmd };
+    const auto    status = adbms_spi_ls.transmitDma(tx_cmd.into_span());
+    if (status)
+    {
+        postTxUpdateCmdCount(cmd);
+    }
+    return status;
+}
+
+result<bitset<32>> poll(const uint16_t cmd)
+{
+    const SpiLock lock;
+    const Cmd     tx_cmd{ cmd };
+    uint32_t      poll_buf;
+    static_assert(sizeof(poll_buf) == 4);
+    const auto status = adbms_spi_ls.transmitThenReceiveDma(
+        tx_cmd.into_span(), { reinterpret_cast<uint8_t *>(&poll_buf), sizeof(poll_buf) });
+    if (status)
+    {
+        postTxUpdateCmdCount(cmd);
+    }
+    return status ? result<std::bitset<32>>{ poll_buf } : unexpected(status.error());
+}
+
+Segments<result<RegBuffer>> readRegGroup(const uint16_t cmd)
+{
+    const SpiLock               lock;
+    Segments<result<RegBuffer>> regs;
+    const Cmd                   tx_cmd{ cmd };
+    Segments<RegGroupPayload>   rx_buffer;
+
+    if (const auto comm_status = adbms_spi_ls.transmitThenReceiveDma(
+            tx_cmd.into_span(), { reinterpret_cast<uint8_t *>(rx_buffer.data()), sizeof(rx_buffer) });
+        !comm_status)
+    {
+        regs.fill(std::unexpected(comm_status.error()));
+        return regs;
+    }
+
+    for (size_t segment = 0U; segment < NUM_SEGMENTS; ++segment)
+    {
+        const auto &segment_reg_group = rx_buffer[segment];
+        if (not segment_reg_group.checksum())
+        {
+            regs[segment] = unexpected(ErrorCode::CHECKSUM_FAIL);
+            continue;
+        }
+        regs[segment] = segment_reg_group.getData();
+    }
+
+    // Detect per-segment command counter mismatches and trigger RSTCC recovery.
+    // The app layer reads the mismatch bitmap via getCmdCountMismatches() and
+    // broadcasts the SegmentCMDCNT CAN message.
+    handleCmdCountMismatches(detectCmdCountMismatches(rx_buffer));
+
+    return regs;
+}
+
+result<void> writeRegGroup(const uint16_t cmd, Segments<RegBuffer> &regs)
+{
+    const SpiLock lock;
+    ranges::reverse(regs);
+    WriteCmd   tx_buffer(cmd, regs);
+    const auto status = adbms_spi_ls.transmitDma(tx_buffer.into_span());
+    if (status)
+    {
+        postTxUpdateCmdCount(cmd);
+    }
+    return status;
+}
 
 } // namespace io::adbms

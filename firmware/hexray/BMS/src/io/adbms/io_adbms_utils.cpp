@@ -4,12 +4,9 @@
 
 namespace io::adbms::command
 {
-result<void> detectBreaks()
+result<void> wakeup()
 {
-    // Wake both transceivers and select the drive mode (Forward/Reverse/Dual) based on where, if
-    // anywhere, the isoSPI chain is broken. probeTopology() issues its own wake pulses per side.
-    probeTopology();
-    return {};
+    return sendCmd(RDCFGA);
 }
 
 result<void> startBalance()

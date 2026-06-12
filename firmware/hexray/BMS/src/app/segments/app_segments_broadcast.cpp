@@ -9,7 +9,7 @@
 
 namespace
 {
-using app::segments::BroadcastBuffer;
+using app::segments::BroadcastBuffer;  
 using app::segments::CellBroadcaster;
 namespace tx = io::can_tx;
 

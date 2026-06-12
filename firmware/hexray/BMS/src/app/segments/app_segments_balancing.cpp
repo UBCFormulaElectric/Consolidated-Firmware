@@ -34,21 +34,29 @@ void updateCellsToBalance()
 
     for (uint8_t seg = 0; seg < NUM_SEGMENTS; seg++)
     {
+        // If any cell in the segment has a failed voltage read or a failed/flagged
+        // owc, disable balancing for the entire segment
+        bool segment_ok = true;
         for (uint8_t cell = 0; cell < CELLS_PER_SEGMENT; cell++)
         {
-            // Skip cells with failed voltage reads
-            if (!cell_voltages[seg][cell])
+            if (!cell_voltages[seg][cell] || !cell_owc[seg][cell].value_or(false))
+            {
+                segment_ok = false;
+                break;
+            }
+        }
+        
+        if (!segment_ok)
+        {
+            for (uint8_t cell = 0; cell < CELLS_PER_SEGMENT; cell++)
             {
                 discharge_enabled[seg][cell] = false;
-                continue;
             }
+            continue;
+        }
 
-            // Skip cells with failed owc or owc flagged
-            if (!cell_owc[seg][cell].value_or(false))
-            {
-                discharge_enabled[seg][cell] = false;
-                continue;
-            }
+        for (uint8_t cell = 0; cell < CELLS_PER_SEGMENT; cell++)
+        {
 
             // Never discharge the leader cell unless balancing to target voltage
             if (seg == min_cell_seg && cell == min_cell_cell && !app::can_rx::Debug_CellBalancing_OverrideValue_get())
