@@ -16,7 +16,7 @@ template <size_t NUM_ADC_CHANNELS> class adcchip;
 class adc
 {
     const volatile float &voltage_source;
-    consteval explicit adc(const volatile float &in_voltage_source) : voltage_source(in_voltage_source) {};
+    consteval explicit adc(const volatile float &in_voltage_source) : voltage_source(in_voltage_source){};
 
   public:
     [[nodiscard]] float getVoltage() const { return voltage_source; }
@@ -75,8 +75,7 @@ template <size_t NUM_ADC_CHANNELS> class adcchip
     mutable std::array<uint16_t, NUM_ADC_CHANNELS> raw_adc_values{};
 
   public:
-    consteval explicit adcchip(ADC_HandleTypeDef &in_hadc, TIM_HandleTypeDef &in_htim)
-      : hadc(in_hadc), htim(in_htim) {};
+    consteval explicit adcchip(ADC_HandleTypeDef &in_hadc, TIM_HandleTypeDef &in_htim) : hadc(in_hadc), htim(in_htim){};
 
     [[nodiscard]] result<void> init(const bool start_timer = true, const bool calibrate = false) const
     {
@@ -90,10 +89,9 @@ template <size_t NUM_ADC_CHANNELS> class adcchip
 #endif
         }
 
-        RETURN_IF_ERR_SILENT(
-            hw::utils::convertHalStatus(HAL_ADC_Start_DMA(
-                &hadc, reinterpret_cast<uint32_t *>(raw_adc_values.data()), hadc.Init.NbrOfConversion)));
-                
+        RETURN_IF_ERR_SILENT(hw::utils::convertHalStatus(
+            HAL_ADC_Start_DMA(&hadc, reinterpret_cast<uint32_t *>(raw_adc_values.data()), hadc.Init.NbrOfConversion)));
+
         if (start_timer)
             RETURN_IF_ERR_SILENT(hw::utils::convertHalStatus(HAL_TIM_Base_Start(&htim)));
         return {};
