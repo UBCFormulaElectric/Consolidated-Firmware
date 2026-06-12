@@ -250,6 +250,8 @@ void jobs_runAdbmsVoltages_tick()
         return;
     }
 
+    io::time::delay(CELL_CONV_TIME_MS);
+
     const result<void> cell_voltage_poll_ok = io::adbms::command::pollCellsAdc();
     {
         const io::unique_semaphore h{ health_lock };
@@ -311,6 +313,8 @@ void jobs_runAdbmsCellOwc_tick()
             app::segments::broadcast::debug::cellOwcOk(Cells<result<bool>>{}, owc_voltage_start_ok);
             return;
         }
+
+        io::time::delay(SECONDARY_CELL_CONV_TIME_MS);
 
         const auto owc_voltage_poll_ok = io::adbms::command::pollSecondaryCellsAdc();
         {
@@ -388,6 +392,8 @@ void jobs_runAdbmsAux_tick()
             app::segments::broadcast::debug::thermOwcOk(Therms<result<bool>>{}, therm_voltage_start_ok);
             return;
         }
+
+        io::time::delay(AUX_CONV_TIME_MS);
 
         const auto therm_voltage_poll_ok = io::adbms::command::pollAuxAdc();
         {
