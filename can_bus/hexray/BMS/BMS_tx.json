@@ -342,6 +342,7 @@
   },
   "SegmentVoltageStats": {
     "msg_id": 421,
+    "cycle_time": null,
     "description": "Min/max segment voltage with segment index",
     "signals": {
       "MinSegmentVoltage": {

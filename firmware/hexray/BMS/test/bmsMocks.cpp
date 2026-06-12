@@ -111,7 +111,17 @@ namespace io::adbms::clear
     return result<void>{};
 }
 
+[[nodiscard]] result<void> flags()
+{
+    return result<void>{};
+}
+
 [[nodiscard]] result<void> cell()
+{
+    return result<void>{};
+}
+
+[[nodiscard]] result<void> secondaryCell()
 {
     return result<void>{};
 }

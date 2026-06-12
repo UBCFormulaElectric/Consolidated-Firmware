@@ -282,8 +282,7 @@ void jobs_runAdbmsVoltages_tick()
     }
 
     app::segments::broadcast::segmentHealthError(health);
-    app::segments::broadcast::maxVoltageCell(max_voltage);
-    app::segments::broadcast::minVoltageCell(min_voltage);
+    app::segments::broadcast::cellVoltageStats(min_voltage, max_voltage);
     app::segments::broadcast::debug::cellVoltages(cell_voltages, result<void>{});
 }
 
@@ -421,10 +420,8 @@ void jobs_runAdbmsAux_tick()
 
     app::segments::broadcast::segmentHealthError(health);
     app::segments::broadcast::packVoltage(pack_voltage);
-    app::segments::broadcast::maxTempCell(max_temp);
-    app::segments::broadcast::minTempCell(min_temp);
-    app::segments::broadcast::maxVoltageSeg(max_voltage);
-    app::segments::broadcast::minVoltageSeg(min_voltage);
+    app::segments::broadcast::cellTempStats(min_temp, max_temp);
+    app::segments::broadcast::segmentVoltageStats(min_voltage, max_voltage);
 
     app::segments::broadcast::debug::thermTemps(therm_temps, result<void>{});
     app::segments::broadcast::debug::thermOwc(therm_owc, result<void>{});

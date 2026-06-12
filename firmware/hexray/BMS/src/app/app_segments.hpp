@@ -125,12 +125,9 @@ namespace broadcast
     } // namespace debug
 
     void segmentHealthError(const health::Snapshot &health);
-    void maxVoltageCell(const CellParam<float> &max);
-    void minVoltageCell(const CellParam<float> &min);
-    void maxTempCell(const CellParam<float> &max);
-    void minTempCell(const CellParam<float> &min);
-    void maxVoltageSeg(const SegmentParam<float> &max);
-    void minVoltageSeg(const SegmentParam<float> &min);
+    void cellVoltageStats(const CellParam<float> &min, const CellParam<float> &max);
+    void cellTempStats(const CellParam<float> &min, const CellParam<float> &max);
+    void segmentVoltageStats(const SegmentParam<float> &min, const SegmentParam<float> &max);
     void packVoltage(const result<float> &pack);
     void cmdCountMismatch(const io::adbms::Segments<uint8_t> &mismatches);
     // void spiLinkStats(const io::adbms::SpiBusReach &reach);

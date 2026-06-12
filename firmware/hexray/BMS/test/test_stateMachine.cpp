@@ -462,28 +462,3 @@ TEST_F(BmsStateMachineTest, check_contactors_open_in_init_states)
     app::StateMachine::set_current_state(&app::states::init_state);
     ASSERT_EQ(io::irs::positiveState(), app::can_utils::ContactorState::CONTACTOR_STATE_OPEN);
 }
-
-// overtemp
-// TODO: Uncomment once segments is added AND add a test case for charge state overtemp
-// TEST_F(BmsStateMachineTest, drive_to_fault_on_overtemp)
-// {
-// //     fakes::irs::setNegativeState(app::can_utils::ContactorState::CONTACTOR_STATE_CLOSED);
-// //     app::StateMachine::set_current_state(&app::states::drive_state);
-//
-// //     fakes::segments::setPackVoltageEvenly(MAX_CELL_VOLTAGE_FAULT_V - 0.1f);
-// //     std::array<std::array<float, AUX_REGS_PER_SEGMENT>, NUM_SEGMENTS> temperatures{};
-// //     for (auto &segment_temperatures : temperatures)
-// //     {
-// //         segment_temperatures.fill(25.0f);
-// //     }
-// //     temperatures[0][0] = MAX_CELL_TEMP_FAULT_C;
-// //     fakes::segments::setCellTemperatures(temperatures);
-//
-// //     LetTimePass(20);
-//
-// //     ASSERT_STATE_EQ(app::states::fault_state);
-// // }
-
-// overvoltage
-// undervoltage
-// other board faulting
