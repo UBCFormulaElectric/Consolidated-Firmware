@@ -27,6 +27,7 @@ inline constexpr uint8_t APP_VALIDITY_ID_LOWBITS          = 0x8;
 inline constexpr uint8_t GO_TO_BOOT                       = 0x9;
 inline constexpr uint8_t ERASE_SECTOR_FAILED_ID_LOWBITS   = 0xA;
 inline constexpr uint8_t PROGRAM_ID_FAILED_LOWBITS        = 0xB;
+inline constexpr uint8_t PROGRAM_DONE_LOWBITS             = 0xC;
 
 namespace bootloader
 {
@@ -159,7 +160,6 @@ class config
             }
 
             const uint32_t flash_addr = block_buffer_val.start_addr / hw::flash::WORD_BYTES * hw::flash::WORD_BYTES;
-            // LOG_INFO("flashing to %lX == %lX", block_buffer_val.start_addr, flash_addr);
             io::time::delay(1);
             const auto flash_res = hw::flash::programFlash(flash_addr, block_buffer.value().buffer);
             RETURN_IF_ERR(flash_res);

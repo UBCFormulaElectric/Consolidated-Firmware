@@ -30,6 +30,7 @@ APP_VALIDITY_CAN_ID_LOWBITS = 0x8
 GO_TO_BOOT_CAN_ID_LOWBITS = 0x9
 ERASE_SECTOR_FAILED_ID_LOWBITS = 0xA
 PROGRAM_ID_FAILED_LOWBITS = 0xB
+PROGRAM_DONE_LOWBITS = 0xC
 
 # Verify response options.
 # Keep in sync with:
@@ -143,11 +144,19 @@ class Bootloader:
                 else None
             )
 
+        start_addr = self.ih.minaddr()
+        end_addr = self.ih.minaddr() + self.size_bytes()
+        CAN_FRAME_SIZE_BYTES = 64 if self.is_fd else 8
+        expected_block_num = (end_addr - start_addr) // CAN_FRAME_SIZE_BYTES
+        print(CAN_FRAME_SIZE_BYTES, hex(start_addr), hex(end_addr))
+        print(f"starting update with {expected_block_num} blocks to program")
+        # convert expected_block_num to a little endian byte array
+        expected_block_num_bytes = expected_block_num.to_bytes(4, byteorder="little")
         while True:
             self.bus.send(
                 can.Message(
                     arbitration_id=self.board.boot_id_range_start | START_UPDATE_ID_LOWBITS,
-                    data=[],
+                    data=expected_block_num_bytes,
                     is_extended_id=True,
                     is_fd=self.is_fd,
                 )
@@ -217,56 +226,70 @@ class Bootloader:
         CAN_FRAME_SIZE_BYTES = 64 if self.is_fd else 8
         start_addr = self.ih.minaddr()
         end_addr = self.ih.minaddr() + self.size_bytes()
-        print(f"start addr is {start_addr}, end addr is {end_addr}")
 
         jump_back_block: Optional[int] = None  # TODO populate with CAN failure messages
+        done = False
         stop_listener = threading.Event()
         # spawn a new thread which populates the above
         def listener(stop_listener: threading.Event):
-            nonlocal jump_back_block
+            nonlocal jump_back_block, done
             while not stop_listener.is_set():
                 can_msg = self._await_can_msg(
-                    validator=lambda msg: msg.arbitration_id == (self.board.boot_id_range_start | PROGRAM_ID_FAILED_LOWBITS),
+                    validator=lambda msg: msg.arbitration_id == (self.board.boot_id_range_start | PROGRAM_ID_FAILED_LOWBITS) or msg.arbitration_id == (self.board.boot_id_range_start | PROGRAM_DONE_LOWBITS),
                     timeout=1,
                 )
-                if can_msg is not None:
+                if can_msg is None:
+                    continue
+                if can_msg.arbitration_id == (self.board.boot_id_range_start | PROGRAM_DONE_LOWBITS):
+                    print("programming complete message received")
+                    done = True
+                    break
+                elif can_msg.arbitration_id == (self.board.boot_id_range_start | PROGRAM_ID_FAILED_LOWBITS):
                     k = can_msg.data
                     assert can_msg.dlc == 4, f"Expected 4 bytes in PROGRAM_ID_FAILED message, got {can_msg.dlc}"
                     # TODO maybe better struct unpacking :sob:
                     jump_back_block = (k[3] << 24) | (k[2] << 16) | (k[1] << 8) | k[0]
                     print(f"jumpback received to {jump_back_block}")
+                else:
+                    raise RuntimeError(f"Received unexpected message with id {can_msg.arbitration_id} during programming")
         listen_thread = threading.Thread(target=listener, args=(stop_listener,))
         listen_thread.start()
 
         # TODO: Check if binary is aligned to 64 bytes and ensure ending bytes are sent
         block = 0
         last_block = (end_addr - start_addr) // CAN_FRAME_SIZE_BYTES
-        while block <= last_block:
-            # check if we need to go back
+        print(f"start addr is {start_addr}, end addr is {end_addr}, last block is {last_block}")
+        while not done:
+            while block <= last_block:
+                # check if we need to go back
+                if jump_back_block is not None:
+                    block = jump_back_block
+                    jump_back_block = None
+                if self.ui_callback and block % 128 == 0: # update ui only every little while
+                    self.ui_callback(
+                        "Programming data", self.size_bytes(), block * CAN_FRAME_SIZE_BYTES
+                    )
+
+                data = [self.ih[start_addr + block * CAN_FRAME_SIZE_BYTES + j] for j in range(0, CAN_FRAME_SIZE_BYTES)]
+                wire_block_num = block << 4
+                while True:
+                    try:
+                        self.bus.send(
+                            can.Message(
+                                arbitration_id=self.board.boot_id_range_start | wire_block_num | PROGRAM_CAN_ID_LOWBITS,
+                                data=data,
+                                is_extended_id=True,
+                                is_fd=self.is_fd,
+                            )
+                        )
+                        break
+                    except can.interfaces.vector.exceptions.VectorOperationError:
+                        pass
+                block += 1
+            time.sleep(0.1)
             if jump_back_block is not None:
                 block = jump_back_block
                 jump_back_block = None
-            if self.ui_callback and block % 128 == 0: # update ui only every little while
-                self.ui_callback(
-                    "Programming data", self.size_bytes(), block * CAN_FRAME_SIZE_BYTES
-                )
-
-            data = [self.ih[start_addr + block * CAN_FRAME_SIZE_BYTES + j] for j in range(0, CAN_FRAME_SIZE_BYTES)]
-            wire_block_num = block << 4
-            while True:
-                try:
-                    self.bus.send(
-                        can.Message(
-                            arbitration_id=self.board.boot_id_range_start | wire_block_num | PROGRAM_CAN_ID_LOWBITS,
-                            data=data,
-                            is_extended_id=True,
-                            is_fd=self.is_fd,
-                        )
-                    )
-                    break
-                except can.interfaces.vector.exceptions.VectorOperationError:
-                    pass
-            block += 1
         stop_listener.set()
         listen_thread.join()
 

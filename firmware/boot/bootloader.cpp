@@ -40,8 +40,11 @@ enum class BootStatus : uint8_t
     BOOT_STATUS_NO_APP
 };
 
-static bool     update_in_progress = false;
-static uint32_t expected_block_num = 0;
+static bool     update_in_progress      = false;
+static uint32_t expected_block_num      = 0;
+static uint32_t expected_total_blocks   = 0;
+static uint32_t last_jumpback_sent_time = 0;
+static uint32_t last_jumpback_location  = 0;
 
 [[noreturn]] static void modifyStackPointerAndStartApp(const uint32_t *address)
 {
@@ -201,8 +204,12 @@ void bootloader::init(config &boot_config)
             command.std_id == (boot_config.BOARD_HIGHBITS | START_UPDATE_ID_LOWBITS)) // start update
         {
             // Reset current address to program and update state.
-            update_in_progress = true;
-            expected_block_num = 0;
+            update_in_progress      = true;
+            expected_block_num      = 0;
+            last_jumpback_location  = 0;
+            last_jumpback_sent_time = 0;
+            expected_total_blocks   = command.getDataAsDWords()[0];
+            LOG_INFO("Starting update, expecting %d blocks", expected_total_blocks);
 
             // Send ACK message that programming has started.
             hw::CanMsg reply{};
@@ -282,12 +289,22 @@ void bootloader::init(config &boot_config)
             // No reply for program command to reduce latency.
             // TODO: Seems kinda fragile
             const uint32_t block_addr = (command.std_id & 0x00FFFFF0U) >> 4;
+            // LOG_INFO("Got program command for block %d, to %d", block_addr, expected_block_num);
             if (block_addr != expected_block_num)
             {
-                hw::CanMsg reply{};
-                reply.std_id               = boot_config.BOARD_HIGHBITS | PROGRAM_ID_FAILED_LOWBITS;
-                reply.dlc                  = 4;
-                reply.getDataAsDWords()[0] = expected_block_num;
+                if ((io::time::getCurrentMs() - last_jumpback_sent_time) > 1000 or
+                    expected_block_num != last_jumpback_location)
+                {
+                    LOG_INFO("sending jumpback");
+                    last_jumpback_sent_time = io::time::getCurrentMs();
+                    last_jumpback_location  = expected_block_num;
+
+                    hw::CanMsg reply{};
+                    reply.std_id               = boot_config.BOARD_HIGHBITS | PROGRAM_ID_FAILED_LOWBITS;
+                    reply.dlc                  = 4;
+                    reply.getDataAsDWords()[0] = expected_block_num;
+                    LOG_IF_ERR(boot_config.can_tx_queue.push(reply));
+                }
                 continue;
             }
             for (uint8_t i = 0; i < dlcToBytes(static_cast<uint8_t>(command.dlc)) / 8; i++)
@@ -300,9 +317,7 @@ void bootloader::init(config &boot_config)
                     LOG_IF_ERR(status);
                     // program failed meaning we need to stop and tell the application that program has failed
                     // and stop the bootloader
-                    hw::CanMsg reply{};
-                    reply.std_id               = boot_config.BOARD_HIGHBITS | PROGRAM_ID_FAILED_LOWBITS;
-                    reply.dlc                  = 4;
+                    hw::CanMsg reply{ boot_config.BOARD_HIGHBITS | PROGRAM_ID_FAILED_LOWBITS, 4, {} };
                     reply.getDataAsDWords()[0] = expected_block_num;
                     LOG_IF_ERR(boot_config.can_tx_queue.push(reply));
                     break; // throw the block away
@@ -314,9 +329,8 @@ void bootloader::init(config &boot_config)
                     if (current_address >= first_unprogrammed_addr.value())
                     {
                         // GO BACK!!!
-                        hw::CanMsg reply{};
-                        reply.std_id               = boot_config.BOARD_HIGHBITS | PROGRAM_ID_FAILED_LOWBITS;
-                        reply.dlc                  = 4;
+                        LOG_INFO("wtf");
+                        hw::CanMsg reply{ boot_config.BOARD_HIGHBITS | PROGRAM_ID_FAILED_LOWBITS, 4, {} };
                         reply.getDataAsDWords()[0] = expected_block_num;
                         LOG_IF_ERR(boot_config.can_tx_queue.push(reply));
                         break; // throw the block away
@@ -328,6 +342,13 @@ void bootloader::init(config &boot_config)
                     // flush time!!!
                     LOG_IF_ERR(boot_config.flush());
                 }
+            }
+            LOG_INFO("block_addr: %d", block_addr);
+            if (block_addr == expected_total_blocks)
+            {
+                LOG_INFO("recieved block %d successfully", block_addr);
+                hw::CanMsg reply{ boot_config.BOARD_HIGHBITS | PROGRAM_DONE_LOWBITS, 0, {} };
+                LOG_IF_ERR(boot_config.can_tx_queue.push(reply));
             }
             // successful block write
             expected_block_num++;
