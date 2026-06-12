@@ -6,6 +6,7 @@ bool torque_vectoring_get();
 bool launch_control_get();
 bool regen_get();
 bool start_get();
+bool telem_get();
 
 void broadcast();
 } // namespace app::switches

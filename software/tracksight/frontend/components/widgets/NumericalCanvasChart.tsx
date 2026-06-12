@@ -8,6 +8,7 @@ import { useSignalDataStores } from "@/lib/contexts/signalStores/SignalStoreCont
 import { useCanvasRenderLoop } from "@/lib/hooks/useCanvasRenderLoop";
 import { useCanvasHover } from "@/lib/hooks/useCanvasHover";
 import { NumericalGraphWidgetData } from "@/lib/types/Widget";
+import { getVisibleTelemetryMarkers } from "@/lib/telemetryMarkers";
 
 export default function NumericalCanvasChart({
   id,
@@ -61,7 +62,8 @@ export default function NumericalCanvasChart({
       {
         min: XToTime(CHART_PADDING.left),
         max: XToTime(cssWidth - CHART_PADDING.right),
-      }
+      },
+      getVisibleTelemetryMarkers(XToTime(CHART_PADDING.left), XToTime(cssWidth - CHART_PADDING.right))
     );
   });
 
