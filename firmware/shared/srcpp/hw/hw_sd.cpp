@@ -2,7 +2,6 @@
 
 #include "cmsis_os2.h"
 
-#include <cassert>
 #include <cstdint>
 
 namespace hw
@@ -10,9 +9,10 @@ namespace hw
 /* Setters for private fields */
 void SdCard::onTransactionCompleteFromISR() const
 {
-    // dma_tx_completed = value;
-    // TODO signaling to blocked here
-    assert(taskInProgress != nullptr);
+    // A late completion can fire after waitForNotification() cleared taskInProgress on a timeout/abort;
+    // only notify an actual waiter (mirrors onTransactionErrorFromISR()).
+    if (taskInProgress == nullptr)
+        return;
 
     BaseType_t higherPriorityTaskWoken = pdFALSE;
     vTaskNotifyGiveFromISR(taskInProgress, &higherPriorityTaskWoken);

@@ -75,10 +75,8 @@ result<void> hw::Uart::waitForRxNotification(const uint32_t timeoutMs) const
     {
         (void)HAL_UART_AbortReceive(&handle);
         clear_uart_rx_error_flags(&handle);
-        rxTaskInProgress = nullptr;
         return std::unexpected(ErrorCode::ERROR);
     }
-    rxTaskInProgress = nullptr;
     return {};
 }
 
@@ -199,12 +197,10 @@ result<std::size_t> hw::Uart::receiveToIdle(std::span<uint8_t> rx, const uint32_
         return std::unexpected(armed.error());
     }
 
+    // waitForRxNotification() always clears rxTaskInProgress before returning, on every path.
     const result<void> waited = waitForRxNotification(timeout);
     if (!waited)
-    {
-        rxTaskInProgress = nullptr;
         return std::unexpected(waited.error());
-    }
 
     return static_cast<std::size_t>(last_rx_size);
 }

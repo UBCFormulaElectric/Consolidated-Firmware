@@ -79,16 +79,14 @@ std::expected<void, ErrorCode> update_metadata()
     if (!log_open)
         return std::unexpected(ErrorCode::INVALID_ARGS);
 
-    const auto epoch_ms = app::epochClock::getEpochMsFast();
-    if (!epoch_ms.has_value())
+    // The anchored base is epoch_ms - ms_since_boot; read it directly so it matches the projection base.
+    const auto base = app::epochClock::getFastBase();
+    if (!base.has_value())
     {
-        LOG_ERROR("Failed to get current epoch ms");
+        LOG_ERROR("Failed to get fast-clock base time");
         return std::unexpected(ErrorCode::ERROR);
     }
-
-    // Update basetime: basetime = ntp_time - ms_since_boot
-    const uint64_t ms_since_boot = io::time::getCurrentMs();
-    const uint64_t base_time     = epoch_ms.value() - ms_since_boot;
+    const uint64_t base_time = base.value();
 
     const auto dt = app::epochClock::dateTimeFromEpoch(base_time);
     if (!dt)

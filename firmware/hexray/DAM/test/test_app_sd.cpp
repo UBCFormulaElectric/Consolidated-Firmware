@@ -1,5 +1,6 @@
 #include "app_sd.hpp"
 
+#include "app_epochClock.hpp"
 #include "io_fileSystems.hpp"
 #include "io_rtc.hpp"
 #include "io_timeFake.hpp"
@@ -61,6 +62,10 @@ class AppSdTest : public ::testing::Test
         fakes::time::setTime(1);
         fakes::rtc::reset();
         fakes::rtc::setEpochMs(kEpoch2026);
+
+        // Mirror jobs_init(): anchor the fast clock once the RTC is seeded, so getFastBase() on the
+        // metadata path has a base to read.
+        ASSERT_TRUE(app::epochClock::anchorBaseTime().has_value());
 
         // app::sd keeps static state: the log stays open for the whole test
         // binary, so wipe stale artifacts and run init_fs() exactly once.

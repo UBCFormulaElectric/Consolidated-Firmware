@@ -31,6 +31,10 @@ result<void> anchorBaseTime();
 // per-call RTC read). Use this on the CAN RX/telem path instead of getEpochMs().
 result<uint64_t> getEpochMsFast();
 
+// The anchored fast-clock base (epoch ms at boot) that getEpochMsFast() projects from. Use this for
+// the on-disk log basetime instead of getEpochMsFast() - getCurrentMs(), which carries a small skew.
+result<uint64_t> getFastBase();
+
 // Split Unix epoch ms into {Date, Time} and program both into the RTC.
 result<void> setEpochMs(uint64_t epoch_ms);
 

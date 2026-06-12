@@ -70,6 +70,12 @@ void jobs_init()
     io::can_tx::enableMode_FDCAN(app::can_utils::FDCANMode::FDCAN_MODE_DEFAULT, true);
     app::can_tx::DAM_Heartbeat_set(true);
     app::can_tx::DAM_Alive_set(1);
+    // Anchor the fast clock once here, before the scheduler and any reader; setEpochMs() re-anchors
+    // it on NTP correction.
+    if (const auto err = app::epochClock::anchorBaseTime(); !err.has_value())
+    {
+        LOG_WARN("jobs_init: anchorBaseTime failed: %d", static_cast<int>(err.error()));
+    }
     io::can_tx::DAM_Bootup_sendAperiodic();
     app::epochClock::logDateTime("Boot RTC time (GMT)");
 
@@ -87,15 +93,9 @@ void jobs_initLogFs()
         init_success = false;
     }
 
+    // Base was already anchored in jobs_init(); the metadata write just reads it via getFastBase().
     app::sd::requestMetadataUpdate();
-    LOG_INFO("jobs_initLogFs: Metadata update requests in init");
-    // Anchor the fast-clock base next to the metadata RTC read, so per-message timestamps project
-    // from (roughly) the same instant the on-disk basetime was captured.
-    if (const auto err = app::epochClock::anchorBaseTime(); !err.has_value())
-    {
-        LOG_ERROR("jobs_initLogFs: anchorBaseTime failed: %d", static_cast<int>(err.error()));
-        init_success = false;
-    }
+    LOG_INFO("jobs_initLogFs: Metadata update requested in init");
 
     if (const auto err = io::sd::upgrade(); !err.has_value())
     {
