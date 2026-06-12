@@ -5,6 +5,7 @@
 #include "app_brightness.hpp"
 #include "io_leds.hpp"
 #include "app_canAlerts.hpp"
+#include "app_heartbeatMonitors.hpp"
 
 namespace app::leds
 {
@@ -64,20 +65,20 @@ void setLeds()
     LOG_IF_ERR(io::leds::update(io::leds::config{
         board_status(
             can_alerts::BoardHasFault(can_utils::CanNode::RSM_NODE),
-            can_alerts::BoardHasWarning(can_utils::CanNode::RSM_NODE), can_rx::RSM_Heartbeat_get()),
+            can_alerts::BoardHasWarning(can_utils::CanNode::RSM_NODE), rsm_heartbeat_node.status),
         board_status(
             can_alerts::BoardHasFault(can_utils::CanNode::BMS_NODE),
-            can_alerts::BoardHasWarning(can_utils::CanNode::BMS_NODE), can_rx::BMS_Heartbeat_get()),
+            can_alerts::BoardHasWarning(can_utils::CanNode::BMS_NODE), bms_heartbeat_node.status),
         board_status(
             can_alerts::BoardHasFault(can_utils::CanNode::VC_NODE),
-            can_alerts::BoardHasWarning(can_utils::CanNode::VC_NODE), can_rx::VC_Heartbeat_get()),
+            can_alerts::BoardHasWarning(can_utils::CanNode::VC_NODE), vc_heartbeat_node.status),
         board_status(
             can_alerts::BoardHasFault(can_utils::CanNode::FSM_NODE),
-            can_alerts::BoardHasWarning(can_utils::CanNode::FSM_NODE), can_rx::FSM_Heartbeat_get()),
+            can_alerts::BoardHasWarning(can_utils::CanNode::FSM_NODE), fsm_heartbeat_node.status),
         io::leds::color::GREEN,
         board_status(
             can_alerts::BoardHasFault(can_utils::CanNode::DAM_NODE),
-            can_alerts::BoardHasWarning(can_utils::CanNode::DAM_NODE), can_rx::DAM_Heartbeat_get()),
+            can_alerts::BoardHasWarning(can_utils::CanNode::DAM_NODE), dam_heartbeat_node.status),
         switches::launch_control_get() ? io::leds::color::GREEN : io::leds::color::OFF,
         switches::start_get() ? io::leds::color::GREEN : io::leds::color::OFF,
         can_rx::VC_FirstFaultNode_get() == can_utils::ShutdownNode::OK ? io::leds::color::OFF : io::leds::color::RED,
