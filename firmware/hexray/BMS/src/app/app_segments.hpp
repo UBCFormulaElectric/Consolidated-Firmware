@@ -105,11 +105,8 @@ namespace health
 
     using Snapshot = std::array<std::bitset<NUM_HEALTH_BITS>, MAX_NUM_SEGMENTS>;
 
-    void     resetAll(ErrorBit bit);
-    void     setAll(ErrorBit bit);
     void     setOrReset(size_t seg, ErrorBit bit, bool has_error);
     void     setOrResetAll(ErrorBit bit, bool has_error);
-    bool     getError(size_t seg, ErrorBit bit);
     bool     getAnyError(size_t seg);
     Snapshot getAll();
 } // namespace health
@@ -146,12 +143,10 @@ namespace shared
     io::adbms::Cells<result<float>>    getLatestVoltages();
     CellParam<float>                   getMinCellVoltage();
     CellParam<float>                   getMaxCellVoltage();
-    io::adbms::Therms<result<float>>   getLatestTemperatures();
     CellParam<float>                   getMinCellTemperature();
     CellParam<float>                   getMaxCellTemperature();
     io::adbms::Cells<result<bool>>     getLatestCellOwc();
     io::adbms::Therms<result<bool>>    getLatestThermOwc();
-    io::adbms::Segments<result<float>> getLatestSegmentVoltages();
     SegmentParam<float>                getMinSegmentVoltage();
     SegmentParam<float>                getMaxSegmentVoltage();
     result<float>                      getPackVoltage();
@@ -161,7 +156,6 @@ namespace shared
     void setThermistorOwc(const io::adbms::Therms<result<bool>> &owc);
     void setTemperatureStats(const io::adbms::Therms<result<float>> &latest);
     void setSegmentVoltageStats(const io::adbms::Segments<result<float>> &latest);
-    void setPackVoltage(const result<float>);
 } // namespace shared
 
 // app_segments_alerts.cpp
@@ -170,12 +164,6 @@ namespace alerts
     void init();
     bool tick();
 } // namespace alerts
-
-namespace startContinuous
-{
-    [[nodiscard]] result<void> secondaryCellAdc(io::adbms::OpenWireSwitch owcSwitch);
-    [[nodiscard]] result<void> cellAdc();
-} // namespace startContinuous
 
 namespace conversion
 {
@@ -198,6 +186,5 @@ namespace calculate
     io::adbms::Therms<result<bool>> thermOwc(
         const std::array<io::adbms::ThermGpios<result<float>>, static_cast<size_t>(ThermistorMux::THERMISTOR_MUX_COUNT)>
             &therm_voltages);
-    result<float> packVoltage(const io::adbms::Segments<result<float>> &seg_voltages);
 } // namespace calculate
 } // namespace app::segments

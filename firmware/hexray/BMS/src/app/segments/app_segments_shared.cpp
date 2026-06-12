@@ -13,17 +13,15 @@ Cells<result<float>> latest_voltages{};
 CellParam<float>     latest_min_cell_voltage{};
 CellParam<float>     latest_max_cell_voltage{};
 
-Therms<result<float>> latest_temperatures{};
-CellParam<float>      latest_max_therm_temperature{};
-CellParam<float>      latest_min_therm_temperature{};
+CellParam<float> latest_max_therm_temperature{};
+CellParam<float> latest_min_therm_temperature{};
 
 Cells<result<bool>> latest_cell_owc{};
 
 Therms<result<bool>> latest_therm_owc{};
 
-Segments<result<float>> latest_segment_voltages{};
-SegmentParam<float>     latest_max_segment_voltage{};
-SegmentParam<float>     latest_min_segment_voltage{};
+SegmentParam<float> latest_max_segment_voltage{};
+SegmentParam<float> latest_min_segment_voltage{};
 
 result<float> pack_voltage;
 } // namespace
@@ -52,12 +50,6 @@ CellParam<float> getMaxCellVoltage()
     return latest_max_cell_voltage;
 }
 
-Therms<result<float>> getLatestTemperatures()
-{
-    assert(shared_lock.is_held());
-    return latest_temperatures;
-}
-
 CellParam<float> getMinCellTemperature()
 {
     assert(shared_lock.is_held());
@@ -80,12 +72,6 @@ Therms<result<bool>> getLatestThermOwc()
 {
     assert(shared_lock.is_held());
     return latest_therm_owc;
-}
-
-Segments<result<float>> getLatestSegmentVoltages()
-{
-    assert(shared_lock.is_held());
-    return latest_segment_voltages;
 }
 
 SegmentParam<float> getMinSegmentVoltage()
@@ -146,7 +132,6 @@ void setThermistorOwc(const Therms<result<bool>> &latest)
 void setTemperatureStats(const Therms<result<float>> &latest)
 {
     assert(shared_lock.is_held());
-    latest_temperatures = latest;
 
     CellParam min{ .segment = 0, .cell = 0, .value = std::numeric_limits<float>::infinity() };
     CellParam max{ .segment = 0, .cell = 0, .value = -std::numeric_limits<float>::infinity() };
@@ -171,7 +156,6 @@ void setTemperatureStats(const Therms<result<float>> &latest)
 void setSegmentVoltageStats(const Segments<result<float>> &latest)
 {
     assert(shared_lock.is_held());
-    latest_segment_voltages = latest;
 
     SegmentParam  min{ .segment = 0, .value = std::numeric_limits<float>::infinity() };
     SegmentParam  max{ .segment = 0, .value = -std::numeric_limits<float>::infinity() };
@@ -199,11 +183,5 @@ void setSegmentVoltageStats(const Segments<result<float>> &latest)
     latest_min_segment_voltage = min;
     latest_max_segment_voltage = max;
     pack_voltage               = pack;
-}
-
-void setPackVoltage(const result<float> latest)
-{
-    assert(shared_lock.is_held());
-    pack_voltage = latest;
 }
 } // namespace app::segments::shared
