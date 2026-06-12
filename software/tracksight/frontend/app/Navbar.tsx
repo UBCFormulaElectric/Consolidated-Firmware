@@ -21,7 +21,7 @@ function HistoricalNavControls() {
     const { sourceLabel, selectedSession, openModal, isSyncing } = useHistoricalSelection();
 
     return (
-        <div className="ml-auto flex items-center gap-2">
+        <div className="flex items-center gap-2">
             {isSyncing ? <Loader2 className="size-4 animate-spin text-blue-500" strokeWidth={2.4} /> : null}
             <HistoricalNavButton label="Source" value={sourceLabel} onClick={() => openModal(1)} />
             <HistoricalNavButton label="Session" value={selectedSession?.label ?? "Select"} onClick={() => openModal(3)} />
@@ -41,9 +41,11 @@ function Navbar() {
                     <Link href="/live">Live Data</Link>
                     <Link href="/historical">Historical Data</Link>
                     <Link href="/sd/dump">SD Card Dump</Link>
-                    {isHistorical ? <HistoricalNavControls /> : null}
                 </div>
-                <ErrorRateIndicator />
+                <div className="flex items-center gap-4">
+                    {isHistorical ? <HistoricalNavControls /> : null}
+                    <ErrorRateIndicator />
+                </div>
             </div>
         </nav>
     );
