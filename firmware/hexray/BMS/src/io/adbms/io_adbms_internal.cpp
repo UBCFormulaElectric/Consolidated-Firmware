@@ -13,10 +13,6 @@ using namespace std;
 
 namespace
 {
-/**
- * Serializes access to the ADBMS SPI bus so the concurrent ADBMS tasks (voltages, configs, aux) can't interleave
- * transactions. Recursive because readRegGroup() re-enters sendCmd() via the RSTCC recovery path.
- */
 SemaphoreHandle_t spiMutex()
 {
     static StaticSemaphore_t storage;
