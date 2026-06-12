@@ -1,19 +1,19 @@
-#include "hw_bootup.hpp"
-#include "hw_hardFaultHandler.hpp"
-#include "hw_flash.hpp"
-#include "hw_utils.hpp"
-#include "hw_hal.hpp"
-#include "io_log.hpp"
-#include "app_crc32.hpp"
 #include "bootloader.hpp"
 
-#include "cmsis_gcc.h"
-#include "cmsis_os.h"
-#include "hw_can.hpp"
+#include "app_crc32.hpp"
+
+#include "io_log.hpp"
 #include "io_queue.hpp"
-#include <expected>
+#include "io_time.hpp"
+
+#include "hw_bootup.hpp"
+#include "hw_can.hpp"
+#include "hw_flash.hpp"
+#include "hw_hal.hpp"
+#include "hw_hardFaultHandler.hpp"
+#include "hw_utils.hpp"
+
 #include "util_errorCodes.hpp"
-#include "util_retry.hpp"
 
 // App code block. Start/size included from the linker script.
 // Info needed by the bootloader to boot safely. Currently takes up the the first kB
