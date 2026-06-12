@@ -40,7 +40,8 @@ enum class BootStatus : uint8_t
     BOOT_STATUS_NO_APP
 };
 
-static bool update_in_progress = false;
+static bool     update_in_progress = false;
+static uint32_t expected_block_num = 0;
 
 [[noreturn]] static void modifyStackPointerAndStartApp(const uint32_t *address)
 {
@@ -200,8 +201,8 @@ void bootloader::init(config &boot_config)
             command.std_id == (boot_config.BOARD_HIGHBITS | START_UPDATE_ID_LOWBITS)) // start update
         {
             // Reset current address to program and update state.
-            // current_address    = reinterpret_cast<uint32_t>(&__app_metadata_start__);
             update_in_progress = true;
+            expected_block_num = 0;
 
             // Send ACK message that programming has started.
             hw::CanMsg reply{};
@@ -238,7 +239,7 @@ void bootloader::init(config &boot_config)
         }
         else if (command.std_id == (boot_config.BOARD_HIGHBITS | VERIFY_ID_LOWBITS)) // verify validity
         {
-            assert(not boot_config.getFirstUnprogrammedAddress().has_value());
+            // assert(not boot_config.getFirstUnprogrammedAddress().has_value());
             // Verify received checksum matches the one saved in flash.
             hw::CanMsg reply{};
             reply.std_id  = boot_config.BOARD_HIGHBITS | APP_VALIDITY_ID_LOWBITS;
@@ -281,6 +282,14 @@ void bootloader::init(config &boot_config)
             // No reply for program command to reduce latency.
             // TODO: Seems kinda fragile
             const uint32_t block_addr = (command.std_id & 0x00FFFFF0U) >> 4;
+            if (block_addr != expected_block_num)
+            {
+                hw::CanMsg reply{};
+                reply.std_id               = boot_config.BOARD_HIGHBITS | PROGRAM_ID_FAILED_LOWBITS;
+                reply.dlc                  = 4;
+                reply.getDataAsDWords()[0] = expected_block_num;
+                continue;
+            }
             for (uint8_t i = 0; i < dlcToBytes(static_cast<uint8_t>(command.dlc)) / 8; i++)
             {
                 const uint64_t program_data    = command.getDataAsQWords()[i];
@@ -294,8 +303,7 @@ void bootloader::init(config &boot_config)
                     hw::CanMsg reply{};
                     reply.std_id               = boot_config.BOARD_HIGHBITS | PROGRAM_ID_FAILED_LOWBITS;
                     reply.dlc                  = 4;
-                    reply.getDataAsDWords()[0] = boot_config.getFirstUnprogrammedAddress().value_or(
-                        reinterpret_cast<uint32_t>(&__app_metadata_start__));
+                    reply.getDataAsDWords()[0] = expected_block_num;
                     LOG_IF_ERR(boot_config.can_tx_queue.push(reply));
                     break; // throw the block away
                 }
@@ -309,7 +317,7 @@ void bootloader::init(config &boot_config)
                         hw::CanMsg reply{};
                         reply.std_id               = boot_config.BOARD_HIGHBITS | PROGRAM_ID_FAILED_LOWBITS;
                         reply.dlc                  = 4;
-                        reply.getDataAsDWords()[0] = first_unprogrammed_addr.value();
+                        reply.getDataAsDWords()[0] = expected_block_num;
                         LOG_IF_ERR(boot_config.can_tx_queue.push(reply));
                         break; // throw the block away
                     }
@@ -321,6 +329,8 @@ void bootloader::init(config &boot_config)
                     LOG_IF_ERR(boot_config.flush());
                 }
             }
+            // successful block write
+            expected_block_num++;
         }
         else
         {

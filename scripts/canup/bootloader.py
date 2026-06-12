@@ -219,11 +219,11 @@ class Bootloader:
         end_addr = self.ih.minaddr() + self.size_bytes()
         print(f"start addr is {start_addr}, end addr is {end_addr}")
 
-        jump_back_address: Optional[int] = None  # TODO populate with CAN failure messages
+        jump_back_block: Optional[int] = None  # TODO populate with CAN failure messages
         stop_listener = threading.Event()
         # spawn a new thread which populates the above
         def listener(stop_listener: threading.Event):
-            nonlocal jump_back_address
+            nonlocal jump_back_block
             while not stop_listener.is_set():
                 can_msg = self._await_can_msg(
                     validator=lambda msg: msg.arbitration_id == (self.board.boot_id_range_start | PROGRAM_ID_FAILED_LOWBITS),
@@ -233,27 +233,25 @@ class Bootloader:
                     k = can_msg.data
                     assert can_msg.dlc == 4, f"Expected 4 bytes in PROGRAM_ID_FAILED message, got {can_msg.dlc}"
                     # TODO maybe better struct unpacking :sob:
-                    jump_back_address = (k[3] << 24) | (k[2] << 16) | (k[1] << 8) | k[0]
-                    print(f"jumpback received to {hex(jump_back_address)}")
+                    jump_back_block = (k[3] << 24) | (k[2] << 16) | (k[1] << 8) | k[0]
+                    print(f"jumpback received to {jump_back_block}")
         listen_thread = threading.Thread(target=listener, args=(stop_listener,))
         listen_thread.start()
 
         # TODO: Check if binary is aligned to 64 bytes and ensure ending bytes are sent
-        address = start_addr
-        while address < end_addr:
+        block = 0
+        last_block = (end_addr - start_addr) // CAN_FRAME_SIZE_BYTES
+        while block <= last_block:
             # check if we need to go back
-            if jump_back_address is not None:
-                address = jump_back_address
-                jump_back_address = None
-            block = (address - start_addr) // CAN_FRAME_SIZE_BYTES
+            if jump_back_block is not None:
+                block = jump_back_block
+                jump_back_block = None
             if self.ui_callback and block % 128 == 0: # update ui only every little while
                 self.ui_callback(
                     "Programming data", self.size_bytes(), block * CAN_FRAME_SIZE_BYTES
                 )
 
-            #frame_size = min(CAN_FRAME_SIZE_BYTES, end_addr - address)
-            #data = [self.ih[address + j] for j in range(frame_size)]
-            data = [self.ih[address + j] for j in range(0, CAN_FRAME_SIZE_BYTES)]
+            data = [self.ih[start_addr + block * CAN_FRAME_SIZE_BYTES + j] for j in range(0, CAN_FRAME_SIZE_BYTES)]
             wire_block_num = block << 4
             while True:
                 try:
@@ -268,7 +266,7 @@ class Bootloader:
                     break
                 except can.interfaces.vector.exceptions.VectorOperationError:
                     pass
-            address += CAN_FRAME_SIZE_BYTES
+            block += 1
         stop_listener.set()
         listen_thread.join()
 

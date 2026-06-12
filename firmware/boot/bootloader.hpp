@@ -94,6 +94,7 @@ class config
 
     /**
      * Programs a uint64_t into the internal buffer
+     * idk why I wrote all of this cuz it literally does not matter, as the can frames are all 64 bytes > 16, 32 bytes
      * @param address memory address to write to
      * @param data data to write
      * @return
@@ -158,7 +159,7 @@ class config
             }
 
             const uint32_t flash_addr = block_buffer_val.start_addr / hw::flash::WORD_BYTES * hw::flash::WORD_BYTES;
-            LOG_INFO("flashing to %lX == %lX", block_buffer_val.start_addr, flash_addr);
+            // LOG_INFO("flashing to %lX == %lX", block_buffer_val.start_addr, flash_addr);
             io::time::delay(1);
             const auto flash_res = hw::flash::programFlash(flash_addr, block_buffer.value().buffer);
             RETURN_IF_ERR(flash_res);
