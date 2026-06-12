@@ -5,6 +5,8 @@
 #include <gtest/gtest.h>
 #include <cmath>
 
+#include "bmsMocks.hpp"
+
 #include "io_bmsShdn.hpp"
 #include "io_bspdTest.hpp"
 #include "io_canTx.hpp"
@@ -270,7 +272,111 @@ namespace imd
     }
 } // namespace imd
 
-// fakes::segments::* setters are implemented in bmsMocks.cpp alongside the ADBMS read mocks.
+namespace segments
+{
+    namespace mock = io::adbms::mock;
+
+    // ---- Primary cell voltage (C-ADC) ---------------------------------------
+
+    void setStartCellsAdcOk(const bool ok)
+    {
+        mock::start_cells_adc = ok ? result<void>{} : std::unexpected(ErrorCode::ERROR);
+    }
+
+    void setPollCellsAdcOk(const bool ok)
+    {
+        mock::poll_cells_adc = ok ? result<void>{} : std::unexpected(ErrorCode::POLL_INVALID);
+    }
+
+    void setCellVoltage(const size_t segment, const size_t cell, const float voltage)
+    {
+        mock::cell_voltage[segment][cell] = mock::voltageToReg(voltage);
+    }
+
+    void setAllCellVoltages(const float voltage)
+    {
+        const int16_t reg = mock::voltageToReg(voltage);
+        for (auto &seg : mock::cell_voltage)
+            for (auto &cell : seg)
+                cell = reg;
+    }
+
+    void setCellReadError(const size_t segment, const size_t cell, const ErrorCode error)
+    {
+        mock::cell_voltage[segment][cell] = std::unexpected(error);
+    }
+
+    // ---- Secondary cell voltage (S-ADC) / open-wire check -------------------
+
+    void setStartSecondaryCellsAdcOk(const bool ok)
+    {
+        // The S-ADC conversion is started by owcCells(), so this maps to it.
+        mock::owc_cells = ok ? result<void>{} : std::unexpected(ErrorCode::ERROR);
+    }
+
+    void setPollSecondaryCellsAdcOk(const bool ok)
+    {
+        mock::poll_secondary_cells_adc = ok ? result<void>{} : std::unexpected(ErrorCode::POLL_INVALID);
+    }
+
+    void setCellOwcVoltage(
+        const io::adbms::OpenWireSwitch channel,
+        const size_t                    segment,
+        const size_t                    cell,
+        const float                     voltage)
+    {
+        mock::secondary_cell_voltage[static_cast<size_t>(channel)][segment][cell] = mock::voltageToReg(voltage);
+    }
+
+    void setAllCellOwcVoltages(const io::adbms::OpenWireSwitch channel, const float voltage)
+    {
+        const int16_t reg = mock::voltageToReg(voltage);
+        for (auto &seg : mock::secondary_cell_voltage[static_cast<size_t>(channel)])
+            for (auto &cell : seg)
+                cell = reg;
+    }
+
+    void setCellOwcReadError(const size_t segment, const size_t cell, const ErrorCode error)
+    {
+        for (auto &channel : mock::secondary_cell_voltage)
+            channel[segment][cell] = std::unexpected(error);
+    }
+
+    // ---- Thermistors (AUX ADC) ----------------------------------------------
+
+    void setStartAuxAdcOk(const bool ok)
+    {
+        mock::start_aux_adc = ok ? result<void>{} : std::unexpected(ErrorCode::ERROR);
+    }
+
+    void setPollAuxAdcOk(const bool ok)
+    {
+        mock::poll_aux_adc = ok ? result<void>{} : std::unexpected(ErrorCode::POLL_INVALID);
+    }
+
+    void setCellTemperature(const size_t segment, const size_t gpio, const float temperature_c)
+    {
+        mock::therm_gpio_voltage[segment][gpio] = mock::tempToReg(temperature_c);
+    }
+
+    void setAllCellTemperatures(const float temperature_c)
+    {
+        const int16_t reg = mock::tempToReg(temperature_c);
+        for (auto &seg : mock::therm_gpio_voltage)
+            for (auto &gpio : seg)
+                gpio = reg;
+    }
+
+    void setThermReadError(const size_t segment, const size_t gpio, const ErrorCode error)
+    {
+        mock::therm_gpio_voltage[segment][gpio] = std::unexpected(error);
+    }
+
+    void resetAdbmsMocks()
+    {
+        mock::reset();
+    }
+} // namespace segments
 
 namespace charger
 {

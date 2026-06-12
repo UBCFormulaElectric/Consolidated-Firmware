@@ -39,14 +39,25 @@ namespace imd
 } // namespace imd
 namespace segments
 {
-    void setCellVoltages(const std::array<std::array<float, CELLS_PER_SEGMENT>, NUM_SEGMENTS> &voltages);
+    void setStartCellsAdcOk(bool ok);
+    void setPollCellsAdcOk(bool ok);
     void setCellVoltage(size_t segment, size_t cell, float voltage);
-    void setPackVoltageEvenly(float pack_voltage);
-    void setCellTemperatures(const std::array<std::array<float, THERM_GPIOS_PER_SEGMENT>, NUM_SEGMENTS> &temperatures);
+    void setAllCellVoltages(float voltage);
+    void setCellReadError(size_t segment, size_t cell, ErrorCode error);
 
-    // Sets every thermistor GPIO to the given temperature (Celsius).
-    void SetAuxRegs(float temperature_c);
-    void SetAuxReg(uint8_t segment, uint8_t gpio, float temperature_c);
+    void setStartSecondaryCellsAdcOk(bool ok);
+    void setPollSecondaryCellsAdcOk(bool ok);
+    void setCellOwcVoltage(io::adbms::OpenWireSwitch channel, size_t segment, size_t cell, float voltage);
+    void setAllCellOwcVoltages(io::adbms::OpenWireSwitch channel, float voltage);
+    void setCellOwcReadError(size_t segment, size_t cell, ErrorCode error);
+
+    void setStartAuxAdcOk(bool ok);
+    void setPollAuxAdcOk(bool ok);
+    void setCellTemperature(size_t segment, size_t gpio, float temperature_c);
+    void setAllCellTemperatures(float temperature_c);
+    void setThermReadError(size_t segment, size_t gpio, ErrorCode error);
+
+    void resetAdbmsMocks();
 } // namespace segments
 namespace charger
 {
