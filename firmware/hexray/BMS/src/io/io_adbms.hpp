@@ -281,6 +281,4 @@ namespace clear
     [[nodiscard]] result<void> stat();
 } // namespace clear
 
-// random bullshit
-Segments<uint8_t> getCmdCountMismatches();
 } // namespace io::adbms
