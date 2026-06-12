@@ -7,11 +7,13 @@ import DataDashboard from "@/components/DataDashboard";
 import HistoricalSelectionModal from "@/components/historical/HistoricalSelectionModal";
 import { DisplayControlProvider } from "@/components/PausePlayControl";
 import SyncedGraphContainer, { TimeRange } from "@/components/SyncedGraphContainer";
-import { WidgetManager, useWidgetManager } from "@/components/widgets/WidgetManagerContext";
 import AlertTimeline from "@/components/widgets/AlertTimeline";
+import { WidgetManager, useWidgetManager } from "@/components/widgets/WidgetManagerContext";
+import { fetchHistoricalMarkers } from "@/lib/api/historicalMarkers";
 import { HistoricalSignalSource } from "@/lib/api/historicalSignals";
 import { useHistoricalSelection } from "@/lib/contexts/HistoricalSelectionContext";
 import { HistoricalSignalStoreProvider } from "@/lib/contexts/signalStores/HistoricalSignalStoreContext";
+import { clearRemoteTelemetryMarkers, setRemoteTelemetryMarkers } from "@/lib/telemetryMarkers";
 
 const HISTORIC_WIDGET_STORAGE_KEY = "tracksight_historic_widgets_config_v1";
 const HISTORIC_VIEWPORT_LOCK_STORAGE_KEY = "tracksight_historic_viewport_lock_state_v1";
@@ -34,6 +36,30 @@ function HistoricContent(props: { selectedRange: { min: number; max: number }; s
     useEffect(() => {
         setFetchRange(selectedRange);
     }, [selectedRange, selectedSource]);
+
+    useEffect(() => {
+        let isCancelled = false;
+
+        const loadMarkers = async () => {
+            try {
+                const markers = await fetchHistoricalMarkers(fetchRange.min, fetchRange.max, selectedSource);
+                if (isCancelled) return;
+                setRemoteTelemetryMarkers(markers);
+            } catch (error) {
+                if (!isCancelled) {
+                    console.error("Failed to load historical markers:", error);
+                    clearRemoteTelemetryMarkers();
+                }
+            }
+        };
+
+        void loadMarkers();
+
+        return () => {
+            isCancelled = true;
+            clearRemoteTelemetryMarkers();
+        };
+    }, [fetchRange.max, fetchRange.min, selectedSource]);
 
     const handleViewportSettled = useCallback(
         (viewportRange: TimeRange) => {

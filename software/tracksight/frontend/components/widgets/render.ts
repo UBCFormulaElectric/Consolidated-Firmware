@@ -7,6 +7,7 @@ import { ChartLayout, LODAwareNumericalSeries, LODAwareSeries } from "./CanvasCh
 // utils
 import { bisect } from "@/lib/bisect";
 import { coversRange } from "@/lib/signals/lodLevels";
+import { TelemetryMarker } from "@/lib/telemetryMarkers";
 import { isEnumSignalMetadata } from "@/lib/types/Signal";
 import { EnumTimelineWidgetData, NumericalGraphWidgetData, WidgetData } from "@/lib/types/Widget";
 
@@ -438,7 +439,24 @@ export function render_tooltip(
     });
 }
 
-export default function render(context: CanvasRenderingContext2D, width: number, height: number, layoutRef: RefObject<ChartLayout | null>, chartData: WidgetData, timeTickCount: number, hoverTime: number | null, hoveredSignal: RefObject<string | null> | undefined, { min: visibleStartTime, max: visibleEndTime }: { min: number; max: number }) {
+function render_markers(context: CanvasRenderingContext2D, width: number, height: number, visibleMarkers: TelemetryMarker[], timeToX: (t: number) => number) {
+    if (visibleMarkers.length === 0) return;
+
+    visibleMarkers.forEach((marker) => {
+        const xPosition = timeToX(marker.timestampMs);
+        if (xPosition < CHART_PADDING.left || xPosition > width - CHART_PADDING.right) return;
+
+        context.save();
+        context.strokeStyle = "rgba(220, 38, 38, 0.85)";
+        context.lineWidth = 1.5;
+        context.beginPath();
+        context.moveTo(xPosition, 0);
+        context.lineTo(xPosition, height);
+        context.stroke();
+    });
+}
+
+export default function render(context: CanvasRenderingContext2D, width: number, height: number, layoutRef: RefObject<ChartLayout | null>, chartData: WidgetData, timeTickCount: number, hoverTime: number | null, hoveredSignal: RefObject<string | null> | undefined, { min: visibleStartTime, max: visibleEndTime }: { min: number; max: number }, markers: TelemetryMarker[]) {
     context.clearRect(0, 0, width, height);
 
     const numericalTop = CHART_PADDING.top;
@@ -513,6 +531,8 @@ export default function render(context: CanvasRenderingContext2D, width: number,
         context.fillText(timeLabel, x, height - CHART_PADDING.bottom + 8);
         context.fillText(dateLabel, x, height - CHART_PADDING.bottom + 24);
     }
+
+    render_markers(context, width, height, markers, timeToX);
 
     if (hoverTime !== null) {
         render_tooltip(context, width, height, hoverTime, hover_value!, timeToX);

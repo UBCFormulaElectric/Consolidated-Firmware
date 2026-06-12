@@ -1,6 +1,7 @@
 "use client";
 
 import { useAlertStore } from "@/lib/contexts/signalStores/SignalStoreContext";
+import { getVisibleTelemetryMarkers, TelemetryMarker } from "@/lib/telemetryMarkers";
 import { useEffect, useRef } from "react";
 import { LODAwareAlertSeries } from "./CanvasChartTypes";
 import { useSyncedGraph } from "../SyncedGraphContainer";
@@ -127,6 +128,29 @@ const modelSignature = (
     });
   return parts.join("|");
 };
+
+function render_markers(
+  ctx: CanvasRenderingContext2D,
+  width: number,
+  height: number,
+  markers: TelemetryMarker[],
+  timeToX: (t: number) => number,
+) {
+  if (markers.length === 0) return;
+
+  markers.forEach((marker) => {
+    const xPos = timeToX(marker.timestampMs);
+
+    ctx.save();
+    ctx.strokeStyle = "rgba(220, 38, 38, 0.85)";
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(xPos, 0);
+    ctx.lineTo(xPos, height);
+    ctx.stroke();
+    ctx.restore();
+  });
+}
 
 const hitTestAlerts = (
   mousePos: MousePosition,
@@ -353,6 +377,13 @@ function AlertTimeline() {
       const bottom = top + (wrapperClientRect?.height ?? 0);
 
       renderAlertTimeline(ctx, bars, rect.width, rect.height, leftEdge, rightEdge, bottom, hoverInfo.current);
+      render_markers(
+        ctx,
+        rect.width,
+        rect.height,
+        getVisibleTelemetryMarkers(leftEdge, rightEdge),
+        timeToXRef.current,
+      );
 
       if (hoverXRef.current !== null) {
         render_hover_line(

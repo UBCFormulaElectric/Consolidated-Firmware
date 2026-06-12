@@ -1,6 +1,7 @@
 import SignalStore from "@/lib/signals/SignalStore";
 import socket from "@/lib/realtime/socket";
 import { SignalMetadata, SignalType } from "../types/Signal";
+import { addTelemetryMarker } from "../telemetryMarkers";
 import propagateHaar, { HaarLodBuffer } from "../utils/propagateHaar";
 import propagateMode, { ModeLodBuffer } from "../utils/propagateMode";
 
@@ -34,12 +35,23 @@ class LiveSignalStore extends SignalStore {
         name: string;
         timestamp: number;
         value: number;
-        signal_type: "Numerical" | "Alert" | "Enum" | "Boolean";
+        signal_type: "Numerical" | "Alert" | "Enum" | "Boolean" | "Marker";
       };
 
-      if (!this.storage[signalName] && signal_type !== "Alert") return;
-
       const ts = new Date(timestamp).getTime();
+
+      if (signal_type === "Marker") {
+        if (!signalName.endsWith("TelemMarkEvent")) return;
+
+        addTelemetryMarker({
+          timestampMs: ts,
+        });
+
+        this.updateWithTimestamp(ts);
+        return;
+      }
+
+      if (!this.storage[signalName] && signal_type !== "Alert") return;
 
       if (signal_type === "Alert") {
         if (!this.storage[signalName]) {

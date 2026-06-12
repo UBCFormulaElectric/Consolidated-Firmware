@@ -5,6 +5,7 @@ use serde::{Deserialize, Serialize};
 use strum::Display;
 
 use crate::config::CONFIG;
+use crate::tasks::can_data::decoded_item::DecodedMarker;
 
 #[derive(Debug, Display, Serialize, Deserialize, PartialEq, Eq, Hash, Clone)]
 #[strum(serialize_all = "lowercase")]
@@ -37,5 +38,14 @@ pub fn build_data_point(decoded_signal: DecodedSignal, source: InfluxSignalSourc
         .tag("source", source.to_string())
         .tag("signal_type", format!("{:?}", decoded_signal.signal_type).to_ascii_lowercase())
         .timestamp(decoded_signal.timestamp.unwrap_or_default() as i64)
+        .build()
+}
+
+pub fn build_marker_data_point(decoded_marker: DecodedMarker, source: InfluxSignalSource) -> Result<DataPoint, DataPointError> {
+    DataPoint::builder(&CONFIG.influxdb_measurement)
+        .field("_value", 1.0)
+        .tag("signal_name", &decoded_marker.name)
+        .tag("source", source.to_string())
+        .timestamp(decoded_marker.timestamp as i64)
         .build()
 }
