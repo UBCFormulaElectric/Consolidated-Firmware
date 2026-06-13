@@ -1,7 +1,10 @@
 #include "tasks.h"
+
 #include "jobs.hpp"
 #include "main.h"
 
+#include "app_soc.hpp"
+#include "app_socStorage.hpp"
 #include "app_jsoncan.hpp"
 #include "app_canTx.hpp"
 #include "app_canUtils.hpp"
@@ -10,6 +13,7 @@
 #include "io_canQueues.hpp"
 #include "io_time.hpp"
 #include "io_canRx.hpp"
+#include "io_filesystems.hpp"
 
 #include "hw_adcs.hpp"
 #include "hw_watchdog.hpp"
@@ -23,12 +27,15 @@
 #include "hw_pwms.hpp"
 #include "hw_runTimeStat.hpp"
 
-constexpr size_t         TASK_COUNT = 8;
+#include <climits>
+
+constexpr size_t         TASK_COUNT = 9;
 [[noreturn]] static void tasks_run1Hz(void *arg);
 [[noreturn]] static void tasks_run100Hz(void *arg);
 [[noreturn]] static void tasks_run1kHz(void *arg);
 [[noreturn]] static void tasks_runCanTx(void *arg);
 [[noreturn]] static void tasks_runCanRx(void *arg);
+[[noreturn]] static void tasks_runSdCard(void *arg);
 [[noreturn]] static void tasks_runAdbmsVoltages(void *arg);
 [[noreturn]] static void tasks_runAdbmsConfigs(void *arg);
 [[noreturn]] static void tasks_runAdbmsAux(void *arg);
@@ -41,12 +48,14 @@ static hw::rtos::StaticTask::StaticTaskStack<512>      TaskCanTxStack;
 static hw::rtos::StaticTask::StaticTaskStack<1024 * 3> TaskAdbmsVoltagesStack;
 static hw::rtos::StaticTask::StaticTaskStack<1024 * 3> TaskAdbmsConfigsStack;
 static hw::rtos::StaticTask::StaticTaskStack<1024 * 3> TaskAdbmsAuxStack;
+static hw::rtos::StaticTask::StaticTaskStack<512> TaskSdCardStack;
 
 static hw::rtos::StaticTask Task1kHz(osPriorityRealtime, "Task1kHz", tasks_run1kHz, Task1kHzStack);
 static hw::rtos::StaticTask Task1Hz(osPriorityAboveNormal, "Task1Hz", tasks_run1Hz, Task1HzStack);
 static hw::rtos::StaticTask Task100Hz(osPriorityHigh, "Task100Hz", tasks_run100Hz, Task100HzStack);
 static hw::rtos::StaticTask TaskCanRx(osPriorityBelowNormal, "TaskCanRx", tasks_runCanRx, TaskCanRxStack);
 static hw::rtos::StaticTask TaskCanTx(osPriorityBelowNormal, "TaskCanTx", tasks_runCanTx, TaskCanTxStack);
+static hw::rtos::StaticTask TaskSdCard(osPriorityLow, "TaskSdCard", tasks_runSdCard, TaskSdCardStack);
 static hw::rtos::StaticTask
     TaskAdbmsVoltages(osPriorityNormal, "TaskAdbmsVoltages", tasks_runAdbmsVoltages, TaskAdbmsVoltagesStack);
 static hw::rtos::StaticTask
@@ -125,8 +134,14 @@ void tasks_run1Hz(void *arg)
     {
         // SEGGER_SYSVIEW_MarkStart(100);
         jobs_run1Hz_tick();
-        // SEGGER_SYSVIEW_MarkStop(100);
-        // SEGGER_SYSVIEW_MarkStart(101);
+
+        const float min_soc_percent = app::soc::getMinSocPercent();
+
+        if (auto soc_tenths = app::socStorage::convertSocToTenths(min_soc_percent); soc_tenths.has_value())
+        {
+            xTaskNotify((TaskHandle_t)TaskSdCard.id(), *soc_tenths, eSetValueWithOverwrite);
+        }
+
         watchdog1hz.checkIn();
         // SEGGER_SYSVIEW_MarkStop(101);
         // SEGGER_SYSVIEW_MarkStart(102);
@@ -161,6 +176,7 @@ void tasks_run1kHz(void *arg)
     hw::watchdog::instance &watchdog1khz             = monitor.spawn_instance(period_ms + watchdog_grace_period_ms);
 
     uint32_t start_ticks = osKernelGetTickCount();
+
     forever
     {
         jobs_run1kHz_tick();
@@ -222,6 +238,23 @@ void tasks_runCanRx(void *arg)
     }
 }
 
+[[noreturn]] static void tasks_runSdCard(void *arg)
+{
+    forever
+    {
+        uint32_t rounded_soc = 0U;
+        if (xTaskNotifyWait(0, ULONG_MAX, &rounded_soc, portMAX_DELAY) == pdTRUE)
+        {
+            const uint32_t last_written_soc      = app::socStorage::getLastWrittenSocTenths();
+            const bool     soc_storage_available = app::socStorage::isAvailable();
+            if (soc_storage_available && last_written_soc != rounded_soc)
+            {
+                LOG_IF_ERR(app::socStorage::writeSocToSd((float)rounded_soc / 10.0f));
+            }
+        }
+    }
+}
+
 void tasks_runAdbmsVoltages(void *arg)
 {
     const uint32_t period_ms   = 500U;
@@ -271,6 +304,7 @@ void BMS_StartAllTasks()
     Task100Hz.start();
     TaskCanRx.start();
     TaskCanTx.start();
+    TaskSdCard.start();
     TaskAdbmsVoltages.start();
     TaskAdbmsConfigs.start();
     TaskAdbmsAux.start();
@@ -299,6 +333,11 @@ void tasks_init()
     fdcan1.init();
     fdcan2.init();
     shdn_en.writePin(true);
+
+    if (const auto result = fs.init(); !result)
+    {
+        LOG_ERROR("Failed to initialize filesystem");
+    }
 
     const ResetReason reset_reason = hw::resetReason::get();
     app::can_tx::BMS_ResetReason_set(static_cast<app::can_utils::CanResetReason>(reset_reason));

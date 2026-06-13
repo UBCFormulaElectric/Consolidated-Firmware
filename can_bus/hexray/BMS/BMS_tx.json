@@ -189,19 +189,25 @@
       "log_cycle_time" : 100
     }
   },
-  "HvBatteryProperties": {
+  "VoltageAndChargeStats": {
     "msg_id": 415,
     "cycle_time": 1000,
-    "description": "HV Battery Properties",
+    "description": "State of Charge Metrics",
     "signals": {
-      "HvBatterySoc": {
-        "start_bit": 0,
-        "bits": 8,
+      "SocPercent": {
+        "resolution": 0.1,
         "min": 0,
         "max": 100,
-        "scale": 1,
-        "offset": 0,
         "unit": "%"
+      },
+      "SocCoulombs": {
+        "resolution": 1,
+        "min": 0,
+        "max": 100000,
+        "unit": "C"
+      },
+      "SocDirty": {
+        "bits": 1
       }
     }
   },

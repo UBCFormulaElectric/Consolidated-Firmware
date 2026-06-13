@@ -17,6 +17,8 @@ enum class ErrorCode
     ERROR_INDETERMINATE,
     POLL_INVALID,
     NUM_EXIT_CODES,
+    WRITE_FAILED,
+    READ_FAILED
 };
 
 template <typename T> using result = std::expected<T, ErrorCode>;
@@ -45,6 +47,10 @@ constexpr const char *error_code_to_string(const ErrorCode code)
             return "Invalid reading (sentinel value)";
         case ErrorCode::ERROR_INDETERMINATE:
             return "Indeterminate error";
+        case ErrorCode::WRITE_FAILED:
+            return "Write operation failed";
+        case ErrorCode::READ_FAILED:
+            return "Read operation failed";
         case ErrorCode::POLL_INVALID:
             return "Poll invalid";
         case ErrorCode::NUM_EXIT_CODES:

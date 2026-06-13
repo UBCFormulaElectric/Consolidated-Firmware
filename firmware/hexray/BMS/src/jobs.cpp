@@ -5,6 +5,13 @@
 
 // app
 #include "app_bmsShdnLoop.hpp"
+#include "app_tractiveSystem.hpp"
+#include "app_irs.hpp"
+#include "app_heartbeatMonitors.hpp"
+#include "app_heartbeatMonitor.hpp"
+#include "app_soc.hpp"
+#include "app_jsoncan.hpp"
+#include "app_canUtils.hpp"
 #include "app_canAlerts.hpp"
 #include "app_canRx.hpp"
 #include "app_canTx.hpp"
@@ -67,14 +74,13 @@ void jobs_init()
     can_rx_queue.init();
     can_tx_queue.init();
 
-    app::can_tx::BMS_Hash_set(GIT_COMMIT_HASH);
     app::can_tx::BMS_Clean_set(GIT_COMMIT_CLEAN);
     app::can_tx::BMS_Heartbeat_set(true);
     io::can_tx::BMS_Bootup_sendAperiodic();
 
     app::precharge::init();
     app::segments::alerts::init();
-
+    app::soc::init();
     app::StateMachine::init(&app::states::init_state);
     app::can_tx::BMS_Heartbeat_set(true);
 }
@@ -164,6 +170,7 @@ void jobs_run100Hz_tick()
 void jobs_run1kHz_tick()
 {
     io::can_tx::enqueueOtherPeriodicMsgs(io::time::getCurrentMs());
+    app::soc::broadcast();
 }
 
 static io::notify::Notifier sync_done;
