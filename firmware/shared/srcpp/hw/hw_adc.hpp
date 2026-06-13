@@ -77,17 +77,14 @@ template <size_t NUM_ADC_CHANNELS> class adcchip
   public:
     consteval explicit adcchip(ADC_HandleTypeDef &in_hadc, TIM_HandleTypeDef &in_htim) : hadc(in_hadc), htim(in_htim){};
 
-    [[nodiscard]] result<void> init(const bool start_timer = true, const bool calibrate = false) const
+    [[nodiscard]] result<void> init(const bool start_timer = true) const
     {
-        if (calibrate)
-        {
 #if defined(STM32H733xx)
-            RETURN_IF_ERR_SILENT(hw::utils::convertHalStatus(
-                HAL_ADCEx_Calibration_Start(&hadc, ADC_CALIB_OFFSET_LINEARITY, ADC_SINGLE_ENDED)));
+        RETURN_IF_ERR_SILENT(hw::utils::convertHalStatus(
+            HAL_ADCEx_Calibration_Start(&hadc, ADC_CALIB_OFFSET_LINEARITY, ADC_SINGLE_ENDED)));
 #elif defined(STM32H562xx)
-            RETURN_IF_ERR_SILENT(hw::utils::convertHalStatus(HAL_ADCEx_Calibration_Start(&hadc, ADC_SINGLE_ENDED)));
+        RETURN_IF_ERR_SILENT(hw::utils::convertHalStatus(HAL_ADCEx_Calibration_Start(&hadc, ADC_SINGLE_ENDED)));
 #endif
-        }
 
         RETURN_IF_ERR_SILENT(hw::utils::convertHalStatus(
             HAL_ADC_Start_DMA(&hadc, reinterpret_cast<uint32_t *>(raw_adc_values.data()), hadc.Init.NbrOfConversion)));
