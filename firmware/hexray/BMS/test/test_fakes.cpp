@@ -7,6 +7,7 @@
 
 #include "io_bmsShdn.hpp"
 #include "io_bspdTest.hpp"
+#include "io_canQueues.hpp"
 #include "io_canTx.hpp"
 #include "io_charger.hpp"
 #include "io_fans.hpp"
@@ -17,6 +18,10 @@
 
 #include "util_errorCodes.hpp"
 #include "util_utils.hpp"
+#include "io_canQueues.hpp"
+
+io::queue<io::CanMsg, 250> can_tx_queue{ "" };
+io::queue<io::CanMsg, 128> can_rx_queue{ "" };
 
 struct FaultLatchParams
 {
@@ -169,51 +174,135 @@ namespace bspdtest
 
 namespace adbms
 {
-    bool started_therm_adc_conversion = false;
-    bool started_cell_adc_conversion  = false;
+    Cells<result<int16_t>> cell_voltages{};
 
-    result<void> sendCommand(const uint16_t command)
+    namespace write
     {
-        UNUSED(command);
-        return {};
+    [[nodiscard]] result<void> pwmReg(const Segments<PWMConfig> &pwm_config)
+    {
+        return result<void>{};
     }
 
-    result<void> poll(uint16_t cmd, uint8_t *poll_buf, uint16_t poll_buf_len)
+    [[nodiscard]] result<void> configReg(const Segments<SegmentConfig> &config)
     {
-        UNUSED(cmd);
-        std::memset(poll_buf, 0, poll_buf_len);
-        return {};
+        return result<void>{};
+    }
+} // namespace write
+
+namespace read
+{
+    [[nodiscard]] Segments<result<SegmentConfig>> configReg()
+    {
+        return Segments<result<SegmentConfig>>{};
     }
 
-    void
-        readRegGroup(uint16_t cmd, uint16_t regs[NUM_SEGMENTS][REGS_PER_GROUP], result<void> comm_success[NUM_SEGMENTS])
+    [[nodiscard]] Segments<result<PWMConfig>> pwmReg()
     {
-        UNUSED(cmd);
-        std::memset(regs, 0, NUM_SEGMENTS * REGS_PER_GROUP * sizeof(uint16_t));
-        for (size_t i = 0; i < NUM_SEGMENTS; i++)
-        {
-            comm_success[i] = {};
-        }
+        return Segments<result<PWMConfig>>{};
     }
 
-    result<void> writeRegGroup(uint16_t cmd, uint16_t regs[NUM_SEGMENTS][REGS_PER_GROUP])
+    [[nodiscard]] Cells<result<int16_t>> cellVoltage()
     {
-        UNUSED(cmd);
-        UNUSED(regs);
-        return {};
+        return cell_voltages;
     }
 
-    result<void> sendBalanceCommand(void)
+    [[nodiscard]] Cells<result<int16_t>> secondaryCellVoltage()
     {
-        return {};
+        return Cells<result<int16_t>>{};
     }
 
-    result<void> sendStopBalanceCommand(void)
+    [[nodiscard]] Segments<result<int16_t>> segVoltage()
     {
-        return {};
+        return Segments<result<int16_t>>{};
     }
+
+    [[nodiscard]] ThermGpios<result<int16_t>> thermGpioVoltage()
+    {
+        return ThermGpios<result<int16_t>>{};
+    }
+
+    [[nodiscard]] Segments<StatusGroupsRes> status()
+    {
+        return Segments<StatusGroupsRes>{};
+    }
+} // namespace read
+
+namespace command
+{
+    [[nodiscard]] result<void> startCellsAdc()
+    {
+        return result<void>{};
+    }
+
+    [[nodiscard]] result<void> startAuxAdc()
+    {
+        return result<void>{};
+    }
+
+    [[nodiscard]] result<void> pollSecondaryCellsAdc()
+    {
+        return result<void>{};
+    }
+
+    [[nodiscard]] result<void> pollCellsAdc()
+    {
+        return result<void>{};
+    }
+
+    [[nodiscard]] result<void> pollAuxAdc()
+    {
+        return result<void>{};
+    }
+
+    [[nodiscard]] result<void> startBalance()
+    {
+        return result<void>{};
+    }
+
+    [[nodiscard]] result<void> stopBalance()
+    {
+        return result<void>{};
+    }
+
+    [[nodiscard]] result<void> owcCells(OpenWireSwitch owcSwitch)
+    {
+        return result<void>{};
+    }
+} // namespace command
+
+namespace clear
+{
+    [[nodiscard]] result<void> aux()
+    {
+        return result<void>{};
+    }
+
+    [[nodiscard]] result<void> flags()
+    {
+        return result<void>{};
+    }
+
+    [[nodiscard]] result<void> cell()
+    {
+        return result<void>{};
+    }
+
+    [[nodiscard]] result<void> secondaryCell()
+    {
+        return result<void>{};
+    }
+
+    [[nodiscard]] result<void> filteredCell()
+    {
+        return result<void>{};
+    }
+
+    [[nodiscard]] result<void> stat()
+    {
+        return result<void>{};
+    }
+} // namespace clear
 } // namespace adbms
-
 } // namespace io
 
 // Faultlatch
@@ -315,73 +404,30 @@ namespace imd
     }
 } // namespace imd
 
-namespace segments
+namespace adbms
 {
-    void setCellVoltages(const std::array<std::array<float, CELLS_PER_SEGMENT>, NUM_SEGMENTS> &voltages)
+    static int16_t voltageToReg(const float voltage)
     {
-        for (size_t i = 0; i < NUM_SEGMENTS; i++)
+        return static_cast<int16_t>((voltage - 1.5f) / 150e-6f);
+    }
+
+    void setCellVoltage(const float voltage, const int seg, const int cell)
+    {
+        io::adbms::cell_voltages[static_cast<size_t>(seg)][static_cast<size_t>(cell)] = voltageToReg(voltage);
+    }
+
+    void setPackVoltageEvenly(const float voltage)
+    {
+        const float cell_voltage = voltage / static_cast<float>(NUM_SEGMENTS * CELLS_PER_SEGMENT);
+        for (size_t seg = 0; seg < NUM_SEGMENTS; seg++)
         {
-            for (size_t j = 0; j < CELLS_PER_SEGMENT; j++)
+            for (size_t cell = 0; cell < CELLS_PER_SEGMENT; cell++)
             {
-                voltage_regs[i][j] = static_cast<uint16_t>(voltages[i][j] * 1e4f);
+                setCellVoltage(cell_voltage, static_cast<int>(seg), static_cast<int>(cell));
             }
         }
     }
-
-    void setCellVoltage(const size_t segment, const size_t cell, const float voltage)
-    {
-        voltage_regs[segment][cell] = static_cast<uint16_t>(voltage * 1e4f);
-    }
-
-    void setCellTemperatures(const std::array<std::array<float, AUX_REGS_PER_SEGMENT>, NUM_SEGMENTS> &temperatures)
-    {
-        for (size_t i = 0; i < NUM_SEGMENTS; i++)
-        {
-            for (size_t j = 0; j < AUX_REGS_PER_SEGMENT; j++)
-            {
-                float T_k = temperatures[i][j] + 273.15f;
-                float k   = -3610.0f * (1.0f / T_k - 1.0f / 298.15f);
-
-                aux_regs_storage[i][j] = static_cast<uint16_t>(3.0f / (1.0f + exp2f(k)));
-            }
-        }
-    }
-
-    void setPackVoltageEvenly(const float pack_voltage)
-    {
-        const float cell_voltage = pack_voltage / (NUM_SEGMENTS * CELLS_PER_SEGMENT);
-        std::array<std::array<float, CELLS_PER_SEGMENT>, NUM_SEGMENTS> v{};
-        for (size_t i = 0; i < NUM_SEGMENTS; i++)
-        {
-            for (size_t j = 0; j < CELLS_PER_SEGMENT; j++)
-            {
-                v[i][j] = cell_voltage;
-            }
-        }
-        setCellVoltages(v);
-    }
-
-    void setExpectedVoltageSelfTestValue(const uint16_t value)
-    {
-        expected_self_test_value = value;
-    }
-
-    void SetAuxRegs(const float voltage)
-    {
-        for (size_t i = 0; i < NUM_SEGMENTS; i++)
-        {
-            for (size_t j = 0; j < AUX_REGS_PER_SEGMENT; j++)
-            {
-                aux_regs_storage[i][j] = static_cast<uint16_t>(voltage * 1000); // Not sure if conversion is correct
-            }
-        }
-    }
-
-    void SetAuxReg(const uint8_t segment, const uint8_t cell, const float voltage)
-    {
-        aux_regs_storage[segment][cell] = static_cast<uint16_t>(voltage * 1000); // Not sure if conversion is correct
-    }
-} // namespace segments
+} // namespace adbms
 
 namespace charger
 {

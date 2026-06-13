@@ -8,6 +8,7 @@
 #include "app_canTx.hpp"
 #include "app_canUtils.hpp"
 #include "io_canRx.hpp"
+#include "app_segments.hpp"
 
 #define ADBMS_CONVERSION_PERIOD_MS (1000U)
 
@@ -26,17 +27,10 @@ class BMSBaseTest : public EcuTestBase
         app::can_rx::Debug_CellBalancing_Request_update(false);
         app::can_tx::BMS_Fault_TESTFAULT_set(false);
 
-        // TODO: Change back to using constants once segments is added
-        // fakes::segments::setPackVoltageEvenly(3.8f * NUM_SEGMENTS * CELLS_PER_SEGMENT);
-        fakes::segments::setPackVoltageEvenly(3.8f * 10 * 14);
-        fakes::segments::SetAuxRegs(15.0f); // Approx. 25C
-
+        fakes::adbms::setPackVoltageEvenly(3.8f * NUM_SEGMENTS * CELLS_PER_SEGMENT);
         fakes::ts::setVoltage(0.0f);
 
         jobs_init();
-        // jobs_initAdbmsVoltages();
-        // jobs_initAdbmsTemps();
-        // jobs_initAdbmsDiagnostics();
 
         register_task(jobs_run1Hz_tick, 1000);
         register_task(jobs_run100Hz_tick, 10);
