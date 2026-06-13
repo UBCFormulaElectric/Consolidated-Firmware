@@ -370,7 +370,8 @@
     }
   },
   "PackVoltage": {
-    "msg_id": 425,
+    
+    "msg_id": 481,
     "cycle_time": null,
     "description": "Accumulator pack voltage (sum of segment voltages from the ADBMS stack)",
     "signals": {
