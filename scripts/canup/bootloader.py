@@ -148,8 +148,6 @@ class Bootloader:
         end_addr = self.ih.minaddr() + self.size_bytes()
         CAN_FRAME_SIZE_BYTES = 64 if self.is_fd else 8
         expected_block_num = (end_addr - start_addr) // CAN_FRAME_SIZE_BYTES
-        print(CAN_FRAME_SIZE_BYTES, hex(start_addr), hex(end_addr))
-        print(f"starting update with {expected_block_num} blocks to program")
         # convert expected_block_num to a little endian byte array
         expected_block_num_bytes = expected_block_num.to_bytes(4, byteorder="little")
         while True:
@@ -241,7 +239,6 @@ class Bootloader:
                 if can_msg is None:
                     continue
                 if can_msg.arbitration_id == (self.board.boot_id_range_start | PROGRAM_DONE_LOWBITS):
-                    print("programming complete message received")
                     done = True
                     break
                 elif can_msg.arbitration_id == (self.board.boot_id_range_start | PROGRAM_ID_FAILED_LOWBITS):
@@ -258,7 +255,6 @@ class Bootloader:
         # TODO: Check if binary is aligned to 64 bytes and ensure ending bytes are sent
         block = 0
         last_block = (end_addr - start_addr) // CAN_FRAME_SIZE_BYTES
-        print(f"start addr is {start_addr}, end addr is {end_addr}, last block is {last_block}")
         while not done:
             while block <= last_block:
                 # check if we need to go back
