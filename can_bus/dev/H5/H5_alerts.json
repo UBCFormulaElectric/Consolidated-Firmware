@@ -1,10 +1,10 @@
 {
-  "warnings_id": 601,
-  "faults_id": 602,
-  "warnings_counts_id": 603,
-  "faults_counts_id": 604,
-  "info_id": 605,
-  "info_counts_id": 606,
+  "warnings_id": 1201,
+  "faults_id": 1202,
+  "warnings_counts_id": 1203,
+  "faults_counts_id": 1204,
+  "info_id": 1205,
+  "info_counts_id": 1206,
   "info": {},
   "warnings": {},
   "faults": {}

@@ -62,6 +62,14 @@ extern "C"
 #define LED_GPIO_Port GPIOE
 #define BOOT_Pin GPIO_PIN_10
 #define BOOT_GPIO_Port GPIOE
+#define BMS_EN_Pin GPIO_PIN_11
+#define BMS_EN_GPIO_Port GPIOB
+#define RSM_EN_Pin GPIO_PIN_14
+#define RSM_EN_GPIO_Port GPIOD
+#define DAM_EN_Pin GPIO_PIN_8
+#define DAM_EN_GPIO_Port GPIOC
+#define FRONT_EN_Pin GPIO_PIN_5
+#define FRONT_EN_GPIO_Port GPIOB
 
     /* USER CODE BEGIN Private defines */
 

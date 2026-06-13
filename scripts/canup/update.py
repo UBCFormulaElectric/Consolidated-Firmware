@@ -38,7 +38,7 @@ def all_goto_bootloader(live: Live, bootloaders: List[bootloader.Bootloader]):
             completed=b_idx,
             description=f"Putting {bootload_board.board.name} into bootloader mode",
         )
-        if not bootload_board.goto_bootloader():
+        if not bootload_board.goto_bootloader(retry=True):
             raise TimeoutError(
                 f"Failed to send bootloader command to {bootload_board.board.name}"
             )
@@ -56,9 +56,9 @@ def all_goto_app(live: Live, bootloaders: List[bootloader.Bootloader]):
             completed=b_idx,
             description=f"Putting {bootload_board.board.name} into application mode",
         )
-        if not bootload_board.goto_app():
+        if not bootload_board.goto_app(retry=True):
             raise TimeoutError(
-                "Failed to send application command to {bootload_board.board.name}"
+                f"Failed to send application command to {bootload_board.board.name}"
             )
     progress.remove_task(app_task)
     live.console.log(
@@ -66,7 +66,7 @@ def all_goto_app(live: Live, bootloaders: List[bootloader.Bootloader]):
     )
 
 
-def update(configs: List[boards.Board], build_dir: str, is_fd: bool) -> None:
+def update(bus: can.Bus, configs: List[boards.Board], build_dir: str, is_fd: bool) -> None:
     """Update and handle UI."""
     num_boards = len(configs)
     steps_task = progress.add_task("Steps")
@@ -79,17 +79,16 @@ def update(configs: List[boards.Board], build_dir: str, is_fd: bool) -> None:
                 total=total,
                 description=description,
                 completed=completed,
-                is_fd=is_fd,
             ),
             ih=intelhex.IntelHex(os.path.join(build_dir, board.path)),
+            is_fd=is_fd,
         )
         for board in configs
     ]
 
-    # push all boards into bootloader
     with Live(Group(status, progress), transient=True) as live:
-        # push all boards into bootloader
         all_goto_bootloader(live, bootloaders)
+
         live.console.log(
             f"Updating firmware for boards: [blue bold]{', '.join(board.name for board in configs)}"
         )
@@ -110,11 +109,10 @@ def update(configs: List[boards.Board], build_dir: str, is_fd: bool) -> None:
         live.console.log(
             f"[bold green]Firmware update successfully ({num_boards} board{'s' if num_boards > 1 else ''} updated)"
         )
-        # push all boards out of bootloader
         all_goto_app(live, bootloaders)
 
 
-def erase(configs: List[boards.Board]) -> None:
+def erase(bus: can.Bus, configs: List[boards.Board], is_fd: bool) -> None:
     """Erase and handle UI."""
     # push all boards into bootloader
     num_boards = len(configs)
@@ -129,6 +127,7 @@ def erase(configs: List[boards.Board]) -> None:
                 description=description,
                 completed=completed,
             ),
+            is_fd=is_fd,
         )
         for board in configs
     ]
@@ -185,7 +184,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # Load config and binary.
-    c = list(
+    c: list[boards.Board] = list(
         {
             board
             for config_name in args.config.split(",")
@@ -203,17 +202,17 @@ if __name__ == "__main__":
         "tseg2_dbr": 10,
         "output_mode": 1,
     }
-    
+
     with can.interface.Bus(
         interface=args.bus,
         channel=args.channel,
         fd=args.fd,
         bitrate=args.bit_rate,
         data_bitrate=args.data_bitrate,
-        app_name = None,
+        app_name=None,
         **(fdcan_args if args.fd else {})
     ) as bus:
         if args.erase:
-            erase(configs=c, is_fd=args.fd)
+            erase(bus=bus, configs=c, is_fd=args.fd)
         else:
-            update(configs=c, build_dir=args.build, is_fd=args.fd)
+            update(bus=bus, configs=c, build_dir=args.build, is_fd=args.fd)
