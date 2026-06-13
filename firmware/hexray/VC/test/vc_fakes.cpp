@@ -62,6 +62,11 @@ namespace powerMonitoring
     static float ch_boost_current = 0.0f;
     static float ch_boost_power   = 0.0f;
 
+    result<void> init()
+    {
+        return {};
+    }
+
     void set_reading_voltage(const Channel channel, const float voltage)
     {
         switch (channel)
@@ -374,6 +379,14 @@ namespace powerMonitoring
     result<bool> is_alert_asserted()
     {
         return false;
+    }
+    result<void> init()
+    {
+        return fakes::io::powerMonitoring::init();
+    }
+    result<void> refresh()
+    {
+        return {};
     }
 } // namespace powerMonitoring
 

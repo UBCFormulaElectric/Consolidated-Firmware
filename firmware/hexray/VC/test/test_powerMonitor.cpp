@@ -5,6 +5,7 @@
 #include "util_errorCodes.hpp"
 #include "app_canTx.hpp"
 #include "app_canRx.hpp"
+#include "io_powerMonitoring.hpp"
 
 class VCPowerMonitorTest : public VCBaseTest
 {

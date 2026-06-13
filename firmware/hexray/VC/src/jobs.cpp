@@ -18,7 +18,7 @@
 #include "app_pumpControl.hpp"
 #include "app_vcShdnLoop.hpp"
 #include "app_shdnLast.hpp"
-
+#include "io_powerMonitoring.hpp"
 #include "io_canMsg.hpp"
 #include "io_canTx.hpp"
 #include "io_imus.hpp"
