@@ -2,11 +2,9 @@
 
 #include "app_stateMachine.hpp"
 #include <cstdint>
-#include <cstdlib>
 
 namespace app::inverter
 {
-
 enum FaultHandlerState : uint8_t
 {
     INV_FAULT_RETRY,
@@ -22,9 +20,9 @@ struct Handle
     void (*can_torque_setpoint)(int16_t);
     void (*can_torque_limit_negative)(int16_t);
     void (*can_torque_limit_positive)(int16_t);
-    uint16_t (*can_error_info)(void);
+    uint16_t (*can_error_info)();
     void (*error_reset)(bool);
-    bool (*can_error_bit)(void);
+    bool (*can_error_bit)();
     void (*can_inv_warning)(bool);
 
     consteval explicit Handle(
@@ -34,9 +32,9 @@ struct Handle
         void (*can_torque_setpoint_in)(int16_t),
         void (*can_torque_limit_negative_in)(int16_t),
         void (*can_torque_limit_positive_in)(int16_t),
-        uint16_t (*can_error_info_in)(void),
+        uint16_t (*can_error_info_in)(),
         void (*error_reset_in)(bool),
-        bool (*can_error_bit_in)(void),
+        bool (*can_error_bit_in)(),
         void (*can_inv_warning_in)(bool))
       : can_enable_inv(can_enable_inv_in),
         can_invOn(can_invOn_in),
@@ -57,9 +55,9 @@ void set_torque_limit_negative(float fl_Nm, float fr_Nm, float rl_Nm, float rr_N
 void set_torque_limit_positive(float fl_Nm, float fr_Nm, float rl_Nm, float rr_Nm);
 void send_torque(float fl_Nm, float fr_Nm, float torque_flrl_Nm, float rr_Nm);
 
-void FaultCheck(void);
+void FaultCheck();
 
-FaultHandlerState FaultHandler(void);
+FaultHandlerState FaultHandler();
 
-State *recovery_state(void);
+State *recovery_state();
 } // namespace app::inverter
