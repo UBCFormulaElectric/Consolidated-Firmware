@@ -5,6 +5,8 @@
 #include <gtest/gtest.h>
 #include <cmath>
 
+#include "bmsMocks.hpp"
+
 #include "io_bmsShdn.hpp"
 #include "io_bspdTest.hpp"
 #include "io_canTx.hpp"
@@ -34,185 +36,6 @@ template <> struct std::hash<FaultLatchParams>
 };
 static std::unordered_map<FaultLatchParams, uint32_t> setCurrentStatus_call_count;
 
-using namespace io::adbms;
-
-extern "C"
-{
-    // #include "io_adbms.h"
-    //     static std::array<SegmentConfig, NUM_SEGMENTS> segment_config{};
-
-    //     void io_adbms_readConfigurationRegisters(SegmentConfig configs[NUM_SEGMENTS], result<void>
-    //     success[NUM_SEGMENTS])
-    //     {
-    //         for (size_t i = 0; i < NUM_SEGMENTS; i++)
-    //         {
-    //             configs[i] = segment_config[i];
-    //             success[i] = ;
-    //         }
-    //     }
-    //     result<void> io_adbms_writeConfigurationRegisters(const SegmentConfig config[NUM_SEGMENTS])
-    //     {
-    //         std::ranges::copy_n(config, NUM_SEGMENTS, segment_config.data());
-    //         return;
-    //     }
-
-    static std::array<std::array<uint16_t, CELLS_PER_SEGMENT>, NUM_SEGMENTS> voltage_regs{};
-
-    static bool     started_adc_conversion     = false;
-    static bool     started_overlap_test       = false;
-    static bool     started_self_test_voltages = false;
-    static uint16_t expected_self_test_value   = 0x0;
-
-    //     result<void> io_adbms_startCellsAdcConversion(void)
-    //     {
-    //         started_adc_conversion = true;
-    //         return;
-    //     }
-    //     result<void> io_adbms_overlapADCTest(void)
-    //     {
-    //         started_overlap_test = true;
-    //         return;
-    //     }
-    //     result<void> io_adbms_sendSelfTestVoltages(void)
-    //     {
-    //         started_self_test_voltages = true;
-    //         return;
-    //     }
-    //     void io_adbms_readVoltageRegisters(
-    //         uint16_t cell_voltage_regs[NUM_SEGMENTS][CELLS_PER_SEGMENT],
-    //         result<void> comm_success[NUM_SEGMENTS][CELLS_PER_SEGMENT])
-    //     {
-    //         if (started_adc_conversion || started_overlap_test)
-    //         {
-    //             memcpy(cell_voltage_regs, voltage_regs.data(), sizeof(uint16_t) * NUM_SEGMENTS * CELLS_PER_SEGMENT);
-    //         }
-    //         else if (started_self_test_voltages)
-    //         {
-    //             // Fill with self-test values
-    //             for (int i = 0; i < NUM_SEGMENTS; i++)
-    //             {
-    //                 for (int j = 0; j < CELLS_PER_SEGMENT; j++)
-    //                 {
-    //                     cell_voltage_regs[i][j] = expected_self_test_value; // Example self-test value
-    //                 }
-    //             }
-    //         }
-    //         else
-    //         {
-    //             FAIL() << "Did not start ADC conversion, overlap test or self-test voltages";
-    //         }
-    //         for (int i = 0; i < NUM_SEGMENTS; i++)
-    //         {
-    //             for (int j = 0; j < CELLS_PER_SEGMENT; j++)
-    //             {
-    //                 comm_success[i][j] = ;
-    //             }
-    //         }
-    //         started_adc_conversion = false;
-    //     }
-
-    static std::array<std::array<uint16_t, AUX_REGS_PER_SEGMENT>, NUM_SEGMENTS> aux_regs_storage{};
-
-    //     bool started_therm_adc_conversion = false;
-    //     bool started_self_test_aux        = false;
-
-    //     void io_ltc6813_readAuxRegisters(
-    //         uint16_t aux_regs[NUM_SEGMENTS][AUX_REGS_PER_SEGMENT],
-    //         result<void> comm_success[NUM_SEGMENTS][AUX_REGS_PER_SEGMENT])
-    //     {
-    //         if (started_therm_adc_conversion || started_self_test_aux)
-    //         {
-    //             memcpy(aux_regs, aux_regs_storage.data(), sizeof(uint16_t) * NUM_SEGMENTS * AUX_REGS_PER_SEGMENT);
-    //             for (int i = 0; i < NUM_SEGMENTS; i++)
-    //             {
-    //                 for (int j = 0; j < AUX_REGS_PER_SEGMENT; j++)
-    //                 {
-    //                     // aux_regs[i][j]     = 0;
-    //                     comm_success[i][j] = ;
-    //                 }
-    //             }
-    //         }
-    //         else
-    //         {
-    //             FAIL() << "Did not start thermistor ADC conversion";
-    //         }
-    //         started_therm_adc_conversion = false;
-    //     }
-
-    //     result<void> io_adbms_startThermistorsAdcConversion(void)
-    //     {
-    //         started_therm_adc_conversion = true;
-    //         return;
-    //     }
-    //     void     io_adbms_wakeup(void) {}
-    //     result<void> io_adbms_pollAdcConversions(void)
-    //     {
-    //         return;
-    //     }
-    //     result<void> io_adbms_sendBalanceCommand(void)
-    //     {
-    //         return;
-    //     }
-    //     result<void> io_adbms_sendStopBalanceCommand(void)
-    //     {
-    //         return;
-    //     }
-    //     result<void> io_adbms_owcPull(const PullDirection pull_direction)
-    //     {
-    //         UNUSED(pull_direction);
-    //         return;
-    //     }
-    //     result<void> io_adbms_sendSelfTestAux(void)
-    //     {
-    //         started_self_test_aux = true;
-    //         return;
-    //     }
-    //     result<void> io_adbms_sendSelfTestStat(void)
-    //     {
-    //         return;
-    //     }
-    //     result<void> io_adbms_diagnoseMUX(void)
-    //     {
-    //         return;
-    //     }
-    //     result<void> io_adbms_startInternalADCConversions(void)
-    //     {
-    //         return;
-    //     }
-    //     void io_adbms_getStatus(StatusRegGroups status[NUM_SEGMENTS], result<void>
-    //     success[NUM_SEGMENTS])
-    //     {
-    //         UNUSED(status);
-    //         for (int i = 0; i < NUM_SEGMENTS; i++)
-    //         {
-    //             success[i] = ;
-    //         }
-    //     }
-    //     result<void> io_adbms_clearCellRegisters(void)
-    //     {
-    //         return;
-    //     }
-    //     result<void> io_adbms_clearAuxRegisters(void)
-    //     {
-    //         return;
-    //     }
-    //     result<void> io_adbms_clearStatRegisters(void)
-    //     {
-    //         return;
-    //     }
-
-    void io_canTx_init(
-        void (*transmit_can1_msg_func)(const JsonCanMsg *),
-        void (*transmit_charger_msg_func)(const JsonCanMsg *))
-    {
-        UNUSED(transmit_can1_msg_func);
-        UNUSED(transmit_charger_msg_func);
-    }
-}
-
-// C++ namespace wrappers so production C++ code (io::*) can call the
-// same fake state used by the C-style io_* functions above. Tests may
-// continue to use `fakes::*` helpers to mutate this state.
 namespace io
 {
 namespace irs
@@ -346,52 +169,7 @@ namespace bspdtest
     }
 } // namespace bspdtest
 
-namespace adbms
-{
-    bool started_therm_adc_conversion = false;
-    bool started_cell_adc_conversion  = false;
-
-    result<void> sendCommand(const uint16_t command)
-    {
-        UNUSED(command);
-        return {};
-    }
-
-    result<void> poll(uint16_t cmd, uint8_t *poll_buf, uint16_t poll_buf_len)
-    {
-        UNUSED(cmd);
-        std::memset(poll_buf, 0, poll_buf_len);
-        return {};
-    }
-
-    void
-        readRegGroup(uint16_t cmd, uint16_t regs[NUM_SEGMENTS][REGS_PER_GROUP], result<void> comm_success[NUM_SEGMENTS])
-    {
-        UNUSED(cmd);
-        std::memset(regs, 0, NUM_SEGMENTS * REGS_PER_GROUP * sizeof(uint16_t));
-        for (size_t i = 0; i < NUM_SEGMENTS; i++)
-        {
-            comm_success[i] = {};
-        }
-    }
-
-    result<void> writeRegGroup(uint16_t cmd, uint16_t regs[NUM_SEGMENTS][REGS_PER_GROUP])
-    {
-        UNUSED(cmd);
-        UNUSED(regs);
-        return {};
-    }
-
-    result<void> sendBalanceCommand(void)
-    {
-        return {};
-    }
-
-    result<void> sendStopBalanceCommand(void)
-    {
-        return {};
-    }
-} // namespace adbms
+// ADBMS reads/writes are mocked in bmsMocks.cpp.
 
 } // namespace io
 
@@ -496,69 +274,107 @@ namespace imd
 
 namespace segments
 {
-    void setCellVoltages(const std::array<std::array<float, CELLS_PER_SEGMENT>, NUM_SEGMENTS> &voltages)
+    namespace mock = io::adbms::mock;
+
+    // ---- Primary cell voltage (C-ADC) ---------------------------------------
+
+    void setStartCellsAdcOk(const bool ok)
     {
-        for (size_t i = 0; i < NUM_SEGMENTS; i++)
-        {
-            for (size_t j = 0; j < CELLS_PER_SEGMENT; j++)
-            {
-                voltage_regs[i][j] = static_cast<uint16_t>(voltages[i][j] * 1e4f);
-            }
-        }
+        mock::start_cells_adc = ok ? result<void>{} : std::unexpected(ErrorCode::ERROR);
+    }
+
+    void setPollCellsAdcOk(const bool ok)
+    {
+        mock::poll_cells_adc = ok ? result<void>{} : std::unexpected(ErrorCode::POLL_INVALID);
     }
 
     void setCellVoltage(const size_t segment, const size_t cell, const float voltage)
     {
-        voltage_regs[segment][cell] = static_cast<uint16_t>(voltage * 1e4f);
+        mock::cell_voltage[segment][cell] = mock::voltageToReg(voltage);
     }
 
-    void setCellTemperatures(const std::array<std::array<float, AUX_REGS_PER_SEGMENT>, NUM_SEGMENTS> &temperatures)
+    void setAllCellVoltages(const float voltage)
     {
-        for (size_t i = 0; i < NUM_SEGMENTS; i++)
-        {
-            for (size_t j = 0; j < AUX_REGS_PER_SEGMENT; j++)
-            {
-                float T_k = temperatures[i][j] + 273.15f;
-                float k   = -3610.0f * (1.0f / T_k - 1.0f / 298.15f);
-
-                aux_regs_storage[i][j] = static_cast<uint16_t>(3.0f / (1.0f + exp2f(k)));
-            }
-        }
+        const int16_t reg = mock::voltageToReg(voltage);
+        for (auto &seg : mock::cell_voltage)
+            for (auto &cell : seg)
+                cell = reg;
     }
 
-    void setPackVoltageEvenly(const float pack_voltage)
+    void setCellReadError(const size_t segment, const size_t cell, const ErrorCode error)
     {
-        const float cell_voltage = pack_voltage / (NUM_SEGMENTS * CELLS_PER_SEGMENT);
-        std::array<std::array<float, CELLS_PER_SEGMENT>, NUM_SEGMENTS> v{};
-        for (size_t i = 0; i < NUM_SEGMENTS; i++)
-        {
-            for (size_t j = 0; j < CELLS_PER_SEGMENT; j++)
-            {
-                v[i][j] = cell_voltage;
-            }
-        }
-        setCellVoltages(v);
+        mock::cell_voltage[segment][cell] = std::unexpected(error);
     }
 
-    void setExpectedVoltageSelfTestValue(const uint16_t value)
+    // ---- Secondary cell voltage (S-ADC) / open-wire check -------------------
+
+    void setStartSecondaryCellsAdcOk(const bool ok)
     {
-        expected_self_test_value = value;
+        // The S-ADC conversion is started by owcCells(), so this maps to it.
+        mock::owc_cells = ok ? result<void>{} : std::unexpected(ErrorCode::ERROR);
     }
 
-    void SetAuxRegs(const float voltage)
+    void setPollSecondaryCellsAdcOk(const bool ok)
     {
-        for (size_t i = 0; i < NUM_SEGMENTS; i++)
-        {
-            for (size_t j = 0; j < AUX_REGS_PER_SEGMENT; j++)
-            {
-                aux_regs_storage[i][j] = static_cast<uint16_t>(voltage * 1000); // Not sure if conversion is correct
-            }
-        }
+        mock::poll_secondary_cells_adc = ok ? result<void>{} : std::unexpected(ErrorCode::POLL_INVALID);
     }
 
-    void SetAuxReg(const uint8_t segment, const uint8_t cell, const float voltage)
+    void setCellOwcVoltage(
+        const io::adbms::OpenWireSwitch channel,
+        const size_t                    segment,
+        const size_t                    cell,
+        const float                     voltage)
     {
-        aux_regs_storage[segment][cell] = static_cast<uint16_t>(voltage * 1000); // Not sure if conversion is correct
+        mock::secondary_cell_voltage[static_cast<size_t>(channel)][segment][cell] = mock::voltageToReg(voltage);
+    }
+
+    void setAllCellOwcVoltages(const io::adbms::OpenWireSwitch channel, const float voltage)
+    {
+        const int16_t reg = mock::voltageToReg(voltage);
+        for (auto &seg : mock::secondary_cell_voltage[static_cast<size_t>(channel)])
+            for (auto &cell : seg)
+                cell = reg;
+    }
+
+    void setCellOwcReadError(const size_t segment, const size_t cell, const ErrorCode error)
+    {
+        for (auto &channel : mock::secondary_cell_voltage)
+            channel[segment][cell] = std::unexpected(error);
+    }
+
+    // ---- Thermistors (AUX ADC) ----------------------------------------------
+
+    void setStartAuxAdcOk(const bool ok)
+    {
+        mock::start_aux_adc = ok ? result<void>{} : std::unexpected(ErrorCode::ERROR);
+    }
+
+    void setPollAuxAdcOk(const bool ok)
+    {
+        mock::poll_aux_adc = ok ? result<void>{} : std::unexpected(ErrorCode::POLL_INVALID);
+    }
+
+    void setCellTemperature(const size_t segment, const size_t gpio, const float temperature_c)
+    {
+        mock::therm_gpio_voltage[segment][gpio] = mock::tempToReg(temperature_c);
+    }
+
+    void setAllCellTemperatures(const float temperature_c)
+    {
+        const int16_t reg = mock::tempToReg(temperature_c);
+        for (auto &seg : mock::therm_gpio_voltage)
+            for (auto &gpio : seg)
+                gpio = reg;
+    }
+
+    void setThermReadError(const size_t segment, const size_t gpio, const ErrorCode error)
+    {
+        mock::therm_gpio_voltage[segment][gpio] = std::unexpected(error);
+    }
+
+    void resetAdbmsMocks()
+    {
+        mock::reset();
     }
 } // namespace segments
 

@@ -6,26 +6,7 @@
 #include "app_canUtils.hpp"
 #include "app_canTx.hpp"
 #include "io_faultLatch.hpp"
-// #include "io_adbms.hpp"
-
-// TODO: Remove definintions after io adbms and app segments are added
-namespace io::adbms
-{
-#ifndef NUM_SEGMENTS
-#define NUM_SEGMENTS 10U
-#define CELLS_PER_SEGMENT 14U
-// TODO: Have to change to match adbms regs
-#define AUX_REG_GROUPS 3U
-#define REGS_PER_GROUP 3U
-#define AUX_REGS_PER_SEGMENT (AUX_REG_GROUPS * REGS_PER_GROUP)
-#define MAX_CELL_VOLTAGE_FAULT_V 4.2f
-#define MIN_CELL_VOLTAGE_FAULT_V 2.5f
-#define MAX_CELL_TEMP_FAULT_C (60.0f)
-#endif
-} // namespace io::adbms
-// Remove up to here
-
-using namespace io::adbms;
+#include "io_adbms.hpp"
 
 namespace fakes
 {
@@ -58,14 +39,25 @@ namespace imd
 } // namespace imd
 namespace segments
 {
-    void setCellVoltages(const std::array<std::array<float, CELLS_PER_SEGMENT>, NUM_SEGMENTS> &voltages);
+    void setStartCellsAdcOk(bool ok);
+    void setPollCellsAdcOk(bool ok);
     void setCellVoltage(size_t segment, size_t cell, float voltage);
-    void setPackVoltageEvenly(float pack_voltage);
-    void setCellTemperatures(const std::array<std::array<float, AUX_REGS_PER_SEGMENT>, NUM_SEGMENTS> &temperatures);
+    void setAllCellVoltages(float voltage);
+    void setCellReadError(size_t segment, size_t cell, ErrorCode error);
 
-    // TODO: Better testing interface for temps.
-    void SetAuxRegs(float voltage);
-    void SetAuxReg(uint8_t segment, uint8_t cell, float voltage);
+    void setStartSecondaryCellsAdcOk(bool ok);
+    void setPollSecondaryCellsAdcOk(bool ok);
+    void setCellOwcVoltage(io::adbms::OpenWireSwitch channel, size_t segment, size_t cell, float voltage);
+    void setAllCellOwcVoltages(io::adbms::OpenWireSwitch channel, float voltage);
+    void setCellOwcReadError(size_t segment, size_t cell, ErrorCode error);
+
+    void setStartAuxAdcOk(bool ok);
+    void setPollAuxAdcOk(bool ok);
+    void setCellTemperature(size_t segment, size_t gpio, float temperature_c);
+    void setAllCellTemperatures(float temperature_c);
+    void setThermReadError(size_t segment, size_t gpio, ErrorCode error);
+
+    void resetAdbmsMocks();
 } // namespace segments
 namespace charger
 {

@@ -15,7 +15,7 @@
 namespace
 {
 constexpr float    DISCHARGE_THRESHOLD_V = 10e-3f;
-constexpr uint32_t SETTLE_TIME_MS        = 0;
+constexpr uint32_t SETTLE_TIME_MS        = 5 * 1000;
 constexpr uint32_t BALANCE_TIME_MS       = 5 * 1000;
 
 using io::adbms::Cells;
@@ -30,25 +30,33 @@ void updateCellsToBalance()
 {
     const Cells<result<float>> cell_voltages                   = app::segments::shared::getLatestVoltages();
     const auto [min_cell_seg, min_cell_cell, min_cell_voltage] = app::segments::shared::getMinCellVoltage();
-    const Cells<result<bool>> cell_owc                         = app::segments::shared::getLatestCellOwc();
+    const Cells<result<bool>> cell_owc_ok                      = app::segments::shared::getLatestCellOwcOk();
 
     for (uint8_t seg = 0; seg < NUM_SEGMENTS; seg++)
     {
+        // If any cell in the segment has a failed voltage read or a failed/flagged
+        // owc, disable balancing for the entire segment
+        bool segment_ok = true;
         for (uint8_t cell = 0; cell < CELLS_PER_SEGMENT; cell++)
         {
-            // Skip cells with failed voltage reads
-            if (!cell_voltages[seg][cell])
+            if (!cell_voltages[seg][cell] || !cell_owc_ok[seg][cell].value_or(false))
             {
-                discharge_enabled[seg][cell] = false;
-                continue;
+                segment_ok = false;
+                break;
             }
+        }
 
-            // Skip cells with failed owc or owc flagged
-            if (!cell_owc[seg][cell].value_or(false))
+        if (!segment_ok)
+        {
+            for (uint8_t cell = 0; cell < CELLS_PER_SEGMENT; cell++)
             {
                 discharge_enabled[seg][cell] = false;
-                continue;
             }
+            continue;
+        }
+
+        for (uint8_t cell = 0; cell < CELLS_PER_SEGMENT; cell++)
+        {
 
             // Never discharge the leader cell unless balancing to target voltage
             if (seg == min_cell_seg && cell == min_cell_cell && !app::can_rx::Debug_CellBalancing_OverrideValue_get())
