@@ -87,6 +87,20 @@ export const EnumSignalPicker = memo(function EnumSignalPicker(props: { query: s
   }, []);
 
   const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === "ArrowDown") {
+      event.preventDefault();
+      setIsListOpen(true);
+      setHighlightedIndex((prev) => (prev + 1) % visibleSignals.length);
+      return;
+    }
+
+    if (event.key === "ArrowUp") {
+      event.preventDefault();
+      setIsListOpen(true);
+      setHighlightedIndex((prev) => (prev - 1 + visibleSignals.length) % visibleSignals.length);
+      return;
+    }
+
     if (event.key === "Enter" && isListOpen && visibleSignals[highlightedIndex]) {
       event.preventDefault();
       onSelectSignal(visibleSignals[highlightedIndex]);
@@ -99,6 +113,24 @@ export const EnumSignalPicker = memo(function EnumSignalPicker(props: { query: s
       setIsListOpen(false);
     }
   };
+
+  useEffect(() => {
+    if (isListOpen && containerRef.current) {
+      const listElement = containerRef.current.querySelector(".max-h-64");
+      const highlightedElement = listElement?.children[highlightedIndex] as HTMLElement;
+
+      if (listElement && highlightedElement) {
+        const listRect = listElement.getBoundingClientRect();
+        const highlightedRect = highlightedElement.getBoundingClientRect();
+
+        if (highlightedRect.bottom > listRect.bottom) {
+          highlightedElement.scrollIntoView({ block: "end" });
+        } else if (highlightedRect.top < listRect.top) {
+          highlightedElement.scrollIntoView({ block: "start" });
+        }
+      }
+    }
+  }, [highlightedIndex, isListOpen]);
 
   return (
     <div ref={containerRef} className="w-full max-w-md">

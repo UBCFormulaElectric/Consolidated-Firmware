@@ -35,9 +35,9 @@ class TI_TPS28_Efuse final : public Efuse
       : Efuse(in_enable_gpio, in_sns_adc_channel), pgood_gpio(in_pgood_gpio)
     {
     }
-    [[nodiscard]] float getChannelCurrent() const override final;
-    void                reset() override final;
-    [[nodiscard]] bool  ok() const override final;
+    [[nodiscard]] float getChannelCurrent() const override;
+    void                reset() override;
+    [[nodiscard]] bool  ok() const override;
 
     /**
      * @brief Read the specific faults of the efuse

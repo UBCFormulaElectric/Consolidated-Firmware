@@ -12,17 +12,18 @@
 #include "hw_can.hpp"
 #include "hw_gpio.hpp"
 #include "io_canRx.hpp"
-#include "io_batteryMonitoring.hpp"
+#include "io_semaphore.hpp"
 
 #include "hw_adcs.hpp"
 #include "hw_cans.hpp"
-#include "hw_gpios.hpp"
 #include "hw_rtosTaskHandler.hpp"
 #include "hw_hardFaultHandler.hpp"
 #include "hw_bootup.hpp"
+#include "hw_i2cs.hpp"
 #include "hw_watchdog.hpp"
 #include "hw_resetReason.hpp"
 #include "hw_runTimeStat.hpp"
+#include "io_pumps.hpp"
 
 [[noreturn]] static void tasks_run1Hz(void *arg);
 [[noreturn]] static void tasks_run100Hz(void *arg);
@@ -49,7 +50,7 @@ static hw::rtos::StaticTask Task1kHz(osPriorityRealtime, "Task1kHz", tasks_run1k
 static hw::rtos::StaticTask Task1Hz(osPriorityAboveNormal, "Task1Hz", tasks_run1Hz, Task1HzStack);
 static hw::rtos::StaticTask TaskCanRx(osPriorityNormal, "TaskCanRx", tasks_runCanRx, TaskCanRxStack);
 static hw::rtos::StaticTask TaskCan1Tx(osPriorityNormal, "TaskCanTx", tasks_runCan1Tx, TaskCan1TxStack);
-static hw::rtos::StaticTask TaskCan2Tx(osPriorityNormal, "TaskCanTx", tasks_runCan2Tx, TaskCan2TxStack);
+static hw::rtos::StaticTask TaskCan2Tx(osPriorityHigh, "TaskCanTx", tasks_runCan2Tx, TaskCan2TxStack);
 static hw::rtos::StaticTask
     TaskBatteryMonitoring(osPriorityNormal, "TaskBatteryMonitoring", tasks_batteryMonitoring, BatteryMonitoringStack);
 static hw::rtos::StaticTask
@@ -240,9 +241,8 @@ void tasks_init()
 #endif
 
     LOG_INFO("VC Reset!");
-    osKernelInitialize();
-    jobs_init();
-    hw::runtimeStat::init(htim7);
+
+    // hw::runtimeStat::init(htim7);
     fdcan1.init();
     invcan.init();
 
@@ -272,17 +272,17 @@ void tasks_init()
     }
 
     // TODO this should surely be managed by the power manager??
-    dam_en.writePin(true);
-    rsm_en.writePin(true);
-    front_en.writePin(true);
-    bms_en.writePin(true);
-    rl_pump_en.writePin(true);
-    rr_pump_en.writePin(true);
-    f_inv_en.writePin(true);
-    r_inv_en.writePin(true);
-    r_rad_fan_en.writePin(true);
-    l_rad_fan_en.writePin(true);
-    misc_fuse_en.writePin(true);
+    // dam_en.writePin(true);
+    // rsm_en.writePin(true);
+    // front_en.writePin(true);
+    // bms_en.writePin(true);
+    // rl_pump_en.writePin(true);
+    // rr_pump_en.writePin(true);
+    // f_inv_en.writePin(true);
+    // r_inv_en.writePin(true);
+    // r_rad_fan_en.writePin(true);
+    // l_rad_fan_en.writePin(true);
+    // misc_fuse_en.writePin(true);
     ResetReason reason = hw::resetReason::get();
     app::can_tx::VC_ResetReason_set(static_cast<app::can_utils::CanResetReason>(reason));
     if (reason == RESET_REASON_WATCHDOG)
