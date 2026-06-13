@@ -61,9 +61,7 @@ class BMSBaseTest : public EcuTestBase
                             &app::states::drive_state,
                             &app::states::charge_state,
                             &app::states::balancing_state,
-                            &app::states::fault_state,
-                            &app::states::charge_init_state,
-                            &app::states::charge_fault_state };
+                            &app::states::fault_state };
     }
     void SetImdCondition(const app::can_utils::ImdConditionName condition_name)
     {
@@ -87,15 +85,13 @@ struct StateMetadata
     bool                     requires_fault;
 };
 
-constexpr inline std::array<StateMetadata, 10> state_metadata = { {
-    { &app::states::init_state, app::can_utils::BmsState::BMS_INIT_STATE, false, false },
-    { &app::states::fault_state, app::can_utils::BmsState::BMS_FAULT_STATE, false, true },
-    { &app::states::precharge_drive_state, app::can_utils::BmsState::BMS_PRECHARGE_DRIVE_STATE, true, false },
-    { &app::states::drive_state, app::can_utils::BmsState::BMS_DRIVE_STATE, true, false },
-    { &app::states::balancing_state, app::can_utils::BmsState::BMS_BALANCING_STATE, true, false },
-    { &app::states::precharge_latch_state, app::can_utils::BmsState::BMS_PRECHARGE_LATCH_STATE, true, false },
-    { &app::states::precharge_charge_state, app::can_utils::BmsState::BMS_PRECHARGE_CHARGE_STATE, true, false },
-    { &app::states::charge_state, app::can_utils::BmsState::BMS_CHARGE_STATE, true, false },
-    { &app::states::charge_init_state, app::can_utils::BmsState::BMS_CHARGE_INIT_STATE, true, false },
-    { &app::states::charge_fault_state, app::can_utils::BmsState::BMS_CHARGE_FAULT_STATE, true, false },
-} };
+constexpr inline std::array<StateMetadata, 10> state_metadata = {
+    { { &app::states::init_state, app::can_utils::BmsState::BMS_INIT_STATE, false, false },
+      { &app::states::fault_state, app::can_utils::BmsState::BMS_FAULT_STATE, false, true },
+      { &app::states::precharge_drive_state, app::can_utils::BmsState::BMS_PRECHARGE_DRIVE_STATE, true, false },
+      { &app::states::drive_state, app::can_utils::BmsState::BMS_DRIVE_STATE, true, false },
+      { &app::states::balancing_state, app::can_utils::BmsState::BMS_BALANCING_STATE, true, false },
+      { &app::states::precharge_latch_state, app::can_utils::BmsState::BMS_PRECHARGE_LATCH_STATE, true, false },
+      { &app::states::precharge_charge_state, app::can_utils::BmsState::BMS_PRECHARGE_CHARGE_STATE, true, false },
+      { &app::states::charge_state, app::can_utils::BmsState::BMS_CHARGE_STATE, true, false } }
+};

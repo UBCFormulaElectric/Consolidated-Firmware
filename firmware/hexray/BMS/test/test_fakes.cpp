@@ -17,11 +17,14 @@
 #include "io_time.hpp"
 #include "segments/app_segments_internal.hpp"
 
+#include "app_segments.hpp"
+
 #include "util_errorCodes.hpp"
 #include "util_utils.hpp"
 #include "io_canQueues.hpp"
 
-io::queue<io::CanMsg, 250> can_tx_queue{ "" };
+io::queue<io::CanMsg, 128> charger_can_tx_queue{ "" };
+io::queue<io::CanMsg, 250> vehicle_can_tx_queue{ "" };
 io::queue<io::CanMsg, 128> can_rx_queue{ "" };
 
 struct FaultLatchParams
@@ -127,6 +130,7 @@ namespace charger
     static app::can_utils::ChargerConnectedType connectionStatus =
         app::can_utils::ChargerConnectedType::CHARGER_DISCONNECTED;
     static float evse_dutyCycle = 0.0f;
+    static float evse_frequency = 0.0f;
 
     app::can_utils::ChargerConnectedType getConnectionStatus()
     {
@@ -136,7 +140,28 @@ namespace charger
     {
         return evse_dutyCycle;
     }
+    float getCPFrequency()
+    {
+        return evse_frequency;
+    }
 } // namespace charger
+
+} // namespace io
+
+// Placeholder pack-voltage accessor: app::segments has no pack-voltage getter yet, so tests drive it
+// directly. Cell voltage/temp instead go through the real shared module (see fakes::segments below).
+namespace app::segments
+{
+static float fake_pack_v = 3.8f * 10.0f * 14.0f; // matches setPackVoltageEvenly default
+
+float getPackVoltage()
+{
+    return fake_pack_v;
+}
+} // namespace app::segments
+
+namespace io
+{
 
 namespace shdn
 {
@@ -402,6 +427,7 @@ namespace faultLatch
 } // namespace faultLatch
 
 namespace imd
+
 {
     void setFrequency(const float frequency)
     {
@@ -424,7 +450,7 @@ namespace adbms
         return static_cast<int16_t>((voltage - 1.5f) / 150e-6f);
     }
 
-    void setCellVoltage(const float voltage, const int seg, const int cell)
+    void setCellVoltage(const int seg, const int cell, const float voltage)
     {
         io::adbms::cell_voltages[static_cast<size_t>(seg)][static_cast<size_t>(cell)] = voltageToReg(voltage);
     }
@@ -436,7 +462,7 @@ namespace adbms
         {
             for (size_t cell = 0; cell < CELLS_PER_SEGMENT; cell++)
             {
-                setCellVoltage(cell_voltage, static_cast<int>(seg), static_cast<int>(cell));
+                setCellVoltage(static_cast<int>(seg), static_cast<int>(cell), cell_voltage);
             }
         }
     }
@@ -498,6 +524,10 @@ namespace charger
     void setCPDutyCycle(const float duty_cycle)
     {
         io::charger::evse_dutyCycle = duty_cycle;
+    }
+    void setCPFrequency(const float frequency)
+    {
+        io::charger::evse_frequency = frequency;
     }
 } // namespace charger
 } // namespace fakes

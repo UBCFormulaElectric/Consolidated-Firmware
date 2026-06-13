@@ -11,7 +11,7 @@ class StaticTask
     template <size_t SizeWords> struct StaticTaskStack
     {
         static_assert(SizeWords % 2 == 0, "Stack size must be a multiple of 8 bytes (2 words) for proper alignment.");
-        alignas(8) uint32_t data[SizeWords] = {};
+        alignas(8) volatile uint32_t data[SizeWords] = {};
     };
 
   private:
@@ -20,7 +20,10 @@ class StaticTask
         uint32_t    *data;
         const size_t size;
         // ReSharper disable once CppNonExplicitConvertingConstructor
-        template <size_t T> constexpr StaticTaskStackRef(StaticTaskStack<T> &s) : data(s.data), size(T) {}
+        template <size_t T>
+        constexpr StaticTaskStackRef(StaticTaskStack<T> &s) : data(const_cast<uint32_t *>(s.data)), size(T)
+        {
+        }
         StaticTaskStackRef() = delete;
     };
 

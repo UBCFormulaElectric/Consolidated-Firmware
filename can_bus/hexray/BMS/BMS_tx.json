@@ -8277,6 +8277,39 @@
       }
     }
   },
+  "EvseCPStatus": {
+    "msg_id": 482,
+    "allowed_modes":[
+      "DEBUG"
+    ],
+    "cycle_time": 10,
+    "description": "Status of the control pilot signal for J1772 plug",
+    "signals":{
+      "EvseFrequency":{
+        "resolution": 0.5,
+        "min": 0,
+        "max": 2000,
+        "unit": "Hz",
+        "bits": 32
+      },
+      "EvseDutyCycle": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "EvseAvailableCurrent": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 80,
+        "unit": "A"
+      }
+    },
+    "data_capture": {
+      "telem_cycle_time": 1000,
+      "log_cycle_time" : 1000
+    }
+  },
   "ElconControls": {
     "msg_id": 403105268,
     "cycle_time": 1000,
@@ -8285,8 +8318,6 @@
       "MaxChargingVoltage": {
         "start_bit": 0,
         "bits": 16,
-        "min": 0,
-        "max": 10000,
         "scale": 0.1,
         "offset": 0,
         "unit": "V",
@@ -8295,8 +8326,6 @@
       "MaxChargingCurrent": {
         "start_bit": 16,
         "bits": 16,
-        "min": 0,
-        "max": 1000,
         "scale": 0.1,
         "offset": 0,
         "unit": "A",

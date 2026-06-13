@@ -20,6 +20,7 @@
 #include "app_segments.hpp"
 #include "app_states.hpp"
 #include "app_tractiveSystem.hpp"
+#include "app_charger.hpp"
 
 // io
 #include "app_latches.hpp"
@@ -33,6 +34,7 @@
 #include "io_semaphore.hpp"
 #include "io_time.hpp"
 #include "io_notify.hpp"
+#include "io_irs.hpp"
 
 using io::adbms::Cells;
 using io::adbms::OpenWireSwitch;
@@ -43,17 +45,23 @@ using io::adbms::Therms;
 static void jsoncan_transmit_func(const JsonCanMsg &tx_msg)
 {
     const io::CanMsg msg = app::jsoncan::copyToCanMsg(tx_msg);
-    const auto       res = can_tx_queue.push(msg);
-    LOG_IF_ERR(res);
+    const auto       res = vehicle_can_tx_queue.push(msg);
+    // LOG_IF_ERR(res);
     if (not res)
     {
-        LOG_ERROR("failed on can id %d", tx_msg.std_id);
+        // LOG_ERROR("failed on can id %d", tx_msg.std_id);
     }
 }
 
 static void charger_transmit_func(const JsonCanMsg &tx_msg)
 {
-    UNUSED(tx_msg);
+    const io::CanMsg msg = app::jsoncan::copyToCanMsg(tx_msg);
+    const auto       res = charger_can_tx_queue.push(msg);
+    LOG_IF_ERR(res);
+    if (not res)
+    {
+        LOG_ERROR("failed on can id %d", tx_msg.std_id);
+    }
 }
 
 void jobs_init()
@@ -63,7 +71,8 @@ void jobs_init()
     io::can_tx::enableMode_charger(app::can_utils::chargerMode::CHARGER_MODE_DEFAULT, true);
 
     can_rx_queue.init();
-    can_tx_queue.init();
+    vehicle_can_tx_queue.init();
+    charger_can_tx_queue.init();
 
     app::can_tx::BMS_Hash_set(GIT_COMMIT_HASH);
     app::can_tx::BMS_Clean_set(GIT_COMMIT_CLEAN);
@@ -89,6 +98,7 @@ void jobs_run100Hz_tick()
 
     const bool debug_mode_enabled = app::can_rx::Debug_EnableDebugMode_get();
     io::can_tx::enableMode_FDCAN(app::can_utils::FDCANMode::FDCAN_MODE_DEBUG, debug_mode_enabled);
+    io::can_tx::enableMode_charger(app::can_utils::chargerMode::CHARGER_MODE_DEBUG, debug_mode_enabled);
 
     app::ts::broadcast();
     app::shdn::bms_shdnLoop.broadcast();
@@ -98,9 +108,12 @@ void jobs_run100Hz_tick()
     hb_monitor.checkIn();
     hb_monitor.broadcastFaults();
 
-    // TODO: Enable fans for endurance when contactors are closed.
-    // io::fans::tick(app::can_rx::VC_State_get() == app::can_utils::VCState::VC_DRIVE_STATE);
-    io::fans::tick(true);
+    const bool vc_drive_state         = app::can_rx::VC_State_get() == app::can_utils::VCState::VC_DRIVE_STATE;
+    const bool cell_balancing_request = app::can_rx::Debug_CellBalancing_Request_get();
+    const bool charging_request       = app::can_rx::Debug_StartCharging_get();
+    const bool fans_enabled           = vc_drive_state || cell_balancing_request || charging_request;
+    io::fans::tick(fans_enabled);
+    
     app::can_tx::BMS_FanStatus_set(true);
 #ifdef TARGET_EMBEDDED
     // app::can_tx::BMS_FanPgood_set(fan_pgood.readPin());
@@ -110,6 +123,7 @@ void jobs_run100Hz_tick()
 
     // Charger connection status
     app::can_tx::BMS_ChargerConnectedType_set(io::charger::getConnectionStatus());
+    app::charger::broadcast();
 
 #ifdef TARGET_HV_SUPPLY
     const bool acc_fault = false;

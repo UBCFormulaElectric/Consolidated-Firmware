@@ -12,7 +12,7 @@ class BmsStateMachineTest : public BMSBaseTest
 {
 };
 static constexpr int target_voltage =
-    static_cast<int>(static_cast<float>((NUM_SEGMENTS * CELLS_PER_SEGMENT)) * 4.2f); // V
+    static_cast<int>(static_cast<float>((NUM_SEGMENTS * CELLS_PER_SEGMENT)) * 3.8f); // V
 static constexpr int undervoltage            = 200.0f;                               // V
 static constexpr int tolerance_time          = 500;                                  // ms
 static constexpr int precharge_completion_ms = static_cast<int>(app::precharge::PRECHARGE_COMPLETION_MS_F);
@@ -245,24 +245,22 @@ TEST_F(BmsStateMachineTest, enter_precharge_charge)
     ASSERT_EQ(app::can_tx::BMS_State_get(), app::can_utils::BmsState::BMS_PRECHARGE_CHARGE_STATE);
 }
 
-TEST_F(BmsStateMachineTest, precharge_charge_success_to_charge_init)
+TEST_F(BmsStateMachineTest, precharge_charge_success_to_charge)
 {
     fakes::adbms::setPackVoltageEvenly(target_voltage);
     fakes::irs::setNegativeState(app::can_utils::ContactorState::CONTACTOR_STATE_CLOSED);
     app::can_rx::Debug_StartCharging_update(true);
     fakes::charger::setConnectionStatus(app::can_utils::ChargerConnectedType::CHARGER_CONNECTED_EVSE);
     LetTimePass(20);
+    
+    // Precharge for charging, we don't care about precharging too quickly
+    ASSERT_STATE_EQ(app::states::precharge_charge_state);
+    ASSERT_EQ(io::irs::prechargeState(), app::can_utils::ContactorState::CONTACTOR_STATE_CLOSED);
+    LetTimePass(10);
 
-    for (unsigned int precharge_time = 0;
-         precharge_time < app::precharge::PRECHARGE_COMPLETION_LOWER_BOUND + tolerance_time; precharge_time += 10)
-    {
-        ASSERT_STATE_EQ(app::states::precharge_charge_state);
-        ASSERT_EQ(io::irs::prechargeState(), app::can_utils::ContactorState::CONTACTOR_STATE_CLOSED);
-        LetTimePass(10);
-    }
     fakes::ts::setVoltage(target_voltage);
     LetTimePass(20);
-    ASSERT_STATE_EQ(app::states::charge_init_state);
+    ASSERT_STATE_EQ(app::states::charge_state);
     ASSERT_EQ(io::irs::positiveState(), app::can_utils::ContactorState::CONTACTOR_STATE_CLOSED);
     ASSERT_EQ(io::irs::prechargeState(), app::can_utils::ContactorState::CONTACTOR_STATE_OPEN);
 }
@@ -274,6 +272,7 @@ TEST_F(BmsStateMachineTest, precharge_charge_latches_after_retries)
     fakes::irs::setNegativeState(app::can_utils::ContactorState::CONTACTOR_STATE_CLOSED);
     app::can_rx::Debug_StartCharging_update(true);
     app::StateMachine::set_current_state(&app::states::precharge_charge_state);
+    fakes::charger::setConnectionStatus(app::can_utils::ChargerConnectedType::CHARGER_CONNECTED_EVSE);
     // Simulate closing precharge contactor before voltage rise.
     LetTimePass(10);
 
@@ -301,13 +300,14 @@ TEST_F(BmsStateMachineTest, precharge_charge_latches_after_retries)
 
 TEST_F(BmsStateMachineTest, drive_to_init_on_ir_negative_open_debounced)
 {
+    constexpr uint32_t ir_negative_debounce_period = 200U;
     fakes::irs::setNegativeState(app::can_utils::ContactorState::CONTACTOR_STATE_CLOSED);
     io::irs::setPositive(app::can_utils::ContactorState::CONTACTOR_STATE_CLOSED);
     app::StateMachine::set_current_state(&app::states::drive_state);
     LetTimePass(1000);
     ASSERT_STATE_EQ(app::states::drive_state);
     fakes::irs::setNegativeState(app::can_utils::ContactorState::CONTACTOR_STATE_OPEN);
-    LetTimePass(app::irs::N_DEBOUNCE_PERIOD_MS - 50);
+    LetTimePass(ir_negative_debounce_period - 50);
     ASSERT_STATE_EQ(app::states::drive_state);
     LetTimePass(100);
 
@@ -330,6 +330,7 @@ TEST_F(BmsStateMachineTest, check_state_transition_from_fault_to_init_with_no_fa
 
 TEST_F(BmsStateMachineTest, imd_fault_latches_then_reset_to_init_state)
 {
+    const uint32_t n_debounce_period_ms = 200U;
     app::StateMachine::set_current_state(&app::states::drive_state);
     fakes::faultLatch::resetFaultLatch(&imd_ok_latch);
     fakes::irs::setNegativeState(app::can_utils::ContactorState::CONTACTOR_STATE_CLOSED);
@@ -340,7 +341,7 @@ TEST_F(BmsStateMachineTest, imd_fault_latches_then_reset_to_init_state)
 
     fakes::faultLatch::updateFaultLatch(&imd_ok_latch, io::FaultLatch::FaultLatchState::FAULT);
     fakes::irs::setNegativeState(app::can_utils::ContactorState::CONTACTOR_STATE_OPEN);
-    LetTimePass(app::irs::N_DEBOUNCE_PERIOD_MS + 100); // wait for negative-open debounce to drive DRIVE -> INIT
+    LetTimePass(n_debounce_period_ms + 100); // wait for negative-open debounce to drive DRIVE -> INIT
     for (int i = 0; i < 30; i++)
     {
         LetTimePass(10);
@@ -366,6 +367,7 @@ TEST_F(BmsStateMachineTest, imd_fault_latches_then_reset_to_init_state)
 
 TEST_F(BmsStateMachineTest, bms_fault_latches_then_reset_to_init_state)
 {
+    const uint32_t n_debounce_period_ms = 200U;
     app::StateMachine::set_current_state(&app::states::drive_state);
     fakes::faultLatch::resetFaultLatch(&bms_ok_latch);
     fakes::irs::setNegativeState(app::can_utils::ContactorState::CONTACTOR_STATE_CLOSED);
@@ -376,7 +378,7 @@ TEST_F(BmsStateMachineTest, bms_fault_latches_then_reset_to_init_state)
 
     fakes::faultLatch::updateFaultLatch(&bms_ok_latch, io::FaultLatch::FaultLatchState::FAULT);
     fakes::irs::setNegativeState(app::can_utils::ContactorState::CONTACTOR_STATE_OPEN);
-    LetTimePass(app::irs::N_DEBOUNCE_PERIOD_MS + 100); // wait for negative-open debounce to drive DRIVE -> INIT
+    LetTimePass(n_debounce_period_ms + 100); // wait for negative-open debounce to drive DRIVE -> INIT
     for (int i = 0; i < 30; i++)
     {
         LetTimePass(10);
@@ -402,6 +404,7 @@ TEST_F(BmsStateMachineTest, bms_fault_latches_then_reset_to_init_state)
 
 TEST_F(BmsStateMachineTest, bspd_fault_latches_then_reset_to_init_state)
 {
+    const uint32_t n_debounce_period_ms = 200U;
     app::StateMachine::set_current_state(&app::states::drive_state);
     fakes::faultLatch::resetFaultLatch(&bspd_ok_latch);
     fakes::irs::setNegativeState(app::can_utils::ContactorState::CONTACTOR_STATE_CLOSED);
@@ -412,7 +415,7 @@ TEST_F(BmsStateMachineTest, bspd_fault_latches_then_reset_to_init_state)
 
     fakes::faultLatch::updateFaultLatch(&bspd_ok_latch, io::FaultLatch::FaultLatchState::FAULT);
     fakes::irs::setNegativeState(app::can_utils::ContactorState::CONTACTOR_STATE_OPEN);
-    LetTimePass(app::irs::N_DEBOUNCE_PERIOD_MS + 100);
+    LetTimePass(n_debounce_period_ms + 100);
     for (int i = 0; i < 30; i++)
     {
         LetTimePass(10);
