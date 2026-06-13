@@ -5,6 +5,7 @@
 #include "app_timer.hpp"
 #include "io_irs.hpp"
 #include "io_charger.hpp"
+#include "io_semaphore.hpp"
 #include "app_charger.hpp"
 #include "app_segments.hpp"
 #include "app_canUtils.hpp"
@@ -22,10 +23,8 @@ constexpr float CELL_V_MAX_CHARGE  = 4.20f; // V
 constexpr float I_TERMINATE_A      = 1.0f;  // A
 
 // Pack-level target commanded to the Elcon
-// TODO: Replace with actual pack voltage when segments is ready.
-// constexpr float PACK_VOLTAGE_MAX = static_cast<float>(io::adbms::NUM_SEGMENTS) *
-// static_cast<float>(io::adbms::CELLS_PER_SEGMENT) * CELL_V_MAX_CHARGE;
-constexpr float PACK_VOLTAGE_MAX = 140.0f * CELL_V_MAX_CHARGE;
+constexpr float PACK_VOLTAGE_MAX = static_cast<float>(NUM_SEGMENTS) *
+static_cast<float>(CELLS_PER_SEGMENT) * CELL_V_MAX_CHARGE;
 
 constexpr float CHARGER_EFFICIENCY = 0.93f; // average DC-side efficiency of the Elcon
 constexpr float MAX_DC_CURRENT     = 12.0f; // 1C standard limit of DC input current to the pack
@@ -49,9 +48,12 @@ namespace chargeState
     {
         const float pin  = VAC_MIN * iac_max;
         const float pout = pin * CHARGER_EFFICIENCY;
-        // Very conservative... Dividing by max pack voltage gives the lowest current estimate
-        // TODO: Replace PACK_VOLTAGE_MAX with app::segments::getPackVoltage() once segments is merged in!!
-        float idc = pout / PACK_VOLTAGE_MAX;
+        float pack_voltage;
+        {
+        const io::unique_semaphore s{ shared_lock };
+        pack_voltage = app::segments::shared::getPackVoltage().value_or(PACK_VOLTAGE_MAX);
+        }
+        float idc = pout / pack_voltage;
         return (idc > MAX_DC_CURRENT) ? MAX_DC_CURRENT : idc;
     }
 

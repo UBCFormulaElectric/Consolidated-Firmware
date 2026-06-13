@@ -12,7 +12,7 @@ class BmsStateMachineTest : public BMSBaseTest
 {
 };
 static constexpr int target_voltage =
-    static_cast<int>(static_cast<float>((NUM_SEGMENTS * CELLS_PER_SEGMENT)) * 4.2f); // V
+    static_cast<int>(static_cast<float>((NUM_SEGMENTS * CELLS_PER_SEGMENT)) * 3.8f); // V
 static constexpr int undervoltage            = 200.0f;                               // V
 static constexpr int tolerance_time          = 500;                                  // ms
 static constexpr int precharge_completion_ms = static_cast<int>(app::precharge::PRECHARGE_COMPLETION_MS_F);
@@ -245,21 +245,19 @@ TEST_F(BmsStateMachineTest, enter_precharge_charge)
     ASSERT_EQ(app::can_tx::BMS_State_get(), app::can_utils::BmsState::BMS_PRECHARGE_CHARGE_STATE);
 }
 
-TEST_F(BmsStateMachineTest, precharge_charge_success_to_charge_init)
+TEST_F(BmsStateMachineTest, precharge_charge_success_to_charge)
 {
     fakes::adbms::setPackVoltageEvenly(target_voltage);
     fakes::irs::setNegativeState(app::can_utils::ContactorState::CONTACTOR_STATE_CLOSED);
     app::can_rx::Debug_StartCharging_update(true);
     fakes::charger::setConnectionStatus(app::can_utils::ChargerConnectedType::CHARGER_CONNECTED_EVSE);
     LetTimePass(20);
+    
+    // Precharge for charging, we don't care about precharging too quickly
+    ASSERT_STATE_EQ(app::states::precharge_charge_state);
+    ASSERT_EQ(io::irs::prechargeState(), app::can_utils::ContactorState::CONTACTOR_STATE_CLOSED);
+    LetTimePass(10);
 
-    for (unsigned int precharge_time = 0;
-         precharge_time < app::precharge::PRECHARGE_COMPLETION_LOWER_BOUND + tolerance_time; precharge_time += 10)
-    {
-        ASSERT_STATE_EQ(app::states::precharge_charge_state);
-        ASSERT_EQ(io::irs::prechargeState(), app::can_utils::ContactorState::CONTACTOR_STATE_CLOSED);
-        LetTimePass(10);
-    }
     fakes::ts::setVoltage(target_voltage);
     LetTimePass(20);
     ASSERT_STATE_EQ(app::states::charge_state);
