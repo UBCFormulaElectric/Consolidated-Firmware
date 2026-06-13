@@ -313,43 +313,43 @@
       "Imu1AccelX": {
         "resolution": 0.01,
         "signed": true,
-        "min": -20,
-        "max": 20,
+        "min": -5,
+        "max": 5,
         "unit": "g"
       },
       "Imu1AccelY": {
         "resolution": 0.01,
         "signed": true,
-        "min": -20,
-        "max": 20,
+        "min": -5,
+        "max": 5,
         "unit": "g"
       },
       "Imu1AccelZ": {
         "resolution": 0.01,
         "signed": true,
-        "min": -20,
-        "max": 20,
+        "min": -5,
+        "max": 5,
         "unit": "g"
       },
       "Imu1GyroX": {
         "resolution": 0.01,
         "signed": true,
-        "min": -20,
-        "max": 20,
+        "min": -30,
+        "max": 30,
         "unit": "deg/s"
       },
       "Imu1GyroY": {
         "resolution": 0.01,
         "signed": true,
-        "min": -20,
-        "max": 20,
+        "min": -30,
+        "max": 30,
         "unit": "deg/s"
       },
       "Imu1GyroZ": {
         "resolution": 0.01,
         "signed": true,
-        "min": -20,
-        "max": 20,
+        "min": -30,
+        "max": 30,
         "unit": "deg/s"
       }
     }

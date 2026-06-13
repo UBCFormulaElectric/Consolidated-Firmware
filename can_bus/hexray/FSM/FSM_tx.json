@@ -157,43 +157,43 @@
       "AccelX": {
         "resolution": 0.01,
         "signed": true,
-        "min": -20,
-        "max": 20,
+        "min": -5,
+        "max": 5,
         "unit": "g"
       },
       "AccelY": {
         "resolution": 0.01,
         "signed": true,
-        "min": -20,
-        "max": 20,
+        "min": -5,
+        "max": 5,
         "unit": "g"
       },
       "AccelZ": {
         "resolution": 0.01,
         "signed": true,
-        "min": -20,
-        "max": 20,
+        "min": -5,
+        "max": 5,
         "unit": "g"
       },
       "GyroX": {
         "resolution": 0.01,
         "signed": true,
-        "min": -20,
-        "max": 20,
+        "min": -30,
+        "max": 30,
         "unit": "deg/s"
       },
       "GyroY": {
         "resolution": 0.01,
         "signed": true,
-        "min": -20,
-        "max": 20,
+        "min": -30,
+        "max": 30,
         "unit": "deg/s"
       },
       "GyroZ": {
         "resolution": 0.01,
         "signed": true,
-        "min": -20,
-        "max": 20,
+        "min": -30,
+        "max": 30,
         "unit": "deg/s"
       }
     },
