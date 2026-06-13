@@ -1,11 +1,12 @@
 {
-    "messages": [
-        "VC_Vitals",
-        "BMS_Vitals",
-        "FSM_Vitals",
-        "RSM_Vitals",
-        "DAM_Vitals",
-        "VC_GlobalShdnNodeStatus",
-        "BMS_LatchStatus"
-    ]
+  "messages": [
+    "VC_Vitals",
+    "BMS_Vitals",
+    "FSM_Vitals",
+    "RSM_Vitals",
+    "DAM_Vitals",
+    "VC_GlobalShdnNodeStatus",
+    "BMS_LatchStatus",
+    "BMS_TractiveSystem"
+  ]
 }
