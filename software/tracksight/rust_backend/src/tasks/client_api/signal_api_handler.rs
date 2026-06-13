@@ -342,7 +342,7 @@ async fn signal_sessions(
 
 async fn signal_markers(
     Path((start, end)): Path<(String, String)>,
-    Query(SourceQuery { source }): Query<SourceQuery>,
+    Query(SourceQuery { source, .. }): Query<SourceQuery>,
     State(state): State<AppState>
 ) -> impl IntoResponse {
     let (start_utc, end_utc) =

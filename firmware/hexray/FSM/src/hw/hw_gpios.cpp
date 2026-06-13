@@ -3,7 +3,7 @@
 
 const hw::gpio bots_3v3{ BOTS_3V3_GPIO_Port, BOTS_3V3_Pin };
 const hw::gpio cockpit_shdn_3v3{ COCKPIT_SHDN_3V3_GPIO_Port, COCKPIT_SHDN_3V3_Pin };
-const hw::gpio imu_nss{ IMU_CS_GPIO_Port, IMU_CS_Pin };
+const hw::gpio imu_cs{ IMU_CS_GPIO_Port, IMU_CS_Pin };
 const hw::gpio imu_fsync{ IMU_FSYNC_GPIO_Port, IMU_FSYNC_Pin };
 const hw::gpio nsusp_fl_ocsc{ nSUSP_FL_OCSC_GPIO_Port, nSUSP_FL_OCSC_Pin };
 const hw::gpio nsusp_fr_ocsc{ nSUSP_FR_OCSC_GPIO_Port, nSUSP_FR_OCSC_Pin };

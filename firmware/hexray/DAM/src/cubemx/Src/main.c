@@ -55,6 +55,7 @@ SD_HandleTypeDef hsd1;
 TIM_HandleTypeDef htim7;
 
 UART_HandleTypeDef huart2;
+DMA_HandleTypeDef  handle_GPDMA1_Channel0;
 
 PCD_HandleTypeDef hpcd_USB_DRD_FS;
 
@@ -65,14 +66,15 @@ PCD_HandleTypeDef hpcd_USB_DRD_FS;
 /* Private function prototypes -----------------------------------------------*/
 void        SystemClock_Config(void);
 static void MX_GPIO_Init(void);
+static void MX_GPDMA1_Init(void);
 static void MX_USART2_UART_Init(void);
 static void MX_USB_PCD_Init(void);
 static void MX_CRC_Init(void);
 static void MX_FDCAN1_Init(void);
 static void MX_IWDG_Init(void);
 static void MX_RTC_Init(void);
-static void MX_SDMMC1_SD_Init(void);
 static void MX_TIM7_Init(void);
+static void MX_SDMMC1_SD_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -109,14 +111,15 @@ int main(void)
 
     /* Initialize all configured peripherals */
     MX_GPIO_Init();
+    MX_GPDMA1_Init();
     MX_USART2_UART_Init();
     MX_USB_PCD_Init();
     MX_CRC_Init();
     MX_FDCAN1_Init();
     MX_IWDG_Init();
     MX_RTC_Init();
-    MX_SDMMC1_SD_Init();
     MX_TIM7_Init();
+    MX_SDMMC1_SD_Init();
     /* USER CODE BEGIN 2 */
     tasks_init();
 
@@ -275,6 +278,32 @@ static void MX_FDCAN1_Init(void)
     /* USER CODE BEGIN FDCAN1_Init 2 */
 
     /* USER CODE END FDCAN1_Init 2 */
+}
+
+/**
+ * @brief GPDMA1 Initialization Function
+ * @param None
+ * @retval None
+ */
+static void MX_GPDMA1_Init(void)
+{
+    /* USER CODE BEGIN GPDMA1_Init 0 */
+
+    /* USER CODE END GPDMA1_Init 0 */
+
+    /* Peripheral clock enable */
+    __HAL_RCC_GPDMA1_CLK_ENABLE();
+
+    /* GPDMA1 interrupt Init */
+    HAL_NVIC_SetPriority(GPDMA1_Channel0_IRQn, 5, 0);
+    HAL_NVIC_EnableIRQ(GPDMA1_Channel0_IRQn);
+
+    /* USER CODE BEGIN GPDMA1_Init 1 */
+
+    /* USER CODE END GPDMA1_Init 1 */
+    /* USER CODE BEGIN GPDMA1_Init 2 */
+
+    /* USER CODE END GPDMA1_Init 2 */
 }
 
 /**
@@ -489,7 +518,7 @@ static void MX_USART2_UART_Init(void)
 
     /* USER CODE END USART2_Init 1 */
     huart2.Instance                    = USART2;
-    huart2.Init.BaudRate               = 57600;
+    huart2.Init.BaudRate               = 230400;
     huart2.Init.WordLength             = UART_WORDLENGTH_8B;
     huart2.Init.StopBits               = UART_STOPBITS_1;
     huart2.Init.Parity                 = UART_PARITY_NONE;
@@ -511,7 +540,7 @@ static void MX_USART2_UART_Init(void)
     {
         Error_Handler();
     }
-    if (HAL_UARTEx_DisableFifoMode(&huart2) != HAL_OK)
+    if (HAL_UARTEx_EnableFifoMode(&huart2) != HAL_OK)
     {
         Error_Handler();
     }

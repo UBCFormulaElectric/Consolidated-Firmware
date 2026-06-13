@@ -156,7 +156,9 @@ void SystemClock_Config(void)
     /** Initializes the RCC Oscillators according to the specified parameters
      * in the RCC_OscInitTypeDef structure.
      */
-    RCC_OscInitStruct.OscillatorType      = RCC_OSCILLATORTYPE_HSI48 | RCC_OSCILLATORTYPE_LSI | RCC_OSCILLATORTYPE_CSI;
+    RCC_OscInitStruct.OscillatorType =
+        RCC_OSCILLATORTYPE_HSI48 | RCC_OSCILLATORTYPE_LSI | RCC_OSCILLATORTYPE_HSE | RCC_OSCILLATORTYPE_CSI;
+    RCC_OscInitStruct.HSEState            = RCC_HSE_ON;
     RCC_OscInitStruct.LSIState            = RCC_LSI_ON;
     RCC_OscInitStruct.HSI48State          = RCC_HSI48_ON;
     RCC_OscInitStruct.CSIState            = RCC_CSI_ON;
@@ -207,7 +209,7 @@ void PeriphCommonClock_Config(void)
     /** Initializes the peripherals clock
      */
     PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_CKPER;
-    PeriphClkInitStruct.CkperClockSelection  = RCC_CLKPSOURCE_HSI;
+    PeriphClkInitStruct.CkperClockSelection  = RCC_CLKPSOURCE_HSE;
     if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
     {
         Error_Handler();
@@ -433,7 +435,7 @@ static void MX_SPI1_Init(void)
     hspi1.Init.CLKPolarity             = SPI_POLARITY_LOW;
     hspi1.Init.CLKPhase                = SPI_PHASE_1EDGE;
     hspi1.Init.NSS                     = SPI_NSS_HARD_OUTPUT;
-    hspi1.Init.BaudRatePrescaler       = SPI_BAUDRATEPRESCALER_4;
+    hspi1.Init.BaudRatePrescaler       = SPI_BAUDRATEPRESCALER_2;
     hspi1.Init.FirstBit                = SPI_FIRSTBIT_MSB;
     hspi1.Init.TIMode                  = SPI_TIMODE_DISABLE;
     hspi1.Init.CRCCalculation          = SPI_CRCCALCULATION_DISABLE;
@@ -628,6 +630,10 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Pull  = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+    /* EXTI interrupt init*/
+    HAL_NVIC_SetPriority(EXTI13_IRQn, 5, 0);
+    HAL_NVIC_EnableIRQ(EXTI13_IRQn);
 
     /* USER CODE BEGIN MX_GPIO_Init_2 */
 
