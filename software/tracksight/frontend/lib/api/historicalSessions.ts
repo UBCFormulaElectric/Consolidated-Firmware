@@ -9,49 +9,65 @@ export type HistoricalSession = {
     timeZoneLabel: string;
 };
 
-const UTC_TIME_ZONE = "UTC";
+const SESSION_FORMATTERS_CACHE = new Map<string, { full: Intl.DateTimeFormat, timeOnly: Intl.DateTimeFormat, dateOnly: Intl.DateTimeFormat }>();
 
-const sessionTimeFormatter = new Intl.DateTimeFormat("en-CA", {
-    day: "2-digit",
-    hour: "2-digit",
-    hourCycle: "h23",
-    minute: "2-digit",
-    month: "2-digit",
-    timeZone: UTC_TIME_ZONE,
-    year: "numeric",
-});
+function getSessionFormatters(timeZone: string) {
+    if (!SESSION_FORMATTERS_CACHE.has(timeZone)) {
+        SESSION_FORMATTERS_CACHE.set(timeZone, {
+            full: new Intl.DateTimeFormat("en-CA", {
+                day: "2-digit",
+                hour: "2-digit",
+                hourCycle: "h23",
+                minute: "2-digit",
+                month: "2-digit",
+                timeZone,
+                year: "numeric",
+            }),
+            timeOnly: new Intl.DateTimeFormat("en-CA", {
+                hour: "2-digit",
+                hourCycle: "h23",
+                minute: "2-digit",
+                timeZone,
+            }),
+            dateOnly: new Intl.DateTimeFormat("en-CA", {
+                timeZone,
+                year: "numeric",
+                month: "2-digit",
+                day: "2-digit"
+            })
+        });
+    }
+    return SESSION_FORMATTERS_CACHE.get(timeZone)!;
+}
 
-const sessionTimeOnlyFormatter = new Intl.DateTimeFormat("en-CA", {
-    hour: "2-digit",
-    hourCycle: "h23",
-    minute: "2-digit",
-    timeZone: UTC_TIME_ZONE,
-});
-
-const isSameUtcDay = (a: Date, b: Date) => a.getUTCFullYear() === b.getUTCFullYear() && a.getUTCMonth() === b.getUTCMonth() && a.getUTCDate() === b.getUTCDate();
+function isSameDay(startUtcMs: number, endUtcMs: number, timeZone: string) {
+    const fmt = getSessionFormatters(timeZone).dateOnly;
+    return fmt.format(new Date(startUtcMs)) === fmt.format(new Date(endUtcMs));
+}
 
 function toIsoUtcSeconds(timestampMs: number): string {
     return new Date(timestampMs).toISOString().slice(0, 19) + "Z";
 }
 
-function formatSessionLabel(startUtcMs: number, endUtcMs: number): string {
+function formatSessionLabel(startUtcMs: number, endUtcMs: number, timeZone: string): string {
     const start = new Date(startUtcMs);
     const end = new Date(endUtcMs);
+    const formatters = getSessionFormatters(timeZone);
 
-    if (isSameUtcDay(start, end)) {
-        return `${sessionTimeOnlyFormatter.format(start)} - ${sessionTimeOnlyFormatter.format(end)}`;
+    if (isSameDay(startUtcMs, endUtcMs, timeZone)) {
+        return `${formatters.timeOnly.format(start)} - ${formatters.timeOnly.format(end)}`;
     }
 
-    return `${sessionTimeFormatter.format(start)} - ${sessionTimeFormatter.format(end)}`;
+    return `${formatters.full.format(start)} - ${formatters.full.format(end)}`;
 }
 
-function toHistoricalSession(startUtcMs: number, endUtcMs: number): HistoricalSession {
+function toHistoricalSession(startUtcMs: number, endUtcMs: number, timeZone: string): HistoricalSession {
     return {
         id: `${startUtcMs}-${endUtcMs}`,
         startUtcMs,
         endUtcMs,
-        label: formatSessionLabel(startUtcMs, endUtcMs),
-        timeZoneLabel: UTC_TIME_ZONE,
+        label: formatSessionLabel(startUtcMs, endUtcMs, timeZone),
+        timeZoneLabel: timeZone === "UTC" ? "UTC" : timeZone.split("/").pop()!,
     };
 }
 
@@ -69,12 +85,12 @@ function parseSessionPayload(payloadText: string): SessionBoundaryPair[] {
     return parsed as SessionBoundaryPair[];
 }
 
-function pairsToSessions(pairs: SessionBoundaryPair[]): HistoricalSession[] {
+function pairsToSessions(pairs: SessionBoundaryPair[], timeZone: string): HistoricalSession[] {
     return pairs.map(([startStr, endStr]) => {
         const startUtcMs = Number(startStr);
         // An ongoing session (null end) runs up to "now" so it stays selectable.
         const endUtcMs = endStr !== null ? Number(endStr) : Date.now();
-        return toHistoricalSession(startUtcMs, endUtcMs);
+        return toHistoricalSession(startUtcMs, endUtcMs, timeZone);
     });
 }
 
@@ -101,9 +117,9 @@ function buildMockSessionPairs(startUtcMs: number, endUtcMs: number): SessionBou
         .map((ms, i, all) => [String(ms), i < all.length - 1 ? String(ms + 3 * 60 * 60 * 1000) : null] as SessionBoundaryPair);
 }
 
-export async function fetchHistoricalSessionsForRange(startUtcMs: number, endUtcMs: number, source: HistoricalSignalSource): Promise<HistoricalSession[]> {
+export async function fetchHistoricalSessionsForRange(startUtcMs: number, endUtcMs: number, source: HistoricalSignalSource, timeZone: string): Promise<HistoricalSession[]> {
     if (IS_MOCK) {
-        return pairsToSessions(buildMockSessionPairs(startUtcMs, endUtcMs));
+        return pairsToSessions(buildMockSessionPairs(startUtcMs, endUtcMs), timeZone);
     }
 
     const start = toIsoUtcSeconds(startUtcMs);
@@ -119,5 +135,5 @@ export async function fetchHistoricalSessionsForRange(startUtcMs: number, endUtc
         throw new Error(`Failed to fetch historical sessions: ${response.status} ${errorText}`);
     }
 
-    return pairsToSessions(parseSessionPayload(await response.text()));
+    return pairsToSessions(parseSessionPayload(await response.text()), timeZone);
 }
