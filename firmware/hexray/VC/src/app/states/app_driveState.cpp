@@ -65,11 +65,11 @@ static void driveStateRunOnTick100Hz()
 
     const auto apps = can_rx::FSM_PappsMappedPedalPercentage_get();
 
-    if (can_alerts::AnyBoardHasWarning() || bspdWarning::checkSoftwareBspd(apps))
-    {
-        send_torque(NO_TORQUE_Nm, NO_TORQUE_Nm, NO_TORQUE_Nm, NO_TORQUE_Nm);
-        return;
-    }
+    // if (can_alerts::AnyBoardHasWarning() || bspdWarning::checkSoftwareBspd(apps))
+    // {
+    //     send_torque(NO_TORQUE_Nm, NO_TORQUE_Nm, NO_TORQUE_Nm, NO_TORQUE_Nm);
+    //     return;
+    // }
     // TODO: add driving algorithm handling here
     const float pedal_torque_request = apps * MAX_TORQUE_REQUEST_Nm / 100.0f;
 
@@ -78,7 +78,7 @@ static void driveStateRunOnTick100Hz()
     const float torque_fl = app::can_rx::Debug_TorqueRequest_FL_get();
     const float torque_fr = app::can_rx::Debug_TorqueRequest_FR_get();
     const float torque_rl = app::can_rx::Debug_TorqueRequest_RL_get();
-    const float torque_rr = app::can_rx::Debug_TorqueRequest_RL_get();
+    const float torque_rr = app::can_rx::Debug_TorqueRequest_RR_get();
     if (torque_fl < 0.1f && torque_fr < 0.1f && torque_rl < 0.1f && torque_rr < 0.1f)
     {
         send_torque(pedal_torque_request, pedal_torque_request, pedal_torque_request, pedal_torque_request);

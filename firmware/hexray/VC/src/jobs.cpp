@@ -76,7 +76,8 @@ void jobs_run100Hz_tick()
         app::StateMachine::set_next_state(&app::states::fault_state);
     }
 
-    if (app::StateMachine::get_current_state() == &app::states::hvInit_state ||
+    if (app::StateMachine::get_current_state() == &app::states::inverterOn_state ||
+        app::StateMachine::get_current_state() == &app::states::hvInit_state ||
         app::StateMachine::get_current_state() == &app::states::hv_state ||
         app::StateMachine::get_current_state() == &app::states::drive_state ||
         app::StateMachine::get_current_state() == &app::states::inverter_fault_handling_state)
