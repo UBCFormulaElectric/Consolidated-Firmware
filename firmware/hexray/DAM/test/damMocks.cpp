@@ -13,6 +13,11 @@ io::queue<io::CanMsg, 128> can_rx_queue{ "" };
 #include <algorithm>
 io::FileSystem fs{};
 
+std::expected<void, io::FileSystem::FileSystemError> io::FileSystem::init()
+{
+    return {};
+}
+
 std::expected<uint32_t, io::FileSystem::FileSystemError> io::FileSystem::open(const char *path)
 {
     // add dot before path
