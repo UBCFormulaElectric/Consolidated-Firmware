@@ -69,7 +69,6 @@ extern I2C_HandleTypeDef   hi2c5;
 extern SPI_HandleTypeDef   hspi1;
 extern SPI_HandleTypeDef   hspi2;
 extern TIM_HandleTypeDef   htim7;
-extern DMA_HandleTypeDef   hdma_uart8_rx;
 extern UART_HandleTypeDef  huart8;
 extern PCD_HandleTypeDef   hpcd_USB_OTG_HS;
 extern TIM_HandleTypeDef   htim6;

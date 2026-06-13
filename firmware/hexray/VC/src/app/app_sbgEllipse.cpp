@@ -19,12 +19,6 @@ void init()
     can_alerts::infos::SbgInitFailed_set(not sbg_init_ok.has_value());
 }
 
-void init()
-{
-    auto ec = io::sbgEllipse::init();
-    app::can_tx::VC_Info_SbgInitFailed_set(not ec.has_value());
-}
-
 void broadcast()
 {
     /* Enable these back when you turn this on in the SBG, otherwise it's still sending

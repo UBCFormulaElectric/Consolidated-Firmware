@@ -363,7 +363,7 @@ namespace powerMonitoring
         }
         return result;
     }
-} // namespace imus
+} // namespace powerMonitoring
 namespace sbgEllipse
 {
     result<void> init()
@@ -391,7 +391,7 @@ namespace sbgEllipse
     {
         return false;
     }
-} // namespace powerMonitoring
+} // namespace sbgEllipse
 
 namespace sbgEllipse
 {
