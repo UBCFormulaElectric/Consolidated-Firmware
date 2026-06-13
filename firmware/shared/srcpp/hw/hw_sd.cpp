@@ -52,6 +52,26 @@ result<void> SdCard::waitForNotification(const uint32_t timeoutMs) const
     return {};
 }
 
+result<void> SdCard::waitForCardReady() const
+{
+    // Bound the wait so a wedged/removed card can't hang the calling task forever.
+    // The caller gets a TIMEOUT it can retry on, the same way the radio path does.
+    const uint32_t start = HAL_GetTick();
+    while (HAL_SD_GetCardState(&_hsd) != HAL_SD_CARD_TRANSFER)
+    {
+        if (HAL_GetTick() - start >= _timeout)
+        {
+            LOG_WARN("SD card not ready after %lu ms, giving up", static_cast<unsigned long>(_timeout));
+            return std::unexpected(ErrorCode::TIMEOUT);
+        }
+        // Yield to equal/lower-priority tasks while waiting, but only once the scheduler
+        // is running and we're not in an ISR — osDelay() is illegal otherwise.
+        if (osKernelGetState() == taskSCHEDULER_RUNNING && not xPortIsInsideInterrupt())
+            osDelay(1);
+    }
+    return {};
+}
+
 result<void> SdCard::read(std::span<uint8_t> pdata, const uint32_t block_addr) const
 {
     if (pdata.size() < HW_DEVICE_SECTOR_SIZE || pdata.size() % HW_DEVICE_SECTOR_SIZE != 0)
@@ -62,8 +82,8 @@ result<void> SdCard::read(std::span<uint8_t> pdata, const uint32_t block_addr) c
         return std::unexpected(ErrorCode::INVALID_ARGS);
 
     CHECK_SD_PRESENT();
-    while (HAL_SD_GetCardState(&_hsd) != HAL_SD_CARD_TRANSFER)
-        ;
+    if (const auto ready = waitForCardReady(); not ready)
+        return ready;
 
     if (osKernelGetState() != taskSCHEDULER_RUNNING || xPortIsInsideInterrupt())
     {
@@ -113,8 +133,8 @@ result<void> SdCard::write(const std::span<uint8_t> pdata, const uint32_t block_
     if (reinterpret_cast<uintptr_t>(pdata.data()) % 4 != 0)
         return std::unexpected(ErrorCode::INVALID_ARGS);
 
-    while (HAL_SD_GetCardState(&_hsd) != HAL_SD_CARD_TRANSFER)
-        ;
+    if (const auto ready = waitForCardReady(); not ready)
+        return ready;
 
     if (osKernelGetState() != taskSCHEDULER_RUNNING || xPortIsInsideInterrupt())
     {
@@ -161,8 +181,8 @@ result<void> SdCard::writeOffset(const std::span<uint8_t> pdata, const uint32_t 
 result<void> SdCard::erase(const uint32_t start_addr, const uint32_t end_addr) const
 {
     CHECK_SD_PRESENT();
-    while (HAL_SD_GetCardState(&_hsd) != HAL_SD_CARD_TRANSFER)
-        ;
+    if (const auto ready = waitForCardReady(); not ready)
+        return ready;
     // TODO I think this needs to be a tx?
     return hw::utils::convertHalStatus(HAL_SD_Erase(&_hsd, start_addr, end_addr));
 }

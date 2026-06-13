@@ -50,6 +50,10 @@ class SdCard
 
     result<void> waitForNotification(uint32_t timeoutMs) const;
 
+    // Spin until the card reports it's ready for a new transfer, bounded by _timeout.
+    // Returns TIMEOUT (instead of hanging forever) if the card stops responding.
+    result<void> waitForCardReady() const;
+
   public:
     void onTransactionCompleteFromISR() const;
     void onTransactionErrorFromISR() const;
