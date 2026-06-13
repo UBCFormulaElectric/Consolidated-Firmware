@@ -334,22 +334,22 @@
       "Imu1GyroX": {
         "resolution": 0.01,
         "signed": true,
-        "min": -30,
-        "max": 30,
+        "min": -20,
+        "max": 20,
         "unit": "deg/s"
       },
       "Imu1GyroY": {
         "resolution": 0.01,
         "signed": true,
-        "min": -30,
-        "max": 30,
+        "min": -20,
+        "max": 20,
         "unit": "deg/s"
       },
       "Imu1GyroZ": {
         "resolution": 0.01,
         "signed": true,
-        "min": -30,
-        "max": 30,
+        "min": -20,
+        "max": 20,
         "unit": "deg/s"
       }
     }
