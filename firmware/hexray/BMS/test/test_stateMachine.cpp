@@ -17,12 +17,8 @@ static constexpr int undervoltage            = 200.0f;                          
 static constexpr int tolerance_time          = 500;                                  // ms
 static constexpr int precharge_completion_ms = static_cast<int>(app::precharge::PRECHARGE_COMPLETION_MS_F);
 static constexpr int latch_timeout           = app::precharge::PRECHARGE_LATCH_TIMEOUT_MS + 100; // ms
-namespace fakes
-{
-}
 
 // Init-PrechargeDrive tests
-
 TEST_F(BmsStateMachineTest, enter_precharge_drive)
 {
     ASSERT_STATE_EQ(app::states::init_state);
@@ -331,8 +327,6 @@ TEST_F(BmsStateMachineTest, check_state_transition_from_fault_to_init_with_no_fa
 }
 
 // Faultlatch StateMachine Tests
-// TODO: Re-enable once BMS_Fault_ImdLatched_get / BMS_Fault_BmsLatched_get /
-// BMS_Fault_HardwareBspdLatched_get CAN getters are restored.
 
 TEST_F(BmsStateMachineTest, imd_fault_latches_then_reset_to_init_state)
 {
@@ -346,18 +340,18 @@ TEST_F(BmsStateMachineTest, imd_fault_latches_then_reset_to_init_state)
 
     fakes::faultLatch::updateFaultLatch(&imd_ok_latch, io::FaultLatch::FaultLatchState::FAULT);
     fakes::irs::setNegativeState(app::can_utils::ContactorState::CONTACTOR_STATE_OPEN);
-    LetTimePass(10);
+    LetTimePass(app::irs::N_DEBOUNCE_PERIOD_MS + 100); // wait for negative-open debounce to drive DRIVE -> INIT
     for (int i = 0; i < 30; i++)
     {
         LetTimePass(10);
-        ASSERT_STATE_EQ(app::states::fault_state);
+        ASSERT_STATE_EQ(app::states::init_state);
         ASSERT_FALSE(app::can_tx::BMS_ImdLatchOk_get());
     }
     fakes::faultLatch::updateFaultLatch(&imd_ok_latch, io::FaultLatch::FaultLatchState::OK);
     for (int i = 0; i < 30; i++)
     {
         LetTimePass(10);
-        ASSERT_STATE_EQ(app::states::fault_state);
+        ASSERT_STATE_EQ(app::states::init_state);
         ASSERT_FALSE(app::can_tx::BMS_ImdLatchOk_get());
     }
     fakes::faultLatch::resetFaultLatch(&imd_ok_latch);
@@ -382,18 +376,18 @@ TEST_F(BmsStateMachineTest, bms_fault_latches_then_reset_to_init_state)
 
     fakes::faultLatch::updateFaultLatch(&bms_ok_latch, io::FaultLatch::FaultLatchState::FAULT);
     fakes::irs::setNegativeState(app::can_utils::ContactorState::CONTACTOR_STATE_OPEN);
-    LetTimePass(10);
+    LetTimePass(app::irs::N_DEBOUNCE_PERIOD_MS + 100); // wait for negative-open debounce to drive DRIVE -> INIT
     for (int i = 0; i < 30; i++)
     {
         LetTimePass(10);
-        ASSERT_STATE_EQ(app::states::fault_state);
+        ASSERT_STATE_EQ(app::states::init_state);
         ASSERT_FALSE(app::can_tx::BMS_BmsLatchOk_get());
     }
     fakes::faultLatch::updateFaultLatch(&bms_ok_latch, io::FaultLatch::FaultLatchState::OK);
     for (int i = 0; i < 30; i++)
     {
         LetTimePass(10);
-        ASSERT_STATE_EQ(app::states::fault_state);
+        ASSERT_STATE_EQ(app::states::init_state);
         ASSERT_FALSE(app::can_tx::BMS_BmsLatchOk_get());
     }
     fakes::faultLatch::resetFaultLatch(&bms_ok_latch);
@@ -418,18 +412,18 @@ TEST_F(BmsStateMachineTest, bspd_fault_latches_then_reset_to_init_state)
 
     fakes::faultLatch::updateFaultLatch(&bspd_ok_latch, io::FaultLatch::FaultLatchState::FAULT);
     fakes::irs::setNegativeState(app::can_utils::ContactorState::CONTACTOR_STATE_OPEN);
-    LetTimePass(10);
+    LetTimePass(app::irs::N_DEBOUNCE_PERIOD_MS + 100); 
     for (int i = 0; i < 30; i++)
     {
         LetTimePass(10);
-        ASSERT_STATE_EQ(app::states::fault_state);
+        ASSERT_STATE_EQ(app::states::init_state);
         ASSERT_FALSE(app::can_tx::BMS_BspdLatchOk_get());
     }
     fakes::faultLatch::updateFaultLatch(&bspd_ok_latch, io::FaultLatch::FaultLatchState::OK);
     for (int i = 0; i < 30; i++)
     {
         LetTimePass(10);
-        ASSERT_STATE_EQ(app::states::fault_state);
+        ASSERT_STATE_EQ(app::states::init_state);
         ASSERT_FALSE(app::can_tx::BMS_BspdLatchOk_get());
     }
     fakes::faultLatch::resetFaultLatch(&bspd_ok_latch);
@@ -452,28 +446,3 @@ TEST_F(BmsStateMachineTest, check_contactors_open_in_init_states)
     app::StateMachine::set_current_state(&app::states::init_state);
     ASSERT_EQ(io::irs::positiveState(), app::can_utils::ContactorState::CONTACTOR_STATE_OPEN);
 }
-
-// overtemp
-// TODO: Uncomment once segments is added AND add a test case for charge state overtemp
-// TEST_F(BmsStateMachineTest, drive_to_fault_on_overtemp)
-// {
-// //     fakes::irs::setNegativeState(app::can_utils::ContactorState::CONTACTOR_STATE_CLOSED);
-// //     app::StateMachine::set_current_state(&app::states::drive_state);
-//
-// //     fakes::segments::setPackVoltageEvenly(MAX_CELL_VOLTAGE_FAULT_V - 0.1f);
-// //     std::array<std::array<float, AUX_REGS_PER_SEGMENT>, NUM_SEGMENTS> temperatures{};
-// //     for (auto &segment_temperatures : temperatures)
-// //     {
-// //         segment_temperatures.fill(25.0f);
-// //     }
-// //     temperatures[0][0] = MAX_CELL_TEMP_FAULT_C;
-// //     fakes::segments::setCellTemperatures(temperatures);
-//
-// //     LetTimePass(20);
-//
-// //     ASSERT_STATE_EQ(app::states::fault_state);
-// // }
-
-// overvoltage
-// undervoltage
-// other board faulting

@@ -221,7 +221,7 @@ namespace adbms
 
         [[nodiscard]] Cells<result<int16_t>> secondaryCellVoltage()
         {
-            return Cells<result<int16_t>>{};
+            return cell_voltages;
         }
 
         [[nodiscard]] Segments<result<int16_t>> segVoltage()
