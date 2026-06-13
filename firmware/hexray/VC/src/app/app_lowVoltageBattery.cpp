@@ -18,10 +18,10 @@ constexpr uint32_t BALANCE_TIME_MS         = 20 * 1000; // 20 seconds
 constexpr float    CHARGE_THRESHOLD_LOW_V  = 16.0f;
 constexpr float    CHARGE_THRESHOLD_HIGH_V = 16.2f;
 
-BalancingState balance_state       = BalancingState::DISABLED;
-BalancingPhase balance_phase       = BalancingPhase::ODD;
-ChargeState    charge_state        = ChargeState::STOPPED;
-uint16_t       active_balance_mask = 0x0000;
+auto     balance_state       = BalancingState::DISABLED;
+auto     balance_phase       = BalancingPhase::ODD;
+auto     charge_state        = ChargeState::STOPPED;
+uint16_t active_balance_mask = 0x0000;
 
 app::Timer settle_timer(SETTLE_TIME_MS);
 app::Timer balance_timer(BALANCE_TIME_MS);
@@ -41,10 +41,10 @@ MinCell get_min(const std::array<result<float>, NUM_CELLS> &voltages)
 {
     MinCell min = { 0, std::numeric_limits<float>::max() };
 
-    for (int i = 0; i < NUM_CELLS; i++)
+    for (size_t i = 0; i < NUM_CELLS; i++)
     {
         if (voltages[i] && voltages[i].value() < min.value)
-            min = { (uint8_t)(i + 1), voltages[i].value() };
+            min = { static_cast<uint8_t>(i + 1), voltages[i].value() };
     }
     return min;
 }
@@ -52,10 +52,10 @@ MaxCell get_max(const std::array<result<float>, NUM_CELLS> &voltages)
 {
     MaxCell max = { 0, 0.0f };
 
-    for (int i = 0; i < NUM_CELLS; i++)
+    for (size_t i = 0; i < NUM_CELLS; i++)
     {
         if (voltages[i] && voltages[i].value() > max.value)
-            max = { (uint8_t)(i + 1), voltages[i].value() };
+            max = { static_cast<uint8_t>(i + 1), voltages[i].value() };
     }
     return max;
 }
@@ -68,7 +68,7 @@ MaxCell get_max(const std::array<result<float>, NUM_CELLS> &voltages)
 uint16_t get_balance_mask(
     const std::array<result<float>, NUM_CELLS> &voltages,
     const MinCell                              &min_cell,
-    BalancingPhase                              phase)
+    const BalancingPhase                        phase)
 {
     uint16_t mask = 0x0000;
 
@@ -97,10 +97,11 @@ uint16_t get_balance_mask(
 
 /**
  * @brief Charging logic
+ * @param pack_voltage
  * @param max_cell, min_cell
  * @return 1 or 0: charge or not
  */
-bool should_charge(float pack_voltage, MaxCell max_cell, MinCell min_cell)
+bool should_charge(const float pack_voltage, const MaxCell max_cell, const MinCell min_cell)
 {
     switch (charge_state)
     {
@@ -191,34 +192,34 @@ result<void> update()
     can_tx::VC_ICOverTemperature_set(safetyB_status.has_value() && safetyB_status->bits.OTINT);
 
     // 2) event path only
-    bool snapshot_valid;
     if (io::batteryMonitoring::consume_alert_pending())
     {
-        const auto alarm_status = io::batteryMonitoring::read_alarm_status();
-        if (alarm_status.has_value() && alarm_status->bits.SSA)
+        if (const auto alarm_status = io::batteryMonitoring::read_alarm_status();
+            alarm_status.has_value() && alarm_status->bits.SSA)
         {
+            bool snapshot_valid = false;
             if (safetyA_status.has_value() && safetyA_status->bits.COV)
             {
-                const auto vov_snapshot = io::batteryMonitoring::get_voltage_OV(COV_SNAPSHOT);
-                if (vov_snapshot.has_value())
+                if (const auto vov_snapshot = io::batteryMonitoring::get_voltage_OV(COV_SNAPSHOT);
+                    vov_snapshot.has_value())
                 {
-                    app::can_tx::VC_CELL1_VOVSnapshot_set(static_cast<float>(vov_snapshot.value()[0]) / 1000.0f);
-                    app::can_tx::VC_CELL2_VOVSnapshot_set(static_cast<float>(vov_snapshot.value()[1]) / 1000.0f);
-                    app::can_tx::VC_CELL3_VOVSnapshot_set(static_cast<float>(vov_snapshot.value()[3]) / 1000.0f);
-                    app::can_tx::VC_CELL4_VOVSnapshot_set(static_cast<float>(vov_snapshot.value()[4]) / 1000.0f);
+                    can_tx::VC_CELL1_VOVSnapshot_set(static_cast<float>(vov_snapshot.value()[0]) / 1000.0f);
+                    can_tx::VC_CELL2_VOVSnapshot_set(static_cast<float>(vov_snapshot.value()[1]) / 1000.0f);
+                    can_tx::VC_CELL3_VOVSnapshot_set(static_cast<float>(vov_snapshot.value()[3]) / 1000.0f);
+                    can_tx::VC_CELL4_VOVSnapshot_set(static_cast<float>(vov_snapshot.value()[4]) / 1000.0f);
                     snapshot_valid = true;
                 }
             }
 
             if (safetyA_status.has_value() && safetyA_status->bits.CUV)
             {
-                const auto vuv_snapshot = io::batteryMonitoring::get_voltage_UV(CUV_SNAPSHOT);
-                if (vuv_snapshot.has_value())
+                if (const auto vuv_snapshot = io::batteryMonitoring::get_voltage_UV(CUV_SNAPSHOT);
+                    vuv_snapshot.has_value())
                 {
-                    app::can_tx::VC_CELL1_VUVSnapshot_set(static_cast<float>(vuv_snapshot.value()[0]) / 1000.0f);
-                    app::can_tx::VC_CELL2_VUVSnapshot_set(static_cast<float>(vuv_snapshot.value()[1]) / 1000.0f);
-                    app::can_tx::VC_CELL3_VUVSnapshot_set(static_cast<float>(vuv_snapshot.value()[3]) / 1000.0f);
-                    app::can_tx::VC_CELL4_VUVSnapshot_set(static_cast<float>(vuv_snapshot.value()[4]) / 1000.0f);
+                    can_tx::VC_CELL1_VUVSnapshot_set(static_cast<float>(vuv_snapshot.value()[0]) / 1000.0f);
+                    can_tx::VC_CELL2_VUVSnapshot_set(static_cast<float>(vuv_snapshot.value()[1]) / 1000.0f);
+                    can_tx::VC_CELL3_VUVSnapshot_set(static_cast<float>(vuv_snapshot.value()[3]) / 1000.0f);
+                    can_tx::VC_CELL4_VUVSnapshot_set(static_cast<float>(vuv_snapshot.value()[4]) / 1000.0f);
                     snapshot_valid = true;
                 }
             }
@@ -255,48 +256,42 @@ result<void> update()
     const uint16_t c3_mV   = static_cast<uint16_t>(cell3_voltage.value_or(0.0f) * 1000.0f);
     const uint16_t c4_mV   = static_cast<uint16_t>(cell4_voltage.value_or(0.0f) * 1000.0f);
     const uint16_t diff_mV = static_cast<uint16_t>(imbalance_magnitude * 1000.0f);
-    LOG_INFO("Cell voltages: C1=%umV C2=%umV C3=%umV C4=%umV", c1_mV, c2_mV, c3_mV, c4_mV);
 
-    const auto mask = io::batteryMonitoring::read_balancing_subcommand();
-    if (mask.has_value())
+    if (const auto mask = io::batteryMonitoring::read_balancing_subcommand(); mask.has_value())
     {
         active_balance_mask = mask.value();
-        LOG_INFO(
-            "Balance status: Difference =%umV  Balancing mask=0x%04X", static_cast<unsigned>(diff_mV),
-            static_cast<uint16_t>(mask.value()));
     }
 
     // 4. Charging
     if (pack_voltage.has_value())
     {
         const bool charge_enable = should_charge(pack_voltage.value(), max_cell, min_cell);
-        app::can_tx::VC_Charging_set(charge_enable);
+        can_tx::VC_Charging_set(charge_enable);
         charge_enable ? io::batteryCharging::charger_enable() : io::batteryCharging::charger_disable();
         const bool charger_gpio_status = io::batteryCharging::check_status();
-        LOG_INFO(
-            "Charging GPIO: cmd=%u fb=%u", static_cast<unsigned>(charge_enable ? 1u : 0u),
-            static_cast<unsigned>(charger_gpio_status ? 1u : 0u));
     }
     else
     {
-        app::can_tx::VC_Charging_set(false);
+        can_tx::VC_Charging_set(false);
         io::batteryCharging::charger_disable();
     }
 
     // 5. Broadcasting Data
-    app::can_tx::VC_CELL1_Voltage_set(cell1_voltage.value_or(0.0f));
-    app::can_tx::VC_CELL2_Voltage_set(cell2_voltage.value_or(0.0f));
-    app::can_tx::VC_CELL3_Voltage_set(cell3_voltage.value_or(0.0f));
-    app::can_tx::VC_CELL4_Voltage_set(cell4_voltage.value_or(0.0f));
+    can_tx::VC_CELL1_Voltage_set(cell1_voltage.value_or(0.0f));
+    can_tx::VC_CELL2_Voltage_set(cell2_voltage.value_or(0.0f));
+    can_tx::VC_CELL3_Voltage_set(cell3_voltage.value_or(0.0f));
+    can_tx::VC_CELL4_Voltage_set(cell4_voltage.value_or(0.0f));
 
-    app::can_tx::VC_PACK_Voltage_set(pack_voltage.value_or(0.0f));
-    app::can_tx::VC_LOAD_Voltage_set(load_voltage.value_or(0.0f));
-    app::can_tx::VC_SenseCurrent_set(current.value_or(0.0f));
+    can_tx::VC_PACK_Voltage_set(pack_voltage.value_or(0.0f));
+    can_tx::VC_LOAD_Voltage_set(load_voltage.value_or(0.0f));
+    can_tx::VC_SenseCurrent_set(current.value_or(0.0f));
 
-    app::can_tx::VC_BalancingState_set(static_cast<uint8_t>(balance_state));
-    app::can_tx::VC_ImbalanceMagnitude_set(imbalance_magnitude);
-    app::can_tx::VC_BalancingLeader_set(min_cell.index);
-    app::can_tx::VC_BalancingCell_set(static_cast<uint8_t>(active_balance_mask));
+    can_tx::VC_BalancingState_set(static_cast<uint8_t>(balance_state));
+    can_tx::VC_ImbalanceMagnitude_set(imbalance_magnitude);
+    can_tx::VC_BalancingLeader_set(min_cell.index);
+    can_tx::VC_BalancingCell_set(static_cast<uint8_t>(active_balance_mask));
+
+    io::can_tx::VC_BatteryMonitoring_Data_sendAperiodic();
 
     return {};
 }

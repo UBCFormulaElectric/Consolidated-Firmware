@@ -71,9 +71,6 @@
       "TorqueVectoringSwitch": {
         "enum": "SwitchState"
       },
-      "TelemSwitch": {
-        "enum": "SwitchState"
-      },
       "DriveMode": {
         "enum": "DriveMode"
       }

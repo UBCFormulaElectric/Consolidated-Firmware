@@ -211,7 +211,7 @@ result<void> init()
     }
 
     // Set the callback function (callback is called when a new log is successfully received and parsed)
-    sbgEComSetReceiveLogCallback(&com_handle, logReceivedCallback, NULL);
+    sbgEComSetReceiveLogCallback(&com_handle, logReceivedCallback, nullptr);
 
     // Init stream buffer for UART data
     uart_sbuf_handle = xStreamBufferCreateStatic(sizeof(uart_sbuf_data), 1, uart_sbuf_data, &uart_sbuf_ctrl);
@@ -222,7 +222,7 @@ result<void> init()
     return {};
 }
 
-void handleLogs(void)
+void handleLogs()
 {
     // Handle logs. Calls the pReadFunc set in sbgInterfaceSerialCreate to read data and parses
     // all logs found in the data. Upon successfully parsing a log, the the receive log callback function set in init is
@@ -243,57 +243,57 @@ void handleLogs(void)
     }
 }
 
-uint32_t getTimestampUs(void)
+uint32_t getTimestampUs()
 {
     return sensor_data.status_data.timestamp_us;
 }
 
-uint16_t getGeneralStatus(void)
+uint16_t getGeneralStatus()
 {
     return sensor_data.status_data.general_status;
 }
 
-uint32_t getComStatus(void)
+uint32_t getComStatus()
 {
     return sensor_data.status_data.com_status;
 }
 
-uint8_t getOverflowCount(void)
+uint8_t getOverflowCount()
 {
     return sbg_queue_overflow_count;
 }
 
-uint32_t getEkfSolutionMode(void)
+uint32_t getEkfSolutionMode()
 {
     return sensor_data.ekf_solution_status;
 }
 
-const Vector3 getImuAccelerations(void)
+Vector3 getImuAccelerations()
 {
     return sensor_data.imu_data.acceleration;
 }
 
-const Attitude getImuAngularVelocities(void)
+Attitude getImuAngularVelocities()
 {
     return sensor_data.imu_data.angular_velocity;
 }
 
-const Attitude getEkfEulerAngles(void)
+Attitude getEkfEulerAngles()
 {
     return sensor_data.ekf_euler_data.euler_angles;
 }
 
-const VelocityData getEkfNavVelocityData(void)
+VelocityData getEkfNavVelocityData()
 {
     return sensor_data.ekf_nav_data.velocity;
 }
 
-const PositionData getEkfNavPositionData(void)
+PositionData getEkfNavPositionData()
 {
     return sensor_data.ekf_nav_data.position;
 }
 
-void msgRxCallback(void)
+void msgRxCallback()
 {
     BaseType_t higher_priority_task_woken;
     if (xStreamBufferSendFromISR(uart_sbuf_handle, uart_dma_buf, sizeof(uart_dma_buf), &higher_priority_task_woken) <

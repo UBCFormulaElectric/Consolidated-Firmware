@@ -2,7 +2,7 @@
 
 namespace app::tv::controllers::dyrc
 {
-static constexpr app::PID::Config PID_DYRC_config{
+static constexpr PID::Config PID_DYRC_config{
     .Kp               = 0.25f,
     .Ki               = 0.0f,
     .Kd               = 0.0f,

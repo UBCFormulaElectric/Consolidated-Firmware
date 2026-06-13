@@ -14,5 +14,5 @@ TEST_F(RSMPumpTest, PumpPercentageTest)
 
     LetTimePass(100);
 
-    EXPECT_EQ(80, app::can_tx::RSM_RPumpPercentage_get());
+    EXPECT_EQ(80, app::can_tx::RSM_RearLeftPumpPercentage_get());
 }

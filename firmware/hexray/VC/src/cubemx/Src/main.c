@@ -44,6 +44,8 @@
 /* Private variables ---------------------------------------------------------*/
 ADC_HandleTypeDef hadc1;
 ADC_HandleTypeDef hadc2;
+DMA_HandleTypeDef hdma_adc1;
+DMA_HandleTypeDef hdma_adc2;
 
 FDCAN_HandleTypeDef hfdcan1;
 FDCAN_HandleTypeDef hfdcan3;
@@ -73,6 +75,7 @@ PCD_HandleTypeDef hpcd_USB_OTG_HS;
 void        SystemClock_Config(void);
 void        PeriphCommonClock_Config(void);
 static void MX_GPIO_Init(void);
+static void MX_DMA_Init(void);
 static void MX_ADC1_Init(void);
 static void MX_USB_OTG_HS_PCD_Init(void);
 static void MX_ADC2_Init(void);
@@ -127,6 +130,7 @@ int main(void)
 
     /* Initialize all configured peripherals */
     MX_GPIO_Init();
+    MX_DMA_Init();
     MX_ADC1_Init();
     MX_USB_OTG_HS_PCD_Init();
     MX_ADC2_Init();
@@ -271,14 +275,14 @@ static void MX_ADC1_Init(void)
     hadc1.Init.ClockPrescaler           = ADC_CLOCK_ASYNC_DIV4;
     hadc1.Init.Resolution               = ADC_RESOLUTION_16B;
     hadc1.Init.ScanConvMode             = ADC_SCAN_ENABLE;
-    hadc1.Init.EOCSelection             = ADC_EOC_SEQ_CONV;
+    hadc1.Init.EOCSelection             = ADC_EOC_SINGLE_CONV;
     hadc1.Init.LowPowerAutoWait         = DISABLE;
     hadc1.Init.ContinuousConvMode       = DISABLE;
     hadc1.Init.NbrOfConversion          = 6;
     hadc1.Init.DiscontinuousConvMode    = DISABLE;
     hadc1.Init.ExternalTrigConv         = ADC_EXTERNALTRIG_T3_TRGO;
     hadc1.Init.ExternalTrigConvEdge     = ADC_EXTERNALTRIGCONVEDGE_RISING;
-    hadc1.Init.ConversionDataManagement = ADC_CONVERSIONDATA_DR;
+    hadc1.Init.ConversionDataManagement = ADC_CONVERSIONDATA_DMA_CIRCULAR;
     hadc1.Init.Overrun                  = ADC_OVR_DATA_PRESERVED;
     hadc1.Init.LeftBitShift             = ADC_LEFTBITSHIFT_NONE;
     hadc1.Init.OversamplingMode         = DISABLE;
@@ -389,7 +393,7 @@ static void MX_ADC2_Init(void)
     hadc2.Init.DiscontinuousConvMode    = DISABLE;
     hadc2.Init.ExternalTrigConv         = ADC_EXTERNALTRIG_T3_TRGO;
     hadc2.Init.ExternalTrigConvEdge     = ADC_EXTERNALTRIGCONVEDGE_RISING;
-    hadc2.Init.ConversionDataManagement = ADC_CONVERSIONDATA_DR;
+    hadc2.Init.ConversionDataManagement = ADC_CONVERSIONDATA_DMA_CIRCULAR;
     hadc2.Init.Overrun                  = ADC_OVR_DATA_PRESERVED;
     hadc2.Init.LeftBitShift             = ADC_LEFTBITSHIFT_NONE;
     hadc2.Init.OversamplingMode         = DISABLE;
@@ -949,6 +953,23 @@ static void MX_USB_OTG_HS_PCD_Init(void)
     /* USER CODE BEGIN USB_OTG_HS_Init 2 */
 
     /* USER CODE END USB_OTG_HS_Init 2 */
+}
+
+/**
+ * Enable DMA controller clock
+ */
+static void MX_DMA_Init(void)
+{
+    /* DMA controller clock enable */
+    __HAL_RCC_DMA1_CLK_ENABLE();
+
+    /* DMA interrupt init */
+    /* DMA1_Stream1_IRQn interrupt configuration */
+    HAL_NVIC_SetPriority(DMA1_Stream1_IRQn, 0, 0);
+    HAL_NVIC_EnableIRQ(DMA1_Stream1_IRQn);
+    /* DMA1_Stream2_IRQn interrupt configuration */
+    HAL_NVIC_SetPriority(DMA1_Stream2_IRQn, 0, 0);
+    HAL_NVIC_EnableIRQ(DMA1_Stream2_IRQn);
 }
 
 /**
