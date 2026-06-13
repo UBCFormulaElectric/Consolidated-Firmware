@@ -1,6 +1,7 @@
 #include "jobs.hpp"
 #include "util_errorCodes.hpp"
 
+#include <algorithm>
 #include <ranges>
 
 // app

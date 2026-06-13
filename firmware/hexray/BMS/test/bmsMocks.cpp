@@ -93,11 +93,6 @@ namespace io::adbms::command
     return result<void>{};
 }
 
-[[nodiscard]] result<void> wakeup()
-{
-    return result<void>{};
-}
-
 [[nodiscard]] result<void> owcCells(OpenWireSwitch owcSwitch)
 {
     return result<void>{};
@@ -111,7 +106,17 @@ namespace io::adbms::clear
     return result<void>{};
 }
 
+[[nodiscard]] result<void> flags()
+{
+    return result<void>{};
+}
+
 [[nodiscard]] result<void> cell()
+{
+    return result<void>{};
+}
+
+[[nodiscard]] result<void> secondaryCell()
 {
     return result<void>{};
 }
@@ -126,11 +131,3 @@ namespace io::adbms::clear
     return result<void>{};
 }
 } // namespace io::adbms::clear
-
-namespace io::adbms
-{
-Segments<uint8_t> getCmdCountMismatches()
-{
-    return Segments<uint8_t>{};
-}
-} // namespace io::adbms
