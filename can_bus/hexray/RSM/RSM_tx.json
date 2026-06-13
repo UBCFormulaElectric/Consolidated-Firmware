@@ -32,7 +32,7 @@
     },
     "data_capture": {
       "telem_cycle_time": 1000,
-      "log_cycle_time" : 1000
+      "log_cycle_time": 1000
     }
   },
   "Bootup": {
@@ -53,9 +53,9 @@
         "bits": 1
       }
     },
-     "data_capture": {
+    "data_capture": {
       "telem_cycle_time": 1000,
-      "log_cycle_time" : 1000
+      "log_cycle_time": 1000
     }
   },
   "SuspensionTravel": {
@@ -76,9 +76,9 @@
         "unit": "cm"
       }
     },
-     "data_capture": {
+    "data_capture": {
       "telem_cycle_time": 1000,
-      "log_cycle_time" : 1000
+      "log_cycle_time": 1000
     }
   },
   "IMU": {
@@ -129,9 +129,9 @@
         "unit": "deg/s"
       }
     },
-     "data_capture": {
+    "data_capture": {
       "telem_cycle_time": 1000,
-      "log_cycle_time" : 1000
+      "log_cycle_time": 1000
     }
   },
   "Brakes": {
@@ -149,9 +149,9 @@
         "bits": 1
       }
     },
-     "data_capture": {
+    "data_capture": {
       "telem_cycle_time": 1000,
-      "log_cycle_time" : 1000
+      "log_cycle_time": 1000
     }
   },
   "ShdnNodeStatus": {
@@ -163,9 +163,9 @@
         "bits": 1
       }
     },
-     "data_capture": {
+    "data_capture": {
       "telem_cycle_time": 1000,
-      "log_cycle_time" : 1000
+      "log_cycle_time": 1000
     }
   },
   "RearLeftPumpPercentage": {
@@ -180,9 +180,9 @@
         "unit": "%"
       }
     },
-     "data_capture": {
+    "data_capture": {
       "telem_cycle_time": 1000,
-      "log_cycle_time" : 1000
+      "log_cycle_time": 1000
     }
   },
   "CPUDataLogInfo": {
@@ -293,9 +293,9 @@
         "unit": "%"
       }
     },
-     "data_capture": {
+    "data_capture": {
       "telem_cycle_time": 1000,
-      "log_cycle_time" : 1000
+      "log_cycle_time": 1000
     }
   },
   "Coolant": {
@@ -309,9 +309,9 @@
         "unit": "L/min"
       }
     },
-     "data_capture": {
+    "data_capture": {
       "telem_cycle_time": 1000,
-      "log_cycle_time" : 1000
+      "log_cycle_time": 1000
     }
   },
   "TireSensor": {
@@ -326,9 +326,9 @@
         "unit": "°C"
       }
     },
-     "data_capture": {
+    "data_capture": {
       "telem_cycle_time": 1000,
-      "log_cycle_time" : 1000
+      "log_cycle_time": 1000
     }
   }
 }

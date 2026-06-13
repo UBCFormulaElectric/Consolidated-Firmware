@@ -61,6 +61,8 @@ static void driveStateRunOnTick100Hz()
         return;
     }
 
+    // TODO check inverter preconditions, return to hv init if not fulfilled
+
     const auto apps = can_rx::FSM_PappsMappedPedalPercentage_get();
 
     if (can_alerts::AnyBoardHasWarning() || bspdWarning::checkSoftwareBspd(apps))
