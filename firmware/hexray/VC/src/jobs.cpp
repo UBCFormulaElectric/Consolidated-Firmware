@@ -13,12 +13,14 @@
 #include "app_stateMachine.hpp"
 #include "app_timer.hpp"
 #include "app_commitInfo.hpp"
+#include "app_imu.hpp"
 #include "app_pumpControl.hpp"
 #include "app_vcShdnLoop.hpp"
 #include "app_shdnLast.hpp"
 
 #include "io_canMsg.hpp"
 #include "io_canTx.hpp"
+#include "io_imus.hpp"
 #include "io_canQueues.hpp"
 #include "io_time.hpp"
 #include "io_batteryMonitoring.hpp"
@@ -32,7 +34,6 @@ static void fdcan_tx(const JsonCanMsg &tx_msg)
     const io::CanMsg msg = app::jsoncan::copyToCanMsg(tx_msg);
     LOG_IF_ERR(fdcan_tx_queue.push(msg));
 }
-
 static void invcan_tx(const JsonCanMsg &tx_msg)
 {
     const io::CanMsg msg = app::jsoncan::copyToCanMsg(tx_msg);
@@ -61,6 +62,10 @@ void jobs_init()
     io::can_tx::VC_Bootup_sendAperiodic();
 
     app::StateMachine::init(&app::states::init_state);
+}
+void jobs_initImu()
+{
+    app::imus::init();
 }
 void jobs_run1Hz_tick() {}
 void jobs_run100Hz_tick()
@@ -118,6 +123,10 @@ void jobs_run100Hz_tick()
 void jobs_run1kHz_tick()
 {
     io::can_tx::enqueueOtherPeriodicMsgs(io::time::getCurrentMs());
+}
+void jobs_runImu_tick()
+{
+    app::imus::broadcast();
 }
 void jobs_runBatteryMonitoring_tick()
 {

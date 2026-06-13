@@ -13,8 +13,6 @@
 
 // imus
 io::imu IMU1;
-io::imu IMU2;
-io::imu IMU3;
 
 // pumps
 const io::pump rr_pump;
@@ -207,6 +205,11 @@ namespace sbgEllipse
 
 namespace io
 {
+namespace imus
+{
+    imu IMU1;
+} // namespace imus
+
 namespace batteryMonitoring
 {
     result<void> init()
@@ -279,6 +282,7 @@ namespace batteryMonitoring
         return 0;
     }
 } // namespace batteryMonitoring
+
 namespace batteryCharging
 {
     void charger_enable(void) {}
@@ -288,6 +292,7 @@ namespace batteryCharging
         return false;
     }
 } // namespace batteryCharging
+
 namespace imus
 {
     float papps_pedal_percentage = 0.0f;
@@ -429,7 +434,5 @@ namespace pcm
         return fakes::io::pcm::enable_pin;
     }
 } // namespace pcm
-
 } // namespace io
-
 const io::semaphore pwr_pump_i2c_bus_lock{ false };

@@ -3,7 +3,7 @@
 
 extern const hw::gpio bots_3v3;
 extern const hw::gpio cockpit_shdn_3v3;
-extern const hw::gpio imu_nss;
+extern const hw::gpio imu_cs;
 extern const hw::gpio imu_fsync;
 extern const hw::gpio nsusp_fl_ocsc;
 extern const hw::gpio nsusp_fr_ocsc;
