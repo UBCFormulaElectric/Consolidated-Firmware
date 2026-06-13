@@ -126,18 +126,17 @@ void jobs_run100Hz_tick()
     app::can_tx::BMS_BSPDBrakePressureThresholdExceeded_set(io::bspdtest::isBrakePressureThresholdExceeded());
     app::can_tx::BMS_BSPDAccelBrakeOk_set(io::bspdtest::isAccelBrakeOk());
 
-    // STATE TRANSITIONS
-    if (app::can_rx::Debug_CellBalancing_Request_get())
-    {
-        app::StateMachine::set_next_state(&app::states::balancing_state);
-    }
-    else if (app::can_alerts::AnyBoardHasFault())
+    if (app::can_alerts::AnyBoardHasFault())
     {
         app::StateMachine::set_next_state(&app::states::fault_state);
     }
-    else if (app::irs::negativeOpenedDebounced())
+    else if (app::irs::negativeOpenedDebounced()) //not sure if this is needed
     {
         app::StateMachine::set_next_state(&app::states::init_state);
+    }
+    else if (app::can_rx::Debug_CellBalancing_Request_get())
+    {
+        app::StateMachine::set_next_state(&app::states::balancing_state);
     }
 
     app::irs::broadcast();
