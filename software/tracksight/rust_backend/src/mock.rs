@@ -17,6 +17,7 @@ pub async fn run_mock_task(
     mut shutdown_rx: broadcast::Receiver<()>, 
     health_check_tx: HealthCheckSender, 
     can_queue_tx: broadcast::Sender<CanPayload>, 
+    _diag_tx: broadcast::Sender<f64>,
     can_db: Arc<CanDatabase>
 ) {
     vprintln!("{}", yellow("Mock task started."));
@@ -24,16 +25,44 @@ pub async fn run_mock_task(
 
     health_check_tx.send_health_check(Task::SerialHandler, true).await;
     
+    let mut diag_interval = tokio::time::interval(tokio::time::Duration::from_secs(1));
+    
     loop {
         select! {
             _ = shutdown_rx.recv() => {
                 vprintln!("Mock task shutting down.");
                 break;
             }
+            _ = diag_interval.tick() => {
+                // Simulate a varying error rate between 2.5% and 7.5% for testing
+                let simulated_error_rate = 5.0 + (i as f64 * TAU / 50.0).sin() * 2.5;
+                _diag_tx.send(simulated_error_rate).ok();
+            }
             _ = async {
                 // Simulate sending mock CAN payloads
                 i += 1;
                 let value = (i as f64 * TAU/100.0).sin() * 10.0 + 10.0;
+
+                if i == 1 {
+                    let bootup_signal = DecodedSignal {
+                        name: "DAM_Alive".to_string(),
+                        value: 1.0,
+                        timestamp: None,
+                        label: None,
+                        unit: None,
+                        signal_type: CanSignalType::Boolean
+                    };
+
+                    let (id, payload) = can_db.pack("DAM_Bootup", &vec!(bootup_signal)).unwrap();
+                    let mock_payload = CanPayload {
+                        can_id: id,
+                        payload: payload,
+                        can_timestamp: SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_millis() as u64,
+                    };
+                    if let Err(e) = can_queue_tx.send(mock_payload) {
+                        panic!("can_queue_tx send error: {}", e);
+                    }
+                }
                 
                 let signals = vec![
                     DecodedSignal {
@@ -45,7 +74,7 @@ pub async fn run_mock_task(
                         signal_type: CanSignalType::Numerical
                     },
                     DecodedSignal {
-                        name: "BMS_BalancingState".to_string(),
+                        name: "VC_State".to_string(),
                         value: value % 3.0,
                         timestamp: None,
                         label: None,
@@ -71,13 +100,13 @@ pub async fn run_mock_task(
                     panic!("can_queue_tx send error: {}", e);
                 }
 
-                let (id, payload) = can_db.pack("BMS_Balancing", &vec!(signals[1].clone())).unwrap();
+                let (id, payload) = can_db.pack("VC_Vitals", &vec!(signals[1].clone())).unwrap();
                 let mock_payload = CanPayload {
                     can_id: id,
                     payload: payload,
                     can_timestamp: SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_millis() as u64,
                 };
-                
+
                 if let Err(e) = can_queue_tx.send(mock_payload) {
                     panic!("can_queue_tx send error: {}", e);
                 }

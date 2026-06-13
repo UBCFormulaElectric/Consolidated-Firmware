@@ -2,8 +2,11 @@ use tokio::select;
 use tokio::io::{AsyncReadExt, AsyncWriteExt, ReadHalf, WriteHalf};
 use tokio::sync::{broadcast, mpsc};
 use tokio_serial::{SerialPortBuilderExt, SerialStream};
+use std::collections::VecDeque;
 use std::io::{Error, ErrorKind};
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
+
+const ERROR_RATE_WINDOW_SECS: usize = 60;
 
 use crate::config::CONFIG;
 use crate::tasks::{HealthCheckSender, HealthCheckSenderExt, ResultExt, Task};
@@ -13,12 +16,21 @@ use crate::{dprintln, vprintln};
 use super::telem_message::{TelemetryIncomingMessage, CanPayload};
 
 /**
+ * Internal enum for communicating packet status from reader handler
+ */
+enum SerialReaderOutput {
+    Message(TelemetryIncomingMessage),
+    InvalidData,
+}
+
+/**
  * Handling serial signals from radio. Main task
  */
 pub async fn run_serial_task(
     mut shutdown_rx: broadcast::Receiver<()>,
     health_check_tx: HealthCheckSender,
     can_queue_tx: broadcast::Sender<CanPayload>,
+    diag_tx: broadcast::Sender<f64>,
     client_out_msg_rx: broadcast::Receiver<TelemetryOutgoingMessage>,
 ) {
     vprintln!("{}", yellow("Serial handler task started."));
@@ -35,7 +47,7 @@ pub async fn run_serial_task(
     let (serial_read, serial_write) = tokio::io::split(serial_port);
     
     // communicate between serial reader and this function
-    let (in_msg_tx, mut in_msg_rx) = mpsc::channel::<TelemetryIncomingMessage>(32);
+    let (in_msg_tx, mut in_msg_rx) = mpsc::channel::<SerialReaderOutput>(32);
     // communicate between this function and serial sender
     let (out_msg_tx, out_msg_rx) = mpsc::channel::<TelemetryOutgoingMessage>(32);
 
@@ -49,6 +61,13 @@ pub async fn run_serial_task(
         let shutdown_rx = shutdown_rx.resubscribe();
         tokio::spawn(packet_sender_handler(shutdown_rx, serial_write, out_msg_rx, client_out_msg_rx))
     };
+
+    // metrics: per-second counts rolled into a 60s window for error rate
+    let mut success_count = 0u64;
+    let mut error_count = 0u64;
+    let mut error_rate_history: VecDeque<(u64, u64)> =
+        VecDeque::with_capacity(ERROR_RATE_WINDOW_SECS);
+    let mut diag_interval = tokio::time::interval(Duration::from_secs(1));
 
     // no set up involved with packet sender and reader thread, send health check
     health_check_tx.send_health_check(Task::SerialHandler, true).await;
@@ -64,33 +83,57 @@ pub async fn run_serial_task(
             res = &mut packet_reader => {
                 panic!("packet_reader exited unexpectedly: {res:?}");
             }
-            Some(msg) = in_msg_rx.recv() => {
-                // todo should also probably check for closed channels and close thread
-                // TODO better handling error
-                match msg {
-                    TelemetryIncomingMessage::Can { body } => {
-                        // TODO error handling
-                        dprintln!(
-                            "Backend ingest CAN: id=0x{:03x} ts={} payload_len={} payload={:02x?}",
-                            body.can_id,
-                            body.can_timestamp,
-                            body.payload.len(),
-                            body.payload
-                        );
-                        if !can_queue_tx.send(body).is_ok() {
-                            eprintln!("Channel has closed");
-                            break;
-                        };
+            _ = diag_interval.tick() => {
+                error_rate_history.push_back((success_count, error_count));
+                if error_rate_history.len() > ERROR_RATE_WINDOW_SECS {
+                    error_rate_history.pop_front();
+                }
+                success_count = 0;
+                error_count = 0;
+
+                let window_success: u64 = error_rate_history.iter().map(|(s, _)| s).sum();
+                let window_error: u64 = error_rate_history.iter().map(|(_, e)| e).sum();
+                let window_total = window_success + window_error;
+                let error_rate = if window_total > 0 {
+                    (window_error as f64 / window_total as f64) * 100.0
+                } else {
+                    0.0
+                };
+                diag_tx.send(error_rate).ok();
+            }
+            Some(out) = in_msg_rx.recv() => {
+                match out {
+                    SerialReaderOutput::InvalidData => {
+                        error_count += 1;
                     },
-                    TelemetryIncomingMessage::NTP => {
-                        vprintln!("Backend ingest NTP request");
-                        let t1 = SystemTime::now()
-                            .duration_since(UNIX_EPOCH)
-                            .unwrap();
-                        if !out_msg_tx.send(TelemetryOutgoingMessage::NtpResponse { t1 }).await.is_ok() {
-                            eprintln!("Channel has closed");
-                            break;
-                        };
+                    SerialReaderOutput::Message(msg) => {
+                        success_count += 1;
+                        match msg {
+                            TelemetryIncomingMessage::Can { body } => {
+                                // TODO error handling
+                                dprintln!(
+                                    "Backend ingest CAN: id=0x{:03x} ts={} payload_len={} payload={:02x?}",
+                                    body.can_id,
+                                    body.can_timestamp,
+                                    body.payload.len(),
+                                    body.payload
+                                );
+                                if !can_queue_tx.send(body).is_ok() {
+                                    eprintln!("Channel has closed");
+                                    break;
+                                };
+                            },
+                            TelemetryIncomingMessage::NTP => {
+                                vprintln!("Backend ingest NTP request");
+                                let t1 = SystemTime::now()
+                                    .duration_since(UNIX_EPOCH)
+                                    .unwrap();
+                                if !out_msg_tx.send(TelemetryOutgoingMessage::NtpResponse { t1 }).await.is_ok() {
+                                    eprintln!("Channel has closed");
+                                    break;
+                                };
+                            }
+                        }
                     }
                 }
             }
@@ -111,7 +154,7 @@ pub async fn run_serial_task(
 async fn packet_reader_handler(
     mut shutdown_flag: broadcast::Receiver<()>, 
     mut serial_read: ReadHalf<SerialStream>, 
-    in_msg_tx: mpsc::Sender<TelemetryIncomingMessage>
+    in_msg_tx: mpsc::Sender<SerialReaderOutput>
 ) {   
     loop {
         select! {
@@ -120,12 +163,13 @@ async fn packet_reader_handler(
                 match result {
                     Ok(packet_bytes) =>  {
                         if let Ok(parsed) = parse_incoming_telem_message(&packet_bytes) {        
-                            match in_msg_tx.send(parsed).await {
+                            match in_msg_tx.send(SerialReaderOutput::Message(parsed)).await {
                                 Ok(_) => {},
                                 Err(_) => break, // packet receiver closed, exit thread
                             }
                         } else {
                             eprintln!("Failed to parse telemetry message: {:?}", packet_bytes);
+                            in_msg_tx.send(SerialReaderOutput::InvalidData).await.ok();
                         }
                     },
                     Err(e) => {
@@ -135,6 +179,7 @@ async fn packet_reader_handler(
                         // when the serial device is yanked); panic so main.rs restarts us.
                         if e.kind() == ErrorKind::InvalidData {
                             eprintln!("{e}");
+                            in_msg_tx.send(SerialReaderOutput::InvalidData).await.ok();
                         } else {
                             panic!("Fatal serial read error: {e}");
                         }
@@ -144,6 +189,7 @@ async fn packet_reader_handler(
         }
     }
 }
+
 
 /**
  * Intakes incoming packet bytes and parses into telemetry incoming message

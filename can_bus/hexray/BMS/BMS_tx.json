@@ -8219,6 +8219,19 @@
       }
     }
   },
+  "Fans": {
+    "msg_id": 425,
+    "cycle_time": 100,
+    "description": "Fan control signals",
+    "signals": {
+      "FanStatus": {
+        "bits": 1
+      },
+      "FanPgood": {
+        "bits": 1
+      }
+    }
+  },
   "ElconControls": {
     "msg_id": 403105268,
     "cycle_time": 1000,

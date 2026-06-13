@@ -15,7 +15,6 @@
 #include "io_canQueues.hpp"
 #include "io_leds.hpp"
 #include "io_sevenSeg.hpp"
-#include "io_switches.hpp"
 
 void jobs_init()
 {
@@ -50,11 +49,14 @@ void jobs_run100Hz_tick()
     app::power_gauge::update();
     app::switches::broadcast();
 
-    // TODO find rising edge
-    // if (const bool has_rising_edge = io::switches::telem_mark_get(); has_rising_edge)
-    // {
-    //     io::can_tx::CRIT_TelemMarkEvent_sendAperiodic();
-    // }
+    static bool prev_telem_mark = false;
+    const bool  telem_mark      = app::switches::telem_get();
+    if (telem_mark && !prev_telem_mark)
+    {
+        io::can_tx::CRIT_TelemMarkEvent_sendAperiodic();
+    }
+    prev_telem_mark = telem_mark;
+
     hb_monitor.checkIn();
     hb_monitor.broadcastFaults();
 
