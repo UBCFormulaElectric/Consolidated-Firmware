@@ -20,9 +20,6 @@ inline constexpr uint16_t WRCFGB = 0x0024U;
 inline constexpr uint16_t RDCFGA = 0x0002U;
 inline constexpr uint16_t RDCFGB = 0x0026U;
 
-// Reset Command Counter
-// inline constexpr uint16_t RSTCC = 0x002EU;
-
 // Cell voltages (C-ADC) — A..E only; 14 cells → Group F unused.
 inline constexpr uint16_t RDCVA = 0x0004U;
 inline constexpr uint16_t RDCVB = 0x0006U;
@@ -66,6 +63,7 @@ inline constexpr uint16_t RDPWMB = 0x0023U;
 inline constexpr uint16_t CLRCELL = 0x0711U;
 inline constexpr uint16_t CLRAUX  = 0x0712U;
 inline constexpr uint16_t CLRFLAG = 0x0717U;
+inline constexpr uint16_t CLRSPIN = 0x0716U;
 inline constexpr uint16_t CLOVUV  = 0x0715U;
 inline constexpr uint16_t CLRFC   = 0x0714U;
 
@@ -89,9 +87,6 @@ inline constexpr uint16_t ADAX2_BASE = 0x0400U;
 // Snapshot
 inline constexpr uint16_t SNAP   = 0x002DU;
 inline constexpr uint16_t UNSNAP = 0x002FU;
-
-// Counter resets — RSTCC clears the command counter
-inline constexpr uint16_t RSTCC = 0x002EU;
 
 // ADCV and ADSV
 inline constexpr uint16_t RD   = 1U << 8; // redundant C + S ADC

@@ -2,9 +2,7 @@
 #include "io_adbms.hpp"
 #include "util_errorCodes.hpp"
 #include "hw_spis.hpp"
-
-#include <FreeRTOS.h>
-#include <semphr.h>
+#include "io_semaphore.hpp"
 
 #include <cstring>
 #include <algorithm>
@@ -13,30 +11,7 @@ using namespace std;
 
 namespace
 {
-/**
- * Serializes access to the ADBMS SPI bus so the concurrent ADBMS tasks (voltages, configs, aux) can't interleave
- * transactions. Recursive because readRegGroup() re-enters sendCmd() via the RSTCC recovery path.
- */
-SemaphoreHandle_t spiMutex()
-{
-    static StaticSemaphore_t storage;
-    static SemaphoreHandle_t handle = xSemaphoreCreateRecursiveMutexStatic(&storage);
-    return handle;
-}
-
-class SpiLock
-{
-    SemaphoreHandle_t m;
-
-  public:
-    SpiLock() : m(spiMutex()) { xSemaphoreTakeRecursive(m, portMAX_DELAY); }
-    ~SpiLock() { xSemaphoreGiveRecursive(m); }
-
-    SpiLock(const SpiLock &)            = delete;
-    SpiLock &operator=(const SpiLock &) = delete;
-    SpiLock(SpiLock &&)                 = delete;
-    SpiLock &operator=(SpiLock &&)      = delete;
-};
+io::semaphore spi_bus_lock{ true };
 
 consteval std::array<uint16_t, 256> pecTable(const uint16_t poly, const uint16_t size)
 {
@@ -192,140 +167,27 @@ struct __attribute__((packed)) WriteCmd
     [[nodiscard]] span<uint8_t> into_span() { return { reinterpret_cast<uint8_t *>(this), sizeof(WriteCmd) }; }
 };
 
-namespace
-{
-    Segments<uint8_t> expected_cmd_count{};
-    Segments<uint8_t> last_cmd_count_mismatches{};
-
-    bool commandIncrements(const uint16_t cmd)
-    {
-        // ADCV_BASE = 0x0260, bits 9+6+5 constant; bits 8(RD), 7(CONT), 4(DCP), 2(RSTF), 1-0(OW) vary.
-        if ((cmd & 0x0668U) == (ADCV_BASE & 0x0668U))
-            return true;
-        // ADSV_BASE = 0x0168, bits 8+6+5+3 constant; bits 7(CONT), 4(DCP), 1-0(OW) vary.
-        if ((cmd & 0x076CU) == (ADSV_BASE & 0x076CU))
-            return true;
-        // ADAX_BASE = 0x0410, bits 10+4 constant; bits 8(OW), 7(PUP), 6(CH4), 3-0(CH3..CH0) vary.
-        if ((cmd & 0x0630U) == (ADAX_BASE & 0x0630U))
-            return true;
-        // ADAX2_BASE = 0x0400, bits 10+9..4 all constant; only CH[3:0] (bits 3-0) vary.
-        if ((cmd & 0x07F0U) == ADAX2_BASE)
-            return true;
-
-        switch (cmd)
-        {
-            // Writes
-            case WRCFGA:
-            case WRCFGB:
-            case WRPWMA:
-            case WRPWMB:
-            // Clears
-            case CLRCELL:
-            case CLRFC:
-            case CLRAUX:
-            case CLRFLAG:
-            case CLOVUV:
-            // Polls
-            case PLADC:
-            case PLCADC:
-            case PLSADC:
-            case PLAUX:
-            case PLAUX2:
-            // Discharge / snapshot
-            case MUTE:
-            case UNMUTE:
-            case SNAP:
-            case UNSNAP:
-                return true;
-            default:
-                return false;
-        }
-    }
-
-    /**
-     * Note that RX commands DO NOT need to increment the expected command counter
-     * @param cmd
-     */
-    void postTxUpdateCmdCount(const uint16_t cmd)
-    {
-        if (cmd == RSTCC)
-        {
-            expected_cmd_count.fill(0);
-            return;
-        }
-        if (!commandIncrements(cmd))
-            return;
-        for (auto &cc : expected_cmd_count)
-        {
-            cc = (cc == 63U) ? 1U : static_cast<uint8_t>(cc + 1U);
-        }
-    }
-
-    Segments<bool> detectCmdCountMismatches(const Segments<RegGroupPayload> &rx)
-    {
-        Segments<bool> mismatches{};
-        for (size_t seg = 0U; seg < NUM_SEGMENTS; ++seg)
-        {
-            const auto a = rx[seg].cmd_count();
-            const auto b = expected_cmd_count[seg];
-            // LOG_INFO("Segment %u: cmd count = %u, expected = %u", seg, a, b);
-            mismatches[seg] = a != b;
-        }
-        return mismatches;
-    }
-
-    void handleCmdCountMismatches(const Segments<bool> &mismatches)
-    {
-        for (size_t i = 0; i < NUM_SEGMENTS; ++i)
-        {
-            last_cmd_count_mismatches[i] += mismatches[i];
-        }
-        if (!ranges::any_of(mismatches, [](const bool m) { return m; }))
-            return;
-        (void)sendCmd(RSTCC);
-    }
-} // namespace
-
-Segments<uint8_t> getExpectedCmdCount()
-{
-    return expected_cmd_count;
-}
-
-Segments<uint8_t> getCmdCountMismatches()
-{
-    return last_cmd_count_mismatches;
-}
-
 result<void> sendCmd(const uint16_t cmd)
 {
-    const SpiLock lock;
-    const Cmd     tx_cmd{ cmd };
-    const auto    status = adbms_spi_ls.transmitDma(tx_cmd.into_span());
-    if (status)
-    {
-        postTxUpdateCmdCount(cmd);
-    }
-    return status;
+    const io::unique_semaphore lock{ spi_bus_lock };
+    const Cmd                  tx_cmd{ cmd };
+    return adbms_spi_ls.transmitDma(tx_cmd.into_span());
 }
 
 result<bitset<32>> poll(const uint16_t cmd)
 {
-    const SpiLock lock;
-    const Cmd     tx_cmd{ cmd };
-    uint32_t      poll_buf;
+    const io::unique_semaphore lock{ spi_bus_lock };
+    const Cmd                  tx_cmd{ cmd };
+    uint32_t                   poll_buf;
     static_assert(sizeof(poll_buf) == 4);
     const auto status = adbms_spi_ls.transmitThenReceiveDma(
         tx_cmd.into_span(), { reinterpret_cast<uint8_t *>(&poll_buf), sizeof(poll_buf) });
-    if (status)
-    {
-        postTxUpdateCmdCount(cmd);
-    }
     return status ? result<std::bitset<32>>{ poll_buf } : unexpected(status.error());
 }
 
 Segments<result<RegBuffer>> readRegGroup(const uint16_t cmd)
 {
-    const SpiLock               lock;
+    const io::unique_semaphore  lock{ spi_bus_lock };
     Segments<result<RegBuffer>> regs;
     const Cmd                   tx_cmd{ cmd };
     Segments<RegGroupPayload>   rx_buffer;
@@ -349,25 +211,15 @@ Segments<result<RegBuffer>> readRegGroup(const uint16_t cmd)
         regs[segment] = segment_reg_group.getData();
     }
 
-    // Detect per-segment command counter mismatches and trigger RSTCC recovery.
-    // The app layer reads the mismatch bitmap via getCmdCountMismatches() and
-    // broadcasts the SegmentCMDCNT CAN message.
-    handleCmdCountMismatches(detectCmdCountMismatches(rx_buffer));
-
     return regs;
 }
 
 result<void> writeRegGroup(const uint16_t cmd, Segments<RegBuffer> &regs)
 {
-    const SpiLock lock;
+    const io::unique_semaphore lock{ spi_bus_lock };
     ranges::reverse(regs);
-    WriteCmd   tx_buffer(cmd, regs);
-    const auto status = adbms_spi_ls.transmitDma(tx_buffer.into_span());
-    if (status)
-    {
-        postTxUpdateCmdCount(cmd);
-    }
-    return status;
+    WriteCmd tx_buffer(cmd, regs);
+    return adbms_spi_ls.transmitDma(tx_buffer.into_span());
 }
 
 } // namespace io::adbms
