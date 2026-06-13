@@ -351,7 +351,7 @@ TEST_F(VCStateMachineTest, InverterRetryOneFaultedInverterFromInit)
 
 TEST_F(VCStateMachineTest, InverterRetryOneFaultedInverterFromInverterOn)
 {
-    GTEST_SKIP(); // Inverters are not retried in inverter on 
+    GTEST_SKIP(); // Inverters are not retried in inverter on
     SetStateWithEntry(&app::states::inverterOn_state);
 
     app::can_rx::INVFL_bError_update(true);
@@ -440,7 +440,7 @@ TEST_F(VCStateMachineTest, InverterRetryTwoFaultsInARow)
     ASSERT_STATE_EQ(app::states::inverter_fault_handling_state);
     app::can_rx::INVFL_bError_update(false);
     LetTimePass(10);
-    ASSERT_STATE_EQ(app::states::bmsOn_state); 
+    ASSERT_STATE_EQ(app::states::bmsOn_state);
     */
 
     app::can_rx::BMS_State_update(BmsState::BMS_DRIVE_STATE);

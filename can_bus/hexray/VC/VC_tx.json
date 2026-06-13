@@ -42,6 +42,10 @@
         "bits": 16,
         "signed": true
       }
+    },
+    "data_capture": {
+      "telem_cycle_time": 1000,
+      "log_cycle_time" : 1000
     }
   },
   "INVFRSetPoints": {
@@ -87,6 +91,10 @@
         "bits": 16,
         "signed": true
       }
+    },
+    "data_capture": {
+      "telem_cycle_time": 1000,
+      "log_cycle_time" : 1000
     }
   },
   "INVRLSetPoints": {
@@ -132,6 +140,10 @@
         "bits": 16,
         "signed": true
       }
+    },
+    "data_capture": {
+      "telem_cycle_time": 1000,
+      "log_cycle_time" : 1000
     }
   },
   "INVRRSetPoints": {
@@ -177,6 +189,10 @@
         "bits": 16,
         "signed": true
       }
+    },
+    "data_capture": {
+      "telem_cycle_time": 1000,
+      "log_cycle_time" : 1000
     }
   },
   "Vitals": {
@@ -239,6 +255,10 @@
       "Clean": {
         "bits": 1
       }
+    },
+    "data_capture": {
+      "telem_cycle_time": 1000,
+      "log_cycle_time" : 1000
     }
   },
   "VehicleDynamics": {
@@ -279,6 +299,10 @@
         "resolution": 0.1,
         "signed": true
       }
+    },
+    "data_capture": {
+      "telem_cycle_time": 1000,
+      "log_cycle_time" : 1000
     }
   },
   "IMU1": {
@@ -368,6 +392,10 @@
         "max": 35,
         "unit": "m/s"
       }
+    },
+    "data_capture": {
+      "telem_cycle_time": 1000,
+      "log_cycle_time" : 1000
     }
   },
   "GlobalShdnNodeStatus": {
@@ -381,6 +409,10 @@
       "ShdnLoopConsistent": {
         "bits": 1
       }
+    },
+    "data_capture": {
+      "telem_cycle_time": 1000,
+      "log_cycle_time" : 1000
     }
   },
   "PumpStatus": {
@@ -400,6 +432,10 @@
         "max": 100,
         "unit": "%"
       }
+    },
+    "data_capture": {
+      "telem_cycle_time": 1000,
+      "log_cycle_time" : 1000
     }
   },
   "ConnectorBoardEfuse": {
@@ -455,6 +491,10 @@
       "RightRadiatorRetry": {
         "bits": 8
       }
+    },
+    "data_capture": {
+      "telem_cycle_time": 1000,
+      "log_cycle_time" : 1000
     }
   },
   "ShdnNodeStatus": {
@@ -474,6 +514,10 @@
       "MSDOrEMeterOKStatus": {
         "bits": 1
       }
+    },
+    "data_capture": {
+      "telem_cycle_time": 1000,
+      "log_cycle_time" : 1000
     }
   },
   "EllipseTime": {
@@ -485,6 +529,10 @@
         "bits": 32,
         "unit": "us"
       }
+    },
+    "data_capture": {
+      "telem_cycle_time": 1000,
+      "log_cycle_time" : 1000
     }
   },
   "EllipseStatus": {
@@ -507,6 +555,10 @@
       "EllipseQueueOverflowCount": {
         "bits": 8
       }
+    },
+    "data_capture": {
+      "telem_cycle_time": 1000,
+      "log_cycle_time" : 1000
     }
   },
   "EllipseAngularVelocity": {
@@ -533,6 +585,10 @@
         "resolution": 1,
         "unit": "deg/s"
       }
+    },
+    "data_capture": {
+      "telem_cycle_time": 1000,
+      "log_cycle_time" : 1000
     }
   },
   "EllipseEulerAngles": {
@@ -561,6 +617,10 @@
         "signed": true,
         "unit": "deg"
       }
+    },
+    "data_capture": {
+      "telem_cycle_time": 1000,
+      "log_cycle_time" : 1000
     }
   },
   "MainBoardEfuse": {
@@ -643,6 +703,10 @@
       "FSMRetry": {
         "bits": 8
       }
+    },
+    "data_capture": {
+      "telem_cycle_time": 1000,
+      "log_cycle_time" : 1000
     }
   },
   "PowerMonitoring": {
@@ -782,6 +846,10 @@
       "CHANNEL4_POWER_VALID": {
         "bits": 1
       }
+    },
+    "data_capture": {
+      "telem_cycle_time": 1000,
+      "log_cycle_time" : 1000
     }
   },
   "BatteryMonitoring_Faults": {
@@ -837,6 +905,10 @@
         "max": 4.5,
         "unit": "V"
       }
+    },
+    "data_capture": {
+      "telem_cycle_time": 1000,
+      "log_cycle_time" : 1000
     }
   },
   "BatteryMonitoring_Data": {
@@ -923,6 +995,10 @@
       "Charging": {
         "bits": 1
       }
+    },
+    "data_capture": {
+      "telem_cycle_time": 1000,
+      "log_cycle_time" : 1000
     }
   },
   "CPUDataLogInfo": {
@@ -996,19 +1072,37 @@
         "max": 100,
         "unit": "%"
       },
-      "TaskRunCanTxCpuUsageMax": {
+      "TaskRunCan1TxCpuUsageMax": {
         "resolution": 0.1,
         "min": 0,
         "max": 100,
         "unit": "%"
       },
-      "TaskRunCanTxCpuUsage": {
+      "TaskRunCan1TxCpuUsage": {
         "resolution": 0.1,
         "min": 0,
         "max": 100,
         "unit": "%"
       },
-      "TaskRunCanTxStackUsage": {
+      "TaskRunCan1TxStackUsage": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRunCan2TxCpuUsageMax": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRunCan2TxCpuUsage": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRunCan2TxStackUsage": {
         "resolution": 0.1,
         "min": 0,
         "max": 100,
@@ -1031,7 +1125,29 @@
         "min": 0,
         "max": 100,
         "unit": "%"
+      }, 
+      "TaskRunPowerMonitoringCpuUsageMax": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRunPowerMonitoringCpuUsage": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRunPowerMonitoringStackUsage": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
       }
+    },
+     "data_capture": {
+      "telem_cycle_time": 1000,
+      "log_cycle_time" : 1000
     }
   },
   "EMeterTeamMessage1": {
@@ -1045,12 +1161,16 @@
       "TeamSignal2": {
         "bits": 32
       }
+    },
+     "data_capture": {
+      "telem_cycle_time": 1000,
+      "log_cycle_time" : 1000
     }
   },
   "EMeterTeamMessage2": {
     "msg_id": 782,
     "cycle_time": null,
-    "description": "EMeter Team Message 1",
+    "description": "EMeter Team Message 2",
     "signals": {
       "TeamSignal3": {
         "bits": 32
@@ -1058,6 +1178,10 @@
       "TeamSignal4": {
         "bits": 32
       }
+    },
+     "data_capture": {
+      "telem_cycle_time": 1000,
+      "log_cycle_time" : 1000
     }
   },
   "PCM": {

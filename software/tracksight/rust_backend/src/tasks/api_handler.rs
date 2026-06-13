@@ -1,4 +1,5 @@
 use std::sync::Arc;
+use std::time::Duration;
 use axum::Router;
 use moka::future::Cache;
 use tokio::select;
@@ -19,7 +20,7 @@ use crate::tasks::client_api::AppState;
 use crate::tasks::client_api::subtable_clients::Clients;
 use crate::tasks::client_api::signal_api_handler::get_signal_router;
 use crate::tasks::client_api::subtable_api_handler::get_subtable_router;
-use crate::tasks::client_api::sd_api_handler::{get_sd_router, get_sd_router_mock};
+use crate::tasks::client_api::sd_api_handler::{get_sd_router};
 use crate::vprintln;
 
 pub async fn run_api_handler(
@@ -57,7 +58,10 @@ pub async fn run_api_handler(
     println!("Server hosted on {} running at http://{}.local:{}", CONFIG.mdns_local_ip, instance_name, CONFIG.backend_port);
 
     // Websocket
-    let (socket_layer, io) = SocketIo::new_layer();
+    let (socket_layer, io) = SocketIo::builder()
+        .ping_interval(Duration::from_millis(5000))
+        .ping_timeout(Duration::from_millis(2000))
+        .build_layer();
 
     let app_state = AppState {
         can_db: can_db,
@@ -82,13 +86,13 @@ pub async fn run_api_handler(
     // default socketio endpoint
     io.ns("/", |socket: SocketRef| async move {
         let client_id = socket.id.to_string();
-        println!("{} connected", client_id);
+        vprintln!("{} connected", client_id);
 
         clients.write().await.add_client(&client_id, &socket);
 
         socket.on_disconnect(async move || {
             clients.write().await.remove_client(&client_id);
-            println!("{} disconnected", client_id);
+            vprintln!("{} disconnected", client_id);
         });
     });
 
@@ -97,7 +101,6 @@ pub async fn run_api_handler(
         .nest("/api/v1/", get_subtable_router())
         .nest("/api/v1/", get_signal_router())
         .nest("/api/v1/", get_sd_router())
-        .nest("/api/mock/", get_sd_router_mock())
         .nest("/api/v1/", get_transmit_router())
         .with_state(app_state)
         .layer(cors)

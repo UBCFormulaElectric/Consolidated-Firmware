@@ -42,6 +42,12 @@ bool start_get()
     return getDebouncedstate(io::switches::start_get(), start_signal);
 }
 
+bool telem_get()
+{
+    static Signal telem_signal(DEBOUNCE_TIME, DEBOUNCE_TIME);
+    return getDebouncedstate(io::switches::telem_mark_get(), telem_signal);
+}
+
 void broadcast()
 {
     // update the state from the switches

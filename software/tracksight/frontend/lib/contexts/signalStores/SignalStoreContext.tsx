@@ -2,8 +2,7 @@
 
 import { createContext, RefObject, ReactNode, useContext, useEffect, useRef } from "react";
 import SignalStore, { SignalStoreReturnType } from "@/lib/signals/SignalStore";
-import { AlertSignalMetadata, SignalMetadata } from "@/lib/types/Signal";
-import { AlertSeries } from "@/components/widgets/CanvasChartTypes";
+import { SignalMetadata } from "@/lib/types/Signal";
 
 const SignalDataStoreContext = createContext<RefObject<SignalStore> | null>(null);
 
@@ -83,23 +82,14 @@ const useSignalDataStores = <T extends SignalMetadata[]>(signals: T) => {
   return cachedReferencesRef;
 }
 
-const useAlertDataStores = () => {
+const useAlertStore = (): RefObject<SignalStore> => {
   const context = useContext(SignalDataStoreContext);
 
   if (context === null) {
-    throw new Error("useAlertDataStores must be used within a SignalDataStoreProvider");
+    throw new Error("useAlertStore must be used within a SignalDataStoreProvider");
   }
 
-  const signalStore = context;
-  const cachedReferencesRef = useRef<{ [signalName: string]: AlertSeries } | null>(null);
-
-  useEffect(() => {
-    if (!signalStore.current) return;
-
-    cachedReferencesRef.current = signalStore.current.getAlertData();
-  }, [signalStore]);
-
-  return cachedReferencesRef;
+  return context;
 }
 
-export { SignalDataStoreProvider, useSignalDataStore, useSignalDataStores, useAlertDataStores };
+export { SignalDataStoreProvider, useSignalDataStore, useSignalDataStores, useAlertStore };

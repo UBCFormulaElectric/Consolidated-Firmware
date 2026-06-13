@@ -35,7 +35,7 @@
 [[noreturn]] static void tasks_powerMonitoring(void *arg);
 
 // Define the task with StaticTask Class
-constexpr size_t                                   TASK_COUNT = 7;
+constexpr size_t                                   TASK_COUNT = 7; // IMU, Batt Mon, Power Mon ADD
 static hw::rtos::StaticTask::StaticTaskStack<8096> Task100HzStack;
 static hw::rtos::StaticTask::StaticTaskStack<512>  Task1kHzStack;
 static hw::rtos::StaticTask::StaticTaskStack<512>  Task1HzStack;
@@ -56,6 +56,28 @@ static hw::rtos::StaticTask
 static hw::rtos::StaticTask
     TaskPowerMonitoring(osPriorityNormal, "TaskPowerMonitoring", tasks_powerMonitoring, TaskPowerMonitoringStack);
 
+static hw::runtimeStat::monitor<TASK_COUNT> runtimeMonitor{
+    { app::can_tx::VC_CoreCpuUsage_set, app::can_tx::VC_CoreCpuUsageMax_set },
+    {
+        { { Task1kHz, app::can_tx::VC_TaskRun1kHzCpuUsage_set, app::can_tx::VC_TaskRun1kHzCpuUsageMax_set,
+            app::can_tx::VC_TaskRun1kHzStackUsage_set },
+          { Task1Hz, app::can_tx::VC_TaskRun1HzCpuUsage_set, app::can_tx::VC_TaskRun1HzCpuUsageMax_set,
+            app::can_tx::VC_TaskRun1HzStackUsage_set },
+          { Task100Hz, app::can_tx::VC_TaskRun100HzCpuUsage_set, app::can_tx::VC_TaskRun100HzCpuUsageMax_set,
+            app::can_tx::VC_TaskRun100HzStackUsage_set },
+          { TaskCanRx, app::can_tx::VC_TaskRunCanRxCpuUsage_set, app::can_tx::VC_TaskRunCanRxCpuUsageMax_set,
+            app::can_tx::VC_TaskRunCanRxStackUsage_set },
+          { TaskCan1Tx, app::can_tx::VC_TaskRunCan1TxCpuUsage_set, app::can_tx::VC_TaskRunCan1TxCpuUsageMax_set,
+            app::can_tx::VC_TaskRunCan1TxStackUsage_set },
+          { TaskCan2Tx, app::can_tx::VC_TaskRunCan2TxCpuUsage_set, app::can_tx::VC_TaskRunCan2TxCpuUsageMax_set,
+            app::can_tx::VC_TaskRunCan2TxStackUsage_set },
+          { TaskPowerMonitoring, app::can_tx::VC_TaskRunPowerMonitoringCpuUsage_set,
+            app::can_tx::VC_TaskRunPowerMonitoringCpuUsageMax_set,
+            app::can_tx::VC_TaskRunPowerMonitoringStackUsage_set } },
+        // Battery Monitoring and IMU...
+    },
+};
+
 static hw::watchdog::monitor<TASK_COUNT> monitor{
     hiwdg1,
     [](const hw::watchdog::instance &i) { LOG_INFO("Software watchdog timeout for task %d", i.task_id); },
@@ -72,6 +94,7 @@ void tasks_run1Hz(void *arg)
     {
         jobs_run1Hz_tick();
         watchdog1hz.checkIn();
+        runtimeMonitor.checkin();
         start_ticks += period_ms;
         io::time::delayUntil(start_ticks);
         osDelayUntil(start_ticks);
@@ -218,6 +241,8 @@ void tasks_init()
 #endif
 
     LOG_INFO("VC Reset!");
+
+    // hw::runtimeStat::init(htim7);
     fdcan1.init();
     invcan.init();
 
@@ -271,4 +296,14 @@ void tasks_init()
     VC_StartAllTasks();
     osKernelStart();
     forever {}
+}
+
+void tasks_tim_callback(const TIM_HandleTypeDef *tim)
+{
+#ifndef USE_CHIMERA
+    if (tim == &htim7)
+    {
+        hw::runtimeStat::inc();
+    }
+#endif
 }
