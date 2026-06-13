@@ -127,7 +127,6 @@ void tasks_run1Hz(void *arg)
 
     forever
     {
-
         jobs_run1Hz_tick();
         watchdog1hz.checkIn();
         start_ticks += period_ms;
@@ -235,8 +234,8 @@ void tasks_runAdbmsVoltages(void *arg)
 
 void tasks_runAdbmsConfigs(void *arg)
 {
-    constexpr uint32_t period_ms = 100U;
-    uint32_t       start_ticks = osKernelGetTickCount();
+    constexpr uint32_t period_ms   = 100U;
+    uint32_t           start_ticks = osKernelGetTickCount();
 
     forever
     {

@@ -57,7 +57,6 @@ void updateCellsToBalance()
 
         for (uint8_t cell = 0; cell < CELLS_PER_SEGMENT; cell++)
         {
-
             // Never discharge the leader cell unless balancing to target voltage
             if (seg == min_cell_seg && cell == min_cell_cell && !app::can_rx::Debug_CellBalancing_OverrideValue_get())
             {

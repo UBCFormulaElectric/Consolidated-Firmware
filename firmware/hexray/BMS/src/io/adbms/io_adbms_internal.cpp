@@ -170,15 +170,15 @@ struct __attribute__((packed)) WriteCmd
 result<void> sendCmd(const uint16_t cmd)
 {
     const io::unique_semaphore lock{ spi_bus_lock };
-    const Cmd                   tx_cmd{ cmd };
+    const Cmd                  tx_cmd{ cmd };
     return adbms_spi_ls.transmitDma(tx_cmd.into_span());
 }
 
 result<bitset<32>> poll(const uint16_t cmd)
 {
     const io::unique_semaphore lock{ spi_bus_lock };
-    const Cmd                   tx_cmd{ cmd };
-    uint32_t                    poll_buf;
+    const Cmd                  tx_cmd{ cmd };
+    uint32_t                   poll_buf;
     static_assert(sizeof(poll_buf) == 4);
     const auto status = adbms_spi_ls.transmitThenReceiveDma(
         tx_cmd.into_span(), { reinterpret_cast<uint8_t *>(&poll_buf), sizeof(poll_buf) });

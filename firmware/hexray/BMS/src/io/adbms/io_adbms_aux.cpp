@@ -26,7 +26,8 @@ result<void> clear::flags()
     return {};
 }
 
-result<void> clear::aux() {
+result<void> clear::aux()
+{
     return sendCmd(CLRAUX);
 }
 

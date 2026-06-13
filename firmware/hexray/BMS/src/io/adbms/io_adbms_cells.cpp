@@ -23,7 +23,8 @@ result<void> clear::filteredCell()
     return sendCmd(CLRFC);
 }
 
-result<void> clear::secondaryCell() {
+result<void> clear::secondaryCell()
+{
     return sendCmd(CLRSPIN);
 }
 

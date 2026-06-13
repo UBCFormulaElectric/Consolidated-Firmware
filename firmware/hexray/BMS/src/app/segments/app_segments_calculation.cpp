@@ -138,7 +138,7 @@ Therms<result<float>>
 
 Therms<result<bool>>
     thermOwcOk(const std::array<ThermGpios<result<float>>, static_cast<size_t>(ThermistorMux::THERMISTOR_MUX_COUNT)>
-                 &therm_voltages)
+                   &therm_voltages)
 {
     Therms<result<bool>> out;
 

@@ -26,7 +26,6 @@ SegmentParam<float> latest_min_segment_voltage{};
 result<float> pack_voltage;
 } // namespace
 
-
 io::semaphore shared_lock{ true };
 
 namespace app::segments::shared

@@ -225,7 +225,8 @@ void jobs_runAdbmsVoltages_tick()
         const io::unique_semaphore h{ health_lock };
         app::segments::health::setOrResetAll(app::segments::health::ErrorBit::AUX_ADC_POLL, not cell_voltage_poll_ok);
     }
-    if (not cell_voltage_poll_ok){
+    if (not cell_voltage_poll_ok)
+    {
         app::segments::broadcast::debug::cellVoltages(Cells<result<float>>{}, cell_voltage_poll_ok);
         return;
     }
@@ -274,7 +275,8 @@ void jobs_runAdbmsCellOwc_tick()
         const auto owc_voltage_start_ok = io::adbms::command::owcCells(channel);
         {
             const io::unique_semaphore h{ health_lock };
-            app::segments::health::setOrResetAll(app::segments::health::ErrorBit::OWC_ADC_START, not owc_voltage_start_ok);
+            app::segments::health::setOrResetAll(
+                app::segments::health::ErrorBit::OWC_ADC_START, not owc_voltage_start_ok);
         }
         if (not owc_voltage_start_ok)
         {
@@ -379,10 +381,10 @@ void jobs_runAdbmsAux_tick()
         therm_voltages[static_cast<size_t>(mux)] = app::segments::conversion::thermVoltage();
     }
 
-    const Segments<result<float>> seg_voltages = app::segments::conversion::segVoltage();
+    const Segments<result<float>>              seg_voltages = app::segments::conversion::segVoltage();
     const Segments<io::adbms::StatusGroupsRes> status       = io::adbms::read::status();
 
-    const Therms<result<float>> therm_temps = app::segments::calculate::thermTemps(therm_voltages);
+    const Therms<result<float>> therm_temps  = app::segments::calculate::thermTemps(therm_voltages);
     const Therms<result<bool>>  therm_owc_ok = app::segments::calculate::thermOwcOk(therm_voltages);
 
     result<float>                      pack_voltage;

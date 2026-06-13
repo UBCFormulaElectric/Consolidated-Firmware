@@ -450,9 +450,9 @@ namespace debug
 
 // void spiLinkStats(const io::adbms::SpiBusReach &reach)
 // {
-    // can_tx::BMS_LowSideSegmentReach_set(reach.ls_reach);
-    // can_tx::BMS_HighSideSegmentReach_set(reach.hs_reach);
-    // io::can_tx::BMS_SpiLinkStatus_sendAperiodic();
+// can_tx::BMS_LowSideSegmentReach_set(reach.ls_reach);
+// can_tx::BMS_HighSideSegmentReach_set(reach.hs_reach);
+// io::can_tx::BMS_SpiLinkStatus_sendAperiodic();
 // }
 
 void segmentHealthError(const health::Snapshot &health)

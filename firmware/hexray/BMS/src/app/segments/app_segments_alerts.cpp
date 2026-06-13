@@ -102,7 +102,7 @@ bool anyThermOpenWire()
 
 bool anyHealthError()
 {
-    assert(health_lock.is_held());    
+    assert(health_lock.is_held());
     for (size_t seg = 0; seg < NUM_SEGMENTS; ++seg)
         if (app::segments::health::getAnyError(seg))
             return true;
