@@ -23,16 +23,16 @@ io::semaphore::semaphore(const bool priority_inheritance_protocol_on, const uint
 
 void io::semaphore::give() const
 {
-    if (osKernelGetState() != taskSCHEDULER_RUNNING)
-        return;
+    // if (osKernelGetState() != taskSCHEDULER_RUNNING)
+    //     return;
     xSemaphoreGive(freertos_semaphore_);
     if (_sysview_id != 0)
         SEGGER_SYSVIEW_MarkStop(_sysview_id);
 }
 void io::semaphore::take(const uint32_t timeout) const
 {
-    if (osKernelGetState() != taskSCHEDULER_RUNNING)
-        return;
+    // if (osKernelGetState() != taskSCHEDULER_RUNNING)
+    //     return;
     const auto take_success = xSemaphoreTake(freertos_semaphore_, timeout);
     assert(take_success == pdTRUE);
     if (_sysview_id != 0)
