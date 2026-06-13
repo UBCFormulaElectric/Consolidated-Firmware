@@ -70,6 +70,8 @@ namespace hvInitState
         can_tx::VC_INVFLTorqueLimitPositive_set(NO_TORQUE);
         can_tx::VC_INVRRTorqueLimitPositive_set(NO_TORQUE);
         can_tx::VC_INVRLTorqueLimitPositive_set(NO_TORQUE);
+
+        current_inverter_state = VCInverterState::INV_SYSTEM_READY;
     }
 
     static void runOnTick100Hz()
@@ -77,157 +79,154 @@ namespace hvInitState
         if (can_rx::BMS_State_get() == BmsState::BMS_INIT_STATE)
         {
             StateMachine::set_next_state(&init_state);
+            return;
         }
-        else
+
+        const bool inv_bsystemReady = can_rx::INVFL_bSystemReady_get() && can_rx::INVFR_bSystemReady_get() &&
+                                      can_rx::INVRL_bSystemReady_get() && can_rx::INVRR_bSystemReady_get();
+
+        const bool inverter_dc_quit = can_rx::INVFL_bQuitDcOn_get() && can_rx::INVFR_bQuitDcOn_get() &&
+                                      can_rx::INVRL_bQuitDcOn_get() && can_rx::INVRR_bQuitDcOn_get();
+
+        const bool inverter_invOn_quit = can_rx::INVFL_bQuitInverterOn_get() && can_rx::INVFR_bQuitInverterOn_get() &&
+                                         can_rx::INVRL_bQuitInverterOn_get() && can_rx::INVRR_bQuitInverterOn_get();
+
+        for (bool retry_transition = true; retry_transition;)
         {
-            const bool inv_bsystemReady = can_rx::INVFL_bSystemReady_get() && can_rx::INVFR_bSystemReady_get() &&
-                                          can_rx::INVRL_bSystemReady_get() && can_rx::INVRR_bSystemReady_get();
+            retry_transition = false;
 
-            const bool inverter_dc_quit = can_rx::INVFL_bQuitDcOn_get() && can_rx::INVFR_bQuitDcOn_get() &&
-                                          can_rx::INVRL_bQuitDcOn_get() && can_rx::INVRR_bQuitDcOn_get();
-
-            const bool inverter_invOn_quit = can_rx::INVFL_bQuitInverterOn_get() &&
-                                             can_rx::INVFR_bQuitInverterOn_get() &&
-                                             can_rx::INVRL_bQuitInverterOn_get() && can_rx::INVRR_bQuitInverterOn_get();
-
-            for (bool retry_transition = true; retry_transition;)
+            switch (current_inverter_state)
             {
-                retry_transition = false;
-
-                switch (current_inverter_state)
-                {
-                    case VCInverterState::INV_SYSTEM_READY:
-                        if (inv_bsystemReady)
-                        {
-                            LOG_INFO("inv_system_ready -> inv_dc_on");
-                            current_inverter_state = VCInverterState::INV_DC_ON;
-                            retry_transition       = true;
-                            start_up_timer.stop();
-
-                            // Error reset should be set to false cause we were successful
-                            can_tx::VC_INVFLbErrorReset_set(false);
-                            can_tx::VC_INVFRbErrorReset_set(false);
-                            can_tx::VC_INVRLbErrorReset_set(false);
-                            can_tx::VC_INVRRbErrorReset_set(false);
-                        }
-                        // else if (app_canAlerts_VC_Info_InverterRetry_get())
-                        // {
-                        //     LOG_INFO("inv_system_ready -> inv_error_retry");
-                        //     current_inverter_state = INV_ERROR_RETRY;
-                        // }
-                        break;
-                    case VCInverterState::INV_DC_ON:
-                        if (!inv_bsystemReady)
-                        {
-                            current_inverter_state = VCInverterState::INV_SYSTEM_READY;
-                            retry_transition       = true;
-                            break;
-                        }
-
-                        if (inverter_dc_quit)
-                        {
-                            LOG_INFO("inv_dc_on -> inv_enable");
-                            current_inverter_state = VCInverterState::INV_ENABLE;
-                            // retry_transition       = true; // TODO we need a tick in INV_ENABLE?
-                            start_up_timer.stop();
-                        }
-                        else if (start_up_timer.runIfCondition(!inverter_dc_quit) == Timer::TimerState::EXPIRED)
-                        {
-                            LOG_INFO("dc quit timeout");
-                            current_inverter_state = VCInverterState::INV_SYSTEM_READY;
-                            retry_transition       = true;
-                        }
-
-                        break;
-
-                    case VCInverterState::INV_ENABLE:
+                case VCInverterState::INV_SYSTEM_READY:
+                    if (inv_bsystemReady)
                     {
-                        if (!(inv_bsystemReady && inverter_dc_quit))
-                        {
-                            current_inverter_state = VCInverterState::INV_DC_ON;
-                            retry_transition       = true;
-                            break;
-                        }
+                        LOG_INFO("inv_system_ready -> inv_dc_on");
+                        current_inverter_state = VCInverterState::INV_DC_ON;
+                        retry_transition       = true;
+                        start_up_timer.stop();
 
-                        current_inverter_state = VCInverterState::INV_INVERTER_ON;
-                        // retry_transition       = true; // TODO if we did this might as well consolidate the states
+                        // Error reset should be set to false cause we were successful
+                        can_tx::VC_INVFLbErrorReset_set(false);
+                        can_tx::VC_INVFRbErrorReset_set(false);
+                        can_tx::VC_INVRLbErrorReset_set(false);
+                        can_tx::VC_INVRRbErrorReset_set(false);
+                    }
+                    // else if (app_canAlerts_VC_Info_InverterRetry_get())
+                    // {
+                    //     LOG_INFO("inv_system_ready -> inv_error_retry");
+                    //     current_inverter_state = INV_ERROR_RETRY;
+                    // }
+                    break;
+                case VCInverterState::INV_DC_ON:
+                    if (!inv_bsystemReady)
+                    {
+                        current_inverter_state = VCInverterState::INV_SYSTEM_READY;
+                        retry_transition       = true;
                         break;
                     }
 
-                    case VCInverterState::INV_INVERTER_ON:
-                        if (!(inv_bsystemReady && inverter_dc_quit))
-                        {
-                            current_inverter_state = VCInverterState::INV_ENABLE;
-                            retry_transition       = true;
-                            break;
-                        }
+                    if (inverter_dc_quit)
+                    {
+                        LOG_INFO("inv_dc_on -> inv_enable");
+                        current_inverter_state = VCInverterState::INV_ENABLE;
+                        // retry_transition       = true; // TODO we need a tick in INV_ENABLE?
+                        start_up_timer.stop();
+                    }
+                    else if (start_up_timer.runIfCondition(!inverter_dc_quit) == Timer::TimerState::EXPIRED)
+                    {
+                        LOG_INFO("dc quit timeout");
+                        current_inverter_state = VCInverterState::INV_SYSTEM_READY;
+                        retry_transition       = true;
+                    }
 
-                        if (inverter_invOn_quit)
-                        {
-                            LOG_INFO("inv_on -> inv_ready_for_drive");
-                            current_inverter_state = VCInverterState::INV_READY_FOR_DRIVE;
-                            retry_transition       = true;
-                            start_up_timer.stop();
-                        }
-                        else if (start_up_timer.runIfCondition(!inverter_invOn_quit) == Timer::TimerState::EXPIRED)
-                        {
-                            LOG_INFO("inv on quit timeout");
-                            current_inverter_state = VCInverterState::INV_SYSTEM_READY;
-                            retry_transition       = true;
-                        }
+                    break;
 
+                case VCInverterState::INV_ENABLE:
+                {
+                    if (!(inv_bsystemReady && inverter_dc_quit))
+                    {
+                        current_inverter_state = VCInverterState::INV_DC_ON;
+                        retry_transition       = true;
                         break;
-                    case VCInverterState::INV_READY_FOR_DRIVE: // locked in to drive
-                        if (!(inv_bsystemReady && inverter_dc_quit && inverter_invOn_quit))
-                        {
-                            current_inverter_state = VCInverterState::INV_INVERTER_ON;
-                            retry_transition       = true;
-                        }
-                        break;
-                    case VCInverterState::INV_ERROR_RETRY:
-                    default:
-                        break;
+                    }
+
+                    current_inverter_state = VCInverterState::INV_INVERTER_ON;
+                    // retry_transition       = true; // TODO if we did this might as well consolidate the states
+                    break;
                 }
 
-                can_tx::VC_InverterState_set(current_inverter_state);
-            }
-
-            // reset_inverter_power_requests();
-            switch (current_inverter_state)
-            {
-                case VCInverterState::INV_READY_FOR_DRIVE:
-                    StateMachine::set_next_state(&hv_state);
-                    __attribute__((fallthrough));
                 case VCInverterState::INV_INVERTER_ON:
-                    can_tx::VC_INVFLbInverterOn_set(true);
-                    can_tx::VC_INVFRbInverterOn_set(true);
-                    can_tx::VC_INVRRbInverterOn_set(true);
-                    can_tx::VC_INVRLbInverterOn_set(true);
-                    __attribute__((fallthrough));
-                case VCInverterState::INV_ENABLE:
-                    can_tx::VC_INVFLbEnable_set(true);
-                    can_tx::VC_INVFRbEnable_set(true);
-                    can_tx::VC_INVRLbEnable_set(true);
-                    can_tx::VC_INVRRbEnable_set(true);
-                    __attribute__((fallthrough));
-                case VCInverterState::INV_DC_ON:
-                    can_tx::VC_INVFLbDcOn_set(true);
-                    can_tx::VC_INVFRbDcOn_set(true);
-                    can_tx::VC_INVRRbDcOn_set(true);
-                    can_tx::VC_INVRLbDcOn_set(true);
+                    if (!(inv_bsystemReady && inverter_dc_quit))
+                    {
+                        current_inverter_state = VCInverterState::INV_ENABLE;
+                        retry_transition       = true;
+                        break;
+                    }
+
+                    if (inverter_invOn_quit)
+                    {
+                        LOG_INFO("inv_on -> inv_ready_for_drive");
+                        current_inverter_state = VCInverterState::INV_READY_FOR_DRIVE;
+                        retry_transition       = true;
+                        start_up_timer.stop();
+                    }
+                    else if (start_up_timer.runIfCondition(!inverter_invOn_quit) == Timer::TimerState::EXPIRED)
+                    {
+                        LOG_INFO("inv on quit timeout");
+                        current_inverter_state = VCInverterState::INV_SYSTEM_READY;
+                        retry_transition       = true;
+                    }
+
+                    break;
+                case VCInverterState::INV_READY_FOR_DRIVE: // locked in to drive
+                    if (!(inv_bsystemReady && inverter_dc_quit && inverter_invOn_quit))
+                    {
+                        current_inverter_state = VCInverterState::INV_INVERTER_ON;
+                        retry_transition       = true;
+                    }
                     break;
                 case VCInverterState::INV_ERROR_RETRY:
-                    start_up_timer.stop();
                 default:
-                case VCInverterState::INV_SYSTEM_READY:
                     break;
             }
+
+            can_tx::VC_InverterState_set(current_inverter_state);
+        }
+
+        // reset_inverter_power_requests();
+        switch (current_inverter_state)
+        {
+            case VCInverterState::INV_READY_FOR_DRIVE:
+                StateMachine::set_next_state(&hv_state);
+                __attribute__((fallthrough));
+            case VCInverterState::INV_INVERTER_ON:
+                can_tx::VC_INVFLbInverterOn_set(true);
+                can_tx::VC_INVFRbInverterOn_set(true);
+                can_tx::VC_INVRRbInverterOn_set(true);
+                can_tx::VC_INVRLbInverterOn_set(true);
+                __attribute__((fallthrough));
+            case VCInverterState::INV_ENABLE:
+                can_tx::VC_INVFLbEnable_set(true);
+                can_tx::VC_INVFRbEnable_set(true);
+                can_tx::VC_INVRLbEnable_set(true);
+                can_tx::VC_INVRRbEnable_set(true);
+                __attribute__((fallthrough));
+            case VCInverterState::INV_DC_ON:
+                can_tx::VC_INVFLbDcOn_set(true);
+                can_tx::VC_INVFRbDcOn_set(true);
+                can_tx::VC_INVRRbDcOn_set(true);
+                can_tx::VC_INVRLbDcOn_set(true);
+                break;
+            case VCInverterState::INV_ERROR_RETRY:
+                start_up_timer.stop();
+            default:
+            case VCInverterState::INV_SYSTEM_READY:
+                break;
         }
     }
 
     static void runOnExit()
     {
-        current_inverter_state = VCInverterState::INV_SYSTEM_READY;
         start_up_timer.stop();
         LOG_INFO("exiting hv init state!");
 
