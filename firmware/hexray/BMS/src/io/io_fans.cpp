@@ -35,7 +35,7 @@ void tick(const bool enable)
         {
             fan_en.writePin(true);
             fan_on = true;
-            retry_timer.restart(); 
+            retry_timer.restart();
         }
         return;
     }
@@ -45,7 +45,7 @@ void tick(const bool enable)
         num_retries++;
         fan_en.writePin(false);
         fan_on = false;
-        retry_timer.restart(); 
+        retry_timer.restart();
     }
 }
 } // namespace io::fans
