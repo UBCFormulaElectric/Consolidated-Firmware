@@ -12,6 +12,9 @@ static void clear_uart_rx_error_flags(UART_HandleTypeDef *huart)
     __HAL_UART_CLEAR_OREFLAG(huart);
     __HAL_UART_CLEAR_NEFLAG(huart);
     __HAL_UART_CLEAR_FEFLAG(huart);
+#ifdef STM32H733xx
+    __HAL_UART_CLEAR_FLAG(huart, UART_CLEAR_RTOF);
+#endif
 }
 
 void hw::Uart::deinit() const
@@ -87,10 +90,12 @@ result<void> hw::Uart::waitForTxNotification(const uint32_t timeoutMs) const
 
     if (const bool transaction_timed_out = num_notifications; transaction_timed_out == 0)
     {
-        // If the transaction didn't complete within the timeout, manually abort it.
+// If the transaction didn't complete within the timeout, manually abort it.
+#ifdef STM32H562xx
         if (handle.hdmatx != nullptr)
             (void)HAL_UART_AbortTransmit(&handle);
         else
+#endif
             (void)HAL_UART_AbortTransmit_IT(&handle);
         LOG_WARN("UART transaction timed out");
         return std::unexpected(ErrorCode::TIMEOUT);
@@ -122,6 +127,7 @@ result<void> hw::Uart::transmit(const std::span<const uint8_t> tx, const uint32_
 
     // Save current task before starting a UART transaction.
     txTaskInProgress = xTaskGetCurrentTaskHandle();
+#ifdef STM32H562xx
     last_write_fault = false;
 
     // Use DMA when a TX DMA channel is linked for this UART (configured in the
@@ -132,6 +138,10 @@ result<void> hw::Uart::transmit(const std::span<const uint8_t> tx, const uint32_
         (handle.hdmatx != nullptr)
             ? utils::convertHalStatus(HAL_UART_Transmit_DMA(&handle, tx.data(), static_cast<uint16_t>(tx.size())))
             : utils::convertHalStatus(HAL_UART_Transmit_IT(&handle, tx.data(), static_cast<uint16_t>(tx.size())));
+
+#elif STM32H733xx
+    auto exit = utils::convertHalStatus(HAL_UART_Transmit_IT(&handle, tx.data(), static_cast<uint16_t>(tx.size())));
+#endif
     if (not exit.has_value())
     {
         // Mark this transaction as no longer in progress.
@@ -238,9 +248,31 @@ extern "C" void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
     bus.onTxTransactionCompleteFromISR();
 }
 
+static const char *uart_error_to_name(const uint32_t err)
+{
+    switch (err)
+    {
+        case HAL_UART_ERROR_NONE:
+            return "NONE";
+        case HAL_UART_ERROR_PE:
+            return "Parity Error";
+        case HAL_UART_ERROR_NE:
+            return "Noise Error";
+        case HAL_UART_ERROR_FE:
+            return "Frame Error";
+        case HAL_UART_ERROR_ORE:
+            return "Overrun Error";
+        case HAL_UART_ERROR_DMA:
+            return "DMA Error";
+        default:
+            return "UNKNOWN";
+    }
+}
+
 extern "C" void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
 {
     const uint32_t hal_error = HAL_UART_GetError(huart);
+    LOG_ERROR("UART error: %s (0x%08lx)", uart_error_to_name(hal_error), static_cast<unsigned long>(hal_error));
 
     // Clear sticky receive error flags so the next receive call isn't stuck on
     // ORE/NE/FE left over from this fault. Without this the peripheral keeps
