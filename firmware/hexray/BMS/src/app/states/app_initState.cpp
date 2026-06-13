@@ -4,6 +4,7 @@
 #include "app_canRx.hpp"
 #include "app_canTx.hpp"
 #include "app_canUtils.hpp"
+#include "app_tractiveSystem.hpp"
 
 namespace app::states
 {
@@ -25,9 +26,9 @@ namespace initState
     void RunOnTick100Hz()
     {
         const bool irs_negative_closed =
-            (io::irs::negativeState() == app::can_utils::ContactorState::CONTACTOR_STATE_CLOSED);
-        // const bool ts_discharged = (app::ts::getVoltage() < TS_DISCHARGED_THRESHOLD_V);
-        const bool ts_discharged = true;
+            io::irs::negativeState() == app::can_utils::ContactorState::CONTACTOR_STATE_CLOSED;
+        const bool ts_discharged = (app::ts::getVoltage() < TS_DISCHARGED_THRESHOLD_V);
+        // const bool ts_discharged = true;
 
         // ONLY RUN THIS WHEN CELLS HAVE HAD TIME TO SETTLE
         // if (app_canRx_Debug_ResetSoc_MinCellV_get())

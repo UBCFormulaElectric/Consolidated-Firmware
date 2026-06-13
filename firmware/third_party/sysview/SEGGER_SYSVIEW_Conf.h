@@ -75,7 +75,7 @@ Additional information:
  */
 
 #ifdef DEBUG
-#define SEGGER_SYSVIEW_RTT_BUFFER_SIZE 4096 * 2
+#define SEGGER_SYSVIEW_RTT_BUFFER_SIZE 4096
 #endif
 
 #endif // SEGGER_SYSVIEW_CONF_H

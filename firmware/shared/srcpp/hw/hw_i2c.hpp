@@ -5,6 +5,7 @@
 #include "hw_utils.hpp"
 #include "FreeRTOS.h"
 #include "task.h"
+#include "util_errorCodes.hpp"
 
 namespace hw::i2c
 {
@@ -27,6 +28,17 @@ class bus
     void onTransactionCompleteFromISR() const;
 
     mutable std::optional<uint32_t> error = std::nullopt;
+
+    void sweep() const
+    {
+        for (uint8_t i = 0; i < 0x7f; i++)
+        {
+            if (const auto res = HAL_I2C_IsDeviceReady(&handle, static_cast<uint16_t>(i << 1), 10, 100); res == HAL_OK)
+            {
+                LOG_INFO("Device found at address 0x%02x\n", i);
+            }
+        }
+    }
 
   private:
     friend class device;
@@ -54,6 +66,10 @@ class device
      */
     [[nodiscard]] result<void> isTargetReady(const bool read = false) const
     {
+        if (d_bus.taskInProgress != nullptr)
+        {
+            return std::unexpected(ErrorCode::BUSY);
+        }
         return utils::convertHalStatus(HAL_I2C_IsDeviceReady(
             &d_bus.handle, static_cast<uint16_t>(targetAddress << 1 | read), NUM_DEVICE_READY_TRIALS, timeoutMs));
     }
