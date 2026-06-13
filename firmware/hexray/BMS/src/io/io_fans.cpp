@@ -47,5 +47,9 @@ void tick(const bool enable)
         fan_on = false;
         retry_timer.restart();
     }
+    else
+    {
+        num_retries = 0;
+    }
 }
 } // namespace io::fans
