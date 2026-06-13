@@ -14,8 +14,6 @@ inline constexpr uint8_t CELL_CONV_TIME_MS           = 2U;
 inline constexpr uint8_t SECONDARY_CELL_CONV_TIME_MS = 8U;
 inline constexpr uint8_t AUX_CONV_TIME_MS            = 18U;
 
-
-
 extern io::semaphore spi_bus_lock;
 extern io::semaphore health_lock;
 extern io::semaphore shared_lock;

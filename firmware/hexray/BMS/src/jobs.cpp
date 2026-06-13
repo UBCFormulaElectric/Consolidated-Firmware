@@ -131,7 +131,7 @@ void jobs_run100Hz_tick()
     {
         app::StateMachine::set_next_state(&app::states::fault_state);
     }
-    else if (app::irs::negativeOpenedDebounced()) //not sure if this is needed
+    else if (app::irs::negativeOpenedDebounced()) // not sure if this is needed
     {
         app::StateMachine::set_next_state(&app::states::init_state);
     }
