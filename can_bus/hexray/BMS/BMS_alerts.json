@@ -42,18 +42,6 @@
       "id": 450,
       "description": "Errorcode raised in ADBMS code"
     },
-    "ImdLatched": {
-      "id": 457,
-      "description": "IMD fault latch captured a fault."
-    },
-    "HardwareBspdLatched": {
-      "id": 458,
-      "description": "Hardware brake system plausibility device fault latched."
-    },
-    "BmsLatched": {
-      "id": 459,
-      "description": "BMS fault latched."
-    },
     "TESTFAULT": {
       "id": 460,
       "description": "FOR UNIT TESTING ONLY DO NOT EVER EVER THROW"

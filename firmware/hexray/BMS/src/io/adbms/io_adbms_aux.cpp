@@ -18,29 +18,17 @@ constexpr uint8_t NUM_STAT_REG_GROUPS  = 5U;
 namespace io::adbms
 {
 
-// check this
-result<void> clear::aux()
+result<void> clear::flags()
 {
     Segments<RegBuffer> clr_regs{};
-    RETURN_IF_ERR(sendCmd(CLRAUX));
     RETURN_IF_ERR(writeRegGroup(CLRFLAG, clr_regs));
     RETURN_IF_ERR(writeRegGroup(CLOVUV, clr_regs));
     return {};
 }
 
-// check this
-result<void> clear::stat()
+result<void> clear::aux()
 {
-    Segments<RegBuffer> clr_regs = []()
-    {
-        Segments<RegBuffer> r{};
-        for (auto &seg : r)
-            seg.fill(0xFF);
-        return r;
-    }();
-    RETURN_IF_ERR(writeRegGroup(CLRFLAG, clr_regs));
-    RETURN_IF_ERR(writeRegGroup(CLOVUV, clr_regs));
-    return {};
+    return sendCmd(CLRAUX);
 }
 
 result<void> command::startAuxAdc()

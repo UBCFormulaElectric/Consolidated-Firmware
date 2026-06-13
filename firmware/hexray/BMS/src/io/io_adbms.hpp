@@ -267,18 +267,18 @@ namespace command
     [[nodiscard]] result<void> pollAuxAdc();
     [[nodiscard]] result<void> startBalance();
     [[nodiscard]] result<void> stopBalance();
-    [[nodiscard]] result<void> wakeup();
+
     [[nodiscard]] result<void> owcCells(OpenWireSwitch owcSwitch);
 } // namespace command
 
 namespace clear
 {
     [[nodiscard]] result<void> aux();
+    [[nodiscard]] result<void> flags();
     [[nodiscard]] result<void> cell();
+    [[nodiscard]] result<void> secondaryCell();
     [[nodiscard]] result<void> filteredCell();
     [[nodiscard]] result<void> stat();
 } // namespace clear
 
-// random bullshit
-Segments<uint8_t> getCmdCountMismatches();
 } // namespace io::adbms

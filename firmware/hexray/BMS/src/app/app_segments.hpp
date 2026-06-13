@@ -1,5 +1,6 @@
 #pragma once
 #include <array>
+#include <bitset>
 #include <expected>
 #include <utility>
 
@@ -7,13 +8,16 @@
 #include "io_adbms.hpp"
 #include "io_semaphore.hpp"
 
-// Minimum conversion times
+inline constexpr uint8_t MAX_NUM_SEGMENTS = 10U;
+
 inline constexpr uint8_t CELL_CONV_TIME_MS           = 2U;
 inline constexpr uint8_t SECONDARY_CELL_CONV_TIME_MS = 8U;
 inline constexpr uint8_t AUX_CONV_TIME_MS            = 18U;
 
 extern io::semaphore spi_bus_lock;
 extern io::semaphore health_lock;
+extern io::semaphore shared_lock;
+extern io::semaphore internal_lock;
 
 namespace app::segments
 {
@@ -64,6 +68,35 @@ namespace balancing
     void disable();
 } // namespace balancing
 
+// app_segments_health.cpp
+namespace health
+{
+    enum class ErrorBit : size_t
+    {
+        CELL_ADC_START,
+        AUX_ADC_START,
+        AUX_ADC_POLL,
+        OWC_ADC_START,
+        CELL_VOLTAGE,
+        CELL_OWC_VOLTAGE,
+        THERM_VOLTAGE,
+        SEG_VOLTAGE,
+        STATUS,
+        CONFIG,
+        UNREACHABLE,
+        NUM_ERROR_BITS
+    };
+
+    inline constexpr size_t NUM_HEALTH_BITS = static_cast<size_t>(ErrorBit::NUM_ERROR_BITS);
+
+    using Snapshot = std::array<std::bitset<NUM_HEALTH_BITS>, MAX_NUM_SEGMENTS>;
+
+    void     setOrReset(size_t seg, ErrorBit bit, bool has_error);
+    void     setOrResetAll(ErrorBit bit, bool has_error);
+    bool     getAnyError(size_t seg);
+    Snapshot getAll();
+} // namespace health
+
 // app_segments_broadcast.cpp
 namespace broadcast
 {
@@ -71,61 +104,39 @@ namespace broadcast
     {
         void cellVoltages(const io::adbms::Cells<result<float>> &voltages, const result<void> &poll_ok);
         void thermTemps(const io::adbms::Therms<result<float>> &temps, const result<void> &poll_ok);
-        void thermOwc(const io::adbms::Therms<result<bool>> &therm_owc, const result<void> &poll_ok);
+        void thermOwcOk(const io::adbms::Therms<result<bool>> &therm_owc, const result<void> &poll_ok);
         void segVoltages(const io::adbms::Segments<result<float>> &seg_voltages);
         void status(const io::adbms::Segments<io::adbms::StatusGroupsRes> &status);
-        void cellOwc(const io::adbms::Cells<result<bool>> &owc_results, const result<void> &poll_ok);
+        void cellOwcOk(const io::adbms::Cells<result<bool>> &owc_results, const result<void> &poll_ok);
         void balancing(const io::adbms::Cells<bool> &discharge_enabled, const io::adbms::Cells<uint8_t> &pwm_duty);
     } // namespace debug
-    void segmentHealthError();
-    void voltageStats();
-    void temperatureStats();
-    void segmentVoltageStats();
-    void cmdCountMismatch();
+
+    void segmentHealthError(const health::Snapshot &health);
+    void cellVoltageStats(const CellParam<float> &min, const CellParam<float> &max);
+    void cellTempStats(const CellParam<float> &min, const CellParam<float> &max);
+    void segmentVoltageStats(const SegmentParam<float> &min, const SegmentParam<float> &max);
+    void packVoltage(const result<float> &pack);
+    void cmdCountMismatch(const io::adbms::Segments<uint8_t> &mismatches);
 } // namespace broadcast
-
-// app_segments_health.cpp
-namespace health
-{
-    enum class ErrorBit : size_t
-    {
-        CELL_ADC_POLL,
-        AUX_ADC_POLL,
-        OWC_ADC_POLL,
-        CELL_VOLTAGE,
-        CELL_OWC_VOLTAGE,
-        THERM_VOLTAGE,
-        SEG_VOLTAGE,
-        STATUS,
-        CONFIG,
-        NUM_ERROR_BITS
-    };
-
-    void resetAll(ErrorBit bit);
-    void setAll(ErrorBit bit);
-    void setOrReset(size_t seg, ErrorBit bit, bool has_error);
-    bool getError(size_t seg, ErrorBit bit);
-    bool getAnyError(size_t seg);
-} // namespace health
 
 // app_segments_shared.cpp
 namespace shared
 {
-    io::adbms::Cells<result<float>>    getLatestVoltages();
-    CellParam<float>                   getMinCellVoltage();
-    CellParam<float>                   getMaxCellVoltage();
-    io::adbms::Therms<result<float>>   getLatestTemperatures();
-    CellParam<float>                   getMinCellTemperature();
-    CellParam<float>                   getMaxCellTemperature();
-    io::adbms::Cells<result<bool>>     getLatestCellOwc();
-    io::adbms::Therms<result<bool>>    getLatestThermOwc();
-    io::adbms::Segments<result<float>> getLatestSegmentVoltages();
-    SegmentParam<float>                getMinSegmentVoltage();
-    SegmentParam<float>                getMaxSegmentVoltage();
+    io::adbms::Cells<result<float>> getLatestVoltages();
+    CellParam<float>                getMinCellVoltage();
+    CellParam<float>                getMaxCellVoltage();
+    CellParam<float>                getMinCellTemperature();
+    CellParam<float>                getMaxCellTemperature();
+    io::adbms::Cells<result<bool>>  getLatestCellOwcOk();
+    io::adbms::Therms<result<bool>> getLatestThermOwcOk();
+    SegmentParam<float>             getMinSegmentVoltage();
+    SegmentParam<float>             getMaxSegmentVoltage();
+    result<float>                   getPackVoltage();
 
-    void setVoltageStats(const io::adbms::Cells<result<float>> &latest, const io::adbms::Cells<result<bool>> &owc);
-    void
-        setTemperatureStats(const io::adbms::Therms<result<float>> &latest, const io::adbms::Therms<result<bool>> &owc);
+    void setCellOwcOk(const io::adbms::Cells<result<bool>> &owc);
+    void setVoltageStats(const io::adbms::Cells<result<float>> &latest);
+    void setThermistorOwcOk(const io::adbms::Therms<result<bool>> &owc);
+    void setTemperatureStats(const io::adbms::Therms<result<float>> &latest);
     void setSegmentVoltageStats(const io::adbms::Segments<result<float>> &latest);
 } // namespace shared
 
@@ -133,19 +144,8 @@ namespace shared
 namespace alerts
 {
     void init();
-    // Evaluates all warning/fault/info conditions through their debounce timers and
-    // calls the matching app::can_alerts setters. Returns true iff at least one
-    // fault entry is currently firing — drive bms_ok_latch off this directly.
     bool tick();
 } // namespace alerts
-
-// app_segments_conversions.cpp
-namespace startPoll
-{
-    [[nodiscard]] result<void> secondaryCellAdc(io::adbms::OpenWireSwitch owcSwitch);
-    [[nodiscard]] result<void> cellAdc();
-    [[nodiscard]] result<void> auxAdc();
-} // namespace startPoll
 
 namespace conversion
 {
@@ -159,13 +159,13 @@ namespace conversion
 // app_segments_calculation.cpp
 namespace calculate
 {
-    io::adbms::Cells<result<bool>> cellOwc(
+    io::adbms::Cells<result<bool>> cellOwcOk(
         const std::array<io::adbms::Cells<result<float>>, static_cast<size_t>(io::adbms::OpenWireSwitch::CHANNEL_COUNT)>
             &owc_voltages);
     io::adbms::Therms<result<float>> thermTemps(
         const std::array<io::adbms::ThermGpios<result<float>>, static_cast<size_t>(ThermistorMux::THERMISTOR_MUX_COUNT)>
             &therm_voltages);
-    io::adbms::Therms<result<bool>> thermOwc(
+    io::adbms::Therms<result<bool>> thermOwcOk(
         const std::array<io::adbms::ThermGpios<result<float>>, static_cast<size_t>(ThermistorMux::THERMISTOR_MUX_COUNT)>
             &therm_voltages);
 } // namespace calculate

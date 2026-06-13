@@ -30,15 +30,17 @@ void jobs_init()
         });
 
     io::can_tx::enableMode_FDCAN(app::can_utils::FDCANMode::FDCAN_MODE_DEFAULT, true);
-    app::imu::init();
 
     app::can_tx::FSM_Hash_set(GIT_COMMIT_HASH);
     app::can_tx::FSM_Clean_set(GIT_COMMIT_CLEAN);
     app::can_tx::FSM_Heartbeat_set(true);
     io::can_tx::FSM_Bootup_sendAperiodic();
 }
+void jobs_initImu()
+{
+    app::imu::init();
+}
 void jobs_run1Hz_tick() {}
-
 void jobs_run100Hz_tick()
 {
     app::apps::broadcast();
@@ -57,4 +59,8 @@ void jobs_run100Hz_tick()
 void jobs_run1kHz_tick()
 {
     io::can_tx::enqueueOtherPeriodicMsgs(io::time::getCurrentMs());
+}
+void jobs_runImu_tick()
+{
+    app::imu::broadcast();
 }

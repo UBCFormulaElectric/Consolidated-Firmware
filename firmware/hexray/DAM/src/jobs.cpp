@@ -12,6 +12,7 @@
 #include "app_heartbeatMonitors.hpp"
 #include "app_commitInfo.hpp"
 #include "app_epochClock.hpp"
+#include "app_sd.hpp"
 #include "app_tsim.hpp"
 #include "app_damShdnLoop.hpp"
 
@@ -24,18 +25,12 @@
 #include "io_logQueue.hpp"
 #include "io_time.hpp"
 #include "io_fileSystems.hpp"
+#include "io_sd.hpp"
 
 #include "io_canLogging.hpp"
 #include "util_errorCodes.hpp"
 
 #include <span>
-// priv namespace for the logfs vars
-namespace
-{
-auto     LOG_PATH = "/log.bin";
-uint32_t log_fd   = 0;
-bool     log_open = false;
-} // namespace
 
 void jobs_init()
 {
@@ -57,7 +52,7 @@ void jobs_init()
             }
             if (app::can_data_capture::needsTelem(msg.std_id, now_ms))
             {
-                const auto epoch_ms = app::epochClock::getEpochMs();
+                const auto epoch_ms = app::epochClock::getEpochMsFast();
                 if (epoch_ms)
                 {
                     (void)telem_tx_queue.push(io::telemMessage::TelemCanMsg(msg, *epoch_ms));
@@ -75,6 +70,12 @@ void jobs_init()
     io::can_tx::enableMode_FDCAN(app::can_utils::FDCANMode::FDCAN_MODE_DEFAULT, true);
     app::can_tx::DAM_Heartbeat_set(true);
     app::can_tx::DAM_Alive_set(1);
+    // Anchor the fast clock once here, before the scheduler and any reader; setEpochMs() re-anchors
+    // it on NTP correction.
+    if (const auto err = app::epochClock::anchorBaseTime(); !err.has_value())
+    {
+        LOG_WARN("jobs_init: anchorBaseTime failed: %d", static_cast<int>(err.error()));
+    }
     io::can_tx::DAM_Bootup_sendAperiodic();
     app::epochClock::logDateTime("Boot RTC time (GMT)");
 
@@ -84,68 +85,53 @@ void jobs_init()
 
 void jobs_initLogFs()
 {
-    // std::array<uint8_t, 512> wblk0{};
-    // wblk0.fill(0xff);
-    // wblk0[510] = 0x55;
-    // wblk0[511] = 0xAA;
-    // LOG_IF_ERR(sd1.write(wblk0, 16));
-    // LOG_INFO("write done");
+    bool init_success = true;
 
-    // // --- Raw single-block read test of block 0 ---
-    // while (1)
-    // {
-    //     static uint8_t block0[512] __attribute__((aligned(4)));
-    //     LOG_INFO("attempting read");
-    //     if (const auto res = sd1.read(std::span(block0, 512), 16))
-    //     {
-    //         LOG_INFO(
-    //             "blk0 first 16: %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X",
-    //             block0[0], block0[1], block0[2], block0[3], block0[4], block0[5], block0[6], block0[7], block0[8],
-    //             block0[9], block0[10], block0[11], block0[12], block0[13], block0[14], block0[15]);
-    //         LOG_INFO("blk0 sig (should be 55 AA): %02X %02X", block0[510], block0[511]);
-    //         break;
-    //     }
-    //     else
-    //     {
-    //         LOG_ERROR("SD Read Failed: %s", error_code_to_string(res.error()));
-    //         LOG_INFO("Card state: %s", sd1.getCardStateString());
-    //     }
-    // }
-
-    if (const auto err = fs.init(); not err)
+    if (const auto err = app::sd::init_fs(); !err.has_value())
     {
-        LOG_ERROR("Failed to init filesystem: %d", static_cast<int>(err.error()));
-    }
-    else
-    {
-        LOG_INFO("we init fine");
-    }
-    // TODO Add metadata handling for rtc and ntped time when applicable
-
-    if (const auto r = fs.open(LOG_PATH); r)
-    {
-        log_fd   = r.value();
-        log_open = true;
-    }
-    else
-    {
-        LOG_ERROR("Failed to open %s: %d", LOG_PATH, static_cast<int>(r.error()));
+        LOG_ERROR("jobs_initLogFs: init_fs failed: %d", static_cast<int>(err.error()));
+        init_success = false;
     }
 
-    if (const auto err = app::bootcount::update(fs); !err)
+    // Base was already anchored in jobs_init(); the metadata write just reads it via getFastBase().
+    app::sd::requestMetadataUpdate();
+    LOG_INFO("jobs_initLogFs: Metadata update requested in init");
+
+    if (const auto err = io::sd::upgrade(); !err.has_value())
     {
-        LOG_ERROR("Failed to update bootcount: %d", static_cast<int>(err.error()));
-    };
+        LOG_ERROR("jobs_initLogFs: io::sd::upgrade failed: %d", static_cast<int>(err.error()));
+        init_success = false;
+    }
+
+    if (init_success)
+        LOG_INFO("Filesystem initialized successfully");
 }
+
 void jobs_run1Hz_tick()
 {
-    if (log_open)
+    // DEBUG: re-send the bootup frame once, ~5s after boot, to test whether a delayed
+    // copy survives the telem path when the boot-time copy (sent in jobs_init) doesn't.
+    // After hexray, pls use the boot hash/bootid message as a true identifier
+    static uint32_t seconds_since_boot = 0;
+    if (++seconds_since_boot == 5U)
     {
-        if (const auto err = fs.sync(log_fd); !err)
+        LOG_INFO("debug: re-sending DAM_Bootup at t=%lus", static_cast<unsigned long>(seconds_since_boot));
+        io::can_tx::DAM_Bootup_sendAperiodic();
+    }
+
+    {
+        static uint32_t last_telem_tx_overflow = 0;
+        const uint32_t  overflow               = telem_tx_queue.get_overflowCount();
+        if (overflow != last_telem_tx_overflow)
         {
-            LOG_ERROR("Log sync failed: %d", static_cast<int>(err.error()));
+            LOG_WARN(
+                "telem_tx_queue overflow count: %lu (+%lu)", static_cast<unsigned long>(overflow),
+                static_cast<unsigned long>(overflow - last_telem_tx_overflow));
+            last_telem_tx_overflow = overflow;
         }
     }
+
+    app::sd::requestSync();
     io::can_tx::enqueue1HzMsgs();
 }
 void jobs_run100Hz_tick()
@@ -176,14 +162,17 @@ void jobs_run1kHz_tick()
 }
 void jobs_runLogging_tick()
 {
-    const auto msg = log_queue.pop();
-    if (!msg || !log_open)
+    constexpr uint32_t logging_poll_ms = 100U;
+
+    const auto msg = log_queue.pop(logging_poll_ms);
+    app::sd::service();
+    if (!msg || !app::sd::isLogOpen())
         return;
 
     io::canLogging::EncodeBuf buf;
     const size_t              n = io::canLogging::encode(msg.value(), buf);
 
-    if (const auto err = fs.write(log_fd, { buf.data(), n }, n); !err)
+    if (const auto err = fs.write(app::sd::getLogFd(), { buf.data(), n }, n); !err)
     {
         LOG_ERROR("Log write failed: %d", static_cast<int>(err.error()));
     }
