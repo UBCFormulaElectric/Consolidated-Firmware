@@ -113,7 +113,7 @@ void jobs_run100Hz_tick()
     const bool charging_request       = app::can_rx::Debug_StartCharging_get();
     const bool fans_enabled           = vc_drive_state || cell_balancing_request || charging_request;
     io::fans::tick(fans_enabled);
-    
+
     app::can_tx::BMS_FanStatus_set(true);
 #ifdef TARGET_EMBEDDED
     // app::can_tx::BMS_FanPgood_set(fan_pgood.readPin());

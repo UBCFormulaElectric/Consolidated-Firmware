@@ -148,18 +148,6 @@ namespace charger
 
 } // namespace io
 
-// Placeholder pack-voltage accessor: app::segments has no pack-voltage getter yet, so tests drive it
-// directly. Cell voltage/temp instead go through the real shared module (see fakes::segments below).
-namespace app::segments
-{
-static float fake_pack_v = 3.8f * 10.0f * 14.0f; // matches setPackVoltageEvenly default
-
-float getPackVoltage()
-{
-    return fake_pack_v;
-}
-} // namespace app::segments
-
 namespace io
 {
 

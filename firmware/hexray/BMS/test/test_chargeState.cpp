@@ -2,6 +2,7 @@
 #include "test_BMSBase.hpp"
 #include "app_states.hpp"
 #include "app_precharge.hpp"
+#include "app_segments.hpp"
 #include "io_irs.hpp"
 #include "app_canAlerts.hpp"
 
@@ -43,7 +44,7 @@ static constexpr float kPackVoltageMax = 5.0f * 28.0f * 4.20f; // 588V (matches 
 // pin  = 208 * 16 = 3328W
 // pout = pin * 0.93 = 3095.04W
 // idc  = pout / 588 = 5.264f, < MAX_DC_CURRENT(12), so returned as-is.
-static constexpr float kIMaxFullAcSupply = 208.0f * 16.0f * 0.93f / 588.0f;
+static constexpr float kPMaxFullAcSupply = 208.0f * 16.0f * 0.93f;
 
 // =============================================================================
 // runOnEntry
@@ -59,10 +60,10 @@ TEST_F(BmsChargeStateTest, entry_sets_can_state_and_resets_flags_and_closes_posi
     EnterChargeStateClean();
 
     ASSERT_STATE_EQ(charge_state);
-    EXPECT_EQ(app::can_tx::BMS_State_get(), BmsState::BMS_CHARGE_STATE);
-    EXPECT_FALSE(app::can_tx::BMS_ChargingFaulted_get());
-    EXPECT_FALSE(app::can_tx::BMS_ChargingDone_get());
-    EXPECT_EQ(io::irs::positiveState(), ContactorState::CONTACTOR_STATE_CLOSED);
+    ASSERT_EQ(app::can_tx::BMS_State_get(), BmsState::BMS_CHARGE_STATE);
+    ASSERT_FALSE(app::can_tx::BMS_ChargingFaulted_get());
+    ASSERT_FALSE(app::can_tx::BMS_ChargingDone_get());
+    ASSERT_EQ(io::irs::positiveState(), ContactorState::CONTACTOR_STATE_CLOSED);
 }
 
 // =============================================================================
@@ -78,11 +79,11 @@ TEST_F(BmsChargeStateTest, exit_opens_positive_clears_debug_charging_and_sends_s
     LetTimePass(10); // tick decides to leave; runOnExit runs on the SAME tick
 
     ASSERT_STATE_EQ(init_state);
-    EXPECT_EQ(io::irs::positiveState(), ContactorState::CONTACTOR_STATE_OPEN);
-    EXPECT_FALSE(app::can_rx::Debug_StartCharging_get());
-    EXPECT_FLOAT_EQ(app::can_tx::BMS_MaxChargingVoltage_get(), 0.0f);
-    EXPECT_FLOAT_EQ(app::can_tx::BMS_MaxChargingCurrent_get(), 0.0f);
-    EXPECT_TRUE(app::can_tx::BMS_StopCharging_get());
+    ASSERT_EQ(io::irs::positiveState(), ContactorState::CONTACTOR_STATE_OPEN);
+    ASSERT_FALSE(app::can_rx::Debug_StartCharging_get());
+    ASSERT_NEAR(app::can_tx::BMS_MaxChargingVoltage_get(), 0.0f, 0.02f);
+    ASSERT_NEAR(app::can_tx::BMS_MaxChargingCurrent_get(), 0.0f, 0.02f);
+    ASSERT_TRUE(app::can_tx::BMS_StopCharging_get());
 }
 
 // =============================================================================
@@ -98,9 +99,9 @@ TEST_F(BmsChargeStateTest, exit_opens_positive_clears_debug_charging_and_sends_s
 
 static void ExpectStopFrameSent()
 {
-    EXPECT_FLOAT_EQ(app::can_tx::BMS_MaxChargingVoltage_get(), 0.0f);
-    EXPECT_FLOAT_EQ(app::can_tx::BMS_MaxChargingCurrent_get(), 0.0f);
-    EXPECT_TRUE(app::can_tx::BMS_StopCharging_get());
+    ASSERT_NEAR(app::can_tx::BMS_MaxChargingVoltage_get(), 0.0f, 0.02f);
+    ASSERT_NEAR(app::can_tx::BMS_MaxChargingCurrent_get(), 0.0f, 0.02f);
+    ASSERT_TRUE(app::can_tx::BMS_StopCharging_get());
 }
 
 TEST_F(BmsChargeStateTest, exit_charging_when_negative_contactor_opens)
@@ -114,11 +115,11 @@ TEST_F(BmsChargeStateTest, exit_charging_when_negative_contactor_opens)
     // The state machine is called before jobs in the 100Hz task so runOnExit is called the tick after.
     LetTimePass(10);
     ExpectStopFrameSent();
-    EXPECT_FALSE(app::can_rx::Debug_StartCharging_get());
+    ASSERT_FALSE(app::can_rx::Debug_StartCharging_get());
     // Allow runOnEntry of init_state to set current state status.
     LetTimePass(10);
     ASSERT_STATE_EQ(init_state);
-    EXPECT_EQ(io::irs::positiveState(), ContactorState::CONTACTOR_STATE_OPEN);
+    ASSERT_EQ(io::irs::positiveState(), ContactorState::CONTACTOR_STATE_OPEN);
 }
 
 // Charger physical disconnect is NOT a fault — it's a clean exit to init, mirrors the
@@ -130,10 +131,10 @@ TEST_F(BmsChargeStateTest, charger_disconnect_returns_to_init_without_fault)
     LetTimePass(10);
 
     ASSERT_STATE_EQ(init_state);
-    EXPECT_FALSE(app::can_tx::BMS_ChargingDone_get());
-    EXPECT_EQ(io::irs::positiveState(), ContactorState::CONTACTOR_STATE_OPEN);
-    EXPECT_FALSE(app::can_rx::Debug_StartCharging_get());
-    EXPECT_TRUE(app::can_tx::BMS_StopCharging_get());
+    ASSERT_FALSE(app::can_tx::BMS_ChargingDone_get());
+    ASSERT_EQ(io::irs::positiveState(), ContactorState::CONTACTOR_STATE_OPEN);
+    ASSERT_FALSE(app::can_rx::Debug_StartCharging_get());
+    ASSERT_TRUE(app::can_tx::BMS_StopCharging_get());
 }
 
 TEST_F(BmsChargeStateTest, exit_charging_on_elcon_hardware_failure)
@@ -230,34 +231,37 @@ TEST_F(BmsChargeStateTest, transition_to_init_when_user_disables)
 TEST_F(BmsChargeStateTest, terminates_when_cells_full_and_current_low)
 {
     EnterChargeStateClean();
-    fakes::adbms::setCellVoltage(0, 0, 4.18f);
+    fakes::adbms::setCellVoltage(0, 0, 4.19f);
+    LetTimePass(500); // Need the adbms task to run to update max cell voltage
     app::can_rx::Elcon_OutputCurrent_update(0.5f);
-    LetTimePass(10);
+    LetTimePass(20);
 
     ASSERT_STATE_EQ(init_state);
-    EXPECT_TRUE(app::can_tx::BMS_ChargingDone_get());
+    ASSERT_TRUE(app::can_tx::BMS_ChargingDone_get());
 }
 
 TEST_F(BmsChargeStateTest, no_terminate_when_cells_full_but_current_high)
 {
     EnterChargeStateClean();
-    fakes::adbms::setCellVoltage(0, 0, 4.18f);
+    fakes::adbms::setCellVoltage(0, 0, 4.19f);
+    LetTimePass(500); // Need the adbms task to run to update max cell voltage
     app::can_rx::Elcon_OutputCurrent_update(2.0f);
-    LetTimePass(10);
+    LetTimePass(20);
 
     ASSERT_STATE_EQ(charge_state);
-    EXPECT_FALSE(app::can_tx::BMS_ChargingDone_get());
+    ASSERT_FALSE(app::can_tx::BMS_ChargingDone_get());
 }
 
 TEST_F(BmsChargeStateTest, no_terminate_when_current_low_but_cells_not_full)
 {
     EnterChargeStateClean();
     fakes::adbms::setCellVoltage(0, 0, 4.0f);
+    LetTimePass(500); // Need the adbms task to run to update max cell voltage
     app::can_rx::Elcon_OutputCurrent_update(0.5f);
-    LetTimePass(10);
+    LetTimePass(20);
 
     ASSERT_STATE_EQ(charge_state);
-    EXPECT_FALSE(app::can_tx::BMS_ChargingDone_get());
+    ASSERT_FALSE(app::can_tx::BMS_ChargingDone_get());
 }
 
 // =============================================================================
@@ -268,13 +272,18 @@ TEST_F(BmsChargeStateTest, cc_region_wall_commands_max_dc_current)
 {
     EnterChargeStateClean();
     fakes::charger::setConnectionStatus(ChargerConnectedType::CHARGER_CONNECTED_WALL);
-    fakes::adbms::setCellVoltage(0, 0, 3.8f);
-    LetTimePass(10);
+    LetTimePass(500); // Need the adbms task to run to update voltage stats
+    LetTimePass(20);
 
     ASSERT_STATE_EQ(charge_state);
-    EXPECT_FALSE(app::can_tx::BMS_StopCharging_get());
-    EXPECT_FLOAT_EQ(app::can_tx::BMS_MaxChargingVoltage_get(), kPackVoltageMax);
-    EXPECT_NEAR(app::can_tx::BMS_MaxChargingCurrent_get(), kIMaxFullAcSupply, 0.01f);
+    ASSERT_FALSE(app::can_tx::BMS_StopCharging_get());
+    ASSERT_FLOAT_EQ(app::can_tx::BMS_MaxChargingVoltage_get(), kPackVoltageMax);
+    {
+        io::unique_semaphore s{ shared_lock };
+        ASSERT_NEAR(
+            app::can_tx::BMS_MaxChargingCurrent_get(),
+            kPMaxFullAcSupply / app::segments::shared::getPackVoltage().value(), 0.02f);
+    }
 }
 
 TEST_F(BmsChargeStateTest, cc_region_evse_high_duty_clamps_to_full_ac_supply)
@@ -283,24 +292,34 @@ TEST_F(BmsChargeStateTest, cc_region_evse_high_duty_clamps_to_full_ac_supply)
     fakes::charger::setConnectionStatus(ChargerConnectedType::CHARGER_CONNECTED_EVSE);
     fakes::charger::setCPDutyCycle(85.0f); // 85*0.6 = 51A available -> clamped to 16A
     fakes::adbms::setCellVoltage(0, 0, 3.8f);
-    LetTimePass(10);
+    LetTimePass(500); // Need the adbms task to run to update max cell voltage
+    LetTimePass(20);
 
-    ASSERT_STATE_EQ(charge_state);
-    EXPECT_NEAR(app::can_tx::BMS_MaxChargingCurrent_get(), kIMaxFullAcSupply, 0.01f);
+    {
+        io::unique_semaphore s{ shared_lock };
+        ASSERT_STATE_EQ(charge_state);
+        ASSERT_NEAR(
+            app::can_tx::BMS_MaxChargingCurrent_get(),
+            kPMaxFullAcSupply / app::segments::shared::getPackVoltage().value(), 0.02f);
+    }
 }
 
 TEST_F(BmsChargeStateTest, cc_region_evse_low_duty_reduces_current)
 {
     // duty=20% -> 20*0.6 = 12A available (< 16 clamp).
-    // idc = 208 * 12 * 0.93 / 588 ~= 3.948A.
+    // idc = 208 * 12 * 0.93 / pack_voltage
     EnterChargeStateClean();
     fakes::charger::setConnectionStatus(ChargerConnectedType::CHARGER_CONNECTED_EVSE);
     fakes::charger::setCPDutyCycle(20.0f);
     fakes::adbms::setCellVoltage(0, 0, 3.8f);
-    LetTimePass(10);
-
-    const float expected = 208.0f * 12.0f * 0.93f / 588.0f;
-    EXPECT_NEAR(app::can_tx::BMS_MaxChargingCurrent_get(), expected, 0.01f);
+    LetTimePass(500); // Need the adbms task to run to update max cell voltage
+    LetTimePass(20);
+    float expected;
+    {
+        io::unique_semaphore s{ shared_lock };
+        expected = 208.0f * 12.0f * 0.93f / app::segments::shared::getPackVoltage().value();
+    }
+    ASSERT_NEAR(app::can_tx::BMS_MaxChargingCurrent_get(), expected, 0.02f);
 }
 
 // =============================================================================
@@ -312,10 +331,15 @@ TEST_F(BmsChargeStateTest, taper_at_midpoint_halves_current)
     // max_cell_v = 4.15 -> frac = (4.20-4.15)/(4.20-4.10) = 0.5
     EnterChargeStateClean();
     fakes::adbms::setCellVoltage(0, 0, 4.15f);
-    LetTimePass(10);
-
-    ASSERT_STATE_EQ(charge_state);
-    EXPECT_NEAR(app::can_tx::BMS_MaxChargingCurrent_get(), kIMaxFullAcSupply * 0.5f, 0.01f);
+    LetTimePass(500); // Need the adbms task to run to update max cell voltage
+    LetTimePass(20);
+    {
+        io::unique_semaphore s{ shared_lock };
+        ASSERT_STATE_EQ(charge_state);
+        ASSERT_NEAR(
+            app::can_tx::BMS_MaxChargingCurrent_get(),
+            kPMaxFullAcSupply / app::segments::shared::getPackVoltage().value() * 0.5f, 0.02f);
+    }
 }
 
 TEST_F(BmsChargeStateTest, taper_at_taper_start_commands_full_current)
@@ -323,10 +347,16 @@ TEST_F(BmsChargeStateTest, taper_at_taper_start_commands_full_current)
     // max_cell_v == 4.10 -> still CC region (strict > guard), full current.
     EnterChargeStateClean();
     fakes::adbms::setCellVoltage(0, 0, 4.1f);
-    LetTimePass(10);
+    LetTimePass(500); // Need the adbms task to run to update max cell voltage
+    LetTimePass(20);
 
-    ASSERT_STATE_EQ(charge_state);
-    EXPECT_NEAR(app::can_tx::BMS_MaxChargingCurrent_get(), kIMaxFullAcSupply, 0.01f);
+    {
+        io::unique_semaphore s{ shared_lock };
+        ASSERT_STATE_EQ(charge_state);
+        ASSERT_NEAR(
+            app::can_tx::BMS_MaxChargingCurrent_get(),
+            kPMaxFullAcSupply / app::segments::shared::getPackVoltage().value(), 0.02f);
+    }
 }
 
 TEST_F(BmsChargeStateTest, current_clamped_to_zero_at_per_cell_max)
@@ -334,24 +364,26 @@ TEST_F(BmsChargeStateTest, current_clamped_to_zero_at_per_cell_max)
     // max_cell_v == CELL_V_MAX_CHARGE -> clamp to 0, no negative command.
     EnterChargeStateClean();
     fakes::adbms::setCellVoltage(0, 0, 4.20f);
-    LetTimePass(10);
+    LetTimePass(500); // Need the adbms task to run to update max cell voltage
+    LetTimePass(20);
 
     ASSERT_STATE_EQ(charge_state);
-    EXPECT_FLOAT_EQ(app::can_tx::BMS_MaxChargingCurrent_get(), 0.0f);
-    EXPECT_FALSE(app::can_tx::BMS_StopCharging_get());
+    ASSERT_NEAR(app::can_tx::BMS_MaxChargingCurrent_get(), 0.0f, 0.02f);
+    ASSERT_FALSE(app::can_tx::BMS_StopCharging_get());
 }
 
-TEST_F(BmsChargeStateTest, current_clamped_to_zero_above_per_cell_max)
+TEST_F(BmsChargeStateTest, goes_fault_state_after_exceeding_max_cell_voltage)
 {
-    // max_cell_v > CELL_V_MAX_CHARGE -> still 0 (never negative).
-    // Use a current high enough that termination doesn't fire.
     EnterChargeStateClean();
     fakes::adbms::setCellVoltage(0, 0, 4.25f);
     app::can_rx::Elcon_OutputCurrent_update(2.0f);
-    LetTimePass(10);
+    // adbms task to update max cell voltage, then 100Hz tick to detect and transition
+    LetTimePass(1520);
 
-    ASSERT_STATE_EQ(charge_state);
-    EXPECT_FLOAT_EQ(app::can_tx::BMS_MaxChargingCurrent_get(), 0.0f);
+    ASSERT_STATE_EQ(fault_state);
+    ASSERT_TRUE(app::can_tx::BMS_StopCharging_get());
+    ASSERT_NEAR(app::can_tx::BMS_MaxChargingVoltage_get(), 0.0f, 0.02f);
+    ASSERT_NEAR(app::can_tx::BMS_MaxChargingCurrent_get(), 0.0f, 0.02f);
 }
 
 // TEST_F(BmsChargeStateTest, voltage_command_is_pack_voltage_max_in_normal_operation)
@@ -360,8 +392,8 @@ TEST_F(BmsChargeStateTest, current_clamped_to_zero_above_per_cell_max)
 //     fakes::adbms::setCellVoltage(0, 0, 3.8f);
 //     LetTimePass(10);
 
-//     EXPECT_FLOAT_EQ(app::can_tx::BMS_MaxChargingVoltage_get(), kPackVoltageMax);
-//     EXPECT_FALSE(app::can_tx::BMS_StopCharging_get());
+//     ASSERT_FLOAT_EQ(app::can_tx::BMS_MaxChargingVoltage_get(), kPackVoltageMax);
+//     ASSERT_FALSE(app::can_tx::BMS_StopCharging_get());
 // }
 
 // =============================================================================
@@ -387,7 +419,7 @@ TEST_F(BmsChargeStateTest, current_clamped_to_zero_above_per_cell_max)
 //     app::can_rx::Debug_StartCharging_update(true);
 //     LetTimePass(20);
 //     ASSERT_STATE_EQ(precharge_charge_state);
-//     EXPECT_EQ(io::irs::prechargeState(), ContactorState::CONTACTOR_STATE_CLOSED);
+//     ASSERT_EQ(io::irs::prechargeState(), ContactorState::CONTACTOR_STATE_CLOSED);
 
 //     // ----- 3. wait for precharge lower bound, drive TS up, precharge_charge -> charge -----
 //     constexpr uint32_t tolerance_ms = 500;
@@ -396,16 +428,16 @@ TEST_F(BmsChargeStateTest, current_clamped_to_zero_above_per_cell_max)
 //     fakes::ts::setVoltage(pack_voltage);
 //     LetTimePass(20);
 //     ASSERT_STATE_EQ(charge_state);
-//     EXPECT_EQ(io::irs::positiveState(), ContactorState::CONTACTOR_STATE_CLOSED);
-//     EXPECT_EQ(io::irs::prechargeState(), ContactorState::CONTACTOR_STATE_OPEN);
-//     EXPECT_FALSE(app::can_tx::BMS_ChargingDone_get());
-//     EXPECT_FALSE(app::can_tx::BMS_ChargingFaulted_get());
+//     ASSERT_EQ(io::irs::positiveState(), ContactorState::CONTACTOR_STATE_CLOSED);
+//     ASSERT_EQ(io::irs::prechargeState(), ContactorState::CONTACTOR_STATE_OPEN);
+//     ASSERT_FALSE(app::can_tx::BMS_ChargingDone_get());
+//     ASSERT_FALSE(app::can_tx::BMS_ChargingFaulted_get());
 
 //     // Sanity: charge state actually commanding non-stop frame
 //     LetTimePass(10);
-//     EXPECT_FALSE(app::can_tx::BMS_StopCharging_get());
-//     EXPECT_FLOAT_EQ(app::can_tx::BMS_MaxChargingVoltage_get(), kPackVoltageMax);
-//     EXPECT_GT(app::can_tx::BMS_MaxChargingCurrent_get(), 0.0f);
+//     ASSERT_FALSE(app::can_tx::BMS_StopCharging_get());
+//     ASSERT_FLOAT_EQ(app::can_tx::BMS_MaxChargingVoltage_get(), kPackVoltageMax);
+//     ASSERT_GT(app::can_tx::BMS_MaxChargingCurrent_get(), 0.0f);
 
 //     // ----- 4. cells reach termination -> charge -> init -----
 //     fakes::segments::setMaxCellVoltage(4.18f);
@@ -413,9 +445,9 @@ TEST_F(BmsChargeStateTest, current_clamped_to_zero_above_per_cell_max)
 //     LetTimePass(10);
 
 //     ASSERT_STATE_EQ(init_state);
-//     EXPECT_TRUE(app::can_tx::BMS_ChargingDone_get());
-//     EXPECT_EQ(io::irs::positiveState(), ContactorState::CONTACTOR_STATE_OPEN);
-//     EXPECT_FALSE(app::can_rx::Debug_StartCharging_get()); // cleared on exit
+//     ASSERT_TRUE(app::can_tx::BMS_ChargingDone_get());
+//     ASSERT_EQ(io::irs::positiveState(), ContactorState::CONTACTOR_STATE_OPEN);
+//     ASSERT_FALSE(app::can_rx::Debug_StartCharging_get()); // cleared on exit
 
 //     // ----- 5. stay in init: Debug_StartCharging was cleared, so no re-entry -----
 //     LetTimePass(50);

@@ -252,7 +252,7 @@ TEST_F(BmsStateMachineTest, precharge_charge_success_to_charge)
     app::can_rx::Debug_StartCharging_update(true);
     fakes::charger::setConnectionStatus(app::can_utils::ChargerConnectedType::CHARGER_CONNECTED_EVSE);
     LetTimePass(20);
-    
+
     // Precharge for charging, we don't care about precharging too quickly
     ASSERT_STATE_EQ(app::states::precharge_charge_state);
     ASSERT_EQ(io::irs::prechargeState(), app::can_utils::ContactorState::CONTACTOR_STATE_CLOSED);

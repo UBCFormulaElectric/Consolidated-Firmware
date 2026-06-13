@@ -23,8 +23,8 @@ constexpr float CELL_V_MAX_CHARGE  = 4.20f; // V
 constexpr float I_TERMINATE_A      = 1.0f;  // A
 
 // Pack-level target commanded to the Elcon
-constexpr float PACK_VOLTAGE_MAX = static_cast<float>(NUM_SEGMENTS) *
-static_cast<float>(CELLS_PER_SEGMENT) * CELL_V_MAX_CHARGE;
+constexpr float PACK_VOLTAGE_MAX =
+    static_cast<float>(NUM_SEGMENTS) * static_cast<float>(CELLS_PER_SEGMENT) * CELL_V_MAX_CHARGE;
 
 constexpr float CHARGER_EFFICIENCY = 0.93f; // average DC-side efficiency of the Elcon
 constexpr float MAX_DC_CURRENT     = 12.0f; // 1C standard limit of DC input current to the pack
@@ -48,10 +48,10 @@ namespace chargeState
     {
         const float pin  = VAC_MIN * iac_max;
         const float pout = pin * CHARGER_EFFICIENCY;
-        float pack_voltage;
+        float       pack_voltage;
         {
-        const io::unique_semaphore s{ shared_lock };
-        pack_voltage = app::segments::shared::getPackVoltage().value_or(PACK_VOLTAGE_MAX);
+            const io::unique_semaphore s{ shared_lock };
+            pack_voltage = app::segments::shared::getPackVoltage().value_or(PACK_VOLTAGE_MAX);
         }
         float idc = pout / pack_voltage;
         return (idc > MAX_DC_CURRENT) ? MAX_DC_CURRENT : idc;
@@ -79,11 +79,12 @@ namespace chargeState
 
         const bool                           user_enable  = app::can_rx::Debug_StartCharging_get();
         const app::charger::ElconFaultConfig fault_status = app::charger::getFaultStatus();
-        
+        app::can_tx::BMS_ChargingFaulted_set(fault_status);
+
         float max_cell_v;
         {
-        const io::unique_semaphore s{ shared_lock };
-        max_cell_v = app::segments::shared::getMaxCellVoltage().value;
+            const io::unique_semaphore s{ shared_lock };
+            max_cell_v = app::segments::shared::getMaxCellVoltage().value;
         }
 
         if (!user_enable || !charger_conn || fault_status)

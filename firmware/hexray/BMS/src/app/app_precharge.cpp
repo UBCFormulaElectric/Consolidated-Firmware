@@ -63,10 +63,10 @@ State poll(bool precharge_for_charging)
 #else
     float threshold_voltage;
     {
-    io::unique_semaphore s{ shared_lock };
-    threshold_voltage = app::segments::shared::getPackVoltage().value() * PRECHARGE_ACC_V_THRESHOLD;
+        io::unique_semaphore s{ shared_lock };
+        threshold_voltage = app::segments::shared::getPackVoltage().value() * PRECHARGE_ACC_V_THRESHOLD;
     }
-    #endif
+#endif
 
     const bool is_air_negative_open =
         (io::irs::negativeState() == app::can_utils::ContactorState::CONTACTOR_STATE_OPEN);
