@@ -8,6 +8,7 @@ const inter = Inter({ subsets: ["latin"] });
 
 import Navbar from "./Navbar";
 import QueryProvider from "@/lib/contexts/QueryProvider";
+import { HistoricalSelectionProvider } from "@/lib/contexts/HistoricalSelectionContext";
 import Script from "next/script";
 
 export const metadata: Metadata = {
@@ -37,8 +38,10 @@ export default async function RootLayout({
       </head>
       <body className={`${inter.className} overflow-y-hidden`} style={{ overflowX: "overlay" }}>
         <QueryProvider>
-          <Navbar />
-          <main>{children}</main>
+          <HistoricalSelectionProvider>
+            <Navbar />
+            <main>{children}</main>
+          </HistoricalSelectionProvider>
         </QueryProvider>
       </body>
     </html>

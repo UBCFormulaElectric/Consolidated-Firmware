@@ -6,6 +6,8 @@ import { ENUM_COLORS } from "@/lib/constants";
 import { ChartLayout, LODAwareNumericalSeries, LODAwareSeries } from "./CanvasChartTypes";
 // utils
 import { bisect } from "@/lib/bisect";
+import { coversRange } from "@/lib/signals/lodLevels";
+import { TelemetryMarker } from "@/lib/telemetryMarkers";
 import { isEnumSignalMetadata } from "@/lib/types/Signal";
 import { EnumTimelineWidgetData, NumericalGraphWidgetData, WidgetData } from "@/lib/types/Widget";
 
@@ -57,17 +59,34 @@ const DATE_FORMATTER = new Intl.DateTimeFormat(undefined, {
 });
 export const CHART_PADDING = { top: 15, right: 0, bottom: 40, left: 60 };
 
-function selectLOD(series: LODAwareSeries, visibleTimeRange: number, chartWidth: number): number {
-    const totalLODCount = series.lods.length;
-    const timePerPixel = visibleTimeRange / chartWidth;
+function isLevelUsable(lod: LODAwareSeries["lods"][number], visibleStart: number, visibleEnd: number): boolean {
+    if (lod.timestamps.length === 0) return false;
+    if (lod.coveredTiles === undefined) return true;
+    return coversRange(lod.coveredTiles, lod.sampleIntervalMs, visibleStart, visibleEnd);
+}
 
-    for (let i = 0; i < totalLODCount; i++) {
-        if (series.lods[i].sampleIntervalMs <= timePerPixel) continue;
+export function selectLOD(series: LODAwareSeries, visibleStart: number, visibleEnd: number, chartWidth: number): number {
+    const lods = series.lods;
+    const timePerPixel = (visibleEnd - visibleStart) / chartWidth;
 
-        return Math.max(0, i - 1);
+    let ideal = lods.length - 1;
+    for (let i = 0; i < lods.length; i++) {
+        if (lods[i].sampleIntervalMs > timePerPixel) {
+            ideal = Math.max(0, i - 1);
+            break;
+        }
     }
 
-    return totalLODCount - 1;
+    if (isLevelUsable(lods[ideal], visibleStart, visibleEnd)) return ideal;
+
+    for (let distance = 1; distance < lods.length; distance++) {
+        const coarser = ideal + distance;
+        if (coarser < lods.length && isLevelUsable(lods[coarser], visibleStart, visibleEnd)) return coarser;
+        const finer = ideal - distance;
+        if (finer >= 0 && isLevelUsable(lods[finer], visibleStart, visibleEnd)) return finer;
+    }
+
+    return ideal;
 }
 
 function niceNumber(range: number, round: boolean) {
@@ -119,7 +138,7 @@ function render_enum(
     let currentStripY = CHART_PADDING.top + LEGEND_HEIGHT;
     for (let series_idx = 0; series_idx < widgetConfig.signals.length; series_idx++) {
         const series = widgetConfig.data[series_idx];
-        const selectedLOD = series.lods[selectLOD(series, visibleEndTime - visibleStartTime, width)];
+        const selectedLOD = series.lods[selectLOD(series, visibleStartTime, visibleEndTime, width)];
         const { data: seriesData, timestamps: seriesTimestamps } = selectedLOD;
         const signalMetadata = signalConfigByName.get(series.label);
         const isHovered = hoveredSignal?.current === series.label;
@@ -201,7 +220,7 @@ function render_numerical(context: CanvasRenderingContext2D, width: number, char
         return [];
     }
 
-    const selectedLODs = series.map((s) => s.lods[selectLOD(s, visibleEndTime - visibleStartTime, chartWidth)]);
+    const selectedLODs = series.map((s) => s.lods[selectLOD(s, visibleStartTime, visibleEndTime, chartWidth)]);
 
     const series_bounds = selectedLODs.map((lod) => {
         const left = bisect(lod.timestamps, visibleStartTime);
@@ -420,7 +439,24 @@ export function render_tooltip(
     });
 }
 
-export default function render(context: CanvasRenderingContext2D, width: number, height: number, layoutRef: RefObject<ChartLayout | null>, chartData: WidgetData, timeTickCount: number, hoverTime: number | null, hoveredSignal: RefObject<string | null> | undefined, { min: visibleStartTime, max: visibleEndTime }: { min: number; max: number }) {
+function render_markers(context: CanvasRenderingContext2D, width: number, height: number, visibleMarkers: TelemetryMarker[], timeToX: (t: number) => number) {
+    if (visibleMarkers.length === 0) return;
+
+    visibleMarkers.forEach((marker) => {
+        const xPosition = timeToX(marker.timestampMs);
+        if (xPosition < CHART_PADDING.left || xPosition > width - CHART_PADDING.right) return;
+
+        context.save();
+        context.strokeStyle = "rgba(220, 38, 38, 0.85)";
+        context.lineWidth = 1.5;
+        context.beginPath();
+        context.moveTo(xPosition, 0);
+        context.lineTo(xPosition, height);
+        context.stroke();
+    });
+}
+
+export default function render(context: CanvasRenderingContext2D, width: number, height: number, layoutRef: RefObject<ChartLayout | null>, chartData: WidgetData, timeTickCount: number, hoverTime: number | null, hoveredSignal: RefObject<string | null> | undefined, { min: visibleStartTime, max: visibleEndTime }: { min: number; max: number }, markers: TelemetryMarker[]) {
     context.clearRect(0, 0, width, height);
 
     const numericalTop = CHART_PADDING.top;
@@ -495,6 +531,8 @@ export default function render(context: CanvasRenderingContext2D, width: number,
         context.fillText(timeLabel, x, height - CHART_PADDING.bottom + 8);
         context.fillText(dateLabel, x, height - CHART_PADDING.bottom + 24);
     }
+
+    render_markers(context, width, height, markers, timeToX);
 
     if (hoverTime !== null) {
         render_tooltip(context, width, height, hoverTime, hover_value!, timeToX);
