@@ -7,7 +7,7 @@ namespace hw::spi
 {
 
 static bus   spi1(hspi1);
-const device imu_spi(spi1, imu_cs, 100U);
+const device imu_spi(spi1, imu_cs, 8U);
 
 [[nodiscard]] const bus &getBusFromHandle(const SPI_HandleTypeDef *handle)
 {

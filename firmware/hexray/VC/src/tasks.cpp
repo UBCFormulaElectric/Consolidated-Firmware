@@ -325,7 +325,7 @@ void tasks_tim_callback(const TIM_HandleTypeDef *tim)
 #ifndef USE_CHIMERA
     if (tim == &htim7)
     {
-        // hw::runtimeStat::inc();
+        hw::runtimeStat::inc();
     }
 #endif
 }

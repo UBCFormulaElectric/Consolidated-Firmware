@@ -155,42 +155,42 @@
     "description": "IMU data",
     "signals": {
       "AccelX": {
-        "resolution": 0.001,
+        "resolution": 0.01,
         "signed": true,
         "min": -20,
         "max": 20,
         "unit": "g"
       },
       "AccelY": {
-        "resolution": 0.001,
+        "resolution": 0.01,
         "signed": true,
         "min": -20,
         "max": 20,
         "unit": "g"
       },
       "AccelZ": {
-        "resolution": 0.001,
+        "resolution": 0.01,
         "signed": true,
         "min": -20,
         "max": 20,
         "unit": "g"
       },
       "GyroX": {
-        "resolution": 0.1,
+        "resolution": 0.01,
         "signed": true,
         "min": -20,
         "max": 20,
         "unit": "deg/s"
       },
       "GyroY": {
-        "resolution": 0.1,
+        "resolution": 0.01,
         "signed": true,
         "min": -20,
         "max": 20,
         "unit": "deg/s"
       },
       "GyroZ": {
-        "resolution": 0.1,
+        "resolution": 0.01,
         "signed": true,
         "min": -20,
         "max": 20,
