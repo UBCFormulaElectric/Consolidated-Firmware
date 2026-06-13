@@ -363,22 +363,6 @@ namespace powerMonitoring
         }
         return result;
     }
-} // namespace powerMonitoring
-namespace sbgEllipse
-{
-    result<void> init()
-    {
-        return {};
-    }
-    void           handleLogs() {}
-    const Attitude getEkfEulerAngles()
-    {
-        return {};
-    }
-    result<void> init()
-    {
-        return {};
-    }
     result<void> monitor_power_inputs()
     {
         return {};
@@ -391,7 +375,7 @@ namespace sbgEllipse
     {
         return false;
     }
-} // namespace sbgEllipse
+} // namespace powerMonitoring
 
 namespace sbgEllipse
 {
@@ -399,6 +383,8 @@ namespace sbgEllipse
     {
         return fakes::io::sbgEllipse::init();
     }
+
+    void handleLogs() {}
 
     Attitude getEkfEulerAngles()
     {
