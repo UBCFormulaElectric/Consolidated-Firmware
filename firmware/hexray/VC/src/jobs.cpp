@@ -60,6 +60,8 @@ void jobs_init()
 
     io::can_tx::VC_Bootup_sendAperiodic();
 
+    app::pumpControl::restart();
+
     app::StateMachine::init(&app::states::init_state);
 }
 void jobs_initImu()

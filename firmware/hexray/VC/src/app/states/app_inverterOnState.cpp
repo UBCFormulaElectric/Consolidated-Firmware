@@ -41,6 +41,8 @@ namespace inverterOnState
         {
             StateMachine::set_next_state(&bmsOn_state);
         }
+
+        // TODO inverter fault handling
     }
 
     static void runOnExit()

@@ -1,12 +1,10 @@
 #include "app_states.hpp"
 #include "app_timer.hpp"
-#include "app_canAlerts.hpp"
 #include "app_canTx.hpp"
 #include "app_canRx.hpp"
 #include "io_log.hpp"
 #include "app_canUtils.hpp"
 #include "app_powerManager.hpp"
-#include "io_log.hpp"
 
 using namespace app::can_utils;
 
