@@ -673,8 +673,9 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef *hspi)
         PA5     ------> SPI1_SCK
         PA6     ------> SPI1_MISO
         PA7     ------> SPI1_MOSI
+        PA15(JTDI)     ------> SPI1_NSS
         */
-        GPIO_InitStruct.Pin       = IMU_SPC_Pin | IMU_MISO_Pin | IMU_MOSI_Pin;
+        GPIO_InitStruct.Pin       = IMU_SPC_Pin | IMU_MISO_Pin | IMU_MOSI_Pin | GPIO_PIN_15;
         GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
         GPIO_InitStruct.Pull      = GPIO_NOPULL;
         GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_LOW;
@@ -748,8 +749,9 @@ void HAL_SPI_MspDeInit(SPI_HandleTypeDef *hspi)
         PA5     ------> SPI1_SCK
         PA6     ------> SPI1_MISO
         PA7     ------> SPI1_MOSI
+        PA15(JTDI)     ------> SPI1_NSS
         */
-        HAL_GPIO_DeInit(GPIOA, IMU_SPC_Pin | IMU_MISO_Pin | IMU_MOSI_Pin);
+        HAL_GPIO_DeInit(GPIOA, IMU_SPC_Pin | IMU_MISO_Pin | IMU_MOSI_Pin | GPIO_PIN_15);
 
         /* SPI1 interrupt DeInit */
         HAL_NVIC_DisableIRQ(SPI1_IRQn);
