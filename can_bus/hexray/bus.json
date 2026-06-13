@@ -65,6 +65,6 @@
     }
   ],
   "loggers": [
-    "DAMLogger"
+    "DAM"
   ]
 }

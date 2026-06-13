@@ -5,6 +5,7 @@
 #include "hw_hardFaultHandler.hpp"
 #include "hw_spis.hpp"
 #include "hw_usb.hpp"
+#include "hw_pwms.hpp"
 // #include "hw_i2cs.hpp"
 #include <bms.pb.h>
 #include "hw_rtosTaskHandler.hpp"
@@ -35,7 +36,7 @@ class BMSChimeraConfig final : public chimera_v2::config
             case bms_GpioNetName_GPIO_nHIGH_CURRENT_BSPD:
                 return std::cref(n_high_current_bspd);
             case bms_GpioNetName_GPIO_MSD_SHDN_SNS:
-                return std::cref(msd_shdn_sns);
+                return std::cref(shdn_term_sns);
             case bms_GpioNetName_GPIO_HV_P_INTLCK_SNS:
                 return std::cref(hv_p_intlck_sns);
             case bms_GpioNetName_GPIO_HV_N_INTLCK_SNS:
@@ -182,10 +183,22 @@ char USBD_PRODUCT_STRING_FS[] = "bms";
 {
     SEGGER_SYSVIEW_Conf();
     assert(hw::usb::init());
-
+    adcChipsInit();
     LOG_INFO("BMS Reset!");
     osKernelInitialize();
     TaskChimera.start();
     osKernelStart();
     forever {}
+}
+
+void tasks_handle_arr_rollover_callback(TIM_HandleTypeDef *htim)
+{
+    if (htim == &imd_pwm_input.get_timer_handle())
+    {
+        imd_pwm_input.increment_arrRolloverCount();
+    }
+    else if (htim == &evse_pwm_input.get_timer_handle())
+    {
+        evse_pwm_input.increment_arrRolloverCount();
+    }
 }

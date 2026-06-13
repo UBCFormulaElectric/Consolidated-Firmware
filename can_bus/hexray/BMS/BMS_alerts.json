@@ -1,82 +1,86 @@
 {
-  "warnings_id": 421,
-  "faults_id": 422,
-  "warnings_counts_id": 423,
-  "faults_counts_id": 424,
+  "faults_id": 401,
+  "warnings_id": 402,
+  "faults_counts_id": 403,
+  "warnings_counts_id": 404,
   "warnings": {
-    "CellUndervoltage": {
-      "id": 425,
-      "description": "Cell is critically undervoltage"
+    "CellUnderVoltage": {
+      "id": 446,
+      "description": "Cell is undervoltage"
     },
-    "CellOvervoltage": {
-      "id": 426,
-      "description": "Cell is critically overvoltage"
+    "CellOverVoltage": {
+      "id": 447,
+      "description": "Cell is overvoltage"
     },
-    "CellOvertemp": {
-      "id": 427,
-      "description": "Cell is critically overtemp"
-    },
-    "ModuleCommunicationError": {
-      "id": 428,
-      "description": "Failed to communicate with ADBMS6830 modules."
+    "CellOverTemp": {
+      "id": 448,
+      "description": "Cell is overtemp"
     },
     "TsOvercurrent": {
-      "id": 439,
-      "description": "Tractive system overcurrent detected."
+      "id": 451,
+      "description": "Tractive system overcurrent detected"
     }
   },
   "faults": {
     "CellUndervoltage": {
-      "id": 429,
+      "id": 452,
       "description": "Cell is critically undervoltage"
     },
     "CellOvervoltage": {
-      "id": 430,
+      "id": 453,
       "description": "Cell is critically overvoltage"
     },
     "CellOvertemp": {
-      "id": 431,
+      "id": 454,
       "description": "Cell is critically overtemp"
     },
-    "ModuleCommunicationError": {
-      "id": 432,
-      "description": "Failed to communicate with ADBMS6830 modules."
+    "CellOpenWire": {
+      "id": 455,
+      "description": "Open wire detected on cell voltage sense line"
+    },
+    "HealthError": {
+      "id": 450,
+      "description": "Errorcode raised in ADBMS code"
     },
     "ImdLatched": {
-      "id": 433,
+      "id": 457,
       "description": "IMD fault latch captured a fault."
     },
     "HardwareBspdLatched": {
-      "id": 434,
+      "id": 458,
       "description": "Hardware brake system plausibility device fault latched."
     },
     "BmsLatched": {
-      "id": 435,
+      "id": 459,
       "description": "BMS fault latched."
     },
     "TESTFAULT": {
-      "id": 436,
+      "id": 460,
       "description": "FOR UNIT TESTING ONLY DO NOT EVER EVER THROW"
     }
   },
-  "info_id": 437,
-  "info_counts_id": 438,
+  "info_id": 405,
+  "info_counts_id": 406,
   "info": {
     "StackOverflow": {
-      "id": 440,
-      "description": "An RTOS task stack overflowed on the previous boot cycle."
+      "id": 461,
+      "description": "An RTOS task stack overflowed on the previous boot cycle"
     },
     "CriticalPrechargeFailure": {
-      "id": 441,
+      "id": 462,
       "description": "Precharge failed >3x"
     },
     "WatchdogTimeout": {
-      "id": 442,
-      "description": "Watchdog timeout detected."
+      "id": 463,
+      "description": "Watchdog timeout detected"
     },
     "MissingVCHeartbeat": {
-      "id": 443,
-      "description": "Missing VC heartbeat signal."
+      "id": 464,
+      "description": "Missing VC heartbeat signal"
+    },
+    "ThermOpenWire": {
+      "id": 957,
+      "description": "Open wire detected on a thermistor sense line"
     }
   }
 }

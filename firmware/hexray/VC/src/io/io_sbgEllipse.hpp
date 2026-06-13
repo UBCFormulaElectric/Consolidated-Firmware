@@ -82,37 +82,37 @@ result<void> init();
 /*
  * Parse all logs which are currently residing in the UART RX buffer.
  */
-void handleLogs(void);
+void handleLogs();
 
 /*
  * Get the last received timestamp.
  * @return Timestamp in us
  */
-uint32_t getTimestampUs(void);
+uint32_t getTimestampUs();
 
 /*
  * Get general status from the sensor.
  * @return Bitmask of faults, 1 indiciates a fault
  */
-uint16_t getGeneralStatus(void);
+uint16_t getGeneralStatus();
 
 /*
  * Get communication status from the sensor.
  * @return Bitmask of faults, 0 indiciates a fault
  */
-uint32_t getComStatus(void);
+uint32_t getComStatus();
 
 /*
  * Get queue overflow status
  * @return the overflow uint8_t
  */
-uint8_t getOverflowCount(void);
+uint8_t getOverflowCount();
 
 /*
  * Get EKF Solution Mode Status
  * @return the ekf solution mode
  */
-uint32_t getEkfSolutionMode(void);
+uint32_t getEkfSolutionMode();
 
 /**
  * Get the IMU accelerations as a struct pointer with fields:
@@ -120,7 +120,7 @@ uint32_t getEkfSolutionMode(void);
  * - float y: Lateral acceleration in m/s^2
  * - float z: Vertical acceleration in m/s^2
  */
-const Vector3 getImuAccelerations(void);
+Vector3 getImuAccelerations();
 
 /*
  * Get the IMU angular velocities as a struct pointer with fields:
@@ -128,7 +128,7 @@ const Vector3 getImuAccelerations(void);
  * - float pitch: Pitch angular velocity in rad/s
  * - float yaw: Yaw angular velocity in rad/s
  */
-const Attitude getImuAngularVelocities(void);
+Attitude getImuAngularVelocities();
 
 /*
  * Get the Euler angles as a struct pointer with fields:
@@ -136,7 +136,7 @@ const Attitude getImuAngularVelocities(void);
  * - float pitch: Pitch angle in rad
  * - float yaw: Yaw angle in rad
  */
-const Attitude getEkfEulerAngles(void);
+Attitude getEkfEulerAngles();
 
 /*
  * Get the GPS velocity data as a struct pointer with fields:
@@ -148,7 +148,7 @@ const Attitude getEkfEulerAngles(void);
  * - float velocity_accuracy_e: East velocity accuracy in m/s
  * - float velocity_accuracy_d: Down velocity accuracy in m/s
  */
-const VelocityData getEkfNavVelocityData(void);
+VelocityData getEkfNavVelocityData();
 
 /*
  * Get the GPS position data as a struct pointer with fields:
@@ -161,11 +161,11 @@ const VelocityData getEkfNavVelocityData(void);
  * - float altitude_accuracy: Altitude accuracy in meters
  *
  */
-const PositionData getEkfNavPositionData(void);
+PositionData getEkfNavPositionData();
 
 /*
  * Handle SBG Ellipse UART Callbacks
  */
-void msgRxCallback(void);
+void msgRxCallback();
 
 } // namespace io::sbgEllipse

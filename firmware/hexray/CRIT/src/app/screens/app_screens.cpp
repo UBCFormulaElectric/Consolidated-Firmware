@@ -7,14 +7,15 @@
 namespace app::screens
 {
 /************************* Global Variables ***************************/
-inline constexpr size_t NUM_DEVICE_SCREENS = 2u;
-inline constexpr size_t LV_MAX             = 2u;
-inline constexpr size_t HV_MAX             = 2u;
+inline constexpr size_t NUM_DEVICE_SCREENS = 3u;
+inline constexpr size_t LV_MAX             = 3u;
+inline constexpr size_t HV_MAX             = 3u;
 static size_t           current_screen     = 0;
 
 static std::array<const Screen *, NUM_DEVICE_SCREENS> drive_screens = { {
     &shdn_screen,
     &brightness_screen,
+    &drive_modes_screen,
 } };
 
 /*********************** Function Definitions ***************************/
@@ -32,6 +33,7 @@ void init()
             {
                 case can_utils::VCState::VC_DRIVE_WARNING_STATE:
                 case can_utils::VCState::VC_FAULT_STATE:
+                case can_utils::VCState::VC_INVERTER_FAULT_HANDELER:
                     // disable rotary
                     return;
                 case can_utils::VCState::VC_PCM_ON_STATE:
@@ -61,6 +63,7 @@ void tick()
     {
         case can_utils::VCState::VC_DRIVE_WARNING_STATE:
         case can_utils::VCState::VC_FAULT_STATE:
+        case can_utils::VCState::VC_INVERTER_FAULT_HANDELER:
             alerts_screen.update();
             return;
         case can_utils::VCState::VC_INIT_STATE:

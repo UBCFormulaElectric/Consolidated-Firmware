@@ -6,5 +6,5 @@
 using namespace io::shdn;
 namespace app::shdn
 {
-const shdnLoop<2> bms_shdnLoop{ std::array<const io::shdn::node *const, 2>{ { &hv_p_ok_node, &hv_n_ok_node } } };
+const shdnLoop<3> bms_shdnLoop{ std::array<const node *const, 3>{ { &hv_p_ok_node, &hv_n_ok_node, &loop_ok_node } } };
 }

@@ -170,7 +170,7 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef *hspi)
         */
         GPIO_InitStruct.Pin       = PWR_CHG_CLK_Pin | PWR_CHG_DATA_Pin;
         GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
-        GPIO_InitStruct.Pull      = GPIO_NOPULL;
+        GPIO_InitStruct.Pull      = GPIO_PULLDOWN;
         GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_LOW;
         GPIO_InitStruct.Alternate = GPIO_AF5_SPI1;
         HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
@@ -198,14 +198,14 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef *hspi)
         */
         GPIO_InitStruct.Pin       = LED_DATA_Pin;
         GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
-        GPIO_InitStruct.Pull      = GPIO_NOPULL;
+        GPIO_InitStruct.Pull      = GPIO_PULLDOWN;
         GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_LOW;
         GPIO_InitStruct.Alternate = GPIO_AF5_SPI2;
         HAL_GPIO_Init(LED_DATA_GPIO_Port, &GPIO_InitStruct);
 
         GPIO_InitStruct.Pin       = LED_CLK_Pin;
         GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
-        GPIO_InitStruct.Pull      = GPIO_NOPULL;
+        GPIO_InitStruct.Pull      = GPIO_PULLDOWN;
         GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_LOW;
         GPIO_InitStruct.Alternate = GPIO_AF5_SPI2;
         HAL_GPIO_Init(LED_CLK_GPIO_Port, &GPIO_InitStruct);
@@ -233,14 +233,14 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef *hspi)
         */
         GPIO_InitStruct.Pin       = _7SEG_SERIN_Pin;
         GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
-        GPIO_InitStruct.Pull      = GPIO_NOPULL;
+        GPIO_InitStruct.Pull      = GPIO_PULLDOWN;
         GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_LOW;
         GPIO_InitStruct.Alternate = GPIO_AF7_SPI3;
         HAL_GPIO_Init(_7SEG_SERIN_GPIO_Port, &GPIO_InitStruct);
 
         GPIO_InitStruct.Pin       = _7SEG_SRCK_Pin;
         GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
-        GPIO_InitStruct.Pull      = GPIO_NOPULL;
+        GPIO_InitStruct.Pull      = GPIO_PULLDOWN;
         GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_LOW;
         GPIO_InitStruct.Alternate = GPIO_AF6_SPI3;
         HAL_GPIO_Init(_7SEG_SRCK_GPIO_Port, &GPIO_InitStruct);

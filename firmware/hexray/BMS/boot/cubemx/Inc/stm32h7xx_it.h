@@ -1,11 +1,7 @@
 /* USER CODE BEGIN Header */
 /**
  ******************************************************************************
-<<<<<<<< HEAD:firmware/hexray/RSM/boot/cubemx/Inc/stm32h5xx_it.h
- * @file    stm32h5xx_it.h
-========
  * @file    stm32h7xx_it.h
->>>>>>>> master:firmware/hexray/BMS/boot/cubemx/Inc/stm32h7xx_it.h
  * @brief   This file contains the headers of the interrupt handlers.
  ******************************************************************************
  * @attention

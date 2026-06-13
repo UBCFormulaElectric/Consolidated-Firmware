@@ -39,7 +39,7 @@ const io::FaultLatch imd_ok_latch{
 
 const io::FaultLatch bspd_ok_latch{
     bspd_ok_current_status, n_bspd_latch_status,
-    true, // current_inverted
-    true, // latch_inverted
-    true  // read_only
+    false, // current_inverted
+    true,  // latch_inverted
+    true   // read_only
 };

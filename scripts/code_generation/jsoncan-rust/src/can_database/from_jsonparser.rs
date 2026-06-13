@@ -171,9 +171,7 @@ impl CanDatabase {
         for (rx_name, rx_msg_names) in rx_msg_names_to_resolve.into_iter() {
             let rx_msgs: Result<Vec<u32>, CanDBError> = rx_msg_names
                 .iter()
-                .map(|m| {
-                    db.get_message_id_by_name(m)
-                })
+                .map(|m| db.get_message_id_by_name(m))
                 .collect();
             match rx_msgs {
                 Err(e) => return Err(e),
@@ -212,7 +210,7 @@ impl CanDatabase {
             let tx_node_name = msg.tx_node_name.clone();
             db.add_tx_msg(msg)?;
             // rx on all nodes
-            db.nodes.iter_mut().for_each(|n| {
+            db.nodes.iter_mut().filter(|n| n.alerts.is_some()).for_each(|n| {
                 if n.name == tx_node_name {return;}
                 match &mut n.rx_msgs_names {
                     RxMsgs::All => (),

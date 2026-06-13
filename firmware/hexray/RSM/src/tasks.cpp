@@ -18,8 +18,9 @@
 #include "main.h"
 #include "hw_watchdog.hpp"
 #include "hw_resetReason.hpp"
-
+#include "hw_pwms.hpp"
 #include "hw_bootup.hpp"
+#include "hw_runTimeStat.hpp"
 
 constexpr size_t         TASK_COUNT = 5;
 [[noreturn]] static void tasks_run1Hz(void *arg);
@@ -41,6 +42,22 @@ static hw::rtos::StaticTask Task1Hz(osPriorityAboveNormal, "Task1Hz", tasks_run1
 static hw::rtos::StaticTask TaskCanTx(osPriorityNormal, "TaskCanTx", tasks_runCanTx, TaskCanTxStack);
 static hw::rtos::StaticTask TaskCanRx(osPriorityLow, "TaskCanRx", tasks_runCanRx, TaskCanRxStack);
 
+static hw::runtimeStat::monitor<TASK_COUNT> runtimeMonitor{
+    { app::can_tx::RSM_CoreCpuUsage_set, app::can_tx::RSM_CoreCpuUsageMax_set },
+    {
+        { { Task1kHz, app::can_tx::RSM_TaskRun1kHzCpuUsage_set, app::can_tx::RSM_TaskRun1kHzCpuUsageMax_set,
+            app::can_tx::RSM_TaskRun1kHzStackUsage_set },
+          { Task1Hz, app::can_tx::RSM_TaskRun1HzCpuUsage_set, app::can_tx::RSM_TaskRun1HzCpuUsageMax_set,
+            app::can_tx::RSM_TaskRun1HzStackUsage_set },
+          { Task100Hz, app::can_tx::RSM_TaskRun100HzCpuUsage_set, app::can_tx::RSM_TaskRun100HzCpuUsageMax_set,
+            app::can_tx::RSM_TaskRun100HzStackUsage_set },
+          { TaskCanRx, app::can_tx::RSM_TaskRunCanRxCpuUsage_set, app::can_tx::RSM_TaskRunCanRxCpuUsageMax_set,
+            app::can_tx::RSM_TaskRunCanRxStackUsage_set },
+          { TaskCanTx, app::can_tx::RSM_TaskRunCanTxCpuUsage_set, app::can_tx::RSM_TaskRunCanTxCpuUsageMax_set,
+            app::can_tx::RSM_TaskRunCanTxStackUsage_set } },
+    },
+};
+
 static hw::watchdog::monitor<TASK_COUNT> monitor{
     hiwdg,
     [](const hw::watchdog::instance &i) { LOG_INFO("Software watchdog timeout for task %d", i.task_id); },
@@ -57,6 +74,7 @@ void tasks_run1Hz(void *arg)
     {
         jobs_run1Hz_tick();
 
+        runtimeMonitor.checkin();
         watchdog1hz.checkIn();
 
         start_ticks += period_ms;
@@ -158,21 +176,34 @@ void tasks_init()
 
     adcchipsInit();
     can1.init();
-    if (const ResetReason reason = hw::resetReason::get(); reason == RESET_REASON_WATCHDOG)
+    hw::runtimeStat::init(htim7);
+    const ResetReason reason = hw::resetReason::get();
+    app::can_tx::RSM_ResetReason_set(static_cast<app::can_utils::CanResetReason>(reason));
+    if (reason == RESET_REASON_WATCHDOG)
     {
         LOG_WARN("Detected watchdog timeout on the previous boot cycle!");
         app::can_alerts::infos::WatchdogTimeout_set(true);
     }
 
     if (hw::bootup::BootRequest boot_request = hw::bootup::getBootRequest();
-        boot_request.context != hw::bootup::BootContext::BOOT_CONTEXT_NONE)
+        boot_request.context != hw::bootup::BootContext::NONE)
     {
-        if (boot_request.context == hw::bootup::BootContext::BOOT_CONTEXT_STACK_OVERFLOW)
+        // Check for stack overflow on a previous boot cycle and populate CAN alert.
+        if (boot_request.context == hw::bootup::BootContext::OVERFLOW)
         {
             LOG_WARN("Detected stack overflow on the previous boot cycle!");
+            app::can_alerts::infos::StackOverflow_set(true);
+            app::can_tx::RSM_StackOverflowTask_set(boot_request.context_value);
+        }
+        else if (boot_request.context == hw::bootup::BootContext::WATCHDOG_TIMEOUT)
+        {
+            // If the software driver detected a watchdog timeout the context should be set.
+            app::can_alerts::infos::WatchdogTimeout_set(true);
+            app::can_tx::RSM_WatchdogTimeoutTask_set(boot_request.context_value);
         }
 
-        boot_request.context       = hw::bootup::BootContext::BOOT_CONTEXT_NONE;
+        // Clear stack overflow bootup.
+        boot_request.context       = hw::bootup::BootContext::NONE;
         boot_request.context_value = 0;
         hw::bootup::setBootRequest(boot_request);
     }
@@ -182,4 +213,21 @@ void tasks_init()
     RSM_StartAllTasks();
     osKernelStart();
     forever {}
+}
+
+void tasks_tim_callback(const TIM_HandleTypeDef *tim)
+{
+#ifndef USE_CHIMERA
+    if (tim == &htim7)
+    {
+        hw::runtimeStat::inc();
+    }
+#endif
+}
+void tasks_handle_arr_rollover_callback(TIM_HandleTypeDef *htim)
+{
+    if (htim == &flow_meter_config.get_timer_handle())
+    {
+        flow_meter_config.increment_arrRolloverCount();
+    }
 }

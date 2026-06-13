@@ -1,46 +1,40 @@
 #include "io_tractiveSystem.hpp"
 #include "hw_adcs.hpp"
 #include "hw_gpios.hpp"
+#include "hw_hal.hpp"
+#include "util_utils.hpp"
+#include <cassert>
+#include <cmath>
 
 // Percent error used to compensate for resistor errors. Determined from testing with the HW
 // TODO: Test with HW to determine compensation
 namespace io::ts
 {
+
+constexpr float AMPLIFIER_GAIN       = 1.0f;                         // Isolated amplifier gain
+constexpr float TS_VOLTAGE_DIV       = (20e3f / (6 * 1e6f + 20e3f)); // Voltage divider for the TS+ voltage sensing
 constexpr float R_ERROR_COMPENSATION = 1.0f;
 
-// Isolated amplifier gain
-constexpr float AMPLIFIER_GAIN = 1.0f;
+// TS Current Sensing
+constexpr float LOW_SIDE_R       = 33e3f;
+constexpr float HIGH_SIDE_R      = 60.4e3f;
+constexpr float TSI_TO_CSIN      = (LOW_SIDE_R + HIGH_SIDE_R) / HIGH_SIDE_R;
+constexpr float OFFSET_V         = 2.5f;
+constexpr float HIGH_RES_SENS_VA = 26.7e-3f;
+constexpr float LOW_RES_SENS_VA  = 4e-3f;
 
-// Voltage divider for the TS+ voltage sensing
-constexpr float TS_VOLTAGE_DIV = (20e+3f / (6 * 1e+6f + 20e3f));
+// TS Current Sensing Calibration
+constexpr float OUTPUT1_CHARGING_ERROR_SLOPE     = -0.011131f;
+constexpr float OUTPUT1_CHARGING_ERROR_OFFSET    = -2.673297f;
+constexpr float OUTPUT1_DISCHARGING_ERROR_SLOPE  = -0.010818f;
+constexpr float OUTPUT1_DISCHARGING_ERROR_OFFSET = -2.802097f;
 
-// Offset voltage of output 1.
-constexpr float OUTPUT_1_OFFSET = 2.5f;
-// Sensitivity of output 1: 40mV/A
-constexpr float OUTPUT_1_SENSITIVITY = (1.0f / 40.0e-3f);
-// Voltage divider from adc --> current sensor output
-constexpr float OUTPUT_1_DIV = ((33.0f + 60.4f) / (60.4f));
+constexpr float OUTPUT2_CHARGING_ERROR_SLOPE     = -0.018955f;
+constexpr float OUTPUT2_CHARGING_ERROR_OFFSET    = -17.823242f;
+constexpr float OUTPUT2_DISCHARGING_ERROR_SLOPE  = -0.021560f;
+constexpr float OUTPUT2_DISCHARGING_ERROR_OFFSET = -18.569613f;
 
-// Offset voltage of output 2.
-constexpr float OUTPUT_2_OFFSET = 2.5f;
-// Sensitivity of output 2: 5.2mV/A
-constexpr float OUTPUT_2_SENSITIVITY = (1.0f / 5.2e-3f);
-// Voltage divider from adc --> current sensor output
-constexpr float OUTPUT_2_DIV = ((33.0f + 60.4f) / (60.4f));
-
-// Current Sensor error calibration parameters (based on experimental data)
-// TODO: Rerun sensor calibration with new mounting
-constexpr float OUTPUT1_DISCHARGING_ERROR_SLOPE  = 0.5028f;
-constexpr float OUTPUT1_DISCHARGING_ERROR_OFFSET = -0.0894f;
-constexpr float OUTPUT1_CHARGING_ERROR_SLOPE     = 0.5045f;
-constexpr float OUTPUT1_CHARGING_ERROR_OFFSET    = -0.2677f;
-
-constexpr float OUTPUT2_DISCHARGING_ERROR_SLOPE  = 0.2417f;
-constexpr float OUTPUT2_DISCHARGING_ERROR_OFFSET = 2.3634f;
-constexpr float OUTPUT2_CHARGING_ERROR_SLOPE     = 0.2324f;
-constexpr float OUTPUT2_CHARGING_ERROR_OFFSET    = 2.4038f;
-
-float getVoltage()
+float getVoltage(void)
 {
     // The tractive system voltage is divided down by several resistors, then fed through an amplifier.
     //
@@ -84,105 +78,32 @@ float getVoltage()
     }
 }
 
+// Charging => current >= 0, discharging => current < 0
 float getCurrentHighResolution()
 {
-    float adc_voltage = ts_isense_50a.getVoltage();
+    const float cs_in_1          = MAX(ts_isense_50a.getVoltage(), 0.0f) * TSI_TO_CSIN;
+    const float reported_current = -((cs_in_1 - OFFSET_V) / HIGH_RES_SENS_VA);
 
-    if (adc_voltage < 0.0f)
-    {
-        adc_voltage = 0.0f;
-    }
+    // Error calibration for the high resolution current sensor (channel 1).
+    const float slope  = (reported_current >= 0.0f) ? OUTPUT1_CHARGING_ERROR_SLOPE : OUTPUT1_DISCHARGING_ERROR_SLOPE;
+    const float offset = (reported_current >= 0.0f) ? OUTPUT1_CHARGING_ERROR_OFFSET : OUTPUT1_DISCHARGING_ERROR_OFFSET;
+    const float error  = reported_current * slope + offset;
 
-    // DHAB S/138 Output 1 (+/- 50A):
-    //
-    // +------------------+                +-------------+
-    // | DHAB S/138       |---<33k>----+---| ADC Channel |
-    // | Output 1 Voltage |            |   +-------------+
-    // +------------------+            |
-    //                              <60.4k>
-    //                                 |
-    //                                ===
-    //                                GND
-    //
-    //                                                                  1
-    // Current = (DHAB S/138 Output 1 Voltage - Offset Voltage) x ---------------
-    //                                                             Sensitivity
-    //                                              33k + 60.4k
-    // DHAB S/138 Output 1 Voltage = ADC Voltage x --------------
-    //                                                 60.4k
-    // Offset Voltage = 2.5V (Datasheet)
-    //
-    // Sensitivity = 40mV/A
-
-    // Output from current sensor:
-    const float hsnbv_d06_output_1 = adc_voltage * OUTPUT_1_DIV;
-
-    // Calculate the current which corresponds to the output voltage (based on sensor datasheet)
-    const float high_res_current = ((hsnbv_d06_output_1 - OUTPUT_1_OFFSET) * OUTPUT_1_SENSITIVITY);
-
-    // Error Calibration for High Resolution Current Sensor (based on calibration data)
-    float high_res_curr_calibration = 0.0f;
-    if (high_res_current > -0.2f)
-    {
-        high_res_curr_calibration =
-            high_res_current * OUTPUT1_DISCHARGING_ERROR_SLOPE + OUTPUT1_DISCHARGING_ERROR_OFFSET;
-    }
-    else
-    {
-        high_res_curr_calibration = high_res_current * OUTPUT1_CHARGING_ERROR_SLOPE + OUTPUT1_CHARGING_ERROR_OFFSET;
-    }
-
-    return -(high_res_current + high_res_curr_calibration);
+    return reported_current - error;
 }
 
+// Charging => current >= 0, discharging => current < 0
 float getCurrentLowResolution()
 {
-    float adc_voltage = ts_isense_400a.getVoltage();
+    const float cs_in_2          = MAX(ts_isense_400a.getVoltage(), 0.0f) * TSI_TO_CSIN;
+    const float reported_current = -((cs_in_2 - OFFSET_V) / LOW_RES_SENS_VA);
 
-    if (adc_voltage < 0.0f)
-    {
-        adc_voltage = 0.0f;
-    }
+    // Error calibration for the low resolution current sensor (channel 2).
+    const float slope  = (reported_current >= 0.0f) ? OUTPUT2_CHARGING_ERROR_SLOPE : OUTPUT2_DISCHARGING_ERROR_SLOPE;
+    const float offset = (reported_current >= 0.0f) ? OUTPUT2_CHARGING_ERROR_OFFSET : OUTPUT2_DISCHARGING_ERROR_OFFSET;
+    const float error  = reported_current * slope + offset;
 
-    // DHAB S/138 Output 2 (-320A to +450A):
-    //
-    // +------------------+                +-------------+
-    // | DHAB S/138       |---<33k>----+---| ADC Channel |
-    // | Output 2 Voltage |            |   +-------------+
-    // +------------------+            |
-    //                              <60.4k>
-    //                                 |
-    //                                ===
-    //                                GND
-    //
-    //                                                                  1
-    // Current = (DHAB S/138 Output 1 Voltage - Offset Voltage) x ---------------
-    //                                                             Sensitivity
-    //                                              33k + 60.4k
-    // DHAB S/138 Output 2 Voltage = ADC Voltage x --------------
-    //                                                 60.4k
-    // Offset Voltage = 2.5V (Datasheet)
-    //
-    // Sensitivity = 5.2mV/A
-
-    // Output from current sensor:
-    const float hsnbv_d06_output_2 = adc_voltage * OUTPUT_2_DIV;
-
-    // Calculate the current which corresponds to the output voltage (based on sensor datasheet)
-    const float low_res_current = ((hsnbv_d06_output_2 - OUTPUT_2_OFFSET) * OUTPUT_2_SENSITIVITY);
-
-    // Error Calibration for Low Resolution Current Sensor (based on calibration data)
-    float low_res_curr_calibration = 0.0f;
-    if (low_res_current > -0.2f)
-    {
-        low_res_curr_calibration = low_res_current * OUTPUT2_DISCHARGING_ERROR_SLOPE + OUTPUT2_DISCHARGING_ERROR_OFFSET;
-    }
-    else
-    {
-        low_res_curr_calibration = low_res_current * OUTPUT2_CHARGING_ERROR_SLOPE + OUTPUT2_CHARGING_ERROR_OFFSET;
-    }
-
-    return -(low_res_current + low_res_curr_calibration);
+    return reported_current - error;
 }
 
 bool getVoltageSnsDiagState()

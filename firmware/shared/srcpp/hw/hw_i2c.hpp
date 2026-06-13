@@ -1,9 +1,11 @@
 #pragma once
 
 #include <span>
+#include <optional>
 #include "hw_utils.hpp"
 #include "FreeRTOS.h"
 #include "task.h"
+#include "util_errorCodes.hpp"
 
 namespace hw::i2c
 {
@@ -24,6 +26,19 @@ class bus
      * Called by HAL I2C completion callbacks to signal that a transaction has finished.
      */
     void onTransactionCompleteFromISR() const;
+
+    mutable std::optional<uint32_t> error = std::nullopt;
+
+    void sweep() const
+    {
+        for (uint8_t i = 0; i < 0x7f; i++)
+        {
+            if (const auto res = HAL_I2C_IsDeviceReady(&handle, static_cast<uint16_t>(i << 1), 10, 100); res == HAL_OK)
+            {
+                LOG_INFO("Device found at address 0x%02x\n", i);
+            }
+        }
+    }
 
   private:
     friend class device;
@@ -49,10 +64,14 @@ class device
      * @brief Check if device connected to the given I2C interface is ready for communication.
      * @return EXIT_CODE_OK if connected device is ready to communicate over I2C.
      */
-    [[nodiscard]] result<void> isTargetReady() const
+    [[nodiscard]] result<void> isTargetReady(const bool read = false) const
     {
+        if (d_bus.taskInProgress != nullptr)
+        {
+            return std::unexpected(ErrorCode::BUSY);
+        }
         return utils::convertHalStatus(HAL_I2C_IsDeviceReady(
-            &d_bus.handle, static_cast<uint16_t>(targetAddress << 1), NUM_DEVICE_READY_TRIALS, timeoutMs));
+            &d_bus.handle, static_cast<uint16_t>(targetAddress << 1 | read), NUM_DEVICE_READY_TRIALS, timeoutMs));
     }
 
     /**
@@ -67,9 +86,11 @@ class device
      * @brief Transmit data to the device connected to the given I2C interface.
      * @param tx_buffer A data buffer containing the data transmitted
      * to the device connected to the I2C interface.
+     * @param read A boolean flag indicating whether the transmission is a write operation (false) or a read operation
+     * (true).
      * @return EXIT_CODE_OK if data is transmitted successfully.
      */
-    [[nodiscard]] result<void> transmit(std::span<const uint8_t> tx_buffer) const;
+    [[nodiscard]] result<void> transmit(std::span<const uint8_t> tx_buffer, bool read = true) const;
 
     /**
      * @brief Read an amount of data from a specific memory address

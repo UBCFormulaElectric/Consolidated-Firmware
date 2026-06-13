@@ -7,6 +7,8 @@
 #include "io_rsmShdn.hpp"
 #include "app_canTx.hpp"
 #include "io_canQueues.hpp"
+#include "io_pumpFake.hpp"
+#include "io_pumps.hpp"
 
 namespace fakes::io
 {
@@ -59,12 +61,6 @@ namespace suspension
 
 namespace rPump
 {
-    static uint8_t percentage = 0;
-
-    void set_readPercentage(const uint8_t value)
-    {
-        percentage = value;
-    }
 } // namespace rPump
 namespace tireTemp
 {
@@ -88,6 +84,7 @@ namespace imus
         return imu_rear.init();
     }
 } // namespace imus
+
 namespace brake
 {
     float getRearPressurePsi()
@@ -127,20 +124,6 @@ namespace suspension
     }
 } // namespace suspension
 
-namespace rPump
-{
-    result<void> setPercentage(uint8_t value)
-    {
-        return {};
-    }
-
-    result<void> readPercentage(uint8_t &dest)
-    {
-        dest = fakes::io::rPump::percentage;
-        return {};
-    }
-} // namespace rPump
-
 namespace tireTemp
 {
     float get()
@@ -150,7 +133,9 @@ namespace tireTemp
 } // namespace tireTemp
 } // namespace io
 
-const io::shdn::node rl_int_3v3_sens(true, app::can_tx::RSM_RearLeftMotorInterlock_set);
+const io::pump rl_pump{};
+
+const io::shdn::node rl_int_3v3_sens(app::can_tx::RSM_RearLeftMotorInterlock_set);
 
 io::queue<io::CanMsg, 128> can_tx_queue{ "" };
 io::queue<io::CanMsg, 128> can_rx_queue{ "" };

@@ -1,13 +1,23 @@
 #include "app_canRx.hpp"
 #include "app_switches.hpp"
 #include "app_leds.hpp"
+
+#include "app_brightness.hpp"
 #include "io_leds.hpp"
+#include "app_canAlerts.hpp"
+#include "app_heartbeatMonitors.hpp"
 
 namespace app::leds
 {
-static io::leds::color boolToColor(const bool condition)
+static io::leds::color board_status(const bool fault, const bool warning, const bool heartbeat)
 {
-    return condition ? io::leds::color::GREEN : io::leds::color::RED;
+    if (not heartbeat)
+        return io::leds::color::OFF;
+    if (warning)
+        return io::leds::color::YELLOW;
+    if (fault)
+        return io::leds::color::RED;
+    return io::leds::color::GREEN;
 }
 
 void init()
@@ -32,7 +42,7 @@ void init()
 
     LOG_IF_ERR(ec);
 
-    ec = io::leds::setBrightness(1.0);
+    ec = io::leds::setBrightness(1);
 
     LOG_IF_ERR(ec);
 }
@@ -52,27 +62,33 @@ void setLeds()
      * off when pressed off to actually launch the vehicle
      * ready condition based on pedal percentage
      */
-    result<void> ec = io::leds::update(io::leds::config{
-        boolToColor(app::can_rx::RSM_Heartbeat_get()),
-        boolToColor(app::can_rx::BMS_Heartbeat_get()),
-        boolToColor(app::can_rx::VC_Heartbeat_get()),
-        boolToColor(app::can_rx::FSM_Heartbeat_get()),
+    LOG_IF_ERR(io::leds::update(io::leds::config{
+        board_status(
+            can_alerts::BoardHasFault(can_utils::CanNode::RSM_NODE),
+            can_alerts::BoardHasWarning(can_utils::CanNode::RSM_NODE), rsm_heartbeat_node.status),
+        board_status(
+            can_alerts::BoardHasFault(can_utils::CanNode::BMS_NODE),
+            can_alerts::BoardHasWarning(can_utils::CanNode::BMS_NODE), bms_heartbeat_node.status),
+        board_status(
+            can_alerts::BoardHasFault(can_utils::CanNode::VC_NODE),
+            can_alerts::BoardHasWarning(can_utils::CanNode::VC_NODE), vc_heartbeat_node.status),
+        board_status(
+            can_alerts::BoardHasFault(can_utils::CanNode::FSM_NODE),
+            can_alerts::BoardHasWarning(can_utils::CanNode::FSM_NODE), fsm_heartbeat_node.status),
         io::leds::color::GREEN,
-        boolToColor(app::can_rx::DAM_Heartbeat_get()),
-        boolToColor(switches::launch_control_get()),
-        boolToColor(switches::start_get()),
-        boolToColor(app::can_rx::VC_FirstFaultNode_get() == app::can_utils::ShutdownNode::OK),
+        board_status(
+            can_alerts::BoardHasFault(can_utils::CanNode::DAM_NODE),
+            can_alerts::BoardHasWarning(can_utils::CanNode::DAM_NODE), dam_heartbeat_node.status),
+        switches::launch_control_get() ? io::leds::color::GREEN : io::leds::color::OFF,
+        app::can_rx::VC_State_get() == can_utils::VCState::VC_DRIVE_STATE ? io::leds::color::GREEN
+                                                                          : io::leds::color::OFF,
+        can_rx::VC_FirstFaultNode_get() == can_utils::ShutdownNode::OK ? io::leds::color::OFF : io::leds::color::RED,
         switches::regen_get(),
         switches::torque_vectoring_get(),
-        !app::can_rx::BMS_ImdCurrentlyOk_get(),
-        false,
-        !app::can_rx::BMS_BspdCurrentlyOk_get(),
-    });
-
-    LOG_IF_ERR(ec);
-
-    ec = io::leds::setBrightness(1.0);
-
-    LOG_IF_ERR(ec);
+        !can_rx::BMS_ImdCurrentlyOk_get(),
+        !can_rx::BMS_BmsCurrentlyOk_get(),
+        !can_rx::BMS_BspdCurrentlyOk_get(),
+    }));
+    LOG_IF_ERR(io::leds::setBrightness(app::brightness));
 }
 } // namespace app::leds

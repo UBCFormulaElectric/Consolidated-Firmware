@@ -169,6 +169,10 @@ void tasks_runCanRx(void *arg)
 static void FSM_StartAllTasks()
 {
     Task1kHz.start();
+    Task100Hz.start();
+    Task1Hz.start();
+    TaskCanTx.start();
+    TaskCanRx.start();
 }
 
 void tasks_preInit()
@@ -180,6 +184,7 @@ void tasks_preInit()
 [[noreturn]] void tasks_init()
 {
     SEGGER_SYSVIEW_Conf();
+    LOG_INFO("FSM Reset!");
 
 #ifndef WATCHDOG_DISABLED
     __HAL_DBGMCU_FREEZE_IWDG();
@@ -189,29 +194,33 @@ void tasks_preInit()
     adcChipsInit();
 
     hw::runtimeStat::init(htim7);
-    if (const ResetReason reason = hw::resetReason::get(); reason == RESET_REASON_WATCHDOG)
+    const ResetReason reason = hw::resetReason::get();
+    app::can_tx::FSM_ResetReason_set(static_cast<app::can_utils::CanResetReason>(reason));
+    if (reason == RESET_REASON_WATCHDOG)
     {
         LOG_WARN("Detected watchdog timeout on the previous boot cycle!");
         app::can_alerts::infos::WatchdogTimeout_set(true);
     }
 
     if (hw::bootup::BootRequest boot_request = hw::bootup::getBootRequest();
-        boot_request.context != hw::bootup::BootContext::BOOT_CONTEXT_NONE)
+        boot_request.context != hw::bootup::BootContext::NONE)
     {
         // Check for stack overflow on a previous boot cycle and populate CAN alert.
-        if (boot_request.context == hw::bootup::BootContext::BOOT_CONTEXT_STACK_OVERFLOW)
+        if (boot_request.context == hw::bootup::BootContext::OVERFLOW)
         {
             LOG_WARN("Detected stack overflow on the previous boot cycle!");
             app::can_alerts::infos::StackOverflow_set(true);
+            app::can_tx::FSM_StackOverflowTask_set(boot_request.context_value);
         }
-        else if (boot_request.context == hw::bootup::BootContext::BOOT_CONTEXT_WATCHDOG_TIMEOUT)
+        else if (boot_request.context == hw::bootup::BootContext::WATCHDOG_TIMEOUT)
         {
             // If the software driver detected a watchdog timeout the context should be set.
             app::can_alerts::infos::WatchdogTimeout_set(true);
+            app::can_tx::FSM_WatchdogTimeoutTask_set(boot_request.context_value);
         }
 
         // Clear stack overflow bootup.
-        boot_request.context       = hw::bootup::BootContext::BOOT_CONTEXT_NONE;
+        boot_request.context       = hw::bootup::BootContext::NONE;
         boot_request.context_value = 0;
         hw::bootup::setBootRequest(boot_request);
     }

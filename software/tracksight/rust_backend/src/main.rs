@@ -60,9 +60,11 @@ async fn main() {
     // this is equivalent to queue in old backend
     // use broadcast instead of mpsc, probably only one serial source but multiple consumers
     // TODO figure out buffer size
-    let (can_queue_tx, can_queue_rx) = broadcast::channel::<CanPayload>(32);
+    let (can_queue_tx, can_queue_rx) = broadcast::channel::<CanPayload>(4096);
     // used for the frontend to send messages to DAM
-    let (client_out_msg_tx, client_out_msg_rx) = broadcast::channel::<TelemetryOutgoingMessage>(32);
+    let (client_out_msg_tx, client_out_msg_rx) = broadcast::channel::<TelemetryOutgoingMessage>(4096);
+    // channel for diagnostic metrics (e.g. packet error rate)
+    let (diag_tx, diag_rx) = broadcast::channel::<f64>(32);
 
     // track which clients subscribe to which signals
     // maps signal name to client ids
@@ -72,7 +74,7 @@ async fn main() {
     let can_db = Arc::new(load_can_database().expect("Could not init Can db"));
 
     // health check
-    let health_check = HealthCheck::new();
+    let mut health_check = HealthCheck::new();
     
     // start tasks
     spawn_task(
@@ -93,6 +95,7 @@ async fn main() {
             shutdown_rx.resubscribe(),
             health_check.hc_tx.clone(),
             can_queue_rx,
+            diag_rx,
             clients.clone(),
             can_db.clone(),
         )
@@ -105,12 +108,14 @@ async fn main() {
         let base_shutdown_rx = shutdown_rx.resubscribe();
         let base_hc_tx = health_check.hc_tx.clone();
         let base_can_queue_tx = can_queue_tx.clone();
+        let base_diag_tx = diag_tx.clone();
         let base_can_db = can_db.clone();
 
         move |tasks: &mut JoinSet<(Task, Result<(), JoinError>)>| {
             let shutdown_rx_clone = base_shutdown_rx.resubscribe();
             let hc_tx_clone = base_hc_tx.clone();
             let can_queue_tx_clone = base_can_queue_tx.clone();
+            let diag_tx_clone = base_diag_tx.clone();
             let can_db_clone = base_can_db.clone();
             let client_out_msg_rx_clone = client_out_msg_rx.resubscribe();
 
@@ -122,6 +127,7 @@ async fn main() {
                         shutdown_rx_clone,
                         hc_tx_clone,
                         can_queue_tx_clone,
+                        diag_tx_clone,
                         can_db_clone,
                     ),
                 );
@@ -133,7 +139,8 @@ async fn main() {
                         shutdown_rx_clone,
                         hc_tx_clone,
                         can_queue_tx_clone,
-                        client_out_msg_rx_clone
+                        diag_tx_clone,
+                        client_out_msg_rx_clone,
                     ),
                 );
             }
@@ -191,6 +198,9 @@ async fn main() {
                         println!("Restarting {task:?} in {TASK_RESTART_DELAY_MS}ms...");
                         sleep(Duration::from_millis(TASK_RESTART_DELAY_MS)).await;
                         serial_spawner(&mut tasks);
+                        if health_check.wait_for_health_check(Task::SerialHandler).await.is_ok() {
+                            println!("{}", green(format!("{task:?} successfully restarted.")));
+                        }
                     }
                     _ => {}
                 }

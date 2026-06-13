@@ -1,5 +1,6 @@
 #include "chimera_v2.hpp"
 #include "tasks.h"
+#include "hw_pwms.hpp"
 #include "hw_gpios.hpp"
 #include "hw_adcs.hpp"
 #include "hw_i2cs.hpp"
@@ -87,7 +88,7 @@ class RSMChimeraConfig : public chimera_v2::config
         switch (inn->name.rsm_net_name)
         {
             case rsm_I2cNetName_I2C_R_PUMP:
-                return std::cref(r_pump);
+                return std::cref(rl_pump_i2c);
             default:
             case rsm_I2cNetName_I2C_NET_NAME_UNSPECIFIED:
                 LOG_INFO("Chimera: Unspecified I2C net name");
@@ -150,4 +151,12 @@ char USBD_PRODUCT_STRING_FS[] = "rsm";
     TaskChimera.start();
     osKernelStart();
     forever {}
+}
+
+void tasks_handle_arr_rollover_callback(TIM_HandleTypeDef *htim)
+{
+    if (htim == &flow_meter_config.get_timer_handle())
+    {
+        flow_meter_config.increment_arrRolloverCount();
+    }
 }

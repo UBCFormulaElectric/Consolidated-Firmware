@@ -2,7 +2,7 @@
 
 // Max measurable pressure over sensors operating range
 constexpr float BRAKE_PRESSURE_OC_THRESHOLD_V = 0.4f;
-constexpr float BRAKE_PRESSURE_SC_THRESHOLD_V = 4.6f;
+constexpr float BRAKE_PRESSURE_SC_THRESHOLD_V = 3.3f;
 
 //  Psi per Volt: (Max Pressure - Min Pressure) / (Max Input Voltage - Min Input Voltage)
 constexpr float MAX_PRESSURE = 2500;

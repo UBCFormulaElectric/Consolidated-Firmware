@@ -42,18 +42,7 @@ extern "C"
 
     /* Exported constants --------------------------------------------------------*/
     /* USER CODE BEGIN EC */
-
-    /* USER CODE END EC */
-
-    /* Exported macro ------------------------------------------------------------*/
-    /* USER CODE BEGIN EM */
-
-    /* USER CODE END EM */
-
-    /* Exported functions prototypes ---------------------------------------------*/
-    void Error_Handler(void);
-
-    /* USER CODE BEGIN EFP */
+    extern TIM_HandleTypeDef   htim7;
     extern ADC_HandleTypeDef   hadc1;
     extern DMA_NodeTypeDef     Node_GPDMA1_Channel0;
     extern DMA_QListTypeDef    List_GPDMA1_Channel0;
@@ -65,19 +54,31 @@ extern "C"
     extern TIM_HandleTypeDef   htim3;
     extern PCD_HandleTypeDef   hpcd_USB_DRD_FS;
     extern IWDG_HandleTypeDef  hiwdg;
-/* USER CODE END EFP */
+    extern TIM_HandleTypeDef   htim7;
+    /* USER CODE END EC */
+
+    /* Exported macro ------------------------------------------------------------*/
+    /* USER CODE BEGIN EM */
+
+    /* USER CODE END EM */
+
+    /* Exported functions prototypes ---------------------------------------------*/
+    void Error_Handler(void);
+
+    /* USER CODE BEGIN EFP */
+    /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define IWDG_RESET_FREQUENCY 5
 #define TIM1_FREQUENCY 1000
 #define TIM3_PRESCALER 250
 #define TIM3_ARR (TIMx_FREQUENCY / TIM3_PRESCALER / TIM3_FREQUENCY)
 #define TIM3_FREQUENCY 10000
 #define TIM1_ARR (TIMx_FREQUENCY / TIM1_PRESCALER / TIM1_FREQUENCY)
+#define IWDG_PRESCALER 4
 #define LSI_FREQUENCY 32000
 #define TIM1_PRESCALER 250
 #define TIMx_FREQUENCY 250000000
-#define IWDG_RESET_FREQUENCY 5
-#define IWDG_PRESCALER 4
 #define BPS_R_3V3_Pin GPIO_PIN_2
 #define BPS_R_3V3_GPIO_Port GPIOC
 #define LC3_OUT_Pin GPIO_PIN_0

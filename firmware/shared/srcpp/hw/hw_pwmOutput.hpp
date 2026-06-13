@@ -24,6 +24,7 @@ class PwmOutput
     uint32_t           pwm_channel;
     mutable float      duty_cycle;   // Duty cycle as a percent (0.0 to 100.0)
     float              frequency_hz; // Desired PWM frequency
+    mutable bool       started = false;
 
   public:
     consteval explicit PwmOutput(

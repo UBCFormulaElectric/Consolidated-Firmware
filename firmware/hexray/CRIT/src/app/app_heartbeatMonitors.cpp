@@ -4,7 +4,7 @@
 #include "app_canAlerts.hpp"
 #include <functional>
 
-static io::heartbeat::node bms_heartbeat_node(
+io::heartbeat::node bms_heartbeat_node(
     app::can_rx::BMS_Heartbeat_get,
     app::can_rx::BMS_Heartbeat_update,
     [](const bool fault)
@@ -12,7 +12,7 @@ static io::heartbeat::node bms_heartbeat_node(
         if (fault)
             app::can_rx::clear_board_rx_table(app::can_utils::CanNode::BMS_NODE);
     });
-static io::heartbeat::node dam_heartbeat_node(
+io::heartbeat::node dam_heartbeat_node(
     app::can_rx::DAM_Heartbeat_get,
     app::can_rx::DAM_Heartbeat_update,
     [](const bool fault)
@@ -20,7 +20,7 @@ static io::heartbeat::node dam_heartbeat_node(
         if (fault)
             app::can_rx::clear_board_rx_table(app::can_utils::CanNode::DAM_NODE);
     });
-static io::heartbeat::node fsm_heartbeat_node(
+io::heartbeat::node fsm_heartbeat_node(
     app::can_rx::FSM_Heartbeat_get,
     app::can_rx::FSM_Heartbeat_update,
     [](const bool fault)
@@ -28,7 +28,7 @@ static io::heartbeat::node fsm_heartbeat_node(
         if (fault)
             app::can_rx::clear_board_rx_table(app::can_utils::CanNode::FSM_NODE);
     });
-static io::heartbeat::node rsm_heartbeat_node(
+io::heartbeat::node rsm_heartbeat_node(
     app::can_rx::RSM_Heartbeat_get,
     app::can_rx::RSM_Heartbeat_update,
     [](const bool fault)
@@ -36,7 +36,7 @@ static io::heartbeat::node rsm_heartbeat_node(
         if (fault)
             app::can_rx::clear_board_rx_table(app::can_utils::CanNode::RSM_NODE);
     });
-static io::heartbeat::node vc_heartbeat_node(
+io::heartbeat::node vc_heartbeat_node(
     app::can_rx::VC_Heartbeat_get,
     app::can_rx::VC_Heartbeat_update,
     [](const bool fault)

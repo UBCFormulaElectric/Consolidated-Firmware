@@ -14,7 +14,7 @@ app::can_utils::ChargerConnectedType getConnectionStatus()
     if (kMinHz <= freq && freq <= kMaxHz)
         return app::can_utils::ChargerConnectedType::CHARGER_CONNECTED_EVSE;
 
-    if (!n_evse_i_lim.readPin())
+    if (n_evse_i_lim.readPin())
         return app::can_utils::ChargerConnectedType::CHARGER_CONNECTED_WALL;
 
     return app::can_utils::ChargerConnectedType::CHARGER_DISCONNECTED;

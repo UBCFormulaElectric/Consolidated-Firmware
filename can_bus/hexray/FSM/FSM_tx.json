@@ -1,13 +1,58 @@
 {
   "Vitals": {
-      "msg_id": 600,
-      "cycle_time": 100,
-      "description": "FSM vitals message.",
-      "signals": {
-          "Heartbeat": {
-              "bits": 1
-          }
+    "msg_id": 600,
+    "cycle_time": 100,
+    "description": "FSM vitals message.",
+    "signals": {
+      "Heartbeat": {
+        "bits": 1
       }
+    }
+  },
+  "Debug": {
+    "msg_id": 607,
+    "cycle_time": 1000,
+    "description": "FSM Debug Signals",
+    "signals": {
+      "TxOverflowCount": {
+        "bits": 16
+      },
+      "RxOverflowCount": {
+        "bits": 16
+      },
+      "ResetReason": {
+        "enum": "CanResetReason"
+      },
+      "StackOverflowTask": {
+        "bits": 32
+      },
+      "WatchdogTimeoutTask": {
+        "bits": 32
+      }
+    }
+  },
+  "Bootup": {
+    "msg_id": 608,
+    "cycle_time": null,
+    "description": "Async bootup message!",
+    "signals": {}
+  },
+  "CommitInfo": {
+    "msg_id": 609,
+    "cycle_time": 100,
+    "description": "FSM Commit Info",
+    "signals": {
+      "Hash": {
+        "bits": 32
+      },
+      "Clean": {
+        "bits": 1
+      }
+    },
+    "data_capture": {
+      "telem_cycle_time": 1000,
+      "log_cycle_time" : 1000
+    }
   },
   "Steering": {
     "msg_id": 610,
@@ -20,6 +65,10 @@
         "max": 110,
         "unit": "deg"
       }
+    },
+    "data_capture": {
+      "telem_cycle_time": 1000,
+      "log_cycle_time" : 1000
     }
   },
   "Apps": {
@@ -51,6 +100,10 @@
         "max": 100,
         "unit": "%"
       }
+    },
+    "data_capture": {
+      "telem_cycle_time": 1000,
+      "log_cycle_time" : 1000
     }
   },
   "Brake": {
@@ -67,6 +120,10 @@
       "BrakeActuated": {
         "bits": 1
       }
+    },
+    "data_capture": {
+      "telem_cycle_time": 1000,
+      "log_cycle_time" : 1000
     }
   },
   "Suspension": {
@@ -86,6 +143,10 @@
         "max": 50,
         "unit": "cm"
       }
+    },
+    "data_capture": {
+      "telem_cycle_time": 1000,
+      "log_cycle_time" : 1000
     }
   },
   "IMU": {
@@ -129,6 +190,10 @@
         "max": 20,
         "unit": "deg/s^2"
       }
+    },
+    "data_capture": {
+      "telem_cycle_time": 1000,
+      "log_cycle_time" : 1000
     }
   },
   "ShdnNodeStatus": {
@@ -142,121 +207,129 @@
       "COCKPITOKStatus": {
         "bits": 1
       },
-      "FrontLeftILCKInertiaOKStatus": {
+      "FrontLeftILCKOKStatus": {
         "bits": 1
       },
       "FrontRightILCKOKStatus": {
         "bits": 1
       }
+    },
+    "data_capture": {
+      "telem_cycle_time": 1000,
+      "log_cycle_time" : 1000
     }
   },
-    "CPUDataLogInfo" :{
-    "msg_id" : 616,
-    "cycle_time" : 100,
-    "description" : "RSM cpu and stack information",
-    "signals" : {
-      "CoreCpuUsageMax" : {
-        "resolution" : 0.1,
+  "CPUDataLogInfo": {
+    "msg_id": 616,
+    "cycle_time": 100,
+    "description": "FSM cpu and stack information",
+    "signals": {
+      "CoreCpuUsageMax": {
+        "resolution": 0.1,
         "min": 0,
-        "max" : 100,
-        "unit" : "%"
+        "max": 100,
+        "unit": "%"
       },
-      "CoreCpuUsage" : {
-        "resolution" : 0.1,
+      "CoreCpuUsage": {
+        "resolution": 0.1,
         "min": 0,
-        "max" : 100,
-        "unit" : "%"
+        "max": 100,
+        "unit": "%"
       },
-      "TaskRun1HzCpuUsageMax" : {
-        "resolution" : 0.1,
+      "TaskRun1HzCpuUsageMax": {
+        "resolution": 0.1,
         "min": 0,
-        "max" : 100,
-        "unit" : "%"
+        "max": 100,
+        "unit": "%"
       },
-      "TaskRun1HzCpuUsage" : {
-        "resolution" : 0.1,
+      "TaskRun1HzCpuUsage": {
+        "resolution": 0.1,
         "min": 0,
-        "max" : 100,
-        "unit" : "%"
+        "max": 100,
+        "unit": "%"
       },
-      "TaskRun1HzStackUsage" : {
-        "resolution" : 0.1,
+      "TaskRun1HzStackUsage": {
+        "resolution": 0.1,
         "min": 0,
-        "max" : 100,
-        "unit" : "%"
+        "max": 100,
+        "unit": "%"
       },
-      "TaskRun100HzCpuUsageMax" : {
-        "resolution" : 0.1,
+      "TaskRun100HzCpuUsageMax": {
+        "resolution": 0.1,
         "min": 0,
-        "max" : 100,
-        "unit" : "%"
+        "max": 100,
+        "unit": "%"
       },
-      "TaskRun100HzCpuUsage" : {
-        "resolution" : 0.1,
+      "TaskRun100HzCpuUsage": {
+        "resolution": 0.1,
         "min": 0,
-        "max" : 100,
-        "unit" : "%"
+        "max": 100,
+        "unit": "%"
       },
-      "TaskRun100HzStackUsage" : {
-        "resolution" : 0.1,
+      "TaskRun100HzStackUsage": {
+        "resolution": 0.1,
         "min": 0,
-        "max" : 100,
-        "unit" : "%"
+        "max": 100,
+        "unit": "%"
       },
-      "TaskRun1kHzCpuUsageMax" : {
-        "resolution" : 0.1,
+      "TaskRun1kHzCpuUsageMax": {
+        "resolution": 0.1,
         "min": 0,
-        "max" : 100,
-        "unit" : "%"
+        "max": 100,
+        "unit": "%"
       },
-      "TaskRun1kHzCpuUsage" : {
-        "resolution" : 0.1,
+      "TaskRun1kHzCpuUsage": {
+        "resolution": 0.1,
         "min": 0,
-        "max" : 100,
-        "unit" : "%"
+        "max": 100,
+        "unit": "%"
       },
-      "TaskRun1kHzStackUsage" : {
-        "resolution" : 0.1,
+      "TaskRun1kHzStackUsage": {
+        "resolution": 0.1,
         "min": 0,
-        "max" : 100,
-        "unit" : "%"
+        "max": 100,
+        "unit": "%"
       },
-      "TaskRunCanTxCpuUsageMax" : {
-        "resolution" : 0.1,
+      "TaskRunCanTxCpuUsageMax": {
+        "resolution": 0.1,
         "min": 0,
-        "max" : 100,
-        "unit" : "%"
+        "max": 100,
+        "unit": "%"
       },
-      "TaskRunCanTxCpuUsage" : {
-        "resolution" : 0.1,
+      "TaskRunCanTxCpuUsage": {
+        "resolution": 0.1,
         "min": 0,
-        "max" : 100,
-        "unit" : "%"
+        "max": 100,
+        "unit": "%"
       },
-      "TaskRunCanTxStackUsage" : {
-        "resolution" : 0.1,
+      "TaskRunCanTxStackUsage": {
+        "resolution": 0.1,
         "min": 0,
-        "max" : 100,
-        "unit" : "%"
+        "max": 100,
+        "unit": "%"
       },
-      "TaskRunCanRxCpuUsageMax" : {
-        "resolution" : 0.1,
+      "TaskRunCanRxCpuUsageMax": {
+        "resolution": 0.1,
         "min": 0,
-        "max" : 100,
-        "unit" : "%"
+        "max": 100,
+        "unit": "%"
       },
-      "TaskRunCanRxCpuUsage" : {
-        "resolution" : 0.1,
+      "TaskRunCanRxCpuUsage": {
+        "resolution": 0.1,
         "min": 0,
-        "max" : 100,
-        "unit" : "%"
+        "max": 100,
+        "unit": "%"
       },
-      "TaskRunCanRxStackUsage" : {
-        "resolution" : 0.1,
+      "TaskRunCanRxStackUsage": {
+        "resolution": 0.1,
         "min": 0,
-        "max" : 100,
-        "unit" : "%"
+        "max": 100,
+        "unit": "%"
       }
+    },
+     "data_capture": {
+      "telem_cycle_time": 1000,
+      "log_cycle_time" : 1000
     }
   }
 }

@@ -55,6 +55,7 @@ SD_HandleTypeDef hsd1;
 TIM_HandleTypeDef htim7;
 
 UART_HandleTypeDef huart2;
+DMA_HandleTypeDef  handle_GPDMA1_Channel0;
 
 PCD_HandleTypeDef hpcd_USB_DRD_FS;
 
@@ -65,14 +66,15 @@ PCD_HandleTypeDef hpcd_USB_DRD_FS;
 /* Private function prototypes -----------------------------------------------*/
 void        SystemClock_Config(void);
 static void MX_GPIO_Init(void);
+static void MX_GPDMA1_Init(void);
 static void MX_USART2_UART_Init(void);
 static void MX_USB_PCD_Init(void);
 static void MX_CRC_Init(void);
 static void MX_FDCAN1_Init(void);
 static void MX_IWDG_Init(void);
 static void MX_RTC_Init(void);
-static void MX_SDMMC1_SD_Init(void);
 static void MX_TIM7_Init(void);
+static void MX_SDMMC1_SD_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -98,9 +100,6 @@ int main(void)
     HAL_Init();
 
     /* USER CODE BEGIN Init */
-#ifndef WATCHDOG_DISABLED
-    __HAL_DBGMCU_FREEZE_IWDG();
-#endif
     /* USER CODE END Init */
 
     /* Configure the system clock */
@@ -112,16 +111,25 @@ int main(void)
 
     /* Initialize all configured peripherals */
     MX_GPIO_Init();
+    MX_GPDMA1_Init();
     MX_USART2_UART_Init();
     MX_USB_PCD_Init();
     MX_CRC_Init();
     MX_FDCAN1_Init();
     MX_IWDG_Init();
     MX_RTC_Init();
-    MX_SDMMC1_SD_Init();
     MX_TIM7_Init();
+    MX_SDMMC1_SD_Init();
     /* USER CODE BEGIN 2 */
     tasks_init();
+
+    // RTC smooth calibration. Compensates for the LSE crystal running fast due to
+    // under-spec load capacitance on the board (4.3 pF caps where ~8 pF are needed
+    // for the 7 pF crystal). Initial measurement: ~78 ppm fast → CALM 82. After
+    // calibration, residual drift was ~31 ppm fast → bumped to CALM 115.
+    // Setting lives in backup domain so persists with VBAT; setting it each boot
+    // is idempotent.
+    HAL_RTCEx_SetSmoothCalib(&hrtc, RTC_SMOOTHCALIB_PERIOD_32SEC, RTC_SMOOTHCALIB_PLUSPULSES_RESET, 115);
     /* USER CODE END 2 */
 
     /* Infinite loop */
@@ -152,23 +160,31 @@ void SystemClock_Config(void)
     {
     }
 
+    /** Configure LSE Drive Capability
+     *  Warning : Only applied when the LSE is disabled.
+     */
+    HAL_PWR_EnableBkUpAccess();
+    __HAL_RCC_LSEDRIVE_CONFIG(RCC_LSEDRIVE_LOW);
+
     /** Initializes the RCC Oscillators according to the specified parameters
      * in the RCC_OscInitTypeDef structure.
      */
-    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI48 | RCC_OSCILLATORTYPE_LSI | RCC_OSCILLATORTYPE_HSE;
-    RCC_OscInitStruct.HSEState       = RCC_HSE_ON;
-    RCC_OscInitStruct.LSIState       = RCC_LSI_ON;
-    RCC_OscInitStruct.HSI48State     = RCC_HSI48_ON;
-    RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_ON;
-    RCC_OscInitStruct.PLL.PLLSource  = RCC_PLL1_SOURCE_HSE;
-    RCC_OscInitStruct.PLL.PLLM       = 1;
-    RCC_OscInitStruct.PLL.PLLN       = 62;
-    RCC_OscInitStruct.PLL.PLLP       = 2;
-    RCC_OscInitStruct.PLL.PLLQ       = 2;
-    RCC_OscInitStruct.PLL.PLLR       = 2;
-    RCC_OscInitStruct.PLL.PLLRGE     = RCC_PLL1_VCIRANGE_3;
-    RCC_OscInitStruct.PLL.PLLVCOSEL  = RCC_PLL1_VCORANGE_WIDE;
-    RCC_OscInitStruct.PLL.PLLFRACN   = 4096;
+    RCC_OscInitStruct.OscillatorType =
+        RCC_OSCILLATORTYPE_HSI48 | RCC_OSCILLATORTYPE_LSI | RCC_OSCILLATORTYPE_HSE | RCC_OSCILLATORTYPE_LSE;
+    RCC_OscInitStruct.HSEState      = RCC_HSE_ON;
+    RCC_OscInitStruct.LSEState      = RCC_LSE_ON;
+    RCC_OscInitStruct.LSIState      = RCC_LSI_ON;
+    RCC_OscInitStruct.HSI48State    = RCC_HSI48_ON;
+    RCC_OscInitStruct.PLL.PLLState  = RCC_PLL_ON;
+    RCC_OscInitStruct.PLL.PLLSource = RCC_PLL1_SOURCE_HSE;
+    RCC_OscInitStruct.PLL.PLLM      = 1;
+    RCC_OscInitStruct.PLL.PLLN      = 62;
+    RCC_OscInitStruct.PLL.PLLP      = 2;
+    RCC_OscInitStruct.PLL.PLLQ      = 2;
+    RCC_OscInitStruct.PLL.PLLR      = 2;
+    RCC_OscInitStruct.PLL.PLLRGE    = RCC_PLL1_VCIRANGE_3;
+    RCC_OscInitStruct.PLL.PLLVCOSEL = RCC_PLL1_VCORANGE_WIDE;
+    RCC_OscInitStruct.PLL.PLLFRACN  = 4096;
     if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
     {
         Error_Handler();
@@ -265,6 +281,32 @@ static void MX_FDCAN1_Init(void)
 }
 
 /**
+ * @brief GPDMA1 Initialization Function
+ * @param None
+ * @retval None
+ */
+static void MX_GPDMA1_Init(void)
+{
+    /* USER CODE BEGIN GPDMA1_Init 0 */
+
+    /* USER CODE END GPDMA1_Init 0 */
+
+    /* Peripheral clock enable */
+    __HAL_RCC_GPDMA1_CLK_ENABLE();
+
+    /* GPDMA1 interrupt Init */
+    HAL_NVIC_SetPriority(GPDMA1_Channel0_IRQn, 5, 0);
+    HAL_NVIC_EnableIRQ(GPDMA1_Channel0_IRQn);
+
+    /* USER CODE BEGIN GPDMA1_Init 1 */
+
+    /* USER CODE END GPDMA1_Init 1 */
+    /* USER CODE BEGIN GPDMA1_Init 2 */
+
+    /* USER CODE END GPDMA1_Init 2 */
+}
+
+/**
  * @brief IWDG Initialization Function
  * @param None
  * @retval None
@@ -317,7 +359,7 @@ static void MX_RTC_Init(void)
     hrtc.Instance            = RTC;
     hrtc.Init.HourFormat     = RTC_HOURFORMAT_24;
     hrtc.Init.AsynchPrediv   = 31;
-    hrtc.Init.SynchPrediv    = 999;
+    hrtc.Init.SynchPrediv    = 1023;
     hrtc.Init.OutPut         = RTC_OUTPUT_DISABLE;
     hrtc.Init.OutPutRemap    = RTC_OUTPUT_REMAP_NONE;
     hrtc.Init.OutPutPolarity = RTC_OUTPUT_POLARITY_HIGH;
@@ -337,7 +379,7 @@ static void MX_RTC_Init(void)
         Error_Handler();
     }
 
-/* USER CODE BEGIN Check_RTC_BKUP */
+    /* USER CODE BEGIN Check_RTC_BKUP */
 #define RTC_BKP_MAGIC 0xCAFEBABEu
     if (HAL_RTCEx_BKUPRead(&hrtc, RTC_BKP_DR0) != RTC_BKP_MAGIC)
     {
@@ -476,7 +518,7 @@ static void MX_USART2_UART_Init(void)
 
     /* USER CODE END USART2_Init 1 */
     huart2.Instance                    = USART2;
-    huart2.Init.BaudRate               = 57600;
+    huart2.Init.BaudRate               = 230400;
     huart2.Init.WordLength             = UART_WORDLENGTH_8B;
     huart2.Init.StopBits               = UART_STOPBITS_1;
     huart2.Init.Parity                 = UART_PARITY_NONE;
@@ -498,7 +540,7 @@ static void MX_USART2_UART_Init(void)
     {
         Error_Handler();
     }
-    if (HAL_UARTEx_DisableFifoMode(&huart2) != HAL_OK)
+    if (HAL_UARTEx_EnableFifoMode(&huart2) != HAL_OK)
     {
         Error_Handler();
     }

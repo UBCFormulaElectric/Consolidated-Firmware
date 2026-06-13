@@ -5,14 +5,15 @@
 #include "app_canTx.hpp"
 #include "app_canAlerts.hpp"
 
-#define HIGH_RES_MAX_CURRENT_READING 50.0f
-#define W_TO_KW 1.0e-3f
+inline constexpr float HIGH_RES_MAX_CURRENT_READING = 70.0f;
+inline constexpr float W_TO_KW                      = 1.0e-3f;
 
 namespace app::ts
 {
 static Timer overcurrent_warning_timer{ TS_OVERCURRENT_DEBOUNCE_DURATION_MS };
 
 float getVoltage()
+
 {
     return io::ts::getVoltage();
 }
@@ -25,10 +26,7 @@ float getCurrent()
     {
         return high_res_current;
     }
-    else
-    {
-        return low_res_current;
-    }
+    return low_res_current;
 }
 
 void broadcast()

@@ -10,19 +10,10 @@
       "State": {
         "enum": "BmsState"
       }
-    }
-  },
-  "CommitInfo": {
-    "msg_id": 409,
-    "cycle_time": 100,
-    "description": "BMS Commit Info",
-    "signals": {
-      "Hash": {
-        "bits": 32
-      },
-      "Clean": {
-        "bits": 1
-      }
+    },
+    "data_capture": {
+      "telem_cycle_time": 100,
+      "log_cycle_time" : 100
     }
   },
   "Debug": {
@@ -44,6 +35,29 @@
       },
       "WatchdogTimeoutTask": {
         "bits": 32
+      }
+    },
+    "data_capture": {
+      "telem_cycle_time": 1000,
+      "log_cycle_time" : 1000
+    }
+  },
+  "Bootup": {
+    "msg_id": 408,
+    "cycle_time": null,
+    "description": "Async bootup message!",
+    "signals": {}
+  },
+  "CommitInfo": {
+    "msg_id": 409,
+    "cycle_time": 100,
+    "description": "BMS Commit Info",
+    "signals": {
+      "Hash": {
+        "bits": 32
+      },
+      "Clean": {
+        "bits": 1
       }
     }
   },
@@ -70,6 +84,10 @@
       "BspdLatchOk": {
         "bits": 1
       }
+    },
+    "data_capture": {
+      "telem_cycle_time": 100,
+      "log_cycle_time" : 100
     }
   },
   "Contactors": {
@@ -86,10 +104,14 @@
       "PrechargeRelay": {
         "enum": "ContactorState"
       }
+    },
+    "data_capture": {
+      "telem_cycle_time": 100,
+      "log_cycle_time" : 100
     }
   },
   "Charger": {
-    "msg_id": 413,
+    "msg_id": 412,
     "cycle_time": 100,
     "description": "Charger infomation for the BMS to broadcast to other boards",
     "signals": {
@@ -105,7 +127,7 @@
     }
   },
   "TractiveSystem": {
-    "msg_id": 412,
+    "msg_id": 413,
     "cycle_time": 10,
     "description": "BMS Tractive System Data",
     "signals": {
@@ -141,6 +163,10 @@
       "VoltageSensorOk": {
         "bits": 1
       }
+    },
+    "data_capture": {
+      "telem_cycle_time": 100,
+      "log_cycle_time" : 100
     }
   },
   "BSPDStatus": {
@@ -157,44 +183,16 @@
       "BSPDAccelBrakeOk": {
         "bits": 1
       }
-    }
-  },
-  "ElconControls": {
-    "msg_id": 403105268,
-    "cycle_time": 1000,
-    "description": "Control parameters for Elcon charger communication",
-    "signals": {
-      "MaxChargingVoltage": {
-        "start_bit": 0,
-        "bits": 16,
-        "min": 0,
-        "max": 10000,
-        "scale": 0.1,
-        "offset": 0,
-        "unit": "V",
-        "big_endian": true
-      },
-      "MaxChargingCurrent": {
-        "start_bit": 16,
-        "bits": 16,
-        "min": 0,
-        "max": 1000,
-        "scale": 0.1,
-        "offset": 0,
-        "unit": "A",
-        "big_endian": true
-      },
-      "StopCharging": {
-        "start_bit": 32,
-        "bits": 1,
-        "start_value": 1
-      }
+    },
+    "data_capture": {
+      "telem_cycle_time": 100,
+      "log_cycle_time" : 100
     }
   },
   "VoltageAndChargeStats": {
-    "msg_id": 458,
-    "cycle_time": 100,
-    "description": "BMS Cell Voltage readings",
+    "msg_id": 415,
+    "cycle_time": 1000,
+    "description": "State of Charge Metrics",
     "signals": {
       "SocPercent": {
         "resolution": 0.1,
@@ -214,7 +212,7 @@
     }
   },
   "ImdStatus": {
-    "msg_id": 452,
+    "msg_id": 416,
     "cycle_time": 10,
     "description": "BMS IMD Messages",
     "signals": {
@@ -222,8 +220,7 @@
         "min": 0,
         "resolution": 1,
         "max": 10000,
-        "unit": "ms",
-        "bits": 32
+        "unit": "ms"
       },
       "ImdValidDutyCycle": {
         "bits": 1
@@ -243,10 +240,14 @@
         "max": 100,
         "unit": "Hz"
       }
+    },
+    "data_capture": {
+      "telem_cycle_time": 100,
+      "log_cycle_time" : 100
     }
   },
   "ImdData": {
-    "msg_id": 453,
+    "msg_id": 417,
     "cycle_time": 1000,
     "description": "BMS IMD Measurement Data Values",
     "signals": {
@@ -268,10 +269,14 @@
       "ImdSpeedStartStatus30Hz": {
         "enum": "ImdSstState"
       }
+    },
+    "data_capture": {
+      "telem_cycle_time": 100,
+      "log_cycle_time" : 100
     }
   },
   "PowerLimit": {
-    "msg_id": 122,
+    "msg_id": 418,
     "cycle_time": 10,
     "description": "BMS Power Limit",
     "signals": {
@@ -295,17 +300,11 @@
       }
     }
   },
-  "CellVoltageStats_1": {
-    "msg_id": 459,
-    "cycle_time": 1000,
-    "description": "BMS cell voltage stats",
+  "CellVoltageStats": {
+    "msg_id": 419,
+    "cycle_time": 100,
+    "description": "Min/max cell voltage with segment + cell index",
     "signals": {
-      "AvgCellVoltage": {
-        "resolution": 0.001,
-        "min": 0,
-        "max": 5,
-        "unit": "V"
-      },
       "MinCellVoltage": {
         "resolution": 0.001,
         "min": 0,
@@ -317,23 +316,10 @@
         "min": 0,
         "max": 9
       },
-      "MinCellVoltageIdx": {
+      "MinCellVoltageCell": {
         "resolution": 1,
         "min": 0,
         "max": 13
-      }
-    }
-  },
-  "CellVoltageStats_2": {
-    "msg_id": 469,
-    "cycle_time": 1000,
-    "description": "BMS cell voltage stats",
-    "signals": {
-      "PackVoltage": {
-        "resolution": 0.01,
-        "min": 100,
-        "max": 650,
-        "unit": "V"
       },
       "MaxCellVoltage": {
         "resolution": 0.001,
@@ -346,27 +332,25 @@
         "min": 0,
         "max": 9
       },
-      "MaxCellVoltageIdx": {
+      "MaxCellVoltageCell": {
         "resolution": 1,
         "min": 0,
         "max": 13
       }
+    },
+    "data_capture": {
+      "telem_cycle_time": 100,
+      "log_cycle_time" : 100
     }
   },
   "CellTempStats": {
-    "msg_id": 463,
-    "cycle_time": 1000,
-    "description": "BMS cell temperature stats",
+    "msg_id": 420,
+    "cycle_time": 100,
+    "description": "Min/max cell temperature with segment + thermistor index",
     "signals": {
-      "AvgCellTemp": {
-        "resolution": 0.1,
-        "min": 0,
-        "max": 100,
-        "unit": "degC"
-      },
       "MinCellTemp": {
         "resolution": 0.1,
-        "min": 0,
+        "min": -20,
         "max": 100,
         "unit": "degC"
       },
@@ -375,14 +359,14 @@
         "min": 0,
         "max": 9
       },
-      "MinCellTempIdx": {
+      "MinCellTempCell": {
         "resolution": 1,
         "min": 0,
         "max": 13
       },
       "MaxCellTemp": {
         "resolution": 0.1,
-        "min": 0,
+        "min": -20,
         "max": 100,
         "unit": "degC"
       },
@@ -391,182 +375,53 @@
         "min": 0,
         "max": 9
       },
-      "MaxCellTempIdx": {
+      "MaxCellTempCell": {
         "resolution": 1,
         "min": 0,
         "max": 13
       }
+    },
+    "data_capture": {
+      "telem_cycle_time": 100,
+      "log_cycle_time" : 100
     }
   },
-  "AvgVoltageStats": {
-    "msg_id": 464,
-    "allowed_modes": [
-      "DEBUG"
-    ],
-    "cycle_time": 1000,
-    "description": "Average voltages for each segment in the accumulator",
+  "SegmentVoltageStats": {
+    "msg_id": 421,
+    "cycle_time": 100,
+    "description": "Min/max segment voltage with segment index",
     "signals": {
-      "Seg0_AvgVoltage": {
+      "MinSegmentVoltage": {
         "resolution": 0.01,
-        "min": 2,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg1_AvgVoltage": {
-        "resolution": 0.01,
-        "min": 2,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg2_AvgVoltage": {
-        "resolution": 0.01,
-        "min": 2,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg3_AvgVoltage": {
-        "resolution": 0.01,
-        "min": 2,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg4_AvgVoltage": {
-        "resolution": 0.01,
-        "min": 2,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg5_AvgVoltage": {
-        "resolution": 0.01,
-        "min": 2,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg6_AvgVoltage": {
-        "resolution": 0.01,
-        "min": 2,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg7_AvgVoltage": {
-        "resolution": 0.01,
-        "min": 2,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg8_AvgVoltage": {
-        "resolution": 0.01,
-        "min": 2,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg9_AvgVoltage": {
-        "resolution": 0.01,
-        "min": 2,
-        "max": 5,
-        "unit": "V"
-      }
-    }
-  },
-  "AvgTempStats": {
-    "msg_id": 465,
-    "cycle_time": 1000,
-    "allowed_modes": [
-      "DEBUG"
-    ],
-    "description": "Average temps for each segment in the accumulator",
-    "signals": {
-      "Seg0_AvgTemp": {
-        "resolution": 0.2,
-        "min": 10,
-        "max": 70,
-        "unit": "degC"
-      },
-      "Seg1_AvgTemp": {
-        "resolution": 0.2,
-        "min": 10,
-        "max": 70,
-        "unit": "degC"
-      },
-      "Seg2_AvgTemp": {
-        "resolution": 0.2,
-        "min": 10,
-        "max": 70,
-        "unit": "degC"
-      },
-      "Seg3_AvgTemp": {
-        "resolution": 0.2,
-        "min": 10,
-        "max": 70,
-        "unit": "degC"
-      },
-      "Seg4_AvgTemp": {
-        "resolution": 0.2,
-        "min": 10,
-        "max": 70,
-        "unit": "degC"
-      },
-      "Seg5_AvgTemp": {
-        "resolution": 0.2,
-        "min": 10,
-        "max": 70,
-        "unit": "degC"
-      },
-      "Seg6_AvgTemp": {
-        "resolution": 0.2,
-        "min": 10,
-        "max": 70,
-        "unit": "degC"
-      },
-      "Seg7_AvgTemp": {
-        "resolution": 0.2,
-        "min": 10,
-        "max": 70,
-        "unit": "degC"
-      },
-      "Seg8_AvgTemp": {
-        "resolution": 0.2,
-        "min": 10,
-        "max": 70,
-        "unit": "degC"
-      },
-      "Seg9_AvgTemp": {
-        "resolution": 0.2,
-        "min": 10,
-        "max": 70,
-        "unit": "degC"
-      }
-    }
-  },
-  "Balancing": {
-    "msg_id": 466,
-    "cycle_time": 1000,
-    "description": "Info about balancing",
-    "signals": {
-      "BalancingState": {
-        "enum": "BalancingState"
-      },
-      "ImbalanceMagnitude": {
-        "resolution": 0.001,
         "min": 0,
-        "max": 1,
+        "max": 65,
         "unit": "V"
       },
-      "BalancingLeaderSegment": {
+      "MinSegmentVoltageSegment": {
         "resolution": 1,
         "min": 0,
         "max": 9
       },
-      "BalancingLeaderCellIdx": {
+      "MaxSegmentVoltage": {
+        "resolution": 0.01,
+        "min": 0,
+        "max": 65,
+        "unit": "V"
+      },
+      "MaxSegmentVoltageSegment": {
         "resolution": 1,
         "min": 0,
-        "max": 13
+        "max": 9
       }
+    },
+    "data_capture": {
+      "telem_cycle_time": 100,
+      "log_cycle_time" : 100
     }
   },
   "CellVoltages_Seg0_Seg3": {
-    "msg_id": 460,
-    "cycle_time": 1000,
+    "msg_id": 422,
+    "cycle_time": null,
     "allowed_modes": [
       "DEBUG"
     ],
@@ -574,345 +429,345 @@
     "signals": {
       "Seg0_Cell0_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg0_Cell1_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg0_Cell2_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg0_Cell3_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg0_Cell4_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg0_Cell5_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg0_Cell6_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg0_Cell7_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg0_Cell8_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg0_Cell9_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg0_Cell10_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg0_Cell11_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg0_Cell12_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg0_Cell13_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg1_Cell0_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg1_Cell1_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg1_Cell2_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg1_Cell3_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg1_Cell4_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg1_Cell5_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg1_Cell6_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg1_Cell7_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg1_Cell8_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg1_Cell9_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg1_Cell10_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg1_Cell11_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg1_Cell12_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg1_Cell13_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg2_Cell0_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg2_Cell1_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg2_Cell2_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg2_Cell3_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg2_Cell4_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg2_Cell5_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg2_Cell6_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg2_Cell7_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg2_Cell8_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg2_Cell9_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg2_Cell10_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg2_Cell11_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg2_Cell12_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg2_Cell13_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg3_Cell0_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg3_Cell1_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg3_Cell2_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg3_Cell3_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg3_Cell4_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg3_Cell5_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg3_Cell6_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg3_Cell7_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg3_Cell8_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg3_Cell9_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg3_Cell10_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg3_Cell11_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg3_Cell12_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg3_Cell13_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       }
     }
   },
   "CellVoltages_Seg4_Seg7": {
-    "msg_id": 461,
-    "cycle_time": 1000,
+    "msg_id": 423,
+    "cycle_time": null,
     "allowed_modes": [
       "DEBUG"
     ],
@@ -920,345 +775,345 @@
     "signals": {
       "Seg4_Cell0_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg4_Cell1_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg4_Cell2_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg4_Cell3_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg4_Cell4_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg4_Cell5_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg4_Cell6_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg4_Cell7_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg4_Cell8_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg4_Cell9_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg4_Cell10_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg4_Cell11_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg4_Cell12_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg4_Cell13_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg5_Cell0_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg5_Cell1_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg5_Cell2_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg5_Cell3_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg5_Cell4_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg5_Cell5_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg5_Cell6_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg5_Cell7_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg5_Cell8_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg5_Cell9_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg5_Cell10_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg5_Cell11_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg5_Cell12_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg5_Cell13_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg6_Cell0_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg6_Cell1_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg6_Cell2_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg6_Cell3_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg6_Cell4_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg6_Cell5_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg6_Cell6_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg6_Cell7_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg6_Cell8_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg6_Cell9_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg6_Cell10_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg6_Cell11_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg6_Cell12_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg6_Cell13_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg7_Cell0_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg7_Cell1_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg7_Cell2_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg7_Cell3_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg7_Cell4_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg7_Cell5_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg7_Cell6_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg7_Cell7_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg7_Cell8_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg7_Cell9_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg7_Cell10_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg7_Cell11_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg7_Cell12_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg7_Cell13_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       }
     }
   },
   "CellVoltages_Seg8_Seg9": {
-    "msg_id": 462,
-    "cycle_time": 1000,
+    "msg_id": 424,
+    "cycle_time": null,
     "allowed_modes": [
       "DEBUG"
     ],
@@ -1266,177 +1121,177 @@
     "signals": {
       "Seg8_Cell0_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg8_Cell1_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg8_Cell2_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg8_Cell3_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg8_Cell4_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg8_Cell5_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg8_Cell6_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg8_Cell7_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg8_Cell8_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg8_Cell9_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg8_Cell10_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg8_Cell11_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg8_Cell12_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg8_Cell13_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg9_Cell0_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg9_Cell1_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg9_Cell2_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg9_Cell3_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg9_Cell4_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg9_Cell5_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg9_Cell6_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg9_Cell7_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg9_Cell8_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg9_Cell9_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg9_Cell10_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg9_Cell11_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg9_Cell12_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       },
       "Seg9_Cell13_Voltage": {
         "resolution": 0.01,
-        "min": 2,
+        "min": -0.1,
         "max": 5,
         "unit": "V"
       }
     }
   },
   "CellTemps_Seg0_Seg3": {
-    "msg_id": 470,
-    "cycle_time": 1000,
+    "msg_id": 428,
+    "cycle_time": null,
     "description": "BMS Temps: Segments 0-3",
     "allowed_modes": [
       "DEBUG"
@@ -1444,345 +1299,345 @@
     "signals": {
       "Seg0_Cell0_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg0_Cell1_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg0_Cell2_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg0_Cell3_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg0_Cell4_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg0_Cell5_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg0_Cell6_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg0_Cell7_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg0_Cell8_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg0_Cell9_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg0_Cell10_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg0_Cell11_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg0_Cell12_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg0_Cell13_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg1_Cell0_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg1_Cell1_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg1_Cell2_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg1_Cell3_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg1_Cell4_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg1_Cell5_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg1_Cell6_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg1_Cell7_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg1_Cell8_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg1_Cell9_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg1_Cell10_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg1_Cell11_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg1_Cell12_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg1_Cell13_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg2_Cell0_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg2_Cell1_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg2_Cell2_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg2_Cell3_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg2_Cell4_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg2_Cell5_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg2_Cell6_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg2_Cell7_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg2_Cell8_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg2_Cell9_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg2_Cell10_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg2_Cell11_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg2_Cell12_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg2_Cell13_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg3_Cell0_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg3_Cell1_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg3_Cell2_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg3_Cell3_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg3_Cell4_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg3_Cell5_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg3_Cell6_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg3_Cell7_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg3_Cell8_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg3_Cell9_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg3_Cell10_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg3_Cell11_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg3_Cell12_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg3_Cell13_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       }
     }
   },
   "CellTemps_Seg4_Seg7": {
-    "msg_id": 471,
-    "cycle_time": 1000,
+    "msg_id": 429,
+    "cycle_time": null,
     "allowed_modes": [
       "DEBUG"
     ],
@@ -1790,345 +1645,345 @@
     "signals": {
       "Seg4_Cell0_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg4_Cell1_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg4_Cell2_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg4_Cell3_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg4_Cell4_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg4_Cell5_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg4_Cell6_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg4_Cell7_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg4_Cell8_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg4_Cell9_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg4_Cell10_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg4_Cell11_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg4_Cell12_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg4_Cell13_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg5_Cell0_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg5_Cell1_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg5_Cell2_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg5_Cell3_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg5_Cell4_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg5_Cell5_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg5_Cell6_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg5_Cell7_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg5_Cell8_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg5_Cell9_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg5_Cell10_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg5_Cell11_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg5_Cell12_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg5_Cell13_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg6_Cell0_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg6_Cell1_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg6_Cell2_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg6_Cell3_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg6_Cell4_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg6_Cell5_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg6_Cell6_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg6_Cell7_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg6_Cell8_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg6_Cell9_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg6_Cell10_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg6_Cell11_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg6_Cell12_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg6_Cell13_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg7_Cell0_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg7_Cell1_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg7_Cell2_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg7_Cell3_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg7_Cell4_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg7_Cell5_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg7_Cell6_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg7_Cell7_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg7_Cell8_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg7_Cell9_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg7_Cell10_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg7_Cell11_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg7_Cell12_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg7_Cell13_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       }
     }
   },
   "CellTemps_Seg8_Seg9": {
-    "msg_id": 472,
-    "cycle_time": 1000,
+    "msg_id": 430,
+    "cycle_time": null,
     "allowed_modes": [
       "DEBUG"
     ],
@@ -2136,636 +1991,1916 @@
     "signals": {
       "Seg8_Cell0_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg8_Cell1_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg8_Cell2_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg8_Cell3_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg8_Cell4_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg8_Cell5_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg8_Cell6_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg8_Cell7_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg8_Cell8_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg8_Cell9_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg8_Cell10_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg8_Cell11_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg8_Cell12_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg8_Cell13_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg9_Cell0_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg9_Cell1_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg9_Cell2_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg9_Cell3_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg9_Cell4_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg9_Cell5_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg9_Cell6_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg9_Cell7_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg9_Cell8_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg9_Cell9_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg9_Cell10_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg9_Cell11_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg9_Cell12_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       },
       "Seg9_Cell13_Temp": {
         "resolution": 0.2,
-        "min": 10,
+        "min": -0.1,
         "max": 70,
         "unit": "degC"
       }
     }
   },
-  "AdbmsOwc": {
-    "msg_id": 480,
-    "cycle_time": 1000,
+  "CellOpenWireCheck": {
+    "msg_id": 431,
+    "cycle_time": null,
     "allowed_modes": [
       "DEBUG"
     ],
-    "description": "OWC results for all segments",
+    "description": "Cell oper wire check for all segments",
     "signals": {
-      "Seg0_C0_OwcOk": {
+      "Seg0_Cell0_CellOwcOk": {
         "bits": 1
       },
-      "Seg0_C1_OwcOk": {
+      "Seg0_Cell1_CellOwcOk": {
         "bits": 1
       },
-      "Seg0_C2_OwcOk": {
+      "Seg0_Cell2_CellOwcOk": {
         "bits": 1
       },
-      "Seg0_C3_OwcOk": {
+      "Seg0_Cell3_CellOwcOk": {
         "bits": 1
       },
-      "Seg0_C4_OwcOk": {
+      "Seg0_Cell4_CellOwcOk": {
         "bits": 1
       },
-      "Seg0_C5_OwcOk": {
+      "Seg0_Cell5_CellOwcOk": {
         "bits": 1
       },
-      "Seg0_C6_OwcOk": {
+      "Seg0_Cell6_CellOwcOk": {
         "bits": 1
       },
-      "Seg0_C7_OwcOk": {
+      "Seg0_Cell7_CellOwcOk": {
         "bits": 1
       },
-      "Seg0_C8_OwcOk": {
+      "Seg0_Cell8_CellOwcOk": {
         "bits": 1
       },
-      "Seg0_C9_OwcOk": {
+      "Seg0_Cell9_CellOwcOk": {
         "bits": 1
       },
-      "Seg0_C10_OwcOk": {
+      "Seg0_Cell10_CellOwcOk": {
         "bits": 1
       },
-      "Seg0_C11_OwcOk": {
+      "Seg0_Cell11_CellOwcOk": {
         "bits": 1
       },
-      "Seg0_C12_OwcOk": {
+      "Seg0_Cell12_CellOwcOk": {
         "bits": 1
       },
-      "Seg0_C13_OwcOk": {
+      "Seg0_Cell13_CellOwcOk": {
         "bits": 1
       },
-      "Seg0_C14_OwcOk": {
+      "Seg1_Cell0_CellOwcOk": {
         "bits": 1
       },
-      "Seg1_C0_OwcOk": {
+      "Seg1_Cell1_CellOwcOk": {
         "bits": 1
       },
-      "Seg1_C1_OwcOk": {
+      "Seg1_Cell2_CellOwcOk": {
         "bits": 1
       },
-      "Seg1_C2_OwcOk": {
+      "Seg1_Cell3_CellOwcOk": {
         "bits": 1
       },
-      "Seg1_C3_OwcOk": {
+      "Seg1_Cell4_CellOwcOk": {
         "bits": 1
       },
-      "Seg1_C4_OwcOk": {
+      "Seg1_Cell5_CellOwcOk": {
         "bits": 1
       },
-      "Seg1_C5_OwcOk": {
+      "Seg1_Cell6_CellOwcOk": {
         "bits": 1
       },
-      "Seg1_C6_OwcOk": {
+      "Seg1_Cell7_CellOwcOk": {
         "bits": 1
       },
-      "Seg1_C7_OwcOk": {
+      "Seg1_Cell8_CellOwcOk": {
         "bits": 1
       },
-      "Seg1_C8_OwcOk": {
+      "Seg1_Cell9_CellOwcOk": {
         "bits": 1
       },
-      "Seg1_C9_OwcOk": {
+      "Seg1_Cell10_CellOwcOk": {
         "bits": 1
       },
-      "Seg1_C10_OwcOk": {
+      "Seg1_Cell11_CellOwcOk": {
         "bits": 1
       },
-      "Seg1_C11_OwcOk": {
+      "Seg1_Cell12_CellOwcOk": {
         "bits": 1
       },
-      "Seg1_C12_OwcOk": {
+      "Seg1_Cell13_CellOwcOk": {
         "bits": 1
       },
-      "Seg1_C13_OwcOk": {
+      "Seg2_Cell0_CellOwcOk": {
         "bits": 1
       },
-      "Seg1_C14_OwcOk": {
+      "Seg2_Cell1_CellOwcOk": {
         "bits": 1
       },
-      "Seg2_C0_OwcOk": {
+      "Seg2_Cell2_CellOwcOk": {
         "bits": 1
       },
-      "Seg2_C1_OwcOk": {
+      "Seg2_Cell3_CellOwcOk": {
         "bits": 1
       },
-      "Seg2_C2_OwcOk": {
+      "Seg2_Cell4_CellOwcOk": {
         "bits": 1
       },
-      "Seg2_C3_OwcOk": {
+      "Seg2_Cell5_CellOwcOk": {
         "bits": 1
       },
-      "Seg2_C4_OwcOk": {
+      "Seg2_Cell6_CellOwcOk": {
         "bits": 1
       },
-      "Seg2_C5_OwcOk": {
+      "Seg2_Cell7_CellOwcOk": {
         "bits": 1
       },
-      "Seg2_C6_OwcOk": {
+      "Seg2_Cell8_CellOwcOk": {
         "bits": 1
       },
-      "Seg2_C7_OwcOk": {
+      "Seg2_Cell9_CellOwcOk": {
         "bits": 1
       },
-      "Seg2_C8_OwcOk": {
+      "Seg2_Cell10_CellOwcOk": {
         "bits": 1
       },
-      "Seg2_C9_OwcOk": {
+      "Seg2_Cell11_CellOwcOk": {
         "bits": 1
       },
-      "Seg2_C10_OwcOk": {
+      "Seg2_Cell12_CellOwcOk": {
         "bits": 1
       },
-      "Seg2_C11_OwcOk": {
+      "Seg2_Cell13_CellOwcOk": {
         "bits": 1
       },
-      "Seg2_C12_OwcOk": {
+      "Seg3_Cell0_CellOwcOk": {
         "bits": 1
       },
-      "Seg2_C13_OwcOk": {
+      "Seg3_Cell1_CellOwcOk": {
         "bits": 1
       },
-      "Seg2_C14_OwcOk": {
+      "Seg3_Cell2_CellOwcOk": {
         "bits": 1
       },
-      "Seg3_C0_OwcOk": {
+      "Seg3_Cell3_CellOwcOk": {
         "bits": 1
       },
-      "Seg3_C1_OwcOk": {
+      "Seg3_Cell4_CellOwcOk": {
         "bits": 1
       },
-      "Seg3_C2_OwcOk": {
+      "Seg3_Cell5_CellOwcOk": {
         "bits": 1
       },
-      "Seg3_C3_OwcOk": {
+      "Seg3_Cell6_CellOwcOk": {
         "bits": 1
       },
-      "Seg3_C4_OwcOk": {
+      "Seg3_Cell7_CellOwcOk": {
         "bits": 1
       },
-      "Seg3_C5_OwcOk": {
+      "Seg3_Cell8_CellOwcOk": {
         "bits": 1
       },
-      "Seg3_C6_OwcOk": {
+      "Seg3_Cell9_CellOwcOk": {
         "bits": 1
       },
-      "Seg3_C7_OwcOk": {
+      "Seg3_Cell10_CellOwcOk": {
         "bits": 1
       },
-      "Seg3_C8_OwcOk": {
+      "Seg3_Cell11_CellOwcOk": {
         "bits": 1
       },
-      "Seg3_C9_OwcOk": {
+      "Seg3_Cell12_CellOwcOk": {
         "bits": 1
       },
-      "Seg3_C10_OwcOk": {
+      "Seg3_Cell13_CellOwcOk": {
         "bits": 1
       },
-      "Seg3_C11_OwcOk": {
+      "Seg4_Cell0_CellOwcOk": {
         "bits": 1
       },
-      "Seg3_C12_OwcOk": {
+      "Seg4_Cell1_CellOwcOk": {
         "bits": 1
       },
-      "Seg3_C13_OwcOk": {
+      "Seg4_Cell2_CellOwcOk": {
         "bits": 1
       },
-      "Seg3_C14_OwcOk": {
+      "Seg4_Cell3_CellOwcOk": {
         "bits": 1
       },
-      "Seg4_C0_OwcOk": {
+      "Seg4_Cell4_CellOwcOk": {
         "bits": 1
       },
-      "Seg4_C1_OwcOk": {
+      "Seg4_Cell5_CellOwcOk": {
         "bits": 1
       },
-      "Seg4_C2_OwcOk": {
+      "Seg4_Cell6_CellOwcOk": {
         "bits": 1
       },
-      "Seg4_C3_OwcOk": {
+      "Seg4_Cell7_CellOwcOk": {
         "bits": 1
       },
-      "Seg4_C4_OwcOk": {
+      "Seg4_Cell8_CellOwcOk": {
         "bits": 1
       },
-      "Seg4_C5_OwcOk": {
+      "Seg4_Cell9_CellOwcOk": {
         "bits": 1
       },
-      "Seg4_C6_OwcOk": {
+      "Seg4_Cell10_CellOwcOk": {
         "bits": 1
       },
-      "Seg4_C7_OwcOk": {
+      "Seg4_Cell11_CellOwcOk": {
         "bits": 1
       },
-      "Seg4_C8_OwcOk": {
+      "Seg4_Cell12_CellOwcOk": {
         "bits": 1
       },
-      "Seg4_C9_OwcOk": {
+      "Seg4_Cell13_CellOwcOk": {
         "bits": 1
       },
-      "Seg4_C10_OwcOk": {
+      "Seg5_Cell0_CellOwcOk": {
         "bits": 1
       },
-      "Seg4_C11_OwcOk": {
+      "Seg5_Cell1_CellOwcOk": {
         "bits": 1
       },
-      "Seg4_C12_OwcOk": {
+      "Seg5_Cell2_CellOwcOk": {
         "bits": 1
       },
-      "Seg4_C13_OwcOk": {
+      "Seg5_Cell3_CellOwcOk": {
         "bits": 1
       },
-      "Seg4_C14_OwcOk": {
+      "Seg5_Cell4_CellOwcOk": {
         "bits": 1
       },
-      "Seg5_C0_OwcOk": {
+      "Seg5_Cell5_CellOwcOk": {
         "bits": 1
       },
-      "Seg5_C1_OwcOk": {
+      "Seg5_Cell6_CellOwcOk": {
         "bits": 1
       },
-      "Seg5_C2_OwcOk": {
+      "Seg5_Cell7_CellOwcOk": {
         "bits": 1
       },
-      "Seg5_C3_OwcOk": {
+      "Seg5_Cell8_CellOwcOk": {
         "bits": 1
       },
-      "Seg5_C4_OwcOk": {
+      "Seg5_Cell9_CellOwcOk": {
         "bits": 1
       },
-      "Seg5_C5_OwcOk": {
+      "Seg5_Cell10_CellOwcOk": {
         "bits": 1
       },
-      "Seg5_C6_OwcOk": {
+      "Seg5_Cell11_CellOwcOk": {
         "bits": 1
       },
-      "Seg5_C7_OwcOk": {
+      "Seg5_Cell12_CellOwcOk": {
         "bits": 1
       },
-      "Seg5_C8_OwcOk": {
+      "Seg5_Cell13_CellOwcOk": {
         "bits": 1
       },
-      "Seg5_C9_OwcOk": {
+      "Seg6_Cell0_CellOwcOk": {
         "bits": 1
       },
-      "Seg5_C10_OwcOk": {
+      "Seg6_Cell1_CellOwcOk": {
         "bits": 1
       },
-      "Seg5_C11_OwcOk": {
+      "Seg6_Cell2_CellOwcOk": {
         "bits": 1
       },
-      "Seg5_C12_OwcOk": {
+      "Seg6_Cell3_CellOwcOk": {
         "bits": 1
       },
-      "Seg5_C13_OwcOk": {
+      "Seg6_Cell4_CellOwcOk": {
         "bits": 1
       },
-      "Seg5_C14_OwcOk": {
+      "Seg6_Cell5_CellOwcOk": {
         "bits": 1
       },
-      "Seg6_C0_OwcOk": {
+      "Seg6_Cell6_CellOwcOk": {
         "bits": 1
       },
-      "Seg6_C1_OwcOk": {
+      "Seg6_Cell7_CellOwcOk": {
         "bits": 1
       },
-      "Seg6_C2_OwcOk": {
+      "Seg6_Cell8_CellOwcOk": {
         "bits": 1
       },
-      "Seg6_C3_OwcOk": {
+      "Seg6_Cell9_CellOwcOk": {
         "bits": 1
       },
-      "Seg6_C4_OwcOk": {
+      "Seg6_Cell10_CellOwcOk": {
         "bits": 1
       },
-      "Seg6_C5_OwcOk": {
+      "Seg6_Cell11_CellOwcOk": {
         "bits": 1
       },
-      "Seg6_C6_OwcOk": {
+      "Seg6_Cell12_CellOwcOk": {
         "bits": 1
       },
-      "Seg6_C7_OwcOk": {
+      "Seg6_Cell13_CellOwcOk": {
         "bits": 1
       },
-      "Seg6_C8_OwcOk": {
+      "Seg7_Cell0_CellOwcOk": {
         "bits": 1
       },
-      "Seg6_C9_OwcOk": {
+      "Seg7_Cell1_CellOwcOk": {
         "bits": 1
       },
-      "Seg6_C10_OwcOk": {
+      "Seg7_Cell2_CellOwcOk": {
         "bits": 1
       },
-      "Seg6_C11_OwcOk": {
+      "Seg7_Cell3_CellOwcOk": {
         "bits": 1
       },
-      "Seg6_C12_OwcOk": {
+      "Seg7_Cell4_CellOwcOk": {
         "bits": 1
       },
-      "Seg6_C13_OwcOk": {
+      "Seg7_Cell5_CellOwcOk": {
         "bits": 1
       },
-      "Seg6_C14_OwcOk": {
+      "Seg7_Cell6_CellOwcOk": {
         "bits": 1
       },
-      "Seg7_C0_OwcOk": {
+      "Seg7_Cell7_CellOwcOk": {
         "bits": 1
       },
-      "Seg7_C1_OwcOk": {
+      "Seg7_Cell8_CellOwcOk": {
         "bits": 1
       },
-      "Seg7_C2_OwcOk": {
+      "Seg7_Cell9_CellOwcOk": {
         "bits": 1
       },
-      "Seg7_C3_OwcOk": {
+      "Seg7_Cell10_CellOwcOk": {
         "bits": 1
       },
-      "Seg7_C4_OwcOk": {
+      "Seg7_Cell11_CellOwcOk": {
         "bits": 1
       },
-      "Seg7_C5_OwcOk": {
+      "Seg7_Cell12_CellOwcOk": {
         "bits": 1
       },
-      "Seg7_C6_OwcOk": {
+      "Seg7_Cell13_CellOwcOk": {
         "bits": 1
       },
-      "Seg7_C7_OwcOk": {
+      "Seg8_Cell0_CellOwcOk": {
         "bits": 1
       },
-      "Seg7_C8_OwcOk": {
+      "Seg8_Cell1_CellOwcOk": {
         "bits": 1
       },
-      "Seg7_C9_OwcOk": {
+      "Seg8_Cell2_CellOwcOk": {
         "bits": 1
       },
-      "Seg7_C10_OwcOk": {
+      "Seg8_Cell3_CellOwcOk": {
         "bits": 1
       },
-      "Seg7_C11_OwcOk": {
+      "Seg8_Cell4_CellOwcOk": {
         "bits": 1
       },
-      "Seg7_C12_OwcOk": {
+      "Seg8_Cell5_CellOwcOk": {
         "bits": 1
       },
-      "Seg7_C13_OwcOk": {
+      "Seg8_Cell6_CellOwcOk": {
         "bits": 1
       },
-      "Seg7_C14_OwcOk": {
+      "Seg8_Cell7_CellOwcOk": {
         "bits": 1
       },
-      "Seg8_C0_OwcOk": {
+      "Seg8_Cell8_CellOwcOk": {
         "bits": 1
       },
-      "Seg8_C1_OwcOk": {
+      "Seg8_Cell9_CellOwcOk": {
         "bits": 1
       },
-      "Seg8_C2_OwcOk": {
+      "Seg8_Cell10_CellOwcOk": {
         "bits": 1
       },
-      "Seg8_C3_OwcOk": {
+      "Seg8_Cell11_CellOwcOk": {
         "bits": 1
       },
-      "Seg8_C4_OwcOk": {
+      "Seg8_Cell12_CellOwcOk": {
         "bits": 1
       },
-      "Seg8_C5_OwcOk": {
+      "Seg8_Cell13_CellOwcOk": {
         "bits": 1
       },
-      "Seg8_C6_OwcOk": {
+      "Seg9_Cell0_CellOwcOk": {
         "bits": 1
       },
-      "Seg8_C7_OwcOk": {
+      "Seg9_Cell1_CellOwcOk": {
         "bits": 1
       },
-      "Seg8_C8_OwcOk": {
+      "Seg9_Cell2_CellOwcOk": {
         "bits": 1
       },
-      "Seg8_C9_OwcOk": {
+      "Seg9_Cell3_CellOwcOk": {
         "bits": 1
       },
-      "Seg8_C10_OwcOk": {
+      "Seg9_Cell4_CellOwcOk": {
         "bits": 1
       },
-      "Seg8_C11_OwcOk": {
+      "Seg9_Cell5_CellOwcOk": {
         "bits": 1
       },
-      "Seg8_C12_OwcOk": {
+      "Seg9_Cell6_CellOwcOk": {
         "bits": 1
       },
-      "Seg8_C13_OwcOk": {
+      "Seg9_Cell7_CellOwcOk": {
         "bits": 1
       },
-      "Seg8_C14_OwcOk": {
+      "Seg9_Cell8_CellOwcOk": {
         "bits": 1
       },
-      "Seg9_C0_OwcOk": {
+      "Seg9_Cell9_CellOwcOk": {
         "bits": 1
       },
-      "Seg9_C1_OwcOk": {
+      "Seg9_Cell10_CellOwcOk": {
         "bits": 1
       },
-      "Seg9_C2_OwcOk": {
+      "Seg9_Cell11_CellOwcOk": {
         "bits": 1
       },
-      "Seg9_C3_OwcOk": {
+      "Seg9_Cell12_CellOwcOk": {
         "bits": 1
       },
-      "Seg9_C4_OwcOk": {
+      "Seg9_Cell13_CellOwcOk": {
         "bits": 1
+      }
+    }
+  },
+  "CellDischargeEnabled": {
+    "msg_id": 476,
+    "cycle_time": null,
+    "allowed_modes": [
+      "DEBUG"
+    ],
+    "description": "Cell discharge (balancing) enabled flags for all segments",
+    "signals": {
+      "Seg0_Cell0_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg0_Cell1_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg0_Cell2_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg0_Cell3_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg0_Cell4_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg0_Cell5_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg0_Cell6_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg0_Cell7_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg0_Cell8_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg0_Cell9_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg0_Cell10_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg0_Cell11_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg0_Cell12_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg0_Cell13_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg1_Cell0_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg1_Cell1_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg1_Cell2_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg1_Cell3_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg1_Cell4_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg1_Cell5_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg1_Cell6_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg1_Cell7_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg1_Cell8_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg1_Cell9_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg1_Cell10_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg1_Cell11_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg1_Cell12_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg1_Cell13_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg2_Cell0_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg2_Cell1_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg2_Cell2_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg2_Cell3_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg2_Cell4_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg2_Cell5_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg2_Cell6_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg2_Cell7_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg2_Cell8_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg2_Cell9_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg2_Cell10_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg2_Cell11_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg2_Cell12_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg2_Cell13_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg3_Cell0_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg3_Cell1_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg3_Cell2_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg3_Cell3_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg3_Cell4_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg3_Cell5_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg3_Cell6_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg3_Cell7_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg3_Cell8_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg3_Cell9_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg3_Cell10_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg3_Cell11_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg3_Cell12_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg3_Cell13_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg4_Cell0_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg4_Cell1_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg4_Cell2_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg4_Cell3_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg4_Cell4_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg4_Cell5_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg4_Cell6_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg4_Cell7_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg4_Cell8_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg4_Cell9_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg4_Cell10_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg4_Cell11_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg4_Cell12_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg4_Cell13_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg5_Cell0_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg5_Cell1_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg5_Cell2_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg5_Cell3_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg5_Cell4_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg5_Cell5_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg5_Cell6_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg5_Cell7_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg5_Cell8_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg5_Cell9_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg5_Cell10_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg5_Cell11_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg5_Cell12_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg5_Cell13_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg6_Cell0_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg6_Cell1_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg6_Cell2_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg6_Cell3_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg6_Cell4_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg6_Cell5_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg6_Cell6_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg6_Cell7_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg6_Cell8_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg6_Cell9_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg6_Cell10_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg6_Cell11_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg6_Cell12_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg6_Cell13_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg7_Cell0_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg7_Cell1_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg7_Cell2_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg7_Cell3_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg7_Cell4_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg7_Cell5_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg7_Cell6_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg7_Cell7_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg7_Cell8_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg7_Cell9_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg7_Cell10_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg7_Cell11_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg7_Cell12_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg7_Cell13_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg8_Cell0_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg8_Cell1_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg8_Cell2_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg8_Cell3_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg8_Cell4_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg8_Cell5_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg8_Cell6_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg8_Cell7_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg8_Cell8_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg8_Cell9_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg8_Cell10_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg8_Cell11_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg8_Cell12_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg8_Cell13_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg9_Cell0_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg9_Cell1_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg9_Cell2_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg9_Cell3_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg9_Cell4_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg9_Cell5_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg9_Cell6_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg9_Cell7_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg9_Cell8_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg9_Cell9_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg9_Cell10_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg9_Cell11_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg9_Cell12_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg9_Cell13_DischargeEnabled": {
+        "bits": 1
+      }
+    }
+  },
+  "CellPwmDuty_Seg0_Seg3": {
+    "msg_id": 477,
+    "cycle_time": null,
+    "allowed_modes": [
+      "DEBUG"
+    ],
+    "description": "Cell balancing PWM duty (0-15) for segments 0-3",
+    "signals": {
+      "Seg0_Cell0_PwmDuty": {
+        "bits": 4
+      },
+      "Seg0_Cell1_PwmDuty": {
+        "bits": 4
+      },
+      "Seg0_Cell2_PwmDuty": {
+        "bits": 4
+      },
+      "Seg0_Cell3_PwmDuty": {
+        "bits": 4
+      },
+      "Seg0_Cell4_PwmDuty": {
+        "bits": 4
+      },
+      "Seg0_Cell5_PwmDuty": {
+        "bits": 4
+      },
+      "Seg0_Cell6_PwmDuty": {
+        "bits": 4
+      },
+      "Seg0_Cell7_PwmDuty": {
+        "bits": 4
+      },
+      "Seg0_Cell8_PwmDuty": {
+        "bits": 4
+      },
+      "Seg0_Cell9_PwmDuty": {
+        "bits": 4
+      },
+      "Seg0_Cell10_PwmDuty": {
+        "bits": 4
+      },
+      "Seg0_Cell11_PwmDuty": {
+        "bits": 4
+      },
+      "Seg0_Cell12_PwmDuty": {
+        "bits": 4
+      },
+      "Seg0_Cell13_PwmDuty": {
+        "bits": 4
+      },
+      "Seg1_Cell0_PwmDuty": {
+        "bits": 4
+      },
+      "Seg1_Cell1_PwmDuty": {
+        "bits": 4
+      },
+      "Seg1_Cell2_PwmDuty": {
+        "bits": 4
+      },
+      "Seg1_Cell3_PwmDuty": {
+        "bits": 4
+      },
+      "Seg1_Cell4_PwmDuty": {
+        "bits": 4
+      },
+      "Seg1_Cell5_PwmDuty": {
+        "bits": 4
+      },
+      "Seg1_Cell6_PwmDuty": {
+        "bits": 4
+      },
+      "Seg1_Cell7_PwmDuty": {
+        "bits": 4
+      },
+      "Seg1_Cell8_PwmDuty": {
+        "bits": 4
+      },
+      "Seg1_Cell9_PwmDuty": {
+        "bits": 4
+      },
+      "Seg1_Cell10_PwmDuty": {
+        "bits": 4
+      },
+      "Seg1_Cell11_PwmDuty": {
+        "bits": 4
+      },
+      "Seg1_Cell12_PwmDuty": {
+        "bits": 4
+      },
+      "Seg1_Cell13_PwmDuty": {
+        "bits": 4
+      },
+      "Seg2_Cell0_PwmDuty": {
+        "bits": 4
+      },
+      "Seg2_Cell1_PwmDuty": {
+        "bits": 4
+      },
+      "Seg2_Cell2_PwmDuty": {
+        "bits": 4
+      },
+      "Seg2_Cell3_PwmDuty": {
+        "bits": 4
+      },
+      "Seg2_Cell4_PwmDuty": {
+        "bits": 4
+      },
+      "Seg2_Cell5_PwmDuty": {
+        "bits": 4
+      },
+      "Seg2_Cell6_PwmDuty": {
+        "bits": 4
+      },
+      "Seg2_Cell7_PwmDuty": {
+        "bits": 4
+      },
+      "Seg2_Cell8_PwmDuty": {
+        "bits": 4
+      },
+      "Seg2_Cell9_PwmDuty": {
+        "bits": 4
+      },
+      "Seg2_Cell10_PwmDuty": {
+        "bits": 4
+      },
+      "Seg2_Cell11_PwmDuty": {
+        "bits": 4
+      },
+      "Seg2_Cell12_PwmDuty": {
+        "bits": 4
+      },
+      "Seg2_Cell13_PwmDuty": {
+        "bits": 4
+      },
+      "Seg3_Cell0_PwmDuty": {
+        "bits": 4
+      },
+      "Seg3_Cell1_PwmDuty": {
+        "bits": 4
+      },
+      "Seg3_Cell2_PwmDuty": {
+        "bits": 4
+      },
+      "Seg3_Cell3_PwmDuty": {
+        "bits": 4
+      },
+      "Seg3_Cell4_PwmDuty": {
+        "bits": 4
+      },
+      "Seg3_Cell5_PwmDuty": {
+        "bits": 4
+      },
+      "Seg3_Cell6_PwmDuty": {
+        "bits": 4
+      },
+      "Seg3_Cell7_PwmDuty": {
+        "bits": 4
+      },
+      "Seg3_Cell8_PwmDuty": {
+        "bits": 4
+      },
+      "Seg3_Cell9_PwmDuty": {
+        "bits": 4
+      },
+      "Seg3_Cell10_PwmDuty": {
+        "bits": 4
+      },
+      "Seg3_Cell11_PwmDuty": {
+        "bits": 4
+      },
+      "Seg3_Cell12_PwmDuty": {
+        "bits": 4
+      },
+      "Seg3_Cell13_PwmDuty": {
+        "bits": 4
+      }
+    }
+  },
+  "CellPwmDuty_Seg4_Seg7": {
+    "msg_id": 478,
+    "cycle_time": null,
+    "allowed_modes": [
+      "DEBUG"
+    ],
+    "description": "Cell balancing PWM duty (0-15) for segments 4-7",
+    "signals": {
+      "Seg4_Cell0_PwmDuty": {
+        "bits": 4
+      },
+      "Seg4_Cell1_PwmDuty": {
+        "bits": 4
+      },
+      "Seg4_Cell2_PwmDuty": {
+        "bits": 4
+      },
+      "Seg4_Cell3_PwmDuty": {
+        "bits": 4
+      },
+      "Seg4_Cell4_PwmDuty": {
+        "bits": 4
+      },
+      "Seg4_Cell5_PwmDuty": {
+        "bits": 4
+      },
+      "Seg4_Cell6_PwmDuty": {
+        "bits": 4
+      },
+      "Seg4_Cell7_PwmDuty": {
+        "bits": 4
+      },
+      "Seg4_Cell8_PwmDuty": {
+        "bits": 4
+      },
+      "Seg4_Cell9_PwmDuty": {
+        "bits": 4
+      },
+      "Seg4_Cell10_PwmDuty": {
+        "bits": 4
+      },
+      "Seg4_Cell11_PwmDuty": {
+        "bits": 4
+      },
+      "Seg4_Cell12_PwmDuty": {
+        "bits": 4
+      },
+      "Seg4_Cell13_PwmDuty": {
+        "bits": 4
+      },
+      "Seg5_Cell0_PwmDuty": {
+        "bits": 4
+      },
+      "Seg5_Cell1_PwmDuty": {
+        "bits": 4
+      },
+      "Seg5_Cell2_PwmDuty": {
+        "bits": 4
+      },
+      "Seg5_Cell3_PwmDuty": {
+        "bits": 4
+      },
+      "Seg5_Cell4_PwmDuty": {
+        "bits": 4
+      },
+      "Seg5_Cell5_PwmDuty": {
+        "bits": 4
+      },
+      "Seg5_Cell6_PwmDuty": {
+        "bits": 4
+      },
+      "Seg5_Cell7_PwmDuty": {
+        "bits": 4
+      },
+      "Seg5_Cell8_PwmDuty": {
+        "bits": 4
+      },
+      "Seg5_Cell9_PwmDuty": {
+        "bits": 4
+      },
+      "Seg5_Cell10_PwmDuty": {
+        "bits": 4
+      },
+      "Seg5_Cell11_PwmDuty": {
+        "bits": 4
+      },
+      "Seg5_Cell12_PwmDuty": {
+        "bits": 4
+      },
+      "Seg5_Cell13_PwmDuty": {
+        "bits": 4
+      },
+      "Seg6_Cell0_PwmDuty": {
+        "bits": 4
+      },
+      "Seg6_Cell1_PwmDuty": {
+        "bits": 4
+      },
+      "Seg6_Cell2_PwmDuty": {
+        "bits": 4
+      },
+      "Seg6_Cell3_PwmDuty": {
+        "bits": 4
+      },
+      "Seg6_Cell4_PwmDuty": {
+        "bits": 4
+      },
+      "Seg6_Cell5_PwmDuty": {
+        "bits": 4
+      },
+      "Seg6_Cell6_PwmDuty": {
+        "bits": 4
+      },
+      "Seg6_Cell7_PwmDuty": {
+        "bits": 4
+      },
+      "Seg6_Cell8_PwmDuty": {
+        "bits": 4
+      },
+      "Seg6_Cell9_PwmDuty": {
+        "bits": 4
+      },
+      "Seg6_Cell10_PwmDuty": {
+        "bits": 4
+      },
+      "Seg6_Cell11_PwmDuty": {
+        "bits": 4
+      },
+      "Seg6_Cell12_PwmDuty": {
+        "bits": 4
+      },
+      "Seg6_Cell13_PwmDuty": {
+        "bits": 4
+      },
+      "Seg7_Cell0_PwmDuty": {
+        "bits": 4
+      },
+      "Seg7_Cell1_PwmDuty": {
+        "bits": 4
+      },
+      "Seg7_Cell2_PwmDuty": {
+        "bits": 4
+      },
+      "Seg7_Cell3_PwmDuty": {
+        "bits": 4
+      },
+      "Seg7_Cell4_PwmDuty": {
+        "bits": 4
+      },
+      "Seg7_Cell5_PwmDuty": {
+        "bits": 4
+      },
+      "Seg7_Cell6_PwmDuty": {
+        "bits": 4
+      },
+      "Seg7_Cell7_PwmDuty": {
+        "bits": 4
+      },
+      "Seg7_Cell8_PwmDuty": {
+        "bits": 4
+      },
+      "Seg7_Cell9_PwmDuty": {
+        "bits": 4
+      },
+      "Seg7_Cell10_PwmDuty": {
+        "bits": 4
+      },
+      "Seg7_Cell11_PwmDuty": {
+        "bits": 4
+      },
+      "Seg7_Cell12_PwmDuty": {
+        "bits": 4
+      },
+      "Seg7_Cell13_PwmDuty": {
+        "bits": 4
+      }
+    }
+  },
+  "CellPwmDuty_Seg8_Seg9": {
+    "msg_id": 479,
+    "cycle_time": null,
+    "allowed_modes": [
+      "DEBUG"
+    ],
+    "description": "Cell balancing PWM duty (0-15) for segments 8-9",
+    "signals": {
+      "Seg8_Cell0_PwmDuty": {
+        "bits": 4
+      },
+      "Seg8_Cell1_PwmDuty": {
+        "bits": 4
+      },
+      "Seg8_Cell2_PwmDuty": {
+        "bits": 4
+      },
+      "Seg8_Cell3_PwmDuty": {
+        "bits": 4
+      },
+      "Seg8_Cell4_PwmDuty": {
+        "bits": 4
+      },
+      "Seg8_Cell5_PwmDuty": {
+        "bits": 4
+      },
+      "Seg8_Cell6_PwmDuty": {
+        "bits": 4
+      },
+      "Seg8_Cell7_PwmDuty": {
+        "bits": 4
+      },
+      "Seg8_Cell8_PwmDuty": {
+        "bits": 4
+      },
+      "Seg8_Cell9_PwmDuty": {
+        "bits": 4
+      },
+      "Seg8_Cell10_PwmDuty": {
+        "bits": 4
+      },
+      "Seg8_Cell11_PwmDuty": {
+        "bits": 4
+      },
+      "Seg8_Cell12_PwmDuty": {
+        "bits": 4
+      },
+      "Seg8_Cell13_PwmDuty": {
+        "bits": 4
+      },
+      "Seg9_Cell0_PwmDuty": {
+        "bits": 4
+      },
+      "Seg9_Cell1_PwmDuty": {
+        "bits": 4
+      },
+      "Seg9_Cell2_PwmDuty": {
+        "bits": 4
+      },
+      "Seg9_Cell3_PwmDuty": {
+        "bits": 4
+      },
+      "Seg9_Cell4_PwmDuty": {
+        "bits": 4
+      },
+      "Seg9_Cell5_PwmDuty": {
+        "bits": 4
+      },
+      "Seg9_Cell6_PwmDuty": {
+        "bits": 4
+      },
+      "Seg9_Cell7_PwmDuty": {
+        "bits": 4
+      },
+      "Seg9_Cell8_PwmDuty": {
+        "bits": 4
+      },
+      "Seg9_Cell9_PwmDuty": {
+        "bits": 4
+      },
+      "Seg9_Cell10_PwmDuty": {
+        "bits": 4
+      },
+      "Seg9_Cell11_PwmDuty": {
+        "bits": 4
+      },
+      "Seg9_Cell12_PwmDuty": {
+        "bits": 4
+      },
+      "Seg9_Cell13_PwmDuty": {
+        "bits": 4
+      }
+    }
+  },
+  "ThermistorOpenWireCheck": {
+    "msg_id": 432,
+    "cycle_time": null,
+    "allowed_modes": [
+      "DEBUG"
+    ],
+    "description": "Thermistor open wire check for all segments",
+    "signals": {
+      "Seg0_Cell0_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg0_Cell1_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg0_Cell2_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg0_Cell3_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg0_Cell4_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg0_Cell5_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg0_Cell6_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg0_Cell7_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg0_Cell8_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg0_Cell9_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg0_Cell10_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg0_Cell11_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg0_Cell12_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg0_Cell13_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg1_Cell0_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg1_Cell1_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg1_Cell2_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg1_Cell3_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg1_Cell4_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg1_Cell5_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg1_Cell6_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg1_Cell7_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg1_Cell8_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg1_Cell9_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg1_Cell10_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg1_Cell11_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg1_Cell12_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg1_Cell13_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg2_Cell0_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg2_Cell1_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg2_Cell2_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg2_Cell3_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg2_Cell4_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg2_Cell5_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg2_Cell6_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg2_Cell7_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg2_Cell8_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg2_Cell9_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg2_Cell10_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg2_Cell11_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg2_Cell12_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg2_Cell13_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg3_Cell0_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg3_Cell1_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg3_Cell2_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg3_Cell3_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg3_Cell4_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg3_Cell5_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg3_Cell6_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg3_Cell7_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg3_Cell8_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg3_Cell9_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg3_Cell10_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg3_Cell11_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg3_Cell12_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg3_Cell13_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg4_Cell0_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg4_Cell1_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg4_Cell2_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg4_Cell3_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg4_Cell4_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg4_Cell5_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg4_Cell6_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg4_Cell7_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg4_Cell8_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg4_Cell9_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg4_Cell10_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg4_Cell11_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg4_Cell12_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg4_Cell13_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg5_Cell0_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg5_Cell1_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg5_Cell2_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg5_Cell3_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg5_Cell4_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg5_Cell5_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg5_Cell6_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg5_Cell7_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg5_Cell8_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg5_Cell9_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg5_Cell10_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg5_Cell11_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg5_Cell12_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg5_Cell13_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg6_Cell0_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg6_Cell1_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg6_Cell2_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg6_Cell3_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg6_Cell4_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg6_Cell5_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg6_Cell6_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg6_Cell7_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg6_Cell8_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg6_Cell9_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg6_Cell10_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg6_Cell11_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg6_Cell12_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg6_Cell13_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg7_Cell0_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg7_Cell1_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg7_Cell2_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg7_Cell3_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg7_Cell4_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg7_Cell5_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg7_Cell6_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg7_Cell7_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg7_Cell8_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg7_Cell9_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg7_Cell10_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg7_Cell11_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg7_Cell12_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg7_Cell13_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg8_Cell0_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg8_Cell1_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg8_Cell2_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg8_Cell3_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg8_Cell4_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg8_Cell5_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg8_Cell6_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg8_Cell7_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg8_Cell8_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg8_Cell9_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg8_Cell10_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg8_Cell11_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg8_Cell12_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg8_Cell13_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg9_Cell0_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg9_Cell1_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg9_Cell2_ThermOwcOk": {
+        "bits": 1
+      },
+      "Seg9_Cell3_ThermOwcOk": {
+        "bits": 1
       },
-      "Seg9_C5_OwcOk": {
+      "Seg9_Cell4_ThermOwcOk": {
         "bits": 1
       },
-      "Seg9_C6_OwcOk": {
+      "Seg9_Cell5_ThermOwcOk": {
         "bits": 1
       },
-      "Seg9_C7_OwcOk": {
+      "Seg9_Cell6_ThermOwcOk": {
         "bits": 1
       },
-      "Seg9_C8_OwcOk": {
+      "Seg9_Cell7_ThermOwcOk": {
         "bits": 1
       },
-      "Seg9_C9_OwcOk": {
+      "Seg9_Cell8_ThermOwcOk": {
         "bits": 1
       },
-      "Seg9_C10_OwcOk": {
+      "Seg9_Cell9_ThermOwcOk": {
         "bits": 1
       },
-      "Seg9_C11_OwcOk": {
+      "Seg9_Cell10_ThermOwcOk": {
         "bits": 1
       },
-      "Seg9_C12_OwcOk": {
+      "Seg9_Cell11_ThermOwcOk": {
         "bits": 1
       },
-      "Seg9_C13_OwcOk": {
+      "Seg9_Cell12_ThermOwcOk": {
         "bits": 1
       },
-      "Seg9_C14_OwcOk": {
+      "Seg9_Cell13_ThermOwcOk": {
         "bits": 1
       }
     }
   },
   "BMSShdnNodeStatus": {
-    "msg_id": 454,
+    "msg_id": 433,
     "cycle_time": 100,
     "description": "BMS Shutdown Nodes Status",
     "signals": {
@@ -2774,21 +3909,1414 @@
       },
       "HVNShdnOKStatus": {
         "bits": 1
-      }
-    }
-  },
-  "OpenWireCheck": {
-    "msg_id": 477,
-    "cycle_time": 100,
-    "description": "Open wire check status",
-    "signals": {
-      "OpenWireCheckStatus": {
+      },
+      "ShdnTermOKStatus": {
         "bits": 1
       }
     }
   },
+  "SegmentVref2": {
+    "msg_id": 435,
+    "cycle_time": null,
+    "allowed_modes": [
+      "DEBUG"
+    ],
+    "description": "VREF2 (3V) for all segments",
+    "signals": {
+      "Seg0_Vref2": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg1_Vref2": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg2_Vref2": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg3_Vref2": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg4_Vref2": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg5_Vref2": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg6_Vref2": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg7_Vref2": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg8_Vref2": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg9_Vref2": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      }
+    }
+  },
+  "SegmentITMP": {
+    "msg_id": 436,
+    "cycle_time": null,
+    "allowed_modes": [
+      "DEBUG"
+    ],
+    "description": "Internal temperature for all segments",
+    "signals": {
+      "Seg0_ITMP": {
+        "resolution": 0.1,
+        "min": -0.1,
+        "max": 160,
+        "unit": "degC"
+      },
+      "Seg1_ITMP": {
+        "resolution": 0.1,
+        "min": -0.1,
+        "max": 160,
+        "unit": "degC"
+      },
+      "Seg2_ITMP": {
+        "resolution": 0.1,
+        "min": -0.1,
+        "max": 160,
+        "unit": "degC"
+      },
+      "Seg3_ITMP": {
+        "resolution": 0.1,
+        "min": -0.1,
+        "max": 160,
+        "unit": "degC"
+      },
+      "Seg4_ITMP": {
+        "resolution": 0.1,
+        "min": -0.1,
+        "max": 160,
+        "unit": "degC"
+      },
+      "Seg5_ITMP": {
+        "resolution": 0.1,
+        "min": -0.1,
+        "max": 160,
+        "unit": "degC"
+      },
+      "Seg6_ITMP": {
+        "resolution": 0.1,
+        "min": -0.1,
+        "max": 160,
+        "unit": "degC"
+      },
+      "Seg7_ITMP": {
+        "resolution": 0.1,
+        "min": -0.1,
+        "max": 160,
+        "unit": "degC"
+      },
+      "Seg8_ITMP": {
+        "resolution": 0.1,
+        "min": -0.1,
+        "max": 160,
+        "unit": "degC"
+      },
+      "Seg9_ITMP": {
+        "resolution": 0.1,
+        "min": -0.1,
+        "max": 160,
+        "unit": "degC"
+      }
+    }
+  },
+  "SegmentVD": {
+    "msg_id": 437,
+    "cycle_time": null,
+    "allowed_modes": [
+      "DEBUG"
+    ],
+    "description": "Digital supply voltage (2.7V to 3.6V) for all segments",
+    "signals": {
+      "Seg0_VD": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg1_VD": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg2_VD": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg3_VD": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg4_VD": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg5_VD": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg6_VD": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg7_VD": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg8_VD": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg9_VD": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      }
+    }
+  },
+  "SegmentVA": {
+    "msg_id": 438,
+    "cycle_time": null,
+    "allowed_modes": [
+      "DEBUG"
+    ],
+    "description": "Analog supply voltage (4.5V to 5.5V) for all segments",
+    "signals": {
+      "Seg0_VA": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 7,
+        "unit": "V"
+      },
+      "Seg1_VA": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 7,
+        "unit": "V"
+      },
+      "Seg2_VA": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 7,
+        "unit": "V"
+      },
+      "Seg3_VA": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 7,
+        "unit": "V"
+      },
+      "Seg4_VA": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 7,
+        "unit": "V"
+      },
+      "Seg5_VA": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 7,
+        "unit": "V"
+      },
+      "Seg6_VA": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 7,
+        "unit": "V"
+      },
+      "Seg7_VA": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 7,
+        "unit": "V"
+      },
+      "Seg8_VA": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 7,
+        "unit": "V"
+      },
+      "Seg9_VA": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 7,
+        "unit": "V"
+      }
+    }
+  },
+  "SegmentVRES": {
+    "msg_id": 439,
+    "cycle_time": null,
+    "allowed_modes": [
+      "DEBUG"
+    ],
+    "description": "VRES (VREF2 with series resistor for OWC) for all segments",
+    "signals": {
+      "Seg0_VRES": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg1_VRES": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg2_VRES": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg3_VRES": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg4_VRES": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg5_VRES": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg6_VRES": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg7_VRES": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg8_VRES": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg9_VRES": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      }
+    }
+  },
+  "SegmentVA_OV": {
+    "msg_id": 440,
+    "cycle_time": null,
+    "allowed_modes": [
+      "DEBUG"
+    ],
+    "description": "Analog supply OV flags for all segments",
+    "signals": {
+      "Seg0_VA_OV": {
+        "bits": 1
+      },
+      "Seg1_VA_OV": {
+        "bits": 1
+      },
+      "Seg2_VA_OV": {
+        "bits": 1
+      },
+      "Seg3_VA_OV": {
+        "bits": 1
+      },
+      "Seg4_VA_OV": {
+        "bits": 1
+      },
+      "Seg5_VA_OV": {
+        "bits": 1
+      },
+      "Seg6_VA_OV": {
+        "bits": 1
+      },
+      "Seg7_VA_OV": {
+        "bits": 1
+      },
+      "Seg8_VA_OV": {
+        "bits": 1
+      },
+      "Seg9_VA_OV": {
+        "bits": 1
+      }
+    }
+  },
+  "SegmentVA_UV": {
+    "msg_id": 441,
+    "cycle_time": null,
+    "allowed_modes": [
+      "DEBUG"
+    ],
+    "description": "Analog supply UV flags for all segments",
+    "signals": {
+      "Seg0_VA_UV": {
+        "bits": 1
+      },
+      "Seg1_VA_UV": {
+        "bits": 1
+      },
+      "Seg2_VA_UV": {
+        "bits": 1
+      },
+      "Seg3_VA_UV": {
+        "bits": 1
+      },
+      "Seg4_VA_UV": {
+        "bits": 1
+      },
+      "Seg5_VA_UV": {
+        "bits": 1
+      },
+      "Seg6_VA_UV": {
+        "bits": 1
+      },
+      "Seg7_VA_UV": {
+        "bits": 1
+      },
+      "Seg8_VA_UV": {
+        "bits": 1
+      },
+      "Seg9_VA_UV": {
+        "bits": 1
+      }
+    }
+  },
+  "SegmentVD_OV": {
+    "msg_id": 442,
+    "cycle_time": null,
+    "allowed_modes": [
+      "DEBUG"
+    ],
+    "description": "Digital supply OV flags for all segments",
+    "signals": {
+      "Seg0_VD_OV": {
+        "bits": 1
+      },
+      "Seg1_VD_OV": {
+        "bits": 1
+      },
+      "Seg2_VD_OV": {
+        "bits": 1
+      },
+      "Seg3_VD_OV": {
+        "bits": 1
+      },
+      "Seg4_VD_OV": {
+        "bits": 1
+      },
+      "Seg5_VD_OV": {
+        "bits": 1
+      },
+      "Seg6_VD_OV": {
+        "bits": 1
+      },
+      "Seg7_VD_OV": {
+        "bits": 1
+      },
+      "Seg8_VD_OV": {
+        "bits": 1
+      },
+      "Seg9_VD_OV": {
+        "bits": 1
+      }
+    }
+  },
+  "CellOverVoltage": {
+    "msg_id": 443,
+    "cycle_time": null,
+    "allowed_modes": [
+      "DEBUG"
+    ],
+    "description": "Cell overvoltage flags",
+    "signals": {
+      "Seg0_Cell0_OV": {
+        "bits": 1
+      },
+      "Seg0_Cell1_OV": {
+        "bits": 1
+      },
+      "Seg0_Cell2_OV": {
+        "bits": 1
+      },
+      "Seg0_Cell3_OV": {
+        "bits": 1
+      },
+      "Seg0_Cell4_OV": {
+        "bits": 1
+      },
+      "Seg0_Cell5_OV": {
+        "bits": 1
+      },
+      "Seg0_Cell6_OV": {
+        "bits": 1
+      },
+      "Seg0_Cell7_OV": {
+        "bits": 1
+      },
+      "Seg0_Cell8_OV": {
+        "bits": 1
+      },
+      "Seg0_Cell9_OV": {
+        "bits": 1
+      },
+      "Seg0_Cell10_OV": {
+        "bits": 1
+      },
+      "Seg0_Cell11_OV": {
+        "bits": 1
+      },
+      "Seg0_Cell12_OV": {
+        "bits": 1
+      },
+      "Seg0_Cell13_OV": {
+        "bits": 1
+      },
+      "Seg1_Cell0_OV": {
+        "bits": 1
+      },
+      "Seg1_Cell1_OV": {
+        "bits": 1
+      },
+      "Seg1_Cell2_OV": {
+        "bits": 1
+      },
+      "Seg1_Cell3_OV": {
+        "bits": 1
+      },
+      "Seg1_Cell4_OV": {
+        "bits": 1
+      },
+      "Seg1_Cell5_OV": {
+        "bits": 1
+      },
+      "Seg1_Cell6_OV": {
+        "bits": 1
+      },
+      "Seg1_Cell7_OV": {
+        "bits": 1
+      },
+      "Seg1_Cell8_OV": {
+        "bits": 1
+      },
+      "Seg1_Cell9_OV": {
+        "bits": 1
+      },
+      "Seg1_Cell10_OV": {
+        "bits": 1
+      },
+      "Seg1_Cell11_OV": {
+        "bits": 1
+      },
+      "Seg1_Cell12_OV": {
+        "bits": 1
+      },
+      "Seg1_Cell13_OV": {
+        "bits": 1
+      },
+      "Seg2_Cell0_OV": {
+        "bits": 1
+      },
+      "Seg2_Cell1_OV": {
+        "bits": 1
+      },
+      "Seg2_Cell2_OV": {
+        "bits": 1
+      },
+      "Seg2_Cell3_OV": {
+        "bits": 1
+      },
+      "Seg2_Cell4_OV": {
+        "bits": 1
+      },
+      "Seg2_Cell5_OV": {
+        "bits": 1
+      },
+      "Seg2_Cell6_OV": {
+        "bits": 1
+      },
+      "Seg2_Cell7_OV": {
+        "bits": 1
+      },
+      "Seg2_Cell8_OV": {
+        "bits": 1
+      },
+      "Seg2_Cell9_OV": {
+        "bits": 1
+      },
+      "Seg2_Cell10_OV": {
+        "bits": 1
+      },
+      "Seg2_Cell11_OV": {
+        "bits": 1
+      },
+      "Seg2_Cell12_OV": {
+        "bits": 1
+      },
+      "Seg2_Cell13_OV": {
+        "bits": 1
+      },
+      "Seg3_Cell0_OV": {
+        "bits": 1
+      },
+      "Seg3_Cell1_OV": {
+        "bits": 1
+      },
+      "Seg3_Cell2_OV": {
+        "bits": 1
+      },
+      "Seg3_Cell3_OV": {
+        "bits": 1
+      },
+      "Seg3_Cell4_OV": {
+        "bits": 1
+      },
+      "Seg3_Cell5_OV": {
+        "bits": 1
+      },
+      "Seg3_Cell6_OV": {
+        "bits": 1
+      },
+      "Seg3_Cell7_OV": {
+        "bits": 1
+      },
+      "Seg3_Cell8_OV": {
+        "bits": 1
+      },
+      "Seg3_Cell9_OV": {
+        "bits": 1
+      },
+      "Seg3_Cell10_OV": {
+        "bits": 1
+      },
+      "Seg3_Cell11_OV": {
+        "bits": 1
+      },
+      "Seg3_Cell12_OV": {
+        "bits": 1
+      },
+      "Seg3_Cell13_OV": {
+        "bits": 1
+      },
+      "Seg4_Cell0_OV": {
+        "bits": 1
+      },
+      "Seg4_Cell1_OV": {
+        "bits": 1
+      },
+      "Seg4_Cell2_OV": {
+        "bits": 1
+      },
+      "Seg4_Cell3_OV": {
+        "bits": 1
+      },
+      "Seg4_Cell4_OV": {
+        "bits": 1
+      },
+      "Seg4_Cell5_OV": {
+        "bits": 1
+      },
+      "Seg4_Cell6_OV": {
+        "bits": 1
+      },
+      "Seg4_Cell7_OV": {
+        "bits": 1
+      },
+      "Seg4_Cell8_OV": {
+        "bits": 1
+      },
+      "Seg4_Cell9_OV": {
+        "bits": 1
+      },
+      "Seg4_Cell10_OV": {
+        "bits": 1
+      },
+      "Seg4_Cell11_OV": {
+        "bits": 1
+      },
+      "Seg4_Cell12_OV": {
+        "bits": 1
+      },
+      "Seg4_Cell13_OV": {
+        "bits": 1
+      },
+      "Seg5_Cell0_OV": {
+        "bits": 1
+      },
+      "Seg5_Cell1_OV": {
+        "bits": 1
+      },
+      "Seg5_Cell2_OV": {
+        "bits": 1
+      },
+      "Seg5_Cell3_OV": {
+        "bits": 1
+      },
+      "Seg5_Cell4_OV": {
+        "bits": 1
+      },
+      "Seg5_Cell5_OV": {
+        "bits": 1
+      },
+      "Seg5_Cell6_OV": {
+        "bits": 1
+      },
+      "Seg5_Cell7_OV": {
+        "bits": 1
+      },
+      "Seg5_Cell8_OV": {
+        "bits": 1
+      },
+      "Seg5_Cell9_OV": {
+        "bits": 1
+      },
+      "Seg5_Cell10_OV": {
+        "bits": 1
+      },
+      "Seg5_Cell11_OV": {
+        "bits": 1
+      },
+      "Seg5_Cell12_OV": {
+        "bits": 1
+      },
+      "Seg5_Cell13_OV": {
+        "bits": 1
+      },
+      "Seg6_Cell0_OV": {
+        "bits": 1
+      },
+      "Seg6_Cell1_OV": {
+        "bits": 1
+      },
+      "Seg6_Cell2_OV": {
+        "bits": 1
+      },
+      "Seg6_Cell3_OV": {
+        "bits": 1
+      },
+      "Seg6_Cell4_OV": {
+        "bits": 1
+      },
+      "Seg6_Cell5_OV": {
+        "bits": 1
+      },
+      "Seg6_Cell6_OV": {
+        "bits": 1
+      },
+      "Seg6_Cell7_OV": {
+        "bits": 1
+      },
+      "Seg6_Cell8_OV": {
+        "bits": 1
+      },
+      "Seg6_Cell9_OV": {
+        "bits": 1
+      },
+      "Seg6_Cell10_OV": {
+        "bits": 1
+      },
+      "Seg6_Cell11_OV": {
+        "bits": 1
+      },
+      "Seg6_Cell12_OV": {
+        "bits": 1
+      },
+      "Seg6_Cell13_OV": {
+        "bits": 1
+      },
+      "Seg7_Cell0_OV": {
+        "bits": 1
+      },
+      "Seg7_Cell1_OV": {
+        "bits": 1
+      },
+      "Seg7_Cell2_OV": {
+        "bits": 1
+      },
+      "Seg7_Cell3_OV": {
+        "bits": 1
+      },
+      "Seg7_Cell4_OV": {
+        "bits": 1
+      },
+      "Seg7_Cell5_OV": {
+        "bits": 1
+      },
+      "Seg7_Cell6_OV": {
+        "bits": 1
+      },
+      "Seg7_Cell7_OV": {
+        "bits": 1
+      },
+      "Seg7_Cell8_OV": {
+        "bits": 1
+      },
+      "Seg7_Cell9_OV": {
+        "bits": 1
+      },
+      "Seg7_Cell10_OV": {
+        "bits": 1
+      },
+      "Seg7_Cell11_OV": {
+        "bits": 1
+      },
+      "Seg7_Cell12_OV": {
+        "bits": 1
+      },
+      "Seg7_Cell13_OV": {
+        "bits": 1
+      },
+      "Seg8_Cell0_OV": {
+        "bits": 1
+      },
+      "Seg8_Cell1_OV": {
+        "bits": 1
+      },
+      "Seg8_Cell2_OV": {
+        "bits": 1
+      },
+      "Seg8_Cell3_OV": {
+        "bits": 1
+      },
+      "Seg8_Cell4_OV": {
+        "bits": 1
+      },
+      "Seg8_Cell5_OV": {
+        "bits": 1
+      },
+      "Seg8_Cell6_OV": {
+        "bits": 1
+      },
+      "Seg8_Cell7_OV": {
+        "bits": 1
+      },
+      "Seg8_Cell8_OV": {
+        "bits": 1
+      },
+      "Seg8_Cell9_OV": {
+        "bits": 1
+      },
+      "Seg8_Cell10_OV": {
+        "bits": 1
+      },
+      "Seg8_Cell11_OV": {
+        "bits": 1
+      },
+      "Seg8_Cell12_OV": {
+        "bits": 1
+      },
+      "Seg8_Cell13_OV": {
+        "bits": 1
+      },
+      "Seg9_Cell0_OV": {
+        "bits": 1
+      },
+      "Seg9_Cell1_OV": {
+        "bits": 1
+      },
+      "Seg9_Cell2_OV": {
+        "bits": 1
+      },
+      "Seg9_Cell3_OV": {
+        "bits": 1
+      },
+      "Seg9_Cell4_OV": {
+        "bits": 1
+      },
+      "Seg9_Cell5_OV": {
+        "bits": 1
+      },
+      "Seg9_Cell6_OV": {
+        "bits": 1
+      },
+      "Seg9_Cell7_OV": {
+        "bits": 1
+      },
+      "Seg9_Cell8_OV": {
+        "bits": 1
+      },
+      "Seg9_Cell9_OV": {
+        "bits": 1
+      },
+      "Seg9_Cell10_OV": {
+        "bits": 1
+      },
+      "Seg9_Cell11_OV": {
+        "bits": 1
+      },
+      "Seg9_Cell12_OV": {
+        "bits": 1
+      },
+      "Seg9_Cell13_OV": {
+        "bits": 1
+      }
+    }
+  },
+  "CellUnderVoltage": {
+    "msg_id": 444,
+    "cycle_time": null,
+    "allowed_modes": [
+      "DEBUG"
+    ],
+    "description": "Cell undervoltage flags",
+    "signals": {
+      "Seg0_Cell0_UV": {
+        "bits": 1
+      },
+      "Seg0_Cell1_UV": {
+        "bits": 1
+      },
+      "Seg0_Cell2_UV": {
+        "bits": 1
+      },
+      "Seg0_Cell3_UV": {
+        "bits": 1
+      },
+      "Seg0_Cell4_UV": {
+        "bits": 1
+      },
+      "Seg0_Cell5_UV": {
+        "bits": 1
+      },
+      "Seg0_Cell6_UV": {
+        "bits": 1
+      },
+      "Seg0_Cell7_UV": {
+        "bits": 1
+      },
+      "Seg0_Cell8_UV": {
+        "bits": 1
+      },
+      "Seg0_Cell9_UV": {
+        "bits": 1
+      },
+      "Seg0_Cell10_UV": {
+        "bits": 1
+      },
+      "Seg0_Cell11_UV": {
+        "bits": 1
+      },
+      "Seg0_Cell12_UV": {
+        "bits": 1
+      },
+      "Seg0_Cell13_UV": {
+        "bits": 1
+      },
+      "Seg1_Cell0_UV": {
+        "bits": 1
+      },
+      "Seg1_Cell1_UV": {
+        "bits": 1
+      },
+      "Seg1_Cell2_UV": {
+        "bits": 1
+      },
+      "Seg1_Cell3_UV": {
+        "bits": 1
+      },
+      "Seg1_Cell4_UV": {
+        "bits": 1
+      },
+      "Seg1_Cell5_UV": {
+        "bits": 1
+      },
+      "Seg1_Cell6_UV": {
+        "bits": 1
+      },
+      "Seg1_Cell7_UV": {
+        "bits": 1
+      },
+      "Seg1_Cell8_UV": {
+        "bits": 1
+      },
+      "Seg1_Cell9_UV": {
+        "bits": 1
+      },
+      "Seg1_Cell10_UV": {
+        "bits": 1
+      },
+      "Seg1_Cell11_UV": {
+        "bits": 1
+      },
+      "Seg1_Cell12_UV": {
+        "bits": 1
+      },
+      "Seg1_Cell13_UV": {
+        "bits": 1
+      },
+      "Seg2_Cell0_UV": {
+        "bits": 1
+      },
+      "Seg2_Cell1_UV": {
+        "bits": 1
+      },
+      "Seg2_Cell2_UV": {
+        "bits": 1
+      },
+      "Seg2_Cell3_UV": {
+        "bits": 1
+      },
+      "Seg2_Cell4_UV": {
+        "bits": 1
+      },
+      "Seg2_Cell5_UV": {
+        "bits": 1
+      },
+      "Seg2_Cell6_UV": {
+        "bits": 1
+      },
+      "Seg2_Cell7_UV": {
+        "bits": 1
+      },
+      "Seg2_Cell8_UV": {
+        "bits": 1
+      },
+      "Seg2_Cell9_UV": {
+        "bits": 1
+      },
+      "Seg2_Cell10_UV": {
+        "bits": 1
+      },
+      "Seg2_Cell11_UV": {
+        "bits": 1
+      },
+      "Seg2_Cell12_UV": {
+        "bits": 1
+      },
+      "Seg2_Cell13_UV": {
+        "bits": 1
+      },
+      "Seg3_Cell0_UV": {
+        "bits": 1
+      },
+      "Seg3_Cell1_UV": {
+        "bits": 1
+      },
+      "Seg3_Cell2_UV": {
+        "bits": 1
+      },
+      "Seg3_Cell3_UV": {
+        "bits": 1
+      },
+      "Seg3_Cell4_UV": {
+        "bits": 1
+      },
+      "Seg3_Cell5_UV": {
+        "bits": 1
+      },
+      "Seg3_Cell6_UV": {
+        "bits": 1
+      },
+      "Seg3_Cell7_UV": {
+        "bits": 1
+      },
+      "Seg3_Cell8_UV": {
+        "bits": 1
+      },
+      "Seg3_Cell9_UV": {
+        "bits": 1
+      },
+      "Seg3_Cell10_UV": {
+        "bits": 1
+      },
+      "Seg3_Cell11_UV": {
+        "bits": 1
+      },
+      "Seg3_Cell12_UV": {
+        "bits": 1
+      },
+      "Seg3_Cell13_UV": {
+        "bits": 1
+      },
+      "Seg4_Cell0_UV": {
+        "bits": 1
+      },
+      "Seg4_Cell1_UV": {
+        "bits": 1
+      },
+      "Seg4_Cell2_UV": {
+        "bits": 1
+      },
+      "Seg4_Cell3_UV": {
+        "bits": 1
+      },
+      "Seg4_Cell4_UV": {
+        "bits": 1
+      },
+      "Seg4_Cell5_UV": {
+        "bits": 1
+      },
+      "Seg4_Cell6_UV": {
+        "bits": 1
+      },
+      "Seg4_Cell7_UV": {
+        "bits": 1
+      },
+      "Seg4_Cell8_UV": {
+        "bits": 1
+      },
+      "Seg4_Cell9_UV": {
+        "bits": 1
+      },
+      "Seg4_Cell10_UV": {
+        "bits": 1
+      },
+      "Seg4_Cell11_UV": {
+        "bits": 1
+      },
+      "Seg4_Cell12_UV": {
+        "bits": 1
+      },
+      "Seg4_Cell13_UV": {
+        "bits": 1
+      },
+      "Seg5_Cell0_UV": {
+        "bits": 1
+      },
+      "Seg5_Cell1_UV": {
+        "bits": 1
+      },
+      "Seg5_Cell2_UV": {
+        "bits": 1
+      },
+      "Seg5_Cell3_UV": {
+        "bits": 1
+      },
+      "Seg5_Cell4_UV": {
+        "bits": 1
+      },
+      "Seg5_Cell5_UV": {
+        "bits": 1
+      },
+      "Seg5_Cell6_UV": {
+        "bits": 1
+      },
+      "Seg5_Cell7_UV": {
+        "bits": 1
+      },
+      "Seg5_Cell8_UV": {
+        "bits": 1
+      },
+      "Seg5_Cell9_UV": {
+        "bits": 1
+      },
+      "Seg5_Cell10_UV": {
+        "bits": 1
+      },
+      "Seg5_Cell11_UV": {
+        "bits": 1
+      },
+      "Seg5_Cell12_UV": {
+        "bits": 1
+      },
+      "Seg5_Cell13_UV": {
+        "bits": 1
+      },
+      "Seg6_Cell0_UV": {
+        "bits": 1
+      },
+      "Seg6_Cell1_UV": {
+        "bits": 1
+      },
+      "Seg6_Cell2_UV": {
+        "bits": 1
+      },
+      "Seg6_Cell3_UV": {
+        "bits": 1
+      },
+      "Seg6_Cell4_UV": {
+        "bits": 1
+      },
+      "Seg6_Cell5_UV": {
+        "bits": 1
+      },
+      "Seg6_Cell6_UV": {
+        "bits": 1
+      },
+      "Seg6_Cell7_UV": {
+        "bits": 1
+      },
+      "Seg6_Cell8_UV": {
+        "bits": 1
+      },
+      "Seg6_Cell9_UV": {
+        "bits": 1
+      },
+      "Seg6_Cell10_UV": {
+        "bits": 1
+      },
+      "Seg6_Cell11_UV": {
+        "bits": 1
+      },
+      "Seg6_Cell12_UV": {
+        "bits": 1
+      },
+      "Seg6_Cell13_UV": {
+        "bits": 1
+      },
+      "Seg7_Cell0_UV": {
+        "bits": 1
+      },
+      "Seg7_Cell1_UV": {
+        "bits": 1
+      },
+      "Seg7_Cell2_UV": {
+        "bits": 1
+      },
+      "Seg7_Cell3_UV": {
+        "bits": 1
+      },
+      "Seg7_Cell4_UV": {
+        "bits": 1
+      },
+      "Seg7_Cell5_UV": {
+        "bits": 1
+      },
+      "Seg7_Cell6_UV": {
+        "bits": 1
+      },
+      "Seg7_Cell7_UV": {
+        "bits": 1
+      },
+      "Seg7_Cell8_UV": {
+        "bits": 1
+      },
+      "Seg7_Cell9_UV": {
+        "bits": 1
+      },
+      "Seg7_Cell10_UV": {
+        "bits": 1
+      },
+      "Seg7_Cell11_UV": {
+        "bits": 1
+      },
+      "Seg7_Cell12_UV": {
+        "bits": 1
+      },
+      "Seg7_Cell13_UV": {
+        "bits": 1
+      },
+      "Seg8_Cell0_UV": {
+        "bits": 1
+      },
+      "Seg8_Cell1_UV": {
+        "bits": 1
+      },
+      "Seg8_Cell2_UV": {
+        "bits": 1
+      },
+      "Seg8_Cell3_UV": {
+        "bits": 1
+      },
+      "Seg8_Cell4_UV": {
+        "bits": 1
+      },
+      "Seg8_Cell5_UV": {
+        "bits": 1
+      },
+      "Seg8_Cell6_UV": {
+        "bits": 1
+      },
+      "Seg8_Cell7_UV": {
+        "bits": 1
+      },
+      "Seg8_Cell8_UV": {
+        "bits": 1
+      },
+      "Seg8_Cell9_UV": {
+        "bits": 1
+      },
+      "Seg8_Cell10_UV": {
+        "bits": 1
+      },
+      "Seg8_Cell11_UV": {
+        "bits": 1
+      },
+      "Seg8_Cell12_UV": {
+        "bits": 1
+      },
+      "Seg8_Cell13_UV": {
+        "bits": 1
+      },
+      "Seg9_Cell0_UV": {
+        "bits": 1
+      },
+      "Seg9_Cell1_UV": {
+        "bits": 1
+      },
+      "Seg9_Cell2_UV": {
+        "bits": 1
+      },
+      "Seg9_Cell3_UV": {
+        "bits": 1
+      },
+      "Seg9_Cell4_UV": {
+        "bits": 1
+      },
+      "Seg9_Cell5_UV": {
+        "bits": 1
+      },
+      "Seg9_Cell6_UV": {
+        "bits": 1
+      },
+      "Seg9_Cell7_UV": {
+        "bits": 1
+      },
+      "Seg9_Cell8_UV": {
+        "bits": 1
+      },
+      "Seg9_Cell9_UV": {
+        "bits": 1
+      },
+      "Seg9_Cell10_UV": {
+        "bits": 1
+      },
+      "Seg9_Cell11_UV": {
+        "bits": 1
+      },
+      "Seg9_Cell12_UV": {
+        "bits": 1
+      },
+      "Seg9_Cell13_UV": {
+        "bits": 1
+      }
+    }
+  },
+  "SegmentVoltages": {
+    "msg_id": 445,
+    "cycle_time": null,
+    "allowed_modes": [
+      "DEBUG"
+    ],
+    "description": "Segment voltage",
+    "signals": {
+      "Seg0_Voltage": {
+        "resolution": 1,
+        "min": -0.1,
+        "max": 65,
+        "unit": "V"
+      },
+      "Seg1_Voltage": {
+        "resolution": 1,
+        "min": -0.1,
+        "max": 65,
+        "unit": "V"
+      },
+      "Seg2_Voltage": {
+        "resolution": 1,
+        "min": -0.1,
+        "max": 65,
+        "unit": "V"
+      },
+      "Seg3_Voltage": {
+        "resolution": 1,
+        "min": -0.1,
+        "max": 65,
+        "unit": "V"
+      },
+      "Seg4_Voltage": {
+        "resolution": 1,
+        "min": -0.1,
+        "max": 65,
+        "unit": "V"
+      },
+      "Seg5_Voltage": {
+        "resolution": 1,
+        "min": -0.1,
+        "max": 65,
+        "unit": "V"
+      },
+      "Seg6_Voltage": {
+        "resolution": 1,
+        "min": -0.1,
+        "max": 65,
+        "unit": "V"
+      },
+      "Seg7_Voltage": {
+        "resolution": 1,
+        "min": -0.1,
+        "max": 65,
+        "unit": "V"
+      },
+      "Seg8_Voltage": {
+        "resolution": 1,
+        "min": -0.1,
+        "max": 65,
+        "unit": "V"
+      },
+      "Seg9_Voltage": {
+        "resolution": 1,
+        "min": -0.1,
+        "max": 65,
+        "unit": "V"
+      }
+    }
+  },
   "CPUDataLogInfo": {
-    "msg_id": 416,
+    "msg_id": 446,
     "cycle_time": 100,
     "description": "BMS cpu and stack information",
     "signals": {
@@ -2893,13 +5421,2823 @@
         "min": 0,
         "max": 100,
         "unit": "%"
+      },
+      "TaskRunAdbmsVoltagesCpuUsageMax": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRunAdbmsVoltagesCpuUsage": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRunAdbmsVoltagesStackUsage": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRunAdbmsAuxCpuUsageMax": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRunAdbmsAuxCpuUsage": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRunAdbmsAuxStackUsage": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRunAdbmsConfigsCpuUsageMax": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRunAdbmsConfigsCpuUsage": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRunAdbmsConfigsStackUsage": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
       }
     }
   },
-  "Bootup": {
-    "msg_id": 499,
+  "SegmentVD_UV": {
+    "msg_id": 447,
     "cycle_time": null,
-    "description": "Async bootup message!",
-    "signals": {}
+    "allowed_modes": [
+      "DEBUG"
+    ],
+    "description": "Digital supply UV flags for all segments",
+    "signals": {
+      "Seg0_VD_UV": {
+        "bits": 1
+      },
+      "Seg1_VD_UV": {
+        "bits": 1
+      },
+      "Seg2_VD_UV": {
+        "bits": 1
+      },
+      "Seg3_VD_UV": {
+        "bits": 1
+      },
+      "Seg4_VD_UV": {
+        "bits": 1
+      },
+      "Seg5_VD_UV": {
+        "bits": 1
+      },
+      "Seg6_VD_UV": {
+        "bits": 1
+      },
+      "Seg7_VD_UV": {
+        "bits": 1
+      },
+      "Seg8_VD_UV": {
+        "bits": 1
+      },
+      "Seg9_VD_UV": {
+        "bits": 1
+      }
+    }
+  },
+  "SegmentCED": {
+    "msg_id": 448,
+    "cycle_time": null,
+    "allowed_modes": [
+      "DEBUG"
+    ],
+    "description": "Cell error detection flags for all segments",
+    "signals": {
+      "Seg0_CED": {
+        "bits": 1
+      },
+      "Seg1_CED": {
+        "bits": 1
+      },
+      "Seg2_CED": {
+        "bits": 1
+      },
+      "Seg3_CED": {
+        "bits": 1
+      },
+      "Seg4_CED": {
+        "bits": 1
+      },
+      "Seg5_CED": {
+        "bits": 1
+      },
+      "Seg6_CED": {
+        "bits": 1
+      },
+      "Seg7_CED": {
+        "bits": 1
+      },
+      "Seg8_CED": {
+        "bits": 1
+      },
+      "Seg9_CED": {
+        "bits": 1
+      }
+    }
+  },
+  "SegmentCMED": {
+    "msg_id": 449,
+    "cycle_time": null,
+    "allowed_modes": [
+      "DEBUG"
+    ],
+    "description": "Cell mux error detection flags for all segments",
+    "signals": {
+      "Seg0_CMED": {
+        "bits": 1
+      },
+      "Seg1_CMED": {
+        "bits": 1
+      },
+      "Seg2_CMED": {
+        "bits": 1
+      },
+      "Seg3_CMED": {
+        "bits": 1
+      },
+      "Seg4_CMED": {
+        "bits": 1
+      },
+      "Seg5_CMED": {
+        "bits": 1
+      },
+      "Seg6_CMED": {
+        "bits": 1
+      },
+      "Seg7_CMED": {
+        "bits": 1
+      },
+      "Seg8_CMED": {
+        "bits": 1
+      },
+      "Seg9_CMED": {
+        "bits": 1
+      }
+    }
+  },
+  "SegmentSED": {
+    "msg_id": 450,
+    "cycle_time": null,
+    "allowed_modes": [
+      "DEBUG"
+    ],
+    "description": "Supply error detection flags for all segments",
+    "signals": {
+      "Seg0_SED": {
+        "bits": 1
+      },
+      "Seg1_SED": {
+        "bits": 1
+      },
+      "Seg2_SED": {
+        "bits": 1
+      },
+      "Seg3_SED": {
+        "bits": 1
+      },
+      "Seg4_SED": {
+        "bits": 1
+      },
+      "Seg5_SED": {
+        "bits": 1
+      },
+      "Seg6_SED": {
+        "bits": 1
+      },
+      "Seg7_SED": {
+        "bits": 1
+      },
+      "Seg8_SED": {
+        "bits": 1
+      },
+      "Seg9_SED": {
+        "bits": 1
+      }
+    }
+  },
+  "SegmentSMED": {
+    "msg_id": 451,
+    "cycle_time": null,
+    "allowed_modes": [
+      "DEBUG"
+    ],
+    "description": "Supply mux error detection flags for all segments",
+    "signals": {
+      "Seg0_SMED": {
+        "bits": 1
+      },
+      "Seg1_SMED": {
+        "bits": 1
+      },
+      "Seg2_SMED": {
+        "bits": 1
+      },
+      "Seg3_SMED": {
+        "bits": 1
+      },
+      "Seg4_SMED": {
+        "bits": 1
+      },
+      "Seg5_SMED": {
+        "bits": 1
+      },
+      "Seg6_SMED": {
+        "bits": 1
+      },
+      "Seg7_SMED": {
+        "bits": 1
+      },
+      "Seg8_SMED": {
+        "bits": 1
+      },
+      "Seg9_SMED": {
+        "bits": 1
+      }
+    }
+  },
+  "SegmentVDE": {
+    "msg_id": 452,
+    "cycle_time": null,
+    "allowed_modes": [
+      "DEBUG"
+    ],
+    "description": "VD error flags for all segments",
+    "signals": {
+      "Seg0_VDE": {
+        "bits": 1
+      },
+      "Seg1_VDE": {
+        "bits": 1
+      },
+      "Seg2_VDE": {
+        "bits": 1
+      },
+      "Seg3_VDE": {
+        "bits": 1
+      },
+      "Seg4_VDE": {
+        "bits": 1
+      },
+      "Seg5_VDE": {
+        "bits": 1
+      },
+      "Seg6_VDE": {
+        "bits": 1
+      },
+      "Seg7_VDE": {
+        "bits": 1
+      },
+      "Seg8_VDE": {
+        "bits": 1
+      },
+      "Seg9_VDE": {
+        "bits": 1
+      }
+    }
+  },
+  "SegmentVDEL": {
+    "msg_id": 453,
+    "cycle_time": null,
+    "allowed_modes": [
+      "DEBUG"
+    ],
+    "description": "VD error latched flags for all segments",
+    "signals": {
+      "Seg0_VDEL": {
+        "bits": 1
+      },
+      "Seg1_VDEL": {
+        "bits": 1
+      },
+      "Seg2_VDEL": {
+        "bits": 1
+      },
+      "Seg3_VDEL": {
+        "bits": 1
+      },
+      "Seg4_VDEL": {
+        "bits": 1
+      },
+      "Seg5_VDEL": {
+        "bits": 1
+      },
+      "Seg6_VDEL": {
+        "bits": 1
+      },
+      "Seg7_VDEL": {
+        "bits": 1
+      },
+      "Seg8_VDEL": {
+        "bits": 1
+      },
+      "Seg9_VDEL": {
+        "bits": 1
+      }
+    }
+  },
+  "SegmentTHSD": {
+    "msg_id": 454,
+    "cycle_time": null,
+    "allowed_modes": [
+      "DEBUG"
+    ],
+    "description": "Thermal shutdown flags for all segments",
+    "signals": {
+      "Seg0_THSD": {
+        "bits": 1
+      },
+      "Seg1_THSD": {
+        "bits": 1
+      },
+      "Seg2_THSD": {
+        "bits": 1
+      },
+      "Seg3_THSD": {
+        "bits": 1
+      },
+      "Seg4_THSD": {
+        "bits": 1
+      },
+      "Seg5_THSD": {
+        "bits": 1
+      },
+      "Seg6_THSD": {
+        "bits": 1
+      },
+      "Seg7_THSD": {
+        "bits": 1
+      },
+      "Seg8_THSD": {
+        "bits": 1
+      },
+      "Seg9_THSD": {
+        "bits": 1
+      }
+    }
+  },
+  "SegmentTMODCHK": {
+    "msg_id": 455,
+    "cycle_time": null,
+    "allowed_modes": [
+      "DEBUG"
+    ],
+    "description": "Thermal model check flags for all segments",
+    "signals": {
+      "Seg0_TMODCHK": {
+        "bits": 1
+      },
+      "Seg1_TMODCHK": {
+        "bits": 1
+      },
+      "Seg2_TMODCHK": {
+        "bits": 1
+      },
+      "Seg3_TMODCHK": {
+        "bits": 1
+      },
+      "Seg4_TMODCHK": {
+        "bits": 1
+      },
+      "Seg5_TMODCHK": {
+        "bits": 1
+      },
+      "Seg6_TMODCHK": {
+        "bits": 1
+      },
+      "Seg7_TMODCHK": {
+        "bits": 1
+      },
+      "Seg8_TMODCHK": {
+        "bits": 1
+      },
+      "Seg9_TMODCHK": {
+        "bits": 1
+      }
+    }
+  },
+  "SegmentOSCCHK": {
+    "msg_id": 456,
+    "cycle_time": null,
+    "allowed_modes": [
+      "DEBUG"
+    ],
+    "description": "Oscillator check flags for all segments",
+    "signals": {
+      "Seg0_OSCCHK": {
+        "bits": 1
+      },
+      "Seg1_OSCCHK": {
+        "bits": 1
+      },
+      "Seg2_OSCCHK": {
+        "bits": 1
+      },
+      "Seg3_OSCCHK": {
+        "bits": 1
+      },
+      "Seg4_OSCCHK": {
+        "bits": 1
+      },
+      "Seg5_OSCCHK": {
+        "bits": 1
+      },
+      "Seg6_OSCCHK": {
+        "bits": 1
+      },
+      "Seg7_OSCCHK": {
+        "bits": 1
+      },
+      "Seg8_OSCCHK": {
+        "bits": 1
+      },
+      "Seg9_OSCCHK": {
+        "bits": 1
+      }
+    }
+  },
+  "SegmentCMDCNT": {
+    "msg_id": 457,
+    "cycle_time": null,
+    "allowed_modes": [
+      "DEBUG"
+    ],
+    "description": "ADBMS command counter mismatch flags for all segments",
+    "signals": {
+      "Seg0_CMDCNT": {
+        "bits": 4
+      },
+      "Seg1_CMDCNT": {
+        "bits": 4
+      },
+      "Seg2_CMDCNT": {
+        "bits": 4
+      },
+      "Seg3_CMDCNT": {
+        "bits": 4
+      },
+      "Seg4_CMDCNT": {
+        "bits": 4
+      },
+      "Seg5_CMDCNT": {
+        "bits": 4
+      },
+      "Seg6_CMDCNT": {
+        "bits": 4
+      },
+      "Seg7_CMDCNT": {
+        "bits": 4
+      },
+      "Seg8_CMDCNT": {
+        "bits": 4
+      },
+      "Seg9_CMDCNT": {
+        "bits": 4
+      }
+    }
+  },
+  "CellVoltageErrors_Seg0_Seg3": {
+    "msg_id": 458,
+    "cycle_time": null,
+    "allowed_modes": [
+      "DEBUG"
+    ],
+    "description": "Per-cell error codes for cell voltages: Segment 0-3 (INVALID_ARGS = no error)",
+    "signals": {
+      "Seg0_Cell0_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Cell1_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Cell2_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Cell3_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Cell4_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Cell5_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Cell6_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Cell7_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Cell8_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Cell9_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Cell10_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Cell11_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Cell12_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Cell13_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Cell0_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Cell1_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Cell2_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Cell3_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Cell4_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Cell5_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Cell6_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Cell7_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Cell8_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Cell9_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Cell10_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Cell11_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Cell12_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Cell13_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Cell0_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Cell1_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Cell2_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Cell3_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Cell4_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Cell5_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Cell6_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Cell7_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Cell8_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Cell9_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Cell10_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Cell11_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Cell12_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Cell13_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Cell0_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Cell1_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Cell2_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Cell3_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Cell4_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Cell5_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Cell6_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Cell7_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Cell8_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Cell9_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Cell10_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Cell11_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Cell12_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Cell13_VoltageError": {
+        "enum": "ErrorCode"
+      }
+    }
+  },
+  "CellVoltageErrors_Seg4_Seg7": {
+    "msg_id": 459,
+    "cycle_time": null,
+    "allowed_modes": [
+      "DEBUG"
+    ],
+    "description": "Per-cell error codes for cell voltages: Segment 4-7 (INVALID_ARGS = no error)",
+    "signals": {
+      "Seg4_Cell0_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_Cell1_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_Cell2_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_Cell3_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_Cell4_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_Cell5_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_Cell6_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_Cell7_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_Cell8_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_Cell9_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_Cell10_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_Cell11_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_Cell12_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_Cell13_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_Cell0_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_Cell1_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_Cell2_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_Cell3_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_Cell4_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_Cell5_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_Cell6_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_Cell7_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_Cell8_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_Cell9_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_Cell10_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_Cell11_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_Cell12_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_Cell13_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_Cell0_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_Cell1_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_Cell2_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_Cell3_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_Cell4_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_Cell5_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_Cell6_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_Cell7_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_Cell8_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_Cell9_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_Cell10_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_Cell11_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_Cell12_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_Cell13_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_Cell0_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_Cell1_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_Cell2_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_Cell3_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_Cell4_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_Cell5_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_Cell6_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_Cell7_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_Cell8_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_Cell9_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_Cell10_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_Cell11_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_Cell12_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_Cell13_VoltageError": {
+        "enum": "ErrorCode"
+      }
+    }
+  },
+  "CellVoltageErrors_Seg8_Seg9": {
+    "msg_id": 460,
+    "cycle_time": null,
+    "allowed_modes": [
+      "DEBUG"
+    ],
+    "description": "Per-cell error codes for cell voltages: Segment 8-9 (INVALID_ARGS = no error)",
+    "signals": {
+      "Seg8_Cell0_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_Cell1_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_Cell2_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_Cell3_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_Cell4_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_Cell5_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_Cell6_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_Cell7_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_Cell8_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_Cell9_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_Cell10_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_Cell11_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_Cell12_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_Cell13_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_Cell0_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_Cell1_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_Cell2_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_Cell3_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_Cell4_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_Cell5_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_Cell6_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_Cell7_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_Cell8_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_Cell9_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_Cell10_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_Cell11_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_Cell12_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_Cell13_VoltageError": {
+        "enum": "ErrorCode"
+      }
+    }
+  },
+  "CellTempErrors_Seg0_Seg3": {
+    "msg_id": 461,
+    "cycle_time": null,
+    "allowed_modes": [
+      "DEBUG"
+    ],
+    "description": "Per-thermistor error codes for cell temps: Segment 0-3 (INVALID_ARGS = no error)",
+    "signals": {
+      "Seg0_Therm0_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Therm1_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Therm2_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Therm3_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Therm4_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Therm5_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Therm6_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Therm7_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Therm8_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Therm9_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Therm10_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Therm11_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Therm12_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Therm13_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Therm0_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Therm1_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Therm2_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Therm3_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Therm4_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Therm5_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Therm6_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Therm7_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Therm8_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Therm9_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Therm10_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Therm11_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Therm12_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Therm13_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Therm0_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Therm1_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Therm2_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Therm3_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Therm4_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Therm5_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Therm6_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Therm7_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Therm8_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Therm9_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Therm10_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Therm11_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Therm12_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Therm13_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Therm0_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Therm1_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Therm2_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Therm3_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Therm4_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Therm5_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Therm6_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Therm7_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Therm8_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Therm9_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Therm10_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Therm11_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Therm12_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Therm13_TempError": {
+        "enum": "ErrorCode"
+      }
+    }
+  },
+  "CellTempErrors_Seg4_Seg7": {
+    "msg_id": 462,
+    "cycle_time": null,
+    "allowed_modes": [
+      "DEBUG"
+    ],
+    "description": "Per-thermistor error codes for cell temps: Segment 4-7 (INVALID_ARGS = no error)",
+    "signals": {
+      "Seg4_Therm0_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_Therm1_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_Therm2_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_Therm3_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_Therm4_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_Therm5_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_Therm6_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_Therm7_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_Therm8_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_Therm9_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_Therm10_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_Therm11_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_Therm12_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_Therm13_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_Therm0_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_Therm1_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_Therm2_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_Therm3_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_Therm4_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_Therm5_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_Therm6_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_Therm7_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_Therm8_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_Therm9_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_Therm10_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_Therm11_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_Therm12_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_Therm13_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_Therm0_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_Therm1_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_Therm2_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_Therm3_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_Therm4_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_Therm5_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_Therm6_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_Therm7_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_Therm8_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_Therm9_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_Therm10_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_Therm11_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_Therm12_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_Therm13_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_Therm0_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_Therm1_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_Therm2_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_Therm3_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_Therm4_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_Therm5_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_Therm6_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_Therm7_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_Therm8_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_Therm9_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_Therm10_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_Therm11_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_Therm12_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_Therm13_TempError": {
+        "enum": "ErrorCode"
+      }
+    }
+  },
+  "CellTempErrors_Seg8_Seg9": {
+    "msg_id": 463,
+    "cycle_time": null,
+    "allowed_modes": [
+      "DEBUG"
+    ],
+    "description": "Per-thermistor error codes for cell temps: Segment 8-9 (INVALID_ARGS = no error)",
+    "signals": {
+      "Seg8_Therm0_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_Therm1_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_Therm2_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_Therm3_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_Therm4_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_Therm5_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_Therm6_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_Therm7_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_Therm8_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_Therm9_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_Therm10_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_Therm11_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_Therm12_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_Therm13_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_Therm0_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_Therm1_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_Therm2_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_Therm3_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_Therm4_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_Therm5_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_Therm6_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_Therm7_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_Therm8_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_Therm9_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_Therm10_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_Therm11_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_Therm12_TempError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_Therm13_TempError": {
+        "enum": "ErrorCode"
+      }
+    }
+  },
+  "CellOpenWireCheckErrors_Seg0_Seg3": {
+    "msg_id": 464,
+    "cycle_time": null,
+    "allowed_modes": [
+      "DEBUG"
+    ],
+    "description": "Per-cell error codes for OWC: Segment 0-3 (INVALID_ARGS = no error)",
+    "signals": {
+      "Seg0_Cell0_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Cell1_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Cell2_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Cell3_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Cell4_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Cell5_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Cell6_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Cell7_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Cell8_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Cell9_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Cell10_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Cell11_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Cell12_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Cell13_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Cell0_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Cell1_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Cell2_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Cell3_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Cell4_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Cell5_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Cell6_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Cell7_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Cell8_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Cell9_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Cell10_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Cell11_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Cell12_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Cell13_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Cell0_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Cell1_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Cell2_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Cell3_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Cell4_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Cell5_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Cell6_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Cell7_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Cell8_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Cell9_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Cell10_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Cell11_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Cell12_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Cell13_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Cell0_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Cell1_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Cell2_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Cell3_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Cell4_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Cell5_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Cell6_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Cell7_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Cell8_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Cell9_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Cell10_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Cell11_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Cell12_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Cell13_CellOwcError": {
+        "enum": "ErrorCode"
+      }
+    }
+  },
+  "CellOpenWireCheckErrors_Seg4_Seg7": {
+    "msg_id": 465,
+    "cycle_time": null,
+    "allowed_modes": [
+      "DEBUG"
+    ],
+    "description": "Per-cell error codes for OWC: Segment 4-7 (INVALID_ARGS = no error)",
+    "signals": {
+      "Seg4_Cell0_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_Cell1_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_Cell2_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_Cell3_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_Cell4_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_Cell5_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_Cell6_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_Cell7_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_Cell8_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_Cell9_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_Cell10_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_Cell11_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_Cell12_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_Cell13_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_Cell0_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_Cell1_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_Cell2_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_Cell3_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_Cell4_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_Cell5_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_Cell6_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_Cell7_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_Cell8_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_Cell9_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_Cell10_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_Cell11_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_Cell12_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_Cell13_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_Cell0_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_Cell1_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_Cell2_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_Cell3_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_Cell4_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_Cell5_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_Cell6_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_Cell7_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_Cell8_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_Cell9_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_Cell10_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_Cell11_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_Cell12_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_Cell13_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_Cell0_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_Cell1_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_Cell2_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_Cell3_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_Cell4_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_Cell5_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_Cell6_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_Cell7_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_Cell8_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_Cell9_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_Cell10_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_Cell11_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_Cell12_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_Cell13_CellOwcError": {
+        "enum": "ErrorCode"
+      }
+    }
+  },
+  "CellOpenWireCheckErrors_Seg8_Seg9": {
+    "msg_id": 466,
+    "cycle_time": null,
+    "allowed_modes": [
+      "DEBUG"
+    ],
+    "description": "Per-cell error codes for OWC: Segment 8-9 (INVALID_ARGS = no error)",
+    "signals": {
+      "Seg8_Cell0_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_Cell1_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_Cell2_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_Cell3_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_Cell4_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_Cell5_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_Cell6_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_Cell7_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_Cell8_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_Cell9_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_Cell10_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_Cell11_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_Cell12_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_Cell13_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_Cell0_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_Cell1_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_Cell2_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_Cell3_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_Cell4_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_Cell5_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_Cell6_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_Cell7_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_Cell8_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_Cell9_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_Cell10_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_Cell11_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_Cell12_CellOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_Cell13_CellOwcError": {
+        "enum": "ErrorCode"
+      }
+    }
+  },
+  "ThermistorOpenWireCheckErrors_Seg0_Seg3": {
+    "msg_id": 467,
+    "cycle_time": null,
+    "allowed_modes": [
+      "DEBUG"
+    ],
+    "description": "Per-thermistor error codes for thermistor OWC: Segment 0-3 (INVALID_ARGS = no error)",
+    "signals": {
+      "Seg0_Therm0_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Therm1_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Therm2_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Therm3_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Therm4_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Therm5_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Therm6_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Therm7_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Therm8_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Therm9_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Therm10_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Therm11_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Therm12_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg0_Therm13_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Therm0_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Therm1_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Therm2_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Therm3_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Therm4_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Therm5_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Therm6_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Therm7_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Therm8_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Therm9_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Therm10_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Therm11_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Therm12_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_Therm13_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Therm0_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Therm1_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Therm2_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Therm3_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Therm4_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Therm5_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Therm6_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Therm7_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Therm8_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Therm9_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Therm10_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Therm11_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Therm12_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_Therm13_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Therm0_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Therm1_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Therm2_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Therm3_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Therm4_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Therm5_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Therm6_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Therm7_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Therm8_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Therm9_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Therm10_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Therm11_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Therm12_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_Therm13_ThermOwcError": {
+        "enum": "ErrorCode"
+      }
+    }
+  },
+  "ThermistorOpenWireCheckErrors_Seg4_Seg7": {
+    "msg_id": 468,
+    "cycle_time": null,
+    "allowed_modes": [
+      "DEBUG"
+    ],
+    "description": "Per-thermistor error codes for thermistor OWC: Segment 4-7 (INVALID_ARGS = no error)",
+    "signals": {
+      "Seg4_Therm0_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_Therm1_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_Therm2_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_Therm3_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_Therm4_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_Therm5_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_Therm6_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_Therm7_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_Therm8_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_Therm9_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_Therm10_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_Therm11_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_Therm12_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_Therm13_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_Therm0_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_Therm1_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_Therm2_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_Therm3_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_Therm4_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_Therm5_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_Therm6_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_Therm7_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_Therm8_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_Therm9_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_Therm10_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_Therm11_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_Therm12_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_Therm13_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_Therm0_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_Therm1_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_Therm2_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_Therm3_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_Therm4_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_Therm5_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_Therm6_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_Therm7_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_Therm8_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_Therm9_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_Therm10_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_Therm11_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_Therm12_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_Therm13_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_Therm0_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_Therm1_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_Therm2_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_Therm3_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_Therm4_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_Therm5_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_Therm6_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_Therm7_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_Therm8_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_Therm9_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_Therm10_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_Therm11_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_Therm12_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_Therm13_ThermOwcError": {
+        "enum": "ErrorCode"
+      }
+    }
+  },
+  "ThermistorOpenWireCheckErrors_Seg8_Seg9": {
+    "msg_id": 469,
+    "cycle_time": null,
+    "allowed_modes": [
+      "DEBUG"
+    ],
+    "description": "Per-thermistor error codes for thermistor OWC: Segment 8-9 (INVALID_ARGS = no error)",
+    "signals": {
+      "Seg8_Therm0_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_Therm1_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_Therm2_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_Therm3_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_Therm4_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_Therm5_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_Therm6_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_Therm7_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_Therm8_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_Therm9_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_Therm10_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_Therm11_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_Therm12_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_Therm13_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_Therm0_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_Therm1_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_Therm2_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_Therm3_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_Therm4_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_Therm5_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_Therm6_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_Therm7_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_Therm8_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_Therm9_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_Therm10_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_Therm11_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_Therm12_ThermOwcError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_Therm13_ThermOwcError": {
+        "enum": "ErrorCode"
+      }
+    }
+  },
+  "SegmentVoltageErrors": {
+    "msg_id": 470,
+    "cycle_time": null,
+    "allowed_modes": [
+      "DEBUG"
+    ],
+    "description": "Per-segment error codes for segment voltages (INVALID_ARGS = no error)",
+    "signals": {
+      "Seg0_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_VoltageError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_VoltageError": {
+        "enum": "ErrorCode"
+      }
+    }
+  },
+  "SegmentStatAErrors": {
+    "msg_id": 471,
+    "cycle_time": null,
+    "allowed_modes": [
+      "DEBUG"
+    ],
+    "description": "Per-segment error codes for STATA (INVALID_ARGS = no error)",
+    "signals": {
+      "Seg0_StatAError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_StatAError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_StatAError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_StatAError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_StatAError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_StatAError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_StatAError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_StatAError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_StatAError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_StatAError": {
+        "enum": "ErrorCode"
+      }
+    }
+  },
+  "SegmentStatBErrors": {
+    "msg_id": 472,
+    "cycle_time": null,
+    "allowed_modes": [
+      "DEBUG"
+    ],
+    "description": "Per-segment error codes for STATB (INVALID_ARGS = no error)",
+    "signals": {
+      "Seg0_StatBError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_StatBError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_StatBError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_StatBError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_StatBError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_StatBError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_StatBError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_StatBError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_StatBError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_StatBError": {
+        "enum": "ErrorCode"
+      }
+    }
+  },
+  "SegmentStatCErrors": {
+    "msg_id": 473,
+    "cycle_time": null,
+    "allowed_modes": [
+      "DEBUG"
+    ],
+    "description": "Per-segment error codes for STATC (INVALID_ARGS = no error)",
+    "signals": {
+      "Seg0_StatCError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_StatCError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_StatCError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_StatCError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_StatCError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_StatCError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_StatCError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_StatCError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_StatCError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_StatCError": {
+        "enum": "ErrorCode"
+      }
+    }
+  },
+  "SegmentStatDErrors": {
+    "msg_id": 474,
+    "cycle_time": null,
+    "allowed_modes": [
+      "DEBUG"
+    ],
+    "description": "Per-segment error codes for STATD (INVALID_ARGS = no error)",
+    "signals": {
+      "Seg0_StatDError": {
+        "enum": "ErrorCode"
+      },
+      "Seg1_StatDError": {
+        "enum": "ErrorCode"
+      },
+      "Seg2_StatDError": {
+        "enum": "ErrorCode"
+      },
+      "Seg3_StatDError": {
+        "enum": "ErrorCode"
+      },
+      "Seg4_StatDError": {
+        "enum": "ErrorCode"
+      },
+      "Seg5_StatDError": {
+        "enum": "ErrorCode"
+      },
+      "Seg6_StatDError": {
+        "enum": "ErrorCode"
+      },
+      "Seg7_StatDError": {
+        "enum": "ErrorCode"
+      },
+      "Seg8_StatDError": {
+        "enum": "ErrorCode"
+      },
+      "Seg9_StatDError": {
+        "enum": "ErrorCode"
+      }
+    }
+  },
+  "SegmentHealthErrors": {
+    "msg_id": 475,
+    "cycle_time": null,
+    "description": "Per-segment health error bits (9 bits per segment, 10 segments). True = error set.",
+    "signals": {
+      "Seg0_CellAdcPoll": {
+        "bits": 1
+      },
+      "Seg0_AuxAdcPoll": {
+        "bits": 1
+      },
+      "Seg0_OwcAdcPoll": {
+        "bits": 1
+      },
+      "Seg0_CellVoltage": {
+        "bits": 1
+      },
+      "Seg0_CellOwcVoltage": {
+        "bits": 1
+      },
+      "Seg0_ThermVoltage": {
+        "bits": 1
+      },
+      "Seg0_SegVoltage": {
+        "bits": 1
+      },
+      "Seg0_Status": {
+        "bits": 1
+      },
+      "Seg0_Config": {
+        "bits": 1
+      },
+      "Seg1_CellAdcPoll": {
+        "bits": 1
+      },
+      "Seg1_AuxAdcPoll": {
+        "bits": 1
+      },
+      "Seg1_OwcAdcPoll": {
+        "bits": 1
+      },
+      "Seg1_CellVoltage": {
+        "bits": 1
+      },
+      "Seg1_CellOwcVoltage": {
+        "bits": 1
+      },
+      "Seg1_ThermVoltage": {
+        "bits": 1
+      },
+      "Seg1_SegVoltage": {
+        "bits": 1
+      },
+      "Seg1_Status": {
+        "bits": 1
+      },
+      "Seg1_Config": {
+        "bits": 1
+      },
+      "Seg2_CellAdcPoll": {
+        "bits": 1
+      },
+      "Seg2_AuxAdcPoll": {
+        "bits": 1
+      },
+      "Seg2_OwcAdcPoll": {
+        "bits": 1
+      },
+      "Seg2_CellVoltage": {
+        "bits": 1
+      },
+      "Seg2_CellOwcVoltage": {
+        "bits": 1
+      },
+      "Seg2_ThermVoltage": {
+        "bits": 1
+      },
+      "Seg2_SegVoltage": {
+        "bits": 1
+      },
+      "Seg2_Status": {
+        "bits": 1
+      },
+      "Seg2_Config": {
+        "bits": 1
+      },
+      "Seg3_CellAdcPoll": {
+        "bits": 1
+      },
+      "Seg3_AuxAdcPoll": {
+        "bits": 1
+      },
+      "Seg3_OwcAdcPoll": {
+        "bits": 1
+      },
+      "Seg3_CellVoltage": {
+        "bits": 1
+      },
+      "Seg3_CellOwcVoltage": {
+        "bits": 1
+      },
+      "Seg3_ThermVoltage": {
+        "bits": 1
+      },
+      "Seg3_SegVoltage": {
+        "bits": 1
+      },
+      "Seg3_Status": {
+        "bits": 1
+      },
+      "Seg3_Config": {
+        "bits": 1
+      },
+      "Seg4_CellAdcPoll": {
+        "bits": 1
+      },
+      "Seg4_AuxAdcPoll": {
+        "bits": 1
+      },
+      "Seg4_OwcAdcPoll": {
+        "bits": 1
+      },
+      "Seg4_CellVoltage": {
+        "bits": 1
+      },
+      "Seg4_CellOwcVoltage": {
+        "bits": 1
+      },
+      "Seg4_ThermVoltage": {
+        "bits": 1
+      },
+      "Seg4_SegVoltage": {
+        "bits": 1
+      },
+      "Seg4_Status": {
+        "bits": 1
+      },
+      "Seg4_Config": {
+        "bits": 1
+      },
+      "Seg5_CellAdcPoll": {
+        "bits": 1
+      },
+      "Seg5_AuxAdcPoll": {
+        "bits": 1
+      },
+      "Seg5_OwcAdcPoll": {
+        "bits": 1
+      },
+      "Seg5_CellVoltage": {
+        "bits": 1
+      },
+      "Seg5_CellOwcVoltage": {
+        "bits": 1
+      },
+      "Seg5_ThermVoltage": {
+        "bits": 1
+      },
+      "Seg5_SegVoltage": {
+        "bits": 1
+      },
+      "Seg5_Status": {
+        "bits": 1
+      },
+      "Seg5_Config": {
+        "bits": 1
+      },
+      "Seg6_CellAdcPoll": {
+        "bits": 1
+      },
+      "Seg6_AuxAdcPoll": {
+        "bits": 1
+      },
+      "Seg6_OwcAdcPoll": {
+        "bits": 1
+      },
+      "Seg6_CellVoltage": {
+        "bits": 1
+      },
+      "Seg6_CellOwcVoltage": {
+        "bits": 1
+      },
+      "Seg6_ThermVoltage": {
+        "bits": 1
+      },
+      "Seg6_SegVoltage": {
+        "bits": 1
+      },
+      "Seg6_Status": {
+        "bits": 1
+      },
+      "Seg6_Config": {
+        "bits": 1
+      },
+      "Seg7_CellAdcPoll": {
+        "bits": 1
+      },
+      "Seg7_AuxAdcPoll": {
+        "bits": 1
+      },
+      "Seg7_OwcAdcPoll": {
+        "bits": 1
+      },
+      "Seg7_CellVoltage": {
+        "bits": 1
+      },
+      "Seg7_CellOwcVoltage": {
+        "bits": 1
+      },
+      "Seg7_ThermVoltage": {
+        "bits": 1
+      },
+      "Seg7_SegVoltage": {
+        "bits": 1
+      },
+      "Seg7_Status": {
+        "bits": 1
+      },
+      "Seg7_Config": {
+        "bits": 1
+      },
+      "Seg8_CellAdcPoll": {
+        "bits": 1
+      },
+      "Seg8_AuxAdcPoll": {
+        "bits": 1
+      },
+      "Seg8_OwcAdcPoll": {
+        "bits": 1
+      },
+      "Seg8_CellVoltage": {
+        "bits": 1
+      },
+      "Seg8_CellOwcVoltage": {
+        "bits": 1
+      },
+      "Seg8_ThermVoltage": {
+        "bits": 1
+      },
+      "Seg8_SegVoltage": {
+        "bits": 1
+      },
+      "Seg8_Status": {
+        "bits": 1
+      },
+      "Seg8_Config": {
+        "bits": 1
+      },
+      "Seg9_CellAdcPoll": {
+        "bits": 1
+      },
+      "Seg9_AuxAdcPoll": {
+        "bits": 1
+      },
+      "Seg9_OwcAdcPoll": {
+        "bits": 1
+      },
+      "Seg9_CellVoltage": {
+        "bits": 1
+      },
+      "Seg9_CellOwcVoltage": {
+        "bits": 1
+      },
+      "Seg9_ThermVoltage": {
+        "bits": 1
+      },
+      "Seg9_SegVoltage": {
+        "bits": 1
+      },
+      "Seg9_Status": {
+        "bits": 1
+      },
+      "Seg9_Config": {
+        "bits": 1
+      }
+    }
+  },
+  "Fans": {
+    "msg_id": 425,
+    "cycle_time": 100,
+    "description": "Fan control signals",
+    "signals": {
+      "FanStatus": {
+        "bits": 1
+      },
+      "FanPgood": {
+        "bits": 1
+      }
+    }
+  },
+  "ElconControls": {
+    "msg_id": 403105268,
+    "cycle_time": 1000,
+    "description": "Control parameters for Elcon charger communication",
+    "signals": {
+      "MaxChargingVoltage": {
+        "start_bit": 0,
+        "bits": 16,
+        "min": 0,
+        "max": 10000,
+        "scale": 0.1,
+        "offset": 0,
+        "unit": "V",
+        "big_endian": true
+      },
+      "MaxChargingCurrent": {
+        "start_bit": 16,
+        "bits": 16,
+        "min": 0,
+        "max": 1000,
+        "scale": 0.1,
+        "offset": 0,
+        "unit": "A",
+        "big_endian": true
+      },
+      "StopCharging": {
+        "start_bit": 32,
+        "bits": 1,
+        "start_value": 1
+      }
+    }
   }
 }

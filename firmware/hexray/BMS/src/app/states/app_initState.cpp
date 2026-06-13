@@ -1,5 +1,3 @@
-#include <cstddef>
-
 #include "app_states.hpp"
 #include "app_tractiveSystem.hpp"
 #include "app_soc.hpp"
@@ -8,6 +6,7 @@
 #include "app_canRx.hpp"
 #include "app_canTx.hpp"
 #include "app_canUtils.hpp"
+#include "app_tractiveSystem.hpp"
 
 namespace app::states
 {
@@ -29,8 +28,9 @@ namespace initState
     void RunOnTick100Hz()
     {
         const bool irs_negative_closed =
-            (io::irs::negativeState() == app::can_utils::ContactorState::CONTACTOR_STATE_CLOSED);
+            io::irs::negativeState() == app::can_utils::ContactorState::CONTACTOR_STATE_CLOSED;
         const bool ts_discharged = (app::ts::getVoltage() < TS_DISCHARGED_THRESHOLD_V);
+        // const bool ts_discharged = true;
 
         // ONLY RUN THIS WHEN CELLS HAVE HAD TIME TO SETTLE
         if (app::can_rx::Debug_ResetSoc_MinCellV_get())
@@ -53,7 +53,7 @@ namespace initState
 
             const bool precharge_for_driving =
                 (app::can_rx::VC_State_get() == app::can_utils::VCState::VC_BMS_ON_STATE) && !charger_connected;
-            const bool cell_balancing_enabled = app::can_rx::Debug_CellBalancingRequest_get();
+            const bool cell_balancing_enabled = app::can_rx::Debug_CellBalancing_Request_get();
 
             if (external_charging_request && charger_connected)
             {

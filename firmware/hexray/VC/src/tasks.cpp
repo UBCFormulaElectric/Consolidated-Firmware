@@ -5,22 +5,25 @@
 #include "app_jsoncan.hpp"
 #include "app_canTx.hpp"
 #include "app_canAlerts.hpp"
+#include "app_lowVoltageBattery.hpp"
 
 #include "io_time.hpp"
 #include "io_canQueues.hpp"
 #include "hw_can.hpp"
 #include "hw_gpio.hpp"
 #include "io_canRx.hpp"
+#include "io_semaphore.hpp"
 
 #include "hw_adcs.hpp"
 #include "hw_cans.hpp"
-#include "hw_gpios.hpp"
 #include "hw_rtosTaskHandler.hpp"
 #include "hw_hardFaultHandler.hpp"
 #include "hw_bootup.hpp"
+#include "hw_i2cs.hpp"
 #include "hw_watchdog.hpp"
 #include "hw_resetReason.hpp"
 #include "hw_runTimeStat.hpp"
+#include "io_pumps.hpp"
 
 [[noreturn]] static void tasks_run1Hz(void *arg);
 [[noreturn]] static void tasks_run100Hz(void *arg);
@@ -28,16 +31,18 @@
 [[noreturn]] static void tasks_runCan1Tx(void *arg);
 [[noreturn]] static void tasks_runCan2Tx(void *arg);
 [[noreturn]] static void tasks_runCanRx(void *arg);
+[[noreturn]] static void tasks_batteryMonitoring(void *arg);
 [[noreturn]] static void tasks_powerMonitoring(void *arg);
 
 // Define the task with StaticTask Class
-constexpr size_t                                   TASK_COUNT = 7;
+constexpr size_t                                   TASK_COUNT = 7; // IMU, Batt Mon, Power Mon ADD
 static hw::rtos::StaticTask::StaticTaskStack<8096> Task100HzStack;
 static hw::rtos::StaticTask::StaticTaskStack<512>  Task1kHzStack;
 static hw::rtos::StaticTask::StaticTaskStack<512>  Task1HzStack;
 static hw::rtos::StaticTask::StaticTaskStack<512>  TaskCanRxStack;
 static hw::rtos::StaticTask::StaticTaskStack<512>  TaskCan1TxStack;
 static hw::rtos::StaticTask::StaticTaskStack<512>  TaskCan2TxStack;
+static hw::rtos::StaticTask::StaticTaskStack<1024> BatteryMonitoringStack;
 static hw::rtos::StaticTask::StaticTaskStack<512>  TaskPowerMonitoringStack;
 
 static hw::rtos::StaticTask Task100Hz(osPriorityHigh, "Task100Hz", tasks_run100Hz, Task100HzStack);
@@ -45,9 +50,33 @@ static hw::rtos::StaticTask Task1kHz(osPriorityRealtime, "Task1kHz", tasks_run1k
 static hw::rtos::StaticTask Task1Hz(osPriorityAboveNormal, "Task1Hz", tasks_run1Hz, Task1HzStack);
 static hw::rtos::StaticTask TaskCanRx(osPriorityNormal, "TaskCanRx", tasks_runCanRx, TaskCanRxStack);
 static hw::rtos::StaticTask TaskCan1Tx(osPriorityNormal, "TaskCanTx", tasks_runCan1Tx, TaskCan1TxStack);
-static hw::rtos::StaticTask TaskCan2Tx(osPriorityNormal, "TaskCanTx", tasks_runCan2Tx, TaskCan2TxStack);
+static hw::rtos::StaticTask TaskCan2Tx(osPriorityHigh, "TaskCanTx", tasks_runCan2Tx, TaskCan2TxStack);
+static hw::rtos::StaticTask
+    TaskBatteryMonitoring(osPriorityNormal, "TaskBatteryMonitoring", tasks_batteryMonitoring, BatteryMonitoringStack);
 static hw::rtos::StaticTask
     TaskPowerMonitoring(osPriorityNormal, "TaskPowerMonitoring", tasks_powerMonitoring, TaskPowerMonitoringStack);
+
+static hw::runtimeStat::monitor<TASK_COUNT> runtimeMonitor{
+    { app::can_tx::VC_CoreCpuUsage_set, app::can_tx::VC_CoreCpuUsageMax_set },
+    {
+        { { Task1kHz, app::can_tx::VC_TaskRun1kHzCpuUsage_set, app::can_tx::VC_TaskRun1kHzCpuUsageMax_set,
+            app::can_tx::VC_TaskRun1kHzStackUsage_set },
+          { Task1Hz, app::can_tx::VC_TaskRun1HzCpuUsage_set, app::can_tx::VC_TaskRun1HzCpuUsageMax_set,
+            app::can_tx::VC_TaskRun1HzStackUsage_set },
+          { Task100Hz, app::can_tx::VC_TaskRun100HzCpuUsage_set, app::can_tx::VC_TaskRun100HzCpuUsageMax_set,
+            app::can_tx::VC_TaskRun100HzStackUsage_set },
+          { TaskCanRx, app::can_tx::VC_TaskRunCanRxCpuUsage_set, app::can_tx::VC_TaskRunCanRxCpuUsageMax_set,
+            app::can_tx::VC_TaskRunCanRxStackUsage_set },
+          { TaskCan1Tx, app::can_tx::VC_TaskRunCan1TxCpuUsage_set, app::can_tx::VC_TaskRunCan1TxCpuUsageMax_set,
+            app::can_tx::VC_TaskRunCan1TxStackUsage_set },
+          { TaskCan2Tx, app::can_tx::VC_TaskRunCan2TxCpuUsage_set, app::can_tx::VC_TaskRunCan2TxCpuUsageMax_set,
+            app::can_tx::VC_TaskRunCan2TxStackUsage_set },
+          { TaskPowerMonitoring, app::can_tx::VC_TaskRunPowerMonitoringCpuUsage_set,
+            app::can_tx::VC_TaskRunPowerMonitoringCpuUsageMax_set,
+            app::can_tx::VC_TaskRunPowerMonitoringStackUsage_set } },
+        // Battery Monitoring and IMU...
+    },
+};
 
 static hw::watchdog::monitor<TASK_COUNT> monitor{
     hiwdg1,
@@ -65,6 +94,7 @@ void tasks_run1Hz(void *arg)
     {
         jobs_run1Hz_tick();
         watchdog1hz.checkIn();
+        runtimeMonitor.checkin();
         start_ticks += period_ms;
         io::time::delayUntil(start_ticks);
         osDelayUntil(start_ticks);
@@ -156,8 +186,20 @@ void tasks_runCanRx(void *arg)
         io::can_rx::updateRxTableWithMessage(app::jsoncan::copyFromCanMsg(msg.value()));
     }
 }
+[[noreturn]] static void tasks_batteryMonitoring(void *arg)
+{
+    static const TickType_t period_ms   = 10;
+    static uint32_t         start_ticks = 0;
+    start_ticks                         = osKernelGetTickCount();
 
-// lowk js copied from last years task
+    app::batteryMonitoring::init();
+    for (;;)
+    {
+        jobs_runBatteryMonitoring_tick();
+        start_ticks += period_ms;
+        osDelayUntil(start_ticks);
+    }
+}
 [[noreturn]] static void tasks_powerMonitoring(void *arg)
 {
     static const TickType_t period_ms   = 10;
@@ -180,6 +222,7 @@ static void VC_StartAllTasks()
     TaskCanRx.start();
     TaskCan1Tx.start();
     TaskCan2Tx.start();
+    TaskBatteryMonitoring.start();
     TaskPowerMonitoring.start();
 }
 
@@ -198,39 +241,69 @@ void tasks_init()
 #endif
 
     LOG_INFO("VC Reset!");
-    osKernelInitialize();
-    jobs_init();
+
+    // hw::runtimeStat::init(htim7);
     fdcan1.init();
     invcan.init();
 
     adcChipsInit();
 
-    hw::bootup::BootRequest boot_request = hw::bootup::getBootRequest();
-    if (boot_request.context != hw::bootup::BootContext::BOOT_CONTEXT_NONE)
+    if (hw::bootup::BootRequest boot_request = hw::bootup::getBootRequest();
+        boot_request.context != hw::bootup::BootContext::NONE)
     {
-        if (boot_request.context == hw::bootup::BootContext::BOOT_CONTEXT_STACK_OVERFLOW)
+        // Check for stack overflow on a previous boot cycle and populate CAN alert.
+        if (boot_request.context == hw::bootup::BootContext::OVERFLOW)
         {
             LOG_WARN("Detected stack overflow on the previous boot cycle!");
+            app::can_alerts::infos::StackOverflow_set(true);
+            app::can_tx::VC_StackOverflowTask_set(boot_request.context_value);
+        }
+        else if (boot_request.context == hw::bootup::BootContext::WATCHDOG_TIMEOUT)
+        {
+            // If the software driver detected a watchdog timeout the context should be set.
+            app::can_alerts::infos::WatchdogTimeout_set(true);
+            app::can_tx::VC_WatchdogTimeoutTask_set(boot_request.context_value);
         }
 
-        const_cast<hw::bootup::BootRequest &>(boot_request).context       = hw::bootup::BootContext::BOOT_CONTEXT_NONE;
-        const_cast<hw::bootup::BootRequest &>(boot_request).context_value = 0;
+        // Clear stack overflow bootup.
+        boot_request.context       = hw::bootup::BootContext::NONE;
+        boot_request.context_value = 0;
         hw::bootup::setBootRequest(boot_request);
     }
 
-    dam_en.writePin(true);
-    rsm_en.writePin(true);
-    front_en.writePin(true);
-    bms_en.writePin(true);
+    // TODO this should surely be managed by the power manager??
+    // dam_en.writePin(true);
+    // rsm_en.writePin(true);
+    // front_en.writePin(true);
+    // bms_en.writePin(true);
+    // rl_pump_en.writePin(true);
+    // rr_pump_en.writePin(true);
+    // f_inv_en.writePin(true);
+    // r_inv_en.writePin(true);
+    // r_rad_fan_en.writePin(true);
+    // l_rad_fan_en.writePin(true);
+    // misc_fuse_en.writePin(true);
     ResetReason reason = hw::resetReason::get();
+    app::can_tx::VC_ResetReason_set(static_cast<app::can_utils::CanResetReason>(reason));
     if (reason == RESET_REASON_WATCHDOG)
     {
         LOG_WARN("Detected watchdog timeout on the previous boot cycle!");
         app::can_alerts::infos::WatchdogTimeout_set(true);
     }
+
     jobs_init();
     osKernelInitialize();
     VC_StartAllTasks();
     osKernelStart();
     forever {}
+}
+
+void tasks_tim_callback(const TIM_HandleTypeDef *tim)
+{
+#ifndef USE_CHIMERA
+    if (tim == &htim7)
+    {
+        hw::runtimeStat::inc();
+    }
+#endif
 }

@@ -2,6 +2,7 @@
 pub mod live_data_handler;
 pub mod influx_handler;
 pub mod influx_util;
+pub mod decoded_item;
 
 use jsoncan_rust::{parsing::JsonCanParser, can_database::CanDatabase};
 use crate::config::CONFIG;

@@ -44,6 +44,8 @@
 /* Private variables ---------------------------------------------------------*/
 ADC_HandleTypeDef hadc1;
 ADC_HandleTypeDef hadc2;
+DMA_HandleTypeDef hdma_adc1;
+DMA_HandleTypeDef hdma_adc2;
 
 FDCAN_HandleTypeDef hfdcan1;
 FDCAN_HandleTypeDef hfdcan3;
@@ -73,6 +75,7 @@ PCD_HandleTypeDef hpcd_USB_OTG_HS;
 void        SystemClock_Config(void);
 void        PeriphCommonClock_Config(void);
 static void MX_GPIO_Init(void);
+static void MX_DMA_Init(void);
 static void MX_ADC1_Init(void);
 static void MX_USB_OTG_HS_PCD_Init(void);
 static void MX_ADC2_Init(void);
@@ -127,6 +130,7 @@ int main(void)
 
     /* Initialize all configured peripherals */
     MX_GPIO_Init();
+    MX_DMA_Init();
     MX_ADC1_Init();
     MX_USB_OTG_HS_PCD_Init();
     MX_ADC2_Init();
@@ -271,14 +275,14 @@ static void MX_ADC1_Init(void)
     hadc1.Init.ClockPrescaler           = ADC_CLOCK_ASYNC_DIV4;
     hadc1.Init.Resolution               = ADC_RESOLUTION_16B;
     hadc1.Init.ScanConvMode             = ADC_SCAN_ENABLE;
-    hadc1.Init.EOCSelection             = ADC_EOC_SEQ_CONV;
+    hadc1.Init.EOCSelection             = ADC_EOC_SINGLE_CONV;
     hadc1.Init.LowPowerAutoWait         = DISABLE;
     hadc1.Init.ContinuousConvMode       = DISABLE;
     hadc1.Init.NbrOfConversion          = 6;
     hadc1.Init.DiscontinuousConvMode    = DISABLE;
     hadc1.Init.ExternalTrigConv         = ADC_EXTERNALTRIG_T3_TRGO;
     hadc1.Init.ExternalTrigConvEdge     = ADC_EXTERNALTRIGCONVEDGE_RISING;
-    hadc1.Init.ConversionDataManagement = ADC_CONVERSIONDATA_DR;
+    hadc1.Init.ConversionDataManagement = ADC_CONVERSIONDATA_DMA_CIRCULAR;
     hadc1.Init.Overrun                  = ADC_OVR_DATA_PRESERVED;
     hadc1.Init.LeftBitShift             = ADC_LEFTBITSHIFT_NONE;
     hadc1.Init.OversamplingMode         = DISABLE;
@@ -389,7 +393,7 @@ static void MX_ADC2_Init(void)
     hadc2.Init.DiscontinuousConvMode    = DISABLE;
     hadc2.Init.ExternalTrigConv         = ADC_EXTERNALTRIG_T3_TRGO;
     hadc2.Init.ExternalTrigConvEdge     = ADC_EXTERNALTRIGCONVEDGE_RISING;
-    hadc2.Init.ConversionDataManagement = ADC_CONVERSIONDATA_DR;
+    hadc2.Init.ConversionDataManagement = ADC_CONVERSIONDATA_DMA_CIRCULAR;
     hadc2.Init.Overrun                  = ADC_OVR_DATA_PRESERVED;
     hadc2.Init.LeftBitShift             = ADC_LEFTBITSHIFT_NONE;
     hadc2.Init.OversamplingMode         = DISABLE;
@@ -524,7 +528,7 @@ static void MX_FDCAN3_Init(void)
     hfdcan3.Init.AutoRetransmission   = ENABLE;
     hfdcan3.Init.TransmitPause        = DISABLE;
     hfdcan3.Init.ProtocolException    = DISABLE;
-    hfdcan3.Init.NominalPrescaler     = 6;
+    hfdcan3.Init.NominalPrescaler     = 12;
     hfdcan3.Init.NominalSyncJumpWidth = 3;
     hfdcan3.Init.NominalTimeSeg1      = 12;
     hfdcan3.Init.NominalTimeSeg2      = 3;
@@ -952,6 +956,23 @@ static void MX_USB_OTG_HS_PCD_Init(void)
 }
 
 /**
+ * Enable DMA controller clock
+ */
+static void MX_DMA_Init(void)
+{
+    /* DMA controller clock enable */
+    __HAL_RCC_DMA1_CLK_ENABLE();
+
+    /* DMA interrupt init */
+    /* DMA1_Stream1_IRQn interrupt configuration */
+    HAL_NVIC_SetPriority(DMA1_Stream1_IRQn, 0, 0);
+    HAL_NVIC_EnableIRQ(DMA1_Stream1_IRQn);
+    /* DMA1_Stream2_IRQn interrupt configuration */
+    HAL_NVIC_SetPriority(DMA1_Stream2_IRQn, 0, 0);
+    HAL_NVIC_EnableIRQ(DMA1_Stream2_IRQn);
+}
+
+/**
  * @brief GPIO Initialization Function
  * @param None
  * @retval None
@@ -973,18 +994,14 @@ static void MX_GPIO_Init(void)
 
     /*Configure GPIO pin Output Level */
     HAL_GPIO_WritePin(
-        GPIOE, IMU_CS1_Pin | IMU_CS2_Pin | IMU_CS3_Pin | LED_Pin | BOOT_Pin | INERTIA_3V3_OUT_Pin | IMU_FSYNC_Pin,
-        GPIO_PIN_RESET);
+        GPIOE, IMU_CS1_Pin | IMU_CS2_Pin | IMU_CS3_Pin | LED_Pin | BOOT_Pin | IMU_FSYNC_Pin, GPIO_PIN_RESET);
+
+    /*Configure GPIO pin Output Level */
+    HAL_GPIO_WritePin(GPIOB, BAT_CHRG_nSHDN_Pin | BMS_EN_Pin | FRONT_EN_Pin | RL_PUMP_EN_Pin, GPIO_PIN_RESET);
 
     /*Configure GPIO pin Output Level */
     HAL_GPIO_WritePin(
-        GPIOB, TSMS_3V3_OUT_Pin | BAT_CHRG_nSHDN_Pin | BMS_EN_Pin | FRONT_EN_Pin | RL_PUMP_EN_Pin, GPIO_PIN_RESET);
-
-    /*Configure GPIO pin Output Level */
-    HAL_GPIO_WritePin(
-        GPIOD,
-        F_INV_EN_Pin | SB_SHDN_3V3_OUT_Pin | RSM_EN_Pin | R_INV_EN_Pin | MISC_FUSE_EN_Pin | R_RAD_FAN_EN_Pin |
-            L_RAD_FAN_EN_Pin,
+        GPIOD, F_INV_EN_Pin | RSM_EN_Pin | R_INV_EN_Pin | MISC_FUSE_EN_Pin | R_RAD_FAN_EN_Pin | L_RAD_FAN_EN_Pin,
         GPIO_PIN_RESET);
 
     /*Configure GPIO pin Output Level */
@@ -994,9 +1011,8 @@ static void MX_GPIO_Init(void)
     HAL_GPIO_WritePin(RR_PUMP_EN_GPIO_Port, RR_PUMP_EN_Pin, GPIO_PIN_RESET);
 
     /*Configure GPIO pins : IMU_CS1_Pin IMU_CS2_Pin IMU_CS3_Pin LED_Pin
-                             BOOT_Pin INERTIA_3V3_OUT_Pin IMU_FSYNC_Pin */
-    GPIO_InitStruct.Pin =
-        IMU_CS1_Pin | IMU_CS2_Pin | IMU_CS3_Pin | LED_Pin | BOOT_Pin | INERTIA_3V3_OUT_Pin | IMU_FSYNC_Pin;
+                             BOOT_Pin IMU_FSYNC_Pin */
+    GPIO_InitStruct.Pin   = IMU_CS1_Pin | IMU_CS2_Pin | IMU_CS3_Pin | LED_Pin | BOOT_Pin | IMU_FSYNC_Pin;
     GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull  = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -1014,19 +1030,26 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(IMU_INT3_GPIO_Port, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : TSMS_3V3_OUT_Pin BAT_CHRG_nSHDN_Pin BMS_EN_Pin FRONT_EN_Pin */
-    GPIO_InitStruct.Pin   = TSMS_3V3_OUT_Pin | BAT_CHRG_nSHDN_Pin | BMS_EN_Pin | FRONT_EN_Pin;
+    /*Configure GPIO pins : TSMS_3V3_OUT_Pin FRONT_PG_Pin RL_PUMP_PGOOD_Pin */
+    GPIO_InitStruct.Pin  = TSMS_3V3_OUT_Pin | FRONT_PG_Pin | RL_PUMP_PGOOD_Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+    /*Configure GPIO pins : RR_ILCK_3V3_OUT_Pin BMS_PG_Pin INERTIA_3V3_OUT_Pin PWR_MTR_nALERT_Pin
+                             BOOST_PG_Pin BAT_CHRG_MODE_Pin */
+    GPIO_InitStruct.Pin =
+        RR_ILCK_3V3_OUT_Pin | BMS_PG_Pin | INERTIA_3V3_OUT_Pin | PWR_MTR_nALERT_Pin | BOOST_PG_Pin | BAT_CHRG_MODE_Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
+
+    /*Configure GPIO pins : BAT_CHRG_nSHDN_Pin BMS_EN_Pin FRONT_EN_Pin */
+    GPIO_InitStruct.Pin   = BAT_CHRG_nSHDN_Pin | BMS_EN_Pin | FRONT_EN_Pin;
     GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull  = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
-
-    /*Configure GPIO pins : RR_ILCK_3V3_OUT_Pin BMS_PG_Pin PWR_MTR_nALERT_Pin BOOST_PG_Pin
-                             BAT_CHRG_MODE_Pin */
-    GPIO_InitStruct.Pin  = RR_ILCK_3V3_OUT_Pin | BMS_PG_Pin | PWR_MTR_nALERT_Pin | BOOST_PG_Pin | BAT_CHRG_MODE_Pin;
-    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
 
     /*Configure GPIO pin : BAT_MTR_nALERT_Pin */
     GPIO_InitStruct.Pin  = BAT_MTR_nALERT_Pin;
@@ -1034,17 +1057,18 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(BAT_MTR_nALERT_GPIO_Port, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : R_INV_PG_Pin F_INV_PG_Pin MISC_FUSE_PG_Pin L_RAD_FAN_PG_Pin
-                             R_RAD_FAN_PG_Pin */
-    GPIO_InitStruct.Pin  = R_INV_PG_Pin | F_INV_PG_Pin | MISC_FUSE_PG_Pin | L_RAD_FAN_PG_Pin | R_RAD_FAN_PG_Pin;
+    /*Configure GPIO pins : R_INV_PG_Pin F_INV_PG_Pin SB_SHDN_3V3_OUT_Pin MISC_FUSE_PG_Pin
+                             L_RAD_FAN_PG_Pin R_RAD_FAN_PG_Pin */
+    GPIO_InitStruct.Pin =
+        R_INV_PG_Pin | F_INV_PG_Pin | SB_SHDN_3V3_OUT_Pin | MISC_FUSE_PG_Pin | L_RAD_FAN_PG_Pin | R_RAD_FAN_PG_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : F_INV_EN_Pin SB_SHDN_3V3_OUT_Pin RSM_EN_Pin R_INV_EN_Pin
-                             MISC_FUSE_EN_Pin R_RAD_FAN_EN_Pin L_RAD_FAN_EN_Pin */
-    GPIO_InitStruct.Pin = F_INV_EN_Pin | SB_SHDN_3V3_OUT_Pin | RSM_EN_Pin | R_INV_EN_Pin | MISC_FUSE_EN_Pin |
-                          R_RAD_FAN_EN_Pin | L_RAD_FAN_EN_Pin;
+    /*Configure GPIO pins : F_INV_EN_Pin RSM_EN_Pin R_INV_EN_Pin MISC_FUSE_EN_Pin
+                             R_RAD_FAN_EN_Pin L_RAD_FAN_EN_Pin */
+    GPIO_InitStruct.Pin =
+        F_INV_EN_Pin | RSM_EN_Pin | R_INV_EN_Pin | MISC_FUSE_EN_Pin | R_RAD_FAN_EN_Pin | L_RAD_FAN_EN_Pin;
     GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull  = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -1075,12 +1099,6 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(RR_PUMP_PGOOD_GPIO_Port, &GPIO_InitStruct);
-
-    /*Configure GPIO pins : FRONT_PG_Pin RL_PUMP_PGOOD_Pin */
-    GPIO_InitStruct.Pin  = FRONT_PG_Pin | RL_PUMP_PGOOD_Pin;
-    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
     /*Configure GPIO pin : RL_PUMP_EN_Pin */
     GPIO_InitStruct.Pin   = RL_PUMP_EN_Pin;
