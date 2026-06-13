@@ -1,6 +1,8 @@
 #include "hw_flash.hpp"
 #include "hw_utils.hpp"
 #include "main.h"
+#include <algorithm>
+
 #include <cassert>
 #include <cstring>
 
@@ -71,6 +73,19 @@ result<void> hw::flash::programFlashRetry(const uint32_t address, std::span<cons
         {
             __HAL_FLASH_CLEAR_FLAG(ERROR_FLAGS);
         }
+        // check that the memory has been cleared, namely check if the 16 byte span we're trying to program is all 0xFFs
+        // (erased flash bytes read as 0xFF)
+        // if (std::span<uint8_t, 16> buf{ reinterpret_cast<uint8_t *>(address), 16 };
+        //     std::ranges::any_of(buf.begin(), buf.end(), [](const uint8_t byte) { return byte != 0xFF; }))
+        // {
+        //     LOG_ERROR("expected all ffs, got");
+        //     for (const uint8_t byte : buf)
+        //     {
+        //         LOG_ERROR("0x%02X ", byte);
+        //     }
+        //     return std::unexpected(ErrorCode::CHECKSUM_FAIL);
+        // }
+
         if (status = utils::convertHalStatus(
                 HAL_FLASH_Program(PROGRAM_TYPE, address, reinterpret_cast<uint32_t>(buffer.data())));
             status and std::memcmp(reinterpret_cast<const void *>(address), buffer.data(), buffer.size()) == 0)

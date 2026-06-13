@@ -81,6 +81,22 @@
     "description": "Tells the BMS to jump to the bootloader",
     "signals": {}
   },
+  "BMS_EraseSectorFailed": {
+    "msg_id": 67108874,
+    "cycle_time": null,
+    "description": "Tells the BMS to jump to the bootloader",
+    "signals": {}
+  },
+  "BMS_ProgramSectorFailed": {
+    "msg_id": 67108875,
+    "cycle_time": null,
+    "description": "Tells the BMS to jump to the bootloader",
+    "signals": {
+      "JumpBackAddress": {
+        "bits": 32
+      }
+    }
+  },
   "VC_Status": {
     "msg_id": 134217728,
     "cycle_time": 100,
@@ -163,6 +179,22 @@
     "description": "Tells the VC to jump to the bootloader",
     "signals": {}
   },
+  "VC_EraseSectorFailed": {
+    "msg_id": 134217738,
+    "cycle_time": null,
+    "description": "Tells the BMS to jump to the bootloader",
+    "signals": {}
+  },
+  "VC_ProgramSectorFailed": {
+    "msg_id": 134217739,
+    "cycle_time": null,
+    "description": "Tells the BMS to jump to the bootloader",
+    "signals": {
+      "JumpBackAddress": {
+        "bits": 32
+      }
+    }
+  },
   "DAM_Status": {
     "msg_id": 201326592,
     "cycle_time": 100,
@@ -244,6 +276,22 @@
     "cycle_time": null,
     "description": "Tells the DAM to jump to the bootloader",
     "signals": {}
+  },
+  "DAM_EraseSectorFailed": {
+    "msg_id": 201326602,
+    "cycle_time": null,
+    "description": "Tells the BMS to jump to the bootloader",
+    "signals": {}
+  },
+  "DAM_ProgramSectorFailed": {
+    "msg_id": 201326603,
+    "cycle_time": null,
+    "description": "Tells the BMS to jump to the bootloader",
+    "signals": {
+      "JumpBackAddress": {
+        "bits": 32
+      }
+    }
   },
   "FSM_Status": {
     "msg_id": 268435456,
@@ -337,7 +385,11 @@
     "msg_id": 268435467,
     "cycle_time": null,
     "description": "Tells the FSM to jump to the bootloader",
-    "signals": {}
+    "signals": {
+      "JumpBackAddress": {
+        "bits": 32
+      }
+    }
   },
   "RSM_Status": {
     "msg_id": 335544320,
@@ -421,6 +473,22 @@
     "description": "Tells the RSM to jump to the bootloader",
     "signals": {}
   },
+  "RSM_EraseSectorFailed": {
+    "msg_id": 335544330,
+    "cycle_time": null,
+    "description": "Tells the BMS to jump to the bootloader",
+    "signals": {}
+  },
+  "RSM_ProgramSectorFailed": {
+    "msg_id": 335544331,
+    "cycle_time": null,
+    "description": "Tells the BMS to jump to the bootloader",
+    "signals": {
+      "JumpBackAddress": {
+        "bits": 32
+      }
+    }
+  },
   "CRIT_Status": {
     "msg_id": 402653184,
     "cycle_time": 100,
@@ -502,5 +570,21 @@
     "cycle_time": null,
     "description": "Tells the CRIT to jump to the bootloader",
     "signals": {}
+  },
+  "CRIT_EraseSectorFailed": {
+    "msg_id": 402653194,
+    "cycle_time": null,
+    "description": "Tells the BMS to jump to the bootloader",
+    "signals": {}
+  },
+  "CRIT_ProgramSectorFailed": {
+    "msg_id": 402653195,
+    "cycle_time": null,
+    "description": "Tells the BMS to jump to the bootloader",
+    "signals": {
+      "JumpBackAddress": {
+        "bits": 32
+      }
+    }
   }
 }
