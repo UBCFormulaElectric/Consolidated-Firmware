@@ -104,7 +104,11 @@ void jobs_run100Hz_tick()
     // io::fans::tick(app::can_rx::VC_State_get() == app::can_utils::VCState::VC_DRIVE_STATE);
     io::fans::tick(true);
     app::can_tx::BMS_FanStatus_set(true);
-    app::can_tx::BMS_FanPgood_set(fan_pgood.readPin());
+#ifdef TARGET_EMBEDDED
+    // app::can_tx::BMS_FanPgood_set(fan_pgood.readPin());
+#else
+    app::can_tx::BMS_FanPgood_set(false);
+#endif
 
     // Charger connection status
     app::can_tx::BMS_ChargerConnectedType_set(io::charger::getConnectionStatus());
