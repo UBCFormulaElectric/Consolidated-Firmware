@@ -27,6 +27,6 @@ extern const hw::adc aux_tsns;
 
 inline void adcChipsInit()
 {
-    LOG_IF_ERR(adc1.init());
-    LOG_IF_ERR(adc3.init(false));
+    LOG_IF_ERR(adc1.init(true, true));
+    LOG_IF_ERR(adc3.init(false, true));
 }

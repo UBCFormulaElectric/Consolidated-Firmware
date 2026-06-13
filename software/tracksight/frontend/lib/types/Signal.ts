@@ -9,7 +9,8 @@ export enum SignalType {
   ENUM = "enum",
   NUMERICAL = "numerical",
   ALERT = "alert",
-  BOOLEAN = "boolean"
+  BOOLEAN = "boolean",
+  MARKER = "marker"
 }
 
 export type EnumSignalMetadata = CommonSignalMetadata & {

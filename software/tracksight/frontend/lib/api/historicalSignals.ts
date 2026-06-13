@@ -1,9 +1,15 @@
 import { API_BASE_URL } from "@/lib/constants";
+import { SignalType } from "../types/Signal";
 
 type HistoricalSignalRow = {
     timestamp: string;
     value: number;
     name: string;
+};
+
+type SignalTilesResponse = {
+    resolution_ms: number;
+    rows: HistoricalSignalRow[];
 };
 
 export type HistoricalSignalSource = "Radio" | "SdCard";
@@ -14,25 +20,31 @@ export type HistoricalSignalPoint = {
     name: string;
 };
 
+export type HistoricalSignalResult = {
+    resolutionMs: number;
+    points: HistoricalSignalPoint[];
+};
+
 function toIsoUtcSeconds(timestampMs: number): string {
     return new Date(timestampMs).toISOString().slice(0, 19) + "Z";
 }
 
-function parseHistoricalPayload(payloadText: string): HistoricalSignalRow[] {
+function parseHistoricalPayload(payloadText: string): SignalTilesResponse {
     const parsed = JSON.parse(payloadText) as unknown;
-    if (!Array.isArray(parsed)) {
-        console.warn("[historical signal] Expected an array payload from backend.", parsed);
-        return [];
+    if (parsed === null || typeof parsed !== "object" || !Array.isArray((parsed as SignalTilesResponse).rows)) {
+        console.warn("[historical signal] Expected a { resolution_ms, rows } payload from backend.", parsed);
+        return { resolution_ms: 0, rows: [] };
     }
-    return parsed as HistoricalSignalRow[];
+    return parsed as SignalTilesResponse;
 }
 
-export async function fetchHistoricalSignal(params: { signalName: string; startUtcMs: number; endUtcMs: number; source: HistoricalSignalSource }): Promise<HistoricalSignalPoint[]> {
-    const { signalName, startUtcMs, endUtcMs, source } = params;
+export async function fetchHistoricalSignal(params: { signalName: string; signalType: SignalType; startUtcMs: number; endUtcMs: number; source: HistoricalSignalSource }): Promise<HistoricalSignalResult> {
+    const { signalName, signalType, startUtcMs, endUtcMs, source } = params;
 
     const start = toIsoUtcSeconds(startUtcMs);
     const end = toIsoUtcSeconds(endUtcMs);
-    const url = `${API_BASE_URL}/api/v1/signal/tiles/${encodeURIComponent(signalName)}/${start}/${end}?source=${encodeURIComponent(JSON.stringify(source))}`;
+    const agg = signalType === SignalType.NUMERICAL ? "mean" : "first";
+    const url = `${API_BASE_URL}/api/v1/signal/tiles/${encodeURIComponent(signalName)}/${start}/${end}?agg=${agg}&source=${encodeURIComponent(JSON.stringify(source))}`;
 
     const response = await fetch(url, {
         cache: "no-store",
@@ -44,11 +56,14 @@ export async function fetchHistoricalSignal(params: { signalName: string; startU
     }
 
     const payloadText = await response.text();
-    const rows = parseHistoricalPayload(payloadText);
+    const { resolution_ms, rows } = parseHistoricalPayload(payloadText);
 
-    return rows.map((row) => ({
-        name: row.name,
-        value: row.value,
-        timestampMs: Date.parse(row.timestamp),
-    }));
+    return {
+        resolutionMs: resolution_ms,
+        points: rows.map((row) => ({
+            name: row.name,
+            value: row.value,
+            timestampMs: Date.parse(row.timestamp),
+        })),
+    };
 }
