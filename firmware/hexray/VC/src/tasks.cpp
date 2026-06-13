@@ -97,7 +97,7 @@ void tasks_run1Hz(void *arg)
     {
         jobs_run1Hz_tick();
         watchdog1hz.checkIn();
-        runtimeMonitor.checkin();
+        // runtimeMonitor.checkin();
         start_ticks += period_ms;
         io::time::delayUntil(start_ticks);
         osDelayUntil(start_ticks);
@@ -264,7 +264,7 @@ void tasks_init()
 
     LOG_INFO("VC Reset!");
 
-    // hw::runtimeStat::init(htim7);
+    hw::runtimeStat::init(htim7);
     fdcan1.init();
     invcan.init();
 
@@ -325,7 +325,7 @@ void tasks_tim_callback(const TIM_HandleTypeDef *tim)
 #ifndef USE_CHIMERA
     if (tim == &htim7)
     {
-        hw::runtimeStat::inc();
+        // hw::runtimeStat::inc();
     }
 #endif
 }
