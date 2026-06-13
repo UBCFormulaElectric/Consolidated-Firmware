@@ -80,7 +80,8 @@ void setLeds()
             can_alerts::BoardHasFault(can_utils::CanNode::DAM_NODE),
             can_alerts::BoardHasWarning(can_utils::CanNode::DAM_NODE), dam_heartbeat_node.status),
         switches::launch_control_get() ? io::leds::color::GREEN : io::leds::color::OFF,
-        switches::start_get() ? io::leds::color::GREEN : io::leds::color::OFF,
+        app::can_rx::VC_State_get() == can_utils::VCState::VC_DRIVE_STATE ? io::leds::color::GREEN
+                                                                          : io::leds::color::OFF,
         can_rx::VC_FirstFaultNode_get() == can_utils::ShutdownNode::OK ? io::leds::color::OFF : io::leds::color::RED,
         switches::regen_get(),
         switches::torque_vectoring_get(),
