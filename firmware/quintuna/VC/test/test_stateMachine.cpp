@@ -688,7 +688,7 @@ TEST_F(VCStateMachineTest, InverterRetryTwoFaultsInaRow)
 TEST_F(VCStateMachineTest, GoodVoltageTransitionsToHvInit)
 {
     SetStateWithEntry(&pcmOn_state);
-    app_canTx_VC_ChannelOneVoltage_set(20.0f);
+    app_canTx_VC_PcmChannelVoltage_set(20.0f);
     LetTimePass(20);
     ASSERT_EQ(app_canTx_VC_PcmRetryCount_get(), 0);
     ASSERT_STATE_EQ(hvInit_state);
@@ -699,7 +699,7 @@ TEST_F(VCStateMachineTest, GoodVoltageTransitionsToHvInit)
 // {
 //     // Override voltage read function to return below threshold
 //     SetStateWithEntry(&pcmOn_state);
-//     app_canTx_VC_ChannelOneVoltage_set(16.0f);
+//     app_canTx_VC_PcmChannelVoltage_set(16.0f);
 //     ASSERT_EQ(app_canTx_VC_PcmRetryCount_get(), 0);
 //     LetTimePass(20); // PCM is not turned on in entry so wait 2 ticks then check
 //     EXPECT_TRUE(io_pcm_enabled());
@@ -756,7 +756,7 @@ TEST_F(VCStateMachineTest, GoodVoltageTransitionsToHvInit)
 // {
 //     // Override voltage read function to return below threshold
 //     SetStateWithEntry(&pcmOn_state);
-//     app_canTx_VC_ChannelOneVoltage_set(16.0f);
+//     app_canTx_VC_PcmChannelVoltage_set(16.0f);
 //     ASSERT_EQ(app_canTx_VC_PcmRetryCount_get(), 0);
 //     LetTimePass(20); // PCM is not turned on in entry so wait 2 ticks then check
 //     EXPECT_TRUE(io_pcm_enabled());
@@ -787,7 +787,7 @@ TEST_F(VCStateMachineTest, GoodVoltageTransitionsToHvInit)
 //     LetTimePass(10);
 //     EXPECT_TRUE(io_pcm_enabled()); // retry toggle complete
 //     ASSERT_STATE_EQ(pcmOn_state);
-//     app_canTx_VC_ChannelOneVoltage_set(18.0f);
+//     app_canTx_VC_PcmChannelVoltage_set(18.0f);
 
 //     LetTimePass(10); // first tick
 //     LetTimePass(10); // debounce tick
@@ -844,7 +844,7 @@ TEST_F(VCStateMachineTest, pcmOnStateLatchedFault)
     SetStateWithEntry(&pcmOn_state);
     LetTimePass(10);
     app_canRx_BMS_IrNegative_update(CONTACTOR_STATE_CLOSED);
-    app_canTx_VC_ChannelOneVoltage_set(28.0f);
+    app_canTx_VC_PcmChannelVoltage_set(28.0f);
     LetTimePass(10);
     app_canRx_BMS_IrNegative_update(CONTACTOR_STATE_OPEN);
     LetTimePass(1010);

@@ -33,6 +33,7 @@ void init()
             {
                 case can_utils::VCState::VC_DRIVE_WARNING_STATE:
                 case can_utils::VCState::VC_FAULT_STATE:
+                case can_utils::VCState::VC_INVERTER_FAULT_HANDELER:
                     // disable rotary
                     return;
                 case can_utils::VCState::VC_PCM_ON_STATE:
@@ -62,6 +63,7 @@ void tick()
     {
         case can_utils::VCState::VC_DRIVE_WARNING_STATE:
         case can_utils::VCState::VC_FAULT_STATE:
+        case can_utils::VCState::VC_INVERTER_FAULT_HANDELER:
             alerts_screen.update();
             return;
         case can_utils::VCState::VC_INIT_STATE:

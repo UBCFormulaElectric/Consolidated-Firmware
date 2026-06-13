@@ -4,5 +4,5 @@
 extern "C" void hw_sysviewConfig_sendSystemDesc()
 {
     SEGGER_SYSVIEW_SendSysDesc("N=VC,O=FreeRTOS,D=STM32H733VG,C=Cortex-M7");
-    SEGGER_SYSVIEW_SendSysDesc("I#15=SysTick");
+    SEGGER_SYSVIEW_SendSysDesc("I#15=SysTick,I#111=I2C4_EV,I#112=I2C4_ER");
 }

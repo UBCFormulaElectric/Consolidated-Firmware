@@ -14,6 +14,7 @@ class Efuse
 #ifdef TARGET_EMBEDDED
     const hw::gpio &enable_gpio;
     const hw::adc  &sns_adc_channel;
+    mutable bool    channel_state = false;
 #endif
 
   public:
@@ -28,14 +29,18 @@ class Efuse
      *
      * @param enabled
      */
-    void setChannel(const bool enabled) const { enable_gpio.writePin(enabled); }
+    void setChannel(const bool enabled) const
+    {
+        channel_state = enabled;
+        enable_gpio.writePin(enabled);
+    }
 
     /**
      * @brief Check if efuse is enabled
      *
      * @return true if enabled, false otherwise
      */
-    [[nodiscard]] bool isChannelEnabled() const { return this->enable_gpio.readPin(); }
+    [[nodiscard]] bool isChannelEnabled() const { return channel_state; }
 
     /**
      * @brief Read the current flowing through the efuse

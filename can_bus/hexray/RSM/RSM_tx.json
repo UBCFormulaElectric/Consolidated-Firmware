@@ -162,12 +162,12 @@
       "log_cycle_time" : 1000
     }
   },
-  "RearPumpPercentage": {
+  "RearLeftPumpPercentage": {
     "msg_id": 714,
     "cycle_time": 100,
     "description": "Rear pump information",
     "signals": {
-      "RPumpPercentage": {
+      "RearLeftPumpPercentage": {
         "resolution": 1,
         "min": 0,
         "max": 100,
