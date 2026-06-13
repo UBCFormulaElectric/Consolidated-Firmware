@@ -7,6 +7,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { HistoricalSignalSource } from "@/lib/api/historicalSignals";
 import { HistoricalSession } from "@/lib/api/historicalSessions";
 import { SOURCE_OPTIONS, SelectionStep, sourceLabelFor, useHistoricalSelection } from "@/lib/contexts/HistoricalSelectionContext";
+import { useTimezone } from "@/lib/contexts/TimezoneContext";
 import { useHistoricalSessionsForRange } from "@/lib/hooks/useHistoricalSessionsForRange";
 import { cn } from "@/lib/utils";
 
@@ -14,12 +15,25 @@ const MONTH_NAMES = ["January", "February", "March", "April", "May", "June", "Ju
 const WEEKDAY_LABELS = ["S", "M", "T", "W", "T", "F", "S"];
 
 const createUtcDate = (year: number, month: number, day: number) => new Date(Date.UTC(year, month, day));
-const startOfUtcDay = (utcMs: number) => {
-    const date = new Date(utcMs);
-    return createUtcDate(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate());
+
+const getLocalParts = (utcMs: number, timeZone: string) => {
+    const fmt = new Intl.DateTimeFormat("en-US", { timeZone, year: "numeric", month: "numeric", day: "numeric" });
+    const parts = fmt.formatToParts(new Date(utcMs));
+    const getPart = (type: string) => parts.find((p) => p.type === type)?.value || "0";
+    return {
+        year: parseInt(getPart("year")),
+        month: parseInt(getPart("month")) - 1,
+        day: parseInt(getPart("day")),
+    };
 };
+
+const startOfLocalDayAsPseudoUtc = (utcMs: number, timeZone: string) => {
+    const parts = getLocalParts(utcMs, timeZone);
+    return createUtcDate(parts.year, parts.month, parts.day);
+};
+
 const firstOfUtcMonth = (date: Date) => createUtcDate(date.getUTCFullYear(), date.getUTCMonth(), 1);
-const getUtcToday = () => startOfUtcDay(Date.now());
+const getLocalTodayAsPseudoUtc = (timeZone: string) => startOfLocalDayAsPseudoUtc(Date.now(), timeZone);
 
 const toDateKey = (date: Date) => {
     const year = date.getUTCFullYear();
@@ -173,7 +187,7 @@ function SessionStep({ sessions, selectedSessionId, onSessionSelect, isLoading, 
                 return (
                     <button key={session.id} type="button" onClick={() => onSessionSelect(session.id)} className={cn("flex w-full items-center gap-3 border-b border-black px-4 py-3 text-left transition-colors last:border-b-0 hover:cursor-pointer", isSelected ? "bg-blue-100 text-blue-500" : "text-gray-800 hover:bg-blue-100/50")}>
                         <Clock3 className={cn("size-5 shrink-0", isSelected ? "text-blue-500" : "opacity-75")} />
-                        <span className="text-sm font-semibold">{session.label}</span>
+                        <span className="text-sm font-semibold">{session.label} <span className="text-xs font-normal text-gray-500">{session.timeZoneLabel}</span></span>
 
                         {isSelected ? <Check className="ml-auto size-5 shrink-0 text-blue-500" strokeWidth={2.5} /> : null}
                     </button>
@@ -185,37 +199,38 @@ function SessionStep({ sessions, selectedSessionId, onSessionSelect, isLoading, 
 
 export default function HistoricalSelectionModal() {
     const { isModalOpen, setModalOpen, initialStep, source, selectedSession, applySelection } = useHistoricalSelection();
+    const { timezone } = useTimezone();
 
     const [step, setStep] = useState<SelectionStep>(1);
     const [draftSource, setDraftSource] = useState<HistoricalSignalSource>(source);
     const [draftDate, setDraftDate] = useState<Date | null>(null);
-    const [displayMonth, setDisplayMonth] = useState<Date>(() => firstOfUtcMonth(getUtcToday()));
+    const [displayMonth, setDisplayMonth] = useState<Date>(() => firstOfUtcMonth(getLocalTodayAsPseudoUtc(timezone)));
     const [draftSessionId, setDraftSessionId] = useState<string | null>(null);
 
     useEffect(() => {
         if (!isModalOpen) return;
 
-        const committedDate = selectedSession ? startOfUtcDay(selectedSession.startUtcMs) : null;
+        const committedDate = selectedSession ? startOfLocalDayAsPseudoUtc(selectedSession.startUtcMs, timezone) : null;
 
         setDraftSource(source);
         setDraftDate(committedDate);
         setDraftSessionId(selectedSession?.id ?? null);
 
-        setDisplayMonth(firstOfUtcMonth(committedDate ?? getUtcToday()));
-
+        setDisplayMonth(firstOfUtcMonth(committedDate ?? getLocalTodayAsPseudoUtc(timezone)));
 
         setStep(initialStep);
-    }, [isModalOpen, initialStep]);
+    }, [isModalOpen, initialStep, selectedSession, source, timezone]);
 
     const visibleRange = useMemo(() => {
         const days = getCalendarDays(displayMonth);
-        const startUtcMs = days[0].date.getTime();
-        const endUtcMs = days[days.length - 1].date.getTime() + 24 * 60 * 60 * 1000;
+        const startPseudoMs = days[0].date.getTime();
+        const endPseudoMs = days[days.length - 1].date.getTime() + 24 * 60 * 60 * 1000;
 
-        return { startUtcMs, endUtcMs };
+        // Pad by 48 hours to safely encompass any timezone offset when querying the backend
+        return { startUtcMs: startPseudoMs - 48 * 60 * 60 * 1000, endUtcMs: endPseudoMs + 48 * 60 * 60 * 1000 };
     }, [displayMonth]);
 
-    const { query, sessionsByDay, daysWithSessions } = useHistoricalSessionsForRange(visibleRange.startUtcMs, visibleRange.endUtcMs, draftSource, isModalOpen);
+    const { query, sessionsByDay, daysWithSessions } = useHistoricalSessionsForRange(visibleRange.startUtcMs, visibleRange.endUtcMs, draftSource, timezone, isModalOpen);
 
     const draftDayKey = draftDate ? toDateKey(draftDate) : null;
     const draftSessions = useMemo(() => (draftDayKey ? (sessionsByDay.get(draftDayKey) ?? []) : []), [sessionsByDay, draftDayKey]);

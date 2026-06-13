@@ -383,6 +383,7 @@ export function render_tooltip(
     hoverTime: number,
     hover_value: Array<{ name: string; value: string }>,
     timeToX: (t: number) => number,
+    timeZone: string,
     topOffset = 0,
     includeTopPaddingInOffset = true
 ) {
@@ -392,9 +393,11 @@ export function render_tooltip(
         return;
     }
 
+    const formatters = getFormatters(timeZone);
     const hoverDate = new Date(hoverTime);
     const ms = hoverDate.getUTCMilliseconds().toString().padStart(3, "0");
-    const time_string = `${DATE_FORMATTER.format(hoverDate)} ${TIME_FORMATTER.format(hoverDate)}.${ms} UTC`;
+    const timeZoneLabel = timeZone === "UTC" ? "UTC" : timeZone.split("/").pop();
+    const time_string = `${formatters.date.format(hoverDate)} ${formatters.time.format(hoverDate)}.${ms} ${timeZoneLabel}`;
     const tooltip_lines = [time_string, ...hover_value.map(({ name, value }) => `${name}: ${value}`)];
     render_hover_line(context, width, height, hoverTime, timeToX, includeTopPaddingInOffset);
 
@@ -505,17 +508,19 @@ export default function render(context: CanvasRenderingContext2D, width: number,
         const x = timeToX(tick);
         if (x < CHART_PADDING.left - 10 || x > width - CHART_PADDING.right + 10) continue;
 
+        const formatters = getFormatters(timeZone);
         const dateObj = new Date(tick);
         const msLabel = dateObj.getUTCMilliseconds().toString().padStart(3, "0");
-        const timeLabel = `${TIME_FORMATTER.format(dateObj)}.${msLabel} UTC`;
-        const dateLabel = DATE_FORMATTER.format(dateObj);
+        const timeZoneLabel = timeZone === "UTC" ? "UTC" : timeZone.split("/").pop();
+        const timeLabel = `${formatters.time.format(dateObj)}.${msLabel} ${timeZoneLabel}`;
+        const dateLabel = formatters.date.format(dateObj);
 
         context.fillText(timeLabel, x, height - CHART_PADDING.bottom + 8);
         context.fillText(dateLabel, x, height - CHART_PADDING.bottom + 24);
     }
 
     if (hoverTime !== null) {
-        render_tooltip(context, width, height, hoverTime, hover_value!, timeToX);
+        render_tooltip(context, width, height, hoverTime, hover_value!, timeToX, timeZone);
     }
 }
 

@@ -8,12 +8,14 @@ import { useCanvasHover } from "@/lib/hooks/useCanvasHover";
 import { useCanvasRenderLoop } from "@/lib/hooks/useCanvasRenderLoop";
 import { EnumTimelineWidgetData } from "@/lib/types/Widget";
 import { useRef } from "react";
+import { useTimezone } from "@/lib/contexts/TimezoneContext";
 
 // TODO(evan): This can probably be merged into NumericalCanvasChart w some type magic.
 export default function EnumCanvasChart({ id, options, signals, hoveredSignal, onHoverTimestampChange }: EnumTimelineWidgetData) {
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
     const layoutRef = useRef<ChartLayout | null>(null);
     const { globalTimeRangeRef, hoverXRef, XToTime } = useSyncedGraph();
+    const { timezone } = useTimezone();
 
     const { height, timeTickCount } = options;
     const canvasHeight = Math.max(height, CHART_PADDING.top + 30 + signals.length * 40 + Math.max(0, signals.length - 1) * 40 + CHART_PADDING.bottom);
@@ -46,7 +48,8 @@ export default function EnumCanvasChart({ id, options, signals, hoveredSignal, o
             {
                 min: XToTime(CHART_PADDING.left),
                 max: XToTime(cssWidth - CHART_PADDING.right),
-            }
+            },
+            timezone
         );
     });
 

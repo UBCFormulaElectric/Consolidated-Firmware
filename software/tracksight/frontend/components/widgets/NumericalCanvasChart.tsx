@@ -8,6 +8,7 @@ import { useSignalDataStores } from "@/lib/contexts/signalStores/SignalStoreCont
 import { useCanvasRenderLoop } from "@/lib/hooks/useCanvasRenderLoop";
 import { useCanvasHover } from "@/lib/hooks/useCanvasHover";
 import { NumericalGraphWidgetData } from "@/lib/types/Widget";
+import { useTimezone } from "@/lib/contexts/TimezoneContext";
 
 export default function NumericalCanvasChart({
   id,
@@ -19,6 +20,7 @@ export default function NumericalCanvasChart({
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const layoutRef = useRef<ChartLayout | null>(null);
   const { globalTimeRangeRef, hoverXRef, XToTime } = useSyncedGraph();
+  const { timezone } = useTimezone();
 
   const { height, timeTickCount } = options;
 
@@ -50,7 +52,8 @@ export default function NumericalCanvasChart({
       {
         min: XToTime(CHART_PADDING.left),
         max: XToTime(cssWidth - CHART_PADDING.right),
-      }
+      },
+      timezone
     );
   });
 

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import { ErrorRateIndicator } from "@/components/ErrorRateIndicator";
+import { TimezoneSelector } from "@/components/common/TimezoneSelector";
 import { useHistoricalSelection } from "@/lib/contexts/HistoricalSelectionContext";
 
 function HistoricalNavButton({ label, value, onClick }: { label: string; value: string; onClick: () => void }) {
@@ -43,7 +44,10 @@ function Navbar() {
                     <Link href="/sd/dump">SD Card Dump</Link>
                     {isHistorical ? <HistoricalNavControls /> : null}
                 </div>
-                <ErrorRateIndicator />
+                <div className="flex flex-row items-center gap-4">
+                    <TimezoneSelector />
+                    <ErrorRateIndicator />
+                </div>
             </div>
         </nav>
     );
