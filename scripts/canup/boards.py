@@ -181,30 +181,6 @@ h5dev = Board(
     path=os.path.join("firmware", "dev", "h5dev", "h5dev_app_metadata.hex")
 )
 
-hexray_CRIT = Board(
-    name="CRIT",
-    boot_id_range_start=0x18000000,
-    app_id_range_start=900,
-    mcu=STM32H562_MCU,
-    path=os.path.join("firmware", "hexray", "CRIT", "hexray_CRIT_app_metadata.hex"),
-)
-
-hexray_BMS = Board(
-    name="BMS",
-    boot_id_range_start=0x04000000,
-    app_id_range_start=400,
-    mcu=STM32H733_MCU,
-    path=os.path.join("firmware", "hexray", "BMS", "hexray_BMS_app_metadata.hex"),
-)
-
-hexray_FSM = Board(
-    name="FSM",
-    boot_id_range_start=0x10000000,
-    app_id_range_start=600,
-    mcu=STM32H562_MCU,
-    path=os.path.join("firmware", "hexray", "FSM", "hexray_FSM_app_metadata.hex"),
-)
-
 CONFIGS = {
     "h7dev": [h7dev],
     "h5dev": [h5dev],
@@ -216,5 +192,5 @@ CONFIGS = {
     "hexray_VC" : [hexray_VC],
     "hexray_FD": [hexray_DAM, hexray_VC, hexray_BMS],
     "hexray_Sx" : [hexray_CRIT, hexray_FSM, hexray_RSM],
-    "hexray" : [hexray_RSM, hexray_BMS, hexray_CRIT, hexray_DAM, hexray_CRIT, hexray_FSM, hexray_VC],
+    "hexray" : [hexray_RSM, hexray_BMS, hexray_CRIT, hexray_DAM, hexray_FSM, hexray_VC],
 }
