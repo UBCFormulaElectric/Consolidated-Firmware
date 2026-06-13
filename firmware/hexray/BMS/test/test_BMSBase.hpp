@@ -28,6 +28,7 @@ class BMSBaseTest : public EcuTestBase
         app::can_tx::BMS_Fault_TESTFAULT_set(false);
 
         fakes::adbms::setPackVoltageEvenly(3.8f * NUM_SEGMENTS * CELLS_PER_SEGMENT);
+        fakes::adbms::setHealthyConfigs();
         fakes::ts::setVoltage(0.0f);
 
         jobs_init();
@@ -35,9 +36,11 @@ class BMSBaseTest : public EcuTestBase
         register_task(jobs_run1Hz_tick, 1000);
         register_task(jobs_run100Hz_tick, 10);
         register_task(jobs_run1kHz_tick, 1);
-        // register_task(jobs_runAdbmsVoltages, 500);
-        // register_task(jobs_runAdbmsDiagnostics, 500);
-        // register_task(jobs_runAdbmsTemperatures, 500);
+        register_task(jobs_runAdbmsVoltages_tick, 500);
+        register_task(jobs_runAdbmsConfigs_tick, 100);
+        register_task(jobs_runAdbmsAux_tick, 1200);
+        register_task(jobs_runAdbmsCellOwc_tick, 1000);
+        
         // Allow time for all jobs to run at least once for things like voltage arrays to update
         LetTimePass(1000);
     }

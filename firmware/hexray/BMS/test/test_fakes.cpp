@@ -15,6 +15,7 @@
 #include "io_shdnLoopNode.hpp"
 #include "io_tractiveSystem.hpp"
 #include "io_time.hpp"
+#include "segments/app_segments_internal.hpp"
 
 #include "util_errorCodes.hpp"
 #include "util_utils.hpp"
@@ -175,15 +176,17 @@ namespace bspdtest
 namespace adbms
 {
     Cells<result<int16_t>> cell_voltages{};
+    Segments<SegmentConfig> config{};
+    Segments<PWMConfig>     pwm{};
 
     namespace write
     {
-        [[nodiscard]] result<void> pwmReg(const Segments<PWMConfig> &pwm_config)
+        [[nodiscard]] result<void> pwmReg(const Segments<PWMConfig> &)
         {
             return result<void>{};
         }
 
-        [[nodiscard]] result<void> configReg(const Segments<SegmentConfig> &config)
+        [[nodiscard]] result<void> configReg(const Segments<SegmentConfig> &)
         {
             return result<void>{};
         }
@@ -193,12 +196,22 @@ namespace adbms
     {
         [[nodiscard]] Segments<result<SegmentConfig>> configReg()
         {
-            return Segments<result<SegmentConfig>>{};
+            Segments<result<SegmentConfig>> out;
+            for (size_t seg = 0U; seg < NUM_SEGMENTS; ++seg)
+            {
+                out[seg] = config[seg];
+            }
+            return out;
         }
 
         [[nodiscard]] Segments<result<PWMConfig>> pwmReg()
         {
-            return Segments<result<PWMConfig>>{};
+            Segments<result<PWMConfig>> out;
+            for (size_t seg = 0U; seg < NUM_SEGMENTS; ++seg)
+            {
+                out[seg] = pwm[seg];
+            }
+            return out;
         }
 
         [[nodiscard]] Cells<result<int16_t>> cellVoltage()
@@ -427,6 +440,53 @@ namespace adbms
             }
         }
     }
+
+    constexpr uint16_t VUV = 0x01A1; // 2.5V
+    constexpr uint16_t VOV = 0x0465; // 4.2V
+
+    io::adbms::SegmentConfig healthySegmentConfig()
+    {
+        io::adbms::SegmentConfig sc{};
+        sc.reg_a.cth       = 0x01;
+        sc.reg_a.ref_on    = 0x01;
+        sc.reg_a.gpio_1_8  = 0xFF;
+        sc.reg_a.gpio_9_10 = 0x03;
+        sc.reg_a.fc        = 0x03;
+
+        sc.reg_b.vuv_0_7  = static_cast<uint8_t>(VUV & 0xFF);
+        sc.reg_b.vuv_8_11 = static_cast<uint8_t>((VUV >> 8) & 0x0F);
+        sc.reg_b.vov_0_3  = static_cast<uint8_t>(VOV & 0x0F);
+        sc.reg_b.vov_4_11 = static_cast<uint8_t>((VOV >> 4) & 0xFF);
+        return sc;
+    }
+
+    io::adbms::PWMConfig healthyPwmConfig()
+    {
+        io::adbms::PWMConfig pc{};
+        pc.reg_b.res = 0xFFFFFFFFu;
+        return pc;
+    }
+
+    void setHealthyConfigs()
+    {
+        for (size_t seg = 0U; seg < NUM_SEGMENTS; ++seg)
+        {
+            io::adbms::config[seg] = healthySegmentConfig();
+            io::adbms::pwm[seg]    = healthyPwmConfig();
+        }
+    }
+
+    void setMismatchedConfigs()
+    {
+        for (size_t seg = 0U; seg < NUM_SEGMENTS; ++seg)
+        {
+            io::adbms::SegmentConfig sc = healthySegmentConfig();
+            sc.reg_a.flag_d             = 0xFF;
+            io::adbms::config[seg]      = sc;
+            io::adbms::pwm[seg]         = healthyPwmConfig();
+        }
+    }
+
 } // namespace adbms
 
 namespace charger

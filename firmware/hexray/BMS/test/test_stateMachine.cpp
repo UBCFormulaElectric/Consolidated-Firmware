@@ -74,7 +74,6 @@ TEST_F(BmsStateMachineTest, no_precharge_drive_if_charger_connected)
 
 TEST_F(BmsStateMachineTest, precharge_drive_success)
 {
-    fakes::adbms::setPackVoltageEvenly(target_voltage);
     fakes::irs::setNegativeState(app::can_utils::ContactorState::CONTACTOR_STATE_CLOSED);
     fakes::ts::setVoltage(0.0f);
     app::can_rx::VC_State_update(app::can_utils::VCState::VC_BMS_ON_STATE);
