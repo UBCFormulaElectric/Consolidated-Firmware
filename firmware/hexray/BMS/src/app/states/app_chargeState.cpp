@@ -77,8 +77,12 @@ namespace chargeState
 
         const bool                           user_enable  = app::can_rx::Debug_StartCharging_get();
         const app::charger::ElconFaultConfig fault_status = app::charger::getFaultStatus();
-
-        const float max_cell_v = app::segments::shared::getMaxCellVoltage().value;
+        
+        float max_cell_v;
+        {
+        const io::unique_semaphore s{ shared_lock };
+        max_cell_v = app::segments::shared::getMaxCellVoltage().value;
+        }
 
         if (!user_enable || !charger_conn || fault_status)
         {
