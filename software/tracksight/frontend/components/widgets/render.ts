@@ -41,21 +41,29 @@ function binarySearchForFirstEnumIndex(timestamps: number[], targetTime: number)
     return result;
 }
 
-// constants
-const TIME_FORMATTER = new Intl.DateTimeFormat(undefined, {
-    hour: "2-digit",
-    hourCycle: "h23",
-    minute: "2-digit",
-    second: "2-digit",
-    timeZone: "UTC",
-});
+const FORMATTERS_CACHE = new Map<string, { time: Intl.DateTimeFormat; date: Intl.DateTimeFormat }>();
 
-const DATE_FORMATTER = new Intl.DateTimeFormat(undefined, {
-    day: "2-digit",
-    month: "short",
-    timeZone: "UTC",
-    year: "numeric",
-});
+export function getFormatters(timeZone: string) {
+    if (!FORMATTERS_CACHE.has(timeZone)) {
+        FORMATTERS_CACHE.set(timeZone, {
+            time: new Intl.DateTimeFormat(undefined, {
+                hour: "2-digit",
+                hourCycle: "h23",
+                minute: "2-digit",
+                second: "2-digit",
+                timeZone,
+            }),
+            date: new Intl.DateTimeFormat(undefined, {
+                day: "2-digit",
+                month: "short",
+                timeZone,
+                year: "numeric",
+            }),
+        });
+    }
+    return FORMATTERS_CACHE.get(timeZone)!;
+}
+
 export const CHART_PADDING = { top: 15, right: 0, bottom: 40, left: 60 };
 
 function isLevelUsable(lod: LODAwareSeries["lods"][number], visibleStart: number, visibleEnd: number): boolean {
@@ -441,7 +449,7 @@ export function render_tooltip(
     });
 }
 
-export default function render(context: CanvasRenderingContext2D, width: number, height: number, layoutRef: RefObject<ChartLayout | null>, chartData: WidgetData, timeTickCount: number, hoverTime: number | null, hoveredSignal: RefObject<string | null> | undefined, { min: visibleStartTime, max: visibleEndTime }: { min: number; max: number }) {
+export default function render(context: CanvasRenderingContext2D, width: number, height: number, layoutRef: RefObject<ChartLayout | null>, chartData: WidgetData, timeTickCount: number, hoverTime: number | null, hoveredSignal: RefObject<string | null> | undefined, { min: visibleStartTime, max: visibleEndTime }: { min: number; max: number }, timeZone: string) {
     context.clearRect(0, 0, width, height);
 
     const numericalTop = CHART_PADDING.top;
