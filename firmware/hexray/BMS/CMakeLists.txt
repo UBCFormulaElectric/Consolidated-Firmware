@@ -44,11 +44,8 @@ set(HW_SHARED_SRCS
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_sd.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_bootup.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_resetReason.cpp"
-<<<<<<< HEAD
-=======
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_bootup.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_runTimeStat.cpp"
->>>>>>> master
 )
 set(HW_INCLUDE_DIRS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"
