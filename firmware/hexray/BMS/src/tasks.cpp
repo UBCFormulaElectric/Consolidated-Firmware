@@ -127,15 +127,9 @@ void tasks_run1Hz(void *arg)
 
     forever
     {
-        // SEGGER_SYSVIEW_MarkStart(100);
+
         jobs_run1Hz_tick();
-        // SEGGER_SYSVIEW_MarkStop(100);
-        // SEGGER_SYSVIEW_MarkStart(101);
         watchdog1hz.checkIn();
-        // SEGGER_SYSVIEW_MarkStop(101);
-        // SEGGER_SYSVIEW_MarkStart(102);
-        // runtimeMonitor.checkin();
-        // SEGGER_SYSVIEW_MarkStop(102);
         start_ticks += period_ms;
         io::time::delayUntil(start_ticks);
         osDelayUntil(start_ticks);
@@ -233,9 +227,7 @@ void tasks_runAdbmsVoltages(void *arg)
 
     forever
     {
-        SEGGER_SYSVIEW_MarkStart(0xaa);
         jobs_runAdbmsVoltages_tick();
-        SEGGER_SYSVIEW_MarkStop(0xaa);
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
     }
@@ -248,9 +240,7 @@ void tasks_runAdbmsConfigs(void *arg)
 
     forever
     {
-        SEGGER_SYSVIEW_MarkStart(0xbb);
         jobs_runAdbmsConfigs_tick();
-        SEGGER_SYSVIEW_MarkStop(0xbb);
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
     }
@@ -263,9 +253,7 @@ void tasks_runAdbmsAux(void *arg)
 
     forever
     {
-        SEGGER_SYSVIEW_MarkStart(0xcc);
         jobs_runAdbmsAux_tick();
-        SEGGER_SYSVIEW_MarkStop(0xcc);
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
     }
@@ -278,9 +266,7 @@ void tasks_runAdbmsCellOwc(void *arg)
 
     forever
     {
-        SEGGER_SYSVIEW_MarkStart(0xdd);
         jobs_runAdbmsCellOwc_tick();
-        SEGGER_SYSVIEW_MarkStop(0xdd);
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
     }

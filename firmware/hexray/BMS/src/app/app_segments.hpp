@@ -8,7 +8,6 @@
 #include "io_adbms.hpp"
 #include "io_semaphore.hpp"
 
-// Maximum number of segments the firmware can address.
 inline constexpr uint8_t MAX_NUM_SEGMENTS = 10U;
 
 // Minimum conversion times
@@ -61,17 +60,6 @@ namespace config
      */
     [[nodiscard]] io::adbms::Segments<result<bool>> sync();
 } // namespace config
-
-// app_segments_reach.cpp
-namespace reach
-{
-    /**
-     * Checks whether each segment is reachable over the isoSPI bus.
-     * Per segment: an error means the check itself failed; a false value means
-     * the segment is unreachable (SPI link break); true means reachable.
-     */
-    [[nodiscard]] io::adbms::Segments<result<bool>> check();
-} // namespace reach
 
 // app_segments_balancing.cpp
 namespace balancing
@@ -130,7 +118,6 @@ namespace broadcast
     void segmentVoltageStats(const SegmentParam<float> &min, const SegmentParam<float> &max);
     void packVoltage(const result<float> &pack);
     void cmdCountMismatch(const io::adbms::Segments<uint8_t> &mismatches);
-    // void spiLinkStats(const io::adbms::SpiBusReach &reach);
 } // namespace broadcast
 
 // app_segments_shared.cpp
