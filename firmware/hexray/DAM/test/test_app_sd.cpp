@@ -109,7 +109,7 @@ TEST_F(AppSdTest, LogFdIsWritableAndSyncable)
 {
     // The fd handed out by getLogFd() must be valid in the filesystem: both
     // write and sync should succeed on it.
-    std::array<uint8_t, 4> payload{ 0xDE, 0xAD, 0xBE, 0xEF };
+    std::array<uint8_t, 4> payload{ { 0xDE, 0xAD, 0xBE, 0xEF } };
     EXPECT_TRUE(fs.write(app::sd::getLogFd(), payload, payload.size()).has_value());
     EXPECT_TRUE(fs.sync(app::sd::getLogFd()).has_value());
 }
