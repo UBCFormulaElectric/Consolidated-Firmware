@@ -123,19 +123,6 @@ void jobs_run100Hz_tick()
     using FaultLatchState = io::FaultLatch::FaultLatchState;
     bms_ok_latch.setCurrentStatus(acc_fault ? FaultLatchState::FAULT : FaultLatchState::OK);
     app::latches::broadcast();
-
-    // Update CAN signals for BMS latch statuses.
-    const bool imd_latched_ok  = imd_ok_latch.getLatchedStatus() == FaultLatchState::OK;
-    const bool bspd_latched_ok = bspd_ok_latch.getLatchedStatus() == FaultLatchState::OK;
-    const bool bms_latched_ok  = bms_ok_latch.getLatchedStatus() == FaultLatchState::OK;
-
-    app::can_tx::BMS_BmsCurrentlyOk_set(bms_ok_latch.getCurrentStatus() == FaultLatchState::OK);
-    app::can_tx::BMS_ImdCurrentlyOk_set(imd_ok_latch.getCurrentStatus() == FaultLatchState::OK);
-    app::can_tx::BMS_BspdCurrentlyOk_set(bspd_ok_latch.getCurrentStatus() == FaultLatchState::OK);
-    app::can_tx::BMS_BmsLatchOk_set(bms_latched_ok);
-    app::can_tx::BMS_ImdLatchOk_set(imd_latched_ok);
-    app::can_tx::BMS_BspdLatchOk_set(bspd_latched_ok);
-
     app::can_tx::BMS_BSPDBrakePressureThresholdExceeded_set(io::bspdtest::isBrakePressureThresholdExceeded());
     app::can_tx::BMS_BSPDAccelBrakeOk_set(io::bspdtest::isAccelBrakeOk());
 
