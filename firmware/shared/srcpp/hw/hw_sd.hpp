@@ -32,6 +32,8 @@ class SdCard
     // mutable volatile bool   dma_rx_completed = true;
 
     mutable TaskHandle_t taskInProgress = nullptr;
+    // Set from the SDMMC error ISR so a woken task can tell a failure apart from a successful completion.
+    mutable volatile bool transactionFailed = false;
 
     static bool OFFSET_SIZE_VALID(const uint32_t offset, const uint32_t size)
     {
@@ -48,8 +50,13 @@ class SdCard
 
     result<void> waitForNotification(uint32_t timeoutMs) const;
 
+    // Spin until the card reports it's ready for a new transfer, bounded by _timeout.
+    // Returns TIMEOUT (instead of hanging forever) if the card stops responding.
+    result<void> waitForCardReady() const;
+
   public:
     void onTransactionCompleteFromISR() const;
+    void onTransactionErrorFromISR() const;
 
     /* Constructor */
     consteval explicit SdCard(SD_HandleTypeDef &hsd, const uint32_t timeout, const gpio &present_gpio)

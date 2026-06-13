@@ -23,6 +23,7 @@
 /* USER CODE BEGIN Includes */
 
 /* USER CODE END Includes */
+extern DMA_HandleTypeDef handle_GPDMA1_Channel0;
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN TD */
@@ -170,9 +171,9 @@ void HAL_FDCAN_MspInit(FDCAN_HandleTypeDef *hfdcan)
         HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
         /* FDCAN1 interrupt Init */
-        HAL_NVIC_SetPriority(FDCAN1_IT0_IRQn, 5, 0);
+        HAL_NVIC_SetPriority(FDCAN1_IT0_IRQn, 6, 0);
         HAL_NVIC_EnableIRQ(FDCAN1_IT0_IRQn);
-        HAL_NVIC_SetPriority(FDCAN1_IT1_IRQn, 5, 0);
+        HAL_NVIC_SetPriority(FDCAN1_IT1_IRQn, 6, 0);
         HAL_NVIC_EnableIRQ(FDCAN1_IT1_IRQn);
         /* USER CODE BEGIN FDCAN1_MspInit 1 */
 
@@ -453,6 +454,34 @@ void HAL_UART_MspInit(UART_HandleTypeDef *huart)
         GPIO_InitStruct.Alternate = GPIO_AF7_USART2;
         HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
+        /* USART2 DMA Init */
+        /* GPDMA1_REQUEST_USART2_TX Init */
+        handle_GPDMA1_Channel0.Instance                   = GPDMA1_Channel0;
+        handle_GPDMA1_Channel0.Init.Request               = GPDMA1_REQUEST_USART2_TX;
+        handle_GPDMA1_Channel0.Init.BlkHWRequest          = DMA_BREQ_SINGLE_BURST;
+        handle_GPDMA1_Channel0.Init.Direction             = DMA_MEMORY_TO_PERIPH;
+        handle_GPDMA1_Channel0.Init.SrcInc                = DMA_SINC_INCREMENTED;
+        handle_GPDMA1_Channel0.Init.DestInc               = DMA_DINC_FIXED;
+        handle_GPDMA1_Channel0.Init.SrcDataWidth          = DMA_SRC_DATAWIDTH_BYTE;
+        handle_GPDMA1_Channel0.Init.DestDataWidth         = DMA_DEST_DATAWIDTH_BYTE;
+        handle_GPDMA1_Channel0.Init.Priority              = DMA_LOW_PRIORITY_LOW_WEIGHT;
+        handle_GPDMA1_Channel0.Init.SrcBurstLength        = 1;
+        handle_GPDMA1_Channel0.Init.DestBurstLength       = 1;
+        handle_GPDMA1_Channel0.Init.TransferAllocatedPort = DMA_SRC_ALLOCATED_PORT0 | DMA_DEST_ALLOCATED_PORT0;
+        handle_GPDMA1_Channel0.Init.TransferEventMode     = DMA_TCEM_BLOCK_TRANSFER;
+        handle_GPDMA1_Channel0.Init.Mode                  = DMA_NORMAL;
+        if (HAL_DMA_Init(&handle_GPDMA1_Channel0) != HAL_OK)
+        {
+            Error_Handler();
+        }
+
+        __HAL_LINKDMA(huart, hdmatx, handle_GPDMA1_Channel0);
+
+        if (HAL_DMA_ConfigChannelAttributes(&handle_GPDMA1_Channel0, DMA_CHANNEL_NPRIV) != HAL_OK)
+        {
+            Error_Handler();
+        }
+
         /* USART2 interrupt Init */
         HAL_NVIC_SetPriority(USART2_IRQn, 5, 0);
         HAL_NVIC_EnableIRQ(USART2_IRQn);
@@ -485,6 +514,9 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef *huart)
         PA3     ------> USART2_RX
         */
         HAL_GPIO_DeInit(GPIOA, FROM_900M_CTS_Pin | TO_900M_RTS_Pin | TO_900M_TX_Pin | FROM_900M_RX_Pin);
+
+        /* USART2 DMA DeInit */
+        HAL_DMA_DeInit(huart->hdmatx);
 
         /* USART2 interrupt DeInit */
         HAL_NVIC_DisableIRQ(USART2_IRQn);
