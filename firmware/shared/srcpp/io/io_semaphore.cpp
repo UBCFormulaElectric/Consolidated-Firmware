@@ -23,6 +23,7 @@ io::semaphore::semaphore(const bool priority_inheritance_protocol_on, const uint
 
 void io::semaphore::give() const
 {
+    // TODO find out why this is hanging
     // if (osKernelGetState() != taskSCHEDULER_RUNNING)
     //     return;
     xSemaphoreGive(freertos_semaphore_);
@@ -31,6 +32,7 @@ void io::semaphore::give() const
 }
 void io::semaphore::take(const uint32_t timeout) const
 {
+    // TODO find out why this is hanging
     // if (osKernelGetState() != taskSCHEDULER_RUNNING)
     //     return;
     const auto take_success = xSemaphoreTake(freertos_semaphore_, timeout);
