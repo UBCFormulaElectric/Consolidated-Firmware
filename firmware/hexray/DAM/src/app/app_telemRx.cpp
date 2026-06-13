@@ -10,6 +10,7 @@
 #include "io_telemMessage.hpp"
 #include "io_telemQueue.hpp"
 #include "util_ringBuffer.hpp"
+#include "app_sd.hpp"
 
 namespace app::telemRx
 {
@@ -91,6 +92,10 @@ namespace
                     LOG_ERROR("telemRx: NTP handleFrameAndTuneRtc failed");
                     return;
                 }
+
+                app::sd::requestMetadataUpdate();
+                LOG_INFO("telemRx: Metadata update successful");
+
                 break;
             }
             case MessageId::Remote_NTP:

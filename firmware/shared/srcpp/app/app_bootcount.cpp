@@ -2,7 +2,7 @@
 
 namespace app::bootcount
 {
-std::expected<void, io::FileSystem::FileSystemError> update(io::FileSystem &fs)
+std::expected<uint32_t, io::FileSystem::FileSystemError> update(io::FileSystem &fs)
 {
     auto result = fs.open("/bootcount.txt");
     if (!result)
@@ -18,13 +18,14 @@ std::expected<void, io::FileSystem::FileSystemError> update(io::FileSystem &fs)
     // in particular read 0 bytes, which means the file is empty and we should initialize it to 1
     const uint32_t current_bootcount =
         num_read == sizeof(uint32_t) ? *reinterpret_cast<uint32_t *>(bootcount_buf.data()) : 0;
+    const uint32_t boot_number = current_bootcount + 1;
 
     // populate the next_bootcount_buf
-    *reinterpret_cast<uint32_t *>(bootcount_buf.data()) = current_bootcount + 1;
+    *reinterpret_cast<uint32_t *>(bootcount_buf.data()) = boot_number;
 
     if (const auto err = fs.writeMetadata(bootcount_fd, bootcount_buf); !err)
         return std::unexpected(err.error());
 
-    return {};
+    return boot_number;
 }
 } // namespace app::bootcount

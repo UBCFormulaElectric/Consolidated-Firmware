@@ -42,6 +42,27 @@ pub async fn run_mock_task(
                 // Simulate sending mock CAN payloads
                 i += 1;
                 let value = (i as f64 * TAU/100.0).sin() * 10.0 + 10.0;
+
+                if i == 1 {
+                    let bootup_signal = DecodedSignal {
+                        name: "DAM_Alive".to_string(),
+                        value: 1.0,
+                        timestamp: None,
+                        label: None,
+                        unit: None,
+                        signal_type: CanSignalType::Boolean
+                    };
+
+                    let (id, payload) = can_db.pack("DAM_Bootup", &vec!(bootup_signal)).unwrap();
+                    let mock_payload = CanPayload {
+                        can_id: id,
+                        payload: payload,
+                        can_timestamp: SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_millis() as u64,
+                    };
+                    if let Err(e) = can_queue_tx.send(mock_payload) {
+                        panic!("can_queue_tx send error: {}", e);
+                    }
+                }
                 
                 let signals = vec![
                     DecodedSignal {
@@ -53,7 +74,7 @@ pub async fn run_mock_task(
                         signal_type: CanSignalType::Numerical
                     },
                     DecodedSignal {
-                        name: "BMS_BalancingState".to_string(),
+                        name: "VC_State".to_string(),
                         value: value % 3.0,
                         timestamp: None,
                         label: None,
@@ -79,13 +100,13 @@ pub async fn run_mock_task(
                     panic!("can_queue_tx send error: {}", e);
                 }
 
-                let (id, payload) = can_db.pack("BMS_Balancing", &vec!(signals[1].clone())).unwrap();
+                let (id, payload) = can_db.pack("VC_Vitals", &vec!(signals[1].clone())).unwrap();
                 let mock_payload = CanPayload {
                     can_id: id,
                     payload: payload,
                     can_timestamp: SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_millis() as u64,
                 };
-                
+
                 if let Err(e) = can_queue_tx.send(mock_payload) {
                     panic!("can_queue_tx send error: {}", e);
                 }

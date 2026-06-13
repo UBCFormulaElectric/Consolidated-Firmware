@@ -1,15 +1,19 @@
 #include <array>
+#include <cstddef>
+#include <bit>
 
 #include "io_imu.hpp"
-
+#include "io_time.hpp"
+#include "util_utils.hpp"
+#include "util_retry.hpp"
 namespace io
 {
 // Register 25: SMPLRT_DIV
 // Divides the internal sample rate (see CONFIG) to generate the sample
 // rate that controls sensor data output rate (ODR), FIFO sample rate.
 // ODR = INTERNAL_SAMPLE_RATE / (1 + SMPLRT_DIV)
-// Note: does not do anything if DLPFs for Accel and Gyro are disabled (disabled via FCHOICE_B in GyroConfig and
-// AccelConfig2) Set directly in init as it has a single bitfield
+// Note: For gyro, this only applies when FCHOICE_B=00 and DLPF_CFG is 1..6.
+// Set directly in init as it has a single bitfield.
 
 // Register 26: CONFIG
 struct __attribute__((packed)) Config
@@ -237,7 +241,7 @@ static constexpr float accel_sensitivity = []
     }
 }();
 
-static constexpr float gyro_sensitivity = []()
+static constexpr float gyro_sensitivity = []
 {
     switch (gyro_scale)
     {
@@ -256,7 +260,13 @@ static constexpr float gyro_sensitivity = []()
 
 inline constexpr float TEMP_SCALE = 326.8f;
 
-static float translateData(const uint8_t data_h, const uint8_t data_l)
+// Datasheet startup timing limits for power-up, reset polling, and wake-from-sleep register access.
+inline constexpr uint32_t POWER_UP_REGISTER_ACCESS_DELAY_MS = 100U;
+inline constexpr uint32_t RESET_POLL_DELAY_MS               = 1U;
+inline constexpr uint8_t  RESET_POLL_ATTEMPTS               = 100U;
+inline constexpr uint32_t WAKE_REGISTER_ACCESS_DELAY_MS     = 5U;
+
+static float translateAccelData(const uint8_t data_h, const uint8_t data_l)
 {
     const auto raw = static_cast<int16_t>(data_h << 8 | data_l);
     return static_cast<float>(raw) / accel_sensitivity;
@@ -276,14 +286,52 @@ static float translateTempData(const uint8_t data_h, const uint8_t data_l)
 
 result<void> imu::init() const
 {
-    // Check if we are able to communicate to the IMU
-    std::array<const uint8_t, 1> tx_check = { { READ_IMU_REG(WHO_AM_I) } };
-    std::array<uint8_t, 1>       rx{};
+    const auto write_reg = [this](const uint8_t reg, const uint8_t value) -> std::expected<void, ErrorCode>
+    {
+        const std::array<const uint8_t, 2> tx = { { WRITE_IMU_REG(reg), value } };
+        return imu_spi_handle.transmit(tx);
+    };
 
-    result<void> exit = imu_spi_handle.transmitThenReceive(tx_check, rx);
+    const auto read_reg = [this](const uint8_t reg) -> std::expected<uint8_t, ErrorCode>
+    {
+        const std::array<const uint8_t, 1> tx = { { READ_IMU_REG(reg) } };
+        std::array<uint8_t, 1>             rx{};
+        RETURN_IF_ERR_SILENT(imu_spi_handle.transmitThenReceive(tx, rx));
+        return rx[0];
+    };
 
-    if (not exit.has_value() || rx[0] != WHO_AM_I_VAL)
-        return exit;
+    io::time::delay(POWER_UP_REGISTER_ACCESS_DELAY_MS);
+
+    // Soft-reset the IMU; DEVICE_RESET self-clears when the reset is complete.
+    RETURN_IF_ERR_SILENT(write_reg(PWR_MGMT_1, std::bit_cast<uint8_t>(PwrMgmt1{ .DEVICE_RESET = 1 })));
+
+    const auto reset_done = util::retry(
+        [&] -> std::expected<void, ErrorCode>
+        {
+            io::time::delay(RESET_POLL_DELAY_MS);
+            const auto pwr_mgmt_1 = read_reg(PWR_MGMT_1);
+            RETURN_IF_ERR_SILENT(pwr_mgmt_1);
+
+            if (READ_BITS<uint8_t>(pwr_mgmt_1.value(), 7U, 1U) == 0U)
+                return {};
+
+            return std::unexpected(ErrorCode::TIMEOUT);
+        },
+        RESET_POLL_ATTEMPTS);
+
+    RETURN_IF_ERR_SILENT(reset_done);
+
+    // Wake the IMU from sleep and select the gyro clock source.
+    RETURN_IF_ERR_SILENT(write_reg(PWR_MGMT_1, std::bit_cast<uint8_t>(PwrMgmt1{})));
+
+    io::time::delay(WAKE_REGISTER_ACCESS_DELAY_MS);
+
+    const auto pwr_mgmt_1 = read_reg(PWR_MGMT_1);
+    if (not pwr_mgmt_1.has_value())
+        return std::unexpected(pwr_mgmt_1.error());
+
+    if (READ_BITS<uint8_t>(pwr_mgmt_1.value(), 6U, 1U) != 0U)
+        return std::unexpected(ErrorCode::ERROR);
 
     // Send configs to IMU
     uint8_t      smplrt_div;
@@ -295,9 +343,22 @@ result<void> imu::init() const
     IntPinConfig int_pin_config{};
     FifoEn       fifo_en{};
     IntEnable    int_enable{};
-    UserCtrl     user_ctrl{};
-    PwrMgmt1     pwr_mgmt1{};
     PwrMgmt2     pwr_mgmt2{};
+
+    // Disable the I2C interface while using SPI.
+    RETURN_IF_ERR(write_reg(USER_CTRL, std::bit_cast<uint8_t>(UserCtrl{})));
+
+    const auto user_ctrl_readback = read_reg(USER_CTRL);
+    RETURN_IF_ERR(user_ctrl_readback);
+
+    if (READ_BITS<uint8_t>(user_ctrl_readback.value(), 4U, 1U) != 1U)
+        return std::unexpected(ErrorCode::ERROR);
+
+    const auto who_am_i = read_reg(WHO_AM_I);
+    RETURN_IF_ERR_SILENT(who_am_i);
+
+    if (who_am_i.value() != WHO_AM_I_VAL)
+        return std::unexpected(ErrorCode::ERROR);
 
     // Filter Config
     accel_config.FS_SEL = static_cast<uint8_t>(accel_scale);
@@ -316,42 +377,31 @@ result<void> imu::init() const
         config.G_DLPF_CFG     = static_cast<uint8_t>(filter_config.gyro_dlpf_cutoff) & 0x07;
     }
 
-    // Fifo Config
-    // TODO: Add Fifo after research
-    // if (fifo_config.enableFifo())
-    // {
-    //     assert(filter_config.getAccelOdrHz() == filter_config.getGyroOdrHz());
+    std::array<const uint8_t, 20> tx_config = { {
+        PWR_MGMT_2,     std::bit_cast<uint8_t>(pwr_mgmt2),      INT_ENABLE,     std::bit_cast<uint8_t>(int_enable),
+        SMPLRT_DIV,     std::bit_cast<uint8_t>(smplrt_div),     CONFIG,         std::bit_cast<uint8_t>(config),
+        GYRO_CONFIG,    std::bit_cast<uint8_t>(gyro_config),    ACCEL_CONFIG,   std::bit_cast<uint8_t>(accel_config),
+        ACCEL_CONFIG_2, std::bit_cast<uint8_t>(accel_config2),  LP_MODE_CONFIG, std::bit_cast<uint8_t>(lp_mode_config),
+        INT_PIN_CONFIG, std::bit_cast<uint8_t>(int_pin_config), FIFO_EN,        std::bit_cast<uint8_t>(fifo_en),
+    } };
 
-    //     // Enable fifos
-    //     user_ctrl.FIFO_EN     = static_cast<uint8_t>(fifo_config.enableFifo()) & 0x01;
-    //     fifo_en.ACCEL_FIFO_EN = static_cast<uint8_t>(fifo_config.enable_accel_fifo) & 0x01;
-    //     fifo_en.XG_FIFO_EN    = static_cast<uint8_t>(fifo_config.enable_gyro_x_fifo) & 0x01;
-    //     fifo_en.YG_FIFO_EN    = static_cast<uint8_t>(fifo_config.enable_gyro_y_fifo) & 0x01;
-    //     fifo_en.ZG_FIFO_EN    = static_cast<uint8_t>(fifo_config.enable_gyro_z_fifo) & 0x01;
+    for (std::size_t i = 0; i < tx_config.size(); i += 2)
+        RETURN_IF_ERR_SILENT(write_reg(tx_config[i], tx_config[i + 1]));
 
-    //     // Configure Fifo
-    //     config.FIFO_MODE             = static_cast<uint8_t>(fifo_config.fifo_mode) & 0x01;
-    //     accel_config2.FIFO_SIZE      = static_cast<uint8_t>(fifo_config.fifo_size) & 0x03;
-    //     int_enable.FIFO_OFLOW_INT_EN = static_cast<uint8_t>(fifo_config.fifo_overflow_int_enable) & 0x01;
-    // }
+    const auto accel_config_readback = read_reg(ACCEL_CONFIG);
+    RETURN_IF_ERR_SILENT(accel_config_readback);
 
-    std::array<const uint8_t, 24> tx_config = { { WRITE_IMU_REG(SMPLRT_DIV),     std::bit_cast<uint8_t>(smplrt_div),
-                                                  WRITE_IMU_REG(CONFIG),         std::bit_cast<uint8_t>(config),
-                                                  WRITE_IMU_REG(GYRO_CONFIG),    std::bit_cast<uint8_t>(gyro_config),
-                                                  WRITE_IMU_REG(ACCEL_CONFIG),   std::bit_cast<uint8_t>(accel_config),
-                                                  WRITE_IMU_REG(ACCEL_CONFIG_2), std::bit_cast<uint8_t>(accel_config2),
-                                                  WRITE_IMU_REG(LP_MODE_CONFIG), std::bit_cast<uint8_t>(lp_mode_config),
-                                                  WRITE_IMU_REG(INT_PIN_CONFIG), std::bit_cast<uint8_t>(int_pin_config),
-                                                  WRITE_IMU_REG(FIFO_EN),        std::bit_cast<uint8_t>(fifo_en),
-                                                  WRITE_IMU_REG(INT_ENABLE),     std::bit_cast<uint8_t>(int_enable),
-                                                  WRITE_IMU_REG(USER_CTRL),      std::bit_cast<uint8_t>(user_ctrl),
-                                                  WRITE_IMU_REG(PWR_MGMT_1),     std::bit_cast<uint8_t>(pwr_mgmt1),
-                                                  WRITE_IMU_REG(PWR_MGMT_2),     std::bit_cast<uint8_t>(pwr_mgmt2) } };
+    if (accel_config_readback.value() != std::bit_cast<uint8_t>(accel_config))
+        return std::unexpected(ErrorCode::ERROR);
 
-    exit         = imu_spi_handle.transmit(tx_config);
-    is_imu_ready = exit.has_value();
+    const auto gyro_config_readback = read_reg(GYRO_CONFIG);
+    RETURN_IF_ERR_SILENT(gyro_config_readback);
 
-    return exit;
+    if (gyro_config_readback.value() != std::bit_cast<uint8_t>(gyro_config))
+        return std::unexpected(ErrorCode::ERROR);
+
+    is_imu_ready = true;
+    return {};
 }
 
 // ExitCode Imu::getFifoCount(uint16_t &fifo_count)
@@ -379,7 +429,7 @@ result<float> imu::getAccelX() const
 
     const auto exit = imu_spi_handle.transmitThenReceive(tx, rx);
     RETURN_IF_ERR_SILENT(exit);
-    return translateData(rx[0], rx[1]);
+    return translateAccelData(rx[0], rx[1]);
 }
 
 result<float> imu::getAccelY() const
@@ -393,7 +443,7 @@ result<float> imu::getAccelY() const
     const auto exit = imu_spi_handle.transmitThenReceive(tx, rx);
     RETURN_IF_ERR_SILENT(exit);
 
-    return translateData(rx[0], rx[1]);
+    return translateAccelData(rx[0], rx[1]);
 }
 
 result<float> imu::getAccelZ() const
@@ -407,7 +457,7 @@ result<float> imu::getAccelZ() const
     const auto exit = imu_spi_handle.transmitThenReceive(tx, rx);
     RETURN_IF_ERR_SILENT(exit);
 
-    return translateData(rx[0], rx[1]);
+    return translateAccelData(rx[0], rx[1]);
 }
 
 result<float> imu::getGyroX() const
@@ -457,7 +507,7 @@ result<float> imu::getTemp() const
     if (is_imu_ready == false)
         return std::unexpected(ErrorCode::ERROR);
 
-    std::array<const uint8_t, 1> tx = { { READ_IMU_REG(GYRO_ZOUT_H) } };
+    std::array<const uint8_t, 1> tx = { { READ_IMU_REG(TEMP_OUT_H) } };
     std::array<uint8_t, 2>       rx{};
 
     const auto exit = imu_spi_handle.transmitThenReceive(tx, rx);
@@ -478,9 +528,9 @@ result<imu::AccelData> imu::getAccelAll() const
     RETURN_IF_ERR_SILENT(exit);
 
     return AccelData{
-        translateData(rx[0], rx[1]),
-        translateData(rx[2], rx[3]),
-        translateData(rx[4], rx[5]),
+        translateAccelData(rx[0], rx[1]),
+        translateAccelData(rx[2], rx[3]),
+        translateAccelData(rx[4], rx[5]),
     };
 }
 
@@ -496,9 +546,9 @@ result<imu::GyroData> imu::getGyroAll() const
     RETURN_IF_ERR_SILENT(exit);
 
     return GyroData{
-        translateData(rx[0], rx[1]),
-        translateData(rx[2], rx[3]),
-        translateData(rx[4], rx[5]),
+        translateGyroData(rx[0], rx[1]),
+        translateGyroData(rx[2], rx[3]),
+        translateGyroData(rx[4], rx[5]),
     };
 }
 

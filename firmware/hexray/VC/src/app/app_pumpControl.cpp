@@ -1,54 +1,99 @@
 #include "app_pumpControl.hpp"
-#include "io_time.hpp"
-#include "io_efuses.hpp"
 #include "app_canTx.hpp"
+#include "app_timer.hpp"
+#include "io_semaphores.hpp"
+#include "io_efuses.hpp"
+#include "io_pumps.hpp"
 
-#define BUFFER 5.0f
-
+namespace
+{
+}
 namespace app::pumpControl
 {
-constexpr float SLOPE            = 1.0f / 2; // if specs have not changed
-static bool     finished_ramp_up = false;
-static uint16_t time_ms          = 0;
+static constexpr uint32_t RAMP_DURATION_MS = 5000;
+static Timer              ramp_timer_rl{ RAMP_DURATION_MS };
+static Timer              ramp_timer_rr{ RAMP_DURATION_MS };
+static constexpr uint8_t  MAX_PUMP_VALUE = 50;
 
-static float rampUpSetPoint(uint16_t current_time_ms)
+void restart()
 {
-    const float percentage = SLOPE * static_cast<float>(current_time_ms);
-    app::can_tx::VC_PumpRampUpSetPoint_set(percentage);
-    return percentage;
+    ramp_timer_rl.stop();
+    ramp_timer_rr.stop();
+
+    can_tx::VC_RLPumpSetpoint_set(0);
+    {
+        const io::unique_semaphore lock{ pwr_pump_i2c_bus_lock };
+        LOG_IF_ERR(rr_pump.setPercentage(0));
+        can_tx::VC_RRPumpSetpoint_set(0);
+    }
 }
 
 void MonitorPumps()
 {
-    time_ms += 10;
-
-    const auto rl_ready = rl_pump.isReady();
-    const auto rr_ready = rr_pump.isReady();
-
-    const bool ramp_up_rl_pump = rl_ready && *rl_ready;
-    const bool ramp_up_rr_pump = rr_ready && *rr_ready;
-
-    if (ramp_up_rl_pump && ramp_up_rr_pump)
+    if (rl_pump_efuse.isChannelEnabled() and rl_pump_efuse.ok())
     {
-        app::can_tx::VC_PumpFailure_set(false);
-        if (!finished_ramp_up)
+        switch (ramp_timer_rl.updateAndGetState())
         {
-            const float percentage = rampUpSetPoint(time_ms);
-            if (percentage >= 100.0f - BUFFER)
-            {
-                time_ms          = 0;
-                finished_ramp_up = true;
-            }
+            case Timer::TimerState::IDLE:
+                ramp_timer_rl.restart();
+                break;
+            case Timer::TimerState::RUNNING:
+            case Timer::TimerState::EXPIRED:
+            default:
+                break;
+        }
+        const float percentage =
+            static_cast<float>(ramp_timer_rl.getElapsedTime()) / static_cast<float>(RAMP_DURATION_MS);
+        const auto percentage_u8 = static_cast<uint8_t>(percentage * MAX_PUMP_VALUE);
+        can_tx::VC_RLPumpSetpoint_set(percentage_u8);
+    }
+    else
+    {
+        // stops the flow to reramp up to a setpoint
+        ramp_timer_rl.stop();
+        can_tx::VC_RLPumpSetpoint_set(0);
+    }
+
+    if (rr_pump_efuse.isChannelEnabled() and rr_pump_efuse.ok())
+    {
+        switch (ramp_timer_rr.updateAndGetState())
+        {
+            case Timer::TimerState::IDLE:
+                ramp_timer_rr.restart();
+                break;
+            case Timer::TimerState::RUNNING:
+            case Timer::TimerState::EXPIRED:
+            default:
+                break;
+        }
+        {
+            const io::unique_semaphore lock{ pwr_pump_i2c_bus_lock };
+            const float                percentage =
+                static_cast<float>(ramp_timer_rr.getElapsedTime()) / static_cast<float>(RAMP_DURATION_MS);
+            const auto percentage_u8 = static_cast<uint8_t>(percentage * MAX_PUMP_VALUE);
+            LOG_IF_ERR(rr_pump.setPercentage(percentage_u8));
+            can_tx::VC_RRPumpSetpoint_set(percentage_u8);
         }
     }
     else
     {
         // stops the flow to reramp up to a setpoint
-        app::can_tx::VC_PumpFailure_set(true);
-        finished_ramp_up = false;
-        time_ms          = 0;
+        ramp_timer_rr.stop();
+        {
+            const io::unique_semaphore lock{ pwr_pump_i2c_bus_lock };
+            LOG_IF_ERR(rr_pump.setPercentage(0));
+            can_tx::VC_RRPumpSetpoint_set(0);
+        }
     }
-
-    app::can_tx::VC_RsmTurnOnPump_set(ramp_up_rl_pump && ramp_up_rr_pump);
 }
+
+#ifdef TARGET_TEST
+void reset()
+{
+    // finished_ramp_up = false;
+    // time_ms          = 0;
+    app::can_tx::VC_RLPumpSetpoint_set(0.0f);
+    app::can_tx::VC_RRPumpSetpoint_set(0.0f);
+}
+#endif
 } // namespace app::pumpControl

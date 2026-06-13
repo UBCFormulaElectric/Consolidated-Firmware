@@ -148,7 +148,7 @@ const SDCardFileNavigator = (props: SDCardFileNavigatorProps) => {
                 dumpError.statusCode === 409 && pendingDump
                   ? [
                       {
-                        label: "Ignore and Proceed",
+                        label: "Skip this File",
                         style: "default",
                         onClick: () => {
                           const filesToContinue = pendingDump.remainingFiles;
@@ -164,7 +164,7 @@ const SDCardFileNavigator = (props: SDCardFileNavigatorProps) => {
                         },
                       },
                       {
-                        label: "Proceed",
+                        label: "Overwrite",
                         style: "positive",
                         onClick: () => {
                           const filesToContinue = [pendingDump.fileName, ...pendingDump.remainingFiles];

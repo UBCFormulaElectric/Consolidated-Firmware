@@ -1,4 +1,20 @@
 #include "io_pump.hpp"
+#include "io_pumpFake.hpp"
+
+namespace fakes::io::rPump
+{
+uint8_t percentage = 0;
+
+void set_readPercentage(uint8_t value)
+{
+    percentage = value;
+}
+
+uint8_t get_readPercentage()
+{
+    return percentage;
+}
+} // namespace fakes::io::rPump
 
 namespace io
 {
@@ -10,27 +26,6 @@ result<void> pump::setPercentage(uint8_t percentage) const
 
 result<uint8_t> pump::getPercentage() const
 {
-    return 0;
-}
-
-result<void> pump::enable(bool enable) const
-{
-    (void)enable;
-    return {};
-}
-
-result<bool> pump::isEnabled() const
-{
-    return true;
-}
-
-result<bool> pump::ok() const
-{
-    return true;
-}
-
-result<bool> pump::isReady() const
-{
-    return true;
+    return fakes::io::rPump::get_readPercentage();
 }
 } // namespace io

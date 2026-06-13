@@ -1,7 +1,7 @@
 {
   "INVFLSetPoints": {
     "msg_id": 388,
-    "cycle_time": 5,
+    "cycle_time": 10,
     "signals": {
       "INVFLReserve1": {
         "start_bit": 0,
@@ -50,7 +50,7 @@
   },
   "INVFRSetPoints": {
     "msg_id": 389,
-    "cycle_time": 5,
+    "cycle_time": 10,
     "signals": {
       "INVFRReserve1": {
         "start_bit": 0,
@@ -99,7 +99,7 @@
   },
   "INVRLSetPoints": {
     "msg_id": 392,
-    "cycle_time": 5,
+    "cycle_time": 10,
     "signals": {
       "INVRLbReserve1": {
         "start_bit": 0,
@@ -148,7 +148,7 @@
   },
   "INVRRSetPoints": {
     "msg_id": 393,
-    "cycle_time": 5,
+    "cycle_time": 10,
     "signals": {
       "INVRRbReserve1": {
         "start_bit": 0,
@@ -305,91 +305,52 @@
       "log_cycle_time" : 1000
     }
   },
-  "Imu1LinearData": {
+  "IMU1": {
     "msg_id": 511,
     "cycle_time": 10,
-    "description": "Linear Acceleration x, y and z direction from the first IMU",
+    "description": "IMU1 data",
     "signals": {
-      "Imu1AccelerationX": {
-        "resolution": 0.001,
+      "Imu1AccelX": {
+        "resolution": 0.01,
         "signed": true,
-        "min": -50,
-        "max": 50,
-        "unit": "m/s^2"
+        "min": -5,
+        "max": 5,
+        "unit": "g"
       },
-      "Imu1AccelerationY": {
-        "resolution": 0.001,
+      "Imu1AccelY": {
+        "resolution": 0.01,
         "signed": true,
-        "min": -50,
-        "max": 50,
-        "unit": "m/s^2"
+        "min": -5,
+        "max": 5,
+        "unit": "g"
       },
-      "Imu1AccelerationZ": {
-        "resolution": 0.001,
+      "Imu1AccelZ": {
+        "resolution": 0.01,
         "signed": true,
-        "min": -50,
-        "max": 50,
-        "unit": "m/s^2"
-      }
-    },
-    "data_capture": {
-      "telem_cycle_time": 1000,
-      "log_cycle_time" : 1000
-    }
-  },
-  "Imu2LinearData": {
-    "msg_id": 512,
-    "cycle_time": 10,
-    "description": "Linear Acceleration x, y and z direction from the second IMU",
-    "signals": {
-      "Imu2AccelerationX": {
-        "resolution": 0.001,
-        "signed": true,
-        "min": -50,
-        "max": 50,
-        "unit": "m/s^2"
+        "min": -5,
+        "max": 5,
+        "unit": "g"
       },
-      "Imu2AccelerationY": {
-        "resolution": 0.001,
+      "Imu1GyroX": {
+        "resolution": 0.01,
         "signed": true,
-        "min": -50,
-        "max": 50,
-        "unit": "m/s^2"
+        "min": -20,
+        "max": 20,
+        "unit": "deg/s"
       },
-      "Imu2AccelerationZ": {
-        "resolution": 0.001,
+      "Imu1GyroY": {
+        "resolution": 0.01,
         "signed": true,
-        "min": -50,
-        "max": 50,
-        "unit": "m/s^2"
-      }
-    }
-  },
-  "Imu3LinearData": {
-    "msg_id": 515,
-    "cycle_time": 10,
-    "description": "Linear Acceleration x, y and z direction from the third IMU ",
-    "signals": {
-      "Imu3AccelerationX": {
-        "resolution": 0.001,
-        "signed": true,
-        "min": -50,
-        "max": 50,
-        "unit": "m/s^2"
+        "min": -20,
+        "max": 20,
+        "unit": "deg/s"
       },
-      "Imu3AccelerationY": {
-        "resolution": 0.001,
+      "Imu1GyroZ": {
+        "resolution": 0.01,
         "signed": true,
-        "min": -50,
-        "max": 50,
-        "unit": "m/s^2"
-      },
-      "Imu3AccelerationZ": {
-        "resolution": 0.001,
-        "signed": true,
-        "min": -50,
-        "max": 50,
-        "unit": "m/s^2"
+        "min": -20,
+        "max": 20,
+        "unit": "deg/s"
       }
     }
   },
@@ -443,94 +404,6 @@
       "log_cycle_time" : 1000
     }
   },
-  "Imu1AngularData": {
-    "msg_id": 520,
-    "cycle_time": 10,
-    "description": "Angular Velocity in x, y and z direction from the first IMU",
-    "signals": {
-      "Imu1AngularVelocityRoll": {
-        "resolution": 0.1,
-        "signed": true,
-        "min": -360,
-        "max": 360,
-        "unit": "deg/s"
-      },
-      "Imu1AngularVelocityPitch": {
-        "resolution": 0.1,
-        "signed": true,
-        "min": -360,
-        "max": 360,
-        "unit": "deg/s"
-      },
-      "Imu1AngularVelocityYaw": {
-        "resolution": 0.1,
-        "signed": true,
-        "min": -360,
-        "max": 360,
-        "unit": "deg/s"
-      }
-    },
-    "data_capture": {
-      "telem_cycle_time": 1000,
-      "log_cycle_time" : 1000
-    }
-  },
-  "Imu2AngularData": {
-    "msg_id": 525,
-    "cycle_time": 10,
-    "description": "Angular Velocity in x, y and z direction from the second IMU",
-    "signals": {
-      "Imu2AngularVelocityRoll": {
-        "resolution": 0.1,
-        "signed": true,
-        "min": -360,
-        "max": 360,
-        "unit": "deg/s"
-      },
-      "Imu2AngularVelocityPitch": {
-        "resolution": 0.1,
-        "signed": true,
-        "min": -360,
-        "max": 360,
-        "unit": "deg/s"
-      },
-      "Imu2AngularVelocityYaw": {
-        "resolution": 0.1,
-        "signed": true,
-        "min": -360,
-        "max": 360,
-        "unit": "deg/s"
-      }
-    }
-  },
-  "Imu3AngularData": {
-    "msg_id": 530,
-    "cycle_time": 10,
-    "description": "Angular Velocity in x, y and z direction from the third IMU",
-    "signals": {
-      "Imu3AngularVelocityRoll": {
-        "resolution": 0.1,
-        "signed": true,
-        "min": -360,
-        "max": 360,
-        "unit": "deg/s"
-      },
-      "Imu3AngularVelocityPitch": {
-        "resolution": 0.1,
-        "signed": true,
-        "min": -360,
-        "max": 360,
-        "unit": "deg/s"
-      },
-      "Imu3AngularVelocityYaw": {
-        "resolution": 0.1,
-        "signed": true,
-        "min": -360,
-        "max": 360,
-        "unit": "deg/s"
-      }
-    }
-  },
   "GlobalShdnNodeStatus": {
     "msg_id": 535,
     "cycle_time": 100,
@@ -553,11 +426,14 @@
     "cycle_time": 10,
     "description": "All pump descriptions",
     "signals": {
-      "PumpFailure": {
-        "bits": 1
+      "RLPumpSetpoint": {
+        "resolution": 1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
       },
-      "PumpRampUpSetPoint": {
-        "resolution": 0.1,
+      "RRPumpSetpoint": {
+        "resolution": 1,
         "min": 0,
         "max": 100,
         "unit": "%"
@@ -570,12 +446,9 @@
   },
   "ConnectorBoardEfuse": {
     "msg_id": 545,
-    "cycle_time": 100,
+    "cycle_time": 10,
     "description": "Efuse info for RL Pump/RR Pump/F pump/L Rad/R Rad efuses.",
     "signals": {
-      "RsmTurnOnPump": {
-        "bits": 1
-      },
       "RearLeftPumpCurrent": {
         "resolution": 0.01,
         "min": 0,
@@ -611,6 +484,18 @@
       },
       "RightRadiatorFanStatus": {
         "bits": 1
+      },
+      "RearRightPumpRetry": {
+        "bits": 8
+      },
+      "RearLeftPumpRetry": {
+        "bits": 8
+      },
+      "LeftRadiatorRetry": {
+        "bits": 8
+      },
+      "RightRadiatorRetry": {
+        "bits": 8
       }
     },
     "data_capture": {
@@ -620,7 +505,7 @@
   },
   "ShdnNodeStatus": {
     "msg_id": 550,
-    "cycle_time": 100,
+    "cycle_time": 10,
     "description": "VC Shutdown Node Status",
     "signals": {
       "RearRightMotorInterlock": {
@@ -746,7 +631,7 @@
   },
   "MainBoardEfuse": {
     "msg_id": 559,
-    "cycle_time": 1,
+    "cycle_time": 10,
     "description": "Efuse info for shdn/LV/pump/aux/INVR/INVL efuses.",
     "signals": {
       "FrontInvertersCurrent": {
@@ -802,6 +687,27 @@
       },
       "FrontStatus": {
         "bits": 1
+      },
+      "RSMRetry": {
+        "bits": 8
+      },
+      "BMSRetry": {
+        "bits": 8
+      },
+      "DAMRetry": {
+        "bits": 8
+      },
+      "FrontRetry": {
+        "bits": 8
+      },
+      "RInvRetry": {
+        "bits": 8
+      },
+      "LInvRetry": {
+        "bits": 8
+      },
+      "FSMRetry": {
+        "bits": 8
       }
     },
     "data_capture": {
@@ -811,127 +717,127 @@
   },
   "PowerMonitoring": {
     "msg_id": 560,
-    "cycle_time": 100,
+    "cycle_time": null,
     "description": "Power monitoring chip",
     "signals": {
-      "ChannelOneVoltage": {
+      "PcmChannelVoltage": {
         "resolution": 0.1,
         "min": 0.0,
         "max": 24.0,
         "unit": "V"
       },
-      "ChannelTwoVoltage": {
+      "ExtChannelVoltage": {
         "resolution": 0.1,
         "min": 0.0,
         "max": 32.0,
         "unit": "V"
       },
-      "ChannelThreeVoltage": {
+      "VbatChannelVoltage": {
         "resolution": 0.1,
         "min": 0.0,
         "max": 32.0,
         "unit": "V"
       },
-      "ChannelFourVoltage": {
+      "BoostChannelVoltage": {
         "resolution": 0.1,
         "min": 0.0,
         "max": 32.0,
         "unit": "V"
       },
-      "ChannelOneCurrent": {
+      "PcmChannelCurrent": {
         "resolution": 0.1,
         "min": -25.0,
         "max": 25.0,
         "unit": "A"
       },
-      "ChannelTwoCurrent": {
+      "ExtChannelCurrent": {
         "resolution": 0.1,
         "min": -25.0,
         "max": 25.0,
         "unit": "A"
       },
-      "ChannelThreeCurrent": {
+      "VbatChannelCurrent": {
         "resolution": 0.1,
         "min": -25.0,
         "max": 25.0,
         "unit": "A"
       },
-      "ChannelFourCurrent": {
+      "BoostChannelCurrent": {
         "resolution": 0.1,
         "min": -25.0,
         "max": 25.0,
         "unit": "A"
       },
-      "ChannelOnePower": {
+      "PcmChannelPower": {
         "resolution": 0.1,
         "min": -800.0,
         "max": 800.0,
         "unit": "W"
       },
-      "ChannelTwoPower": {
+      "ExtChannelPower": {
         "resolution": 0.1,
         "min": -800.0,
         "max": 800.0,
         "unit": "W"
       },
-      "ChannelThreePower": {
+      "VbatChannelPower": {
         "resolution": 0.1,
         "min": -800.0,
         "max": 800.0,
         "unit": "W"
       },
-      "ChannelFourPower": {
+      "BoostChannelPower": {
         "resolution": 0.1,
         "min": -800.0,
         "max": 800.0,
         "unit": "W"
       },
-      "CHANNEL1_OV": {
+      "CHANNEL4_PCM_OV": {
         "bits": 1
       },
-      "CHANNEL2_OV": {
+      "CHANNEL2_EXT_OV": {
         "bits": 1
       },
-      "CHANNEL3_OV": {
+      "CHANNEL3_VBAT_OV": {
         "bits": 1
       },
-      "CHANNEL4_OV": {
+      "CHANNEL1_BOOST_OV": {
         "bits": 1
       },
-      "CHANNEL1_UV": {
+      "CHANNEL4_PCM_UV": {
         "bits": 1
       },
-      "CHANNEL2_UV": {
+      "CHANNEL2_EXT_UV": {
         "bits": 1
       },
-      "CHANNEL3_UV": {
+      "CHANNEL3_VBAT_UV": {
         "bits": 1
       },
-      "CHANNEL4_UV": {
+      "CHANNEL1_BOOST_UV": {
         "bits": 1
       },
-      "CHANNEL1_VOLTAGE_VALID": {
+      "PCM_CHANNEL_VOLTAGE_VALID": {
         "bits": 1
       },
-      "CHANNEL2_VOLTAGE_VALID": {
+      "EXT_CHANNEL_VOLTAGE_VALID": {
         "bits": 1
       },
-      "CHANNEL3_VOLTAGE_VALID": {
+      "VBAT_CHANNEL_VOLTAGE_VALID": {
         "bits": 1
       },
-      "CHANNEL4_VOLTAGE_VALID": {
+      "BOOST_CHANNEL_VOLTAGE_VALID": {
         "bits": 1
       },
-      "CHANNEL1_CURRENT_VALID": {
+      "PCM_CHANNEL_CURRENT_VALID": {
         "bits": 1
       },
-      "CHANNEL2_CURRENT_VALID": {
+      "EXT_CHANNEL_CURRENT_VALID": {
         "bits": 1
       },
-      "CHANNEL3_CURRENT_VALID": {
+      "VBAT_CHANNEL_CURRENT_VALID": {
         "bits": 1
       },
-      "CHANNEL4_CURRENT_VALID": {
+      "BOOST_CHANNEL_CURRENT_VALID": {
         "bits": 1
       },
       "CHANNEL1_POWER_VALID": {
@@ -1013,7 +919,7 @@
   },
   "BatteryMonitoring_Data": {
     "msg_id": 562,
-    "cycle_time": 100,
+    "cycle_time": null,
     "description": "Battery monitoring chip and balancing",
     "signals": {
       "CELL1_Voltage": {
@@ -1282,6 +1188,21 @@
      "data_capture": {
       "telem_cycle_time": 1000,
       "log_cycle_time" : 1000
+    }
+  },
+  "PCM": {
+    "msg_id": 564,
+    "cycle_time": 10,
+    "signals": {
+      "PcmRetryCount": {
+        "min": 0,
+        "max": 5,
+        "resolution": 1
+      },
+      "PcmEnable": {
+        "bits": 1,
+        "resolution": 1
+      }
     }
   }
 }
