@@ -2,10 +2,11 @@ import React, { memo, useEffect, useMemo, useRef, useState } from "react";
 
 import { useSyncedGraph } from "@/components/SyncedGraphContainer";
 import { useWidgetManager } from "@/components/widgets/WidgetManagerContext";
-import { fetchHistoricalSignal, HistoricalSignalSource } from "@/lib/api/historicalSignals";
+import { fetchHistoricalSignal, HistoricalSignalResult, HistoricalSignalSource } from "@/lib/api/historicalSignals";
+import { useHistoricalSelection } from "@/lib/contexts/HistoricalSelectionContext";
 import { SignalDataStoreProvider } from "@/lib/contexts/signalStores/SignalStoreContext";
 import HistoricalSignalStore from "@/lib/signals/HistoricalSignalStore";
-import { SignalMetadata } from "@/lib/types/Signal";
+import { SignalMetadata, SignalType } from "@/lib/types/Signal";
 
 type HistoricalSignalStoreProviderProps = {
     children: React.ReactNode;
@@ -22,6 +23,7 @@ export const HistoricalSignalStoreProvider = memo(function HistoricalSignalStore
     const { children, startUtcMs, endUtcMs, source, selectedRange } = props;
     const { widgets } = useWidgetManager();
     const { updateWithTimestamp, setTimeRange } = useSyncedGraph();
+    const { setSyncing } = useHistoricalSelection();
     const signalStoreRef = useRef<HistoricalSignalStore>(null!);
     const initializedSelectedRangeKeyRef = useRef<string | null>(null);
     const [error, setError] = useState<string | null>(null);
@@ -34,9 +36,11 @@ export const HistoricalSignalStoreProvider = memo(function HistoricalSignalStore
     const selectedSignals = useMemo(() => {
         const signalsByName = new Map<string, SignalMetadata>();
         widgets.forEach((widget) => {
-            widget.signals.forEach((signal) => {
-                signalsByName.set(signal.name, signal);
-            });
+            if ("signals" in widget) {
+                widget.signals.forEach((signal) => {
+                    signalsByName.set(signal.name, signal);
+                });
+            }
         });
         return [...signalsByName.values()];
     }, [widgets]);
@@ -48,35 +52,43 @@ export const HistoricalSignalStoreProvider = memo(function HistoricalSignalStore
 
         const load = async () => {
             setError(null);
-            if (selectedSignals.length === 0) {
-                setIsLoading(false);
-                return;
-            }
-
             setIsLoading(true);
-            signalStoreRef.current.clearSignals(selectedSignals);
 
             const results = await Promise.allSettled(
                 selectedSignals.map(async (signal) => ({
                     signal,
-                    points: await fetchHistoricalSignal({
+                    result: await fetchHistoricalSignal({
                         signalName: signal.name,
                         startUtcMs,
                         endUtcMs,
                         source,
+                        signalType: signal.type,
                     }),
                 }))
             );
+
+            {
+                const alertResult = await fetchHistoricalSignal({
+                    signalName: "alert",
+                    signalType: SignalType.ALERT,
+                    startUtcMs,
+                    endUtcMs,
+                    source,
+                });
+
+                signalStoreRef.current.mergeAlerts(alertResult.resolutionMs, startUtcMs, endUtcMs, alertResult.points);
+            }
 
             if (isCancelled) {
                 return;
             }
 
             const failures = results.filter((result) => result.status === "rejected");
-            const successes = results.filter((result): result is PromiseFulfilledResult<{ signal: SignalMetadata; points: { timestampMs: number; value: number; name: string }[] }> => result.status === "fulfilled");
+            const successes = results.filter((result): result is PromiseFulfilledResult<{ signal: SignalMetadata; result: HistoricalSignalResult }> => result.status === "fulfilled");
 
             successes.forEach((result) => {
-                signalStoreRef.current.hydrateSignal(result.value.signal, result.value.points);
+                const { signal, result: signalResult } = result.value;
+                signalStoreRef.current.mergeSignal(signal, signalResult.resolutionMs, startUtcMs, endUtcMs, signalResult.points);
             });
 
             const shouldFitViewport = initializedSelectedRangeKeyRef.current !== selectedRangeKey;
@@ -104,19 +116,15 @@ export const HistoricalSignalStoreProvider = memo(function HistoricalSignalStore
         };
     }, [endUtcMs, selectedRange, selectedRangeKey, selectedSignals, setTimeRange, source, startUtcMs]);
 
+    useEffect(() => {
+        setSyncing(isLoading);
+    }, [isLoading, setSyncing]);
+
+    useEffect(() => () => setSyncing(false), [setSyncing]);
+
     return (
         <SignalDataStoreProvider signalStore={signalStoreRef}>
-            {error ? <div className="mx-4 mb-3 rounded-md border border-red-800 bg-red-300 px-3 py-2 text-sm text-black">{error}</div> : null}
-            {isLoading ? (
-                <div className="mx-4 mb-3 flex items-center gap-3 px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg animate-pulse">
-                    <div className="w-2 h-2 bg-green-500 rounded-full animate-bounce" />
-                    <span className="text-sm font-medium text-gray-600">Syncing {source === "SdCard" ? "SD card" : "historical"} data...</span>
-                </div>
-            ) : !error ? (
-                <div className="mx-4 mb-3 flex items-center gap-3 px-3 py-2 bg-green-100 border border-gray-200 rounded-lg ">
-                    <span className="text-sm font-medium text-gray-600">{source === "SdCard" ? "SD Card" : "Historical"} Data Synced</span>
-                </div>
-            ) : null}
+            {error ? <div className="mx-4 mb-3 rounded border border-red-500 bg-red-100 px-3 py-2 text-sm whitespace-pre-line text-red-600">{error}</div> : null}
             {children}
         </SignalDataStoreProvider>
     );

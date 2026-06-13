@@ -30,6 +30,8 @@ struct led_frame
       : _brightness(static_cast<uint8_t>(brightness * 0b11111) & 0b11111), _b(b), _g(g), _r(r)
     {
     }
+
+    led_frame() = default;
 };
 static_assert(sizeof(led_frame) == 4);
 

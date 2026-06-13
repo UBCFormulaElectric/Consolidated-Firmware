@@ -8,6 +8,7 @@
 #include "app_canTx.hpp"
 #include "app_canUtils.hpp"
 #include "io_canRx.hpp"
+#include "app_segments.hpp"
 
 #define ADBMS_CONVERSION_PERIOD_MS (1000U)
 
@@ -26,29 +27,20 @@ class BMSBaseTest : public EcuTestBase
         app::can_rx::Debug_CellBalancing_Request_update(false);
         app::can_tx::BMS_Fault_TESTFAULT_set(false);
 
-        // TODO: Change back to using constants once segments is added
-        // fakes::segments::setPackVoltageEvenly(3.8f * NUM_SEGMENTS * CELLS_PER_SEGMENT);
-        fakes::segments::setPackVoltageEvenly(3.8f * 10 * 14);
-        fakes::segments::SetAuxRegs(15.0f); // Approx. 25C
-        // Placeholder accessors used by charge state and precharge. Defaults pick a mid-charge
-        // cell and the matching pack voltage (3.8V * 10 segments * 14 cells = 532V).
-        fakes::segments::setMaxCellVoltage(3.8f);
-        fakes::segments::setMaxCellTemp(25.0f);
-        fakes::segments::setPackVoltage(3.8f * 10.0f * 14.0f);
-
+        fakes::adbms::setPackVoltageEvenly(3.8f * NUM_SEGMENTS * CELLS_PER_SEGMENT);
+        fakes::adbms::setHealthyConfigs();
         fakes::ts::setVoltage(0.0f);
 
         jobs_init();
-        // jobs_initAdbmsVoltages();
-        // jobs_initAdbmsTemps();
-        // jobs_initAdbmsDiagnostics();
 
         register_task(jobs_run1Hz_tick, 1000);
         register_task(jobs_run100Hz_tick, 10);
         register_task(jobs_run1kHz_tick, 1);
-        // register_task(jobs_runAdbmsVoltages, 500);
-        // register_task(jobs_runAdbmsDiagnostics, 500);
-        // register_task(jobs_runAdbmsTemperatures, 500);
+        register_task(jobs_runAdbmsVoltages_tick, 500);
+        register_task(jobs_runAdbmsConfigs_tick, 100);
+        register_task(jobs_runAdbmsAux_tick, 1200);
+        register_task(jobs_runAdbmsCellOwc_tick, 1000);
+
         // Allow time for all jobs to run at least once for things like voltage arrays to update
         LetTimePass(1000);
     }

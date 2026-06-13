@@ -10,10 +10,6 @@ void app::latches::broadcast()
     const bool bspd_latched_ok = bspd_ok_latch.getLatchedStatus() == FaultLatchState::OK;
     const bool bms_latched_ok  = bms_ok_latch.getLatchedStatus() == FaultLatchState::OK;
 
-    app::can_alerts::faults::ImdLatched_set(not imd_latched_ok);
-    app::can_alerts::faults::HardwareBspdLatched_set(not bspd_latched_ok);
-    app::can_alerts::faults::BmsLatched_set(not bms_latched_ok);
-
     app::can_tx::BMS_BmsCurrentlyOk_set(bms_ok_latch.getLatchedStatus() == FaultLatchState::OK);
     app::can_tx::BMS_ImdCurrentlyOk_set(imd_ok_latch.getLatchedStatus() == FaultLatchState::OK);
     app::can_tx::BMS_BspdCurrentlyOk_set(bspd_ok_latch.getLatchedStatus() == FaultLatchState::OK);

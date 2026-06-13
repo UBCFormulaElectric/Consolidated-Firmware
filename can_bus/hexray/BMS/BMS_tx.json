@@ -10,6 +10,10 @@
       "State": {
         "enum": "BmsState"
       }
+    },
+    "data_capture": {
+      "telem_cycle_time": 100,
+      "log_cycle_time" : 100
     }
   },
   "Debug": {
@@ -32,6 +36,10 @@
       "WatchdogTimeoutTask": {
         "bits": 32
       }
+    },
+    "data_capture": {
+      "telem_cycle_time": 1000,
+      "log_cycle_time" : 1000
     }
   },
   "Bootup": {
@@ -76,6 +84,10 @@
       "BspdLatchOk": {
         "bits": 1
       }
+    },
+    "data_capture": {
+      "telem_cycle_time": 100,
+      "log_cycle_time" : 100
     }
   },
   "Contactors": {
@@ -92,6 +104,10 @@
       "PrechargeRelay": {
         "enum": "ContactorState"
       }
+    },
+    "data_capture": {
+      "telem_cycle_time": 100,
+      "log_cycle_time" : 100
     }
   },
   "Charger": {
@@ -147,6 +163,10 @@
       "VoltageSensorOk": {
         "bits": 1
       }
+    },
+    "data_capture": {
+      "telem_cycle_time": 100,
+      "log_cycle_time" : 100
     }
   },
   "BSPDStatus": {
@@ -163,6 +183,10 @@
       "BSPDAccelBrakeOk": {
         "bits": 1
       }
+    },
+    "data_capture": {
+      "telem_cycle_time": 100,
+      "log_cycle_time" : 100
     }
   },
   "HvBatteryProperties": {
@@ -210,6 +234,10 @@
         "max": 100,
         "unit": "Hz"
       }
+    },
+    "data_capture": {
+      "telem_cycle_time": 100,
+      "log_cycle_time" : 100
     }
   },
   "ImdData": {
@@ -235,6 +263,10 @@
       "ImdSpeedStartStatus30Hz": {
         "enum": "ImdSstState"
       }
+    },
+    "data_capture": {
+      "telem_cycle_time": 100,
+      "log_cycle_time" : 100
     }
   },
   "PowerLimit": {
@@ -264,7 +296,7 @@
   },
   "CellVoltageStats": {
     "msg_id": 419,
-    "cycle_time": 100,
+    "cycle_time": null,
     "description": "Min/max cell voltage with segment + cell index",
     "signals": {
       "MinCellVoltage": {
@@ -299,11 +331,15 @@
         "min": 0,
         "max": 13
       }
+    },
+    "data_capture": {
+      "telem_cycle_time": 100,
+      "log_cycle_time" : 100
     }
   },
   "CellTempStats": {
     "msg_id": 420,
-    "cycle_time": 100,
+    "cycle_time": null,
     "description": "Min/max cell temperature with segment + thermistor index",
     "signals": {
       "MinCellTemp": {
@@ -338,11 +374,15 @@
         "min": 0,
         "max": 13
       }
+    },
+    "data_capture": {
+      "telem_cycle_time": 100,
+      "log_cycle_time" : 100
     }
   },
   "SegmentVoltageStats": {
     "msg_id": 421,
-    "cycle_time": 100,
+    "cycle_time": null,
     "description": "Min/max segment voltage with segment index",
     "signals": {
       "MinSegmentVoltage": {
@@ -367,6 +407,24 @@
         "min": 0,
         "max": 9
       }
+    },
+    "data_capture": {
+      "telem_cycle_time": 100,
+      "log_cycle_time" : 100
+    }
+  },
+  "PackVoltage": {
+    
+    "msg_id": 481,
+    "cycle_time": null,
+    "description": "Accumulator pack voltage (sum of segment voltages from the ADBMS stack)",
+    "signals": {
+      "PackVoltage": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 700,
+        "unit": "V"
+      }
     }
   },
   "CellVoltages_Seg0_Seg3": {
@@ -375,6 +433,7 @@
     "allowed_modes": [
       "DEBUG"
     ],
+    
     "description": "Cell voltages: Segment 0-3",
     "signals": {
       "Seg0_Cell0_Voltage": {
@@ -2109,7 +2168,7 @@
       }
     }
   },
-  "CellOpenWireCheck": {
+  "CellOpenWireCheckOk": {
     "msg_id": 431,
     "cycle_time": null,
     "allowed_modes": [
@@ -3419,7 +3478,7 @@
       }
     }
   },
-  "ThermistorOpenWireCheck": {
+  "ThermistorOpenWireCheckOk": {
     "msg_id": 432,
     "cycle_time": null,
     "allowed_modes": [
@@ -7871,15 +7930,18 @@
   "SegmentHealthErrors": {
     "msg_id": 475,
     "cycle_time": null,
-    "description": "Per-segment health error bits (9 bits per segment, 10 segments). True = error set.",
+    "description": "Per-segment health error bits (11 bits per segment, 10 segments). True = error set.",
     "signals": {
-      "Seg0_CellAdcPoll": {
+      "Seg0_CellAdcStart": {
+        "bits": 1
+      },
+      "Seg0_AuxAdcStart": {
         "bits": 1
       },
       "Seg0_AuxAdcPoll": {
         "bits": 1
       },
-      "Seg0_OwcAdcPoll": {
+      "Seg0_OwcAdcStart": {
         "bits": 1
       },
       "Seg0_CellVoltage": {
@@ -7900,13 +7962,19 @@
       "Seg0_Config": {
         "bits": 1
       },
-      "Seg1_CellAdcPoll": {
+      "Seg0_Unreachable": {
+        "bits": 1
+      },
+      "Seg1_CellAdcStart": {
+        "bits": 1
+      },
+      "Seg1_AuxAdcStart": {
         "bits": 1
       },
       "Seg1_AuxAdcPoll": {
         "bits": 1
       },
-      "Seg1_OwcAdcPoll": {
+      "Seg1_OwcAdcStart": {
         "bits": 1
       },
       "Seg1_CellVoltage": {
@@ -7927,13 +7995,19 @@
       "Seg1_Config": {
         "bits": 1
       },
-      "Seg2_CellAdcPoll": {
+      "Seg1_Unreachable": {
+        "bits": 1
+      },
+      "Seg2_CellAdcStart": {
+        "bits": 1
+      },
+      "Seg2_AuxAdcStart": {
         "bits": 1
       },
       "Seg2_AuxAdcPoll": {
         "bits": 1
       },
-      "Seg2_OwcAdcPoll": {
+      "Seg2_OwcAdcStart": {
         "bits": 1
       },
       "Seg2_CellVoltage": {
@@ -7954,13 +8028,19 @@
       "Seg2_Config": {
         "bits": 1
       },
-      "Seg3_CellAdcPoll": {
+      "Seg2_Unreachable": {
+        "bits": 1
+      },
+      "Seg3_CellAdcStart": {
+        "bits": 1
+      },
+      "Seg3_AuxAdcStart": {
         "bits": 1
       },
       "Seg3_AuxAdcPoll": {
         "bits": 1
       },
-      "Seg3_OwcAdcPoll": {
+      "Seg3_OwcAdcStart": {
         "bits": 1
       },
       "Seg3_CellVoltage": {
@@ -7981,13 +8061,19 @@
       "Seg3_Config": {
         "bits": 1
       },
-      "Seg4_CellAdcPoll": {
+      "Seg3_Unreachable": {
+        "bits": 1
+      },
+      "Seg4_CellAdcStart": {
+        "bits": 1
+      },
+      "Seg4_AuxAdcStart": {
         "bits": 1
       },
       "Seg4_AuxAdcPoll": {
         "bits": 1
       },
-      "Seg4_OwcAdcPoll": {
+      "Seg4_OwcAdcStart": {
         "bits": 1
       },
       "Seg4_CellVoltage": {
@@ -8008,13 +8094,19 @@
       "Seg4_Config": {
         "bits": 1
       },
-      "Seg5_CellAdcPoll": {
+      "Seg4_Unreachable": {
+        "bits": 1
+      },
+      "Seg5_CellAdcStart": {
+        "bits": 1
+      },
+      "Seg5_AuxAdcStart": {
         "bits": 1
       },
       "Seg5_AuxAdcPoll": {
         "bits": 1
       },
-      "Seg5_OwcAdcPoll": {
+      "Seg5_OwcAdcStart": {
         "bits": 1
       },
       "Seg5_CellVoltage": {
@@ -8035,13 +8127,19 @@
       "Seg5_Config": {
         "bits": 1
       },
-      "Seg6_CellAdcPoll": {
+      "Seg5_Unreachable": {
+        "bits": 1
+      },
+      "Seg6_CellAdcStart": {
+        "bits": 1
+      },
+      "Seg6_AuxAdcStart": {
         "bits": 1
       },
       "Seg6_AuxAdcPoll": {
         "bits": 1
       },
-      "Seg6_OwcAdcPoll": {
+      "Seg6_OwcAdcStart": {
         "bits": 1
       },
       "Seg6_CellVoltage": {
@@ -8062,13 +8160,19 @@
       "Seg6_Config": {
         "bits": 1
       },
-      "Seg7_CellAdcPoll": {
+      "Seg6_Unreachable": {
+        "bits": 1
+      },
+      "Seg7_CellAdcStart": {
+        "bits": 1
+      },
+      "Seg7_AuxAdcStart": {
         "bits": 1
       },
       "Seg7_AuxAdcPoll": {
         "bits": 1
       },
-      "Seg7_OwcAdcPoll": {
+      "Seg7_OwcAdcStart": {
         "bits": 1
       },
       "Seg7_CellVoltage": {
@@ -8089,13 +8193,19 @@
       "Seg7_Config": {
         "bits": 1
       },
-      "Seg8_CellAdcPoll": {
+      "Seg7_Unreachable": {
+        "bits": 1
+      },
+      "Seg8_CellAdcStart": {
+        "bits": 1
+      },
+      "Seg8_AuxAdcStart": {
         "bits": 1
       },
       "Seg8_AuxAdcPoll": {
         "bits": 1
       },
-      "Seg8_OwcAdcPoll": {
+      "Seg8_OwcAdcStart": {
         "bits": 1
       },
       "Seg8_CellVoltage": {
@@ -8116,13 +8226,19 @@
       "Seg8_Config": {
         "bits": 1
       },
-      "Seg9_CellAdcPoll": {
+      "Seg8_Unreachable": {
+        "bits": 1
+      },
+      "Seg9_CellAdcStart": {
+        "bits": 1
+      },
+      "Seg9_AuxAdcStart": {
         "bits": 1
       },
       "Seg9_AuxAdcPoll": {
         "bits": 1
       },
-      "Seg9_OwcAdcPoll": {
+      "Seg9_OwcAdcStart": {
         "bits": 1
       },
       "Seg9_CellVoltage": {
@@ -8142,11 +8258,27 @@
       },
       "Seg9_Config": {
         "bits": 1
+      },
+      "Seg9_Unreachable": {
+        "bits": 1
+      }
+    }
+  },
+  "Fans": {
+    "msg_id": 425,
+    "cycle_time": 100,
+    "description": "Fan control signals",
+    "signals": {
+      "FanStatus": {
+        "bits": 1
+      },
+      "FanPgood": {
+        "bits": 1
       }
     }
   },
   "EvseCPStatus": {
-    "msg_id": 480,
+    "msg_id": 482,
     "allowed_modes":[
       "DEBUG"
     ],
@@ -8203,6 +8335,18 @@
         "start_bit": 32,
         "bits": 1,
         "start_value": 1
+      }
+    }
+  },
+  "SpiLinkStatus": {
+    "msg_id": 480,
+    "description": "Furthest reach of spi transmitters (Segment 0 = low side, Segment 9 = high side)",
+    "signals": {
+      "LowSideSegmentReach": {
+        "bits": 4
+      },
+      "HighSideSegmentReach": {
+        "bits": 4
       }
     }
   }

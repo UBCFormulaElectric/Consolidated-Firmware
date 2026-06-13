@@ -33,7 +33,7 @@ class FSMChimeraConfig : public chimera_v2::config
             case fsm_GpioNetName_GPIO_COCKPIT_SHDN_3v3:
                 return std::cref(cockpit_shdn_3v3);
             case fsm_GpioNetName_GPIO_IMU_NSS:
-                return std::cref(::imu_nss);
+                return std::cref(imu_cs);
             case fsm_GpioNetName_GPIO_IMU_FSYNC:
                 return std::cref(imu_fsync);
             case fsm_GpioNetName_GPIO_NSUSP_FL_OCSC:

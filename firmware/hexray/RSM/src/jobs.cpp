@@ -31,7 +31,6 @@ void jobs_init()
             UNUSED(can_tx_queue.push(msg));
         });
     io::can_tx::enableMode_FDCAN(app::can_utils::FDCANMode::FDCAN_MODE_DEFAULT, true);
-    app::imu::init();
 
     app::can_tx::RSM_Hash_set(GIT_COMMIT_HASH);
     app::can_tx::RSM_Clean_set(GIT_COMMIT_CLEAN);
@@ -42,11 +41,13 @@ void jobs_run1Hz_tick()
 {
     io::can_tx::enqueue1HzMsgs();
 }
-
+void jobs_initImu()
+{
+    app::imu::init();
+}
 void jobs_run100Hz_tick()
 {
     app::brake::broadcast();
-    app::imu::broadcast();
     app::suspension::broadcast();
     app::tireTemp::broadcast();
     app::coolant::broadcast();
@@ -63,4 +64,8 @@ void jobs_run100Hz_tick()
 void jobs_run1kHz_tick()
 {
     io::can_tx::enqueueOtherPeriodicMsgs(io::time::getCurrentMs());
+}
+void jobs_runImu_tick()
+{
+    app::imu::broadcast();
 }

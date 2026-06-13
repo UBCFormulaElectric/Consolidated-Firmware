@@ -5,14 +5,13 @@
 
 namespace hw::spi
 {
-static constexpr uint32_t SPI_TIMEOUT = 100U;
 
-static bus   imu_spi_bus(hspi1);
-const device imu_spi(imu_spi_bus, imu_nss, SPI_TIMEOUT);
+static bus   spi1(hspi1);
+const device imu_spi(spi1, imu_cs, 8U);
 
 [[nodiscard]] const bus &getBusFromHandle(const SPI_HandleTypeDef *handle)
 {
-    assert(handle == &imu_spi_bus.handle);
-    return imu_spi_bus;
+    assert(handle == &hspi1);
+    return spi1;
 }
 } // namespace hw::spi

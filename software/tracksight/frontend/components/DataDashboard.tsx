@@ -7,7 +7,6 @@ import { useRef } from "react";
 function DataDashboard() {
   const { widgets } = useWidgetManager();
 
-
   const hoveredSignal = useRef<string | null>(null);
 
   return (
