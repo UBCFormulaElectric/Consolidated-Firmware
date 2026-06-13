@@ -3,7 +3,6 @@
 #include "app_canUtils.hpp"
 #include "app_inverter.hpp"
 #include "app_powerManager.hpp"
-#include "app_pumpControl.hpp"
 #include "app_startSwitch.hpp"
 #include "app_states.hpp"
 
@@ -71,13 +70,17 @@ static void driveStateRunOnTick100Hz()
 
     // inverters expect smoother signal
     // just for spinning wheels
-    if (const float torque_fl = app::can_rx::Debug_TorqueRequest_FL_get(); torque_fl < 0.0001f)
+    const float torque_fl = app::can_rx::Debug_TorqueRequest_FL_get();
+    const float torque_fr = app::can_rx::Debug_TorqueRequest_FR_get();
+    const float torque_rl = app::can_rx::Debug_TorqueRequest_RL_get();
+    const float torque_rr = app::can_rx::Debug_TorqueRequest_RL_get();
+    if (torque_fl < 0.0001f && torque_fr < 0.0001f && torque_rl < 0.0001f && torque_rr < 0.0001f)
     {
         send_torque(torque_request, torque_request, torque_request, torque_request);
     }
     else
     {
-        send_torque(torque_fl, torque_fl, torque_fl, torque_fl);
+        send_torque(torque_fl, torque_fr, torque_rl, torque_rr);
     }
 
     if (startSwitch::hasRisingEdge())
