@@ -67,7 +67,7 @@ static void pcmOnStateRunOnTick100Hz(void)
         return;
     }
 
-    const float pcm_curr_voltage = app_canTx_VC_ChannelOneVoltage_get();
+    const float pcm_curr_voltage = app_canTx_VC_PcmChannelVoltage_get();
 
     switch (state)
     {
