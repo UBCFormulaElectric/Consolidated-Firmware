@@ -16,7 +16,7 @@ extern const hw::adcchip<6> adc1;
 
 inline void adcChipsInit()
 {
-    LOG_IF_ERR(adc1.init(true, true));
+    LOG_IF_ERR(adc1.init());
 }
 
 extern const hw::adc susp_fl;
