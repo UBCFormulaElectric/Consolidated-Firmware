@@ -369,7 +369,7 @@ result<void> imu::init() const
 //     return exit;
 // }
 
-result<float> imu::getAccelX() const
+result<int16_t> imu::getRawAccelX() const
 {
     if (is_imu_ready == false)
         return std::unexpected(ErrorCode::ERROR);
@@ -379,7 +379,18 @@ result<float> imu::getAccelX() const
 
     const auto exit = imu_spi_handle.transmitThenReceive(tx, rx);
     RETURN_IF_ERR_SILENT(exit);
+<<<<<<< Updated upstream
     return translateData(rx[0], rx[1]);
+    == == == = return static_cast<int16_t>(static_cast<uint16_t>(rx[0]) << 8U | static_cast<uint16_t>(rx[1]));
+}
+
+result<float> imu::getAccelX() const
+{
+    const auto raw = getRawAccelX();
+    if (!raw)
+        return std::unexpected(raw.error());
+    return accelCountsToG(raw.value());
+>>>>>>> Stashed changes
 }
 
 result<float> imu::getAccelY() const

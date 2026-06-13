@@ -199,9 +199,22 @@ class imu
 
     [[nodiscard]] result<void> init() const;
 
-    result<float> getAccelX() const;
-    result<float> getAccelY() const;
-    result<float> getAccelZ() const;
+    [[nodiscard]] result<int16_t> getRawAccelX() const;
+    result<float>                 getAccelX() const;
+    result<float>                 getAccelY() const;
+    result<float>                 getAccelZ() const;
+
+    /** LSB per g for the configured accelerometer full-scale range. */
+    [[nodiscard]] static constexpr float accelSensitivityLsbPerG()
+    {
+        // Must match accel_scale configured in io_imu.cpp (ACCEL_G_4).
+        return 8192.0f;
+    }
+    /** Convert a raw accelerometer register count to g. */
+    [[nodiscard]] static constexpr float accelCountsToG(const int16_t raw)
+    {
+        return static_cast<float>(raw) / accelSensitivityLsbPerG();
+    }
 
     result<float> getGyroX() const;
     result<float> getGyroY() const;

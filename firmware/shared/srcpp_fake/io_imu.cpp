@@ -62,6 +62,10 @@ result<float> imu::getAccelX() const
 {
     return _accel_x_fake;
 }
+result<int16_t> imu::getRawAccelX() const
+{
+    return static_cast<int16_t>(_accel_x_fake * imu::accelSensitivityLsbPerG());
+}
 result<float> imu::getAccelY() const
 {
     return _accel_y_fake;

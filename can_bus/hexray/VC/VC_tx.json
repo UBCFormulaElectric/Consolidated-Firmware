@@ -330,6 +330,7 @@
       },
       "Imu1GyroX": {
         "resolution": 0.1,
+<<<<<<< Updated upstream
         "min": -20,
         "max": 20,
         "unit": "deg/s^2"
@@ -345,6 +346,33 @@
         "min": -20,
         "max": 20,
         "unit": "deg/s^2"
+=======
+        "signed": true,
+        "min": -250,
+        "max": 250,
+        "unit": "deg/s"
+      },
+      "Imu1GyroY": {
+        "resolution": 0.1,
+        "signed": true,
+        "min": -250,
+        "max": 250,
+        "unit": "deg/s"
+      },
+      "Imu1GyroZ": {
+        "resolution": 0.1,
+        "signed": true,
+        "min": -250,
+        "max": 250,
+        "unit": "deg/s"
+      },
+      "Imu1GyroZFiltered": {
+        "resolution": 0.1,
+        "signed": true,
+        "min": -250,
+        "max": 250,
+        "unit": "deg/s"
+>>>>>>> Stashed changes
       }
     }
   },
