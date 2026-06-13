@@ -40,7 +40,7 @@ class BMSBaseTest : public EcuTestBase
         register_task(jobs_runAdbmsConfigs_tick, 100);
         register_task(jobs_runAdbmsAux_tick, 1200);
         register_task(jobs_runAdbmsCellOwc_tick, 1000);
-        
+
         // Allow time for all jobs to run at least once for things like voltage arrays to update
         LetTimePass(1000);
     }

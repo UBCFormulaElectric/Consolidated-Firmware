@@ -175,7 +175,7 @@ namespace bspdtest
 
 namespace adbms
 {
-    Cells<result<int16_t>> cell_voltages{};
+    Cells<result<int16_t>>  cell_voltages{};
     Segments<SegmentConfig> config{};
     Segments<PWMConfig>     pwm{};
 

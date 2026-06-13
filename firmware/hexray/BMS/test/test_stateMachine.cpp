@@ -412,7 +412,7 @@ TEST_F(BmsStateMachineTest, bspd_fault_latches_then_reset_to_init_state)
 
     fakes::faultLatch::updateFaultLatch(&bspd_ok_latch, io::FaultLatch::FaultLatchState::FAULT);
     fakes::irs::setNegativeState(app::can_utils::ContactorState::CONTACTOR_STATE_OPEN);
-    LetTimePass(app::irs::N_DEBOUNCE_PERIOD_MS + 100); 
+    LetTimePass(app::irs::N_DEBOUNCE_PERIOD_MS + 100);
     for (int i = 0; i < 30; i++)
     {
         LetTimePass(10);
