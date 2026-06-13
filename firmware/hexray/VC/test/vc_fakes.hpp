@@ -54,3 +54,8 @@ namespace warningHandling
     void set_brake_actuation_state(bool actuated);
 } // namespace warningHandling
 } // namespace fakes::io
+
+namespace io::imus
+{
+extern imu IMU1;
+}
