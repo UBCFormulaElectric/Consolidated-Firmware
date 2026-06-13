@@ -102,7 +102,8 @@ void jobs_run100Hz_tick()
 
     // TODO: Enable fans for endurance when contactors are closed.
     // io::fans::tick(app::can_rx::VC_State_get() == app::can_utils::VCState::VC_DRIVE_STATE);
-    io::fans::tick(true);
+    // NOTE: Efuse is shorted — no software enable needed
+    io::fans::tick(false);
     app::can_tx::BMS_FanStatus_set(true);
 #ifdef TARGET_EMBEDDED
     // app::can_tx::BMS_FanPgood_set(fan_pgood.readPin());
