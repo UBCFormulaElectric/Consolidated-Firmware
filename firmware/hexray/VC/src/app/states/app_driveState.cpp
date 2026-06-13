@@ -5,6 +5,7 @@
 #include "app_powerManager.hpp"
 #include "app_startSwitch.hpp"
 #include "app_states.hpp"
+#include "app_bspdwarning.hpp"
 
 #include "torque_vectoring/datatypes/torque_limits.hpp"
 
@@ -29,6 +30,15 @@ static constexpr Efuses<EfuseConfig> power_manager_state = {
 };
 
 static volatile float apps = 0.0f;
+
+static bool driveStatePassPreCheck()
+{
+    // All states module checks for faults, and returns whether or not a fault was detected
+    const bool board_warning = app::can_alerts::AnyBoardHasWarning();
+    if (board_warning)
+        return false;
+    return true;
+}
 
 namespace app::states
 {
@@ -57,15 +67,14 @@ static void driveStateRunOnTick100Hz()
         return;
     }
 
-    // if (!driveStatePassPreCheck())
-    // {
-    //     send_torque(NO_TORQUE_Nm, NO_TORQUE_Nm, NO_TORQUE_Nm, NO_TORQUE_Nm);
-    //     // TODO: set speed requests to 0 as well
-    //     return;
-    // }
+    apps = can_rx::FSM_PappsMappedPedalPercentage_get();
 
-    // TODO: add driving algorithm handling here
-    apps                       = can_rx::FSM_PappsMappedPedalPercentage_get();
+    if ((not driveStatePassPreCheck()) || app::bspdWarning::checkSoftwareBspd(apps))
+    {
+        send_torque(NO_TORQUE_Nm, NO_TORQUE_Nm, NO_TORQUE_Nm, NO_TORQUE_Nm);
+        return;
+    }
+
     const float torque_request = apps * MAX_TORQUE_REQUEST_Nm / 100.0f;
 
     // inverters expect smoother signal
@@ -82,11 +91,8 @@ static void driveStateRunOnTick100Hz()
     {
         send_torque(torque_fl, torque_fr, torque_rl, torque_rr);
     }
-
-    if (startSwitch::hasRisingEdge())
-    {
+     if (startSwitch::hasRisingEdge())
         StateMachine::set_next_state(&hv_state);
-    }
 }
 
 static void driveStateRunOnExit()

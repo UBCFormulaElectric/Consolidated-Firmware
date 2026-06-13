@@ -256,6 +256,24 @@ TEST_F(VCStateMachineTest, DriveStateEntryKeepsDriveState)
     ASSERT_STATE_EQ(app::states::drive_state);
 }
 
+TEST_F(VCStateMachineTest, SoftwareBspdInDriveStateCutsTorque)
+{
+    app::can_rx::BMS_State_update(BmsState::BMS_DRIVE_STATE);
+    app::can_rx::CRIT_StartButton_update(SwitchState::OFF);
+    SetStateWithEntry(&app::states::drive_state);
+
+    app::can_rx::FSM_BrakeActuated_update(true);
+    app::can_rx::FSM_PappsMappedPedalPercentage_update(50);
+
+    LetTimePass(10);
+
+    ASSERT_STATE_EQ(app::states::drive_state);
+    EXPECT_EQ(app::can_tx::VC_INVFRTorqueSetpoint_get(), 0);
+    EXPECT_EQ(app::can_tx::VC_INVFLTorqueSetpoint_get(), 0);
+    EXPECT_EQ(app::can_tx::VC_INVRRTorqueSetpoint_get(), 0);
+    EXPECT_EQ(app::can_tx::VC_INVRLTorqueSetpoint_get(), 0);
+}
+
 TEST_F(VCStateMachineTest, PcmOnEntryInitializesState)
 {
     // test is being chopped on remote CI but it passes locally so we skip for now mew
