@@ -890,7 +890,7 @@ static void MX_UART8_Init(void)
 
     /* USER CODE END UART8_Init 1 */
     huart8.Instance                    = UART8;
-    huart8.Init.BaudRate               = 115200;
+    huart8.Init.BaudRate               = SBG_ELLIPSE_GPS_BAUD_RATE;
     huart8.Init.WordLength             = UART_WORDLENGTH_8B;
     huart8.Init.StopBits               = UART_STOPBITS_1;
     huart8.Init.Parity                 = UART_PARITY_NONE;
@@ -965,10 +965,10 @@ static void MX_DMA_Init(void)
 
     /* DMA interrupt init */
     /* DMA1_Stream1_IRQn interrupt configuration */
-    HAL_NVIC_SetPriority(DMA1_Stream1_IRQn, 0, 0);
+    HAL_NVIC_SetPriority(DMA1_Stream1_IRQn, 5, 0);
     HAL_NVIC_EnableIRQ(DMA1_Stream1_IRQn);
     /* DMA1_Stream2_IRQn interrupt configuration */
-    HAL_NVIC_SetPriority(DMA1_Stream2_IRQn, 0, 0);
+    HAL_NVIC_SetPriority(DMA1_Stream2_IRQn, 5, 0);
     HAL_NVIC_EnableIRQ(DMA1_Stream2_IRQn);
 }
 

@@ -6,6 +6,7 @@
 #include "app_canTx.hpp"
 #include "app_canAlerts.hpp"
 #include "app_lowVoltageBattery.hpp"
+#include "app_sbgEllipse.hpp"
 
 #include "io_time.hpp"
 #include "io_canQueues.hpp"
@@ -34,6 +35,7 @@
 [[noreturn]] static void tasks_runCanRx(void *arg);
 [[noreturn]] static void tasks_batteryMonitoring(void *arg);
 [[noreturn]] static void tasks_powerMonitoring(void *arg);
+[[noreturn]] static void tasks_sbgEllipse(void *arg);
 
 // Define the task with StaticTask Class
 constexpr size_t                                   TASK_COUNT = 7; // IMU, Batt Mon, Power Mon ADD
@@ -46,6 +48,8 @@ static hw::rtos::StaticTask::StaticTaskStack<512>  TaskCan1TxStack;
 static hw::rtos::StaticTask::StaticTaskStack<512>  TaskCan2TxStack;
 static hw::rtos::StaticTask::StaticTaskStack<1024> BatteryMonitoringStack;
 static hw::rtos::StaticTask::StaticTaskStack<512>  TaskPowerMonitoringStack;
+// confirm stack size w zeddy
+static hw::rtos::StaticTask::StaticTaskStack<4096> TaskSbgEllipseStack;
 
 static hw::rtos::StaticTask Task100Hz(osPriorityHigh, "Task100Hz", tasks_run100Hz, Task100HzStack);
 static hw::rtos::StaticTask Task1kHz(osPriorityRealtime, "Task1kHz", tasks_run1kHz, Task1kHzStack);
@@ -58,6 +62,7 @@ static hw::rtos::StaticTask
     TaskBatteryMonitoring(osPriorityNormal, "TaskBatteryMonitoring", tasks_batteryMonitoring, BatteryMonitoringStack);
 static hw::rtos::StaticTask
     TaskPowerMonitoring(osPriorityNormal, "TaskPowerMonitoring", tasks_powerMonitoring, TaskPowerMonitoringStack);
+static hw::rtos::StaticTask TaskSbgEllipse(osPriorityNormal, "TaskSbgEllipse", tasks_sbgEllipse, TaskSbgEllipseStack);
 
 static hw::runtimeStat::monitor<TASK_COUNT> runtimeMonitor{
     { app::can_tx::VC_CoreCpuUsage_set, app::can_tx::VC_CoreCpuUsageMax_set },
@@ -234,6 +239,22 @@ void tasks_runCanRx(void *arg)
         osDelayUntil(start_ticks);
     }
 }
+[[noreturn]] static void tasks_sbgEllipse(void *arg)
+{
+    static const TickType_t period_ms   = 10;
+    static uint32_t         start_ticks = 0;
+    start_ticks                         = osKernelGetTickCount();
+
+    // Init here (not jobs_init) so DMA reception is only armed once the
+    // scheduler is running and the stream buffer has a consumer.
+    app::sbgEllipse::init();
+    for (;;)
+    {
+        jobs_runSbgEllipse_tick();
+        start_ticks += period_ms;
+        osDelayUntil(start_ticks);
+    }
+}
 
 static void VC_StartAllTasks()
 {
@@ -244,8 +265,9 @@ static void VC_StartAllTasks()
     TaskCanRx.start();
     TaskCan1Tx.start();
     TaskCan2Tx.start();
-    TaskBatteryMonitoring.start();
+    // TaskBatteryMonitoring.start();
     TaskPowerMonitoring.start();
+    TaskSbgEllipse.start();
 }
 
 void tasks_preInit()

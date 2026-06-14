@@ -9,6 +9,7 @@
 #include "app_canRx.hpp"
 #include "app_lowVoltageBattery.hpp"
 #include "app_powerMonitoring.hpp"
+#include "app_sbgEllipse.hpp"
 #include "app/states/app_states.hpp"
 #include "app_stateMachine.hpp"
 #include "app_timer.hpp"
@@ -17,7 +18,7 @@
 #include "app_pumpControl.hpp"
 #include "app_vcShdnLoop.hpp"
 #include "app_shdnLast.hpp"
-
+#include "io_powerMonitoring.hpp"
 #include "io_canMsg.hpp"
 #include "io_canTx.hpp"
 #include "io_imus.hpp"
@@ -135,4 +136,11 @@ void jobs_runBatteryMonitoring_tick()
 void jobs_runPowerMonitoring_tick()
 {
     LOG_IF_ERR(app::powerMonitoring::update());
+}
+void jobs_runSbgEllipse_tick()
+{
+    // Drain and parse any UART data accumulated in the stream buffer, then
+    // push the latest sensor values onto the CAN tables.
+    io::sbgEllipse::handleLogs();
+    app::sbgEllipse::broadcast();
 }

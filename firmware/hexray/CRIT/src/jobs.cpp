@@ -44,6 +44,7 @@ void jobs_run1Hz_tick()
 void jobs_run100Hz_tick()
 {
     app::switches::broadcast();
+    // TODO: find rising edge
 
     static bool prev_telem_mark = false;
     const bool  telem_mark      = app::switches::telem_get();

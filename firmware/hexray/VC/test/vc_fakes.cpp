@@ -62,6 +62,11 @@ namespace powerMonitoring
     static float ch_boost_current = 0.0f;
     static float ch_boost_power   = 0.0f;
 
+    result<void> init()
+    {
+        return {};
+    }
+
     void set_reading_voltage(const Channel channel, const float voltage)
     {
         switch (channel)
@@ -363,14 +368,6 @@ namespace powerMonitoring
         }
         return result;
     }
-    result<void> refresh()
-    {
-        return {};
-    }
-    result<void> init()
-    {
-        return {};
-    }
     result<void> monitor_power_inputs()
     {
         return {};
@@ -383,6 +380,14 @@ namespace powerMonitoring
     {
         return false;
     }
+    result<void> init()
+    {
+        return fakes::io::powerMonitoring::init();
+    }
+    result<void> refresh()
+    {
+        return {};
+    }
 } // namespace powerMonitoring
 
 namespace sbgEllipse
@@ -391,6 +396,8 @@ namespace sbgEllipse
     {
         return fakes::io::sbgEllipse::init();
     }
+
+    void handleLogs() {}
 
     Attitude getEkfEulerAngles()
     {
