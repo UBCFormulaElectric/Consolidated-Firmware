@@ -164,7 +164,7 @@ void setSegmentVoltageStats(const Segments<result<float>> &latest)
         const result<float> &v = latest[seg];
         if (!v)
         {
-            // A failed segment read makes the whole pack voltage invalid (keep the first error).
+            // A failed segment read makes the whole pack voltage invalid
             if (pack)
             {
                 pack = std::unexpected(v.error());
