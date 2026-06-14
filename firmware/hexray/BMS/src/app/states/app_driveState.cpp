@@ -5,6 +5,8 @@
 #include "app_tractiveSystem.hpp"
 #include "app_timer.hpp"
 #include "io_semaphore.hpp"
+#include "app_segments.hpp"
+
 
 constexpr float    TS_UNDERVOLTAGE_DELTA_V           = 20.0f;
 constexpr float    TS_UNDERVOLTAGE_IMMEDIATE_DELTA_V = 50.0f;
@@ -22,12 +24,11 @@ namespace driveState
 
     static void driveStateRunOnTick100Hz()
     {
-        // TODO: comment in and add shared lock here
-        // io::unique_semaphore s{ shared_lock };
-        // {
-        //     const float ts_voltage_drop_v = app::segments::getPackVoltage() - app::ts::getVoltage();
-        // }
-        const float ts_voltage_drop_v = 0;
+        float ts_voltage_drop_v;
+        io::unique_semaphore s{ shared_lock };
+        {
+        ts_voltage_drop_v = app::segments::shared::getPackVoltage() - app::ts::getVoltage();
+        }
         const bool  ts_uv             = ts_voltage_drop_v < TS_UNDERVOLTAGE_DELTA_V;
         const bool  ts_uv_immediate   = ts_voltage_drop_v < TS_UNDERVOLTAGE_IMMEDIATE_DELTA_V;
         if (ts_undervoltage_debounce.runIfCondition(ts_uv) == app::Timer::TimerState::EXPIRED || ts_uv_immediate)
