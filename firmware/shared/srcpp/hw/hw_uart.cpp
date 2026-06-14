@@ -30,6 +30,7 @@ void hw::Uart::onTxTransactionCompleteFromISR() const
     BaseType_t higherPriorityTaskWoken = pdFALSE;
     vTaskNotifyGiveFromISR(txTaskInProgress, &higherPriorityTaskWoken);
     portYIELD_FROM_ISR(higherPriorityTaskWoken);
+    assert(txTaskInProgress != nullptr || rxTaskInProgress != nullptr);
 }
 
 void hw::Uart::onRxTransactionCompleteFromISR() const
