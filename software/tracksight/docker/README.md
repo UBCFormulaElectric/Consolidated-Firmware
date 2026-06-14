@@ -3,6 +3,8 @@
 ### tl;dr/dgaf
 Run `docker-compose.sh <YourComposeFile.yml>`
 
+If containers are acting weird, likely due to leftover containers, run `clean-up-container.sh`
+
 ### Philosphy
 
 Docker containers here are used as a runtime environment for the code. This means that it carries the
