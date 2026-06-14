@@ -45,7 +45,10 @@ void jobs_init()
     io::can_tx::enableMode_FDCAN(app::can_utils::FDCANMode::FDCAN_MODE_DEFAULT, true);
 }
 
-void jobs_run1Hz_tick() {}
+void jobs_run1Hz_tick()
+{
+    io::can_tx::enqueue1HzMsgs();
+}
 
 void jobs_run100Hz_tick()
 {
@@ -54,18 +57,23 @@ void jobs_run100Hz_tick()
 
     // LOG_INFO("CURRENT: %d", (int)(current * 100000));
     SEGGER_SYSVIEW_MarkStart(1U);
-    auto ccos_result = io::math::ccos(angle);
+    const auto ccos_result = io::math::ccos(angle);
     SEGGER_SYSVIEW_MarkStop(1U);
     SEGGER_SYSVIEW_MarkStart(2U);
-    float libc_cos_result = std::cosf(angle);
+    const float libc_cos_result = std::cosf(angle);
     SEGGER_SYSVIEW_MarkStop(2U);
     float cos_diff = std::abs(ccos_result.value_or(0.0f) - libc_cos_result);
 
-    auto  csin_result     = io::math::csin(angle);
-    float libc_sin_result = std::sinf(angle);
-    float sin_diff        = std::abs(csin_result.value_or(0.0f) - libc_sin_result);
+    const auto  csin_result     = io::math::csin(angle);
+    const float libc_sin_result = std::sinf(angle);
+    float       sin_diff        = std::abs(csin_result.value_or(0.0f) - libc_sin_result);
 
     angle += M_PI_F / 180.0f;
+
+    io::can_tx::enqueue100HzMsgs();
 }
 
-void jobs_run1kHz_tick() {}
+void jobs_run1kHz_tick()
+{
+    io::can_tx::enqueueOtherPeriodicMsgs(io::time::getCurrentMs());
+}

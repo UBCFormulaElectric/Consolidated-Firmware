@@ -1,6 +1,6 @@
 {
   "H5Dev_Status": {
-    "msg_id": 805306368,
+    "msg_id": 469762048,
     "cycle_time": 100,
     "signals": {
       "H5Dev_Hash": {
@@ -15,25 +15,25 @@
     }
   },
   "H5Dev_SignalStart": {
-    "msg_id": 805306369,
+    "msg_id": 469762049,
     "cycle_time": null,
     "description": "Signals the start of a flashing sequence for H5Dev",
     "signals": {}
   },
   "H5Dev_SignalStartACK": {
-    "msg_id": 805306360,
+    "msg_id": 469762050,
     "cycle_time": null,
     "description": "Acknowledges the receipt of a H5Dev_SignalStart",
     "signals": {}
   },
   "H5Dev_UpdateGOTOAppCmd": {
-    "msg_id": 805306361,
+    "msg_id": 469762051,
     "cycle_time": null,
     "description": "Tells the H5Dev to jump to the application",
     "signals": {}
   },
   "H5Dev_EraseSectorCmd": {
-    "msg_id": 805306362,
+    "msg_id": 469762052,
     "cycle_time": null,
     "description": "Designates which sector to erase",
     "signals": {
@@ -43,13 +43,13 @@
     }
   },
   "H5Dev_EraseSectorCompleteCmd": {
-    "msg_id": 805306363,
+    "msg_id": 469762053,
     "cycle_time": null,
     "description": "Acknowledges the completion of a sector erase",
     "signals": {}
   },
   "H5Dev_ProgramIdCmd": {
-    "msg_id": 805306364,
+    "msg_id": 469762054,
     "cycle_time": null,
     "description": "Contains the data to program into the H5Dev",
     "signals": {
@@ -57,6 +57,44 @@
         "bits": 32
       },
       "H5Dev_Program_Data_Low": {
+        "bits": 32
+      }
+    }
+  },
+  "H5Dev_VerifyIDCmd": {
+    "msg_id": 469762055,
+    "cycle_time": null,
+    "description": "",
+    "signals": {}
+  },
+  "H5Dev_AppValidityIDCmd": {
+    "msg_id": 469762056,
+    "cycle_time": null,
+    "description": "",
+    "signals": {
+      "ChecksumPass": {
+        "bits": 1
+      }
+    }
+  },
+  "H5Dev_GoToBootCmd": {
+    "msg_id": 469762057,
+    "cycle_time": null,
+    "description": "",
+    "signals": {}
+  },
+  "H5Dev_EraseSectorFailedCmd": {
+    "msg_id": 469762058,
+    "cycle_time": null,
+    "description": "",
+    "signals": {}
+  },
+  "H5Dev_ProgramIDFailedCmd": {
+    "msg_id": 469762059,
+    "cycle_time": null,
+    "description": "",
+    "signals": {
+      "JumpBackAddress": {
         "bits": 32
       }
     }

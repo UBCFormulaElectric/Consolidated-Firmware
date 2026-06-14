@@ -21,6 +21,7 @@
 static constexpr size_t  TASK_COUNT = 5;
 [[noreturn]] static void tasks_run1Hz(void *arg);
 [[noreturn]] static void tasks_run100Hz(void *arg);
+[[noreturn]] static void tasks_run10Hz(void *arg);
 [[noreturn]] static void tasks_run1kHz(void *arg);
 [[noreturn]] static void tasks_runCanTx(void *arg);
 [[noreturn]] static void tasks_runCanRx(void *arg);
@@ -29,12 +30,14 @@ static constexpr size_t  TASK_COUNT = 5;
 static hw::rtos::StaticTask::StaticTaskStack<512> Task1kHzStack;
 static hw::rtos::StaticTask::StaticTaskStack<512> Task1HzStack;
 static hw::rtos::StaticTask::StaticTaskStack<512> Task100HzStack;
+static hw::rtos::StaticTask::StaticTaskStack<512> Task10HzStack;
 static hw::rtos::StaticTask::StaticTaskStack<512> TaskCanRxStack;
 static hw::rtos::StaticTask::StaticTaskStack<512> TaskCanTxStack;
 
 static hw::rtos::StaticTask Task1kHz(osPriorityRealtime, "Task1kHz", tasks_run1kHz, Task1kHzStack);
 static hw::rtos::StaticTask Task1Hz(osPriorityAboveNormal, "Task1Hz", tasks_run1Hz, Task1HzStack);
 static hw::rtos::StaticTask Task100Hz(osPriorityHigh, "Task100Hz", tasks_run100Hz, Task100HzStack);
+static hw::rtos::StaticTask Task10Hz(osPriorityHigh, "Task100Hz", tasks_run10Hz, Task10HzStack);
 static hw::rtos::StaticTask TaskCanRx(osPriorityNormal, "TaskCanRx", tasks_runCanRx, TaskCanRxStack);
 static hw::rtos::StaticTask TaskCanTx(osPriorityNormal, "TaskCanTx", tasks_runCanTx, TaskCanTxStack);
 
@@ -91,7 +94,6 @@ void tasks_run1Hz(void *arg)
     forever
     {
         jobs_run1Hz_tick();
-        runtimeMonitor.checkin();
 
         watchdog1hz.checkIn();
         start_ticks += period_ms;
@@ -102,7 +104,7 @@ void tasks_run1Hz(void *arg)
 void tasks_run100Hz(void *arg)
 {
     constexpr uint32_t      period_ms                = 10U;
-    constexpr uint32_t      watchdog_grace_period_ms = 2U;
+    constexpr uint32_t      watchdog_grace_period_ms = 5U;
     hw::watchdog::instance &watchdog100hz            = monitor.spawn_instance(period_ms + watchdog_grace_period_ms);
 
     uint32_t start_ticks = osKernelGetTickCount();
@@ -115,6 +117,24 @@ void tasks_run100Hz(void *arg)
         osDelayUntil(start_ticks);
     }
 }
+
+void tasks_run10Hz(void *arg)
+{
+    constexpr uint32_t      period_ms                = 100U;
+    constexpr uint32_t      watchdog_grace_period_ms = 50U;
+    hw::watchdog::instance &watchdog10hz             = monitor.spawn_instance(period_ms + watchdog_grace_period_ms);
+
+    uint32_t start_ticks = osKernelGetTickCount();
+    forever
+    {
+        jobs_run10Hz_tick();
+
+        watchdog10hz.checkIn();
+        start_ticks += period_ms;
+        osDelayUntil(start_ticks);
+    }
+}
+
 void tasks_run1kHz(void *arg)
 {
     constexpr uint32_t      period_ms                = 1U;
@@ -171,6 +191,7 @@ static void CRIT_StartAllTasks()
     Task1kHz.start();
     Task1Hz.start();
     Task100Hz.start();
+    Task10Hz.start();
     TaskCanRx.start();
     TaskCanTx.start();
 }
@@ -189,9 +210,9 @@ void tasks_init()
     SEGGER_SYSVIEW_Conf();
     LOG_INFO("CRIT Reset!");
 
-#ifndef WATCHDOG_DISABLED
-    __HAL_DBGMCU_FREEZE_IWDG();
-#endif
+    // #ifndef WATCHDOG_DISABLED
+    //     __HAL_DBGMCU_FREEZE_IWDG();
+    // #endif
 
     fdcan1.init();
     hw::runtimeStat::init(htim7);
