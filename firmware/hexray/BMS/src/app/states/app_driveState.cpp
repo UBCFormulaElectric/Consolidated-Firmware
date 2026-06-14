@@ -7,7 +7,6 @@
 #include "io_semaphore.hpp"
 #include "app_segments.hpp"
 
-
 constexpr float    TS_UNDERVOLTAGE_DELTA_V           = 20.0f;
 constexpr float    TS_UNDERVOLTAGE_IMMEDIATE_DELTA_V = 50.0f;
 constexpr uint32_t TS_UNDERVOLTAGE_DEBOUNCE_MS       = 500U;

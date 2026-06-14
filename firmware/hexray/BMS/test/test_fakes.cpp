@@ -432,7 +432,7 @@ namespace adbms
 
     void setPackVoltageEvenly(const float voltage)
     {
-        const float cell_voltage = voltage / static_cast<float>(NUM_SEGMENTS * CELLS_PER_SEGMENT);
+        const float cell_voltage    = voltage / static_cast<float>(NUM_SEGMENTS * CELLS_PER_SEGMENT);
         const float segment_voltage = voltage / static_cast<float>(NUM_SEGMENTS);
         for (size_t seg = 0; seg < NUM_SEGMENTS; seg++)
         {

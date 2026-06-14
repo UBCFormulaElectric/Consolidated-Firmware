@@ -503,4 +503,3 @@ TEST_F(BmsStateMachineTest, check_contactors_open_in_init_states)
     app::StateMachine::set_current_state(&app::states::init_state);
     ASSERT_EQ(io::irs::positiveState(), app::can_utils::ContactorState::CONTACTOR_STATE_OPEN);
 }
-
