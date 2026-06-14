@@ -24,16 +24,20 @@ namespace driveState
 
     static void driveStateRunOnTick100Hz()
     {
-        float ts_voltage_drop_v;
-        io::unique_semaphore s{ shared_lock };
+        result<float> pack_voltage;
         {
-        ts_voltage_drop_v = app::segments::shared::getPackVoltage() - app::ts::getVoltage();
+            io::unique_semaphore s{ shared_lock };
+            pack_voltage = app::segments::shared::getPackVoltage();
         }
-        const bool  ts_uv             = ts_voltage_drop_v < TS_UNDERVOLTAGE_DELTA_V;
-        const bool  ts_uv_immediate   = ts_voltage_drop_v < TS_UNDERVOLTAGE_IMMEDIATE_DELTA_V;
-        if (ts_undervoltage_debounce.runIfCondition(ts_uv) == app::Timer::TimerState::EXPIRED || ts_uv_immediate)
+        if (pack_voltage)
         {
-            app::StateMachine::set_next_state(&init_state);
+            const float ts_voltage_drop_v = pack_voltage.value() - app::ts::getVoltage();
+            const bool  ts_uv             = ts_voltage_drop_v > TS_UNDERVOLTAGE_DELTA_V;
+            const bool  ts_uv_immediate   = ts_voltage_drop_v > TS_UNDERVOLTAGE_IMMEDIATE_DELTA_V;
+            if (ts_undervoltage_debounce.runIfCondition(ts_uv) == app::Timer::TimerState::EXPIRED || ts_uv_immediate)
+            {
+                app::StateMachine::set_next_state(&init_state);
+            }
         }
     }
 
