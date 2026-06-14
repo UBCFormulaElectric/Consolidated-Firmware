@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <cassert>
 #include <iterator>
 
 #include "app_segments.hpp"
@@ -37,14 +38,17 @@ float maxTempLimit(const float base_limit)
 
 bool minCellUnder(const float threshold)
 {
+    assert(shared_lock.is_held());
     return app::segments::shared::getMinCellVoltage().value < threshold;
 }
 bool maxCellOver(const float threshold)
 {
+    assert(shared_lock.is_held());
     return app::segments::shared::getMaxCellVoltage().value > threshold;
 }
 bool maxTempOver(const float threshold)
 {
+    assert(shared_lock.is_held());
     return app::segments::shared::getMaxCellTemperature().value > maxTempLimit(threshold);
 }
 
@@ -76,27 +80,29 @@ bool isCellOvertempFault()
 
 bool anyCellOpenWire()
 {
-    for (const io::adbms::Cells<result<bool>>         cells = app::segments::shared::getLatestCellOwc();
+    assert(shared_lock.is_held());
+    for (const io::adbms::Cells<result<bool>>         cells = app::segments::shared::getLatestCellOwcOk();
          const io::adbms::SegmentCells<result<bool>> &segment : cells)
         for (const auto &cell : segment)
-            if (cell.has_value() && cell.value())
+            if (cell.has_value() && !cell.value()) // value()==false => open wire detected
                 return true;
     return false;
 }
 
 bool anyThermOpenWire()
 {
-    for (const io::adbms::Therms<result<bool>>         therms = app::segments::shared::getLatestThermOwc();
+    assert(shared_lock.is_held());
+    for (const io::adbms::Therms<result<bool>>         therms = app::segments::shared::getLatestThermOwcOk();
          const io::adbms::SegmentTherms<result<bool>> &segment : therms)
         for (const auto &therm : segment)
-            if (therm.has_value() && therm.value())
+            if (therm.has_value() && !therm.value()) // value()==false => open wire detected
                 return true;
     return false;
 }
 
 bool anyHealthError()
 {
-    io::unique_semaphore s{ health_lock };
+    assert(health_lock.is_held());
     for (size_t seg = 0; seg < NUM_SEGMENTS; ++seg)
         if (app::segments::health::getAnyError(seg))
             return true;
@@ -133,7 +139,7 @@ Timer startup_blanking{ STARTUP_BLANKING_MS };
 bool runEntries(const std::span<Entry> entries)
 {
     bool any_fired = false;
-    for (auto [cond, setter, timer] : entries)
+    for (auto &[cond, setter, timer] : entries)
     {
         const bool fired = timer.runIfCondition(cond()) == Timer::TimerState::EXPIRED;
         setter(fired);
@@ -147,11 +153,11 @@ namespace app::segments::alerts
 {
 void init()
 {
-    for (auto [_c, _s, t] : warning_entries)
+    for (auto &[_c, _s, t] : warning_entries)
         t.stop();
-    for (auto [_c, _s, t] : fault_entries)
+    for (auto &[_c, _s, t] : fault_entries)
         t.stop();
-    for (auto [_c, _s, t] : info_entries)
+    for (auto &[_c, _s, t] : info_entries)
         t.stop();
     startup_blanking.restart();
 }

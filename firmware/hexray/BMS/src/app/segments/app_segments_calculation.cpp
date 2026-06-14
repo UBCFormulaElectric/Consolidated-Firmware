@@ -5,7 +5,7 @@
 namespace app::segments::calculate
 {
 using io::adbms::Cells, io::adbms::Therms, io::adbms::ThermGpios;
-Cells<result<bool>> cellOwc(
+Cells<result<bool>> cellOwcOk(
     const std::array<Cells<result<float>>, static_cast<size_t>(io::adbms::OpenWireSwitch::CHANNEL_COUNT)> &owc_voltages)
 {
     constexpr size_t NUM_C_PINS = CELLS_PER_SEGMENT + 1U;
@@ -137,8 +137,8 @@ Therms<result<float>>
 }
 
 Therms<result<bool>>
-    thermOwc(const std::array<ThermGpios<result<float>>, static_cast<size_t>(ThermistorMux::THERMISTOR_MUX_COUNT)>
-                 &therm_voltages)
+    thermOwcOk(const std::array<ThermGpios<result<float>>, static_cast<size_t>(ThermistorMux::THERMISTOR_MUX_COUNT)>
+                   &therm_voltages)
 {
     Therms<result<bool>> out;
 

@@ -21,25 +21,33 @@ const sessionTimeFormatter = new Intl.DateTimeFormat("en-CA", {
     year: "numeric",
 });
 
-function getUtcRangeForUtcDay(dateKey: string): { startUtcMs: number; endUtcMs: number } {
-    const [year, month, day] = dateKey.split("-").map(Number);
-    return {
-        startUtcMs: Date.UTC(year, month - 1, day, 0, 0, 0, 0),
-        endUtcMs: Date.UTC(year, month - 1, day + 1, 0, 0, 0, 0),
-    };
-}
+const sessionTimeOnlyFormatter = new Intl.DateTimeFormat("en-CA", {
+    hour: "2-digit",
+    hourCycle: "h23",
+    minute: "2-digit",
+    timeZone: UTC_TIME_ZONE,
+});
+
+const isSameUtcDay = (a: Date, b: Date) => a.getUTCFullYear() === b.getUTCFullYear() && a.getUTCMonth() === b.getUTCMonth() && a.getUTCDate() === b.getUTCDate();
 
 function toIsoUtcSeconds(timestampMs: number): string {
     return new Date(timestampMs).toISOString().slice(0, 19) + "Z";
 }
 
 function formatSessionLabel(startUtcMs: number, endUtcMs: number): string {
-    return `${sessionTimeFormatter.format(new Date(startUtcMs))} - ${sessionTimeFormatter.format(new Date(endUtcMs))}`;
+    const start = new Date(startUtcMs);
+    const end = new Date(endUtcMs);
+
+    if (isSameUtcDay(start, end)) {
+        return `${sessionTimeOnlyFormatter.format(start)} - ${sessionTimeOnlyFormatter.format(end)}`;
+    }
+
+    return `${sessionTimeFormatter.format(start)} - ${sessionTimeFormatter.format(end)}`;
 }
 
-function toHistoricalSession(startUtcMs: number, endUtcMs: number, index: number): HistoricalSession {
+function toHistoricalSession(startUtcMs: number, endUtcMs: number): HistoricalSession {
     return {
-        id: `${startUtcMs}-${endUtcMs}-${index}`,
+        id: `${startUtcMs}-${endUtcMs}`,
         startUtcMs,
         endUtcMs,
         label: formatSessionLabel(startUtcMs, endUtcMs),
@@ -62,35 +70,44 @@ function parseSessionPayload(payloadText: string): SessionBoundaryPair[] {
 }
 
 function pairsToSessions(pairs: SessionBoundaryPair[]): HistoricalSession[] {
-    return pairs.map(([startStr, endStr], index) => {
+    return pairs.map(([startStr, endStr]) => {
         const startUtcMs = Number(startStr);
         // An ongoing session (null end) runs up to "now" so it stays selectable.
         const endUtcMs = endStr !== null ? Number(endStr) : Date.now();
-        return toHistoricalSession(startUtcMs, endUtcMs, index);
+        return toHistoricalSession(startUtcMs, endUtcMs);
     });
 }
+
+const DAY_MS = 24 * 60 * 60 * 1000;
 
 // Synthesizes a backend-shaped payload (string ms, null-terminated last
 // session) for NEXT_PUBLIC_USE_MOCK_DATA=true, so the historical session
 // dropdown is usable without a running backend/InfluxDB. Runs through the
 // same parse/map path as real data. Four "boot events" across the UTC day,
 // the last one left open-ended to mirror an ongoing session.
-function buildMockSessionPairs(dateKey: string): SessionBoundaryPair[] {
-    const { startUtcMs } = getUtcRangeForUtcDay(dateKey);
-    const sixHoursMs = 6 * 60 * 60 * 1000;
-    const bootMs = [0, 1, 2, 3].map((i) => startUtcMs + i * sixHoursMs);
-    return bootMs.map((ms, i) => [String(ms), i < bootMs.length - 1 ? String(bootMs[i + 1]) : null] as SessionBoundaryPair);
-}
+function buildMockSessionPairs(startUtcMs: number, endUtcMs: number): SessionBoundaryPair[] {
+    const bootMs: number[] = [];
+    const firstDayStart = Math.floor(startUtcMs / DAY_MS) * DAY_MS;
 
-export async function fetchHistoricalSessionsForDate(dateKey: string, source: HistoricalSignalSource): Promise<HistoricalSession[]> {
-    if (IS_MOCK) {
-        return pairsToSessions(buildMockSessionPairs(dateKey));
+    for (let dayStart = firstDayStart; dayStart < endUtcMs; dayStart += DAY_MS) {
+        if ((dayStart / DAY_MS) % 3 === 0) continue;
+        
+        bootMs.push(dayStart + 9 * 60 * 60 * 1000); // 09:00 UTC
+        bootMs.push(dayStart + 15 * 60 * 60 * 1000); // 15:00 UTC
     }
 
-    const dayRange = getUtcRangeForUtcDay(dateKey);
+    return bootMs
+        .filter((ms) => ms >= startUtcMs && ms < endUtcMs)
+        .map((ms, i, all) => [String(ms), i < all.length - 1 ? String(ms + 3 * 60 * 60 * 1000) : null] as SessionBoundaryPair);
+}
 
-    const start = toIsoUtcSeconds(dayRange.startUtcMs);
-    const end = toIsoUtcSeconds(dayRange.endUtcMs);
+export async function fetchHistoricalSessionsForRange(startUtcMs: number, endUtcMs: number, source: HistoricalSignalSource): Promise<HistoricalSession[]> {
+    if (IS_MOCK) {
+        return pairsToSessions(buildMockSessionPairs(startUtcMs, endUtcMs));
+    }
+
+    const start = toIsoUtcSeconds(startUtcMs);
+    const end = toIsoUtcSeconds(endUtcMs);
     const url = `${API_BASE_URL}/api/v1/signal/sessions/${start}/${end}?source=${encodeURIComponent(JSON.stringify(source))}`;
 
     const response = await fetch(url, {

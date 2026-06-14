@@ -10,5 +10,5 @@ extern const hw::adc        nBSPD_brake_pressed;
 
 inline void adcchipsInit()
 {
-    LOG_IF_ERR(adc1.init(true, true));
+    LOG_IF_ERR(adc1.init());
 }

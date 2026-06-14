@@ -1,7 +1,7 @@
 {
   "FLInverterInfo1": {
     "msg_id": 643,
-    "cycle_time": 5,
+    "cycle_time": 10,
     "signals": {
       "bReserve": {
         "start_bit": 0,
@@ -48,6 +48,7 @@
       "RawCurrent": {
         "start_bit": 32,
         "bits": 16,
+        "resolution": 0.1,
         "signed": true,
         "unit": "A",
         "start_value": 0
@@ -62,7 +63,7 @@
   },
   "FLInverterInfo2": {
     "msg_id": 645,
-    "cycle_time": 5,
+    "cycle_time": 10,
     "signals": {
       "MotorTemperature": {
         "start_bit": 0,
@@ -93,7 +94,7 @@
   },
   "FLInverterInfo3": {
     "msg_id": 660,
-    "cycle_time": 5,
+    "cycle_time": 10,
     "signals": {
       "MotorPeakCurrent": {
         "start_bit": 0,

@@ -24,6 +24,12 @@ async fn nodes(State(state): State<AppState>) -> impl IntoResponse {
 }
 
 #[derive(Debug, Serialize)]
+struct SignalTilesResponse {
+    resolution_ms: u64,
+    rows: Vec<InfluxSignalRow>,
+}
+
+#[derive(Debug, Serialize)]
 struct SignalMetadata {
     name: String,
     min_val: f64,
@@ -171,6 +177,7 @@ async fn metadata(Query(SignalNameParam { mut name } ): Query<SignalNameParam>, 
 #[derive(Debug, Deserialize)]
 struct SourceQuery {
     pub source: Option<String>,
+    pub agg: Option<String>,
 }
 
 /**
@@ -181,7 +188,7 @@ struct SourceQuery {
  */
 async fn signal_tiles(
     Path((signal, start, end)): Path<(String, String, String)>, 
-    Query(SourceQuery{ source }): Query<SourceQuery>,
+    Query(SourceQuery{ source, agg }): Query<SourceQuery>,
     State(state): State<AppState>
 ) -> impl IntoResponse {
     // todo optionally check if signal name is valid
@@ -206,14 +213,18 @@ async fn signal_tiles(
         _ => InfluxSignalSource::Radio,
     };
     
-    match get_signals(state.influx_client, source_enum, state.signal_tile_cache.clone(), signal, start_utc, end_utc).await {
-        Ok(res) => {
+    match get_signals(state.influx_client, source_enum, state.signal_tile_cache.clone(), signal, start_utc, end_utc, agg.unwrap_or_else(|| "max".into())).await {
+        Ok((rows, resolution_ms)) => {
             dprintln!("Querying signals took {}ms", start_time.elapsed().unwrap().as_millis());
+            
             let total_size: usize = state.signal_tile_cache.iter().map(|(key, value)| {
                 mem::size_of_val(&key) + mem::size_of_val(&value)
             }).sum();
+
             dprintln!("Current cache size in bytes: {}", total_size);
-            return (StatusCode::OK, serde_json::to_string(&res).unwrap());
+            
+            let response = SignalTilesResponse { resolution_ms, rows };
+            return (StatusCode::OK, serde_json::to_string(&response).unwrap());
         },
         Err(e) => {
             return e;
@@ -244,7 +255,7 @@ struct MarkerPoint {
  */
 async fn signal_sessions(
     Path((start, end)): Path<(String, String)>,
-    Query(SourceQuery { source }): Query<SourceQuery>,
+    Query(SourceQuery { source, .. }): Query<SourceQuery>,
     State(state): State<AppState>
 ) -> impl IntoResponse {
     vprintln!("[sessions] request start={:?} end={:?} source={:?}", start, end, source);
@@ -331,7 +342,7 @@ async fn signal_sessions(
 
 async fn signal_markers(
     Path((start, end)): Path<(String, String)>,
-    Query(SourceQuery { source }): Query<SourceQuery>,
+    Query(SourceQuery { source, .. }): Query<SourceQuery>,
     State(state): State<AppState>
 ) -> impl IntoResponse {
     let (start_utc, end_utc) =

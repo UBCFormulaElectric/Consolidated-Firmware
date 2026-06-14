@@ -22,6 +22,7 @@ export type LODAwareSeries<T = {}> = {
 type LODBase = {
     sampleIntervalMs: number;
     timestamps: number[];
+    coveredTiles?: Set<number>;
 };
 
 export type LODAwareNumericalSeries = LODAwareSeries<{
@@ -30,9 +31,9 @@ export type LODAwareNumericalSeries = LODAwareSeries<{
     label: string;
 };
 
-export type AlertSeries = SeriesBase & {
+export type LODAwareAlertSeries = LODAwareSeries<{
     data: Array<number>;
-};
+}>;
 
 export type LODAwareEnumSeries = LODAwareSeries<{
     data: Array<number>;

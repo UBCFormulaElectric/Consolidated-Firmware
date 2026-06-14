@@ -47,7 +47,7 @@ class Uart
     void onTxTransactionCompleteFromISR() const;
     void onRxTransactionCompleteFromISR() const;
 
-    void onErrorFromISR() const;
+    void onErrorFromISR(uint32_t hal_error) const;
 
     /**
      * Transmits an amount of data in polling mode (blocking).

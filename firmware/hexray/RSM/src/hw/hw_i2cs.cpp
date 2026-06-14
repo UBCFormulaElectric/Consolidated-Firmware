@@ -3,7 +3,7 @@
 #include <cassert>
 
 constexpr hw::i2c::bus    i2c_bus_2(hi2c2);
-constexpr hw::i2c::device r_pump(i2c_bus_2, 0x2F, 100);
+constexpr hw::i2c::device rl_pump_i2c(i2c_bus_2, 0x2F, 100);
 
 const hw::i2c::bus &hw::i2c::getBusFromHandle(const I2C_HandleTypeDef *handle)
 {

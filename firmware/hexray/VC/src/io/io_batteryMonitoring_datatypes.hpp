@@ -18,7 +18,7 @@ enum class CellReading : uint8_t
  * PACK voltage is cell stack state
  * LOAD voltage is after the FETS (don't rlly have this year), reading this confirms voltage is delivered past the IC
  */
-enum SystemReading : uint8_t
+enum class SystemReading : uint8_t
 {
     PACK_V = 0x36,
     LOAD_V = 0x38

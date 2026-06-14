@@ -60,6 +60,26 @@ extern "C"
 /* Private defines -----------------------------------------------------------*/
 #define LED_BOOT_Pin GPIO_PIN_13
 #define LED_BOOT_GPIO_Port GPIOC
+#define _3V3_LED_SERIN_Pin GPIO_PIN_1
+#define _3V3_LED_SERIN_GPIO_Port GPIOC
+#define _3V3_LED_DIMMING_Pin GPIO_PIN_2
+#define _3V3_LED_DIMMING_GPIO_Port GPIOC
+#define _3V3_7SEG_RCK_Pin GPIO_PIN_3
+#define _3V3_7SEG_RCK_GPIO_Port GPIOA
+#define _3V3_7SEG_RCKA4_Pin GPIO_PIN_4
+#define _3V3_7SEG_RCKA4_GPIO_Port GPIOA
+#define _3V3_PWR_CHRG_CLK_Pin GPIO_PIN_5
+#define _3V3_PWR_CHRG_CLK_GPIO_Port GPIOA
+#define _3V3_CHRG_DATA_Pin GPIO_PIN_7
+#define _3V3_CHRG_DATA_GPIO_Port GPIOA
+#define _3V3_7SEG_SERIN_Pin GPIO_PIN_2
+#define _3V3_7SEG_SERIN_GPIO_Port GPIOB
+#define _3V3_LED_SRCK_Pin GPIO_PIN_10
+#define _3V3_LED_SRCK_GPIO_Port GPIOB
+#define _3V3_7SEG_DIMMING_Pin GPIO_PIN_6
+#define _3V3_7SEG_DIMMING_GPIO_Port GPIOC
+#define _3V3_7SEG_SRCK_Pin GPIO_PIN_10
+#define _3V3_7SEG_SRCK_GPIO_Port GPIOC
 
     /* USER CODE BEGIN Private defines */
 

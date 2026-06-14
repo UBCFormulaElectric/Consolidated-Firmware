@@ -24,15 +24,18 @@ struct DBCTemplate<'a> {
 }
 impl DBCTemplate<'_> {
     fn receivers(self: &Self, msg: &CanMessage) -> String {
-        self.nodes_list
+        let k = self.nodes_list
             .iter()
             .filter(|n| match self.rx_configs.get(*n) {
                 Some(config) => config.get_busses_for_msg(msg.id).len() > 0,
                 None => false,
             })
             .cloned()
-            .collect::<Vec<String>>()
-            .join(",")
+            .collect::<Vec<String>>();
+        if k.len() == 0 {
+            return DBC_DEFAULT_RECEIVER.to_string();
+        }
+        k.join(",")
     }
 
     fn enumfuckshit(self: &Self, enum_name: &str) -> String {
