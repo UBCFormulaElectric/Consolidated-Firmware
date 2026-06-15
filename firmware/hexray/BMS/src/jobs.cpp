@@ -132,10 +132,6 @@ void jobs_run100Hz_tick()
     {
         app::StateMachine::set_next_state(&app::states::fault_state);
     }
-    else if (app::irs::negativeOpenedDebounced()) // not sure if this is needed
-    {
-        app::StateMachine::set_next_state(&app::states::init_state);
-    }
     else if (app::can_rx::Debug_CellBalancing_Request_get())
     {
         app::StateMachine::set_next_state(&app::states::balancing_state);

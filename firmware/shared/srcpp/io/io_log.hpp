@@ -85,9 +85,9 @@ struct LogContext
 template <typename... Args>
 [[gnu::always_inline]] void LOG(const std::string_view level, const LogContext &ctx, Args &&...args)
 {
-    _LOG_PRINTF("[%s] %s:%u: ", level.data(), __BASENAME__(ctx.loc.file_name()), ctx.loc.line());
-    _LOG_PRINTF(ctx.fmt, std::forward<Args>(args)...);
-    _LOG_PRINTF("\r\n");
+    // _LOG_PRINTF("[%s] %s:%u: ", level.data(), __BASENAME__(ctx.loc.file_name()), ctx.loc.line());
+    // _LOG_PRINTF(ctx.fmt, std::forward<Args>(args)...);
+    // _LOG_PRINTF("\r\n");
 }
 
 template <typename... Args> [[gnu::always_inline]] void LOG_INFO(const LogContext ctx, Args... args)
