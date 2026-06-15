@@ -1,17 +1,18 @@
-#include "hw_bootup.hpp"
-#include "hw_hardFaultHandler.hpp"
-#include "hw_flash.hpp"
-#include "hw_utils.hpp"
-#include "hw_hal.hpp"
-#include "io_log.hpp"
-#include "app_crc32.hpp"
 #include "bootloader.hpp"
 
-#include "cmsis_gcc.h"
-#include "cmsis_os.h"
-#include "hw_can.hpp"
+#include "app_crc32.hpp"
+
+#include "io_log.hpp"
 #include "io_queue.hpp"
-#include <expected>
+#include "io_time.hpp"
+
+#include "hw_bootup.hpp"
+#include "hw_can.hpp"
+#include "hw_flash.hpp"
+#include "hw_hal.hpp"
+#include "hw_hardFaultHandler.hpp"
+#include "hw_utils.hpp"
+
 #include "util_errorCodes.hpp"
 
 // App code block. Start/size included from the linker script.
@@ -39,8 +40,11 @@ enum class BootStatus : uint8_t
     BOOT_STATUS_NO_APP
 };
 
-static bool     update_in_progress;
-static uint32_t current_address;
+static bool     update_in_progress      = false;
+static uint32_t expected_block_num      = 0;
+static uint32_t expected_total_blocks   = 0;
+static uint32_t last_jumpback_sent_time = 0;
+static uint32_t last_jumpback_location  = 0;
 
 [[noreturn]] static void modifyStackPointerAndStartApp(const uint32_t *address)
 {
@@ -120,6 +124,37 @@ static BootStatus verifyAppCodeChecksum()
     return boot_status;
 }
 
+// Converts a CAN/CAN FD DLC to actual number of bytes
+static uint8_t dlcToBytes(const uint8_t dlc)
+{
+    // For Classic CAN & CAN FD (0 to 8 DLC match byte lengths 0 to 8)
+    if (dlc <= 8)
+    {
+        return dlc;
+    }
+
+    // CAN FD specific DLC mappings (9-15)
+    switch (dlc)
+    {
+        case 9:
+            return 12;
+        case 10:
+            return 16;
+        case 11:
+            return 20;
+        case 12:
+            return 24;
+        case 13:
+            return 32;
+        case 14:
+            return 48;
+        case 15:
+            return 64;
+        default:
+            return 0; // Invalid DLC
+    }
+}
+
 void bootloader::preInit()
 {
     hw_hardFaultHandler_init();
@@ -166,11 +201,15 @@ void bootloader::init(config &boot_config)
         }
 
         if (const hw::CanMsg command = can_msg.value();
-            command.std_id == (boot_config.BOARD_HIGHBITS | START_UPDATE_ID_LOWBITS))
+            command.std_id == (boot_config.BOARD_HIGHBITS | START_UPDATE_ID_LOWBITS)) // start update
         {
             // Reset current address to program and update state.
-            current_address    = reinterpret_cast<uint32_t>(&__app_metadata_start__);
-            update_in_progress = true;
+            update_in_progress      = true;
+            expected_block_num      = 0;
+            last_jumpback_location  = 0;
+            last_jumpback_sent_time = 0;
+            expected_total_blocks   = command.getDataAsDWords()[0];
+            LOG_INFO("Starting update, expecting %d blocks", expected_total_blocks);
 
             // Send ACK message that programming has started.
             hw::CanMsg reply{};
@@ -178,8 +217,13 @@ void bootloader::init(config &boot_config)
             reply.dlc    = 0;
             LOG_IF_ERR(boot_config.can_tx_queue.push(reply));
         }
-        else if (command.std_id == (boot_config.BOARD_HIGHBITS | ERASE_SECTOR_ID_LOWBITS) && update_in_progress)
+        else if (command.std_id == (boot_config.BOARD_HIGHBITS | ERASE_SECTOR_ID_LOWBITS)) // erase
         {
+            if (not update_in_progress)
+            {
+                LOG_ERROR("Got erase sector command while not in update state");
+                continue;
+            }
             // Erase a flash sector.
             const uint8_t sector = command.data[0];
             const auto    status = hw::flash::eraseSector(sector);
@@ -200,31 +244,9 @@ void bootloader::init(config &boot_config)
             reply.dlc    = 0;
             LOG_IF_ERR(boot_config.can_tx_queue.push(reply));
         }
-        else if (command.std_id == (boot_config.BOARD_HIGHBITS | PROGRAM_ID_LOWBITS) && update_in_progress)
+        else if (command.std_id == (boot_config.BOARD_HIGHBITS | VERIFY_ID_LOWBITS)) // verify validity
         {
-            // Program 64 bits at the current address.
-            // No reply for program command to reduce latency.
-            // TODO: Seems kinda fragile
-            for (uint8_t i = 0; i < command.dlc / 8; i++)
-            {
-                const uint64_t command_packet = command.getDataAsQWords()[i];
-                if (const auto status = boot_config.boardSpecific_program(current_address, command_packet);
-                    not status and status.error() != ErrorCode::ERROR_INDETERMINATE)
-                {
-                    // program failed meaning we need to stop and tell the application that program has failed
-                    // and stop the bootloader
-                    hw::CanMsg reply{};
-                    reply.std_id = { boot_config.BOARD_HIGHBITS | PROGRAM_ID_FAILED_LOWBITS };
-                    reply.dlc    = 0;
-                    LOG_IF_ERR(boot_config.can_tx_queue.push(reply));
-                    update_in_progress = false;
-                    continue;
-                }
-                current_address += sizeof(uint64_t);
-            }
-        }
-        else if (command.std_id == (boot_config.BOARD_HIGHBITS | VERIFY_ID_LOWBITS))
-        {
+            // assert(not boot_config.getFirstUnprogrammedAddress().has_value());
             // Verify received checksum matches the one saved in flash.
             hw::CanMsg reply{};
             reply.std_id  = boot_config.BOARD_HIGHBITS | APP_VALIDITY_ID_LOWBITS;
@@ -235,23 +257,101 @@ void bootloader::init(config &boot_config)
             // Verify command doubles as exit programming state command.
             update_in_progress = false;
         }
-        else if (command.std_id == (boot_config.BOARD_HIGHBITS | GO_TO_APP_LOWBITS) && !update_in_progress)
+        else if (command.std_id == (boot_config.BOARD_HIGHBITS | GO_TO_APP_LOWBITS)) // goto app
         {
+            if (update_in_progress)
+            {
+                LOG_ERROR("Got go to app command while not in update state");
+                continue;
+            }
             hw::bootup::setBootRequest({ .target        = hw::bootup::BootTarget::APP,
                                          .context       = hw::bootup::BootContext::NONE,
                                          ._unused       = 0xFFFF,
                                          .context_value = 0 });
             NVIC_SystemReset();
         }
-        else if (command.std_id == (boot_config.BOARD_HIGHBITS | GO_TO_BOOT))
+        else if (command.std_id == (boot_config.BOARD_HIGHBITS | GO_TO_BOOT)) // goto boot
         {
             // Restart bootloader update state when receiving a GO_TO_BOOT command.
             update_in_progress = false;
-            current_address    = reinterpret_cast<uint32_t>(&__app_metadata_start__);
+            // current_address    = reinterpret_cast<uint32_t>(&__app_metadata_start__);
+        }
+        else if (
+            (command.std_id & 0xFF000000U) == boot_config.BOARD_HIGHBITS and
+            (command.std_id & 0x0000000FU) == PROGRAM_ID_LOWBITS) // program
+        {
+            if (not update_in_progress)
+            {
+                // LOG_ERROR("Got program command while not in update state");
+                continue;
+            }
+            // Program 64 bits at the current address.
+            // No reply for program command to reduce latency.
+            // TODO: Seems kinda fragile
+            const uint32_t block_addr = (command.std_id & 0x00FFFFF0U) >> 4;
+            if (block_addr != expected_block_num)
+            {
+                if ((io::time::getCurrentMs() - last_jumpback_sent_time) > 1000 or
+                    expected_block_num != last_jumpback_location)
+                {
+                    last_jumpback_sent_time = io::time::getCurrentMs();
+                    last_jumpback_location  = expected_block_num;
+
+                    hw::CanMsg reply{};
+                    reply.std_id               = boot_config.BOARD_HIGHBITS | PROGRAM_ID_FAILED_LOWBITS;
+                    reply.dlc                  = 4;
+                    reply.getDataAsDWords()[0] = expected_block_num;
+                    LOG_IF_ERR(boot_config.can_tx_queue.push(reply));
+                }
+                continue;
+            }
+            for (uint8_t i = 0; i < dlcToBytes(static_cast<uint8_t>(command.dlc)) / 8; i++)
+            {
+                const uint64_t program_data    = command.getDataAsQWords()[i];
+                const uint32_t current_address = reinterpret_cast<uint32_t>(&__app_metadata_start__) +
+                                                 (hw::CAN_PAYLOAD_BYTES * block_addr) + i * sizeof(uint64_t);
+                if (const auto status = boot_config.program(current_address, program_data); not status)
+                {
+                    LOG_IF_ERR(status);
+                    // program failed meaning we need to stop and tell the application that program has failed
+                    // and stop the bootloader
+                    hw::CanMsg reply{ boot_config.BOARD_HIGHBITS | PROGRAM_ID_FAILED_LOWBITS, 4, {} };
+                    reply.getDataAsDWords()[0] = expected_block_num;
+                    LOG_IF_ERR(boot_config.can_tx_queue.push(reply));
+                    break; // throw the block away
+                }
+
+                if (const auto first_unprogrammed_addr = boot_config.getFirstUnprogrammedAddress();
+                    first_unprogrammed_addr.has_value())
+                {
+                    if (current_address >= first_unprogrammed_addr.value())
+                    {
+                        // GO BACK!!!
+                        LOG_ERROR("wtf");
+                        hw::CanMsg reply{ boot_config.BOARD_HIGHBITS | PROGRAM_ID_FAILED_LOWBITS, 4, {} };
+                        reply.getDataAsDWords()[0] = expected_block_num;
+                        LOG_IF_ERR(boot_config.can_tx_queue.push(reply));
+                        break; // throw the block away
+                    }
+                    // otherwise ok
+                }
+                else
+                {
+                    // flush time!!!
+                    LOG_IF_ERR(boot_config.flush());
+                }
+            }
+            if (block_addr == expected_total_blocks)
+            {
+                hw::CanMsg reply{ boot_config.BOARD_HIGHBITS | PROGRAM_DONE_LOWBITS, 0, {} };
+                LOG_IF_ERR(boot_config.can_tx_queue.push(reply));
+            }
+            // successful block write
+            expected_block_num++;
         }
         else
         {
-            // LOG_ERROR("got stdid %X", command.std_id);
+            LOG_ERROR("Got unknown CAN command with ID 0x%X", command.std_id);
         }
     }
 }

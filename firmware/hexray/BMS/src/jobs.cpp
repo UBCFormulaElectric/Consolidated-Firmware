@@ -107,7 +107,7 @@ void jobs_run100Hz_tick()
     // heartbeat
     hb_monitor.checkIn();
     hb_monitor.broadcastFaults();
-
+    // NOTE: Efuse is shorted — no software enable needed
     const bool vc_drive_state         = app::can_rx::VC_State_get() == app::can_utils::VCState::VC_DRIVE_STATE;
     const bool cell_balancing_request = app::can_rx::Debug_CellBalancing_Request_get();
     const bool charging_request       = app::can_rx::Debug_StartCharging_get();
