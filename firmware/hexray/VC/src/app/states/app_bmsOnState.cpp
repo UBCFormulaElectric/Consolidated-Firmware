@@ -36,6 +36,11 @@ namespace bmsOnStates
 
     static void runOnTick100Hz()
     {
+        if (const ContactorState air_minus_closed = can_rx::BMS_IrNegative_get();
+            air_minus_closed == ContactorState::CONTACTOR_STATE_OPEN)
+        {
+            StateMachine::set_next_state(&init_state);
+        }
         // Once we have succesfully transitioned here, the BMS will read the state of the VC based on the associated CAN
         // message and then transition to the appropriate stage Note that if the BMS transitons to drive state we
         // transition to PCM_ON state
