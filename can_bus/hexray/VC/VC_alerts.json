@@ -5,27 +5,11 @@
     "InvLockoutFault": {
       "id": 563,
       "description": "One of the inverters has a critical fault impacting VC."
-    },
-    "VcBoardFaulted": {
-      "id": 564,
-      "description": "VC board is faulted."
     }
   },
   "warnings_id": 502,
   "warnings_counts_id": 504,
   "warnings": {
-    "Imu1InitFailed": {
-      "id": 511,
-      "description": "IMU initialization failed"
-    },
-    "Imu2InitFailed": {
-      "id": 512,
-      "description": "IMU initialization failed"
-    },
-    "Imu3InitFailed": {
-      "id": 513,
-      "description": "IMU initialization failed"
-    },
     "PcmLvOvercurrentFault": {
       "id": 567,
       "description": "LV rail from the HV DCDC was overcurrent."
@@ -137,6 +121,18 @@
     "Imu3Fault": {
       "id": 553,
       "description": "IMU3 has faulted (due to failed init or transaction)."
+    },
+    "Imu1InitFailed": {
+      "id": 511,
+      "description": "IMU initialization failed"
+    },
+    "Imu2InitFailed": {
+      "id": 512,
+      "description": "IMU initialization failed"
+    },
+    "Imu3InitFailed": {
+      "id": 513,
+      "description": "IMU initialization failed"
     }
   }
 }
