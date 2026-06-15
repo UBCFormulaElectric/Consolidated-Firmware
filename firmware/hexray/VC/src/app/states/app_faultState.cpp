@@ -1,6 +1,5 @@
 #include "app_states.hpp"
 #include "app_canTx.hpp"
-#include "app_canRx.hpp"
 #include "app_canAlerts.hpp"
 #include "app_canUtils.hpp"
 #include "app_inverter.hpp"
