@@ -51,7 +51,7 @@
     },
     "data_capture": {
       "telem_cycle_time": 1000,
-      "log_cycle_time" : 1000
+      "log_cycle_time": 1000
     }
   },
   "ButtonsAndSwitches": {
@@ -77,7 +77,7 @@
     },
     "data_capture": {
       "telem_cycle_time": 1000,
-      "log_cycle_time" : 1000
+      "log_cycle_time": 1000
     }
   },
   "TelemMarkEvent": {
@@ -196,7 +196,7 @@
     },
     "data_capture": {
       "telem_cycle_time": 1000,
-      "log_cycle_time" : 1000
+      "log_cycle_time": 1000
     }
   }
 }

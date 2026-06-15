@@ -1,6 +1,5 @@
 #include "app_states.hpp"
 #include "app_canTx.hpp"
-#include "app_canRx.hpp"
 #include "app_canAlerts.hpp"
 #include "app_canUtils.hpp"
 #include "app_inverter.hpp"
@@ -36,7 +35,7 @@ namespace faultState
 
     static void runOnTick100Hz()
     {
-        if (!can_alerts::AnyBoardHasFault())
+        if (!can_alerts::AnyBoardHasFault()) // all boards do not have faults
         {
             StateMachine::set_next_state(&init_state);
         }

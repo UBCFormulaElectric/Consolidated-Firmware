@@ -64,7 +64,7 @@ constexpr app::inverter::Handle inverter_handle_RR{
     app::can_alerts::warnings::RearRightInverterFault_set,
 };
 
-void app::inverter::inverter_enable_toggle(bool fl, bool fr, bool rl, bool rr)
+void app::inverter::inverter_enable_toggle(const bool fl, const bool fr, const bool rl, const bool rr)
 {
     inverter_handle_FL.can_enable_inv(fl);
     inverter_handle_FR.can_enable_inv(fr);
@@ -72,7 +72,11 @@ void app::inverter::inverter_enable_toggle(bool fl, bool fr, bool rl, bool rr)
     inverter_handle_RR.can_enable_inv(rr);
 }
 
-void app::inverter::set_torque_limit_negative(float fl_Nm, float fr_Nm, float rl_Nm, float rr_Nm)
+void app::inverter::set_torque_limit_negative(
+    const float fl_Nm,
+    const float fr_Nm,
+    const float rl_Nm,
+    const float rr_Nm)
 {
     using tv::datatypes::torque_limits::TORQUE_REQUEST;
 
@@ -82,7 +86,11 @@ void app::inverter::set_torque_limit_negative(float fl_Nm, float fr_Nm, float rl
     inverter_handle_RR.can_torque_limit_negative(TORQUE_REQUEST(rr_Nm));
 }
 
-void app::inverter::set_torque_limit_positive(float fl_Nm, float fr_Nm, float rl_Nm, float rr_Nm)
+void app::inverter::set_torque_limit_positive(
+    const float fl_Nm,
+    const float fr_Nm,
+    const float rl_Nm,
+    const float rr_Nm)
 {
     using tv::datatypes::torque_limits::TORQUE_REQUEST;
 
@@ -92,7 +100,7 @@ void app::inverter::set_torque_limit_positive(float fl_Nm, float fr_Nm, float rl
     inverter_handle_RR.can_torque_limit_positive(TORQUE_REQUEST(rr_Nm));
 }
 
-void app::inverter::send_torque(float fl_Nm, float fr_Nm, float rl_Nm, float rr_Nm)
+void app::inverter::send_torque(const float fl_Nm, const float fr_Nm, const float rl_Nm, const float rr_Nm)
 {
     using tv::datatypes::torque_limits::TORQUE_REQUEST;
 
@@ -102,7 +110,7 @@ void app::inverter::send_torque(float fl_Nm, float fr_Nm, float rl_Nm, float rr_
     inverter_handle_RR.can_torque_setpoint(TORQUE_REQUEST(rr_Nm));
 }
 
-static bool inverter_status(void)
+static bool inverter_status()
 {
     const bool invrr_error = inverter_handle_RR.can_error_bit() == true;
     const bool invrl_error = inverter_handle_RL.can_error_bit() == true;
@@ -112,7 +120,7 @@ static bool inverter_status(void)
     return invfl_error || invrl_error || invrr_error || invfr_error;
 }
 
-static bool is_lockout_code(uint32_t code)
+static bool is_lockout_code(const uint32_t code)
 {
     switch (code)
     {
@@ -128,7 +136,7 @@ static bool is_lockout_code(uint32_t code)
 }
 
 /*routine for resetting errors from the AMK datasheet*/
-static void inverter_start_retry_routine(app::inverter::Handle handle)
+static void inverter_start_retry_routine(const app::inverter::Handle &handle)
 {
     // Start retry cycle if faulted
     if (handle.can_error_bit())
@@ -140,7 +148,7 @@ static void inverter_start_retry_routine(app::inverter::Handle handle)
     }
 }
 
-static bool lockout(void)
+static bool lockout()
 {
     // Lockout check, if ANY lockout, stop retrying and remain faulted.
     // This is the most safety critical check so it has highest priority
@@ -163,7 +171,7 @@ static bool lockout(void)
     return false;
 }
 
-app::inverter::FaultHandlerState app::inverter::FaultHandler(void)
+app::inverter::FaultHandlerState app::inverter::FaultHandler()
 {
     // If all inverters are clear, we’re done
     // Second priority because we want to recover as quickly as possible
@@ -216,7 +224,7 @@ app::inverter::FaultHandlerState app::inverter::FaultHandler(void)
     return INV_FAULT_RETRY;
 }
 
-void app::inverter::FaultCheck(void)
+void app::inverter::FaultCheck()
 {
     const State *curr = StateMachine::get_current_state();
 
@@ -244,7 +252,7 @@ void app::inverter::FaultCheck(void)
     StateMachine::set_next_state(&states::inverter_fault_handling_state);
 }
 
-app::State *app::inverter::recovery_state(void)
+app::State *app::inverter::recovery_state()
 {
     return state_to_recover_after_fault;
 }
