@@ -318,6 +318,7 @@ async fn signal_sessions(
         Ok(starts) => {
             vprintln!("[sessions] influx returned {} DAM_Alive point(s)", starts.len());
             let mut tb: Vec<(String, Option<String>)> = starts.windows(2)
+            .filter(|w| w[0].time < w[1].time)
             .map(|w|
                 (
                     to_unix(&w[0]),
