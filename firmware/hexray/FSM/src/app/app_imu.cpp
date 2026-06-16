@@ -20,7 +20,7 @@ static FSMImuResults imu_results = { .accel_x_res = std::unexpected(ErrorCode::E
 void init()
 {
     auto ec = io::imus::init();
-    can_alerts::warnings::ImuInitFailed_set(not ec.has_value());
+    can_alerts::infos::ImuInitFailed_set(not ec.has_value());
 }
 
 void broadcast()

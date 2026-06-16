@@ -20,7 +20,7 @@ result<void> imu1_init_ok = std::unexpected(ErrorCode::ERROR_INDETERMINATE);
 void init()
 {
     imu1_init_ok = IMU1.init();
-    warnings::Imu1InitFailed_set(not imu1_init_ok.has_value());
+    infos::Imu1InitFailed_set(not imu1_init_ok.has_value());
 }
 
 void broadcast()

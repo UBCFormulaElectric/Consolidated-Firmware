@@ -22,7 +22,8 @@ void restart()
 
     can_tx::VC_RLPumpSetpoint_set(0);
     {
-        const io::unique_semaphore lock{ pwr_pump_i2c_bus_lock };
+        // NOTE: no semaphore because this is called pre operating system
+        // const io::unique_semaphore lock{ pwr_pump_i2c_bus_lock };
         LOG_IF_ERR(rr_pump.setPercentage(0));
         can_tx::VC_RRPumpSetpoint_set(0);
     }

@@ -5,6 +5,7 @@
 #include "app_powerManager.hpp"
 #include "app_startSwitch.hpp"
 #include "app_states.hpp"
+#include "app_bspdwarning.hpp"
 
 #include "torque_vectoring/datatypes/torque_limits.hpp"
 
@@ -27,8 +28,6 @@ static constexpr Efuses<EfuseConfig> power_manager_state = {
     .rr_pump_efuse   = { true, 200, 5 }, // rr_pump
     .rl_pump_efuse   = { true, 200, 5 }, // rl_pump
 };
-
-static volatile float apps = 0.0f;
 
 namespace app::states
 {
@@ -56,36 +55,37 @@ static void driveStateRunOnTick100Hz()
         StateMachine::set_next_state(&init_state);
         return;
     }
+    if (startSwitch::hasRisingEdge())
+    {
+        StateMachine::set_next_state(&hv_state);
+        return;
+    }
 
-    // if (!driveStatePassPreCheck())
-    // {
-    //     send_torque(NO_TORQUE_Nm, NO_TORQUE_Nm, NO_TORQUE_Nm, NO_TORQUE_Nm);
-    //     // TODO: set speed requests to 0 as well
-    //     return;
-    // }
+    // TODO check inverter preconditions, return to hv init if not fulfilled
 
+    const auto apps = can_rx::FSM_PappsMappedPedalPercentage_get();
+
+    if (can_alerts::AnyBoardHasWarning())
+    {
+        send_torque(NO_TORQUE_Nm, NO_TORQUE_Nm, NO_TORQUE_Nm, NO_TORQUE_Nm);
+        return;
+    }
     // TODO: add driving algorithm handling here
-    apps                       = can_rx::FSM_PappsMappedPedalPercentage_get();
-    const float torque_request = apps * MAX_TORQUE_REQUEST_Nm / 100.0f;
+    const float pedal_torque_request = apps * MAX_TORQUE_REQUEST_Nm / 100.0f;
 
     // inverters expect smoother signal
     // just for spinning wheels
     const float torque_fl = app::can_rx::Debug_TorqueRequest_FL_get();
     const float torque_fr = app::can_rx::Debug_TorqueRequest_FR_get();
     const float torque_rl = app::can_rx::Debug_TorqueRequest_RL_get();
-    const float torque_rr = app::can_rx::Debug_TorqueRequest_RL_get();
-    if (torque_fl < 0.0001f && torque_fr < 0.0001f && torque_rl < 0.0001f && torque_rr < 0.0001f)
+    const float torque_rr = app::can_rx::Debug_TorqueRequest_RR_get();
+    if (torque_fl < 0.1f && torque_fr < 0.1f && torque_rl < 0.1f && torque_rr < 0.1f)
     {
-        send_torque(torque_request, torque_request, torque_request, torque_request);
+        send_torque(pedal_torque_request, pedal_torque_request, pedal_torque_request, pedal_torque_request);
     }
     else
     {
         send_torque(torque_fl, torque_fr, torque_rl, torque_rr);
-    }
-
-    if (startSwitch::hasRisingEdge())
-    {
-        StateMachine::set_next_state(&hv_state);
     }
 }
 

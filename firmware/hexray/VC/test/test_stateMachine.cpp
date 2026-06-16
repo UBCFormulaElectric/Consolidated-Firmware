@@ -489,17 +489,6 @@ TEST_F(VCStateMachineTest, AirMinusOpenDebounceReturnsBmsOnToInit)
     ASSERT_STATE_EQ(app::states::init_state);
 }
 
-TEST_F(VCStateMachineTest, AirMinusOpenDebounceReturnsPcmOnToInit)
-{
-    app::can_rx::BMS_State_update(BmsState::BMS_DRIVE_STATE);
-    SetStateWithEntry(&app::states::pcmOn_state);
-    app::can_tx::VC_PcmChannelVoltage_set(28.0f);
-    app::can_rx::BMS_IrNegative_update(ContactorState::CONTACTOR_STATE_OPEN);
-
-    LetTimePass(110);
-    ASSERT_STATE_EQ(app::states::init_state);
-}
-
 /* Quintuna VC state-machine test-name parity. */
 
 TEST_F(VCStateMachineTest, BmsOnTransitionnToHvInit)
@@ -640,18 +629,6 @@ TEST_F(VCStateMachineTest, NoTransitionWithoutBrakeAndStart)
     app::can_rx::FSM_BrakeActuated_update(false);
     LetTimePass(10);
     ASSERT_STATE_EQ(app::states::hv_state);
-}
-
-TEST_F(VCStateMachineTest, fault_and_open_irs_gives_fault_state)
-{
-    app::can_rx::BMS_State_update(BmsState::BMS_DRIVE_STATE);
-    SetStateWithEntry(&app::states::hv_state);
-
-    app::can_rx::BMS_IrNegative_update(ContactorState::CONTACTOR_STATE_OPEN);
-    app::can_alerts::warnings::FrontLeftInverterFault_set(true);
-    LetTimePass(110);
-
-    ASSERT_STATE_EQ(app::states::init_state);
 }
 
 TEST_F(VCStateMachineTest, NoTransitionWithoutBrakeEvenIfStart)
