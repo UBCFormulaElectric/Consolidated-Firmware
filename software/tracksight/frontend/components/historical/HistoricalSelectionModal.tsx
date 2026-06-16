@@ -4,8 +4,8 @@ import { Check, ChevronLeft, ChevronRight, Clock3, Loader2 } from "lucide-react"
 import { useEffect, useMemo, useState } from "react";
 
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { HistoricalSignalSource } from "@/lib/api/historicalSignals";
 import { HistoricalSession } from "@/lib/api/historicalSessions";
+import { HistoricalSignalSource } from "@/lib/api/historicalSignals";
 import { SOURCE_OPTIONS, SelectionStep, sourceLabelFor, useHistoricalSelection } from "@/lib/contexts/HistoricalSelectionContext";
 import { useTimezone } from "@/lib/contexts/TimezoneContext";
 import { useHistoricalSessionsForRange } from "@/lib/hooks/useHistoricalSessionsForRange";
@@ -187,7 +187,9 @@ function SessionStep({ sessions, selectedSessionId, onSessionSelect, isLoading, 
                 return (
                     <button key={session.id} type="button" onClick={() => onSessionSelect(session.id)} className={cn("flex w-full items-center gap-3 border-b border-black px-4 py-3 text-left transition-colors last:border-b-0 hover:cursor-pointer", isSelected ? "bg-blue-100 text-blue-500" : "text-gray-800 hover:bg-blue-100/50")}>
                         <Clock3 className={cn("size-5 shrink-0", isSelected ? "text-blue-500" : "opacity-75")} />
-                        <span className="text-sm font-semibold">{session.label} <span className="text-xs font-normal text-gray-500">{session.timeZoneLabel}</span></span>
+                        <span className="text-sm font-semibold">
+                            {session.label} <span className="text-xs font-normal text-gray-500">{session.timeZoneLabel}</span>
+                        </span>
 
                         {isSelected ? <Check className="ml-auto size-5 shrink-0 text-blue-500" strokeWidth={2.5} /> : null}
                     </button>
@@ -261,7 +263,7 @@ export default function HistoricalSelectionModal() {
             <DialogContent className="max-w-2xl gap-5 rounded border-black bg-white shadow-none sm:rounded">
                 <DialogHeader>
                     <DialogTitle className="text-2xl font-bold tracking-tight">Select Historical Data</DialogTitle>
-                    <DialogDescription className="text-sm text-gray-500">Pick a source, date, and session to load into the dashboard. All times shown in UTC.</DialogDescription>
+                    <DialogDescription className="text-sm text-gray-500">Pick a source, date, and session to load into the dashboard.</DialogDescription>
                 </DialogHeader>
 
                 <div className="grid grid-cols-3 gap-2">

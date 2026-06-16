@@ -405,7 +405,7 @@ export function render_tooltip(
     const formatters = getFormatters(timeZone);
     const hoverDate = new Date(hoverTime);
     const ms = hoverDate.getUTCMilliseconds().toString().padStart(3, "0");
-    const timeZoneLabel = timeZone === "UTC" ? "UTC" : timeZone.split("/").pop();
+    const timeZoneLabel = timeZone === "America/Vancouver" ? "PDT" : timeZone === "America/Detroit" ? "EDT" : timeZone === "UTC" ? "UTC" : timeZone.split("/").pop();
     const time_string = `${formatters.date.format(hoverDate)} ${formatters.time.format(hoverDate)}.${ms} ${timeZoneLabel}`;
     const tooltip_lines = [time_string, ...hover_value.map(({ name, value }) => `${name}: ${value}`)];
     render_hover_line(context, width, height, hoverTime, timeToX, includeTopPaddingInOffset);
@@ -537,7 +537,7 @@ export default function render(context: CanvasRenderingContext2D, width: number,
         const formatters = getFormatters(timeZone);
         const dateObj = new Date(tick);
         const msLabel = dateObj.getUTCMilliseconds().toString().padStart(3, "0");
-        const timeZoneLabel = timeZone === "UTC" ? "UTC" : timeZone.split("/").pop();
+        const timeZoneLabel = timeZone === "America/Vancouver" ? "PDT" : timeZone === "America/Detroit" ? "EDT" : timeZone === "UTC" ? "UTC" : timeZone.split("/").pop();
         const timeLabel = `${formatters.time.format(dateObj)}.${msLabel} ${timeZoneLabel}`;
         const dateLabel = formatters.date.format(dateObj);
 
