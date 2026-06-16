@@ -24,7 +24,7 @@
 #include "hw_pwms.hpp"
 #include "hw_runTimeStat.hpp"
 
-constexpr size_t         TASK_COUNT = 9;
+constexpr size_t         TASK_COUNT = 10;
 [[noreturn]] static void tasks_run1Hz(void *arg);
 [[noreturn]] static void tasks_run100Hz(void *arg);
 [[noreturn]] static void tasks_run1kHz(void *arg);
@@ -150,22 +150,6 @@ void tasks_run100Hz(void *arg)
 
     forever
     {
-        // const app::can_utils::ChargerConnectedType charger_conn = io::charger::getConnectionStatus();
-        // if (charger_conn == app::can_utils::ChargerConnectedType::CHARGER_DISCONNECTED && fdcan1.is_up())
-        // {
-        //     LOG_IF_ERR(fdcan1.stop());
-        //     LOG_IF_ERR(fdcan2.start());
-        //     LOG_INFO("Charger disconnected, switched FDCAN to fdcan2");
-        // }
-        // else if (
-        //     (charger_conn == app::can_utils::ChargerConnectedType::CHARGER_CONNECTED_EVSE ||
-        //      charger_conn == app::can_utils::ChargerConnectedType::CHARGER_CONNECTED_WALL) &&
-        //     fdcan2.is_up())
-        // {
-        //     LOG_IF_ERR(fdcan2.stop());
-        //     LOG_IF_ERR(fdcan1.start());
-        //     LOG_INFO("Charger connected, switched FDCAN to fdcan1");
-        // }
         jobs_run100Hz_tick();
         watchdog100hz.checkIn();
         start_ticks += period_ms;
@@ -297,7 +281,7 @@ void tasks_runAdbmsCellOwc(void *arg)
 
 void BMS_StartAllTasks()
 {
-    // Task1kHz.start();
+    Task1kHz.start();
     Task1Hz.start();
     Task100Hz.start();
     TaskCanRx.start();

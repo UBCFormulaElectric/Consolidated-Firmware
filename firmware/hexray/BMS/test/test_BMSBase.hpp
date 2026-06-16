@@ -17,6 +17,7 @@ class BMSBaseTest : public EcuTestBase
   protected:
     void board_setup() override
     {
+        SetInitialState(&app::states::init_state);
         fakes::faultLatch::resetFaultLatch(&bms_ok_latch);
         fakes::faultLatch::resetFaultLatch(&imd_ok_latch);
         fakes::faultLatch::resetFaultLatch(&bspd_ok_latch);
