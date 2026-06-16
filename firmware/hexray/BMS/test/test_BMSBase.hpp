@@ -8,6 +8,7 @@
 #include "app_canTx.hpp"
 #include "app_canUtils.hpp"
 #include "io_canRx.hpp"
+#include "io_canTx.hpp"
 #include "app_segments.hpp"
 
 #define ADBMS_CONVERSION_PERIOD_MS (1000U)
@@ -23,10 +24,10 @@ class BMSBaseTest : public EcuTestBase
         fakes::faultLatch::resetFaultLatch(&bspd_ok_latch);
         fakes::faultLatch::setCurrentStatus_resetCallCounts();
         fakes::charger::setConnectionStatus(app::can_utils::ChargerConnectedType::CHARGER_DISCONNECTED);
+        ResetCanAlerts();
 
         app::can_rx::VC_State_update(app::can_utils::VCState::VC_INIT_STATE);
         app::can_rx::Debug_CellBalancing_Request_update(false);
-        app::can_tx::BMS_Fault_TESTFAULT_set(false);
 
         fakes::adbms::setPackVoltageEvenly(3.8f * NUM_SEGMENTS * CELLS_PER_SEGMENT);
         fakes::adbms::setHealthyConfigs();
@@ -64,6 +65,22 @@ class BMSBaseTest : public EcuTestBase
                             &app::states::balancing_state,
                             &app::states::fault_state };
     }
+
+    void ResetCanAlerts()
+    {
+        app::can_tx::BMS_Fault_CellOpenWire_set(false);
+        app::can_tx::BMS_Fault_CellOvervoltage_set(false);
+        app::can_tx::BMS_Fault_CellUndervoltage_set(false);
+        app::can_tx::BMS_Fault_CellOvertemp_set(false);
+        app::can_tx::BMS_Fault_HealthError_set(false);
+
+        app::can_tx::BMS_Fault_CellOvervoltage_Count_set(0);
+        app::can_tx::BMS_Fault_CellOpenWire_Count_set(0);
+        app::can_tx::BMS_Fault_CellUndervoltage_Count_set(0);
+        app::can_tx::BMS_Fault_CellOvertemp_Count_set(0);
+        app::can_tx::BMS_Fault_HealthError_Count_set(0);
+    }
+
     void SetImdCondition(const app::can_utils::ImdConditionName condition_name)
     {
         const std::map<app::can_utils::ImdConditionName, float> mapping{

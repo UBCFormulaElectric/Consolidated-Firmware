@@ -22,11 +22,11 @@ static constexpr int latch_timeout           = app::precharge::PRECHARGE_LATCH_T
 TEST_F(BmsStateMachineTest, enter_precharge_drive)
 {
     EXPECT_EQ(app::StateMachine::get_current_state(), &app::states::init_state);
-    std::cout << app::can_tx::BMS_Fault_CellOpenWire_get() << "OWC" << std::endl;
-    std::cout << app::can_tx::BMS_Fault_CellOvervoltage_get() << "OV" << std::endl;
-    std::cout << app::can_tx::BMS_Fault_CellUndervoltage_get() << "UV" << std::endl;
-    std::cout << app::can_tx::BMS_Fault_CellOvertemp_get() << "OT" << std::endl;
-    std::cout << app::can_tx::BMS_Fault_HealthError_get() << "HE" << std::endl;
+    // std::cout << app::can_tx::BMS_Fault_CellOpenWire_get() << "OWC" << std::endl;
+    // std::cout << app::can_tx::BMS_Fault_CellOvervoltage_get() << "OV" << std::endl;
+    // std::cout << app::can_tx::BMS_Fault_CellUndervoltage_get() << "UV" << std::endl;
+    // std::cout << app::can_tx::BMS_Fault_CellOvertemp_get() << "OT" << std::endl;
+    // std::cout << app::can_tx::BMS_Fault_HealthError_get() << "HE" << std::endl;
 
     fakes::irs::setNegativeState(app::can_utils::ContactorState::CONTACTOR_STATE_CLOSED);
     app::can_rx::VC_State_update(app::can_utils::VCState::VC_BMS_ON_STATE);
@@ -78,7 +78,7 @@ TEST_F(BmsStateMachineTest, precharge_drive_success)
     fakes::irs::setNegativeState(app::can_utils::ContactorState::CONTACTOR_STATE_CLOSED);
     fakes::ts::setVoltage(0.0f);
     app::can_rx::VC_State_update(app::can_utils::VCState::VC_BMS_ON_STATE);
-    LetTimePass(10);
+    LetTimePass(20);
 
     for (int i = 0; i < precharge_completion_ms; i += 10)
     {
