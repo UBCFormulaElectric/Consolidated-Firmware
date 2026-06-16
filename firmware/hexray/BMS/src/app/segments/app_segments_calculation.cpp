@@ -104,9 +104,9 @@ Cells<result<bool>> cellOwcOk(
     return owc_cell;
 }
 
-Therms<result<float>> thermTemps(
-    const std::array<ThermGpios<result<float>>, static_cast<size_t>(ThermistorMux::THERMISTOR_MUX_COUNT)>
-        &therm_voltages)
+Therms<result<float>>
+    thermTemps(const std::array<ThermGpios<result<float>>, static_cast<size_t>(ThermistorMux::THERMISTOR_MUX_COUNT)>
+                   &therm_voltages)
 {
     Therms<result<float>> out;
 
@@ -132,7 +132,8 @@ Therms<result<float>> thermTemps(
             const float resistance = R_SERIES * (voltage / (V_REF2 - voltage));
             const float temp       = app::therm::adbms_ntc10k_lut.resistanceToTemp(resistance);
             // TODO: Do error reporting on this please
-            if (temp > std::numeric_limits<float>::lowest() && temp < std::numeric_limits<float>::max())
+            if (std::abs(std::numeric_limits<float>::lowest() - temp) > 1e-4f &&
+                std::abs(temp - std::numeric_limits<float>::max()) > 1e-4f)
             {
                 out[seg][therm] = temp;
             }
@@ -145,9 +146,9 @@ Therms<result<float>> thermTemps(
     return out;
 }
 
-Therms<result<bool>> thermOwcOk(
-    const std::array<ThermGpios<result<float>>, static_cast<size_t>(ThermistorMux::THERMISTOR_MUX_COUNT)>
-        &therm_voltages)
+Therms<result<bool>>
+    thermOwcOk(const std::array<ThermGpios<result<float>>, static_cast<size_t>(ThermistorMux::THERMISTOR_MUX_COUNT)>
+                   &therm_voltages)
 {
     Therms<result<bool>> out;
 

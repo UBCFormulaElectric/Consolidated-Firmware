@@ -48,7 +48,8 @@ namespace therm
          * Calculate temperature based on thermistor temperature and LUT
          * @param thermistor_resistance resistance of the thermistor
          * @param temp_resistance_lut reverse lookup table
-         * @return Thermistor temperature in degrees C or -1 if out of bounds or invalid LUT
+         * @return Thermistor temperature in degrees C or lowest float if out of bounds or invalid LUT.
+         * Special case for temperature too high, will return highest float instead of lowest.
          */
         float resistanceToTemp(float thermistor_resistance) const noexcept
         {
@@ -65,12 +66,14 @@ namespace therm
                 return std::numeric_limits<float>::max();
             }
 
-                        // Handle trivial single-entry LUT safely
+            // Handle trivial single-entry LUT safely
             if (size_ == 1U)
             {
-                return APPROX_EQUAL_FLOAT(thermistor_resistance, resistances_[0], 0.0001f) ? starting_temp_ : -1.0f;
+                return APPROX_EQUAL_FLOAT(thermistor_resistance, resistances_[0], 0.0001f)
+                           ? starting_temp_
+                           : std::numeric_limits<float>::lowest();
             }
-            
+
             // Binary search for insertion point
             uint16_t low_index  = 0U;
             uint16_t high_index = static_cast<uint16_t>(size_ - 1);
