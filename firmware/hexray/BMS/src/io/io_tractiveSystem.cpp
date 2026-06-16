@@ -6,8 +6,6 @@
 #include <cassert>
 #include <cmath>
 
-// Percent error used to compensate for resistor errors. Determined from testing with the HW
-// TODO: Test with HW to determine compensation
 namespace io::ts
 {
 
@@ -24,15 +22,15 @@ constexpr float HIGH_RES_SENS_VA = 26.7e-3f;
 constexpr float LOW_RES_SENS_VA  = 4e-3f;
 
 // TS Current Sensing Calibration
-constexpr float OUTPUT1_CHARGING_ERROR_SLOPE     = -0.011131f;
-constexpr float OUTPUT1_CHARGING_ERROR_OFFSET    = -2.673297f;
-constexpr float OUTPUT1_DISCHARGING_ERROR_SLOPE  = -0.010818f;
-constexpr float OUTPUT1_DISCHARGING_ERROR_OFFSET = -2.802097f;
+constexpr float OUTPUT1_CHARGING_ERROR_SLOPE     = -0.009863f;
+constexpr float OUTPUT1_CHARGING_ERROR_OFFSET    = -2.751494f;
+constexpr float OUTPUT1_DISCHARGING_ERROR_SLOPE  = -0.009940f;
+constexpr float OUTPUT1_DISCHARGING_ERROR_OFFSET = -2.806835f;
 
-constexpr float OUTPUT2_CHARGING_ERROR_SLOPE     = -0.018955f;
-constexpr float OUTPUT2_CHARGING_ERROR_OFFSET    = -17.823242f;
-constexpr float OUTPUT2_DISCHARGING_ERROR_SLOPE  = -0.021560f;
-constexpr float OUTPUT2_DISCHARGING_ERROR_OFFSET = -18.569613f;
+constexpr float OUTPUT2_CHARGING_ERROR_SLOPE     = -0.020666f;
+constexpr float OUTPUT2_CHARGING_ERROR_OFFSET    = -18.145014f;
+constexpr float OUTPUT2_DISCHARGING_ERROR_SLOPE  = -0.019513f;
+constexpr float OUTPUT2_DISCHARGING_ERROR_OFFSET = -18.518876f;
 
 float getVoltage(void)
 {
