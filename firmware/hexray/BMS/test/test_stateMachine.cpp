@@ -5,8 +5,9 @@
 #include "app_irs.hpp"
 #include "io_time.hpp"
 #include "io_irs.hpp"
-// #include "app.segments.hpp"
 #include "app_canAlerts.hpp"
+#include <iostream>
+
 
 class BmsStateMachineTest : public BMSBaseTest
 {
@@ -22,6 +23,11 @@ static constexpr int latch_timeout           = app::precharge::PRECHARGE_LATCH_T
 TEST_F(BmsStateMachineTest, enter_precharge_drive)
 {
     ASSERT_STATE_EQ(app::states::init_state);
+    std::cout << app::can_tx::BMS_Fault_CellOpenWire_get() << "OWC" << std::endl;
+    std::cout << app::can_tx::BMS_Fault_CellOvervoltage_get() << "OV" << std::endl;
+    std::cout << app::can_tx::BMS_Fault_CellUndervoltage_get() << "UV" << std::endl;
+    std::cout << app::can_tx::BMS_Fault_CellOvertemp_get() << "OT" << std::endl;
+    std::cout << app::can_tx::BMS_Fault_HealthError_get() << "HE" << std::endl;
 
     fakes::irs::setNegativeState(app::can_utils::ContactorState::CONTACTOR_STATE_CLOSED);
     app::can_rx::VC_State_update(app::can_utils::VCState::VC_BMS_ON_STATE);

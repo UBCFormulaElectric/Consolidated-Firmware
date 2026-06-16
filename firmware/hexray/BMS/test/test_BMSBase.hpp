@@ -43,7 +43,7 @@ class BMSBaseTest : public EcuTestBase
         register_task(jobs_runAdbmsCellOwc_tick, 1000);
 
         // Allow time for all jobs to run at least once for things like voltage arrays to update
-        // LetTimePass(1000);
+        LetTimePass(1000);
     }
     void board_teardown() override {}
 
