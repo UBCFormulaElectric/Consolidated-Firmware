@@ -42,21 +42,29 @@ function binarySearchForFirstEnumIndex(timestamps: number[], targetTime: number)
     return result;
 }
 
-// constants
-const TIME_FORMATTER = new Intl.DateTimeFormat(undefined, {
-    hour: "2-digit",
-    hourCycle: "h23",
-    minute: "2-digit",
-    second: "2-digit",
-    timeZone: "UTC",
-});
+const FORMATTERS_CACHE = new Map<string, { time: Intl.DateTimeFormat; date: Intl.DateTimeFormat }>();
 
-const DATE_FORMATTER = new Intl.DateTimeFormat(undefined, {
-    day: "2-digit",
-    month: "short",
-    timeZone: "UTC",
-    year: "numeric",
-});
+export function getFormatters(timeZone: string) {
+    if (!FORMATTERS_CACHE.has(timeZone)) {
+        FORMATTERS_CACHE.set(timeZone, {
+            time: new Intl.DateTimeFormat(undefined, {
+                hour: "2-digit",
+                hourCycle: "h23",
+                minute: "2-digit",
+                second: "2-digit",
+                timeZone,
+            }),
+            date: new Intl.DateTimeFormat(undefined, {
+                day: "2-digit",
+                month: "short",
+                timeZone,
+                year: "numeric",
+            }),
+        });
+    }
+    return FORMATTERS_CACHE.get(timeZone)!;
+}
+
 export const CHART_PADDING = { top: 15, right: 0, bottom: 40, left: 60 };
 
 function isLevelUsable(lod: LODAwareSeries["lods"][number], visibleStart: number, visibleEnd: number): boolean {
@@ -384,6 +392,7 @@ export function render_tooltip(
     hoverTime: number,
     hover_value: Array<{ name: string; value: string }>,
     timeToX: (t: number) => number,
+    timeZone: string,
     topOffset = 0,
     includeTopPaddingInOffset = true
 ) {
@@ -393,9 +402,11 @@ export function render_tooltip(
         return;
     }
 
+    const formatters = getFormatters(timeZone);
     const hoverDate = new Date(hoverTime);
     const ms = hoverDate.getUTCMilliseconds().toString().padStart(3, "0");
-    const time_string = `${DATE_FORMATTER.format(hoverDate)} ${TIME_FORMATTER.format(hoverDate)}.${ms} UTC`;
+    const timeZoneLabel = timeZone === "America/Vancouver" ? "PDT" : timeZone === "America/Detroit" ? "EDT" : timeZone === "UTC" ? "UTC" : timeZone.split("/").pop();
+    const time_string = `${formatters.date.format(hoverDate)} ${formatters.time.format(hoverDate)}.${ms} ${timeZoneLabel}`;
     const tooltip_lines = [time_string, ...hover_value.map(({ name, value }) => `${name}: ${value}`)];
     render_hover_line(context, width, height, hoverTime, timeToX, includeTopPaddingInOffset);
 
@@ -456,7 +467,7 @@ function render_markers(context: CanvasRenderingContext2D, width: number, height
     });
 }
 
-export default function render(context: CanvasRenderingContext2D, width: number, height: number, layoutRef: RefObject<ChartLayout | null>, chartData: WidgetData, timeTickCount: number, hoverTime: number | null, hoveredSignal: RefObject<string | null> | undefined, { min: visibleStartTime, max: visibleEndTime }: { min: number; max: number }, markers: TelemetryMarker[]) {
+export default function render(context: CanvasRenderingContext2D, width: number, height: number, layoutRef: RefObject<ChartLayout | null>, chartData: WidgetData, timeTickCount: number, hoverTime: number | null, hoveredSignal: RefObject<string | null> | undefined, { min: visibleStartTime, max: visibleEndTime }: { min: number; max: number }, markers: TelemetryMarker[], timeZone: string) {
     context.clearRect(0, 0, width, height);
 
     const numericalTop = CHART_PADDING.top;
@@ -523,10 +534,12 @@ export default function render(context: CanvasRenderingContext2D, width: number,
         const x = timeToX(tick);
         if (x < CHART_PADDING.left - 10 || x > width - CHART_PADDING.right + 10) continue;
 
+        const formatters = getFormatters(timeZone);
         const dateObj = new Date(tick);
         const msLabel = dateObj.getUTCMilliseconds().toString().padStart(3, "0");
-        const timeLabel = `${TIME_FORMATTER.format(dateObj)}.${msLabel} UTC`;
-        const dateLabel = DATE_FORMATTER.format(dateObj);
+        const timeZoneLabel = timeZone === "America/Vancouver" ? "PDT" : timeZone === "America/Detroit" ? "EDT" : timeZone === "UTC" ? "UTC" : timeZone.split("/").pop();
+        const timeLabel = `${formatters.time.format(dateObj)}.${msLabel} ${timeZoneLabel}`;
+        const dateLabel = formatters.date.format(dateObj);
 
         context.fillText(timeLabel, x, height - CHART_PADDING.bottom + 8);
         context.fillText(dateLabel, x, height - CHART_PADDING.bottom + 24);
@@ -535,7 +548,7 @@ export default function render(context: CanvasRenderingContext2D, width: number,
     render_markers(context, width, height, markers, timeToX);
 
     if (hoverTime !== null) {
-        render_tooltip(context, width, height, hoverTime, hover_value!, timeToX);
+        render_tooltip(context, width, height, hoverTime, hover_value!, timeToX, timeZone);
     }
 }
 

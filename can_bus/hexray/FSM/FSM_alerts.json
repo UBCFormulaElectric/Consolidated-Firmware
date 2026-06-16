@@ -45,6 +45,14 @@
     "FrontBrakePressureOutOfRange": {
       "id": 631,
       "description": "Front brake pressure out of range."
+    },
+    "ImuInitFailed": {
+      "id": 635,
+      "description": "IMU initialization failed"
+    },
+    "ImuDataBad": {
+      "id": 636,
+      "description": "IMU data is bad"
     }
   },
   "warnings": {
@@ -59,14 +67,6 @@
     "SappsOCSC": {
       "id": 634,
       "description": "Secondary accelerator pedal voltage out of acceptable range (OCSC)."
-    },
-    "ImuInitFailed": {
-      "id": 635,
-      "description": "IMU initialization failed"
-    },
-    "ImuDataBad": {
-      "id": 636,
-      "description": "IMU data is bad"
     }
   },
   "faults": {}

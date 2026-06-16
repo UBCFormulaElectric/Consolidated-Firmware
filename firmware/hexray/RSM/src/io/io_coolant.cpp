@@ -1,7 +1,7 @@
 #include "io_coolant.hpp"
 #include "hw_pwms.hpp"
 
-constexpr float FREQ_TO_LITERS_PER_MINUTE = 7.5f;
+constexpr float FREQ_TO_LITERS_PER_MINUTE = 1.0f / 7.5f;
 
 namespace io::coolant
 {

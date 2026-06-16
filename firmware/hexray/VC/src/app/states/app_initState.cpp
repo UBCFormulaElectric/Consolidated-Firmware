@@ -9,7 +9,6 @@
 #include "torque_vectoring/datatypes/torque_limits.hpp"
 #include "io_log.hpp"
 #include "io_pcm.hpp"
-#include "app_pumpControl.hpp"
 
 using namespace app::can_utils;
 using namespace app::tv::datatypes;
@@ -19,50 +18,6 @@ namespace app::states
 
 namespace initState
 {
-    static void reset_inverter_rx()
-    {
-        can_rx::INVFL_bSystemReady_update(false);
-        can_rx::INVFR_bSystemReady_update(false);
-        can_rx::INVRL_bSystemReady_update(false);
-        can_rx::INVRR_bSystemReady_update(false);
-        can_rx::INVFL_bQuitDcOn_update(false);
-        can_rx::INVFR_bQuitDcOn_update(false);
-        can_rx::INVRL_bQuitDcOn_update(false);
-        can_rx::INVRR_bQuitDcOn_update(false);
-        can_rx::INVFL_bQuitInverterOn_update(false);
-        can_rx::INVFR_bQuitInverterOn_update(false);
-        can_rx::INVRL_bQuitInverterOn_update(false);
-        can_rx::INVRR_bQuitInverterOn_update(false);
-        can_rx::INVFL_bError_update(false);
-        can_rx::INVFR_bError_update(false);
-        can_rx::INVRL_bError_update(false);
-        can_rx::INVRR_bError_update(false);
-        can_rx::INVFL_ErrorInfo_update(0u);
-        can_rx::INVFR_ErrorInfo_update(0u);
-        can_rx::INVRL_ErrorInfo_update(0u);
-        can_rx::INVRR_ErrorInfo_update(0u);
-    }
-
-    static void reset_inverter_tx()
-    {
-        can_tx::VC_INVFLbDcOn_set(false);
-        can_tx::VC_INVFRbDcOn_set(false);
-        can_tx::VC_INVRLbDcOn_set(false);
-        can_tx::VC_INVRRbDcOn_set(false);
-        can_tx::VC_INVFLbEnable_set(false);
-        can_tx::VC_INVFRbEnable_set(false);
-        can_tx::VC_INVRLbEnable_set(false);
-        can_tx::VC_INVRRbEnable_set(false);
-        can_tx::VC_INVFLbInverterOn_set(false);
-        can_tx::VC_INVFRbInverterOn_set(false);
-        can_tx::VC_INVRLbInverterOn_set(false);
-        can_tx::VC_INVRRbInverterOn_set(false);
-        can_tx::VC_INVFLbErrorReset_set(false);
-        can_tx::VC_INVFRbErrorReset_set(false);
-        can_tx::VC_INVRLbErrorReset_set(false);
-        can_tx::VC_INVRRbErrorReset_set(false);
-    }
-
     static constexpr powerManager::Efuses<powerManager::EfuseConfig> power_manager_state = {
         .front_efuse     = { true, 0, 5 },
         .rsm_efuse       = { true, 0, 5 },
@@ -82,14 +37,15 @@ namespace initState
 
         io::pcm::set(false);
 
-        can_rx::clear_board_rx_table(CanNode::VC_NODE);
+        can_rx::clear_board_rx_table(CanNode::INVFL_NODE);
+        can_rx::clear_board_rx_table(CanNode::INVFR_NODE);
+        can_rx::clear_board_rx_table(CanNode::INVRL_NODE);
+        can_rx::clear_board_rx_table(CanNode::INVRR_NODE);
 
         app::powerManager::updateConfig(power_manager_state);
         can_tx::VC_State_set(VCState::VC_INIT_STATE);
 
         can_alerts::infos::InverterRetry_set(false);
-        reset_inverter_rx();
-        reset_inverter_tx();
 
         can_tx::VC_INVFLTorqueSetpoint_set(torque_limits::NO_TORQUE_Nm);
         can_tx::VC_INVFRTorqueSetpoint_set(torque_limits::NO_TORQUE_Nm);

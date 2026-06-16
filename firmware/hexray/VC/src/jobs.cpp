@@ -20,7 +20,6 @@
 
 #include "io_canMsg.hpp"
 #include "io_canTx.hpp"
-#include "io_imus.hpp"
 #include "io_canQueues.hpp"
 #include "io_time.hpp"
 #include "io_batteryMonitoring.hpp"
@@ -61,6 +60,8 @@ void jobs_init()
 
     io::can_tx::VC_Bootup_sendAperiodic();
 
+    app::pumpControl::restart();
+
     app::StateMachine::init(&app::states::init_state);
 }
 void jobs_initImu()
@@ -75,22 +76,8 @@ void jobs_run100Hz_tick()
         app::StateMachine::set_next_state(&app::states::fault_state);
     }
 
-    const app::Timer::TimerState air_minus_open_debounced = air_minus_open_debounce_timer.runIfCondition(
-        app::can_rx::BMS_IrNegative_get() == app::can_utils::ContactorState::CONTACTOR_STATE_OPEN);
-    switch (air_minus_open_debounced)
-    {
-        case app::Timer::TimerState::IDLE:
-            break;
-        case app::Timer::TimerState::RUNNING:
-            break;
-        case app::Timer::TimerState::EXPIRED:
-            app::StateMachine::set_next_state(&app::states::init_state);
-            break;
-        default:
-            break;
-    }
-
-    if (app::StateMachine::get_current_state() == &app::states::hvInit_state ||
+    if (app::StateMachine::get_current_state() == &app::states::inverterOn_state ||
+        app::StateMachine::get_current_state() == &app::states::hvInit_state ||
         app::StateMachine::get_current_state() == &app::states::hv_state ||
         app::StateMachine::get_current_state() == &app::states::drive_state ||
         app::StateMachine::get_current_state() == &app::states::inverter_fault_handling_state)

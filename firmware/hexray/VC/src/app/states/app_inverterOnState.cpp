@@ -34,6 +34,11 @@ namespace inverterOnState
 
     static void runOnTick100Hz()
     {
+        if (const ContactorState air_minus_closed = can_rx::BMS_IrNegative_get();
+            air_minus_closed == ContactorState::CONTACTOR_STATE_OPEN)
+        {
+            StateMachine::set_next_state(&init_state);
+        }
         const bool inverters_bsystemReady = can_rx::INVFL_bSystemReady_get() && can_rx::INVFR_bSystemReady_get() &&
                                             can_rx::INVRL_bSystemReady_get() && can_rx::INVRR_bSystemReady_get();
 
@@ -41,6 +46,8 @@ namespace inverterOnState
         {
             StateMachine::set_next_state(&bmsOn_state);
         }
+
+        // TODO inverter fault handling
     }
 
     static void runOnExit()

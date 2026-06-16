@@ -19,7 +19,7 @@ static RSMImuResults imu_results = { .accel_x_res = std::unexpected(ErrorCode::E
 void init()
 {
     auto ec = io::imus::init();
-    can_alerts::warnings::ImuInitFailed_set(not ec.has_value());
+    can_alerts::infos::ImuInitFailed_set(not ec.has_value());
 }
 
 void broadcast()
@@ -33,6 +33,6 @@ void broadcast()
     can_tx::RSM_GyroX_set(imu_results.gyro_x_res.value_or(0.0f));
     can_tx::RSM_GyroY_set(imu_results.gyro_y_res.value_or(0.0f));
     can_tx::RSM_GyroZ_set(imu_results.gyro_z_res.value_or(0.0f));
-    can_alerts::warnings::ImuDataBad_set(imu_results.hasFault());
+    can_alerts::infos::ImuDataBad_set(imu_results.hasFault());
 }
 } // namespace app::imu

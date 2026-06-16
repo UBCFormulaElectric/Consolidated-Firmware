@@ -44,5 +44,5 @@ TEST_F(VCImuTest, Imu1_Accel_Error_Returns_Early)
     LetTimePass(1);
 
     // CAN values should remain at default (0.0f)
-    ASSERT_EQ(true, app::can_tx::VC_Warning_Imu1InitFailed_get());
+    ASSERT_EQ(true, app::can_tx::VC_Info_Imu1InitFailed_get());
 }

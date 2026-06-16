@@ -13,7 +13,7 @@
     },
     "data_capture": {
       "telem_cycle_time": 100,
-      "log_cycle_time" : 100
+      "log_cycle_time": 100
     }
   },
   "Debug": {
@@ -39,7 +39,7 @@
     },
     "data_capture": {
       "telem_cycle_time": 1000,
-      "log_cycle_time" : 1000
+      "log_cycle_time": 1000
     }
   },
   "Bootup": {
@@ -87,7 +87,7 @@
     },
     "data_capture": {
       "telem_cycle_time": 100,
-      "log_cycle_time" : 100
+      "log_cycle_time": 100
     }
   },
   "Contactors": {
@@ -107,7 +107,7 @@
     },
     "data_capture": {
       "telem_cycle_time": 100,
-      "log_cycle_time" : 100
+      "log_cycle_time": 100
     }
   },
   "Charger": {
@@ -166,7 +166,7 @@
     },
     "data_capture": {
       "telem_cycle_time": 100,
-      "log_cycle_time" : 100
+      "log_cycle_time": 100
     }
   },
   "BSPDStatus": {
@@ -186,7 +186,7 @@
     },
     "data_capture": {
       "telem_cycle_time": 100,
-      "log_cycle_time" : 100
+      "log_cycle_time": 100
     }
   },
   "HvBatteryProperties": {
@@ -237,7 +237,7 @@
     },
     "data_capture": {
       "telem_cycle_time": 100,
-      "log_cycle_time" : 100
+      "log_cycle_time": 100
     }
   },
   "ImdData": {
@@ -266,7 +266,7 @@
     },
     "data_capture": {
       "telem_cycle_time": 100,
-      "log_cycle_time" : 100
+      "log_cycle_time": 100
     }
   },
   "PowerLimit": {
@@ -334,7 +334,7 @@
     },
     "data_capture": {
       "telem_cycle_time": 100,
-      "log_cycle_time" : 100
+      "log_cycle_time": 100
     }
   },
   "CellTempStats": {
@@ -377,7 +377,7 @@
     },
     "data_capture": {
       "telem_cycle_time": 100,
-      "log_cycle_time" : 100
+      "log_cycle_time": 100
     }
   },
   "SegmentVoltageStats": {
@@ -410,21 +410,7 @@
     },
     "data_capture": {
       "telem_cycle_time": 100,
-      "log_cycle_time" : 100
-    }
-  },
-  "PackVoltage": {
-    
-    "msg_id": 481,
-    "cycle_time": null,
-    "description": "Accumulator pack voltage (sum of segment voltages from the ADBMS stack)",
-    "signals": {
-      "PackVoltage": {
-        "resolution": 0.1,
-        "min": 0,
-        "max": 700,
-        "unit": "V"
-      }
+      "log_cycle_time": 100
     }
   },
   "CellVoltages_Seg0_Seg3": {
@@ -433,7 +419,6 @@
     "allowed_modes": [
       "DEBUG"
     ],
-    
     "description": "Cell voltages: Segment 0-3",
     "signals": {
       "Seg0_Cell0_Voltage": {
@@ -1295,6 +1280,19 @@
         "min": -0.1,
         "max": 5,
         "unit": "V"
+      }
+    }
+  },
+  "Fans": {
+    "msg_id": 425,
+    "cycle_time": 100,
+    "description": "Fan control signals",
+    "signals": {
+      "FanStatus": {
+        "bits": 1
+      },
+      "FanPgood": {
+        "bits": 1
       }
     }
   },
@@ -2595,886 +2593,6 @@
       },
       "Seg9_Cell13_CellOwcOk": {
         "bits": 1
-      }
-    }
-  },
-  "CellDischargeEnabled": {
-    "msg_id": 476,
-    "cycle_time": null,
-    "allowed_modes": [
-      "DEBUG"
-    ],
-    "description": "Cell discharge (balancing) enabled flags for all segments",
-    "signals": {
-      "Seg0_Cell0_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg0_Cell1_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg0_Cell2_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg0_Cell3_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg0_Cell4_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg0_Cell5_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg0_Cell6_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg0_Cell7_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg0_Cell8_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg0_Cell9_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg0_Cell10_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg0_Cell11_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg0_Cell12_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg0_Cell13_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg1_Cell0_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg1_Cell1_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg1_Cell2_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg1_Cell3_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg1_Cell4_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg1_Cell5_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg1_Cell6_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg1_Cell7_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg1_Cell8_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg1_Cell9_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg1_Cell10_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg1_Cell11_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg1_Cell12_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg1_Cell13_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg2_Cell0_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg2_Cell1_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg2_Cell2_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg2_Cell3_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg2_Cell4_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg2_Cell5_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg2_Cell6_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg2_Cell7_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg2_Cell8_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg2_Cell9_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg2_Cell10_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg2_Cell11_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg2_Cell12_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg2_Cell13_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg3_Cell0_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg3_Cell1_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg3_Cell2_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg3_Cell3_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg3_Cell4_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg3_Cell5_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg3_Cell6_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg3_Cell7_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg3_Cell8_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg3_Cell9_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg3_Cell10_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg3_Cell11_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg3_Cell12_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg3_Cell13_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg4_Cell0_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg4_Cell1_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg4_Cell2_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg4_Cell3_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg4_Cell4_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg4_Cell5_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg4_Cell6_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg4_Cell7_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg4_Cell8_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg4_Cell9_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg4_Cell10_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg4_Cell11_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg4_Cell12_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg4_Cell13_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg5_Cell0_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg5_Cell1_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg5_Cell2_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg5_Cell3_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg5_Cell4_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg5_Cell5_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg5_Cell6_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg5_Cell7_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg5_Cell8_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg5_Cell9_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg5_Cell10_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg5_Cell11_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg5_Cell12_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg5_Cell13_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg6_Cell0_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg6_Cell1_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg6_Cell2_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg6_Cell3_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg6_Cell4_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg6_Cell5_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg6_Cell6_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg6_Cell7_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg6_Cell8_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg6_Cell9_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg6_Cell10_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg6_Cell11_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg6_Cell12_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg6_Cell13_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg7_Cell0_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg7_Cell1_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg7_Cell2_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg7_Cell3_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg7_Cell4_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg7_Cell5_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg7_Cell6_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg7_Cell7_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg7_Cell8_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg7_Cell9_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg7_Cell10_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg7_Cell11_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg7_Cell12_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg7_Cell13_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg8_Cell0_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg8_Cell1_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg8_Cell2_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg8_Cell3_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg8_Cell4_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg8_Cell5_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg8_Cell6_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg8_Cell7_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg8_Cell8_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg8_Cell9_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg8_Cell10_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg8_Cell11_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg8_Cell12_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg8_Cell13_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg9_Cell0_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg9_Cell1_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg9_Cell2_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg9_Cell3_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg9_Cell4_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg9_Cell5_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg9_Cell6_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg9_Cell7_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg9_Cell8_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg9_Cell9_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg9_Cell10_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg9_Cell11_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg9_Cell12_DischargeEnabled": {
-        "bits": 1
-      },
-      "Seg9_Cell13_DischargeEnabled": {
-        "bits": 1
-      }
-    }
-  },
-  "CellPwmDuty_Seg0_Seg3": {
-    "msg_id": 477,
-    "cycle_time": null,
-    "allowed_modes": [
-      "DEBUG"
-    ],
-    "description": "Cell balancing PWM duty (0-15) for segments 0-3",
-    "signals": {
-      "Seg0_Cell0_PwmDuty": {
-        "bits": 4
-      },
-      "Seg0_Cell1_PwmDuty": {
-        "bits": 4
-      },
-      "Seg0_Cell2_PwmDuty": {
-        "bits": 4
-      },
-      "Seg0_Cell3_PwmDuty": {
-        "bits": 4
-      },
-      "Seg0_Cell4_PwmDuty": {
-        "bits": 4
-      },
-      "Seg0_Cell5_PwmDuty": {
-        "bits": 4
-      },
-      "Seg0_Cell6_PwmDuty": {
-        "bits": 4
-      },
-      "Seg0_Cell7_PwmDuty": {
-        "bits": 4
-      },
-      "Seg0_Cell8_PwmDuty": {
-        "bits": 4
-      },
-      "Seg0_Cell9_PwmDuty": {
-        "bits": 4
-      },
-      "Seg0_Cell10_PwmDuty": {
-        "bits": 4
-      },
-      "Seg0_Cell11_PwmDuty": {
-        "bits": 4
-      },
-      "Seg0_Cell12_PwmDuty": {
-        "bits": 4
-      },
-      "Seg0_Cell13_PwmDuty": {
-        "bits": 4
-      },
-      "Seg1_Cell0_PwmDuty": {
-        "bits": 4
-      },
-      "Seg1_Cell1_PwmDuty": {
-        "bits": 4
-      },
-      "Seg1_Cell2_PwmDuty": {
-        "bits": 4
-      },
-      "Seg1_Cell3_PwmDuty": {
-        "bits": 4
-      },
-      "Seg1_Cell4_PwmDuty": {
-        "bits": 4
-      },
-      "Seg1_Cell5_PwmDuty": {
-        "bits": 4
-      },
-      "Seg1_Cell6_PwmDuty": {
-        "bits": 4
-      },
-      "Seg1_Cell7_PwmDuty": {
-        "bits": 4
-      },
-      "Seg1_Cell8_PwmDuty": {
-        "bits": 4
-      },
-      "Seg1_Cell9_PwmDuty": {
-        "bits": 4
-      },
-      "Seg1_Cell10_PwmDuty": {
-        "bits": 4
-      },
-      "Seg1_Cell11_PwmDuty": {
-        "bits": 4
-      },
-      "Seg1_Cell12_PwmDuty": {
-        "bits": 4
-      },
-      "Seg1_Cell13_PwmDuty": {
-        "bits": 4
-      },
-      "Seg2_Cell0_PwmDuty": {
-        "bits": 4
-      },
-      "Seg2_Cell1_PwmDuty": {
-        "bits": 4
-      },
-      "Seg2_Cell2_PwmDuty": {
-        "bits": 4
-      },
-      "Seg2_Cell3_PwmDuty": {
-        "bits": 4
-      },
-      "Seg2_Cell4_PwmDuty": {
-        "bits": 4
-      },
-      "Seg2_Cell5_PwmDuty": {
-        "bits": 4
-      },
-      "Seg2_Cell6_PwmDuty": {
-        "bits": 4
-      },
-      "Seg2_Cell7_PwmDuty": {
-        "bits": 4
-      },
-      "Seg2_Cell8_PwmDuty": {
-        "bits": 4
-      },
-      "Seg2_Cell9_PwmDuty": {
-        "bits": 4
-      },
-      "Seg2_Cell10_PwmDuty": {
-        "bits": 4
-      },
-      "Seg2_Cell11_PwmDuty": {
-        "bits": 4
-      },
-      "Seg2_Cell12_PwmDuty": {
-        "bits": 4
-      },
-      "Seg2_Cell13_PwmDuty": {
-        "bits": 4
-      },
-      "Seg3_Cell0_PwmDuty": {
-        "bits": 4
-      },
-      "Seg3_Cell1_PwmDuty": {
-        "bits": 4
-      },
-      "Seg3_Cell2_PwmDuty": {
-        "bits": 4
-      },
-      "Seg3_Cell3_PwmDuty": {
-        "bits": 4
-      },
-      "Seg3_Cell4_PwmDuty": {
-        "bits": 4
-      },
-      "Seg3_Cell5_PwmDuty": {
-        "bits": 4
-      },
-      "Seg3_Cell6_PwmDuty": {
-        "bits": 4
-      },
-      "Seg3_Cell7_PwmDuty": {
-        "bits": 4
-      },
-      "Seg3_Cell8_PwmDuty": {
-        "bits": 4
-      },
-      "Seg3_Cell9_PwmDuty": {
-        "bits": 4
-      },
-      "Seg3_Cell10_PwmDuty": {
-        "bits": 4
-      },
-      "Seg3_Cell11_PwmDuty": {
-        "bits": 4
-      },
-      "Seg3_Cell12_PwmDuty": {
-        "bits": 4
-      },
-      "Seg3_Cell13_PwmDuty": {
-        "bits": 4
-      }
-    }
-  },
-  "CellPwmDuty_Seg4_Seg7": {
-    "msg_id": 478,
-    "cycle_time": null,
-    "allowed_modes": [
-      "DEBUG"
-    ],
-    "description": "Cell balancing PWM duty (0-15) for segments 4-7",
-    "signals": {
-      "Seg4_Cell0_PwmDuty": {
-        "bits": 4
-      },
-      "Seg4_Cell1_PwmDuty": {
-        "bits": 4
-      },
-      "Seg4_Cell2_PwmDuty": {
-        "bits": 4
-      },
-      "Seg4_Cell3_PwmDuty": {
-        "bits": 4
-      },
-      "Seg4_Cell4_PwmDuty": {
-        "bits": 4
-      },
-      "Seg4_Cell5_PwmDuty": {
-        "bits": 4
-      },
-      "Seg4_Cell6_PwmDuty": {
-        "bits": 4
-      },
-      "Seg4_Cell7_PwmDuty": {
-        "bits": 4
-      },
-      "Seg4_Cell8_PwmDuty": {
-        "bits": 4
-      },
-      "Seg4_Cell9_PwmDuty": {
-        "bits": 4
-      },
-      "Seg4_Cell10_PwmDuty": {
-        "bits": 4
-      },
-      "Seg4_Cell11_PwmDuty": {
-        "bits": 4
-      },
-      "Seg4_Cell12_PwmDuty": {
-        "bits": 4
-      },
-      "Seg4_Cell13_PwmDuty": {
-        "bits": 4
-      },
-      "Seg5_Cell0_PwmDuty": {
-        "bits": 4
-      },
-      "Seg5_Cell1_PwmDuty": {
-        "bits": 4
-      },
-      "Seg5_Cell2_PwmDuty": {
-        "bits": 4
-      },
-      "Seg5_Cell3_PwmDuty": {
-        "bits": 4
-      },
-      "Seg5_Cell4_PwmDuty": {
-        "bits": 4
-      },
-      "Seg5_Cell5_PwmDuty": {
-        "bits": 4
-      },
-      "Seg5_Cell6_PwmDuty": {
-        "bits": 4
-      },
-      "Seg5_Cell7_PwmDuty": {
-        "bits": 4
-      },
-      "Seg5_Cell8_PwmDuty": {
-        "bits": 4
-      },
-      "Seg5_Cell9_PwmDuty": {
-        "bits": 4
-      },
-      "Seg5_Cell10_PwmDuty": {
-        "bits": 4
-      },
-      "Seg5_Cell11_PwmDuty": {
-        "bits": 4
-      },
-      "Seg5_Cell12_PwmDuty": {
-        "bits": 4
-      },
-      "Seg5_Cell13_PwmDuty": {
-        "bits": 4
-      },
-      "Seg6_Cell0_PwmDuty": {
-        "bits": 4
-      },
-      "Seg6_Cell1_PwmDuty": {
-        "bits": 4
-      },
-      "Seg6_Cell2_PwmDuty": {
-        "bits": 4
-      },
-      "Seg6_Cell3_PwmDuty": {
-        "bits": 4
-      },
-      "Seg6_Cell4_PwmDuty": {
-        "bits": 4
-      },
-      "Seg6_Cell5_PwmDuty": {
-        "bits": 4
-      },
-      "Seg6_Cell6_PwmDuty": {
-        "bits": 4
-      },
-      "Seg6_Cell7_PwmDuty": {
-        "bits": 4
-      },
-      "Seg6_Cell8_PwmDuty": {
-        "bits": 4
-      },
-      "Seg6_Cell9_PwmDuty": {
-        "bits": 4
-      },
-      "Seg6_Cell10_PwmDuty": {
-        "bits": 4
-      },
-      "Seg6_Cell11_PwmDuty": {
-        "bits": 4
-      },
-      "Seg6_Cell12_PwmDuty": {
-        "bits": 4
-      },
-      "Seg6_Cell13_PwmDuty": {
-        "bits": 4
-      },
-      "Seg7_Cell0_PwmDuty": {
-        "bits": 4
-      },
-      "Seg7_Cell1_PwmDuty": {
-        "bits": 4
-      },
-      "Seg7_Cell2_PwmDuty": {
-        "bits": 4
-      },
-      "Seg7_Cell3_PwmDuty": {
-        "bits": 4
-      },
-      "Seg7_Cell4_PwmDuty": {
-        "bits": 4
-      },
-      "Seg7_Cell5_PwmDuty": {
-        "bits": 4
-      },
-      "Seg7_Cell6_PwmDuty": {
-        "bits": 4
-      },
-      "Seg7_Cell7_PwmDuty": {
-        "bits": 4
-      },
-      "Seg7_Cell8_PwmDuty": {
-        "bits": 4
-      },
-      "Seg7_Cell9_PwmDuty": {
-        "bits": 4
-      },
-      "Seg7_Cell10_PwmDuty": {
-        "bits": 4
-      },
-      "Seg7_Cell11_PwmDuty": {
-        "bits": 4
-      },
-      "Seg7_Cell12_PwmDuty": {
-        "bits": 4
-      },
-      "Seg7_Cell13_PwmDuty": {
-        "bits": 4
-      }
-    }
-  },
-  "CellPwmDuty_Seg8_Seg9": {
-    "msg_id": 479,
-    "cycle_time": null,
-    "allowed_modes": [
-      "DEBUG"
-    ],
-    "description": "Cell balancing PWM duty (0-15) for segments 8-9",
-    "signals": {
-      "Seg8_Cell0_PwmDuty": {
-        "bits": 4
-      },
-      "Seg8_Cell1_PwmDuty": {
-        "bits": 4
-      },
-      "Seg8_Cell2_PwmDuty": {
-        "bits": 4
-      },
-      "Seg8_Cell3_PwmDuty": {
-        "bits": 4
-      },
-      "Seg8_Cell4_PwmDuty": {
-        "bits": 4
-      },
-      "Seg8_Cell5_PwmDuty": {
-        "bits": 4
-      },
-      "Seg8_Cell6_PwmDuty": {
-        "bits": 4
-      },
-      "Seg8_Cell7_PwmDuty": {
-        "bits": 4
-      },
-      "Seg8_Cell8_PwmDuty": {
-        "bits": 4
-      },
-      "Seg8_Cell9_PwmDuty": {
-        "bits": 4
-      },
-      "Seg8_Cell10_PwmDuty": {
-        "bits": 4
-      },
-      "Seg8_Cell11_PwmDuty": {
-        "bits": 4
-      },
-      "Seg8_Cell12_PwmDuty": {
-        "bits": 4
-      },
-      "Seg8_Cell13_PwmDuty": {
-        "bits": 4
-      },
-      "Seg9_Cell0_PwmDuty": {
-        "bits": 4
-      },
-      "Seg9_Cell1_PwmDuty": {
-        "bits": 4
-      },
-      "Seg9_Cell2_PwmDuty": {
-        "bits": 4
-      },
-      "Seg9_Cell3_PwmDuty": {
-        "bits": 4
-      },
-      "Seg9_Cell4_PwmDuty": {
-        "bits": 4
-      },
-      "Seg9_Cell5_PwmDuty": {
-        "bits": 4
-      },
-      "Seg9_Cell6_PwmDuty": {
-        "bits": 4
-      },
-      "Seg9_Cell7_PwmDuty": {
-        "bits": 4
-      },
-      "Seg9_Cell8_PwmDuty": {
-        "bits": 4
-      },
-      "Seg9_Cell9_PwmDuty": {
-        "bits": 4
-      },
-      "Seg9_Cell10_PwmDuty": {
-        "bits": 4
-      },
-      "Seg9_Cell11_PwmDuty": {
-        "bits": 4
-      },
-      "Seg9_Cell12_PwmDuty": {
-        "bits": 4
-      },
-      "Seg9_Cell13_PwmDuty": {
-        "bits": 4
       }
     }
   },
@@ -8264,16 +7382,908 @@
       }
     }
   },
-  "Fans": {
-    "msg_id": 425,
-    "cycle_time": 100,
-    "description": "Fan control signals",
+  "CellDischargeEnabled": {
+    "msg_id": 476,
+    "cycle_time": null,
+    "allowed_modes": [
+      "DEBUG"
+    ],
+    "description": "Cell discharge (balancing) enabled flags for all segments",
     "signals": {
-      "FanStatus": {
+      "Seg0_Cell0_DischargeEnabled": {
         "bits": 1
       },
-      "FanPgood": {
+      "Seg0_Cell1_DischargeEnabled": {
         "bits": 1
+      },
+      "Seg0_Cell2_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg0_Cell3_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg0_Cell4_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg0_Cell5_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg0_Cell6_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg0_Cell7_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg0_Cell8_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg0_Cell9_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg0_Cell10_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg0_Cell11_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg0_Cell12_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg0_Cell13_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg1_Cell0_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg1_Cell1_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg1_Cell2_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg1_Cell3_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg1_Cell4_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg1_Cell5_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg1_Cell6_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg1_Cell7_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg1_Cell8_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg1_Cell9_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg1_Cell10_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg1_Cell11_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg1_Cell12_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg1_Cell13_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg2_Cell0_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg2_Cell1_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg2_Cell2_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg2_Cell3_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg2_Cell4_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg2_Cell5_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg2_Cell6_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg2_Cell7_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg2_Cell8_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg2_Cell9_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg2_Cell10_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg2_Cell11_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg2_Cell12_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg2_Cell13_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg3_Cell0_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg3_Cell1_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg3_Cell2_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg3_Cell3_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg3_Cell4_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg3_Cell5_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg3_Cell6_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg3_Cell7_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg3_Cell8_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg3_Cell9_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg3_Cell10_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg3_Cell11_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg3_Cell12_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg3_Cell13_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg4_Cell0_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg4_Cell1_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg4_Cell2_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg4_Cell3_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg4_Cell4_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg4_Cell5_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg4_Cell6_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg4_Cell7_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg4_Cell8_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg4_Cell9_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg4_Cell10_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg4_Cell11_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg4_Cell12_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg4_Cell13_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg5_Cell0_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg5_Cell1_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg5_Cell2_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg5_Cell3_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg5_Cell4_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg5_Cell5_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg5_Cell6_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg5_Cell7_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg5_Cell8_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg5_Cell9_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg5_Cell10_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg5_Cell11_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg5_Cell12_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg5_Cell13_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg6_Cell0_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg6_Cell1_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg6_Cell2_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg6_Cell3_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg6_Cell4_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg6_Cell5_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg6_Cell6_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg6_Cell7_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg6_Cell8_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg6_Cell9_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg6_Cell10_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg6_Cell11_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg6_Cell12_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg6_Cell13_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg7_Cell0_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg7_Cell1_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg7_Cell2_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg7_Cell3_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg7_Cell4_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg7_Cell5_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg7_Cell6_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg7_Cell7_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg7_Cell8_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg7_Cell9_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg7_Cell10_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg7_Cell11_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg7_Cell12_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg7_Cell13_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg8_Cell0_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg8_Cell1_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg8_Cell2_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg8_Cell3_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg8_Cell4_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg8_Cell5_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg8_Cell6_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg8_Cell7_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg8_Cell8_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg8_Cell9_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg8_Cell10_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg8_Cell11_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg8_Cell12_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg8_Cell13_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg9_Cell0_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg9_Cell1_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg9_Cell2_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg9_Cell3_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg9_Cell4_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg9_Cell5_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg9_Cell6_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg9_Cell7_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg9_Cell8_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg9_Cell9_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg9_Cell10_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg9_Cell11_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg9_Cell12_DischargeEnabled": {
+        "bits": 1
+      },
+      "Seg9_Cell13_DischargeEnabled": {
+        "bits": 1
+      }
+    }
+  },
+  "CellPwmDuty_Seg0_Seg3": {
+    "msg_id": 477,
+    "cycle_time": null,
+    "allowed_modes": [
+      "DEBUG"
+    ],
+    "description": "Cell balancing PWM duty (0-15) for segments 0-3",
+    "signals": {
+      "Seg0_Cell0_PwmDuty": {
+        "bits": 4
+      },
+      "Seg0_Cell1_PwmDuty": {
+        "bits": 4
+      },
+      "Seg0_Cell2_PwmDuty": {
+        "bits": 4
+      },
+      "Seg0_Cell3_PwmDuty": {
+        "bits": 4
+      },
+      "Seg0_Cell4_PwmDuty": {
+        "bits": 4
+      },
+      "Seg0_Cell5_PwmDuty": {
+        "bits": 4
+      },
+      "Seg0_Cell6_PwmDuty": {
+        "bits": 4
+      },
+      "Seg0_Cell7_PwmDuty": {
+        "bits": 4
+      },
+      "Seg0_Cell8_PwmDuty": {
+        "bits": 4
+      },
+      "Seg0_Cell9_PwmDuty": {
+        "bits": 4
+      },
+      "Seg0_Cell10_PwmDuty": {
+        "bits": 4
+      },
+      "Seg0_Cell11_PwmDuty": {
+        "bits": 4
+      },
+      "Seg0_Cell12_PwmDuty": {
+        "bits": 4
+      },
+      "Seg0_Cell13_PwmDuty": {
+        "bits": 4
+      },
+      "Seg1_Cell0_PwmDuty": {
+        "bits": 4
+      },
+      "Seg1_Cell1_PwmDuty": {
+        "bits": 4
+      },
+      "Seg1_Cell2_PwmDuty": {
+        "bits": 4
+      },
+      "Seg1_Cell3_PwmDuty": {
+        "bits": 4
+      },
+      "Seg1_Cell4_PwmDuty": {
+        "bits": 4
+      },
+      "Seg1_Cell5_PwmDuty": {
+        "bits": 4
+      },
+      "Seg1_Cell6_PwmDuty": {
+        "bits": 4
+      },
+      "Seg1_Cell7_PwmDuty": {
+        "bits": 4
+      },
+      "Seg1_Cell8_PwmDuty": {
+        "bits": 4
+      },
+      "Seg1_Cell9_PwmDuty": {
+        "bits": 4
+      },
+      "Seg1_Cell10_PwmDuty": {
+        "bits": 4
+      },
+      "Seg1_Cell11_PwmDuty": {
+        "bits": 4
+      },
+      "Seg1_Cell12_PwmDuty": {
+        "bits": 4
+      },
+      "Seg1_Cell13_PwmDuty": {
+        "bits": 4
+      },
+      "Seg2_Cell0_PwmDuty": {
+        "bits": 4
+      },
+      "Seg2_Cell1_PwmDuty": {
+        "bits": 4
+      },
+      "Seg2_Cell2_PwmDuty": {
+        "bits": 4
+      },
+      "Seg2_Cell3_PwmDuty": {
+        "bits": 4
+      },
+      "Seg2_Cell4_PwmDuty": {
+        "bits": 4
+      },
+      "Seg2_Cell5_PwmDuty": {
+        "bits": 4
+      },
+      "Seg2_Cell6_PwmDuty": {
+        "bits": 4
+      },
+      "Seg2_Cell7_PwmDuty": {
+        "bits": 4
+      },
+      "Seg2_Cell8_PwmDuty": {
+        "bits": 4
+      },
+      "Seg2_Cell9_PwmDuty": {
+        "bits": 4
+      },
+      "Seg2_Cell10_PwmDuty": {
+        "bits": 4
+      },
+      "Seg2_Cell11_PwmDuty": {
+        "bits": 4
+      },
+      "Seg2_Cell12_PwmDuty": {
+        "bits": 4
+      },
+      "Seg2_Cell13_PwmDuty": {
+        "bits": 4
+      },
+      "Seg3_Cell0_PwmDuty": {
+        "bits": 4
+      },
+      "Seg3_Cell1_PwmDuty": {
+        "bits": 4
+      },
+      "Seg3_Cell2_PwmDuty": {
+        "bits": 4
+      },
+      "Seg3_Cell3_PwmDuty": {
+        "bits": 4
+      },
+      "Seg3_Cell4_PwmDuty": {
+        "bits": 4
+      },
+      "Seg3_Cell5_PwmDuty": {
+        "bits": 4
+      },
+      "Seg3_Cell6_PwmDuty": {
+        "bits": 4
+      },
+      "Seg3_Cell7_PwmDuty": {
+        "bits": 4
+      },
+      "Seg3_Cell8_PwmDuty": {
+        "bits": 4
+      },
+      "Seg3_Cell9_PwmDuty": {
+        "bits": 4
+      },
+      "Seg3_Cell10_PwmDuty": {
+        "bits": 4
+      },
+      "Seg3_Cell11_PwmDuty": {
+        "bits": 4
+      },
+      "Seg3_Cell12_PwmDuty": {
+        "bits": 4
+      },
+      "Seg3_Cell13_PwmDuty": {
+        "bits": 4
+      }
+    }
+  },
+  "CellPwmDuty_Seg4_Seg7": {
+    "msg_id": 478,
+    "cycle_time": null,
+    "allowed_modes": [
+      "DEBUG"
+    ],
+    "description": "Cell balancing PWM duty (0-15) for segments 4-7",
+    "signals": {
+      "Seg4_Cell0_PwmDuty": {
+        "bits": 4
+      },
+      "Seg4_Cell1_PwmDuty": {
+        "bits": 4
+      },
+      "Seg4_Cell2_PwmDuty": {
+        "bits": 4
+      },
+      "Seg4_Cell3_PwmDuty": {
+        "bits": 4
+      },
+      "Seg4_Cell4_PwmDuty": {
+        "bits": 4
+      },
+      "Seg4_Cell5_PwmDuty": {
+        "bits": 4
+      },
+      "Seg4_Cell6_PwmDuty": {
+        "bits": 4
+      },
+      "Seg4_Cell7_PwmDuty": {
+        "bits": 4
+      },
+      "Seg4_Cell8_PwmDuty": {
+        "bits": 4
+      },
+      "Seg4_Cell9_PwmDuty": {
+        "bits": 4
+      },
+      "Seg4_Cell10_PwmDuty": {
+        "bits": 4
+      },
+      "Seg4_Cell11_PwmDuty": {
+        "bits": 4
+      },
+      "Seg4_Cell12_PwmDuty": {
+        "bits": 4
+      },
+      "Seg4_Cell13_PwmDuty": {
+        "bits": 4
+      },
+      "Seg5_Cell0_PwmDuty": {
+        "bits": 4
+      },
+      "Seg5_Cell1_PwmDuty": {
+        "bits": 4
+      },
+      "Seg5_Cell2_PwmDuty": {
+        "bits": 4
+      },
+      "Seg5_Cell3_PwmDuty": {
+        "bits": 4
+      },
+      "Seg5_Cell4_PwmDuty": {
+        "bits": 4
+      },
+      "Seg5_Cell5_PwmDuty": {
+        "bits": 4
+      },
+      "Seg5_Cell6_PwmDuty": {
+        "bits": 4
+      },
+      "Seg5_Cell7_PwmDuty": {
+        "bits": 4
+      },
+      "Seg5_Cell8_PwmDuty": {
+        "bits": 4
+      },
+      "Seg5_Cell9_PwmDuty": {
+        "bits": 4
+      },
+      "Seg5_Cell10_PwmDuty": {
+        "bits": 4
+      },
+      "Seg5_Cell11_PwmDuty": {
+        "bits": 4
+      },
+      "Seg5_Cell12_PwmDuty": {
+        "bits": 4
+      },
+      "Seg5_Cell13_PwmDuty": {
+        "bits": 4
+      },
+      "Seg6_Cell0_PwmDuty": {
+        "bits": 4
+      },
+      "Seg6_Cell1_PwmDuty": {
+        "bits": 4
+      },
+      "Seg6_Cell2_PwmDuty": {
+        "bits": 4
+      },
+      "Seg6_Cell3_PwmDuty": {
+        "bits": 4
+      },
+      "Seg6_Cell4_PwmDuty": {
+        "bits": 4
+      },
+      "Seg6_Cell5_PwmDuty": {
+        "bits": 4
+      },
+      "Seg6_Cell6_PwmDuty": {
+        "bits": 4
+      },
+      "Seg6_Cell7_PwmDuty": {
+        "bits": 4
+      },
+      "Seg6_Cell8_PwmDuty": {
+        "bits": 4
+      },
+      "Seg6_Cell9_PwmDuty": {
+        "bits": 4
+      },
+      "Seg6_Cell10_PwmDuty": {
+        "bits": 4
+      },
+      "Seg6_Cell11_PwmDuty": {
+        "bits": 4
+      },
+      "Seg6_Cell12_PwmDuty": {
+        "bits": 4
+      },
+      "Seg6_Cell13_PwmDuty": {
+        "bits": 4
+      },
+      "Seg7_Cell0_PwmDuty": {
+        "bits": 4
+      },
+      "Seg7_Cell1_PwmDuty": {
+        "bits": 4
+      },
+      "Seg7_Cell2_PwmDuty": {
+        "bits": 4
+      },
+      "Seg7_Cell3_PwmDuty": {
+        "bits": 4
+      },
+      "Seg7_Cell4_PwmDuty": {
+        "bits": 4
+      },
+      "Seg7_Cell5_PwmDuty": {
+        "bits": 4
+      },
+      "Seg7_Cell6_PwmDuty": {
+        "bits": 4
+      },
+      "Seg7_Cell7_PwmDuty": {
+        "bits": 4
+      },
+      "Seg7_Cell8_PwmDuty": {
+        "bits": 4
+      },
+      "Seg7_Cell9_PwmDuty": {
+        "bits": 4
+      },
+      "Seg7_Cell10_PwmDuty": {
+        "bits": 4
+      },
+      "Seg7_Cell11_PwmDuty": {
+        "bits": 4
+      },
+      "Seg7_Cell12_PwmDuty": {
+        "bits": 4
+      },
+      "Seg7_Cell13_PwmDuty": {
+        "bits": 4
+      }
+    }
+  },
+  "CellPwmDuty_Seg8_Seg9": {
+    "msg_id": 479,
+    "cycle_time": null,
+    "allowed_modes": [
+      "DEBUG"
+    ],
+    "description": "Cell balancing PWM duty (0-15) for segments 8-9",
+    "signals": {
+      "Seg8_Cell0_PwmDuty": {
+        "bits": 4
+      },
+      "Seg8_Cell1_PwmDuty": {
+        "bits": 4
+      },
+      "Seg8_Cell2_PwmDuty": {
+        "bits": 4
+      },
+      "Seg8_Cell3_PwmDuty": {
+        "bits": 4
+      },
+      "Seg8_Cell4_PwmDuty": {
+        "bits": 4
+      },
+      "Seg8_Cell5_PwmDuty": {
+        "bits": 4
+      },
+      "Seg8_Cell6_PwmDuty": {
+        "bits": 4
+      },
+      "Seg8_Cell7_PwmDuty": {
+        "bits": 4
+      },
+      "Seg8_Cell8_PwmDuty": {
+        "bits": 4
+      },
+      "Seg8_Cell9_PwmDuty": {
+        "bits": 4
+      },
+      "Seg8_Cell10_PwmDuty": {
+        "bits": 4
+      },
+      "Seg8_Cell11_PwmDuty": {
+        "bits": 4
+      },
+      "Seg8_Cell12_PwmDuty": {
+        "bits": 4
+      },
+      "Seg8_Cell13_PwmDuty": {
+        "bits": 4
+      },
+      "Seg9_Cell0_PwmDuty": {
+        "bits": 4
+      },
+      "Seg9_Cell1_PwmDuty": {
+        "bits": 4
+      },
+      "Seg9_Cell2_PwmDuty": {
+        "bits": 4
+      },
+      "Seg9_Cell3_PwmDuty": {
+        "bits": 4
+      },
+      "Seg9_Cell4_PwmDuty": {
+        "bits": 4
+      },
+      "Seg9_Cell5_PwmDuty": {
+        "bits": 4
+      },
+      "Seg9_Cell6_PwmDuty": {
+        "bits": 4
+      },
+      "Seg9_Cell7_PwmDuty": {
+        "bits": 4
+      },
+      "Seg9_Cell8_PwmDuty": {
+        "bits": 4
+      },
+      "Seg9_Cell9_PwmDuty": {
+        "bits": 4
+      },
+      "Seg9_Cell10_PwmDuty": {
+        "bits": 4
+      },
+      "Seg9_Cell11_PwmDuty": {
+        "bits": 4
+      },
+      "Seg9_Cell12_PwmDuty": {
+        "bits": 4
+      },
+      "Seg9_Cell13_PwmDuty": {
+        "bits": 4
+      }
+    }
+  },
+  "SpiLinkStatus": {
+    "msg_id": 480,
+    "description": "Furthest reach of spi transmitters (Segment 0 = low side, Segment 9 = high side)",
+    "signals": {
+      "LowSideSegmentReach": {
+        "bits": 4
+      },
+      "HighSideSegmentReach": {
+        "bits": 4
+      }
+    }
+  },
+  "PackVoltage": {
+    "msg_id": 481,
+    "cycle_time": null,
+    "description": "Accumulator pack voltage (sum of segment voltages from the ADBMS stack)",
+    "signals": {
+      "PackVoltage": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 700,
+        "unit": "V"
       }
     }
   },
@@ -8335,18 +8345,6 @@
         "start_bit": 32,
         "bits": 1,
         "start_value": 1
-      }
-    }
-  },
-  "SpiLinkStatus": {
-    "msg_id": 480,
-    "description": "Furthest reach of spi transmitters (Segment 0 = low side, Segment 9 = high side)",
-    "signals": {
-      "LowSideSegmentReach": {
-        "bits": 4
-      },
-      "HighSideSegmentReach": {
-        "bits": 4
       }
     }
   }
