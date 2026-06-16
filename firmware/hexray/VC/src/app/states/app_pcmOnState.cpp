@@ -16,9 +16,9 @@ namespace app::states
 namespace pcmOnState
 {
     constexpr float   PCM_MIN_VOLTAGE = 20.0f;
-    constexpr float   PCM_MAX_VOLTAGE     = 30.0f;
-    constexpr float   PCM_MAX_CURRENT     = 40.0f;
-    constexpr uint8_t PCM_MAX_RETRIES     = 5;
+    constexpr float   PCM_MAX_VOLTAGE = 30.0f;
+    constexpr float   PCM_MAX_CURRENT = 40.0f;
+    constexpr uint8_t PCM_MAX_RETRIES = 5;
 
     constexpr uint32_t PCM_TIMOUT = 1000;
 
@@ -37,8 +37,8 @@ namespace pcmOnState
     {
         // TODO just filter it dummy
         return (
-            PCM_MIN_VOLTAGE <= pcm_voltage && pcm_voltage <= PCM_MAX_VOLTAGE &&
-            PCM_MIN_VOLTAGE <= pcm_prev_voltage && pcm_prev_voltage <= PCM_MAX_VOLTAGE);
+            PCM_MIN_VOLTAGE <= pcm_voltage && pcm_voltage <= PCM_MAX_VOLTAGE && PCM_MIN_VOLTAGE <= pcm_prev_voltage &&
+            pcm_prev_voltage <= PCM_MAX_VOLTAGE);
     }
 
     static void runOnEntry()
