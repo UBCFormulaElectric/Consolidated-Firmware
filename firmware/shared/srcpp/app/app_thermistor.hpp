@@ -1,5 +1,6 @@
 #pragma once
 #include "app_math.hpp"
+#include "util_errorCodes.hpp"
 
 #include <cstddef>
 #include <cstdint>
@@ -51,27 +52,37 @@ namespace therm
          * @return Thermistor temperature in degrees C or lowest float if out of bounds or invalid LUT.
          * Special case for temperature too high, will return highest float instead of lowest.
          */
-        float resistanceToTemp(float thermistor_resistance) const noexcept
+        std::expected<float, ErrorCode> resistanceToTemp(float thermistor_resistance) const noexcept
         {
             if (!valid_ || resistances_ == nullptr || size_ == 0U)
-                return std::numeric_limits<float>::lowest();
+                return std::unexpected(ErrorCode::LUT_INVALID);
 
             // Ensure resistance is within bounds: resistances[0] is highest, resistances[size-1] is lowest
             if ((thermistor_resistance <= resistances_[0]) || !std::isfinite(thermistor_resistance))
             {
-                return std::numeric_limits<float>::lowest();
+                return std::unexpected(ErrorCode::LUT_UNDERSHOOT);
             }
             else if (thermistor_resistance >= resistances_[size_ - 1U])
             {
-                return std::numeric_limits<float>::max();
+                return std::unexpected(ErrorCode::LUT_OVERSHOOT);
             }
 
             // Handle trivial single-entry LUT safely
             if (size_ == 1U)
             {
-                return APPROX_EQUAL_FLOAT(thermistor_resistance, resistances_[0], 0.0001f)
-                           ? starting_temp_
-                           : std::numeric_limits<float>::lowest();
+                
+                if (!APPROX_EQUAL_FLOAT(thermistor_resistance, resistances_[0], 0.0001f))
+                {
+                    if (thermistor_resistance < resistances_[0])
+                    {
+                        return std::unexpected(ErrorCode::LUT_UNDERSHOOT);
+                    }
+                    else
+                    {
+                        return std::unexpected(ErrorCode::LUT_OVERSHOOT);
+                    }
+                }
+                return starting_temp_;
             }
 
             // Binary search for insertion point

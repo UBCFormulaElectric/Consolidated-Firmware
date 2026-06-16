@@ -18,6 +18,9 @@ enum class ErrorCode
     POLL_INVALID,
     THERM_OUT_OF_RANGE,
     NUM_EXIT_CODES,
+    LUT_INVALID,
+    LUT_OVERSHOOT,
+    LUT_UNDERSHOOT
 };
 
 template <typename T> using result = std::expected<T, ErrorCode>;
