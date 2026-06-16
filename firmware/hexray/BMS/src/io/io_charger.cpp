@@ -20,9 +20,14 @@ app::can_utils::ChargerConnectedType getConnectionStatus()
     return app::can_utils::ChargerConnectedType::CHARGER_DISCONNECTED;
 }
 
-float getDutyCycle()
+float getCPDutyCycle()
 {
     return evse_pwm_input.get_dutyCycle();
+}
+
+float getCPFrequency()
+{
+    return evse_pwm_input.get_frequency();
 }
 
 } // namespace io::charger
