@@ -22,7 +22,7 @@ result<void> clear::flags()
 {
     Segments<RegBuffer> clr_regs{};
     for (size_t seg = 0U; seg < NUM_SEGMENTS; seg++) {
-        clr_regs[seg].fill(1);
+        clr_regs[seg].fill(0xFF);
     }
     RETURN_IF_ERR(writeRegGroup(CLRFLAG, clr_regs));
     RETURN_IF_ERR(writeRegGroup(CLOVUV, clr_regs));
