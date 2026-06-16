@@ -58,11 +58,11 @@ namespace therm
                 return std::unexpected(ErrorCode::LUT_INVALID);
 
             // Ensure resistance is within bounds: resistances[0] is highest, resistances[size-1] is lowest
-            if ((thermistor_resistance <= resistances_[0]) || !std::isfinite(thermistor_resistance))
+            if (!std::isfinite(thermistor_resistance) || thermistor_resistance >= resistances_[0])
             {
                 return std::unexpected(ErrorCode::LUT_UNDERSHOOT);
             }
-            else if (thermistor_resistance >= resistances_[size_ - 1U])
+            else if (thermistor_resistance <= resistances_[size_ - 1U])
             {
                 return std::unexpected(ErrorCode::LUT_OVERSHOOT);
             }
@@ -70,10 +70,9 @@ namespace therm
             // Handle trivial single-entry LUT safely
             if (size_ == 1U)
             {
-                
                 if (!APPROX_EQUAL_FLOAT(thermistor_resistance, resistances_[0], 0.0001f))
                 {
-                    if (thermistor_resistance < resistances_[0])
+                    if (thermistor_resistance > resistances_[0])
                     {
                         return std::unexpected(ErrorCode::LUT_UNDERSHOOT);
                     }
