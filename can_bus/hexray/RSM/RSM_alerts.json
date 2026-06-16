@@ -6,14 +6,6 @@
   "info_id": 705,
   "info_counts_id": 706,
   "warnings": {
-    "ImuInitFailed": {
-      "id": 721,
-      "description": "IMU initialization failed"
-    },
-    "ImuDataBad": {
-      "id": 722,
-      "description": "IMU data is bad"
-    }
   },
   "faults": {},
   "info": {
@@ -52,6 +44,14 @@
     "TireTemperatureOutOfRange": {
       "id": 731,
       "description": "Tire Temperature Out of Sensor Range"
+    },
+    "ImuInitFailed": {
+      "id": 721,
+      "description": "IMU initialization failed"
+    },
+    "ImuDataBad": {
+      "id": 722,
+      "description": "IMU data is bad"
     }
   }
 }
