@@ -23,7 +23,7 @@
 #include "hw_i2cs.hpp"
 #include "hw_watchdog.hpp"
 #include "hw_resetReason.hpp"
-#include "hw_runTimeStat.hpp"
+
 
 [[noreturn]] static void tasks_run1Hz(void *arg);
 [[noreturn]] static void tasks_run100Hz(void *arg);
@@ -59,27 +59,27 @@ static hw::rtos::StaticTask
 static hw::rtos::StaticTask
     TaskPowerMonitoring(osPriorityNormal, "TaskPowerMonitoring", tasks_powerMonitoring, TaskPowerMonitoringStack);
 
-static hw::runtimeStat::monitor<TASK_COUNT> runtimeMonitor{
-    { app::can_tx::VC_CoreCpuUsage_set, app::can_tx::VC_CoreCpuUsageMax_set },
-    {
-        { { Task1kHz, app::can_tx::VC_TaskRun1kHzCpuUsage_set, app::can_tx::VC_TaskRun1kHzCpuUsageMax_set,
-            app::can_tx::VC_TaskRun1kHzStackUsage_set },
-          { Task1Hz, app::can_tx::VC_TaskRun1HzCpuUsage_set, app::can_tx::VC_TaskRun1HzCpuUsageMax_set,
-            app::can_tx::VC_TaskRun1HzStackUsage_set },
-          { Task100Hz, app::can_tx::VC_TaskRun100HzCpuUsage_set, app::can_tx::VC_TaskRun100HzCpuUsageMax_set,
-            app::can_tx::VC_TaskRun100HzStackUsage_set },
-          { TaskCanRx, app::can_tx::VC_TaskRunCanRxCpuUsage_set, app::can_tx::VC_TaskRunCanRxCpuUsageMax_set,
-            app::can_tx::VC_TaskRunCanRxStackUsage_set },
-          { TaskCan1Tx, app::can_tx::VC_TaskRunCan1TxCpuUsage_set, app::can_tx::VC_TaskRunCan1TxCpuUsageMax_set,
-            app::can_tx::VC_TaskRunCan1TxStackUsage_set },
-          { TaskCan2Tx, app::can_tx::VC_TaskRunCan2TxCpuUsage_set, app::can_tx::VC_TaskRunCan2TxCpuUsageMax_set,
-            app::can_tx::VC_TaskRunCan2TxStackUsage_set },
-          { TaskPowerMonitoring, app::can_tx::VC_TaskRunPowerMonitoringCpuUsage_set,
-            app::can_tx::VC_TaskRunPowerMonitoringCpuUsageMax_set,
-            app::can_tx::VC_TaskRunPowerMonitoringStackUsage_set } },
-        // Battery Monitoring and IMU...
-    },
-};
+// static hw::runtimeStat::monitor<TASK_COUNT> runtimeMonitor{
+//     { app::can_tx::VC_CoreCpuUsage_set, app::can_tx::VC_CoreCpuUsageMax_set },
+//     {
+//         { { Task1kHz, app::can_tx::VC_TaskRun1kHzCpuUsage_set, app::can_tx::VC_TaskRun1kHzCpuUsageMax_set,
+//             app::can_tx::VC_TaskRun1kHzStackUsage_set },
+//           { Task1Hz, app::can_tx::VC_TaskRun1HzCpuUsage_set, app::can_tx::VC_TaskRun1HzCpuUsageMax_set,
+//             app::can_tx::VC_TaskRun1HzStackUsage_set },
+//           { Task100Hz, app::can_tx::VC_TaskRun100HzCpuUsage_set, app::can_tx::VC_TaskRun100HzCpuUsageMax_set,
+//             app::can_tx::VC_TaskRun100HzStackUsage_set },
+//           { TaskCanRx, app::can_tx::VC_TaskRunCanRxCpuUsage_set, app::can_tx::VC_TaskRunCanRxCpuUsageMax_set,
+//             app::can_tx::VC_TaskRunCanRxStackUsage_set },
+//           { TaskCan1Tx, app::can_tx::VC_TaskRunCan1TxCpuUsage_set, app::can_tx::VC_TaskRunCan1TxCpuUsageMax_set,
+//             app::can_tx::VC_TaskRunCan1TxStackUsage_set },
+//           { TaskCan2Tx, app::can_tx::VC_TaskRunCan2TxCpuUsage_set, app::can_tx::VC_TaskRunCan2TxCpuUsageMax_set,
+//             app::can_tx::VC_TaskRunCan2TxStackUsage_set },
+//           { TaskPowerMonitoring, app::can_tx::VC_TaskRunPowerMonitoringCpuUsage_set,
+//             app::can_tx::VC_TaskRunPowerMonitoringCpuUsageMax_set,
+//             app::can_tx::VC_TaskRunPowerMonitoringStackUsage_set } },
+//         // Battery Monitoring and IMU...
+//     },
+// };
 
 static hw::watchdog::monitor<TASK_COUNT> monitor{
     hiwdg1,
@@ -138,9 +138,10 @@ void tasks_runImu(void *arg)
 {
     constexpr uint32_t      period_ms                = 10U;
     constexpr uint32_t      watchdog_grace_period_ms = 2U;
-    hw::watchdog::instance &watchdogImu              = monitor.spawn_instance(period_ms + watchdog_grace_period_ms);
-
+    
     jobs_initImu();
+    
+    hw::watchdog::instance &watchdogImu              = monitor.spawn_instance(period_ms + watchdog_grace_period_ms);
 
     uint32_t start_ticks = osKernelGetTickCount();
     forever
@@ -237,15 +238,15 @@ void tasks_runCanRx(void *arg)
 
 static void VC_StartAllTasks()
 {
-    Task100Hz.start();
-    Task1kHz.start();
-    Task1Hz.start();
     TaskImu.start();
+    Task100Hz.start();
+    Task1Hz.start();
     TaskCanRx.start();
     TaskCan1Tx.start();
     TaskCan2Tx.start();
     // TaskBatteryMonitoring.start();
     TaskPowerMonitoring.start();
+    Task1kHz.start();
 }
 
 void tasks_preInit()
@@ -264,7 +265,7 @@ void tasks_init()
 
     LOG_INFO("VC Reset!");
 
-    hw::runtimeStat::init(htim7);
+    // hw::runtimeStat::init(htim7);
     fdcan1.init();
     invcan.init();
 
@@ -320,12 +321,12 @@ void tasks_init()
     forever {}
 }
 
-void tasks_tim_callback(const TIM_HandleTypeDef *tim)
-{
-#ifndef USE_CHIMERA
-    if (tim == &htim7)
-    {
-        hw::runtimeStat::inc();
-    }
-#endif
-}
+// void tasks_tim_callback(const TIM_HandleTypeDef *tim)
+// {
+// #ifndef USE_CHIMERA
+//     if (tim == &htim7)
+//     {
+//         hw::runtimeStat::inc();
+//     }
+// #endif
+// }
