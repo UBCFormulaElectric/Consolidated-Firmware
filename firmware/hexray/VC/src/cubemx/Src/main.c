@@ -44,6 +44,8 @@
 /* Private variables ---------------------------------------------------------*/
 ADC_HandleTypeDef hadc1;
 ADC_HandleTypeDef hadc2;
+DMA_HandleTypeDef hdma_adc1;
+DMA_HandleTypeDef hdma_adc2;
 
 FDCAN_HandleTypeDef hfdcan1;
 FDCAN_HandleTypeDef hfdcan3;
@@ -274,14 +276,14 @@ static void MX_ADC1_Init(void)
     hadc1.Init.ClockPrescaler           = ADC_CLOCK_ASYNC_DIV4;
     hadc1.Init.Resolution               = ADC_RESOLUTION_16B;
     hadc1.Init.ScanConvMode             = ADC_SCAN_ENABLE;
-    hadc1.Init.EOCSelection             = ADC_EOC_SEQ_CONV;
+    hadc1.Init.EOCSelection             = ADC_EOC_SINGLE_CONV;
     hadc1.Init.LowPowerAutoWait         = DISABLE;
     hadc1.Init.ContinuousConvMode       = DISABLE;
     hadc1.Init.NbrOfConversion          = 6;
     hadc1.Init.DiscontinuousConvMode    = DISABLE;
     hadc1.Init.ExternalTrigConv         = ADC_EXTERNALTRIG_T3_TRGO;
     hadc1.Init.ExternalTrigConvEdge     = ADC_EXTERNALTRIGCONVEDGE_RISING;
-    hadc1.Init.ConversionDataManagement = ADC_CONVERSIONDATA_DR;
+    hadc1.Init.ConversionDataManagement = ADC_CONVERSIONDATA_DMA_CIRCULAR;
     hadc1.Init.Overrun                  = ADC_OVR_DATA_PRESERVED;
     hadc1.Init.LeftBitShift             = ADC_LEFTBITSHIFT_NONE;
     hadc1.Init.OversamplingMode         = DISABLE;
@@ -392,7 +394,7 @@ static void MX_ADC2_Init(void)
     hadc2.Init.DiscontinuousConvMode    = DISABLE;
     hadc2.Init.ExternalTrigConv         = ADC_EXTERNALTRIG_T3_TRGO;
     hadc2.Init.ExternalTrigConvEdge     = ADC_EXTERNALTRIGCONVEDGE_RISING;
-    hadc2.Init.ConversionDataManagement = ADC_CONVERSIONDATA_DR;
+    hadc2.Init.ConversionDataManagement = ADC_CONVERSIONDATA_DMA_CIRCULAR;
     hadc2.Init.Overrun                  = ADC_OVR_DATA_PRESERVED;
     hadc2.Init.LeftBitShift             = ADC_LEFTBITSHIFT_NONE;
     hadc2.Init.OversamplingMode         = DISABLE;
@@ -719,10 +721,10 @@ static void MX_SPI1_Init(void)
     hspi1.Instance                        = SPI1;
     hspi1.Init.Mode                       = SPI_MODE_MASTER;
     hspi1.Init.Direction                  = SPI_DIRECTION_2LINES;
-    hspi1.Init.DataSize                   = SPI_DATASIZE_4BIT;
+    hspi1.Init.DataSize                   = SPI_DATASIZE_8BIT;
     hspi1.Init.CLKPolarity                = SPI_POLARITY_LOW;
     hspi1.Init.CLKPhase                   = SPI_PHASE_1EDGE;
-    hspi1.Init.NSS                        = SPI_NSS_SOFT;
+    hspi1.Init.NSS                        = SPI_NSS_HARD_OUTPUT;
     hspi1.Init.BaudRatePrescaler          = SPI_BAUDRATEPRESCALER_2;
     hspi1.Init.FirstBit                   = SPI_FIRSTBIT_MSB;
     hspi1.Init.TIMode                     = SPI_TIMODE_DISABLE;
@@ -963,9 +965,15 @@ static void MX_DMA_Init(void)
     __HAL_RCC_DMA1_CLK_ENABLE();
 
     /* DMA interrupt init */
-    /* DMA1_Stream0_IRQn interrupt configuration */
-    HAL_NVIC_SetPriority(DMA1_Stream0_IRQn, 5, 0);
-    HAL_NVIC_EnableIRQ(DMA1_Stream0_IRQn);
+    /* DMA1_Stream1_IRQn interrupt configuration */
+    HAL_NVIC_SetPriority(DMA1_Stream1_IRQn, 5, 0);
+    HAL_NVIC_EnableIRQ(DMA1_Stream1_IRQn);
+    /* DMA1_Stream2_IRQn interrupt configuration */
+    HAL_NVIC_SetPriority(DMA1_Stream2_IRQn, 5, 0);
+    HAL_NVIC_EnableIRQ(DMA1_Stream2_IRQn);
+    /* DMA1_Stream5_IRQn interrupt configuration */
+    HAL_NVIC_SetPriority(DMA1_Stream5_IRQn, 5, 0);
+    HAL_NVIC_EnableIRQ(DMA1_Stream5_IRQn);
 }
 
 /**

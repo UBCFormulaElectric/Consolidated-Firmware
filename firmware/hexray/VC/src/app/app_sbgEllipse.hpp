@@ -16,10 +16,16 @@ void broadcast(void);
 /*
  * Get vehicle velocity
  */
-float getVehicleVelocity(io::sbgEllipse::VelocityData *VelData);
+float getVehicleVelocity(io::sbgEllipse::VelocityData &VelData);
+/*
+ * Check if the Sbg Ellipsed Initialized properly
+ */
+bool sbgInitOk();
 
 /*
- * Get vehicle velocity
+ * Get Ekf Solution mode
+ *
+ * POSITION represents the highest accuracy mode
  */
-app::can_utils::VcEkfStatus getEkfSolutionMode(void);
+can_utils::VcEkfStatus getEkfSolutionMode(void);
 } // namespace app::sbgEllipse

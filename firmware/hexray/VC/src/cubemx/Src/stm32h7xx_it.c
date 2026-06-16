@@ -23,6 +23,8 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "hw_hardFaultHandler.hpp"
+
+#include <SEGGER_SYSVIEW_FreeRTOS.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -56,6 +58,8 @@
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
+extern DMA_HandleTypeDef   hdma_adc1;
+extern DMA_HandleTypeDef   hdma_adc2;
 extern ADC_HandleTypeDef   hadc1;
 extern ADC_HandleTypeDef   hadc2;
 extern FDCAN_HandleTypeDef hfdcan1;
@@ -173,17 +177,45 @@ void DebugMon_Handler(void)
 /******************************************************************************/
 
 /**
- * @brief This function handles DMA1 stream0 global interrupt.
+ * @brief This function handles DMA1 stream1 global interrupt.
  */
-void DMA1_Stream0_IRQHandler(void)
+void DMA1_Stream1_IRQHandler(void)
 {
-    /* USER CODE BEGIN DMA1_Stream0_IRQn 0 */
+    /* USER CODE BEGIN DMA1_Stream1_IRQn 0 */
 
-    /* USER CODE END DMA1_Stream0_IRQn 0 */
+    /* USER CODE END DMA1_Stream1_IRQn 0 */
+    HAL_DMA_IRQHandler(&hdma_adc1);
+    /* USER CODE BEGIN DMA1_Stream1_IRQn 1 */
+
+    /* USER CODE END DMA1_Stream1_IRQn 1 */
+}
+
+/**
+ * @brief This function handles DMA1 stream2 global interrupt.
+ */
+void DMA1_Stream2_IRQHandler(void)
+{
+    /* USER CODE BEGIN DMA1_Stream2_IRQn 0 */
+
+    /* USER CODE END DMA1_Stream2_IRQn 0 */
+    HAL_DMA_IRQHandler(&hdma_adc2);
+    /* USER CODE BEGIN DMA1_Stream2_IRQn 1 */
+
+    /* USER CODE END DMA1_Stream2_IRQn 1 */
+}
+
+/**
+ * @brief This function handles DMA1 stream5 global interrupt.
+ */
+void DMA1_Stream5_IRQHandler(void)
+{
+    /* USER CODE BEGIN DMA1_Stream5_IRQn 0 */
+
+    /* USER CODE END DMA1_Stream5_IRQn 0 */
     HAL_DMA_IRQHandler(&hdma_uart8_rx);
-    /* USER CODE BEGIN DMA1_Stream0_IRQn 1 */
+    /* USER CODE BEGIN DMA1_Stream5_IRQn 1 */
 
-    /* USER CODE END DMA1_Stream0_IRQn 1 */
+    /* USER CODE END DMA1_Stream5_IRQn 1 */
 }
 
 /**
@@ -377,11 +409,11 @@ void UART8_IRQHandler(void)
 void I2C4_EV_IRQHandler(void)
 {
     /* USER CODE BEGIN I2C4_EV_IRQn 0 */
-
+    traceISR_ENTER();
     /* USER CODE END I2C4_EV_IRQn 0 */
     HAL_I2C_EV_IRQHandler(&hi2c4);
     /* USER CODE BEGIN I2C4_EV_IRQn 1 */
-
+    traceISR_EXIT();
     /* USER CODE END I2C4_EV_IRQn 1 */
 }
 
@@ -391,11 +423,11 @@ void I2C4_EV_IRQHandler(void)
 void I2C4_ER_IRQHandler(void)
 {
     /* USER CODE BEGIN I2C4_ER_IRQn 0 */
-
+    traceISR_ENTER();
     /* USER CODE END I2C4_ER_IRQn 0 */
     HAL_I2C_ER_IRQHandler(&hi2c4);
     /* USER CODE BEGIN I2C4_ER_IRQn 1 */
-
+    traceISR_EXIT();
     /* USER CODE END I2C4_ER_IRQn 1 */
 }
 

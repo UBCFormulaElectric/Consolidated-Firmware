@@ -5,24 +5,20 @@
 #include "app_irs.hpp"
 #include "io_time.hpp"
 #include "io_irs.hpp"
-// #include "app.segments.hpp"
 #include "app_canAlerts.hpp"
+#include <iostream>
 
 class BmsStateMachineTest : public BMSBaseTest
 {
 };
 static constexpr int target_voltage =
-    static_cast<int>(static_cast<float>((NUM_SEGMENTS * CELLS_PER_SEGMENT)) * 4.2f); // V
+    static_cast<int>(static_cast<float>((NUM_SEGMENTS * CELLS_PER_SEGMENT)) * 3.8f); // V
 static constexpr int undervoltage            = 200.0f;                               // V
 static constexpr int tolerance_time          = 500;                                  // ms
 static constexpr int precharge_completion_ms = static_cast<int>(app::precharge::PRECHARGE_COMPLETION_MS_F);
 static constexpr int latch_timeout           = app::precharge::PRECHARGE_LATCH_TIMEOUT_MS + 100; // ms
-namespace fakes
-{
-}
 
 // Init-PrechargeDrive tests
-
 TEST_F(BmsStateMachineTest, enter_precharge_drive)
 {
     ASSERT_STATE_EQ(app::states::init_state);
@@ -74,11 +70,10 @@ TEST_F(BmsStateMachineTest, no_precharge_drive_if_charger_connected)
 
 TEST_F(BmsStateMachineTest, precharge_drive_success)
 {
-    fakes::segments::setPackVoltageEvenly(target_voltage);
     fakes::irs::setNegativeState(app::can_utils::ContactorState::CONTACTOR_STATE_CLOSED);
     fakes::ts::setVoltage(0.0f);
     app::can_rx::VC_State_update(app::can_utils::VCState::VC_BMS_ON_STATE);
-    LetTimePass(10);
+    LetTimePass(20);
 
     for (int i = 0; i < precharge_completion_ms; i += 10)
     {
@@ -96,7 +91,7 @@ TEST_F(BmsStateMachineTest, precharge_drive_success)
 
 TEST_F(BmsStateMachineTest, precharge_rises_too_slowly_then_latches_after_max_retries)
 {
-    fakes::segments::setPackVoltageEvenly(target_voltage);
+    fakes::adbms::setPackVoltageEvenly(target_voltage);
     fakes::irs::setNegativeState(app::can_utils::ContactorState::CONTACTOR_STATE_CLOSED);
     app::can_rx::VC_State_update(app::can_utils::VCState::VC_BMS_ON_STATE);
     LetTimePass(20);
@@ -144,7 +139,7 @@ TEST_F(BmsStateMachineTest, precharge_rises_too_slowly_then_latches_after_max_re
 
 TEST_F(BmsStateMachineTest, precharge_rises_too_quickly_then_latches_after_max_retries)
 {
-    fakes::segments::setPackVoltageEvenly(target_voltage);
+    fakes::adbms::setPackVoltageEvenly(target_voltage);
     fakes::irs::setNegativeState(app::can_utils::ContactorState::CONTACTOR_STATE_CLOSED);
     app::can_rx::VC_State_update(app::can_utils::VCState::VC_BMS_ON_STATE);
     LetTimePass(20);
@@ -193,7 +188,7 @@ TEST_F(BmsStateMachineTest, precharge_rises_too_quickly_then_latches_after_max_r
 
 TEST_F(BmsStateMachineTest, precharge_latch_timouts_to_init)
 {
-    fakes::segments::setPackVoltageEvenly(target_voltage);
+    fakes::adbms::setPackVoltageEvenly(target_voltage);
     fakes::irs::setNegativeState(app::can_utils::ContactorState::CONTACTOR_STATE_CLOSED);
     fakes::ts::setVoltage(undervoltage);
     app::StateMachine::set_current_state(&app::states::precharge_latch_state);
@@ -250,24 +245,22 @@ TEST_F(BmsStateMachineTest, enter_precharge_charge)
     ASSERT_EQ(app::can_tx::BMS_State_get(), app::can_utils::BmsState::BMS_PRECHARGE_CHARGE_STATE);
 }
 
-TEST_F(BmsStateMachineTest, precharge_charge_success_to_charge_init)
+TEST_F(BmsStateMachineTest, precharge_charge_success_to_charge)
 {
-    fakes::segments::setPackVoltageEvenly(target_voltage);
+    fakes::adbms::setPackVoltageEvenly(target_voltage);
     fakes::irs::setNegativeState(app::can_utils::ContactorState::CONTACTOR_STATE_CLOSED);
     app::can_rx::Debug_StartCharging_update(true);
     fakes::charger::setConnectionStatus(app::can_utils::ChargerConnectedType::CHARGER_CONNECTED_EVSE);
     LetTimePass(20);
 
-    for (unsigned int precharge_time = 0;
-         precharge_time < app::precharge::PRECHARGE_COMPLETION_LOWER_BOUND + tolerance_time; precharge_time += 10)
-    {
-        ASSERT_STATE_EQ(app::states::precharge_charge_state);
-        ASSERT_EQ(io::irs::prechargeState(), app::can_utils::ContactorState::CONTACTOR_STATE_CLOSED);
-        LetTimePass(10);
-    }
+    // Precharge for charging, we don't care about precharging too quickly
+    ASSERT_STATE_EQ(app::states::precharge_charge_state);
+    ASSERT_EQ(io::irs::prechargeState(), app::can_utils::ContactorState::CONTACTOR_STATE_CLOSED);
+    LetTimePass(10);
+
     fakes::ts::setVoltage(target_voltage);
     LetTimePass(20);
-    ASSERT_STATE_EQ(app::states::charge_init_state);
+    ASSERT_STATE_EQ(app::states::charge_state);
     ASSERT_EQ(io::irs::positiveState(), app::can_utils::ContactorState::CONTACTOR_STATE_CLOSED);
     ASSERT_EQ(io::irs::prechargeState(), app::can_utils::ContactorState::CONTACTOR_STATE_OPEN);
 }
@@ -275,10 +268,11 @@ TEST_F(BmsStateMachineTest, precharge_charge_success_to_charge_init)
 TEST_F(BmsStateMachineTest, precharge_charge_latches_after_retries)
 {
     // NOTE: Timing is a bit tight in this test.
-    fakes::segments::setPackVoltageEvenly(target_voltage);
+    fakes::adbms::setPackVoltageEvenly(target_voltage);
     fakes::irs::setNegativeState(app::can_utils::ContactorState::CONTACTOR_STATE_CLOSED);
     app::can_rx::Debug_StartCharging_update(true);
     app::StateMachine::set_current_state(&app::states::precharge_charge_state);
+    fakes::charger::setConnectionStatus(app::can_utils::ChargerConnectedType::CHARGER_CONNECTED_EVSE);
     // Simulate closing precharge contactor before voltage rise.
     LetTimePass(10);
 
@@ -304,19 +298,57 @@ TEST_F(BmsStateMachineTest, precharge_charge_latches_after_retries)
 
 // Drive tests
 
-TEST_F(BmsStateMachineTest, drive_to_init_on_ir_negative_open_debounced)
+TEST_F(BmsStateMachineTest, drive_to_init_on_ts_undervoltage_debounced)
 {
+    constexpr float pack_voltage = 400.0f;
+
+    fakes::adbms::setPackVoltageEvenly(pack_voltage);
+    LetTimePass(1300);
     fakes::irs::setNegativeState(app::can_utils::ContactorState::CONTACTOR_STATE_CLOSED);
     io::irs::setPositive(app::can_utils::ContactorState::CONTACTOR_STATE_CLOSED);
+    fakes::ts::setVoltage(pack_voltage);
     app::StateMachine::set_current_state(&app::states::drive_state);
-    LetTimePass(1000);
+    LetTimePass(20);
     ASSERT_STATE_EQ(app::states::drive_state);
-    fakes::irs::setNegativeState(app::can_utils::ContactorState::CONTACTOR_STATE_OPEN);
-    LetTimePass(app::irs::N_DEBOUNCE_PERIOD_MS - 50);
+
+    fakes::ts::setVoltage(pack_voltage - 30.0f);
+    LetTimePass(400);
     ASSERT_STATE_EQ(app::states::drive_state);
-    LetTimePass(100);
+    LetTimePass(200);
 
     ASSERT_STATE_EQ(app::states::init_state);
+}
+
+TEST_F(BmsStateMachineTest, drive_to_init_on_ts_undervoltage_immediate)
+{
+    constexpr float pack_voltage = 400.0f;
+
+    fakes::adbms::setPackVoltageEvenly(pack_voltage);
+    LetTimePass(1300);
+    fakes::irs::setNegativeState(app::can_utils::ContactorState::CONTACTOR_STATE_CLOSED);
+    io::irs::setPositive(app::can_utils::ContactorState::CONTACTOR_STATE_CLOSED);
+    fakes::ts::setVoltage(pack_voltage);
+    app::StateMachine::set_current_state(&app::states::drive_state);
+    LetTimePass(20);
+    ASSERT_STATE_EQ(app::states::drive_state);
+
+    fakes::ts::setVoltage(pack_voltage - 60.0f);
+    LetTimePass(20);
+
+    ASSERT_STATE_EQ(app::states::init_state);
+}
+
+TEST_F(BmsStateMachineTest, drive_stays_drive_when_pack_voltage_invalid)
+{
+    fakes::adbms::setSegmentVoltageError(ErrorCode::INVALID_READING);
+    LetTimePass(1300);
+    fakes::irs::setNegativeState(app::can_utils::ContactorState::CONTACTOR_STATE_CLOSED);
+    io::irs::setPositive(app::can_utils::ContactorState::CONTACTOR_STATE_CLOSED);
+    fakes::ts::setVoltage(0.0f);
+    app::StateMachine::set_current_state(&app::states::drive_state);
+    LetTimePass(1000);
+
+    ASSERT_STATE_EQ(app::states::drive_state);
 }
 
 TEST_F(BmsStateMachineTest, check_state_transition_from_fault_to_init_with_no_faults_set)
@@ -332,33 +364,33 @@ TEST_F(BmsStateMachineTest, check_state_transition_from_fault_to_init_with_no_fa
 }
 
 // Faultlatch StateMachine Tests
+
 TEST_F(BmsStateMachineTest, imd_fault_latches_then_reset_to_init_state)
 {
     app::StateMachine::set_current_state(&app::states::drive_state);
     fakes::faultLatch::resetFaultLatch(&imd_ok_latch);
     fakes::irs::setNegativeState(app::can_utils::ContactorState::CONTACTOR_STATE_CLOSED);
+    fakes::ts::setVoltage(3.8f * NUM_SEGMENTS * CELLS_PER_SEGMENT);
     LetTimePass(10);
 
-    ASSERT_FALSE(app::can_tx::BMS_Fault_ImdLatched_get());
     ASSERT_TRUE(app::can_tx::BMS_ImdLatchOk_get());
     ASSERT_STATE_EQ(app::states::drive_state);
 
     fakes::faultLatch::updateFaultLatch(&imd_ok_latch, io::FaultLatch::FaultLatchState::FAULT);
     fakes::irs::setNegativeState(app::can_utils::ContactorState::CONTACTOR_STATE_OPEN);
-    LetTimePass(10);
+    fakes::ts::setVoltage(0);
+    LetTimePass(20);
     for (int i = 0; i < 30; i++)
     {
         LetTimePass(10);
-        ASSERT_STATE_EQ(app::states::fault_state);
-        ASSERT_TRUE(app::can_tx::BMS_Fault_ImdLatched_get());
+        ASSERT_STATE_EQ(app::states::init_state);
         ASSERT_FALSE(app::can_tx::BMS_ImdLatchOk_get());
     }
     fakes::faultLatch::updateFaultLatch(&imd_ok_latch, io::FaultLatch::FaultLatchState::OK);
     for (int i = 0; i < 30; i++)
     {
         LetTimePass(10);
-        ASSERT_STATE_EQ(app::states::fault_state);
-        ASSERT_TRUE(app::can_tx::BMS_Fault_ImdLatched_get());
+        ASSERT_STATE_EQ(app::states::init_state);
         ASSERT_FALSE(app::can_tx::BMS_ImdLatchOk_get());
     }
     fakes::faultLatch::resetFaultLatch(&imd_ok_latch);
@@ -367,7 +399,6 @@ TEST_F(BmsStateMachineTest, imd_fault_latches_then_reset_to_init_state)
     {
         LetTimePass(10);
         ASSERT_STATE_EQ(app::states::init_state);
-        ASSERT_FALSE(app::can_tx::BMS_Fault_ImdLatched_get());
         ASSERT_TRUE(app::can_tx::BMS_ImdLatchOk_get());
     }
 }
@@ -377,28 +408,28 @@ TEST_F(BmsStateMachineTest, bms_fault_latches_then_reset_to_init_state)
     app::StateMachine::set_current_state(&app::states::drive_state);
     fakes::faultLatch::resetFaultLatch(&bms_ok_latch);
     fakes::irs::setNegativeState(app::can_utils::ContactorState::CONTACTOR_STATE_CLOSED);
+    fakes::ts::setVoltage(3.8f * NUM_SEGMENTS * CELLS_PER_SEGMENT);
     LetTimePass(10);
 
-    ASSERT_FALSE(app::can_tx::BMS_Fault_BmsLatched_get());
     ASSERT_TRUE(app::can_tx::BMS_BmsLatchOk_get());
     ASSERT_STATE_EQ(app::states::drive_state);
 
     fakes::faultLatch::updateFaultLatch(&bms_ok_latch, io::FaultLatch::FaultLatchState::FAULT);
     fakes::irs::setNegativeState(app::can_utils::ContactorState::CONTACTOR_STATE_OPEN);
-    LetTimePass(10);
+    fakes::ts::setVoltage(0);
+    LetTimePass(20);
+
     for (int i = 0; i < 30; i++)
     {
         LetTimePass(10);
-        ASSERT_STATE_EQ(app::states::fault_state);
-        ASSERT_TRUE(app::can_tx::BMS_Fault_BmsLatched_get());
+        ASSERT_STATE_EQ(app::states::init_state);
         ASSERT_FALSE(app::can_tx::BMS_BmsLatchOk_get());
     }
     fakes::faultLatch::updateFaultLatch(&bms_ok_latch, io::FaultLatch::FaultLatchState::OK);
     for (int i = 0; i < 30; i++)
     {
         LetTimePass(10);
-        ASSERT_STATE_EQ(app::states::fault_state);
-        ASSERT_TRUE(app::can_tx::BMS_Fault_BmsLatched_get());
+        ASSERT_STATE_EQ(app::states::init_state);
         ASSERT_FALSE(app::can_tx::BMS_BmsLatchOk_get());
     }
     fakes::faultLatch::resetFaultLatch(&bms_ok_latch);
@@ -407,7 +438,6 @@ TEST_F(BmsStateMachineTest, bms_fault_latches_then_reset_to_init_state)
     {
         LetTimePass(10);
         ASSERT_STATE_EQ(app::states::init_state);
-        ASSERT_FALSE(app::can_tx::BMS_Fault_BmsLatched_get());
         ASSERT_TRUE(app::can_tx::BMS_BmsLatchOk_get());
     }
 }
@@ -417,28 +447,27 @@ TEST_F(BmsStateMachineTest, bspd_fault_latches_then_reset_to_init_state)
     app::StateMachine::set_current_state(&app::states::drive_state);
     fakes::faultLatch::resetFaultLatch(&bspd_ok_latch);
     fakes::irs::setNegativeState(app::can_utils::ContactorState::CONTACTOR_STATE_CLOSED);
+    fakes::ts::setVoltage(3.8f * NUM_SEGMENTS * CELLS_PER_SEGMENT);
     LetTimePass(10);
 
-    ASSERT_FALSE(app::can_tx::BMS_Fault_HardwareBspdLatched_get());
     ASSERT_TRUE(app::can_tx::BMS_BspdLatchOk_get());
     ASSERT_STATE_EQ(app::states::drive_state);
 
     fakes::faultLatch::updateFaultLatch(&bspd_ok_latch, io::FaultLatch::FaultLatchState::FAULT);
     fakes::irs::setNegativeState(app::can_utils::ContactorState::CONTACTOR_STATE_OPEN);
-    LetTimePass(10);
+    fakes::ts::setVoltage(0);
+    LetTimePass(20);
     for (int i = 0; i < 30; i++)
     {
         LetTimePass(10);
-        ASSERT_STATE_EQ(app::states::fault_state);
-        ASSERT_TRUE(app::can_tx::BMS_Fault_HardwareBspdLatched_get());
+        ASSERT_STATE_EQ(app::states::init_state);
         ASSERT_FALSE(app::can_tx::BMS_BspdLatchOk_get());
     }
     fakes::faultLatch::updateFaultLatch(&bspd_ok_latch, io::FaultLatch::FaultLatchState::OK);
     for (int i = 0; i < 30; i++)
     {
         LetTimePass(10);
-        ASSERT_STATE_EQ(app::states::fault_state);
-        ASSERT_TRUE(app::can_tx::BMS_Fault_HardwareBspdLatched_get());
+        ASSERT_STATE_EQ(app::states::init_state);
         ASSERT_FALSE(app::can_tx::BMS_BspdLatchOk_get());
     }
     fakes::faultLatch::resetFaultLatch(&bspd_ok_latch);
@@ -447,7 +476,6 @@ TEST_F(BmsStateMachineTest, bspd_fault_latches_then_reset_to_init_state)
     {
         LetTimePass(10);
         ASSERT_STATE_EQ(app::states::init_state);
-        ASSERT_FALSE(app::can_tx::BMS_Fault_HardwareBspdLatched_get());
         ASSERT_TRUE(app::can_tx::BMS_BspdLatchOk_get());
     }
 }
@@ -462,28 +490,3 @@ TEST_F(BmsStateMachineTest, check_contactors_open_in_init_states)
     app::StateMachine::set_current_state(&app::states::init_state);
     ASSERT_EQ(io::irs::positiveState(), app::can_utils::ContactorState::CONTACTOR_STATE_OPEN);
 }
-
-// overtemp
-// TODO: Uncomment once segments is added AND add a test case for charge state overtemp
-// TEST_F(BmsStateMachineTest, drive_to_fault_on_overtemp)
-// {
-// //     fakes::irs::setNegativeState(app::can_utils::ContactorState::CONTACTOR_STATE_CLOSED);
-// //     app::StateMachine::set_current_state(&app::states::drive_state);
-//
-// //     fakes::segments::setPackVoltageEvenly(MAX_CELL_VOLTAGE_FAULT_V - 0.1f);
-// //     std::array<std::array<float, AUX_REGS_PER_SEGMENT>, NUM_SEGMENTS> temperatures{};
-// //     for (auto &segment_temperatures : temperatures)
-// //     {
-// //         segment_temperatures.fill(25.0f);
-// //     }
-// //     temperatures[0][0] = MAX_CELL_TEMP_FAULT_C;
-// //     fakes::segments::setCellTemperatures(temperatures);
-//
-// //     LetTimePass(20);
-//
-// //     ASSERT_STATE_EQ(app::states::fault_state);
-// // }
-
-// overvoltage
-// undervoltage
-// other board faulting

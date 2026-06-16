@@ -10,6 +10,7 @@ import math
 import can
 import time
 import intelhex
+import threading
 
 import boards
 
@@ -27,6 +28,9 @@ PROGRAM_CAN_ID_LOWBITS = 0x6
 VERIFY_CAN_ID_LOWBITS = 0x7
 APP_VALIDITY_CAN_ID_LOWBITS = 0x8
 GO_TO_BOOT_CAN_ID_LOWBITS = 0x9
+ERASE_SECTOR_FAILED_ID_LOWBITS = 0xA
+PROGRAM_ID_FAILED_LOWBITS = 0xB
+PROGRAM_DONE_LOWBITS = 0xC
 
 # Verify response options.
 # Keep in sync with:
@@ -63,54 +67,64 @@ class Bootloader:
         self.ui_callback: Callable = ui_callback
         self.is_fd = is_fd
 
-    def goto_bootloader(self) -> bool:
+    def goto_bootloader(self, retry: bool = False, retry_delay: float = 0.5) -> bool:
         """
         Pushes all boards to bootloader mode.
         :throws: TimeoutError if the boards do not respond
-        :return: None
+        :return: True when the bootloader acknowledges the command.
         """
-        self.bus.send(
-            can.Message(
-                # arbitration_id=board_config.app_id_range_start + 8,
-                arbitration_id=(
-                    self.board.boot_id_range_start | GO_TO_BOOT_CAN_ID_LOWBITS
+        while True:
+            self.bus.send(
+                can.Message(
+                    arbitration_id=(
+                        self.board.boot_id_range_start | GO_TO_BOOT_CAN_ID_LOWBITS
+                    ),
+                    data=[],
+                    is_extended_id=True,
+                    is_fd=self.is_fd,
                 ),
-                data=[],
-                is_extended_id=True,
-                is_fd=self.is_fd,
-            ),
-            timeout=10,
-        )
-        # TODO add retry protocol
-        return (
-            self._await_can_msg(
-                lambda msg: msg.arbitration_id
-                == (self.board.boot_id_range_start | MCU_10HZ_STATUS_CAN_ID_LOWBITS),
-                5,
+                timeout=10,
             )
-            is not None
-        )
+            if (
+                self._await_can_msg(
+                    lambda msg: msg.arbitration_id
+                    in (
+                        self.board.boot_id_range_start | GO_TO_BOOT_CAN_ID_LOWBITS,
+                        self.board.boot_id_range_start | MCU_10HZ_STATUS_CAN_ID_LOWBITS,
+                    ),
+                    5,
+                )
+                is not None
+            ):
+                return True
+            if not retry:
+                return False
+            time.sleep(retry_delay)
 
-    def goto_app(self) -> bool:
-        self.bus.send(
-            can.Message(
-                arbitration_id=self.board.boot_id_range_start | GO_TO_APP_LOWBITS,
-                data=[],
-                is_extended_id=True,
-                is_fd=self.is_fd,
-            ),
-            timeout=10,
-        )
-        # TODO add retry protocol
-        return (
-            self._await_can_msg(
-                lambda msg: msg.arbitration_id == self.board.app_id_range_start + 0,
-                5,
+    def goto_app(self, retry: bool = False, retry_delay: float = 0.5) -> bool:
+        while True:
+            self.bus.send(
+                can.Message(
+                    arbitration_id=self.board.boot_id_range_start | GO_TO_APP_LOWBITS,
+                    data=[],
+                    is_extended_id=True,
+                    is_fd=self.is_fd,
+                ),
+                timeout=10,
             )
-            is not None
-        )
+            if (
+                self._await_can_msg(
+                    lambda msg: msg.arbitration_id == self.board.app_id_range_start + 0,
+                    5,
+                )
+                is not None
+            ):
+                return True
+            if not retry:
+                return False
+            time.sleep(retry_delay)
 
-    def start_update(self) -> bool:
+    def start_update(self, retry: bool = False, retry_delay: float = 0.5) -> bool:
         """
         Command a board's bootloader to enter update mode by sending the
         "start update" commmand. Await a response.
@@ -126,21 +140,30 @@ class Bootloader:
             return (
                 True
                 if msg.arbitration_id
-                == self.board.boot_id_range_start | UPDATE_ACK_ID_LOWBITS
+                == (self.board.boot_id_range_start | UPDATE_ACK_ID_LOWBITS)
                 else None
             )
 
-        self.bus.send(
-            can.Message(
-                arbitration_id=self.board.boot_id_range_start | START_UPDATE_ID_LOWBITS,
-                data=[],
-                is_extended_id=True,
-                is_fd=self.is_fd,
+        start_addr = self.ih.minaddr()
+        end_addr = self.ih.minaddr() + self.size_bytes()
+        CAN_FRAME_SIZE_BYTES = 64 if self.is_fd else 8
+        expected_block_num = (end_addr - start_addr) // CAN_FRAME_SIZE_BYTES
+        # convert expected_block_num to a little endian byte array
+        expected_block_num_bytes = expected_block_num.to_bytes(4, byteorder="little")
+        while True:
+            self.bus.send(
+                can.Message(
+                    arbitration_id=self.board.boot_id_range_start | START_UPDATE_ID_LOWBITS,
+                    data=expected_block_num_bytes,
+                    is_extended_id=True,
+                    is_fd=self.is_fd,
+                )
             )
-        )
-        return (
-            self._await_can_msg(validator=_validator, timeout=self.timeout) is not None
-        )
+            if self._await_can_msg(validator=_validator, timeout=self.timeout) is not None:
+                return True
+            if not retry:
+                return False
+            time.sleep(retry_delay)
 
     def erase_sectors(self, sectors) -> bool:
         """
@@ -158,7 +181,7 @@ class Bootloader:
             return (
                 True
                 if msg.arbitration_id
-                == self.board.boot_id_range_start | ERASE_SECTOR_COMPLETE_CAN_ID_LOWBITS
+                == (self.board.boot_id_range_start | ERASE_SECTOR_COMPLETE_CAN_ID_LOWBITS)
                 else None
             )
 
@@ -198,36 +221,74 @@ class Bootloader:
         by computing a checksum.
 
         """
-        CAN_FRAME_SIZE = 64 if self.is_fd else 8
+        CAN_FRAME_SIZE_BYTES = 64 if self.is_fd else 8
+        start_addr = self.ih.minaddr()
+        end_addr = self.ih.minaddr() + self.size_bytes()
+
+        jump_back_block: Optional[int] = None  # TODO populate with CAN failure messages
+        done = False
+        stop_listener = threading.Event()
+        # spawn a new thread which populates the above
+        def listener(stop_listener: threading.Event):
+            nonlocal jump_back_block, done
+            while not stop_listener.is_set():
+                can_msg = self._await_can_msg(
+                    validator=lambda msg: msg.arbitration_id == (self.board.boot_id_range_start | PROGRAM_ID_FAILED_LOWBITS) or msg.arbitration_id == (self.board.boot_id_range_start | PROGRAM_DONE_LOWBITS),
+                    timeout=1,
+                )
+                if can_msg is None:
+                    continue
+                if can_msg.arbitration_id == (self.board.boot_id_range_start | PROGRAM_DONE_LOWBITS):
+                    done = True
+                    break
+                elif can_msg.arbitration_id == (self.board.boot_id_range_start | PROGRAM_ID_FAILED_LOWBITS):
+                    k = can_msg.data
+                    assert can_msg.dlc == 4, f"Expected 4 bytes in PROGRAM_ID_FAILED message, got {can_msg.dlc}"
+                    # TODO maybe better struct unpacking :sob:
+                    jump_back_block = (k[3] << 24) | (k[2] << 16) | (k[1] << 8) | k[0]
+                    print(f"jumpback received to {jump_back_block}")
+                else:
+                    raise RuntimeError(f"Received unexpected message with id {can_msg.arbitration_id} during programming")
+        listen_thread = threading.Thread(target=listener, args=(stop_listener,))
+        listen_thread.start()
 
         # TODO: Check if binary is aligned to 64 bytes and ensure ending bytes are sent
-        for i, address in enumerate(
-            range(self.ih.minaddr(), self.ih.minaddr() + self.size_bytes(), CAN_FRAME_SIZE)
-        ):
-            if self.ui_callback and i % 128 == 0:
-                self.ui_callback(
-                    "Programming data", self.size_bytes(), i * CAN_FRAME_SIZE
-                )
-
-            data = [self.ih[address + i] for i in range(0, 8)]
-
-            success = False
-            while not success:
-                try:
-                    self.bus.send(
-                        can.Message(
-                            arbitration_id=self.board.boot_id_range_start
-                            | PROGRAM_CAN_ID_LOWBITS,
-                            data=data,
-                            is_extended_id=True,
-                            is_fd=self.is_fd,
-                        )
+        block = 0
+        last_block = (end_addr - start_addr) // CAN_FRAME_SIZE_BYTES
+        while not done:
+            while block <= last_block:
+                # check if we need to go back
+                if jump_back_block is not None:
+                    block = jump_back_block
+                    jump_back_block = None
+                if self.ui_callback and block % 128 == 0: # update ui only every little while
+                    self.ui_callback(
+                        "Programming data", self.size_bytes(), block * CAN_FRAME_SIZE_BYTES
                     )
-                    success = True
-                except can.interfaces.vector.exceptions.VectorOperationError:
-                    pass
 
-            # time.sleep(0.0001)
+                data = [self.ih[start_addr + block * CAN_FRAME_SIZE_BYTES + j] for j in range(0, CAN_FRAME_SIZE_BYTES)]
+                wire_block_num = block << 4
+                while True:
+                    try:
+                        self.bus.send(
+                            can.Message(
+                                arbitration_id=self.board.boot_id_range_start | wire_block_num | PROGRAM_CAN_ID_LOWBITS,
+                                data=data,
+                                is_extended_id=True,
+                                is_fd=self.is_fd,
+                            )
+                        )
+                        break
+                    except can.interfaces.vector.exceptions.VectorOperationError:
+                        pass
+                block += 1
+            time.sleep(0.1)
+            if jump_back_block is not None:
+                block = jump_back_block
+                jump_back_block = None
+        stop_listener.set()
+        listen_thread.join()
+
         if self.ui_callback:
             self.ui_callback("Programming data", self.size_bytes(), self.size_bytes())
 
@@ -251,7 +312,7 @@ class Bootloader:
             return (
                 True
                 if msg.arbitration_id
-                == self.board.boot_id_range_start | APP_VALIDITY_CAN_ID_LOWBITS
+                == (self.board.boot_id_range_start | APP_VALIDITY_CAN_ID_LOWBITS)
                 else None
             )
 
@@ -282,7 +343,7 @@ class Bootloader:
             """1-D intersection to check if an app's hex and a flash sector share any addresses."""
             return a_max >= b_min and b_max >= a_min
 
-        if not self.start_update():
+        if not self.start_update(retry=True):
             raise RuntimeError(
                 f"Bootloader for {self.board.name} did not respond to command to start a firmware update."
             )

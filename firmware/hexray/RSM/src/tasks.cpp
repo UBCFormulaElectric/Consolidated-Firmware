@@ -26,6 +26,7 @@ constexpr size_t         TASK_COUNT = 5;
 [[noreturn]] static void tasks_run1Hz(void *arg);
 [[noreturn]] static void tasks_run100Hz(void *arg);
 [[noreturn]] static void tasks_run1kHz(void *arg);
+[[noreturn]] static void tasks_runImu(void *arg);
 [[noreturn]] static void tasks_runCanTx(void *arg);
 [[noreturn]] static void tasks_runCanRx(void *arg);
 
@@ -33,12 +34,14 @@ constexpr size_t         TASK_COUNT = 5;
 static hw::rtos::StaticTask::StaticTaskStack<512> Task1kHzStack;
 static hw::rtos::StaticTask::StaticTaskStack<512> Task100HzStack;
 static hw::rtos::StaticTask::StaticTaskStack<512> Task1HzStack;
+static hw::rtos::StaticTask::StaticTaskStack<512> TaskImuStack;
 static hw::rtos::StaticTask::StaticTaskStack<512> TaskCanTxStack;
 static hw::rtos::StaticTask::StaticTaskStack<512> TaskCanRxStack;
 
 static hw::rtos::StaticTask Task1kHz(osPriorityRealtime, "Task1kHz", tasks_run1kHz, Task1kHzStack);
 static hw::rtos::StaticTask Task100Hz(osPriorityHigh, "Task100Hz", tasks_run100Hz, Task100HzStack);
 static hw::rtos::StaticTask Task1Hz(osPriorityAboveNormal, "Task1Hz", tasks_run1Hz, Task1HzStack);
+static hw::rtos::StaticTask TaskImu(osPriorityHigh, "TaskImu", tasks_runImu, TaskImuStack);
 static hw::rtos::StaticTask TaskCanTx(osPriorityNormal, "TaskCanTx", tasks_runCanTx, TaskCanTxStack);
 static hw::rtos::StaticTask TaskCanRx(osPriorityLow, "TaskCanRx", tasks_runCanRx, TaskCanRxStack);
 
@@ -118,6 +121,21 @@ void tasks_run1kHz(void *arg)
         osDelayUntil(start_ticks);
     }
 }
+void tasks_runImu(void *arg)
+{
+    constexpr uint32_t      period_ms                = 10U;
+    constexpr uint32_t      watchdog_grace_period_ms = 2U;
+    hw::watchdog::instance &watchdogImu              = monitor.spawn_instance(period_ms + watchdog_grace_period_ms);
+
+    uint32_t start_ticks = osKernelGetTickCount();
+    forever
+    {
+        jobs_runImu_tick();
+
+        start_ticks += period_ms;
+        osDelayUntil(start_ticks);
+    }
+}
 void tasks_runCanTx(void *arg)
 {
     forever
@@ -155,6 +173,7 @@ static void RSM_StartAllTasks()
 {
     Task1kHz.start();
     Task100Hz.start();
+    TaskImu.start();
     TaskCanTx.start();
     TaskCanRx.start();
     Task1Hz.start();

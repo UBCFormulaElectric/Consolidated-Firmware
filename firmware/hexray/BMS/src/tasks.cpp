@@ -10,6 +10,7 @@
 #include "io_canQueues.hpp"
 #include "io_time.hpp"
 #include "io_canRx.hpp"
+#include "io_charger.hpp"
 
 #include "hw_adcs.hpp"
 #include "hw_watchdog.hpp"
@@ -23,35 +24,44 @@
 #include "hw_pwms.hpp"
 #include "hw_runTimeStat.hpp"
 
-constexpr size_t         TASK_COUNT = 8;
+constexpr size_t         TASK_COUNT = 10;
 [[noreturn]] static void tasks_run1Hz(void *arg);
 [[noreturn]] static void tasks_run100Hz(void *arg);
 [[noreturn]] static void tasks_run1kHz(void *arg);
-[[noreturn]] static void tasks_runCanTx(void *arg);
+[[noreturn]] static void tasks_runVehicleCanTx(void *arg);
+[[noreturn]] static void tasks_runChargerCanTx(void *arg);
 [[noreturn]] static void tasks_runCanRx(void *arg);
 [[noreturn]] static void tasks_runAdbmsVoltages(void *arg);
 [[noreturn]] static void tasks_runAdbmsConfigs(void *arg);
 [[noreturn]] static void tasks_runAdbmsAux(void *arg);
+[[noreturn]] static void tasks_runAdbmsCellOwc(void *arg);
 
 static hw::rtos::StaticTask::StaticTaskStack<512>      Task1kHzStack;
 static hw::rtos::StaticTask::StaticTaskStack<512>      Task1HzStack;
 static hw::rtos::StaticTask::StaticTaskStack<1024 * 6> Task100HzStack;
 static hw::rtos::StaticTask::StaticTaskStack<512>      TaskCanRxStack;
-static hw::rtos::StaticTask::StaticTaskStack<512>      TaskCanTxStack;
+static hw::rtos::StaticTask::StaticTaskStack<512>      TaskVehicleCanTxStack;
+static hw::rtos::StaticTask::StaticTaskStack<512>      TaskChargerCanTxStack;
 static hw::rtos::StaticTask::StaticTaskStack<1024 * 3> TaskAdbmsVoltagesStack;
 static hw::rtos::StaticTask::StaticTaskStack<1024 * 3> TaskAdbmsConfigsStack;
 static hw::rtos::StaticTask::StaticTaskStack<1024 * 3> TaskAdbmsAuxStack;
+static hw::rtos::StaticTask::StaticTaskStack<1024 * 3> TaskAdbmsCellOwcStack;
 
 static hw::rtos::StaticTask Task1kHz(osPriorityRealtime, "Task1kHz", tasks_run1kHz, Task1kHzStack);
 static hw::rtos::StaticTask Task1Hz(osPriorityAboveNormal, "Task1Hz", tasks_run1Hz, Task1HzStack);
 static hw::rtos::StaticTask Task100Hz(osPriorityHigh, "Task100Hz", tasks_run100Hz, Task100HzStack);
 static hw::rtos::StaticTask TaskCanRx(osPriorityBelowNormal, "TaskCanRx", tasks_runCanRx, TaskCanRxStack);
-static hw::rtos::StaticTask TaskCanTx(osPriorityBelowNormal, "TaskCanTx", tasks_runCanTx, TaskCanTxStack);
+static hw::rtos::StaticTask
+    TaskVehicleCanTx(osPriorityBelowNormal, "TaskVehicleCanTx", tasks_runVehicleCanTx, TaskVehicleCanTxStack);
+static hw::rtos::StaticTask
+    TaskChargerCanTx(osPriorityBelowNormal, "TaskChargerCanTx", tasks_runChargerCanTx, TaskChargerCanTxStack);
 static hw::rtos::StaticTask
     TaskAdbmsVoltages(osPriorityNormal, "TaskAdbmsVoltages", tasks_runAdbmsVoltages, TaskAdbmsVoltagesStack);
 static hw::rtos::StaticTask
     TaskAdbmsConfigs(osPriorityHigh, "TaskAdbmsConfigs", tasks_runAdbmsConfigs, TaskAdbmsConfigsStack);
 static hw::rtos::StaticTask TaskAdbmsAux(osPriorityNormal, "TaskAdbmsAux", tasks_runAdbmsAux, TaskAdbmsAuxStack);
+static hw::rtos::StaticTask
+    TaskAdbmsCellOwc(osPriorityNormal, "TaskAdbmsCellOwc", tasks_runAdbmsCellOwc, TaskAdbmsCellOwcStack);
 
 // static hw::runtimeStat::monitor<TASK_COUNT> runtimeMonitor(
 //     {
@@ -123,15 +133,8 @@ void tasks_run1Hz(void *arg)
 
     forever
     {
-        // SEGGER_SYSVIEW_MarkStart(100);
         jobs_run1Hz_tick();
-        // SEGGER_SYSVIEW_MarkStop(100);
-        // SEGGER_SYSVIEW_MarkStart(101);
         watchdog1hz.checkIn();
-        // SEGGER_SYSVIEW_MarkStop(101);
-        // SEGGER_SYSVIEW_MarkStart(102);
-        // runtimeMonitor.checkin();
-        // SEGGER_SYSVIEW_MarkStop(102);
         start_ticks += period_ms;
         io::time::delayUntil(start_ticks);
         osDelayUntil(start_ticks);
@@ -171,7 +174,26 @@ void tasks_run1kHz(void *arg)
     }
 }
 
-void tasks_runCanTx(void *arg)
+void tasks_runChargerCanTx(void *arg)
+{
+    forever
+    {
+        const auto msg = charger_can_tx_queue.pop();
+        if (not msg)
+            continue;
+
+        const auto &m       = msg.value();
+        auto        can_msg = hw::CanMsg{ m.std_id, m.dlc, m.data };
+
+        if (not fdcan1.is_up())
+        {
+            continue;
+        }
+        LOG_IF_ERR(fdcan1.can_transmit(can_msg));
+    }
+}
+
+void tasks_runVehicleCanTx(void *arg)
 {
     forever
     {
@@ -180,35 +202,18 @@ void tasks_runCanTx(void *arg)
         // TODO: Bit-rate-switching wasn't working for me when the BMS was connected to the charger, so the FD
         // peripheral is configured without BRS. Figure out why it wasn't working?
 
-        const auto msg = can_tx_queue.pop();
+        const auto msg = vehicle_can_tx_queue.pop();
         if (not msg)
             continue;
 
         const auto &m       = msg.value();
         auto        can_msg = hw::CanMsg{ m.std_id, m.dlc, m.data };
 
-        if (m.bus == app::can_utils::BusEnum::Bus_charger)
+        if (not fdcan2.is_up())
         {
-            result<void> res;
-            if (can_msg.dlc > 8)
-            {
-                res = fdcan1.fdcan_transmit(can_msg);
-            }
-            else
-            {
-                res = fdcan1.can_transmit(can_msg);
-            }
-            LOG_IF_ERR(res);
+            continue;
         }
-        else if (m.bus == app::can_utils::BusEnum::Bus_FDCAN)
-        {
-            const auto res = fdcan2.fdcan_transmit(can_msg);
-            LOG_IF_ERR(res);
-        }
-        else
-        {
-            LOG_ERROR("INVALID BUS %d", m.bus);
-        }
+        LOG_IF_ERR(fdcan2.fdcan_transmit(can_msg));
     }
 }
 void tasks_runCanRx(void *arg)
@@ -229,9 +234,7 @@ void tasks_runAdbmsVoltages(void *arg)
 
     forever
     {
-        SEGGER_SYSVIEW_MarkStart(0xaa);
         jobs_runAdbmsVoltages_tick();
-        SEGGER_SYSVIEW_MarkStop(0xaa);
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
     }
@@ -239,13 +242,14 @@ void tasks_runAdbmsVoltages(void *arg)
 
 void tasks_runAdbmsConfigs(void *arg)
 {
-    constexpr uint32_t period_ms = 100U;
+    constexpr uint32_t period_ms   = 100U;
+    uint32_t           start_ticks = osKernelGetTickCount();
 
     forever
     {
-        SEGGER_SYSVIEW_MarkStart(0xbb);
         jobs_runAdbmsConfigs_tick();
-        SEGGER_SYSVIEW_MarkStop(0xbb);
+        start_ticks += period_ms;
+        osDelayUntil(start_ticks);
     }
 }
 
@@ -256,9 +260,20 @@ void tasks_runAdbmsAux(void *arg)
 
     forever
     {
-        SEGGER_SYSVIEW_MarkStart(0xcc);
         jobs_runAdbmsAux_tick();
-        SEGGER_SYSVIEW_MarkStop(0xcc);
+        start_ticks += period_ms;
+        osDelayUntil(start_ticks);
+    }
+}
+
+void tasks_runAdbmsCellOwc(void *arg)
+{
+    const uint32_t period_ms   = 1000U;
+    uint32_t       start_ticks = osKernelGetTickCount();
+
+    forever
+    {
+        jobs_runAdbmsCellOwc_tick();
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
     }
@@ -270,10 +285,12 @@ void BMS_StartAllTasks()
     Task1Hz.start();
     Task100Hz.start();
     TaskCanRx.start();
-    TaskCanTx.start();
+    TaskVehicleCanTx.start();
+    TaskChargerCanTx.start();
     TaskAdbmsVoltages.start();
     TaskAdbmsConfigs.start();
     TaskAdbmsAux.start();
+    TaskAdbmsCellOwc.start();
 }
 
 void tasks_preInit()
@@ -298,6 +315,7 @@ void tasks_init()
     hw::runtimeStat::init(htim7);
     fdcan1.init();
     fdcan2.init();
+
     shdn_en.writePin(true);
 
     const ResetReason reset_reason = hw::resetReason::get();

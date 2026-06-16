@@ -23,6 +23,7 @@
 #include "stm32h5xx_it.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include <assert.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -72,7 +73,7 @@ extern TIM_HandleTypeDef   htim6;
 void NMI_Handler(void)
 {
     /* USER CODE BEGIN NonMaskableInt_IRQn 0 */
-
+    assert(0);
     /* USER CODE END NonMaskableInt_IRQn 0 */
     /* USER CODE BEGIN NonMaskableInt_IRQn 1 */
     while (1)

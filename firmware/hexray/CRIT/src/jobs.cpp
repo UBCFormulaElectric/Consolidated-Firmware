@@ -15,7 +15,6 @@
 #include "io_canQueues.hpp"
 #include "io_leds.hpp"
 #include "io_sevenSeg.hpp"
-#include "io_switches.hpp"
 
 void jobs_init()
 {
@@ -44,17 +43,28 @@ void jobs_run1Hz_tick()
 }
 void jobs_run100Hz_tick()
 {
-    app::leds::setLeds();
-    app::screens::tick();
-    LOG_IF_ERR(io::seven_seg::setBrightness(std::max(static_cast<uint8_t>(5u), app::brightness)));
-    app::power_gauge::update();
     app::switches::broadcast();
+
+    static bool prev_telem_mark = false;
+    const bool  telem_mark      = app::switches::telem_get();
+    if (telem_mark && !prev_telem_mark)
+    {
+        io::can_tx::CRIT_TelemMarkEvent_sendAperiodic();
+    }
+    prev_telem_mark = telem_mark;
 
     hb_monitor.checkIn();
     hb_monitor.broadcastFaults();
 
     // enqueue can messages
     io::can_tx::enqueue100HzMsgs();
+}
+void jobs_run10Hz_tick()
+{
+    app::leds::setLeds();
+    app::screens::tick();
+    LOG_IF_ERR(io::seven_seg::setBrightness(std::max(static_cast<uint8_t>(5u), app::brightness)));
+    app::power_gauge::update();
 }
 void jobs_run1kHz_tick()
 {

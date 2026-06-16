@@ -51,7 +51,7 @@
     },
     "data_capture": {
       "telem_cycle_time": 1000,
-      "log_cycle_time" : 1000
+      "log_cycle_time": 1000
     }
   },
   "Steering": {
@@ -68,7 +68,7 @@
     },
     "data_capture": {
       "telem_cycle_time": 1000,
-      "log_cycle_time" : 1000
+      "log_cycle_time": 1000
     }
   },
   "Apps": {
@@ -103,7 +103,7 @@
     },
     "data_capture": {
       "telem_cycle_time": 1000,
-      "log_cycle_time" : 1000
+      "log_cycle_time": 1000
     }
   },
   "Brake": {
@@ -123,7 +123,7 @@
     },
     "data_capture": {
       "telem_cycle_time": 1000,
-      "log_cycle_time" : 1000
+      "log_cycle_time": 1000
     }
   },
   "Suspension": {
@@ -146,7 +146,7 @@
     },
     "data_capture": {
       "telem_cycle_time": 1000,
-      "log_cycle_time" : 1000
+      "log_cycle_time": 1000
     }
   },
   "IMU": {
@@ -155,45 +155,51 @@
     "description": "IMU data",
     "signals": {
       "AccelX": {
-        "resolution": 0.1,
-        "min": -20,
-        "max": 20,
-        "unit": "m/s^2"
+        "resolution": 0.01,
+        "signed": true,
+        "min": -5,
+        "max": 5,
+        "unit": "g"
       },
       "AccelY": {
-        "resolution": 0.1,
-        "min": -20,
-        "max": 20,
-        "unit": "m/s^2"
+        "resolution": 0.01,
+        "signed": true,
+        "min": -5,
+        "max": 5,
+        "unit": "g"
       },
       "AccelZ": {
-        "resolution": 0.1,
-        "min": -20,
-        "max": 20,
-        "unit": "m/s^2"
+        "resolution": 0.01,
+        "signed": true,
+        "min": -5,
+        "max": 5,
+        "unit": "g"
       },
       "GyroX": {
-        "resolution": 0.1,
+        "resolution": 0.01,
+        "signed": true,
         "min": -20,
         "max": 20,
-        "unit": "deg/s^2"
+        "unit": "deg/s"
       },
       "GyroY": {
-        "resolution": 0.1,
+        "resolution": 0.01,
+        "signed": true,
         "min": -20,
         "max": 20,
-        "unit": "deg/s^2"
+        "unit": "deg/s"
       },
       "GyroZ": {
-        "resolution": 0.1,
+        "resolution": 0.01,
+        "signed": true,
         "min": -20,
         "max": 20,
-        "unit": "deg/s^2"
+        "unit": "deg/s"
       }
     },
     "data_capture": {
       "telem_cycle_time": 1000,
-      "log_cycle_time" : 1000
+      "log_cycle_time": 1000
     }
   },
   "ShdnNodeStatus": {
@@ -216,7 +222,7 @@
     },
     "data_capture": {
       "telem_cycle_time": 1000,
-      "log_cycle_time" : 1000
+      "log_cycle_time": 1000
     }
   },
   "CPUDataLogInfo": {
@@ -327,9 +333,9 @@
         "unit": "%"
       }
     },
-     "data_capture": {
+    "data_capture": {
       "telem_cycle_time": 1000,
-      "log_cycle_time" : 1000
+      "log_cycle_time": 1000
     }
   }
 }
