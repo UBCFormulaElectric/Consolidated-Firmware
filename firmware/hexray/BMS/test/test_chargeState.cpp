@@ -233,7 +233,7 @@ TEST_F(BmsChargeStateTest, terminates_when_cells_full_and_current_low)
     EnterChargeStateClean();
     fakes::adbms::setCellVoltage(0, 0, 4.19f);
     LetTimePass(500); // Need the adbms task to run to update max cell voltage
-    app::can_rx::Elcon_OutputCurrent_update(0.5f);
+    app::can_rx::Elcon_OutputCurrent_update(0.4f);
     LetTimePass(20);
 
     ASSERT_STATE_EQ(init_state);

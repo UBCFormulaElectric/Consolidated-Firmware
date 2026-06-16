@@ -21,7 +21,7 @@ namespace
 constexpr float CELL_V_TAPER_START = 4.10f; // V
 constexpr float CELL_V_TERMINATE   = 4.18f; // V
 constexpr float CELL_V_MAX_CHARGE  = 4.20f; // V
-constexpr float I_TERMINATE_A      = 1.0f;  // A
+constexpr float I_TERMINATE_A      = 0.5f;  // A
 
 // Pack-level target commanded to the Elcon
 constexpr float PACK_VOLTAGE_MAX =
@@ -30,9 +30,11 @@ constexpr float PACK_VOLTAGE_MAX =
 constexpr float CHARGER_EFFICIENCY = 0.93f; // average DC-side efficiency of the Elcon
 constexpr float MAX_DC_CURRENT     = 12.0f; // 1C standard limit of DC input current to the pack
 
+// AC Circuit Characteristics
 constexpr float VAC_MIN  = 208.0f; // lower end of typical North American grid
 constexpr float CAC_MAX  = 20.0f;  // max current available off of the ac breaker at competition.
 constexpr float CIRC_EFF = 0.8f;   // estimated efficiency of the entire charging circuit (charger + wiring losses etc)
+constexpr float CLAMP_CURRENT_A = CAC_MAX * CIRC_EFF;
 
 constexpr app::charger::ElconChargingConfig stop{ .max_voltage_v = 0.0f, .max_current_a = 0.0f, .stop_charging = true };
 
@@ -81,29 +83,20 @@ namespace chargeState
         const bool                           user_enable           = app::can_rx::Debug_StartCharging_get();
         const app::charger::ElconFaultConfig fault_status          = app::charger::getFaultStatus();
         const bool                           ir_negative_debounced = app::irs::negativeOpenedDebounced();
-        app::can_tx::BMS_ChargingFaulted_set(fault_status);
-
-        if (!user_enable || !charger_conn || fault_status || ir_negative_debounced)
-        {
-            app::charger::setChargingConfig(stop);
-            app::StateMachine::set_next_state(&init_state);
-            return;
-        }
-
-        float max_cell_v;
+        float                                max_cell_v;
         {
             const io::unique_semaphore s{ shared_lock };
             max_cell_v = app::segments::shared::getMaxCellVoltage().value;
         }
-
-        // Terminate when cells are essentially full AND Elcon has already tapered down
+        // Cells are essentially full AND Elcon has already tapered down
         // Both conditions required (high V + high I = mid-CV-ramp, low I + low V = idle)
-        if ((max_cell_v >= CELL_V_TERMINATE) &&
-            (app::charger::getOutputCurrent() <
-             I_TERMINATE_A)) // Is the second condittion needed here? "app::charger::getOutputCurrent() < I_TERMINATE_A"
-                             // will be true immediately when entering charge state...
+        const bool charging_done =
+            (max_cell_v >= CELL_V_TERMINATE) && (app::charger::getOutputCurrent() < I_TERMINATE_A);
+        app::can_tx::BMS_ChargingDone_set(charging_done);
+        app::can_tx::BMS_ChargingFaulted_set(fault_status);
+
+        if (!user_enable || !charger_conn || fault_status || ir_negative_debounced || charging_done)
         {
-            app::can_tx::BMS_ChargingDone_set(true);
             app::charger::setChargingConfig(stop);
             app::StateMachine::set_next_state(&init_state);
             return;
@@ -115,12 +108,12 @@ namespace chargeState
         if (charger_connection_status == ChargerConnectedType::CHARGER_CONNECTED_EVSE)
         {
             const float evse_iac         = app::charger::getAvailableCurrent();
-            const float clamped_evse_iac = (evse_iac > CAC_MAX * CIRC_EFF) ? CAC_MAX * CIRC_EFF : evse_iac;
+            const float clamped_evse_iac = (evse_iac > CLAMP_CURRENT_A) ? CLAMP_CURRENT_A : evse_iac;
             i_cmd_max                    = calcDcCurrentLimit(clamped_evse_iac);
         }
         else
         {
-            i_cmd_max = calcDcCurrentLimit(CAC_MAX * CIRC_EFF);
+            i_cmd_max = calcDcCurrentLimit(CLAMP_CURRENT_A);
         }
 
         float i_cmd;
