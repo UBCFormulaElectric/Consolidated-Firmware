@@ -68,6 +68,8 @@ class BMSBaseTest : public EcuTestBase
 
     void ResetCanAlerts()
     {
+        // TODO find better, more alll encompassing way to do this
+        // for all alerts and messages that matter.
         app::can_tx::BMS_Fault_CellOpenWire_set(false);
         app::can_tx::BMS_Fault_CellOvervoltage_set(false);
         app::can_tx::BMS_Fault_CellUndervoltage_set(false);

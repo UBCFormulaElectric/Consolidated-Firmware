@@ -42,14 +42,14 @@ using io::adbms::Segments;
 using io::adbms::ThermGpios;
 using io::adbms::Therms;
 
-static void jsoncan_transmit_func(const JsonCanMsg &tx_msg)
+static void vehicle_transmit_func(const JsonCanMsg &tx_msg)
 {
     const io::CanMsg msg = app::jsoncan::copyToCanMsg(tx_msg);
     const auto       res = vehicle_can_tx_queue.push(msg);
-    // LOG_IF_ERR(res);
+    LOG_IF_ERR(res);
     if (not res)
     {
-        // LOG_ERROR("failed on can id %d", tx_msg.std_id);
+        LOG_ERROR("failed on can id %d", tx_msg.std_id);
     }
 }
 
@@ -66,7 +66,7 @@ static void charger_transmit_func(const JsonCanMsg &tx_msg)
 
 void jobs_init()
 {
-    io::can_tx::init(jsoncan_transmit_func, charger_transmit_func);
+    io::can_tx::init(vehicle_transmit_func, charger_transmit_func);
     io::can_tx::enableMode_FDCAN(app::can_utils::FDCANMode::FDCAN_MODE_DEFAULT, true);
     io::can_tx::enableMode_charger(app::can_utils::chargerMode::CHARGER_MODE_DEFAULT, true);
 
