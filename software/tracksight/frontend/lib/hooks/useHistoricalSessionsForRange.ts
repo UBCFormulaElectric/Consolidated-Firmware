@@ -5,18 +5,14 @@ import { useQuery } from "@tanstack/react-query";
 import { HistoricalSignalSource } from "@/lib/api/historicalSignals";
 import { fetchHistoricalSessionsForRange, HistoricalSession } from "@/lib/api/historicalSessions";
 
-const toUtcDateKey = (utcMs: number) => {
-    const date = new Date(utcMs);
-    const year = date.getUTCFullYear();
-    const month = String(date.getUTCMonth() + 1).padStart(2, "0");
-    const day = String(date.getUTCDate()).padStart(2, "0");
-    return `${year}-${month}-${day}`;
+const toTimezoneDateKey = (utcMs: number, timeZone: string) => {
+    return new Intl.DateTimeFormat("en-CA", { timeZone, year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date(utcMs));
 };
 
-export function useHistoricalSessionsForRange(startUtcMs: number, endUtcMs: number, source: HistoricalSignalSource, enabled = true) {
+export function useHistoricalSessionsForRange(startUtcMs: number, endUtcMs: number, source: HistoricalSignalSource, timeZone: string, enabled = true) {
     const query = useQuery({
-        queryKey: ["historical-sessions-range", startUtcMs, endUtcMs, source],
-        queryFn: async () => fetchHistoricalSessionsForRange(startUtcMs, endUtcMs, source),
+        queryKey: ["historical-sessions-range", startUtcMs, endUtcMs, source, timeZone],
+        queryFn: async () => fetchHistoricalSessionsForRange(startUtcMs, endUtcMs, source, timeZone),
         enabled,
         staleTime: 5 * 60 * 1000,
         gcTime: 30 * 60 * 1000,
@@ -26,7 +22,7 @@ export function useHistoricalSessionsForRange(startUtcMs: number, endUtcMs: numb
     const sessionsByDay = useMemo(() => {
         const grouped = new Map<string, HistoricalSession[]>();
         for (const session of query.data ?? []) {
-            const key = toUtcDateKey(session.startUtcMs);
+            const key = toTimezoneDateKey(session.startUtcMs, timeZone);
             const bucket = grouped.get(key);
             if (bucket) {
                 bucket.push(session);
@@ -35,7 +31,7 @@ export function useHistoricalSessionsForRange(startUtcMs: number, endUtcMs: numb
             }
         }
         return grouped;
-    }, [query.data]);
+    }, [query.data, timeZone]);
 
     const daysWithSessions = useMemo(() => new Set(sessionsByDay.keys()), [sessionsByDay]);
 

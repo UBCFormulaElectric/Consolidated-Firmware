@@ -9,6 +9,7 @@ const inter = Inter({ subsets: ["latin"] });
 import Navbar from "./Navbar";
 import QueryProvider from "@/lib/contexts/QueryProvider";
 import { HistoricalSelectionProvider } from "@/lib/contexts/HistoricalSelectionContext";
+import { TimezoneProvider } from "@/lib/contexts/TimezoneContext";
 import Script from "next/script";
 
 export const metadata: Metadata = {
@@ -37,12 +38,14 @@ export default async function RootLayout({
         <link rel="manifest" href="/favicon/site.webmanifest" />
       </head>
       <body className={`${inter.className} overflow-y-hidden`} style={{ overflowX: "overlay" }}>
-        <QueryProvider>
-          <HistoricalSelectionProvider>
-            <Navbar />
-            <main>{children}</main>
-          </HistoricalSelectionProvider>
-        </QueryProvider>
+        <TimezoneProvider>
+          <QueryProvider>
+            <HistoricalSelectionProvider>
+              <Navbar />
+              <main>{children}</main>
+            </HistoricalSelectionProvider>
+          </QueryProvider>
+        </TimezoneProvider>
       </body>
     </html>
   );

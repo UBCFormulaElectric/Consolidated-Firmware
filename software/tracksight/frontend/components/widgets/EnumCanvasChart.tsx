@@ -4,6 +4,7 @@ import { useSyncedGraph } from "@/components/SyncedGraphContainer";
 import { ChartLayout } from "@/components/widgets/CanvasChartTypes";
 import render, { CHART_PADDING, render_empty } from "@/components/widgets/render";
 import { useSignalDataStores } from "@/lib/contexts/signalStores/SignalStoreContext";
+import { useTimezone } from "@/lib/contexts/TimezoneContext";
 import { useCanvasHover } from "@/lib/hooks/useCanvasHover";
 import { useCanvasRenderLoop } from "@/lib/hooks/useCanvasRenderLoop";
 import { getVisibleTelemetryMarkers } from "@/lib/telemetryMarkers";
@@ -15,6 +16,7 @@ export default function EnumCanvasChart({ id, options, signals, hoveredSignal, o
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
     const layoutRef = useRef<ChartLayout | null>(null);
     const { globalTimeRangeRef, hoverXRef, XToTime } = useSyncedGraph();
+    const { timezone } = useTimezone();
 
     const { height, timeTickCount } = options;
     const canvasHeight = Math.max(height, CHART_PADDING.top + 30 + signals.length * 40 + Math.max(0, signals.length - 1) * 40 + CHART_PADDING.bottom);
@@ -48,7 +50,8 @@ export default function EnumCanvasChart({ id, options, signals, hoveredSignal, o
                 min: XToTime(CHART_PADDING.left),
                 max: XToTime(cssWidth - CHART_PADDING.right),
             },
-            getVisibleTelemetryMarkers(XToTime(CHART_PADDING.left), XToTime(cssWidth - CHART_PADDING.right))
+            getVisibleTelemetryMarkers(XToTime(CHART_PADDING.left), XToTime(cssWidth - CHART_PADDING.right)),
+            timezone
         );
     });
 
