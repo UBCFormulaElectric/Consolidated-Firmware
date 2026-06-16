@@ -104,9 +104,9 @@ Cells<result<bool>> cellOwcOk(
     return owc_cell;
 }
 
-Therms<result<float>>
-    thermTemps(const std::array<ThermGpios<result<float>>, static_cast<size_t>(ThermistorMux::THERMISTOR_MUX_COUNT)>
-                   &therm_voltages)
+Therms<result<float>> thermTemps(
+    const std::array<ThermGpios<result<float>>, static_cast<size_t>(ThermistorMux::THERMISTOR_MUX_COUNT)>
+        &therm_voltages)
 {
     Therms<result<float>> out;
 
@@ -136,14 +136,18 @@ Therms<result<float>>
             {
                 out[seg][therm] = temp;
             }
+            else
+            {
+                out[seg][therm] = std::unexpected(ErrorCode::THERM_OUT_OF_RANGE);
+            }
         }
     }
     return out;
 }
 
-Therms<result<bool>>
-    thermOwcOk(const std::array<ThermGpios<result<float>>, static_cast<size_t>(ThermistorMux::THERMISTOR_MUX_COUNT)>
-                   &therm_voltages)
+Therms<result<bool>> thermOwcOk(
+    const std::array<ThermGpios<result<float>>, static_cast<size_t>(ThermistorMux::THERMISTOR_MUX_COUNT)>
+        &therm_voltages)
 {
     Therms<result<bool>> out;
 

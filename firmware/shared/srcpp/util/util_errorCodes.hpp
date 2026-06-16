@@ -16,6 +16,7 @@ enum class ErrorCode
     INVALID_READING,
     ERROR_INDETERMINATE,
     POLL_INVALID,
+    THERM_OUT_OF_RANGE,
     NUM_EXIT_CODES,
 };
 
@@ -47,6 +48,8 @@ constexpr const char *error_code_to_string(const ErrorCode code)
             return "Indeterminate error";
         case ErrorCode::POLL_INVALID:
             return "Poll invalid";
+        case ErrorCode::THERM_OUT_OF_RANGE:
+            return "Therm out of range";
         case ErrorCode::NUM_EXIT_CODES:
         default:
             return "Unknown error code";
