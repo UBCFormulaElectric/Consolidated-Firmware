@@ -5,7 +5,10 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import { ErrorRateIndicator } from "@/components/ErrorRateIndicator";
+import { TimezoneSelector } from "@/components/common/TimezoneSelector";
+import { formatSessionLabel } from "@/lib/api/historicalSessions";
 import { useHistoricalSelection } from "@/lib/contexts/HistoricalSelectionContext";
+import { useTimezone } from "@/lib/contexts/TimezoneContext";
 
 function HistoricalNavButton({ label, value, onClick }: { label: string; value: string; onClick: () => void }) {
     return (
@@ -19,12 +22,15 @@ function HistoricalNavButton({ label, value, onClick }: { label: string; value: 
 
 function HistoricalNavControls() {
     const { sourceLabel, selectedSession, openModal, isSyncing } = useHistoricalSelection();
+    const { timezone } = useTimezone();
+
+    const dtLabel = selectedSession ? formatSessionLabel(selectedSession.startUtcMs, selectedSession.endUtcMs, timezone) : "Select";
 
     return (
         <div className="flex items-center gap-2">
             {isSyncing ? <Loader2 className="size-4 animate-spin text-blue-500" strokeWidth={2.4} /> : null}
             <HistoricalNavButton label="Source" value={sourceLabel} onClick={() => openModal(1)} />
-            <HistoricalNavButton label="Session" value={selectedSession?.label ?? "Select"} onClick={() => openModal(3)} />
+            <HistoricalNavButton label="Session" value={dtLabel} onClick={() => openModal(3)} />
         </div>
     );
 }
@@ -44,6 +50,7 @@ function Navbar() {
                 </div>
                 <div className="flex items-center gap-4">
                     {isHistorical ? <HistoricalNavControls /> : null}
+                    <TimezoneSelector />
                     <ErrorRateIndicator />
                 </div>
             </div>
