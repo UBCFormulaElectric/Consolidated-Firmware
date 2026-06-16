@@ -45,7 +45,7 @@ using io::adbms::Therms;
 static void vehicle_transmit_func(const JsonCanMsg &tx_msg)
 {
     const io::CanMsg msg = app::jsoncan::copyToCanMsg(tx_msg);
-    const auto       res = vehicle_can_tx_queue.push(msg);
+    const auto       res = can_tx_queue.push(msg);
     LOG_IF_ERR(res);
     if (not res)
     {
