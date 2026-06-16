@@ -40,6 +40,7 @@ namespace imd
 namespace adbms
 {
     void setPackVoltageEvenly(float voltage);
+    void setSegmentVoltageError(ErrorCode error);
     void setCellVoltage(int seg, int cell, float voltage);
     // Config register read-back echoes what was written -> config sync sees a healthy chip.
     void setHealthyConfigs();

@@ -188,9 +188,10 @@ namespace bspdtest
 
 namespace adbms
 {
-    Cells<result<int16_t>>  cell_voltages{};
-    Segments<SegmentConfig> config{};
-    Segments<PWMConfig>     pwm{};
+    Cells<result<int16_t>>    cell_voltages{};
+    Segments<result<int16_t>> segment_voltages{};
+    Segments<SegmentConfig>   config{};
+    Segments<PWMConfig>       pwm{};
 
     namespace write
     {
@@ -239,7 +240,7 @@ namespace adbms
 
         [[nodiscard]] Segments<result<int16_t>> segVoltage()
         {
-            return Segments<result<int16_t>>{};
+            return segment_voltages;
         }
 
         [[nodiscard]] ThermGpios<result<int16_t>> thermGpioVoltage()
@@ -445,13 +446,23 @@ namespace adbms
 
     void setPackVoltageEvenly(const float voltage)
     {
-        const float cell_voltage = voltage / static_cast<float>(NUM_SEGMENTS * CELLS_PER_SEGMENT);
+        const float cell_voltage    = voltage / static_cast<float>(NUM_SEGMENTS * CELLS_PER_SEGMENT);
+        const float segment_voltage = voltage / static_cast<float>(NUM_SEGMENTS);
         for (size_t seg = 0; seg < NUM_SEGMENTS; seg++)
         {
+            io::adbms::segment_voltages[seg] = voltageToReg(segment_voltage / 25.0f);
             for (size_t cell = 0; cell < CELLS_PER_SEGMENT; cell++)
             {
                 setCellVoltage(static_cast<int>(seg), static_cast<int>(cell), cell_voltage);
             }
+        }
+    }
+
+    void setSegmentVoltageError(const ErrorCode error)
+    {
+        for (size_t seg = 0; seg < NUM_SEGMENTS; seg++)
+        {
+            io::adbms::segment_voltages[seg] = std::unexpected(error);
         }
     }
 

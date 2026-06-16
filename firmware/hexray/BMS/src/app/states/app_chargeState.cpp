@@ -3,6 +3,7 @@
 
 #include "app_states.hpp"
 #include "app_timer.hpp"
+#include "app_irs.hpp"
 #include "io_irs.hpp"
 #include "io_charger.hpp"
 #include "io_semaphore.hpp"
@@ -77,21 +78,22 @@ namespace chargeState
             (charger_connection_status == ChargerConnectedType::CHARGER_CONNECTED_EVSE ||
              charger_connection_status == ChargerConnectedType::CHARGER_CONNECTED_WALL);
 
-        const bool                           user_enable  = app::can_rx::Debug_StartCharging_get();
-        const app::charger::ElconFaultConfig fault_status = app::charger::getFaultStatus();
+        const bool                           user_enable           = app::can_rx::Debug_StartCharging_get();
+        const app::charger::ElconFaultConfig fault_status          = app::charger::getFaultStatus();
+        const bool                           ir_negative_debounced = app::irs::negativeOpenedDebounced();
         app::can_tx::BMS_ChargingFaulted_set(fault_status);
+
+        if (!user_enable || !charger_conn || fault_status || ir_negative_debounced)
+        {
+            app::charger::setChargingConfig(stop);
+            app::StateMachine::set_next_state(&init_state);
+            return;
+        }
 
         float max_cell_v;
         {
             const io::unique_semaphore s{ shared_lock };
             max_cell_v = app::segments::shared::getMaxCellVoltage().value;
-        }
-
-        if (!user_enable || !charger_conn || fault_status)
-        {
-            app::charger::setChargingConfig(stop);
-            app::StateMachine::set_next_state(&init_state);
-            return;
         }
 
         // Terminate when cells are essentially full AND Elcon has already tapered down
