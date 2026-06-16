@@ -6,8 +6,8 @@ export type Timezone = "UTC" | "America/Vancouver" | "America/Detroit";
 
 export const TIMEZONE_OPTIONS: { value: Timezone; label: string }[] = [
     { value: "UTC", label: "UTC" },
-    { value: "America/Vancouver", label: "Vancouver Time" },
-    { value: "America/Detroit", label: "Michigan Time" },
+    { value: "America/Vancouver", label: "PDT (Vancouver)" },
+    { value: "America/Detroit", label: "EDT (Michigan) " },
 ];
 
 type TimezoneContextType = {
