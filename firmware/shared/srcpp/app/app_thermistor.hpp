@@ -53,20 +53,10 @@ namespace therm
         float resistanceToTemp(float thermistor_resistance) const noexcept
         {
             if (!valid_ || resistances_ == nullptr || size_ == 0U)
-                return -1.0f;
-
-            // Guard against NaN/inf inputs
-            if (!std::isfinite(thermistor_resistance))
-                return -1.0f;
-
-            // Handle trivial single-entry LUT safely
-            if (size_ == 1U)
-            {
-                return APPROX_EQUAL_FLOAT(thermistor_resistance, resistances_[0], 0.0001f) ? starting_temp_ : -1.0f;
-            }
+                return std::numeric_limits<float>::lowest();
 
             // Ensure resistance is within bounds: resistances[0] is highest, resistances[size-1] is lowest
-            if ((thermistor_resistance <= resistances_[0]))
+            if ((thermistor_resistance <= resistances_[0]) || !std::isfinite(thermistor_resistance))
             {
                 return std::numeric_limits<float>::lowest();
             }
@@ -75,6 +65,12 @@ namespace therm
                 return std::numeric_limits<float>::max();
             }
 
+                        // Handle trivial single-entry LUT safely
+            if (size_ == 1U)
+            {
+                return APPROX_EQUAL_FLOAT(thermistor_resistance, resistances_[0], 0.0001f) ? starting_temp_ : -1.0f;
+            }
+            
             // Binary search for insertion point
             uint16_t low_index  = 0U;
             uint16_t high_index = static_cast<uint16_t>(size_ - 1);
