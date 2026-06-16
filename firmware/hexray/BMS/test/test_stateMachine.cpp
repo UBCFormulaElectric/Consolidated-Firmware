@@ -8,7 +8,6 @@
 #include "app_canAlerts.hpp"
 #include <iostream>
 
-
 class BmsStateMachineTest : public BMSBaseTest
 {
 };
