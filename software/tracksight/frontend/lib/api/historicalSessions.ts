@@ -1,5 +1,5 @@
-import { API_BASE_URL, IS_MOCK } from "@/lib/constants";
 import { HistoricalSignalSource } from "@/lib/api/historicalSignals";
+import { API_BASE_URL, IS_MOCK } from "@/lib/constants";
 
 export type HistoricalSession = {
     id: string;
@@ -9,7 +9,7 @@ export type HistoricalSession = {
     timeZoneLabel: string;
 };
 
-const SESSION_FORMATTERS_CACHE = new Map<string, { full: Intl.DateTimeFormat, timeOnly: Intl.DateTimeFormat, dateOnly: Intl.DateTimeFormat }>();
+const SESSION_FORMATTERS_CACHE = new Map<string, { full: Intl.DateTimeFormat; timeOnly: Intl.DateTimeFormat; dateOnly: Intl.DateTimeFormat }>();
 
 function getSessionFormatters(timeZone: string) {
     if (!SESSION_FORMATTERS_CACHE.has(timeZone)) {
@@ -33,8 +33,8 @@ function getSessionFormatters(timeZone: string) {
                 timeZone,
                 year: "numeric",
                 month: "2-digit",
-                day: "2-digit"
-            })
+                day: "2-digit",
+            }),
         });
     }
     return SESSION_FORMATTERS_CACHE.get(timeZone)!;
@@ -49,7 +49,7 @@ function toIsoUtcSeconds(timestampMs: number): string {
     return new Date(timestampMs).toISOString().slice(0, 19) + "Z";
 }
 
-function formatSessionLabel(startUtcMs: number, endUtcMs: number, timeZone: string): string {
+export function formatSessionLabel(startUtcMs: number, endUtcMs: number, timeZone: string): string {
     const start = new Date(startUtcMs);
     const end = new Date(endUtcMs);
     const formatters = getSessionFormatters(timeZone);
@@ -67,7 +67,7 @@ function toHistoricalSession(startUtcMs: number, endUtcMs: number, timeZone: str
         startUtcMs,
         endUtcMs,
         label: formatSessionLabel(startUtcMs, endUtcMs, timeZone),
-        timeZoneLabel: timeZone === "UTC" ? "UTC" : timeZone.split("/").pop()!,
+        timeZoneLabel: timeZone === "America/Vancouver" ? "PDT" : timeZone === "America/Detroit" ? "EDT" : timeZone === "UTC" ? "UTC" : timeZone.split("/").pop()!,
     };
 }
 
@@ -107,14 +107,12 @@ function buildMockSessionPairs(startUtcMs: number, endUtcMs: number): SessionBou
 
     for (let dayStart = firstDayStart; dayStart < endUtcMs; dayStart += DAY_MS) {
         if ((dayStart / DAY_MS) % 3 === 0) continue;
-        
+
         bootMs.push(dayStart + 9 * 60 * 60 * 1000); // 09:00 UTC
         bootMs.push(dayStart + 15 * 60 * 60 * 1000); // 15:00 UTC
     }
 
-    return bootMs
-        .filter((ms) => ms >= startUtcMs && ms < endUtcMs)
-        .map((ms, i, all) => [String(ms), i < all.length - 1 ? String(ms + 3 * 60 * 60 * 1000) : null] as SessionBoundaryPair);
+    return bootMs.filter((ms) => ms >= startUtcMs && ms < endUtcMs).map((ms, i, all) => [String(ms), i < all.length - 1 ? String(ms + 3 * 60 * 60 * 1000) : null] as SessionBoundaryPair);
 }
 
 export async function fetchHistoricalSessionsForRange(startUtcMs: number, endUtcMs: number, source: HistoricalSignalSource, timeZone: string): Promise<HistoricalSession[]> {
