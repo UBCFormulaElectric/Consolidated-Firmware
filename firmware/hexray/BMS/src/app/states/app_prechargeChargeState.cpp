@@ -2,6 +2,7 @@
 
 #include <cassert>
 
+#include "io_charger.hpp"
 #include "app_states.hpp"
 #include "app_precharge.hpp"
 #include "io_irs.hpp"
@@ -22,7 +23,15 @@ namespace prechargeChargeState
 
     static void runOnTick100Hz()
     {
-        switch (app::precharge::poll(false))
+        if (io::charger::getConnectionStatus() == app::can_utils::ChargerConnectedType::CHARGER_DISCONNECTED)
+        {
+            LOG_ERROR("Charger disconnected during precharge, aborting charge");
+            app::can_rx::Debug_StartCharging_update(false);
+            app::StateMachine::set_next_state(&init_state);
+            return;
+        }
+
+        switch (app::precharge::poll(true))
         {
             case app::precharge::State::RUNNING:
                 io::irs::setPrecharge(app::can_utils::ContactorState::CONTACTOR_STATE_CLOSED);
@@ -48,18 +57,15 @@ namespace prechargeChargeState
                 break;
 
             case app::precharge::State::SUCCESS:
-                // Precharge succeeded → close AIR+ and move to charge init
+                // Precharge succeeded → close AIR+ and move to charge state
                 io::irs::setPositive(app::can_utils::ContactorState::CONTACTOR_STATE_CLOSED);
-                app::StateMachine::set_next_state(&charge_init_state);
+                app::StateMachine::set_next_state(&charge_state);
                 break;
 
             default:
                 assert(false && "Invalid precharge state");
                 break;
         }
-
-        // TODO: Go back to init state if the charger is disconnected?
-        // Might need to handle this in all charger-related states.
     }
 
     static void runOnExit()
@@ -77,3 +83,5 @@ const ::app::State precharge_charge_state = {
     .run_on_exit       = prechargeChargeState::runOnExit,
 };
 } // namespace app::states
+
+// Why do we need to precharge to charge? TS might be bus when we are charging.

@@ -19,4 +19,11 @@ app::can_utils::ChargerConnectedType getConnectionStatus();
  */
 float getCPDutyCycle();
 
+/**
+ * @brief Retrieve the frequency of the EVSE CP PWM signal.
+ *
+ * @return float Frequency in Hz.
+ */
+float getCPFrequency();
+
 } // namespace io::charger

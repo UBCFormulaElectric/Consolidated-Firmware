@@ -41,7 +41,7 @@ namespace adbms
 {
     void setPackVoltageEvenly(float voltage);
     void setSegmentVoltageError(ErrorCode error);
-    void setCellVoltage(float voltage, int seg, int cell);
+    void setCellVoltage(int seg, int cell, float voltage);
     // Config register read-back echoes what was written -> config sync sees a healthy chip.
     void setHealthyConfigs();
     // Config register read-back differs from what was written -> config sync reports a mismatch.
@@ -52,5 +52,6 @@ namespace charger
 {
     void setConnectionStatus(app::can_utils::ChargerConnectedType status);
     void setCPDutyCycle(float duty_cycle);
+    void setCPFrequency(float frequency);
 } // namespace charger
 } // namespace fakes
