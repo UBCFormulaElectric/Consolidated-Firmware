@@ -5,7 +5,7 @@
 #include "app_canRx.hpp"
 #include "app_canUtils.hpp"
 #include "app_canAlerts.hpp"
-#include "app_pumpControl.hpp"
+#include "app_pumpControl.hpp"   
 #include "torque_vectoring/datatypes/torque_limits.hpp"
 #include "io_log.hpp"
 #include "io_pcm.hpp"
@@ -23,8 +23,8 @@ namespace initState
         .rsm_efuse       = { true, 0, 5 },
         .bms_efuse       = { true, 0, 5 },
         .dam_efuse       = { true, 0, 5 },
-        .f_inv_efuse     = { false, 0, 5 },
-        .r_inv_efuse     = { false, 0, 5 },
+        .f_inv_efuse     = { true, 200, 5 },
+        .r_inv_efuse     = { true, 200, 5 },
         .r_rad_fan_efuse = { false, 200, 5 },
         .l_rad_fan_efuse = { false, 200, 5 },
         .rr_pump_efuse   = { false, 200, 5 },
