@@ -66,11 +66,11 @@ namespace therm
             }
 
             // Ensure resistance is within bounds: resistances[0] is highest, resistances[size-1] is lowest
-            if ((thermistor_resistance < resistances_[0]))
+            if ((thermistor_resistance <= resistances_[0]))
             {
                 return std::numeric_limits<float>::lowest();
             }
-            else if (thermistor_resistance > resistances_[size_ - 1U])
+            else if (thermistor_resistance >= resistances_[size_ - 1U])
             {
                 return std::numeric_limits<float>::max();
             }
