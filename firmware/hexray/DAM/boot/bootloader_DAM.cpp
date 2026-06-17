@@ -41,8 +41,6 @@ class DAMBootConfig : public bootloader::config
 
 CFUNC void bootloader_preInit()
 {
-    HAL_GPIO_WritePin(nTSIM_GRN_EN_GPIO_Port, nTSIM_GRN_EN_Pin, GPIO_PIN_RESET);
-    HAL_GPIO_WritePin(TSIM_RED_EN_GPIO_Port, TSIM_RED_EN_Pin, GPIO_PIN_RESET);
     bootloader::preInit();
 }
 
@@ -69,6 +67,8 @@ static hw::rtos::StaticTask bootCanTxTask(
 [[noreturn]] void bootloader_init()
 {
     HAL_GPIO_WritePin(BOOT_LED_GPIO_Port, BOOT_LED_Pin, GPIO_PIN_SET);
+    HAL_GPIO_WritePin(nTSIM_GRN_EN_GPIO_Port, nTSIM_GRN_EN_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(TSIM_RED_EN_GPIO_Port, TSIM_RED_EN_Pin, GPIO_PIN_RESET);
     osKernelInitialize();
     bootloader::init(dam_boot_config);
     bootInterfaceTask.start();
