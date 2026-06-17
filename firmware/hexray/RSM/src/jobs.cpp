@@ -48,6 +48,7 @@ void jobs_initImu()
 void jobs_run100Hz_tick()
 {
     app::brake::broadcast();
+    io::brakeLight::set(app::brake::isActuated());
     app::suspension::broadcast();
     app::tireTemp::broadcast();
     app::coolant::broadcast();

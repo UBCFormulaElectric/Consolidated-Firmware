@@ -143,7 +143,7 @@ static void inverter_start_retry_routine(const app::inverter::Handle &handle)
     {
         handle.can_invOn(false);
         handle.can_enable_inv(false);
-        handle.can_inv_warning(true);
+        // handle.can_inv_warning(true);
         handle.error_reset(true);
     }
 }
