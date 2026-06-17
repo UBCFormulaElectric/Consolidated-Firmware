@@ -34,8 +34,17 @@ void hw::Uart::onTxTransactionCompleteFromISR() const
 
 void hw::Uart::onRxTransactionCompleteFromISR() const
 {
-    if (rxTaskInProgress == nullptr)
+    if (rx_pending)
+    {
+        assert(receive_callback != nullptr);
+        receive_callback();
         return;
+    }
+
+    if (rxTaskInProgress == nullptr)
+    {
+        return;
+    }
 
     BaseType_t higherPriorityTaskWoken = pdFALSE;
     vTaskNotifyGiveFromISR(rxTaskInProgress, &higherPriorityTaskWoken);
@@ -183,6 +192,24 @@ result<void> hw::Uart::receive(std::span<uint8_t> rx, const uint32_t timeout) co
 
     exit = waitForRxNotification(timeout);
     return exit;
+}
+
+/**
+ * Receives an amount of data in non-blocking mode. Will fire the configured RX callback when complete.
+ * @param rx Pointer to data buffer.
+ */
+std::expected<void, ErrorCode> hw::Uart::receiveCallback(std::span<uint8_t> rx) const
+{
+    assert(receive_callback != nullptr);
+
+    if (rxTaskInProgress != nullptr)
+        return std::unexpected(ErrorCode::BUSY); // There is a task currently in progress!
+
+    rx_pending = true;
+    if (callback_dma)
+        return hw::utils::convertHalStatus(HAL_UART_Receive_DMA(&handle, rx.data(), static_cast<uint16_t>(rx.size())));
+    else
+        return hw::utils::convertHalStatus(HAL_UART_Receive_IT(&handle, rx.data(), static_cast<uint16_t>(rx.size())));
 }
 
 result<std::size_t> hw::Uart::receiveToIdle(std::span<uint8_t> rx, const uint32_t timeout) const

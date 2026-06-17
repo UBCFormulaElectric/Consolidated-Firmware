@@ -19,10 +19,10 @@ class Uart
     mutable TaskHandle_t txTaskInProgress = nullptr;
 
     UART_HandleTypeDef &handle; // pointer to structure containing UART module configuration information
-  public:
-    explicit consteval Uart(UART_HandleTypeDef &in_handle) : handle(in_handle) {}
+    bool                callback_dma;
+    mutable bool        rx_pending = false;
+    void (*receive_callback)(void);
 
-  private:
     /**
      * @param timeoutMs
      * @return
@@ -41,9 +41,14 @@ class Uart
     mutable uint16_t last_rx_size = 0;
 
   public:
-    /**
-     *
-     */
+    explicit consteval Uart(
+        UART_HandleTypeDef &in_handle,
+        bool                in_callback_dma = false,
+        void (*in_receive_callback)(void)   = nullptr)
+      : handle(in_handle), callback_dma(in_callback_dma), receive_callback(in_receive_callback)
+    {
+    }
+
     void onTxTransactionCompleteFromISR() const;
     void onRxTransactionCompleteFromISR() const;
 
@@ -78,6 +83,12 @@ class Uart
     /// Bytes carried out of the RxEvent ISR for the last receiveToIdle() call.
     [[nodiscard]] uint16_t lastRxSize() const { return last_rx_size; }
     void                   setLastRxSizeFromISR(uint16_t size) const { last_rx_size = size; }
+
+    /**
+     * Receives an amount of data in non-blocking mode. Will fire the configured RX callback when complete.
+     * @param rx Pointer to data buffer.
+     */
+    std::expected<void, ErrorCode> receiveCallback(std::span<uint8_t> rx) const;
 
     void deinit() const;
 

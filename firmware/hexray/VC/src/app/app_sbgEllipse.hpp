@@ -6,6 +6,8 @@
 
 namespace app::sbgEllipse
 {
+void init();
+
 /*
  * Broadcast sensor outputs over CAN.
  */
