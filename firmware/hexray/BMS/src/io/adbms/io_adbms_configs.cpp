@@ -90,4 +90,28 @@ Segments<result<PWMConfig>> read::pwmReg()
     }
     return pwm_configs;
 }
+
+Segments<result<uint64_t>> read::serialNum()
+{
+    Segments<result<uint64_t>> serial_nums{};
+
+    const Segments<result<RegBuffer>> raw_serial = readRegGroup(RDSID);
+    for (size_t seg = 0U; seg < NUM_SEGMENTS; ++seg)
+    {
+        if (!raw_serial[seg])
+        {
+            serial_nums[seg] = unexpected(raw_serial[seg].error());
+            continue;
+        }
+
+        const RegBuffer &bytes  = raw_serial[seg].value();
+        uint64_t         serial = 0U;
+        for (size_t i = 0U; i < REG_GROUP_SIZE; ++i)
+        {
+            serial |= static_cast<uint64_t>(bytes[i]) << (8U * i);
+        }
+        serial_nums[seg] = serial;
+    }
+    return serial_nums;
+}
 } // namespace io::adbms

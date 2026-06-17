@@ -238,6 +238,7 @@ namespace read
     [[nodiscard]] Segments<result<int16_t>>   segVoltage();
     [[nodiscard]] ThermGpios<result<int16_t>> thermGpioVoltage();
     [[nodiscard]] Segments<StatusGroupsRes>   status();
+    [[nodiscard]] Segments<result<uint64_t>>  serialNum();
 } // namespace read
 
 namespace command
@@ -267,7 +268,6 @@ namespace command
     [[nodiscard]] result<void> pollAuxAdc();
     [[nodiscard]] result<void> startBalance();
     [[nodiscard]] result<void> stopBalance();
-
     [[nodiscard]] result<void> owcCells(OpenWireSwitch owcSwitch);
 } // namespace command
 

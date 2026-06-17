@@ -154,6 +154,11 @@ BroadcastBuffer<CanErr, MAX_NUM_SEGMENTS, io::can_tx::BMS_SegmentStatCErrors_sen
     segment_stat_c_error_buffer(app::can_tx::BMS_SegmentStatCErrors_getData());
 BroadcastBuffer<CanErr, MAX_NUM_SEGMENTS, io::can_tx::BMS_SegmentStatDErrors_sendAperiodic>
     segment_stat_d_error_buffer(app::can_tx::BMS_SegmentStatDErrors_getData());
+// Three consecutive 16-bit words per segment hold the 48-bit serial: [seg*3 + w] = bits [16*w, 16*w + 16).
+BroadcastBuffer<uint16_t, 3 * MAX_NUM_SEGMENTS, io::can_tx::BMS_SegmentSerialIds_sendAperiodic>
+    segment_serial_id_buffer(app::can_tx::BMS_SegmentSerialIds_getData());
+BroadcastBuffer<CanErr, MAX_NUM_SEGMENTS, io::can_tx::BMS_SegmentSerialIdErrors_sendAperiodic>
+    segment_serial_id_error_buffer(app::can_tx::BMS_SegmentSerialIdErrors_getData());
 
 } // namespace
 
@@ -438,6 +443,28 @@ namespace debug
         segment_stat_d_error_buffer.send();
     }
 } // namespace debug
+
+void serialNumbers(const Segments<result<uint64_t>> &serial_nums)
+{
+    for (size_t seg = 0U; seg < NUM_SEGMENTS; seg++)
+    {
+        const auto    &r      = serial_nums[seg];
+        const uint64_t serial = r.value_or(0U);
+        segment_serial_id_buffer[seg * 3U]      = static_cast<uint16_t>(serial & 0xFFFFU);
+        segment_serial_id_buffer[seg * 3U + 1U] = static_cast<uint16_t>((serial >> 16U) & 0xFFFFU);
+        segment_serial_id_buffer[seg * 3U + 2U] = static_cast<uint16_t>((serial >> 32U) & 0xFFFFU);
+        segment_serial_id_error_buffer[seg]     = r ? app::can_utils::ErrorCode::NO_ERROR : toCanErr(r.error());
+    }
+    for (size_t seg = NUM_SEGMENTS; seg < MAX_NUM_SEGMENTS; seg++)
+    {
+        segment_serial_id_buffer[seg * 3U]      = 0U;
+        segment_serial_id_buffer[seg * 3U + 1U] = 0U;
+        segment_serial_id_buffer[seg * 3U + 2U] = 0U;
+        segment_serial_id_error_buffer[seg]     = app::can_utils::ErrorCode::NO_SEGMENT_DEFINED;
+    }
+    segment_serial_id_buffer.send();
+    segment_serial_id_error_buffer.send();
+}
 
 // void cmdCountMismatch(const Segments<uint8_t> &mismatches)
 // {

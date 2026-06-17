@@ -14,6 +14,9 @@ namespace io::adbms
 inline constexpr uint8_t CMD_BYTES = 2;
 inline constexpr uint8_t PEC_BYTES = 2;
 
+// Serial Number
+inline constexpr uint16_t RDSID = 0x002CU;
+
 // Config
 inline constexpr uint16_t WRCFGA = 0x0001U;
 inline constexpr uint16_t WRCFGB = 0x0024U;

@@ -8287,6 +8287,66 @@
       }
     }
   },
+  "SegmentSerialIds": {
+    "msg_id": 483,
+    "cycle_time": null,
+    "allowed_modes": [
+      "DEBUG"
+    ],
+    "description": "Per-segment 48-bit ADBMS serial number (read from RDSID), split into three 16-bit words (word0 = bits 0-15, word1 = bits 16-31, word2 = bits 32-47)",
+    "signals": {
+      "Seg0_SerialIdWord0": { "bits": 16 },
+      "Seg0_SerialIdWord1": { "bits": 16 },
+      "Seg0_SerialIdWord2": { "bits": 16 },
+      "Seg1_SerialIdWord0": { "bits": 16 },
+      "Seg1_SerialIdWord1": { "bits": 16 },
+      "Seg1_SerialIdWord2": { "bits": 16 },
+      "Seg2_SerialIdWord0": { "bits": 16 },
+      "Seg2_SerialIdWord1": { "bits": 16 },
+      "Seg2_SerialIdWord2": { "bits": 16 },
+      "Seg3_SerialIdWord0": { "bits": 16 },
+      "Seg3_SerialIdWord1": { "bits": 16 },
+      "Seg3_SerialIdWord2": { "bits": 16 },
+      "Seg4_SerialIdWord0": { "bits": 16 },
+      "Seg4_SerialIdWord1": { "bits": 16 },
+      "Seg4_SerialIdWord2": { "bits": 16 },
+      "Seg5_SerialIdWord0": { "bits": 16 },
+      "Seg5_SerialIdWord1": { "bits": 16 },
+      "Seg5_SerialIdWord2": { "bits": 16 },
+      "Seg6_SerialIdWord0": { "bits": 16 },
+      "Seg6_SerialIdWord1": { "bits": 16 },
+      "Seg6_SerialIdWord2": { "bits": 16 },
+      "Seg7_SerialIdWord0": { "bits": 16 },
+      "Seg7_SerialIdWord1": { "bits": 16 },
+      "Seg7_SerialIdWord2": { "bits": 16 },
+      "Seg8_SerialIdWord0": { "bits": 16 },
+      "Seg8_SerialIdWord1": { "bits": 16 },
+      "Seg8_SerialIdWord2": { "bits": 16 },
+      "Seg9_SerialIdWord0": { "bits": 16 },
+      "Seg9_SerialIdWord1": { "bits": 16 },
+      "Seg9_SerialIdWord2": { "bits": 16 }
+    }
+  },
+  "SegmentSerialIdErrors": {
+    "msg_id": 484,
+    "cycle_time": null,
+    "allowed_modes": [
+      "DEBUG"
+    ],
+    "description": "Per-segment error codes for segment serial number reads (NO_ERROR = no error)",
+    "signals": {
+      "Seg0_SerialIdError": { "enum": "ErrorCode" },
+      "Seg1_SerialIdError": { "enum": "ErrorCode" },
+      "Seg2_SerialIdError": { "enum": "ErrorCode" },
+      "Seg3_SerialIdError": { "enum": "ErrorCode" },
+      "Seg4_SerialIdError": { "enum": "ErrorCode" },
+      "Seg5_SerialIdError": { "enum": "ErrorCode" },
+      "Seg6_SerialIdError": { "enum": "ErrorCode" },
+      "Seg7_SerialIdError": { "enum": "ErrorCode" },
+      "Seg8_SerialIdError": { "enum": "ErrorCode" },
+      "Seg9_SerialIdError": { "enum": "ErrorCode" }
+    }
+  },
   "EvseCPStatus": {
     "msg_id": 482,
     "allowed_modes":[
