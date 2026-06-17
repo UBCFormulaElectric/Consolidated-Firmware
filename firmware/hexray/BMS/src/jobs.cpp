@@ -350,7 +350,7 @@ void jobs_runAdbmsAux_tick()
     {
         app::segments::config::setThermistorConfig(mux);
         sync_done.notify();
-        io::time::delay(100); // todo: expirement with this
+        io::time::delay(150); // todo: expirement with this
         LOG_IF_ERR(io::adbms::clear::aux());
 
         const auto therm_voltage_start_ok = io::adbms::command::startAuxAdc();
