@@ -19,6 +19,7 @@ namespace powerMonitoring
 namespace sbgEllipse
 {
     result<void> init();
+    void         handleLogs();
     void         setInit(bool initialized);
     void         setAttitude(float roll, float pitch, float yaw);
     void         setVelocity(
