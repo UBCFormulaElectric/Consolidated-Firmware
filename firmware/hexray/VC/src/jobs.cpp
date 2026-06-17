@@ -9,6 +9,7 @@
 #include "app_canRx.hpp"
 #include "app_lowVoltageBattery.hpp"
 #include "app_powerMonitoring.hpp"
+#include "app_sbgEllipse.hpp"
 #include "app/states/app_states.hpp"
 #include "app_stateMachine.hpp"
 #include "app_timer.hpp"
@@ -24,6 +25,7 @@
 #include "io_time.hpp"
 #include "io_batteryMonitoring.hpp"
 #include "io_canReroute.hpp"
+#include "io_sbgEllipse.hpp"
 #include "io_pcm.hpp"
 
 #include <util_errorCodes.hpp>
@@ -122,4 +124,9 @@ void jobs_runBatteryMonitoring_tick()
 void jobs_runPowerMonitoring_tick()
 {
     LOG_IF_ERR(app::powerMonitoring::update());
+}
+void jobs_runSbgEllipse_tick()
+{
+    io::sbgEllipse::handleLogs();
+    app::sbgEllipse::broadcast();
 }

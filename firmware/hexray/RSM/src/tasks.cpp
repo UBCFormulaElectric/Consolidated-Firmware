@@ -127,14 +127,10 @@ void tasks_runImu(void *arg)
     constexpr uint32_t      watchdog_grace_period_ms = 2U;
     hw::watchdog::instance &watchdogImu              = monitor.spawn_instance(period_ms + watchdog_grace_period_ms);
 
-    jobs_initImu();
-
     uint32_t start_ticks = osKernelGetTickCount();
     forever
     {
         jobs_runImu_tick();
-
-        watchdogImu.checkIn();
 
         start_ticks += period_ms;
         osDelayUntil(start_ticks);

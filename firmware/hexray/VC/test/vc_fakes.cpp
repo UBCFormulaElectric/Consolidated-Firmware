@@ -203,6 +203,11 @@ namespace sbgEllipse
 
 } // namespace fakes::io
 
+namespace io::sbgEllipse
+{
+void handleLogs() {}
+} // namespace io::sbgEllipse
+
 namespace io
 {
 namespace imus

@@ -34,13 +34,13 @@ void broadcast()
     can_tx::VC_EllipseTimestamp_set(timestamp_us);
 
     // EKF
-    const static io::sbgEllipse::VelocityData VelData            = io::sbgEllipse::getEkfNavVelocityData();
-    float                                     ekf_vel_N          = VelData.north;
-    float                                     ekf_vel_E          = VelData.east;
-    float                                     ekf_vel_D          = VelData.down;
-    const float                               ekf_vel_N_accuracy = VelData.north_std_dev;
-    const float                               ekf_vel_E_accuracy = VelData.east_std_dev;
-    const float                               ekf_vel_D_accuracy = VelData.down_std_dev;
+    const io::sbgEllipse::VelocityData VelData            = io::sbgEllipse::getEkfNavVelocityData();
+    float                              ekf_vel_N          = VelData.north;
+    float                              ekf_vel_E          = VelData.east;
+    float                              ekf_vel_D          = VelData.down;
+    const float                        ekf_vel_N_accuracy = VelData.north_std_dev;
+    const float                        ekf_vel_E_accuracy = VelData.east_std_dev;
+    const float                        ekf_vel_D_accuracy = VelData.down_std_dev;
 
     can_tx::VC_VelocityNorth_set(ekf_vel_N);
     can_tx::VC_VelocityEast_set(ekf_vel_E);
