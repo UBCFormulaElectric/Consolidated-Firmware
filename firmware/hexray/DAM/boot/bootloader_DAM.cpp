@@ -5,6 +5,8 @@
 #include "main.h"
 #include "hw_rtosTaskHandler.hpp"
 #include <cassert>
+#include <hw_gpio.hpp>
+#include <stm32h5xx_hal_gpio.h>
 #include "app_commitInfo.hpp"
 
 io::queue<hw::CanMsg, 256> boot_can_tx_queue{ "CanTxQueue" };
@@ -13,7 +15,7 @@ io::queue<hw::CanMsg, 256> boot_can_rx_queue{ "CanRxQueue" };
 namespace hw::cans
 {
 fdcan fdcan1(hfdcan1, [](const hw::CanMsg &msg) { (void)boot_can_rx_queue.push(msg); });
-}
+} // namespace hw::cans
 
 const hw::fdcan &hw::fdcan_getHandle(const FDCAN_HandleTypeDef *hfdcan)
 {
@@ -65,6 +67,8 @@ static hw::rtos::StaticTask bootCanTxTask(
 [[noreturn]] void bootloader_init()
 {
     HAL_GPIO_WritePin(BOOT_LED_GPIO_Port, BOOT_LED_Pin, GPIO_PIN_SET);
+    HAL_GPIO_WritePin(nTSIM_GRN_EN_GPIO_Port, nTSIM_GRN_EN_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(TSIM_RED_EN_GPIO_Port, TSIM_RED_EN_Pin, GPIO_PIN_RESET);
     osKernelInitialize();
     bootloader::init(dam_boot_config);
     bootInterfaceTask.start();
