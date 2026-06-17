@@ -42,14 +42,14 @@
       "ActualVelocity": {
         "start_bit": 16,
         "bits": 16,
-        "signed": true,
+        "signed": false,
         "start_value": 0
       },
       "RawCurrent": {
         "start_bit": 32,
         "bits": 16,
         "resolution": 0.1,
-        "signed": true,
+        "signed": false,
         "unit": "A",
         "start_value": 0
       },
@@ -68,14 +68,14 @@
       "MotorTemperature": {
         "start_bit": 0,
         "resolution": 0.1,
-        "signed": true,
+        "signed": false,
         "min": -1,
         "max": 1000
       },
       "InverterTemperature": {
         "start_bit": 16,
         "resolution": 0.1,
-        "signed": true,
+        "signed": false,
         "min": -1,
         "max": 1000
       },
@@ -86,7 +86,7 @@
       "IGBTTemperature": {
         "start_bit": 48,
         "resolution": 0.1,
-        "signed": true,
+        "signed": false,
         "min": -1,
         "max": 1000
       }
