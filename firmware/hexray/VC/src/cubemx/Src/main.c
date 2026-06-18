@@ -64,6 +64,7 @@ TIM_HandleTypeDef htim3;
 TIM_HandleTypeDef htim7;
 
 UART_HandleTypeDef huart8;
+DMA_HandleTypeDef  hdma_uart8_rx;
 
 PCD_HandleTypeDef hpcd_USB_OTG_HS;
 
@@ -87,9 +88,9 @@ static void MX_SPI2_Init(void);
 static void MX_I2C5_Init(void);
 static void MX_UART8_Init(void);
 static void MX_TIM3_Init(void);
+static void MX_FMAC_Init(void);
 static void MX_IWDG1_Init(void);
 static void MX_TIM7_Init(void);
-static void MX_FMAC_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -142,9 +143,9 @@ int main(void)
     MX_I2C5_Init();
     MX_UART8_Init();
     MX_TIM3_Init();
+    MX_FMAC_Init();
     MX_IWDG1_Init();
     MX_TIM7_Init();
-    MX_FMAC_Init();
     /* USER CODE BEGIN 2 */
     HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_RESET);
     ;
@@ -890,7 +891,7 @@ static void MX_UART8_Init(void)
 
     /* USER CODE END UART8_Init 1 */
     huart8.Instance                    = UART8;
-    huart8.Init.BaudRate               = 115200;
+    huart8.Init.BaudRate               = SBG_ELLIPSE_GPS_BAUD_RATE;
     huart8.Init.WordLength             = UART_WORDLENGTH_8B;
     huart8.Init.StopBits               = UART_STOPBITS_1;
     huart8.Init.Parity                 = UART_PARITY_NONE;
@@ -965,11 +966,14 @@ static void MX_DMA_Init(void)
 
     /* DMA interrupt init */
     /* DMA1_Stream1_IRQn interrupt configuration */
-    HAL_NVIC_SetPriority(DMA1_Stream1_IRQn, 0, 0);
+    HAL_NVIC_SetPriority(DMA1_Stream1_IRQn, 5, 0);
     HAL_NVIC_EnableIRQ(DMA1_Stream1_IRQn);
     /* DMA1_Stream2_IRQn interrupt configuration */
-    HAL_NVIC_SetPriority(DMA1_Stream2_IRQn, 0, 0);
+    HAL_NVIC_SetPriority(DMA1_Stream2_IRQn, 5, 0);
     HAL_NVIC_EnableIRQ(DMA1_Stream2_IRQn);
+    /* DMA1_Stream5_IRQn interrupt configuration */
+    HAL_NVIC_SetPriority(DMA1_Stream5_IRQn, 5, 0);
+    HAL_NVIC_EnableIRQ(DMA1_Stream5_IRQn);
 }
 
 /**

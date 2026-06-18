@@ -148,6 +148,18 @@ static void inverter_start_retry_routine(const app::inverter::Handle &handle)
     }
 }
 
+static void inverter_stop_retry_routine(const app::inverter::Handle &handle)
+{
+    // Start retry cycle if faulted
+    if (handle.can_error_bit())
+    {
+        handle.can_invOn(true);
+        handle.can_enable_inv(true);
+        handle.can_inv_warning(false);
+        handle.error_reset(false);
+    }
+}
+
 static bool lockout()
 {
     // Lockout check, if ANY lockout, stop retrying and remain faulted.
@@ -192,9 +204,12 @@ app::inverter::FaultHandlerState app::inverter::FaultHandler()
     {
         LOG_INFO("retry -> all inverter errors cleared");
         retry_count = 0u;
+        inverter_stop_retry_routine(inverter_handle_FL);
+        inverter_stop_retry_routine(inverter_handle_FR);
+        inverter_stop_retry_routine(inverter_handle_RL);
+        inverter_stop_retry_routine(inverter_handle_RR);
         return INV_FAULT_RECOVERED;
     }
-
     // Now start a new retry cycle is fault persist after TIMEOUT = 1000 ms of retrying
     const Timer::TimerState state = retry_timer.runIfCondition(!inverter_fault);
 

@@ -23,7 +23,17 @@ static void canRxCallback(const hw::CanMsg &msg)
 #endif
 }
 
-constexpr hw::fdcan fdcan1{ hfdcan1, canRxCallback };
+static void chargerRxCallback(const hw::CanMsg &msg)
+{
+#ifndef USE_CHIMERA
+    LOG_IF_ERR(
+        can_rx_queue.push(io::CanMsg{ msg.std_id, msg.dlc, msg.data, true, app::can_utils::BusEnum::Bus_charger }));
+#else
+    UNUSED(msg);
+#endif
+}
+
+constexpr hw::fdcan fdcan1{ hfdcan1, chargerRxCallback };
 constexpr hw::fdcan fdcan2{ hfdcan2, canRxCallback };
 
 const hw::fdcan &hw::fdcan_getHandle(const FDCAN_HandleTypeDef *hfdcan)

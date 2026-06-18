@@ -44,5 +44,6 @@ void  init();
 void  restart();
 State poll(bool precharge_for_charging);
 bool  limitExceeded();
+void  resetLimitExceeded();
 
 } // namespace app::precharge

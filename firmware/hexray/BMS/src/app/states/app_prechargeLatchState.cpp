@@ -1,5 +1,3 @@
-// TODO: Reset precharge limit exceeded
-
 #include <cstddef>
 
 #include "app_states.hpp"
@@ -31,7 +29,7 @@ namespace prechargeLatchState
 
     static void runOnExit()
     {
-        // Nothing to do here yet
+        app::precharge::resetLimitExceeded();
     }
 
 } // namespace prechargeLatchState

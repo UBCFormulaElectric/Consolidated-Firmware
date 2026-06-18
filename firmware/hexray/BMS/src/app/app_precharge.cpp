@@ -4,9 +4,10 @@
 #include "app_precharge.hpp"
 #include "app_timer.hpp"
 #include "app_tractiveSystem.hpp"
-#include "io_irs.hpp"
 #include "app_canAlerts.hpp"
 #include "app_segments.hpp"
+#include "io_irs.hpp"
+#include "io_semaphore.hpp"
 
 namespace app::precharge
 {
@@ -60,9 +61,11 @@ State poll(bool precharge_for_charging)
 #define HV_SUPPLY_VOLTAGE (588.0f)
     const float threshold_voltage = HV_SUPPLY_VOLTAGE * PRECHARGE_ACC_V_THRESHOLD;
 #else
-    // TODO: Change back if we ever get to 10 segments again
-    // const float threshold_voltage = app::segments::getPackVoltage() * PRECHARGE_ACC_V_THRESHOLD;
-    constexpr float threshold_voltage = 480.0f * PRECHARGE_ACC_V_THRESHOLD;
+    float threshold_voltage;
+    {
+        io::unique_semaphore s{ shared_lock };
+        threshold_voltage = app::segments::shared::getPackVoltage().value() * PRECHARGE_ACC_V_THRESHOLD;
+    }
 #endif
 
     const bool is_air_negative_open =
@@ -111,6 +114,12 @@ State poll(bool precharge_for_charging)
 bool limitExceeded()
 {
     return precharge_limit_exceeded;
+}
+
+void resetLimitExceeded()
+{
+    precharge_limit_exceeded = false;
+    num_precharge_failures   = 0U;
 }
 
 } // namespace app::precharge

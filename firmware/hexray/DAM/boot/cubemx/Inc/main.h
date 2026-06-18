@@ -63,6 +63,10 @@ extern "C"
 #define LED_GPIO_Port GPIOC
 #define BOOT_LED_Pin GPIO_PIN_1
 #define BOOT_LED_GPIO_Port GPIOC
+#define nTSIM_GRN_EN_Pin GPIO_PIN_5
+#define nTSIM_GRN_EN_GPIO_Port GPIOB
+#define TSIM_RED_EN_Pin GPIO_PIN_6
+#define TSIM_RED_EN_GPIO_Port GPIOB
 
     /* USER CODE BEGIN Private defines */
 

@@ -1,3 +1,5 @@
+#pragma once
+
 #include "app_canUtils.hpp"
 
 namespace io::irs
