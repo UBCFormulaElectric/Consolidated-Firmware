@@ -448,8 +448,8 @@ void serialNumbers(const Segments<result<uint64_t>> &serial_nums)
 {
     for (size_t seg = 0U; seg < NUM_SEGMENTS; seg++)
     {
-        const auto    &r      = serial_nums[seg];
-        const uint64_t serial = r.value_or(0U);
+        const auto    &r                        = serial_nums[seg];
+        const uint64_t serial                   = r.value_or(0U);
         segment_serial_id_buffer[seg * 3U]      = static_cast<uint16_t>(serial & 0xFFFFU);
         segment_serial_id_buffer[seg * 3U + 1U] = static_cast<uint16_t>((serial >> 16U) & 0xFFFFU);
         segment_serial_id_buffer[seg * 3U + 2U] = static_cast<uint16_t>((serial >> 32U) & 0xFFFFU);

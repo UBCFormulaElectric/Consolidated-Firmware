@@ -23,7 +23,7 @@ namespace balancingState
             (io::irs::negativeState() == app::can_utils::ContactorState::CONTACTOR_STATE_OPEN);
         const bool balancing_enabled = app::can_rx::Debug_CellBalancing_Request_get();
 
-        if (balancing_enabled && ir_negative_open)
+        if (balancing_enabled && !ir_negative_open)
         {
             app::segments::balancing::tick();
         }

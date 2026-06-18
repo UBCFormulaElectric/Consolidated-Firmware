@@ -11,9 +11,10 @@
     "INVALID_READING": 8,
     "ERROR_INDETERMINATE": 9,
     "POLL_INVALID": 10, 
-    "THERM_OUT_OF_RANGE": 11,
-    "NO_SEGMENT_DEFINED" : 12,
-    "NO_ERROR" : 13
+    "LUT_UNDERSHOOT": 11,
+    "LUT_OVERSHOOT": 12,
+    "NO_SEGMENT_DEFINED" : 13,
+    "NO_ERROR" : 14
   },
   "SwitchState": {
     "OFF": 0,

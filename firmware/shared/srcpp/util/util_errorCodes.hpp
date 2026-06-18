@@ -16,11 +16,11 @@ enum class ErrorCode
     INVALID_READING,
     ERROR_INDETERMINATE,
     POLL_INVALID,
-    THERM_OUT_OF_RANGE,
-    NUM_EXIT_CODES,
     LUT_INVALID,
     LUT_OVERSHOOT,
-    LUT_UNDERSHOOT
+    LUT_UNDERSHOOT,
+    NO_SEGMENT_DEFINED,
+    NUM_EXIT_CODES
 };
 
 template <typename T> using result = std::expected<T, ErrorCode>;
@@ -51,8 +51,12 @@ constexpr const char *error_code_to_string(const ErrorCode code)
             return "Indeterminate error";
         case ErrorCode::POLL_INVALID:
             return "Poll invalid";
-        case ErrorCode::THERM_OUT_OF_RANGE:
-            return "Therm out of range";
+        case ErrorCode::LUT_UNDERSHOOT:
+            return "LUT undershoot";
+        case ErrorCode::LUT_OVERSHOOT:
+            return "LUT overshoot";
+        case ErrorCode::NO_SEGMENT_DEFINED:
+            return "No segment defined for this index";
         case ErrorCode::NUM_EXIT_CODES:
         default:
             return "Unknown error code";
