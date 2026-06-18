@@ -18,6 +18,28 @@ static std::array<const Screen *, NUM_DEVICE_SCREENS> drive_screens = { {
     &drive_modes_screen,
 } };
 
+static size_t screen_count()
+{
+    switch (can_rx::VC_State_get())
+    {
+        case can_utils::VCState::VC_DRIVE_WARNING_STATE:
+        case can_utils::VCState::VC_FAULT_STATE:
+        case can_utils::VCState::VC_INVERTER_FAULT_HANDELER:
+            // disable rotary
+            return 0;
+        case can_utils::VCState::VC_PCM_ON_STATE:
+        case can_utils::VCState::VC_HV_INIT_STATE:
+        case can_utils::VCState::VC_INVERTER_ON_STATE:
+        case can_utils::VCState::VC_BMS_ON_STATE:
+        case can_utils::VCState::VC_INIT_STATE:
+        default:
+            return LV_MAX;
+        case can_utils::VCState::VC_HV_ON_STATE:
+        case can_utils::VCState::VC_DRIVE_STATE:
+            return HV_MAX;
+    }
+}
+
 /*********************** Function Definitions ***************************/
 void init()
 {
@@ -28,26 +50,10 @@ void init()
         []
         {
             // transition to next
-            size_t max_screens;
-            switch (can_rx::VC_State_get())
+            const size_t max_screens = screen_count();
+            if (max_screens == 0)
             {
-                case can_utils::VCState::VC_DRIVE_WARNING_STATE:
-                case can_utils::VCState::VC_FAULT_STATE:
-                case can_utils::VCState::VC_INVERTER_FAULT_HANDELER:
-                    // disable rotary
-                    return;
-                case can_utils::VCState::VC_PCM_ON_STATE:
-                case can_utils::VCState::VC_HV_INIT_STATE:
-                case can_utils::VCState::VC_INVERTER_ON_STATE:
-                case can_utils::VCState::VC_BMS_ON_STATE:
-                case can_utils::VCState::VC_INIT_STATE:
-                default:
-                    max_screens = LV_MAX;
-                    break;
-                case can_utils::VCState::VC_HV_ON_STATE:
-                case can_utils::VCState::VC_DRIVE_STATE:
-                    max_screens = HV_MAX;
-                    break;
+                return;
             }
             current_screen = (current_screen + 1) % max_screens;
         });
