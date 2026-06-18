@@ -1,5 +1,6 @@
 #pragma once
 #include "app_math.hpp"
+#include "util_errorCodes.hpp"
 
 #include <cstddef>
 #include <cstdint>
@@ -48,27 +49,39 @@ namespace therm
          * Calculate temperature based on thermistor temperature and LUT
          * @param thermistor_resistance resistance of the thermistor
          * @param temp_resistance_lut reverse lookup table
-         * @return Thermistor temperature in degrees C or -1 if out of bounds or invalid LUT
+         * @return Thermistor temperature in degrees C or lowest float if out of bounds or invalid LUT.
+         * Special case for temperature too high, will return highest float instead of lowest.
          */
-        float resistanceToTemp(float thermistor_resistance) const noexcept
+        std::expected<float, ErrorCode> resistanceToTemp(float thermistor_resistance) const noexcept
         {
             if (!valid_ || resistances_ == nullptr || size_ == 0U)
-                return -1.0f;
+                return std::unexpected(ErrorCode::LUT_INVALID);
 
-            // Guard against NaN/inf inputs
-            if (!std::isfinite(thermistor_resistance))
-                return -1.0f;
+            // Ensure resistance is within bounds: resistances[0] is highest, resistances[size-1] is lowest
+            if (!std::isfinite(thermistor_resistance) || thermistor_resistance >= resistances_[0])
+            {
+                return std::unexpected(ErrorCode::LUT_UNDERSHOOT);
+            }
+            else if (thermistor_resistance <= resistances_[size_ - 1U])
+            {
+                return std::unexpected(ErrorCode::LUT_OVERSHOOT);
+            }
 
             // Handle trivial single-entry LUT safely
             if (size_ == 1U)
             {
-                return APPROX_EQUAL_FLOAT(thermistor_resistance, resistances_[0], 0.0001f) ? starting_temp_ : -1.0f;
-            }
-
-            // Ensure resistance is within bounds: resistances[0] is highest, resistances[size-1] is lowest
-            if (!(thermistor_resistance <= resistances_[0] && thermistor_resistance >= resistances_[size_ - 1U]))
-            {
-                return -1.0f;
+                if (!APPROX_EQUAL_FLOAT(thermistor_resistance, resistances_[0], 0.0001f))
+                {
+                    if (thermistor_resistance > resistances_[0])
+                    {
+                        return std::unexpected(ErrorCode::LUT_UNDERSHOOT);
+                    }
+                    else
+                    {
+                        return std::unexpected(ErrorCode::LUT_OVERSHOOT);
+                    }
+                }
+                return starting_temp_;
             }
 
             // Binary search for insertion point

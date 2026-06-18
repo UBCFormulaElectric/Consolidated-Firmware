@@ -42,6 +42,13 @@ float readSelectedTemp()
     const float raw_voltage           = aux_tsns.getVoltage();
     const float thermistor_resistance = (raw_voltage * BIAS_RESISTOR_OHM) / (REFERENCE_VOLTAGE - raw_voltage);
 
-    return b57861s_lut.resistanceToTemp(thermistor_resistance);
+    const auto result = b57861s_lut.resistanceToTemp(thermistor_resistance);
+    if (!result)
+    {
+        LOG_ERROR("Thermistor LUT error: {}", static_cast<int>(result.error()));
+        return std::numeric_limits<float>::lowest();
+    }
+
+    return result.value();
 }
 } // namespace io::therm

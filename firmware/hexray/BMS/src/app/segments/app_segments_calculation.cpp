@@ -130,7 +130,13 @@ Therms<result<float>>
 
             const float voltage    = reading.value();
             const float resistance = R_SERIES * (voltage / (V_REF2 - voltage));
-            out[seg][therm]        = app::therm::adbms_ntc10k_lut.resistanceToTemp(resistance);
+            const auto  temp       = app::therm::adbms_ntc10k_lut.resistanceToTemp(resistance);
+            if (!temp)
+            {
+                out[seg][therm] = std::unexpected(temp.error());
+                continue;
+            }
+            out[seg][therm] = temp.value();
         }
     }
     return out;

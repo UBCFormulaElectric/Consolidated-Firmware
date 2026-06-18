@@ -110,6 +110,7 @@ namespace broadcast
     } // namespace debug
 
     void segmentHealthError(const health::Snapshot &health);
+    void serialNumbers(const io::adbms::Segments<result<uint64_t>> &serial_nums);
     void cellVoltageStats(const CellParam<float> &min, const CellParam<float> &max);
     void cellTempStats(const CellParam<float> &min, const CellParam<float> &max);
     void segmentVoltageStats(const SegmentParam<float> &min, const SegmentParam<float> &max);

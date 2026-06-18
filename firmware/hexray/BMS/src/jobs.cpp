@@ -140,6 +140,7 @@ void jobs_run100Hz_tick()
     app::latches::broadcast();
     app::can_tx::BMS_BSPDBrakePressureThresholdExceeded_set(io::bspdtest::isBrakePressureThresholdExceeded());
     app::can_tx::BMS_BSPDAccelBrakeOk_set(io::bspdtest::isAccelBrakeOk());
+    io::bspdtest::enable(app::can_rx::Debug_EnableTestCurrent_get());
 
     if (app::can_alerts::AnyBoardHasFault())
     {
@@ -188,12 +189,15 @@ void jobs_runAdbmsConfigs_tick()
         }
     }
 
+    const Segments<result<uint64_t>> serial_numbers = io::adbms::read::serialNum();
+
     std::array<std::bitset<app::segments::health::NUM_HEALTH_BITS>, MAX_NUM_SEGMENTS> health;
     {
         const io::unique_semaphore h{ health_lock };
         health = app::segments::health::getAll();
     }
 
+    app::segments::broadcast::serialNumbers(serial_numbers);
     app::segments::broadcast::segmentHealthError(health);
 
     if (all_segments_ok)
