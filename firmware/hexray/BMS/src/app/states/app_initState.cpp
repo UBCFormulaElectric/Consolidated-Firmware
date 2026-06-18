@@ -1,7 +1,6 @@
 #include "app_states.hpp"
 #include "io_irs.hpp"
 #include "io_charger.hpp"
-#include "io_pcm.hpp"
 #include "app_canRx.hpp"
 #include "app_canTx.hpp"
 #include "app_canUtils.hpp"
@@ -22,7 +21,6 @@ namespace initState
         // Should always be opened at this point from other states; this is only for redundancy
         // since we really don't want AIR+ closed in init.
         io::irs::setPositive(app::can_utils::ContactorState::CONTACTOR_STATE_OPEN);
-        io::pcm::set(false);
     }
 
     void RunOnTick100Hz()
