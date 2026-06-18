@@ -7,16 +7,13 @@
 namespace app::screens
 {
 /************************* Global Variables ***************************/
-inline constexpr size_t NUM_DEVICE_SCREENS = 3u;
+inline constexpr size_t NUM_DEVICE_SCREENS = 4u;
 inline constexpr size_t LV_MAX             = 3u;
 inline constexpr size_t HV_MAX             = 3u;
 static size_t           current_screen     = 0;
 
-static std::array<const Screen *, NUM_DEVICE_SCREENS> drive_screens = { {
-    &shdn_screen,
-    &brightness_screen,
-    &drive_modes_screen,
-} };
+static std::array<const Screen *, NUM_DEVICE_SCREENS> drive_screens = { { &shdn_screen, &brightness_screen,
+                                                                          &drive_modes_screen, &inv_error_screen } };
 
 static size_t screen_count()
 {
@@ -69,8 +66,10 @@ void tick()
     {
         case can_utils::VCState::VC_DRIVE_WARNING_STATE:
         case can_utils::VCState::VC_FAULT_STATE:
-        case can_utils::VCState::VC_INVERTER_FAULT_HANDELER:
             alerts_screen.update();
+            return;
+        case can_utils::VCState::VC_INVERTER_FAULT_HANDELER:
+            inv_error_screen.update();
             return;
         case can_utils::VCState::VC_INIT_STATE:
         case can_utils::VCState::VC_INVERTER_ON_STATE:

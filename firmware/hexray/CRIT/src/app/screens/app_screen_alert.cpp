@@ -2,14 +2,12 @@
 #include "io_sevenSeg.hpp"
 #include "app_canAlerts.hpp"
 #include "util_retry.hpp"
-#include "app_canRx.hpp"
 #include <algorithm>
 #include <cassert>
 
 static int     alert_index = 0;
 static uint8_t alert_count = 0;
-using namespace app::can_rx;
-static void update()
+static void    update()
 {
     //
     std::array<io::seven_seg::digit, io::seven_seg::DIGITS> screen_buf{
