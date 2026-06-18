@@ -31,6 +31,16 @@ struct led_frame
     {
     }
 
+    // in RGBA
+    explicit led_frame(const uint32_t hex)
+      : led_frame(
+            static_cast<uint8_t>((hex) & 0xFF),
+            static_cast<uint8_t>((hex >> 24) & 0xFF),
+            static_cast<uint8_t>((hex >> 16) & 0xFF),
+            static_cast<uint8_t>((hex >> 8) & 0xFF))
+    {
+    }
+
     led_frame() = default;
 };
 static_assert(sizeof(led_frame) == 4);
