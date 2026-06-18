@@ -9,6 +9,7 @@
 #include "io_canQueues.hpp"
 #include "io_pumpFake.hpp"
 #include "io_pumps.hpp"
+#include "io_brakeLight.hpp"
 
 namespace fakes::io
 {
@@ -131,6 +132,14 @@ namespace tireTemp
         return fakes::io::tireTemp::temperature;
     }
 } // namespace tireTemp
+
+namespace brakeLight
+{
+    void set(const bool value)
+    {
+        // Do nothing for the fake
+    }
+} // namespace brakeLight
 } // namespace io
 
 const io::pump rl_pump{};
