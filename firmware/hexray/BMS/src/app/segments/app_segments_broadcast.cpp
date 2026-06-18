@@ -465,22 +465,6 @@ void serialNumbers(const Segments<result<uint64_t>> &serial_nums)
     segment_serial_id_error_buffer.send();
 }
 
-// void cmdCountMismatch(const Segments<uint8_t> &mismatches)
-// {
-//     for (size_t seg = 0U; seg < NUM_SEGMENTS; seg++)
-//     {
-//         segment_cmdcnt_buffer[seg] = mismatches[seg];
-//     }
-//     segment_cmdcnt_buffer.send();
-// }
-
-// void spiLinkStats(const io::adbms::SpiBusReach &reach)
-// {
-// can_tx::BMS_LowSideSegmentReach_set(reach.ls_reach);
-// can_tx::BMS_HighSideSegmentReach_set(reach.hs_reach);
-// io::can_tx::BMS_SpiLinkStatus_sendAperiodic();
-// }
-
 void segmentHealthError(const health::Snapshot &health)
 {
     for (size_t seg = 0U; seg < MAX_NUM_SEGMENTS; seg++)
