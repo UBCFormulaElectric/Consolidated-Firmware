@@ -160,7 +160,6 @@ static void inverter_stop_retry_routine(const app::inverter::Handle &handle)
     }
 }
 
-
 static bool lockout()
 {
     // Lockout check, if ANY lockout, stop retrying and remain faulted.
