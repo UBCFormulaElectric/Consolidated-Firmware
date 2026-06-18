@@ -81,6 +81,7 @@ void tick()
         default:
             break;
     }
+    current_screen %= screen_count();
     drive_screens[current_screen]->update();
 }
 } // namespace app::screens
