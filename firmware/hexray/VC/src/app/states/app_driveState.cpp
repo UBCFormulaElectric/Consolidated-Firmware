@@ -52,7 +52,7 @@ static void driveStateRunOnEntry()
 
 static void driveStateRunOnTick100Hz()
 {
-    const bool bms_drive_dropped = can_rx::BMS_State_get() != BmsState::BMS_DRIVE_STATE;
+    const bool bms_drive_dropped     = can_rx::BMS_State_get() != BmsState::BMS_DRIVE_STATE;
     const bool drive_allowed_dropped = inverter::drive_allowed();
     if (bms_drive_dropped)
     {

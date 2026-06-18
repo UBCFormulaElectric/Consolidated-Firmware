@@ -13,8 +13,8 @@
 using namespace app::can_utils;
 namespace app
 {
-static State       *state_to_recover_after_fault;
-static Timer        retry_timer{ 1000u };
+static State            *state_to_recover_after_fault;
+static Timer             retry_timer{ 1000u };
 static constexpr uint8_t RETRY_LIMIT = 3;
 static uint8_t           retry_count = 0;
 
@@ -85,11 +85,7 @@ void inverter::inverter_enable_toggle(const bool fl, const bool fr, const bool r
     inverter_handle_RR.can_enable_inv(rr);
 }
 
-void inverter::set_torque_limit_negative(
-    const float fl_Nm,
-    const float fr_Nm,
-    const float rl_Nm,
-    const float rr_Nm)
+void inverter::set_torque_limit_negative(const float fl_Nm, const float fr_Nm, const float rl_Nm, const float rr_Nm)
 {
     using tv::datatypes::torque_limits::TORQUE_REQUEST;
 
@@ -99,11 +95,7 @@ void inverter::set_torque_limit_negative(
     inverter_handle_RR.can_torque_limit_negative(TORQUE_REQUEST(rr_Nm));
 }
 
-void inverter::set_torque_limit_positive(
-    const float fl_Nm,
-    const float fr_Nm,
-    const float rl_Nm,
-    const float rr_Nm)
+void inverter::set_torque_limit_positive(const float fl_Nm, const float fr_Nm, const float rl_Nm, const float rr_Nm)
 {
     using tv::datatypes::torque_limits::TORQUE_REQUEST;
 
@@ -295,4 +287,4 @@ bool inverter::drive_allowed(void)
     return invfl_drive_allowed && invfr_drive_allowed && invrl_drive_allowed && invrr_drive_allowed;
 }
 
-}
+} // namespace app
