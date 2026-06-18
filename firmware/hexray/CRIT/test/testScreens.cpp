@@ -2,8 +2,6 @@
 #include "app_canRx.hpp"
 #include "critMocks.hpp"
 
-#include <iterator>
-
 class TestScreens : public CRITBaseTest
 {
 };
