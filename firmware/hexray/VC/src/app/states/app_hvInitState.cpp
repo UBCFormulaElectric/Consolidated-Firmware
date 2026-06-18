@@ -3,6 +3,7 @@
 #include "app_canTx.hpp"
 #include "app_canRx.hpp"
 #include "io_log.hpp"
+#include "io_pcm.hpp"
 #include "app_canUtils.hpp"
 #include "app_powerManager.hpp"
 
@@ -71,12 +72,15 @@ namespace hvInitState
         can_tx::VC_INVRRTorqueLimitPositive_set(NO_TORQUE);
         can_tx::VC_INVRLTorqueLimitPositive_set(NO_TORQUE);
 
+        io::pcm::set(true);
         current_inverter_state = VCInverterState::INV_SYSTEM_READY;
     }
 
     static void runOnTick100Hz()
     {
-        if (can_rx::BMS_State_get() == BmsState::BMS_INIT_STATE)
+        const bool bms_drive_dropped = can_rx::BMS_State_get() != BmsState::BMS_DRIVE_STATE;
+
+        if (bms_drive_dropped)
         {
             StateMachine::set_next_state(&init_state);
             return;

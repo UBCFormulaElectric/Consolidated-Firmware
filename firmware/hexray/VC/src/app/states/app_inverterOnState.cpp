@@ -4,6 +4,7 @@
 #include "app_canRx.hpp"
 #include "app_canUtils.hpp"
 #include "io_log.hpp"
+#include "io_pcm.hpp"
 
 #include "app_powerManager.hpp"
 
@@ -30,6 +31,7 @@ namespace inverterOnState
         app::powerManager::updateConfig(power_manager_state);
 
         can_tx::VC_State_set(VCState::VC_INVERTER_ON_STATE);
+        io::pcm::set(false);
     }
 
     static void runOnTick100Hz()

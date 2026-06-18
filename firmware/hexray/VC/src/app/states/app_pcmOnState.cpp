@@ -68,6 +68,13 @@ namespace pcmOnState
     static void runOnTick100Hz()
     {
         const float pcm_curr_voltage = can_tx::VC_PcmChannelVoltage_get();
+        const bool bms_drive_dropped = can_rx::BMS_State_get() == BmsState::BMS_DRIVE_STATE;
+
+        if (bms_drive_dropped) // Check at end of tick, such that ifthere is a fault
+                                                                 // and IR- is closed, we go to fault
+        {
+            StateMachine::set_next_state(&init_state);
+        }
         switch (pcm_retry_states)
         {
             case PCM_ON_STATE:
@@ -122,11 +129,6 @@ namespace pcmOnState
             can_alerts::infos::PcmUnderVoltage_set(true);
             StateMachine::set_next_state(&fault_state); // TODO maybe don't make this a latching fault?
             return;
-        }
-        if (can_rx::BMS_State_get() == BmsState::BMS_INIT_STATE) // Check at end of tick, such that ifthere is a fault
-                                                                 // and IR- is closed, we go to fault
-        {
-            StateMachine::set_next_state(&init_state);
         }
     }
 

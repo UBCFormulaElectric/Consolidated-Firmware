@@ -5,6 +5,7 @@
 #include "app_canUtils.hpp"
 #include "app_powerManager.hpp"
 #include "io_log.hpp"
+#include "io_pcm.hpp"
 
 using namespace app::can_utils;
 
@@ -32,6 +33,7 @@ namespace bmsOnStates
         app::powerManager::updateConfig(power_manager_state);
 
         can_tx::VC_State_set(VCState::VC_BMS_ON_STATE);
+        io::pcm::set(false);
     }
 
     static void runOnTick100Hz()

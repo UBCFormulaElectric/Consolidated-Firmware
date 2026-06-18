@@ -10,6 +10,7 @@
 #include "torque_vectoring/datatypes/torque_limits.hpp"
 
 #include "io_log.hpp"
+#include "io_pcm.hpp"
 
 using namespace app::can_utils;
 using namespace app::inverter;
@@ -42,6 +43,7 @@ static void driveStateRunOnEntry()
     // Ensure inverters are enabled
     inverter_enable_toggle(true, true, true, true);
 
+    io::pcm::set(true);
     set_torque_limit_negative(MAX_REGEN_TORQUE_Nm, MAX_REGEN_TORQUE_Nm, MAX_REGEN_TORQUE_Nm, MAX_REGEN_TORQUE_Nm);
     set_torque_limit_positive(
         MAX_TORQUE_REQUEST_Nm, MAX_TORQUE_REQUEST_Nm, MAX_TORQUE_REQUEST_Nm, MAX_TORQUE_REQUEST_Nm);
@@ -50,11 +52,23 @@ static void driveStateRunOnEntry()
 
 static void driveStateRunOnTick100Hz()
 {
-    if (can_rx::BMS_State_get() == BmsState::BMS_INIT_STATE)
+    const bool bms_drive_dropped = can_rx::BMS_State_get() != BmsState::BMS_DRIVE_STATE;
+    const bool drive_allowed_dropped = inverter::drive_allowed();
+    if (bms_drive_dropped)
     {
         StateMachine::set_next_state(&init_state);
         return;
     }
+    else if (drive_allowed_dropped)
+    {
+        StateMachine::set_next_state(&hvInit_state);
+        return;
+    }
+    else
+    {
+        // Do nothing
+    }
+
     if (startSwitch::hasRisingEdge())
     {
         StateMachine::set_next_state(&hv_state);
