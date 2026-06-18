@@ -5,7 +5,7 @@
 #include <algorithm>
 #include <cassert>
 
-std::array<io::seven_seg::digit, io::seven_seg::DIGITS> screen_buf{
+static std::array<io::seven_seg::digit, io::seven_seg::DIGITS> screen_buf{
     { io::seven_seg::a, io::seven_seg::l, io::seven_seg::t, io::seven_seg::dot, io::seven_seg::dot, io::seven_seg::dot,
       io::seven_seg::dot, io::seven_seg::dot, io::seven_seg::dot }
 };
@@ -14,6 +14,7 @@ static uint16_t prev_fr = 0u;
 static uint16_t prev_rr = 0u;
 static uint16_t prev_fl = 0u;
 static uint16_t prev_rl = 0u;
+using namespace app::can_rx;
 
 static void update()
 {
