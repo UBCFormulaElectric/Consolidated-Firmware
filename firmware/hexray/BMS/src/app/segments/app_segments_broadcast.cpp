@@ -154,7 +154,6 @@ BroadcastBuffer<CanErr, MAX_NUM_SEGMENTS, io::can_tx::BMS_SegmentStatCErrors_sen
     segment_stat_c_error_buffer(app::can_tx::BMS_SegmentStatCErrors_getData());
 BroadcastBuffer<CanErr, MAX_NUM_SEGMENTS, io::can_tx::BMS_SegmentStatDErrors_sendAperiodic>
     segment_stat_d_error_buffer(app::can_tx::BMS_SegmentStatDErrors_getData());
-// Three consecutive 16-bit words per segment hold the 48-bit serial: [seg*3 + w] = bits [16*w, 16*w + 16).
 BroadcastBuffer<uint16_t, 3 * MAX_NUM_SEGMENTS, io::can_tx::BMS_SegmentSerialIds_sendAperiodic>
     segment_serial_id_buffer(app::can_tx::BMS_SegmentSerialIds_getData());
 BroadcastBuffer<CanErr, MAX_NUM_SEGMENTS, io::can_tx::BMS_SegmentSerialIdErrors_sendAperiodic>

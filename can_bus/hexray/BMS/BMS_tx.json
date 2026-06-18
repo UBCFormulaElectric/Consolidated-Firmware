@@ -8293,7 +8293,7 @@
     "allowed_modes": [
       "DEBUG"
     ],
-    "description": "Per-segment 48-bit ADBMS serial number (read from RDSID), split into three 16-bit words (word0 = bits 0-15, word1 = bits 16-31, word2 = bits 32-47)",
+    "description": "Per-segment 48-bit ADBMS serial number",
     "signals": {
       "Seg0_SerialIdWord0": { "bits": 16 },
       "Seg0_SerialIdWord1": { "bits": 16 },
