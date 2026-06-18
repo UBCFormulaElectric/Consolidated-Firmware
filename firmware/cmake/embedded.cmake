@@ -149,14 +149,14 @@ function(embedded_binary
     else ()
         target_compile_options(${ELF_NAME} PRIVATE -Os)
     endif ()
-    IF (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
-       target_compile_options(${ELF_NAME} PRIVATE -fsanitize=undefined)
-       set_property(SOURCE "${SHARED_LIB_INCLUDE_DIR_CPP}/lib_ubsan.cpp" APPEND PROPERTY COMPILE_OPTIONS
-               -fno-sanitize=undefined
-               -Wno-error=suggest-attribute=noreturn
-               -Wno-suggest-attribute=noreturn
-       )
-       target_sources(${ELF_NAME} PRIVATE "${SHARED_LIB_INCLUDE_DIR_CPP}/lib_ubsan.cpp")
+    IF (${CMAKE_BUILD_TYPE} STREQUAL "Debug" AND ${USE_UBSAN})
+        target_compile_options(${ELF_NAME} PRIVATE -fsanitize=undefined)
+        set_property(SOURCE "${SHARED_LIB_INCLUDE_DIR_CPP}/lib_ubsan.cpp" APPEND PROPERTY COMPILE_OPTIONS
+                -fno-sanitize=undefined
+                -Wno-error=suggest-attribute=noreturn
+                -Wno-suggest-attribute=noreturn
+        )
+        target_sources(${ELF_NAME} PRIVATE "${SHARED_LIB_INCLUDE_DIR_CPP}/lib_ubsan.cpp")
     ENDIF ()
 
     target_link_options(${ELF_NAME} PRIVATE
