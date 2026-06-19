@@ -6,7 +6,7 @@
 
 using namespace app::can_rx;
 
-static char screen_buf[io::seven_seg::DIGITS];
+static char screen_buf[io::seven_seg::DIGITS + 1];
 
 static uint16_t prev_fr = 0u;
 static uint16_t prev_rr = 0u;
@@ -18,11 +18,9 @@ static void write_error_code(const char pos1, const char pos2, const uint16_t er
     screen_buf[0] = pos1;
     screen_buf[1] = pos2;
 
-    uint16_t divisor = 10000u;
-    for (uint16_t i = 2; i < 7; i++, divisor /= 10u)
-    {
-        screen_buf[i] = static_cast<char>('0' + ((error_code / divisor) % 10u));
-    }
+    snprintf(&screen_buf[2], 6, "%05u", static_cast<unsigned>(error_code));
+    screen_buf[7] = '\0';
+    screen_buf[8] = '\0';
 }
 
 static void update()
@@ -64,7 +62,8 @@ static void update()
         write_error_code('r', 'l', rl_error_code);
         prev_rl = rl_error_code;
     }
-    const auto screen_write_result = util::retry([&] { return io::seven_seg::write(screen_buf); }, 3);
+
+    const auto screen_write_result = util::retry( []() -> result<void> { return io::seven_seg::write(std::span<char, io::seven_seg::DIGITS>{screen_buf, 9}); }, 3);
     assert(screen_write_result.has_value());
 }
 
