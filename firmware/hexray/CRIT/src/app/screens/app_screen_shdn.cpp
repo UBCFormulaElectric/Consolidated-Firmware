@@ -77,7 +77,7 @@ static void init_update()
             break;
     }
 
-    LOG_IF_ERR(io::seven_seg::write(std::span<char, io::seven_seg::DIGITS>{data_buffer, io::seven_seg::DIGITS}));
+    LOG_IF_ERR(io::seven_seg::write(std::span<char, io::seven_seg::DIGITS>{ data_buffer, io::seven_seg::DIGITS }));
 }
 
 namespace app::screens

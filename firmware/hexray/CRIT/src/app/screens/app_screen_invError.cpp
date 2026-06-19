@@ -63,7 +63,11 @@ static void update()
         prev_rl = rl_error_code;
     }
 
-    const auto screen_write_result = util::retry( []() -> result<void> { return io::seven_seg::write(std::span<char, io::seven_seg::DIGITS>{screen_buf, 9}); }, 3);
+    const auto screen_write_result = util::retry(
+        []() -> result<void> {
+            return io::seven_seg::write(std::span<char, io::seven_seg::DIGITS>{ screen_buf, 9 });
+        },
+        3);
     assert(screen_write_result.has_value());
 }
 
