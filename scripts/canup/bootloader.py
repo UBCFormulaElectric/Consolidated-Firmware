@@ -195,17 +195,18 @@ class Bootloader:
             if sector.write_protect:
                 raise RuntimeError(f"Attempted to write to a readonly memory sector!{sectors}")
 
-            self.bus.send(
-                can.Message(
-                    arbitration_id=self.board.boot_id_range_start
-                    | ERASE_SECTOR_CAN_ID_LOWBITS,
-                    data=[sector.id],
-                    is_extended_id=True,
-                    is_fd=self.is_fd,
+            while True:
+                self.bus.send(
+                    can.Message(
+                        arbitration_id=self.board.boot_id_range_start
+                        | ERASE_SECTOR_CAN_ID_LOWBITS,
+                        data=[sector.id],
+                        is_extended_id=True,
+                        is_fd=self.is_fd,
+                    )
                 )
-            )
-            if not self._await_can_msg(validator=_validator, timeout=self.timeout):
-                return False
+                if self._await_can_msg(validator=_validator, timeout=self.timeout):
+                    break
 
             erase_progress += sector.size
 
