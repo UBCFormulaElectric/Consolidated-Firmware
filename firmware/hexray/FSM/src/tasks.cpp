@@ -138,9 +138,7 @@ void tasks_run1kHz(void *arg)
 }
 void tasks_runImu(void *arg)
 {
-    constexpr uint32_t      period_ms                = 10U;
-    constexpr uint32_t      watchdog_grace_period_ms = 2U;
-    hw::watchdog::instance &watchdogImu              = monitor.spawn_instance(period_ms + watchdog_grace_period_ms);
+    constexpr uint32_t period_ms = 10U;
 
     jobs_initImu();
 
@@ -149,7 +147,6 @@ void tasks_runImu(void *arg)
     {
         jobs_runImu_tick();
 
-        watchdogImu.checkIn();
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
     }
@@ -212,6 +209,8 @@ void tasks_preInit()
     __HAL_DBGMCU_FREEZE_IWDG();
 #endif
 
+    osKernelInitialize();
+
     hw::can::fdcan1.init();
     adcChipsInit();
 
@@ -248,7 +247,6 @@ void tasks_preInit()
     }
 
     jobs_init();
-    osKernelInitialize();
     FSM_StartAllTasks();
     osKernelStart();
     forever {}

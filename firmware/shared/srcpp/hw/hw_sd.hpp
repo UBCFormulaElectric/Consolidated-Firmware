@@ -174,12 +174,18 @@ class SdCard
 
     result<void> upgrade_buswidth() const
     {
+        CHECK_SD_PRESENT();
+        if (!isDriverInitialized())
+            return std::unexpected(ErrorCode::ERROR);
         const auto res = utils::convertHalStatus(HAL_SD_ConfigWideBusOperation(&_hsd, SDMMC_BUS_WIDE_4B));
         return res;
     }
 
     result<void> update_speed() const
     {
+        CHECK_SD_PRESENT();
+        if (!isDriverInitialized())
+            return std::unexpected(ErrorCode::ERROR);
         RETURN_IF_ERR_SILENT(utils::convertHalStatus(HAL_SD_ConfigSpeedBusOperation(&_hsd, SDMMC_SPEED_MODE_HIGH)));
         __ISB();
         __DSB();
@@ -246,7 +252,9 @@ class SdCard
      * @note Based on the hardware design: if the sd card is inserted, the gpio will be shorted to ground. Otherwise it
      * will be pulled up
      */
-    bool sdPresent() const { return _present_gpio.readPin(); }
+    bool sdPresent() const { return !_present_gpio.readPin(); }
+
+    [[nodiscard]] bool isDriverInitialized() const { return _hsd.State != HAL_SD_STATE_RESET; }
 
     /**
      * @brief   Abort the current operation

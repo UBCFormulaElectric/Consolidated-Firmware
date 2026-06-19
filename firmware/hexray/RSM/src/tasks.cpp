@@ -123,9 +123,7 @@ void tasks_run1kHz(void *arg)
 }
 void tasks_runImu(void *arg)
 {
-    constexpr uint32_t      period_ms                = 10U;
-    constexpr uint32_t      watchdog_grace_period_ms = 2U;
-    hw::watchdog::instance &watchdogImu              = monitor.spawn_instance(period_ms + watchdog_grace_period_ms);
+    constexpr uint32_t period_ms = 10U;
 
     uint32_t start_ticks = osKernelGetTickCount();
     forever
@@ -193,6 +191,8 @@ void tasks_init()
     SEGGER_SYSVIEW_Conf();
     LOG_INFO("RSM Reset!");
 
+    osKernelInitialize();
+
     adcchipsInit();
     can1.init();
     hw::runtimeStat::init(htim7);
@@ -228,7 +228,6 @@ void tasks_init()
     }
 
     jobs_init();
-    osKernelInitialize();
     RSM_StartAllTasks();
     osKernelStart();
     forever {}

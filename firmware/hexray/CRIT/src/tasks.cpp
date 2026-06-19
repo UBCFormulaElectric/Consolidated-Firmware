@@ -210,6 +210,8 @@ void tasks_init()
     SEGGER_SYSVIEW_Conf();
     LOG_INFO("CRIT Reset!");
 
+    osKernelInitialize();
+
     // #ifndef WATCHDOG_DISABLED
     //     __HAL_DBGMCU_FREEZE_IWDG();
     // #endif
@@ -243,7 +245,6 @@ void tasks_init()
     }
 
     jobs_init();
-    osKernelInitialize();
     CRIT_StartAllTasks();
     osKernelStart();
     forever {}

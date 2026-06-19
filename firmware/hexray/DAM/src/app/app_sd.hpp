@@ -7,6 +7,12 @@
 namespace app::sd
 {
 /**
+ * Initialise the filesystem, open the boot log, and upgrade the SD bus. Intended to run once from
+ * TaskLogging at startup.
+ */
+void initLogFs();
+
+/**
  * Initialise the filesystem object and log the file descriptor for the file.
  * @return FileSystemError status if failure
  */
