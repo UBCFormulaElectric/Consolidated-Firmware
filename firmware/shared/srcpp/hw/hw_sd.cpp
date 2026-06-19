@@ -40,7 +40,8 @@ result<void> SdCard::waitForNotification(const uint32_t timeoutMs) const
     if (const bool transaction_timed_out = num_notifications; transaction_timed_out == 0)
     {
         // If the transaction didn't complete within the timeout, manually abort it.
-        (void)HAL_SD_Abort_IT(&_hsd);
+        if (_hsd.State != HAL_SD_STATE_RESET)
+            (void)HAL_SD_Abort_IT(&_hsd);
         LOG_WARN("SD transaction timed out");
         return std::unexpected(ErrorCode::TIMEOUT);
     }
@@ -54,6 +55,9 @@ result<void> SdCard::waitForNotification(const uint32_t timeoutMs) const
 
 result<void> SdCard::waitForCardReady() const
 {
+    if (!isDriverInitialized())
+        return std::unexpected(ErrorCode::ERROR);
+
     // Bound the wait so a wedged/removed card can't hang the calling task forever.
     // The caller gets a TIMEOUT it can retry on, the same way the radio path does.
     const uint32_t start = HAL_GetTick();
@@ -133,6 +137,7 @@ result<void> SdCard::write(const std::span<uint8_t> pdata, const uint32_t block_
     if (reinterpret_cast<uintptr_t>(pdata.data()) % 4 != 0)
         return std::unexpected(ErrorCode::INVALID_ARGS);
 
+    CHECK_SD_PRESENT();
     if (const auto ready = waitForCardReady(); not ready)
         return ready;
 

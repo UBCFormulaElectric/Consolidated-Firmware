@@ -25,7 +25,6 @@
 #include "io_logQueue.hpp"
 #include "io_time.hpp"
 #include "io_fileSystems.hpp"
-#include "io_sd.hpp"
 
 #include "io_canLogging.hpp"
 #include "util_errorCodes.hpp"
@@ -85,26 +84,7 @@ void jobs_init()
 
 void jobs_initLogFs()
 {
-    bool init_success = true;
-
-    if (const auto err = app::sd::init_fs(); !err.has_value())
-    {
-        LOG_ERROR("jobs_initLogFs: init_fs failed: %d", static_cast<int>(err.error()));
-        init_success = false;
-    }
-
-    // Base was already anchored in jobs_init(); the metadata write just reads it via getFastBase().
-    app::sd::requestMetadataUpdate();
-    LOG_INFO("jobs_initLogFs: Metadata update requested in init");
-
-    if (const auto err = io::sd::upgrade(); !err.has_value())
-    {
-        LOG_ERROR("jobs_initLogFs: io::sd::upgrade failed: %d", static_cast<int>(err.error()));
-        init_success = false;
-    }
-
-    if (init_success)
-        LOG_INFO("Filesystem initialized successfully");
+    app::sd::initLogFs();
 }
 
 void jobs_run1Hz_tick()
