@@ -77,7 +77,7 @@ void tasks_run1Hz(void *arg)
     {
         jobs_run1Hz_tick();
 
-        runtimeMonitor.checkin();
+        // runtimeMonitor.checkin();
         watchdog1hz.checkIn();
 
         start_ticks += period_ms;
