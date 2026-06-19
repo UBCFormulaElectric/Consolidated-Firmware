@@ -148,7 +148,6 @@ int main(void)
     MX_TIM7_Init();
     /* USER CODE BEGIN 2 */
     HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_RESET);
-    ;
     tasks_init();
     /* USER CODE END 2 */
 
