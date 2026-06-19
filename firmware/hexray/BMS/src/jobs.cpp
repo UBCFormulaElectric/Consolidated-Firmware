@@ -138,8 +138,11 @@ void jobs_run100Hz_tick()
     using FaultLatchState = io::FaultLatch::FaultLatchState;
     bms_ok_latch.setCurrentStatus(acc_fault ? FaultLatchState::FAULT : FaultLatchState::OK);
     app::latches::broadcast();
+
+    io::bspdtest::enable(app::can_rx::Debug_EnableTestCurrent_get());
     app::can_tx::BMS_BSPDBrakePressureThresholdExceeded_set(io::bspdtest::isBrakePressureThresholdExceeded());
     app::can_tx::BMS_BSPDAccelBrakeOk_set(io::bspdtest::isAccelBrakeOk());
+    app::can_tx::BMS_BSPDCurrentThresholdExceeded_set(io::bspdtest::isCurrentThresholdExceeded());
 
     if (app::can_alerts::AnyBoardHasFault())
     {
