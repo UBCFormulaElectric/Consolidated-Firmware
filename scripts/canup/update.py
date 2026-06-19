@@ -86,8 +86,24 @@ def update(bus: can.Bus, configs: List[boards.Board], build_dir: str, is_fd: boo
         for board in configs
     ]
 
+    hexray_bootloaders = [
+        bootloader.Bootloader(
+            bus=bus,
+            board=board,
+            ui_callback=lambda description, total, completed: progress.update(
+                task_id=steps_task,
+                total=total,
+                description=description,
+                completed=completed,
+            ),
+            ih=intelhex.IntelHex(os.path.join(build_dir, board.path)),
+            is_fd=is_fd,
+        )
+        for board in boards.hexray_boards
+    ]
+
     with Live(Group(status, progress), transient=True) as live:
-        all_goto_bootloader(live, bootloaders)
+        all_goto_bootloader(live, hexray_bootloaders)
 
         live.console.log(
             f"Updating firmware for boards: [blue bold]{', '.join(board.name for board in configs)}"
@@ -109,7 +125,7 @@ def update(bus: can.Bus, configs: List[boards.Board], build_dir: str, is_fd: boo
         live.console.log(
             f"[bold green]Firmware update successfully ({num_boards} board{'s' if num_boards > 1 else ''} updated)"
         )
-        all_goto_app(live, bootloaders)
+        all_goto_app(live, hexray_bootloaders)
 
 
 def erase(bus: can.Bus, configs: List[boards.Board], is_fd: bool) -> None:
