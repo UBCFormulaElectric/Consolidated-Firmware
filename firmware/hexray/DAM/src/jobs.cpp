@@ -111,6 +111,18 @@ void jobs_run1Hz_tick()
         }
     }
 
+    {
+        static uint32_t last_log_queue_overflow = 0;
+        const uint32_t  overflow                = log_queue.get_overflowCount();
+        if (overflow != last_log_queue_overflow)
+        {
+            LOG_WARN(
+                "log_queue overflow count: %lu (+%lu)", static_cast<unsigned long>(overflow),
+                static_cast<unsigned long>(overflow - last_log_queue_overflow));
+            last_log_queue_overflow = overflow;
+        }
+    }
+
     app::sd::requestSync();
     io::can_tx::enqueue1HzMsgs();
 }

@@ -310,6 +310,8 @@ void tasks_init()
     __HAL_DBGMCU_FREEZE_IWDG1();
 #endif
 
+    osKernelInitialize();
+
     adcChipsInit();
     pwms_init();
     hw::runtimeStat::init(htim7);
@@ -351,7 +353,6 @@ void tasks_init()
     }
 
     jobs_init();
-    osKernelInitialize();
     BMS_StartAllTasks();
     osKernelStart();
     Error_Handler();
