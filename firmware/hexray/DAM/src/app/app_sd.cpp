@@ -3,6 +3,8 @@
 #include "app_epochClock.hpp"
 #include "io_filesystem.hpp"
 #include "io_fileSystems.hpp"
+#include "io_log.hpp"
+#include "io_sd.hpp"
 #include "io_time.hpp"
 #include "util_errorCodes.hpp"
 
@@ -128,6 +130,30 @@ void requestMetadataUpdate()
 void requestSync()
 {
     sync_requested.store(true, std::memory_order_relaxed);
+}
+
+void initLogFs()
+{
+    if (const auto err = init_fs(); !err.has_value())
+    {
+        if (err.error() == io::FileSystem::FileSystemError::ERROR_IO)
+            LOG_WARN("initLogFs: SD unavailable, skipping filesystem init");
+        else
+            LOG_ERROR("initLogFs: init_fs failed: %d", static_cast<int>(err.error()));
+        return;
+    }
+
+    // Base was already anchored in jobs_init(); the metadata write just reads it via getFastBase().
+    requestMetadataUpdate();
+    LOG_INFO("initLogFs: Metadata update requested in init");
+
+    if (const auto err = io::sd::upgrade(); !err.has_value())
+    {
+        LOG_ERROR("initLogFs: io::sd::upgrade failed: %d", static_cast<int>(err.error()));
+        return;
+    }
+
+    LOG_INFO("Filesystem initialized successfully");
 }
 
 void service()

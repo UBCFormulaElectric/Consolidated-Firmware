@@ -280,11 +280,10 @@ void tasks_init()
 
     LOG_INFO("VC Reset!");
 
+    osKernelInitialize();
     hw::runtimeStat::init(htim7);
     fdcan1.init();
     invcan.init();
-
-    adcChipsInit();
 
     if (hw::bootup::BootRequest boot_request = hw::bootup::getBootRequest();
         boot_request.context != hw::bootup::BootContext::NONE)
@@ -330,7 +329,7 @@ void tasks_init()
     }
 
     jobs_init();
-    osKernelInitialize();
+    adcChipsInit();
     VC_StartAllTasks();
     osKernelStart();
     forever {}

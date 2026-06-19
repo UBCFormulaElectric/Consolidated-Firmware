@@ -67,6 +67,7 @@ static hw::rtos::StaticTask
     TaskTelemParse(osPriorityBelowNormal, "TaskTelemParse", tasks_runTelemParse, TaskTelemParseStack);
 static hw::rtos::StaticTask TaskTelemTx(osPriorityBelowNormal, "TaskTelemTx", tasks_runTelemTx, TaskTelemTxStack);
 
+#if 0 // disabled
 static hw::runtimeStat::monitor<TASK_COUNT> runtimeMonitor{
     { app::can_tx::DAM_CoreCpuUsage_set, app::can_tx::DAM_CoreCpuUsageMax_set },
     {
@@ -90,6 +91,7 @@ static hw::runtimeStat::monitor<TASK_COUNT> runtimeMonitor{
             app::can_tx::DAM_TaskRunTelemParseCpuUsageMax_set, app::can_tx::DAM_TaskRunTelemParseStackUsage_set } },
     },
 };
+#endif
 
 static hw::watchdog::monitor<TASK_COUNT> monitor{
     hiwdg,
@@ -107,7 +109,7 @@ void tasks_run1Hz(void *arg)
     {
         jobs_run1Hz_tick();
 
-        runtimeMonitor.checkin();
+        // runtimeMonitor.checkin();
         watchdog1hz.checkIn();
 
         start_ticks += period_ms;
@@ -385,6 +387,8 @@ void tasks_init()
     __HAL_DBGMCU_FREEZE_IWDG();
 #endif
 
+    osKernelInitialize();
+
     fdcan1.init();
     hw::runtimeStat::init(htim7);
 
@@ -419,7 +423,6 @@ void tasks_init()
         hw::bootup::setBootRequest(boot_request);
     }
 
-    osKernelInitialize();
     jobs_init();
     DAM_StartAllTasks();
     osKernelStart();

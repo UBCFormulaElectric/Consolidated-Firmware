@@ -209,6 +209,8 @@ void tasks_preInit()
     __HAL_DBGMCU_FREEZE_IWDG();
 #endif
 
+    osKernelInitialize();
+
     hw::can::fdcan1.init();
     adcChipsInit();
 
@@ -245,7 +247,6 @@ void tasks_preInit()
     }
 
     jobs_init();
-    osKernelInitialize();
     FSM_StartAllTasks();
     osKernelStart();
     forever {}
