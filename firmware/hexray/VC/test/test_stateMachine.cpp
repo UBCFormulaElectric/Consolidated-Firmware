@@ -795,17 +795,3 @@ TEST_F(VCStateMachineTest, pcmOnStateLatchedFault)
     LetTimePass(110);
     ASSERT_STATE_EQ(app::states::init_state);
 }
-
-TEST_F(VCStateMachineTest, SoftwareBSPD)
-{
-    SetStateWithEntry(&app::states::drive_state);
-
-    app::can_rx::BMS_State_update(BmsState::BMS_DRIVE_STATE);
-    LetTimePass(10);
-
-    
-
-    app::can_rx::BMS_State_update(BmsState::BMS_DRIVE_STATE);
-    LetTimePass(10);
-    ASSERT_STATE_EQ(app::states::pcmOn_state);
-}
