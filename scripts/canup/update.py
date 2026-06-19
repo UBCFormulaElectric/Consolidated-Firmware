@@ -179,7 +179,7 @@ if __name__ == "__main__":
     parser.add_argument("--erase", action="store_true", help="Erase app code")
     parser.add_argument("--fd", action="store_true", help="Use FD mode")
     parser.add_argument(
-        "--data_bitrate", type=int, default=1000000, help="CAN FD data bitrate"
+        "--data_bitrate", type=int, default=4000000, help="CAN FD data bitrate"
     )
     args = parser.parse_args()
 
@@ -197,9 +197,9 @@ if __name__ == "__main__":
         "tseg1_abr": 29,
         "tseg2_abr": 10,
         "sam_abr": 1,
-        "sjw_dbr": 10,
-        "tseg1_dbr": 29,
-        "tseg2_dbr": 10,
+        "sjw_dbr": 5,
+        "tseg1_dbr": 14,
+        "tseg2_dbr": 5,
         "output_mode": 1,
     }
 
