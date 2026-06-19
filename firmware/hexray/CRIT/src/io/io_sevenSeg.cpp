@@ -6,10 +6,17 @@
 
 namespace io::seven_seg
 {
-result<void> write(std::array<digit, DIGITS> &data)
+result<void> write(const std::span<char, DIGITS> data)
 {
     std::ranges::reverse(data);
-    RETURN_IF_ERR_SILENT(seven_seg_device.transmit(std::span{ reinterpret_cast<uint8_t *>(data.data()), data.size() }));
+
+    std::array<digit, DIGITS> ssdata{};
+    for (size_t ii = 0; ii < DIGITS; ii++)
+    {
+        ssdata[ii] = char_to_segment(data[ii]);
+    }
+    RETURN_IF_ERR_SILENT(
+        seven_seg_device.transmit(std::span{ reinterpret_cast<uint8_t *>(ssdata.data()), ssdata.size() }));
     seven_seg_rck.writePin(true);
     seven_seg_rck.writePin(false);
     return {};
