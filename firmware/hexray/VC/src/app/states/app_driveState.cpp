@@ -65,7 +65,7 @@ static void driveStateRunOnTick100Hz()
 
     const auto apps = can_rx::FSM_PappsMappedPedalPercentage_get();
 
-    if (can_alerts::AnyBoardHasWarning() and app::can_rx::CRIT_LaunchControlSwitch_get() != SwitchState::ON)
+    if if (app::can_rx::CRIT_LaunchControlSwitch_get() != SwitchState::ON || app::bspdWarning::checkSoftwareBspd(apps))
     {
         send_torque(NO_TORQUE_Nm, NO_TORQUE_Nm, NO_TORQUE_Nm, NO_TORQUE_Nm);
         return;
