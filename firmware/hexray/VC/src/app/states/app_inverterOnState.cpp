@@ -17,10 +17,10 @@ namespace inverterOnState
     {
         LOG_INFO("entering inverter on state!");
         static constexpr powerManager::Efuses<powerManager::EfuseConfig> power_manager_state = {
-            .front_efuse     = { true, 0, 5 },  // front
-            .rsm_efuse       = { true, 0, 5 },  // rsm
-            .bms_efuse       = { true, 0, 5 },  // bms
-            .dam_efuse       = { true, 0, 5 },  // dam
+            .front_efuse     = { true, 0, 5 },    // front
+            .rsm_efuse       = { true, 0, 5 },    // rsm
+            .bms_efuse       = { true, 0, 5 },    // bms
+            .dam_efuse       = { true, 0, 5 },    // dam
             .f_inv_efuse     = { true, 200, 5 },  // f_inv
             .r_inv_efuse     = { true, 200, 5 },  // r_inv
             .r_rad_fan_efuse = { false, 200, 5 }, // r_rad_fan
