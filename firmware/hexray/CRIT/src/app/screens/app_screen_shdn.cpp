@@ -16,7 +16,7 @@ static void init_update()
     //     io::seven_seg::dot,
     //     io::seven_seg::dot,
     // } };
-    char data_buffer[io::seven_seg::DIGITS];
+    char data_buffer[io::seven_seg::DIGITS + 1];
 
     switch (app::can_rx::VC_FirstFaultNode_get())
     {
