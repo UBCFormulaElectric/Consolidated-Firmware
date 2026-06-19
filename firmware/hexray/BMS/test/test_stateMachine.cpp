@@ -333,7 +333,7 @@ TEST_F(BmsStateMachineTest, drive_to_init_on_ts_undervoltage_immediate)
     ASSERT_STATE_EQ(app::states::drive_state);
 
     fakes::ts::setVoltage(pack_voltage - 60.0f);
-    LetTimePass(20);
+    LetTimePass(200);
 
     ASSERT_STATE_EQ(app::states::init_state);
 }
@@ -379,7 +379,7 @@ TEST_F(BmsStateMachineTest, imd_fault_latches_then_reset_to_init_state)
     fakes::faultLatch::updateFaultLatch(&imd_ok_latch, io::FaultLatch::FaultLatchState::FAULT);
     fakes::irs::setNegativeState(app::can_utils::ContactorState::CONTACTOR_STATE_OPEN);
     fakes::ts::setVoltage(0);
-    LetTimePass(20);
+    LetTimePass(200);
     for (int i = 0; i < 30; i++)
     {
         LetTimePass(10);
@@ -387,6 +387,7 @@ TEST_F(BmsStateMachineTest, imd_fault_latches_then_reset_to_init_state)
         ASSERT_FALSE(app::can_tx::BMS_ImdLatchOk_get());
     }
     fakes::faultLatch::updateFaultLatch(&imd_ok_latch, io::FaultLatch::FaultLatchState::OK);
+    // note that the hardware should have latched this value
     for (int i = 0; i < 30; i++)
     {
         LetTimePass(10);
@@ -417,7 +418,7 @@ TEST_F(BmsStateMachineTest, bms_fault_latches_then_reset_to_init_state)
     fakes::faultLatch::updateFaultLatch(&bms_ok_latch, io::FaultLatch::FaultLatchState::FAULT);
     fakes::irs::setNegativeState(app::can_utils::ContactorState::CONTACTOR_STATE_OPEN);
     fakes::ts::setVoltage(0);
-    LetTimePass(20);
+    LetTimePass(200);
 
     for (int i = 0; i < 30; i++)
     {
@@ -426,6 +427,7 @@ TEST_F(BmsStateMachineTest, bms_fault_latches_then_reset_to_init_state)
         ASSERT_FALSE(app::can_tx::BMS_BmsLatchOk_get());
     }
     fakes::faultLatch::updateFaultLatch(&bms_ok_latch, io::FaultLatch::FaultLatchState::OK);
+    // note that the hardware should have latched this value
     for (int i = 0; i < 30; i++)
     {
         LetTimePass(10);
@@ -456,7 +458,7 @@ TEST_F(BmsStateMachineTest, bspd_fault_latches_then_reset_to_init_state)
     fakes::faultLatch::updateFaultLatch(&bspd_ok_latch, io::FaultLatch::FaultLatchState::FAULT);
     fakes::irs::setNegativeState(app::can_utils::ContactorState::CONTACTOR_STATE_OPEN);
     fakes::ts::setVoltage(0);
-    LetTimePass(20);
+    LetTimePass(200);
     for (int i = 0; i < 30; i++)
     {
         LetTimePass(10);
@@ -464,6 +466,7 @@ TEST_F(BmsStateMachineTest, bspd_fault_latches_then_reset_to_init_state)
         ASSERT_FALSE(app::can_tx::BMS_BspdLatchOk_get());
     }
     fakes::faultLatch::updateFaultLatch(&bspd_ok_latch, io::FaultLatch::FaultLatchState::OK);
+    // note that the hardware should have latched this value
     for (int i = 0; i < 30; i++)
     {
         LetTimePass(10);

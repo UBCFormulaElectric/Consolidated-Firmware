@@ -246,7 +246,7 @@ class SdCard
      * @note Based on the hardware design: if the sd card is inserted, the gpio will be shorted to ground. Otherwise it
      * will be pulled up
      */
-    bool sdPresent() const { return _present_gpio.readPin(); }
+    bool sdPresent() const { return !_present_gpio.readPin(); }
 
     /**
      * @brief   Abort the current operation

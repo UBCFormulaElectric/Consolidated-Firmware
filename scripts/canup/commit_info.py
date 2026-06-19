@@ -39,6 +39,7 @@ bus_found: dict[str, bool] = {
     "FSM": False,
     "RSM": False,
     "VC": False,
+    "DAM": False,
     "VC_boot": False,
     "BMS_boot": False,
     "RSM_boot": False,

@@ -6,7 +6,7 @@
 
 static constexpr float MIN_BRAKE_PRESSURE_PSI       = 0.0f;
 static constexpr float MAX_BRAKE_PRESSURE_PSI       = 1000.0f;
-static constexpr float BRAKE_ACTUATED_THRESHOLD_PSI = 200.0f;
+static constexpr float BRAKE_ACTUATED_THRESHOLD_PSI = 20.0f;
 
 namespace app::brake
 {
