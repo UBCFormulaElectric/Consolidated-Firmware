@@ -77,7 +77,8 @@ static void driveStateRunOnTick100Hz()
 
     // TODO check inverter preconditions, return to hv init if not fulfilled
 
-    const auto apps = can_rx::FSM_PappsMappedPedalPercentage_get();
+    const auto apps_percentage = can_rx::FSM_PappsMappedPedalPercentage_get();
+    app::bspdWarning::checkSoftwareBspd(apps_percentage);
 
     if (can_alerts::AnyBoardHasWarning() and app::can_rx::CRIT_LaunchControlSwitch_get() != SwitchState::ON)
     {
@@ -85,7 +86,7 @@ static void driveStateRunOnTick100Hz()
         return;
     }
     // TODO: add driving algorithm handling here
-    const float pedal_torque_request = apps * MAX_TORQUE_REQUEST_Nm / 100.0f;
+    const float pedal_torque_request = apps_percentage * MAX_TORQUE_REQUEST_Nm / 100.0f;
 
     // inverters expect smoother signal
     // just for spinning wheels
