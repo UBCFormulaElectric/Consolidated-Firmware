@@ -5,7 +5,9 @@
 #include "app_canUtils.hpp"
 #include "app_startSwitch.hpp"
 #include "app_powerManager.hpp"
+#include "app_inverter.hpp"
 #include "io_log.hpp"
+#include "io_pcm.hpp"
 
 using namespace app::can_utils;
 
@@ -21,8 +23,8 @@ namespace hvState
             .rsm_efuse       = { true, 0, 5 },    // rsm
             .bms_efuse       = { true, 0, 5 },    // bms
             .dam_efuse       = { true, 0, 5 },    // dam
-            .f_inv_efuse     = { true, 0, 5 },    // f_inv
-            .r_inv_efuse     = { true, 0, 5 },    // r_inv
+            .f_inv_efuse     = { true, 200, 5 },  // f_inv
+            .r_inv_efuse     = { true, 200, 5 },  // r_inv
             .r_rad_fan_efuse = { false, 200, 5 }, // r_rad_fan
             .l_rad_fan_efuse = { false, 200, 5 }, // l_rad_fan
             .rr_pump_efuse   = { false, 200, 5 }, // rr_pump
@@ -31,15 +33,28 @@ namespace hvState
         };
         app::powerManager::updateConfig(power_manager_state);
 
+        io::pcm::set(true);
         can_tx::VC_State_set(VCState::VC_HV_ON_STATE);
     }
 
     static void runOnTick100Hz()
     {
-        if (can_rx::BMS_State_get() == BmsState::BMS_INIT_STATE)
+        bool drive_allowed_dropped = !inverter::drive_allowed();
+        bool bms_drive_dropped     = can_rx::BMS_State_get() != BmsState::BMS_DRIVE_STATE;
+
+        if (bms_drive_dropped)
         {
             StateMachine::set_next_state(&init_state);
             return;
+        }
+        else if (drive_allowed_dropped)
+        {
+            StateMachine::set_next_state(&hvInit_state);
+            return;
+        }
+        else
+        {
+            // Do nothing
         }
         // TODO check inverter preconditions, return to hv init if not fulfilled
         // Conditions for entering drive state: minimum 50% braking and start switch

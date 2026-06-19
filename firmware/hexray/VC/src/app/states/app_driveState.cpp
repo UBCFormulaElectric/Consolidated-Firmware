@@ -10,6 +10,7 @@
 #include "torque_vectoring/datatypes/torque_limits.hpp"
 
 #include "io_log.hpp"
+#include "io_pcm.hpp"
 
 using namespace app::can_utils;
 using namespace app::inverter;
@@ -21,8 +22,8 @@ static constexpr Efuses<EfuseConfig> power_manager_state = {
     .rsm_efuse       = { true, 0, 5 },   // rsm
     .bms_efuse       = { true, 0, 5 },   // bms
     .dam_efuse       = { true, 0, 5 },   // dam
-    .f_inv_efuse     = { true, 0, 5 },   // f_inv
-    .r_inv_efuse     = { true, 0, 5 },   // r_inv
+    .f_inv_efuse     = { true, 200, 5 }, // f_inv
+    .r_inv_efuse     = { true, 200, 5 }, // r_inv
     .r_rad_fan_efuse = { true, 200, 5 }, // r_rad_fan
     .l_rad_fan_efuse = { true, 200, 5 }, // l_rad_fan
     .rr_pump_efuse   = { true, 200, 5 }, // rr_pump
@@ -42,6 +43,7 @@ static void driveStateRunOnEntry()
     // Ensure inverters are enabled
     inverter_enable_toggle(true, true, true, true);
 
+    io::pcm::set(true);
     set_torque_limit_negative(MAX_REGEN_TORQUE_Nm, MAX_REGEN_TORQUE_Nm, MAX_REGEN_TORQUE_Nm, MAX_REGEN_TORQUE_Nm);
     set_torque_limit_positive(
         MAX_TORQUE_REQUEST_Nm, MAX_TORQUE_REQUEST_Nm, MAX_TORQUE_REQUEST_Nm, MAX_TORQUE_REQUEST_Nm);
@@ -50,11 +52,23 @@ static void driveStateRunOnEntry()
 
 static void driveStateRunOnTick100Hz()
 {
-    if (can_rx::BMS_State_get() == BmsState::BMS_INIT_STATE)
+    const bool bms_drive_dropped     = can_rx::BMS_State_get() != BmsState::BMS_DRIVE_STATE;
+    const bool drive_allowed_dropped = !inverter::drive_allowed();
+    if (bms_drive_dropped)
     {
         StateMachine::set_next_state(&init_state);
         return;
     }
+    else if (drive_allowed_dropped)
+    {
+        StateMachine::set_next_state(&hvInit_state);
+        return;
+    }
+    else
+    {
+        // Do nothing
+    }
+
     if (startSwitch::hasRisingEdge())
     {
         StateMachine::set_next_state(&hv_state);
@@ -63,7 +77,8 @@ static void driveStateRunOnTick100Hz()
 
     // TODO check inverter preconditions, return to hv init if not fulfilled
 
-    const auto apps = can_rx::FSM_PappsMappedPedalPercentage_get();
+    const auto apps_percentage = can_rx::FSM_PappsMappedPedalPercentage_get();
+    app::bspdWarning::checkSoftwareBspd(apps_percentage);
 
     if (can_alerts::AnyBoardHasWarning() and app::can_rx::CRIT_LaunchControlSwitch_get() != SwitchState::ON)
     {
@@ -71,7 +86,7 @@ static void driveStateRunOnTick100Hz()
         return;
     }
     // TODO: add driving algorithm handling here
-    const float pedal_torque_request = apps * MAX_TORQUE_REQUEST_Nm / 100.0f;
+    const float pedal_torque_request = apps_percentage * MAX_TORQUE_REQUEST_Nm / 100.0f;
 
     // inverters expect smoother signal
     // just for spinning wheels

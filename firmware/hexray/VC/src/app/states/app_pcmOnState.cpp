@@ -49,8 +49,8 @@ namespace pcmOnState
             .rsm_efuse       = { true, 0, 5 },    // rsm
             .bms_efuse       = { true, 0, 5 },    // bms
             .dam_efuse       = { true, 0, 5 },    // dam
-            .f_inv_efuse     = { true, 0, 5 },    // f_inv
-            .r_inv_efuse     = { true, 0, 5 },    // r_inv
+            .f_inv_efuse     = { true, 200, 5 },  // f_inv
+            .r_inv_efuse     = { true, 200, 5 },  // r_inv
             .r_rad_fan_efuse = { false, 200, 5 }, // r_rad_fan
             .l_rad_fan_efuse = { false, 200, 5 }, // l_rad_fan
             .rr_pump_efuse   = { false, 200, 5 }, // rr_pump
@@ -67,7 +67,15 @@ namespace pcmOnState
 
     static void runOnTick100Hz()
     {
-        const float pcm_curr_voltage = can_tx::VC_PcmChannelVoltage_get();
+        const float pcm_curr_voltage  = can_tx::VC_PcmChannelVoltage_get();
+        const bool  bms_drive_dropped = can_rx::BMS_State_get() != BmsState::BMS_DRIVE_STATE;
+
+        if (bms_drive_dropped) // Check at end of tick, such that ifthere is a fault
+                               // and IR- is closed, we go to fault
+        {
+            StateMachine::set_next_state(&init_state);
+            return;
+        }
         switch (pcm_retry_states)
         {
             case PCM_ON_STATE:
@@ -122,11 +130,6 @@ namespace pcmOnState
             can_alerts::infos::PcmUnderVoltage_set(true);
             StateMachine::set_next_state(&fault_state); // TODO maybe don't make this a latching fault?
             return;
-        }
-        if (can_rx::BMS_State_get() == BmsState::BMS_INIT_STATE) // Check at end of tick, such that ifthere is a fault
-                                                                 // and IR- is closed, we go to fault
-        {
-            StateMachine::set_next_state(&init_state);
         }
     }
 

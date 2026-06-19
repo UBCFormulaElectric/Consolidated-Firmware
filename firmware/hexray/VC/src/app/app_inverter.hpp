@@ -17,6 +17,8 @@ struct Handle
     void (*can_enable_inv)(bool);
     void (*can_invOn)(bool);
     void (*can_dcOn)(bool);
+    bool (*can_quitInvOn)(void);
+    bool (*can_quitDcOn)(void);
     void (*can_torque_setpoint)(int16_t);
     void (*can_torque_limit_negative)(int16_t);
     void (*can_torque_limit_positive)(int16_t);
@@ -29,6 +31,8 @@ struct Handle
         void (*can_enable_inv_in)(bool),
         void (*can_invOn_in)(bool),
         void (*can_dcOn_in)(bool),
+        bool (*can_quitInvOn_in)(void),
+        bool (*can_quitDcOn_in)(void),
         void (*can_torque_setpoint_in)(int16_t),
         void (*can_torque_limit_negative_in)(int16_t),
         void (*can_torque_limit_positive_in)(int16_t),
@@ -39,6 +43,8 @@ struct Handle
       : can_enable_inv(can_enable_inv_in),
         can_invOn(can_invOn_in),
         can_dcOn(can_dcOn_in),
+        can_quitInvOn(can_quitInvOn_in),
+        can_quitDcOn(can_quitDcOn_in),
         can_torque_setpoint(can_torque_setpoint_in),
         can_torque_limit_negative(can_torque_limit_negative_in),
         can_torque_limit_positive(can_torque_limit_positive_in),
@@ -60,4 +66,6 @@ void FaultCheck();
 FaultHandlerState FaultHandler();
 
 State *recovery_state();
+
+bool drive_allowed(void);
 } // namespace app::inverter

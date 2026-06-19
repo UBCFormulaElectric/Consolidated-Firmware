@@ -3,6 +3,7 @@
 #include "app_canTx.hpp"
 #include "app_canRx.hpp"
 #include "io_log.hpp"
+#include "io_pcm.hpp"
 #include "app_canUtils.hpp"
 #include "app_powerManager.hpp"
 
@@ -43,8 +44,8 @@ namespace hvInitState
             .rsm_efuse       = { true, 0, 5 },    // rsm
             .bms_efuse       = { true, 0, 5 },    // bms
             .dam_efuse       = { true, 0, 5 },    // dam
-            .f_inv_efuse     = { true, 0, 5 },    // f_inv
-            .r_inv_efuse     = { true, 0, 5 },    // r_inv
+            .f_inv_efuse     = { true, 200, 5 },  // f_inv
+            .r_inv_efuse     = { true, 200, 5 },  // r_inv
             .r_rad_fan_efuse = { false, 200, 5 }, // r_rad_fan
             .l_rad_fan_efuse = { false, 200, 5 }, // l_rad_fan
             .rr_pump_efuse   = { false, 200, 5 }, // rr_pump
@@ -71,12 +72,15 @@ namespace hvInitState
         can_tx::VC_INVRRTorqueLimitPositive_set(NO_TORQUE);
         can_tx::VC_INVRLTorqueLimitPositive_set(NO_TORQUE);
 
+        io::pcm::set(true);
         current_inverter_state = VCInverterState::INV_SYSTEM_READY;
     }
 
     static void runOnTick100Hz()
     {
-        if (can_rx::BMS_State_get() == BmsState::BMS_INIT_STATE)
+        const bool bms_drive_dropped = can_rx::BMS_State_get() != BmsState::BMS_DRIVE_STATE;
+
+        if (bms_drive_dropped)
         {
             StateMachine::set_next_state(&init_state);
             return;

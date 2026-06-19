@@ -17,7 +17,7 @@ TEST_F(VCbspdTest, bspd_warning_active)
     for (int i = 0; i < 11; i++)
     {
         app::can_rx::FSM_BrakeActuated_update(true);
-        app::bspdWarning::checkSoftwareBspd(0.50f);
+        app::bspdWarning::checkSoftwareBspd(50.0f);
         LetTimePass(1);
     }
     ASSERT_TRUE(app::can_tx::VC_Warning_SoftwareBspd_get());

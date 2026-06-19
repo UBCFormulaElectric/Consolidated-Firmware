@@ -5,6 +5,7 @@
 #include "app_canUtils.hpp"
 #include "app_powerManager.hpp"
 #include "io_log.hpp"
+#include "io_pcm.hpp"
 
 using namespace app::can_utils;
 
@@ -18,20 +19,21 @@ namespace bmsOnStates
         LOG_INFO("entering bms on state!");
 
         static constexpr powerManager::Efuses<powerManager::EfuseConfig> power_manager_state = {
-            .front_efuse     = { true, 0, 5 },  // front
-            .rsm_efuse       = { true, 0, 5 },  // rsm
-            .bms_efuse       = { true, 0, 5 },  // bms
-            .dam_efuse       = { true, 0, 5 },  // dam
-            .f_inv_efuse     = { true, 0, 5 },  // f_inv
-            .r_inv_efuse     = { true, 0, 5 },  // r_inv
-            .r_rad_fan_efuse = { false, 0, 5 }, // r_rad_fan
-            .l_rad_fan_efuse = { false, 0, 5 }, // l_rad_fan
-            .rr_pump_efuse   = { false, 0, 5 }, // rr_pump
-            .rl_pump_efuse   = { false, 0, 5 }, // rl_pump
+            .front_efuse     = { true, 0, 5 },    // front
+            .rsm_efuse       = { true, 0, 5 },    // rsm
+            .bms_efuse       = { true, 0, 5 },    // bms
+            .dam_efuse       = { true, 0, 5 },    // dam
+            .f_inv_efuse     = { true, 200, 5 },  // f_inv
+            .r_inv_efuse     = { true, 200, 5 },  // r_inv
+            .r_rad_fan_efuse = { false, 200, 5 }, // r_rad_fan
+            .l_rad_fan_efuse = { false, 200, 5 }, // l_rad_fan
+            .rr_pump_efuse   = { false, 200, 5 }, // rr_pump
+            .rl_pump_efuse   = { false, 200, 5 }, // rl_pump
         };
         app::powerManager::updateConfig(power_manager_state);
 
         can_tx::VC_State_set(VCState::VC_BMS_ON_STATE);
+        io::pcm::set(false);
     }
 
     static void runOnTick100Hz()
