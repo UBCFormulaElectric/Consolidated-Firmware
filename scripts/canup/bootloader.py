@@ -57,7 +57,7 @@ class Bootloader:
         board: boards.Board,
         ui_callback: Callable,
         ih: intelhex.IntelHex = None,
-        timeout: int = 1000,
+        timeout: int = 1,
         is_fd: bool = False,
     ) -> None:
         self.bus: can.Bus = bus
@@ -195,17 +195,18 @@ class Bootloader:
             if sector.write_protect:
                 raise RuntimeError(f"Attempted to write to a readonly memory sector!{sectors}")
 
-            self.bus.send(
-                can.Message(
-                    arbitration_id=self.board.boot_id_range_start
-                    | ERASE_SECTOR_CAN_ID_LOWBITS,
-                    data=[sector.id],
-                    is_extended_id=True,
-                    is_fd=self.is_fd,
+            while True:
+                self.bus.send(
+                    can.Message(
+                        arbitration_id=self.board.boot_id_range_start
+                        | ERASE_SECTOR_CAN_ID_LOWBITS,
+                        data=[sector.id],
+                        is_extended_id=True,
+                        is_fd=self.is_fd,
+                    )
                 )
-            )
-            if not self._await_can_msg(validator=_validator, timeout=self.timeout):
-                return False
+                if self._await_can_msg(validator=_validator, timeout=self.timeout):
+                    break
 
             erase_progress += sector.size
 
@@ -255,6 +256,7 @@ class Bootloader:
         # TODO: Check if binary is aligned to 64 bytes and ensure ending bytes are sent
         block = 0
         last_block = (end_addr - start_addr) // CAN_FRAME_SIZE_BYTES
+        tries_left = 10
         while not done:
             while block <= last_block:
                 # check if we need to go back
@@ -286,6 +288,9 @@ class Bootloader:
             if jump_back_block is not None:
                 block = jump_back_block
                 jump_back_block = None
+            if tries_left <= 0:
+                break # inshallah
+            tries_left -= 1
         stop_listener.set()
         listen_thread.join()
 
