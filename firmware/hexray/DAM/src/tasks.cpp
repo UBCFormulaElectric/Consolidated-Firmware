@@ -385,6 +385,8 @@ void tasks_init()
     __HAL_DBGMCU_FREEZE_IWDG();
 #endif
 
+    osKernelInitialize();
+
     fdcan1.init();
     hw::runtimeStat::init(htim7);
 
@@ -419,7 +421,6 @@ void tasks_init()
         hw::bootup::setBootRequest(boot_request);
     }
 
-    osKernelInitialize();
     jobs_init();
     DAM_StartAllTasks();
     osKernelStart();
