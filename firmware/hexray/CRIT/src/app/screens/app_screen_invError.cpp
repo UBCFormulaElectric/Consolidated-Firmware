@@ -2,7 +2,6 @@
 #include "io_sevenSeg.hpp"
 #include "util_retry.hpp"
 #include "app_canRx.hpp"
-#include <algorithm>
 #include <cassert>
 
 static std::array<io::seven_seg::digit, io::seven_seg::DIGITS> screen_buf{

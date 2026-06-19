@@ -42,7 +42,9 @@ namespace
     constexpr digit v{ false, true, false, true, false, true, false, false };
     constexpr digit y{ false, true, true, true, false, true, true, false };
     constexpr digit dot{ false, false, false, false, false, false, false, true };
-    digit           char_to_segment(const char cc)
+    constexpr digit space{ false, false, false, false, false, false, false, false };
+
+    digit char_to_segment(const char cc)
     {
         switch (cc)
         {
@@ -136,8 +138,10 @@ namespace
             case 'Y':
                 return y;
             case '.':
-            default:
                 return dot;
+            case ' ':
+            default:
+                return space;
         }
     }
 } // namespace
