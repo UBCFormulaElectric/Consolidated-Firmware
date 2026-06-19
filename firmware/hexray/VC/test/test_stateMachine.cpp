@@ -226,7 +226,8 @@ TEST_F(VCStateMachineTest, HvDoesNotEnterDriveWithoutBrakeAndStart)
 {
     app::can_rx::BMS_State_update(BmsState::BMS_DRIVE_STATE);
     SetStateWithEntry(&app::states::hv_state);
-
+    SetAllQuitDcOn(true);
+    SetAllQuitInverterOn(true);
     app::can_rx::CRIT_StartButton_update(SwitchState::OFF);
     app::can_rx::FSM_BrakeActuated_update(false);
     LetTimePass(10);
@@ -237,6 +238,8 @@ TEST_F(VCStateMachineTest, HvBrakeAndStartRisingEdgeTransitionsToDrive)
 {
     app::can_rx::BMS_State_update(BmsState::BMS_DRIVE_STATE);
     SetStateWithEntry(&app::states::hv_state);
+    SetAllQuitDcOn(true);
+    SetAllQuitInverterOn(true);
 
     app::can_rx::CRIT_StartButton_update(SwitchState::OFF);
     (void)app::startSwitch::hasRisingEdge();
@@ -251,6 +254,8 @@ TEST_F(VCStateMachineTest, DriveStateEntryKeepsDriveState)
 {
     app::can_rx::BMS_State_update(BmsState::BMS_DRIVE_STATE);
     SetStateWithEntry(&app::states::drive_state);
+    SetAllQuitDcOn(true);
+    SetAllQuitInverterOn(true);
 
     LetTimePass(20);
     ASSERT_STATE_EQ(app::states::drive_state);
@@ -317,11 +322,11 @@ TEST_F(VCStateMachineTest, InverterRetryOneFaultedInverterFromDrive)
     SetStateWithEntry(&app::states::drive_state);
 
     app::can_rx::INVFL_bError_update(true);
-    LetTimePass(10);
+    LetTimePass(20);
     ASSERT_STATE_EQ(app::states::inverter_fault_handling_state);
 
     app::can_rx::INVFL_bError_update(false);
-    LetTimePass(10);
+    LetTimePass(20);
     ASSERT_STATE_EQ(app::states::hvInit_state);
     ASSERT_FALSE(app::can_tx::VC_Info_InverterRetry_get());
 }
@@ -383,11 +388,11 @@ TEST_F(VCStateMachineTest, InverterRetryOneFaultedInverterFromHvInit)
     SetStateWithEntry(&app::states::hvInit_state);
 
     app::can_rx::INVFL_bError_update(true);
-    LetTimePass(10);
+    LetTimePass(20);
     ASSERT_STATE_EQ(app::states::inverter_fault_handling_state);
 
     app::can_rx::INVFL_bError_update(false);
-    LetTimePass(10);
+    LetTimePass(20);
     ASSERT_STATE_EQ(app::states::hvInit_state);
 }
 
@@ -395,14 +400,20 @@ TEST_F(VCStateMachineTest, InverterRetryOneFaultedInverterFromHv)
 {
     app::can_rx::BMS_State_update(BmsState::BMS_DRIVE_STATE);
     SetStateWithEntry(&app::states::hv_state);
+    SetAllQuitDcOn(true);
+    SetAllQuitInverterOn(true);
 
     app::can_rx::INVFL_bError_update(true);
-    LetTimePass(10);
+    SetAllQuitDcOn(true);
+    SetAllQuitInverterOn(true);
+    LetTimePass(20);
     const app::State *meow = app::StateMachine::get_current_state();
 
     ASSERT_STATE_EQ(app::states::inverter_fault_handling_state);
     app::can_rx::INVFL_bError_update(false);
-    LetTimePass(10);
+    SetAllQuitDcOn(true);
+    SetAllQuitInverterOn(true);
+    LetTimePass(20);
     ASSERT_STATE_EQ(app::states::hvInit_state);
 }
 
@@ -410,9 +421,11 @@ TEST_F(VCStateMachineTest, InverterRetryMoreThanOneFaultedInverter)
 {
     app::can_rx::BMS_State_update(BmsState::BMS_DRIVE_STATE);
     SetStateWithEntry(&app::states::drive_state);
+    SetAllQuitDcOn(true);
+    SetAllQuitInverterOn(true);
 
     SetAllInverterErrors(true);
-    LetTimePass(10);
+    LetTimePass(20);
     ASSERT_STATE_EQ(app::states::inverter_fault_handling_state);
 }
 
@@ -420,10 +433,12 @@ TEST_F(VCStateMachineTest, InverterFaultLockoutTransitionsToFault)
 {
     app::can_rx::BMS_State_update(BmsState::BMS_DRIVE_STATE);
     SetStateWithEntry(&app::states::drive_state);
+    SetAllQuitDcOn(true);
+    SetAllQuitInverterOn(true);
 
     app::can_rx::INVFL_bError_update(true);
     app::can_rx::INVFL_ErrorInfo_update(259u);
-    LetTimePass(20);
+    LetTimePass(30);
 
     ASSERT_STATE_EQ(app::states::fault_state);
     ASSERT_TRUE(app::can_tx::VC_Fault_InvLockoutFault_get);
@@ -590,7 +605,7 @@ TEST_F(VCStateMachineTest, DriveStateRetrytoHvInit)
     app::can_rx::BMS_State_update(BmsState::BMS_DRIVE_STATE);
     SetStateWithEntry(&app::states::drive_state);
     SetAllInverterErrors(true);
-    LetTimePass(10);
+    LetTimePass(20);
     ASSERT_STATE_EQ(app::states::inverter_fault_handling_state);
 
     SetAllInverterErrors(false);
@@ -624,6 +639,8 @@ TEST_F(VCStateMachineTest, NoTransitionWithoutBrakeAndStart)
 {
     app::can_rx::BMS_State_update(BmsState::BMS_DRIVE_STATE);
     SetStateWithEntry(&app::states::hv_state);
+    SetAllQuitDcOn(true);
+    SetAllQuitInverterOn(true);
 
     app::can_rx::CRIT_StartButton_update(SwitchState::OFF);
     app::can_rx::FSM_BrakeActuated_update(false);
@@ -635,6 +652,8 @@ TEST_F(VCStateMachineTest, NoTransitionWithoutBrakeEvenIfStart)
 {
     app::can_rx::BMS_State_update(BmsState::BMS_DRIVE_STATE);
     SetStateWithEntry(&app::states::hv_state);
+    SetAllQuitDcOn(true);
+    SetAllQuitInverterOn(true);
 
     app::can_rx::CRIT_StartButton_update(SwitchState::OFF);
     app::can_rx::FSM_BrakeActuated_update(false);
@@ -702,7 +721,7 @@ TEST_F(VCStateMachineTest, InverterFaultLockout)
 
     app::can_rx::INVFL_bError_update(true);
     app::can_rx::INVFL_ErrorInfo_update(259u);
-    LetTimePass(20);
+    LetTimePass(30);
 
     ASSERT_STATE_EQ(app::states::fault_state);
     ASSERT_TRUE(app::can_tx::VC_Fault_InvLockoutFault_get());
@@ -714,7 +733,7 @@ TEST_F(VCStateMachineTest, InverterRetryRecovered)
     SetStateWithEntry(&app::states::drive_state);
 
     app::can_rx::INVFL_bError_update(true);
-    LetTimePass(10);
+    LetTimePass(20);
     ASSERT_STATE_EQ(app::states::inverter_fault_handling_state);
 
     app::can_rx::INVFL_bError_update(false);

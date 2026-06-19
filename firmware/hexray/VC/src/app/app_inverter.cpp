@@ -14,9 +14,6 @@ using namespace app::can_utils;
 namespace app
 {
 static State            *state_to_recover_after_fault;
-static Timer             retry_timer{ 1000u };
-static constexpr uint8_t RETRY_LIMIT = 3;
-static uint8_t           retry_count = 0;
 
 constexpr app::inverter::Handle inverter_handle_FL{
     can_tx::VC_INVFLbEnable_set,
@@ -144,25 +141,21 @@ static bool is_lockout_code(const uint32_t code)
 static void inverter_start_retry_routine(const app::inverter::Handle &handle)
 {
     // Start retry cycle if faulted
-    if (handle.can_error_bit())
-    {
-        handle.can_invOn(false);
-        handle.can_enable_inv(false);
-        handle.can_inv_warning(true);
-        handle.error_reset(true);
-    }
+    handle.can_invOn(false);
+    handle.can_enable_inv(false);
+    handle.can_inv_warning(true);
+    handle.error_reset(true);
 }
 
 static void inverter_stop_retry_routine(const app::inverter::Handle &handle)
 {
     // Start retry cycle if faulted
-    if (handle.can_error_bit())
-    {
-        handle.can_invOn(true);
-        handle.can_enable_inv(true);
-        handle.can_inv_warning(false);
-        handle.error_reset(false);
-    }
+
+    handle.can_invOn(false);
+    handle.can_enable_inv(false);
+    handle.can_inv_warning(false);
+    handle.error_reset(false);
+
 }
 
 static bool lockout()
@@ -205,18 +198,16 @@ inverter::FaultHandlerState app::inverter::FaultHandler()
 
     const bool inverter_fault = fl_fault || fr_fault || rl_fault || rr_fault;
 
+    // Now start a new retry cycle is fault persist after TIMEOUT = 1000 ms of retrying
     if (!inverter_fault)
     {
         LOG_INFO("retry -> all inverter errors cleared");
-        retry_count = 0u;
         inverter_stop_retry_routine(inverter_handle_FL);
         inverter_stop_retry_routine(inverter_handle_FR);
         inverter_stop_retry_routine(inverter_handle_RL);
         inverter_stop_retry_routine(inverter_handle_RR);
         return INV_FAULT_RECOVERED;
     }
-    // Now start a new retry cycle is fault persist after TIMEOUT = 1000 ms of retrying
-    const Timer::TimerState state = retry_timer.runIfCondition(!inverter_fault);
 
     if (fl_fault)
         inverter_start_retry_routine(inverter_handle_FL);
@@ -226,20 +217,6 @@ inverter::FaultHandlerState app::inverter::FaultHandler()
         inverter_start_retry_routine(inverter_handle_RL);
     if (rr_fault)
         inverter_start_retry_routine(inverter_handle_RR);
-
-    if (state == Timer::TimerState::EXPIRED)
-    {
-        // First end the retry cycle so we can reset it again
-        inverter_handle_FL.error_reset(false);
-        inverter_handle_FR.error_reset(false);
-        inverter_handle_RL.error_reset(false);
-        inverter_handle_RR.error_reset(false);
-        if (retry_count == RETRY_LIMIT)
-        {
-            return INV_FAULT_LOCKOUT;
-        }
-        retry_count++;
-    }
 
     return INV_FAULT_RETRY;
 }
@@ -253,7 +230,7 @@ void inverter::FaultCheck()
         can_tx::VC_Fault_InvLockoutFault_set(false);
     }
 
-    if (!inverter_status() || curr == &states::inverter_fault_handling_state)
+    if (!inverter_status() || curr == &states::inverter_fault_handling_state || curr == &states::fault_state)
     {
         return;
     }

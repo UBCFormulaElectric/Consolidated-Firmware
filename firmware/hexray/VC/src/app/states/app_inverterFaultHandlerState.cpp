@@ -31,7 +31,7 @@ namespace inverterFaultHandler
             }
             case inverter::FaultHandlerState::INV_FAULT_LOCKOUT:
             {
-                can_tx::VC_Fault_InvLockoutFault_set(true);
+                can_alerts::faults::InvLockoutFault_set(true);
                 StateMachine::set_next_state(&fault_state);
                 break;
             }

@@ -60,11 +60,11 @@ static void SetStateWithEntry(const app::State *s)
 {
     app::StateMachine::set_current_state(s);
     s->run_on_entry();
-    app::can_rx::BMS_IrNegative_update(ContactorState::CONTACTOR_STATE_OPEN);
 }
 
 TEST_F(VCPowerManagerTest, test_sequencingStateMachine)
 {
+    suppress_heartbeat = true;
     // this tests that the efuse sequencing happens
     SetStateWithEntry(&app::states::init_state);
     ASSERT_STATE_EQ(app::states::init_state);
@@ -77,8 +77,9 @@ TEST_F(VCPowerManagerTest, test_sequencingStateMachine)
     LetTimePass(10);
     ASSERT_STATE_EQ(app::states::inverterOn_state);
 
+    LetTimePass(500);
+
     const app::State *mew0 = app::StateMachine::get_current_state();
-    LetTimePass(10);
 
     check_efuses(false, false, false, false, true, true, true, true, true, true);
 

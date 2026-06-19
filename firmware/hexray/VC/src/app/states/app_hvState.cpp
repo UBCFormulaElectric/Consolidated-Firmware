@@ -39,7 +39,7 @@ namespace hvState
 
     static void runOnTick100Hz()
     {
-        bool drive_allowed_dropped = inverter::drive_allowed();
+        bool drive_allowed_dropped = !inverter::drive_allowed();
         bool bms_drive_dropped     = can_rx::BMS_State_get() != BmsState::BMS_DRIVE_STATE;
 
         if (bms_drive_dropped)

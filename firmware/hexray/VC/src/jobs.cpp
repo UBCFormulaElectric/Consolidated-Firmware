@@ -78,6 +78,8 @@ void jobs_run100Hz_tick()
         app::StateMachine::set_next_state(&app::states::fault_state);
     }
 
+    app::StateMachine::tick100Hz();
+
     if (app::StateMachine::get_current_state() == &app::states::inverterOn_state ||
         app::StateMachine::get_current_state() == &app::states::hvInit_state ||
         app::StateMachine::get_current_state() == &app::states::hv_state ||
@@ -86,8 +88,6 @@ void jobs_run100Hz_tick()
     {
         app::inverter::FaultCheck();
     }
-
-    app::StateMachine::tick100Hz();
 
     // pcm state broadcasting
     app::can_tx::VC_PcmEnable_set(io::pcm::enabled());
