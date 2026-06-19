@@ -13,7 +13,7 @@
 using namespace app::can_utils;
 namespace app
 {
-static State            *state_to_recover_after_fault;
+static State *state_to_recover_after_fault;
 
 constexpr app::inverter::Handle inverter_handle_FL{
     can_tx::VC_INVFLbEnable_set,
@@ -155,7 +155,6 @@ static void inverter_stop_retry_routine(const app::inverter::Handle &handle)
     handle.can_enable_inv(false);
     handle.can_inv_warning(false);
     handle.error_reset(false);
-
 }
 
 static bool lockout()
