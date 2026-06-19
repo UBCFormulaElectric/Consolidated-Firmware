@@ -205,6 +205,8 @@ hexray_FSM = Board(
     path=os.path.join("firmware", "hexray", "FSM", "hexray_FSM_app_metadata.hex"),
 )
 
+hexray_boards = [hexray_RSM, hexray_BMS, hexray_CRIT, hexray_DAM, hexray_CRIT, hexray_FSM, hexray_VC]
+
 CONFIGS = {
     "h7dev": [h7dev],
     "h5dev": [h5dev],
@@ -216,5 +218,5 @@ CONFIGS = {
     "hexray_VC" : [hexray_VC],
     "hexray_FD": [hexray_DAM, hexray_VC, hexray_BMS],
     "hexray_Sx" : [hexray_CRIT, hexray_FSM, hexray_RSM],
-    "hexray" : [hexray_RSM, hexray_BMS, hexray_CRIT, hexray_DAM, hexray_CRIT, hexray_FSM, hexray_VC],
+    "hexray" : hexray_boards,
 }
