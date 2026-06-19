@@ -57,7 +57,7 @@ class Bootloader:
         board: boards.Board,
         ui_callback: Callable,
         ih: intelhex.IntelHex = None,
-        timeout: int = 1000,
+        timeout: int = 1,
         is_fd: bool = False,
     ) -> None:
         self.bus: can.Bus = bus
@@ -256,6 +256,7 @@ class Bootloader:
         # TODO: Check if binary is aligned to 64 bytes and ensure ending bytes are sent
         block = 0
         last_block = (end_addr - start_addr) // CAN_FRAME_SIZE_BYTES
+        tries_left = 10
         while not done:
             while block <= last_block:
                 # check if we need to go back
@@ -287,6 +288,9 @@ class Bootloader:
             if jump_back_block is not None:
                 block = jump_back_block
                 jump_back_block = None
+            if tries_left <= 0:
+                break # inshallah
+            tries_left -= 1
         stop_listener.set()
         listen_thread.join()
 
