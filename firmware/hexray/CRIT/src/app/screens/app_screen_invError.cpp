@@ -4,13 +4,14 @@
 #include "app_canRx.hpp"
 #include <cassert>
 
-static std::array<char, io::seven_seg::DIGITS> screen_buf{ { ' ', ' ', ' ', ' ', ' ', ' ', ' ' } };
+using namespace app::can_rx;
+
+static char screen_buf[io::seven_seg::DIGITS];
 
 static uint16_t prev_fr = 0u;
 static uint16_t prev_rr = 0u;
 static uint16_t prev_fl = 0u;
 static uint16_t prev_rl = 0u;
-using namespace app::can_rx;
 
 static void write_error_code(const char pos1, const char pos2, const uint16_t error_code)
 {

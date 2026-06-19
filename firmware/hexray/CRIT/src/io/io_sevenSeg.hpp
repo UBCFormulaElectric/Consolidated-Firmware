@@ -1,6 +1,6 @@
 #pragma once
 #include "util_errorCodes.hpp"
-
+#include <cstdio>
 #include <span>
 
 namespace io::seven_seg

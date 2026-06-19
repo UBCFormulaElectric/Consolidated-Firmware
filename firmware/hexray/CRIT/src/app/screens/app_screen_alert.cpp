@@ -4,6 +4,7 @@
 #include "util_retry.hpp"
 #include <algorithm>
 #include <cassert>
+#include <cstdio>
 
 static int     alert_index = 0;
 static uint8_t alert_count = 0;
