@@ -355,7 +355,8 @@ static void MX_FDCAN1_Init(void)
         Error_Handler();
     }
     /* USER CODE BEGIN FDCAN1_Init 2 */
-
+    HAL_FDCAN_ConfigTxDelayCompensation(&hfdcan1, 15, 0);
+    HAL_FDCAN_EnableTxDelayCompensation(&hfdcan1);
     /* USER CODE END FDCAN1_Init 2 */
 }
 
