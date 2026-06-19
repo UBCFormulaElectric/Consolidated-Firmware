@@ -306,19 +306,19 @@ static void MX_FDCAN1_Init(void)
     /* USER CODE END FDCAN1_Init 1 */
     hfdcan1.Instance                  = FDCAN1;
     hfdcan1.Init.ClockDivider         = FDCAN_CLOCK_DIV1;
-    hfdcan1.Init.FrameFormat          = FDCAN_FRAME_FD_NO_BRS;
+    hfdcan1.Init.FrameFormat          = FDCAN_FRAME_FD_BRS;
     hfdcan1.Init.Mode                 = FDCAN_MODE_NORMAL;
     hfdcan1.Init.AutoRetransmission   = ENABLE;
-    hfdcan1.Init.TransmitPause        = DISABLE;
-    hfdcan1.Init.ProtocolException    = DISABLE;
-    hfdcan1.Init.NominalPrescaler     = 6;
-    hfdcan1.Init.NominalSyncJumpWidth = 2;
-    hfdcan1.Init.NominalTimeSeg1      = 13;
-    hfdcan1.Init.NominalTimeSeg2      = 2;
-    hfdcan1.Init.DataPrescaler        = 3;
-    hfdcan1.Init.DataSyncJumpWidth    = 2;
-    hfdcan1.Init.DataTimeSeg1         = 5;
-    hfdcan1.Init.DataTimeSeg2         = 2;
+    hfdcan1.Init.TransmitPause        = ENABLE;
+    hfdcan1.Init.ProtocolException    = ENABLE;
+    hfdcan1.Init.NominalPrescaler     = 1;
+    hfdcan1.Init.NominalSyncJumpWidth = 15;
+    hfdcan1.Init.NominalTimeSeg1      = 80;
+    hfdcan1.Init.NominalTimeSeg2      = 15;
+    hfdcan1.Init.DataPrescaler        = 1;
+    hfdcan1.Init.DataSyncJumpWidth    = 4;
+    hfdcan1.Init.DataTimeSeg1         = 19;
+    hfdcan1.Init.DataTimeSeg2         = 4;
     hfdcan1.Init.StdFiltersNbr        = 1;
     hfdcan1.Init.ExtFiltersNbr        = 1;
     hfdcan1.Init.TxFifoQueueMode      = FDCAN_TX_FIFO_OPERATION;
@@ -327,7 +327,8 @@ static void MX_FDCAN1_Init(void)
         Error_Handler();
     }
     /* USER CODE BEGIN FDCAN1_Init 2 */
-
+    HAL_FDCAN_ConfigTxDelayCompensation(&hfdcan1, 15, 0);
+    HAL_FDCAN_EnableTxDelayCompensation(&hfdcan1);
     /* USER CODE END FDCAN1_Init 2 */
 }
 

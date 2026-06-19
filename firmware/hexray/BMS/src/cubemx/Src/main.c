@@ -524,19 +524,19 @@ static void MX_FDCAN2_Init(void)
 
     /* USER CODE END FDCAN2_Init 1 */
     hfdcan2.Instance                  = FDCAN2;
-    hfdcan2.Init.FrameFormat          = FDCAN_FRAME_FD_NO_BRS;
+    hfdcan2.Init.FrameFormat          = FDCAN_FRAME_FD_BRS;
     hfdcan2.Init.Mode                 = FDCAN_MODE_NORMAL;
     hfdcan2.Init.AutoRetransmission   = ENABLE;
-    hfdcan2.Init.TransmitPause        = DISABLE;
-    hfdcan2.Init.ProtocolException    = DISABLE;
-    hfdcan2.Init.NominalPrescaler     = 6;
-    hfdcan2.Init.NominalSyncJumpWidth = 2;
-    hfdcan2.Init.NominalTimeSeg1      = 13;
-    hfdcan2.Init.NominalTimeSeg2      = 2;
-    hfdcan2.Init.DataPrescaler        = 3;
-    hfdcan2.Init.DataSyncJumpWidth    = 2;
-    hfdcan2.Init.DataTimeSeg1         = 5;
-    hfdcan2.Init.DataTimeSeg2         = 2;
+    hfdcan2.Init.TransmitPause        = ENABLE;
+    hfdcan2.Init.ProtocolException    = ENABLE;
+    hfdcan2.Init.NominalPrescaler     = 1;
+    hfdcan2.Init.NominalSyncJumpWidth = 15;
+    hfdcan2.Init.NominalTimeSeg1      = 80;
+    hfdcan2.Init.NominalTimeSeg2      = 15;
+    hfdcan2.Init.DataPrescaler        = 1;
+    hfdcan2.Init.DataSyncJumpWidth    = 4;
+    hfdcan2.Init.DataTimeSeg1         = 19;
+    hfdcan2.Init.DataTimeSeg2         = 4;
     hfdcan2.Init.MessageRAMOffset     = 1280;
     hfdcan2.Init.StdFiltersNbr        = 1;
     hfdcan2.Init.ExtFiltersNbr        = 1;
@@ -556,6 +556,8 @@ static void MX_FDCAN2_Init(void)
         Error_Handler();
     }
     /* USER CODE BEGIN FDCAN2_Init 2 */
+    HAL_FDCAN_ConfigTxDelayCompensation(&hfdcan2, 15, 0);
+    HAL_FDCAN_EnableTxDelayCompensation(&hfdcan2);
 
     /* USER CODE END FDCAN2_Init 2 */
 }

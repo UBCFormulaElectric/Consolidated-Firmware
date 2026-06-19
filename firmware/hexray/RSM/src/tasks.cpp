@@ -77,7 +77,7 @@ void tasks_run1Hz(void *arg)
     {
         jobs_run1Hz_tick();
 
-        runtimeMonitor.checkin();
+        // runtimeMonitor.checkin();
         watchdog1hz.checkIn();
 
         start_ticks += period_ms;
@@ -191,6 +191,8 @@ void tasks_init()
     SEGGER_SYSVIEW_Conf();
     LOG_INFO("RSM Reset!");
 
+    osKernelInitialize();
+
     adcchipsInit();
     can1.init();
     hw::runtimeStat::init(htim7);
@@ -226,7 +228,6 @@ void tasks_init()
     }
 
     jobs_init();
-    osKernelInitialize();
     RSM_StartAllTasks();
     osKernelStart();
     forever {}
