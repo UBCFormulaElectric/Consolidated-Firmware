@@ -17,6 +17,7 @@ use crate::utils::yellow;
 use crate::config::CONFIG;
 use crate::tasks::{HealthCheckSender, HealthCheckSenderExt, ResultExt, ShutdownReceiver, Task};
 use crate::tasks::client_api::AppState;
+use crate::tasks::mcp_handler::get_mcp_service;
 use crate::tasks::client_api::subtable_clients::Clients;
 use crate::tasks::client_api::signal_api_handler::get_signal_router;
 use crate::tasks::client_api::subtable_api_handler::get_subtable_router;
@@ -63,14 +64,16 @@ pub async fn run_api_handler(
         .ping_timeout(Duration::from_millis(2000))
         .build_layer();
 
+    let influx_client = Arc::new(influxdb2::Client::new(
+        &CONFIG.influxdb_url,
+        &CONFIG.influxdb_org,
+        &CONFIG.influxdb_token
+    ));
+
     let app_state = AppState {
-        can_db: can_db,
+        can_db: can_db.clone(),
         clients: clients.clone(),
-        influx_client: Arc::new(influxdb2::Client::new(
-            &CONFIG.influxdb_url,
-            &CONFIG.influxdb_org,
-            &CONFIG.influxdb_token
-        )),
+        influx_client: influx_client.clone(),
         client_out_msg_tx: client_out_msg_tx,
 
         signal_tile_cache: Cache::builder()
@@ -103,6 +106,7 @@ pub async fn run_api_handler(
         .nest("/api/v1/", get_sd_router())
         .nest("/api/v1/", get_transmit_router())
         .with_state(app_state)
+        .nest_service("/mcp", get_mcp_service(can_db, influx_client))
         .layer(cors)
         .into_make_service();
 
