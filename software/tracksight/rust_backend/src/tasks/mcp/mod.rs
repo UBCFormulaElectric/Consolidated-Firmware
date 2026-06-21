@@ -37,6 +37,11 @@ pub struct ListSessionResult {
     pub sessions: Vec<SessionInfo>,
 }
 
+#[derive(Debug, serde::Serialize, schemars::JsonSchema)]
+pub struct ListTxNodesResult {
+    pub nodes: Vec<String>,
+}
+
 #[tool_router]
 impl McpServer {
     pub fn new(can_db: Arc<CanDatabase>, influx_client: Arc<influxdb2::Client>) -> Self {
@@ -45,6 +50,28 @@ impl McpServer {
             influx_client,
             tool_router: Self::tool_router(),
         }
+    }
+
+    #[tool(description = "List CAN bus signal nodes available in the database.")]
+    async fn list_tx_nodes(&self) -> Result<CallToolResult, McpError> {
+        let nodes = self.can_db.nodes
+            .iter().map(|node| node.name.clone())
+            .collect::<Vec<_>>();
+
+        let result = ListTxNodesResult { nodes };
+        let serialized = serde_json::to_string(&result);
+
+        if let Err(e) = serialized {
+            return Err(McpError::internal_error(
+                format!("Failed to serialize result: {}", e),
+                None,
+            ));
+        }
+
+        Ok(CallToolResult::success(vec![Content::text(format!(
+            "{}", 
+            serialized.unwrap()
+        ))]))
     }
 
     #[tool(description = "List historical telemetry sessions.")]
