@@ -1,4 +1,4 @@
-use std::{collections::HashMap, mem, time::{Duration, SystemTime}};
+use std::{collections::HashMap, mem, sync::Arc, time::{Duration, SystemTime}};
 
 use axum::{Json, Router, extract::{Path, Query, State}, http::StatusCode, response::IntoResponse, routing::get};
 use chrono::{DateTime, FixedOffset};
@@ -9,7 +9,7 @@ use regex::Regex;
 use serde_json::from_str;
 use tokio::{select, time::sleep};
 
-use crate::{config::CONFIG, dprintln, error_println, tasks::{can_data::influx_util::InfluxSignalSource, client_api::{AppState, signal_tile::{InfluxSignalRow, get_signals}}}, utils::{rfc3339_to_utc, rfc3339_to_utc_str}, vprintln};
+use crate::{config::CONFIG, dprintln, error_println, tasks::{can_data::{influx_util::InfluxSignalSource, sessions::get_sessions}, client_api::{AppState, signal_tile::{InfluxSignalRow, get_signals}}}, utils::{rfc3339_to_utc, rfc3339_to_utc_str}, vprintln};
 use crate::tasks::client_api::INFLUX_QUERY_TIMEOUT_MS;
 
 /**
@@ -239,11 +239,6 @@ async fn signal_csv() -> impl IntoResponse {
 }
 
 #[derive(Debug, FromDataPoint, Default)]
-struct SessionStarts {
-    pub time: DateTime<FixedOffset>,
-}
-
-#[derive(Debug, FromDataPoint, Default)]
 struct MarkerPoint {
     pub time: DateTime<FixedOffset>,
 }
@@ -292,49 +287,15 @@ async fn signal_sessions(
         &CONFIG.influxdb_bucket, &CONFIG.influxdb_measurement, start_utc, end_utc, source_str
     );
 
-    let car_on_query = format!(r#"
-        from(bucket: "{}")
-        |> range(start: time(v: "{start_utc}"), stop: time(v: "{end_utc}"))
-        |> filter(fn: (r) => r["_measurement"] == "{}")
-        |> filter(fn: (r) => r["signal_name"] == "DAM_Alive")
-        |> filter(fn: (r) => r["source"] == "{source_str}")
-        |> sort(columns: ["_time"])
-        "#, &CONFIG.influxdb_bucket, &CONFIG.influxdb_measurement);
+    let req = get_sessions(start_utc, end_utc, source_str, state.influx_client.clone()).await;
 
-    let req: Result<Vec<_>, influxdb2::RequestError> = select! {
-        val = state.influx_client.query::<SessionStarts>(
-            Some(influxdb2::models::Query::new(car_on_query))
-        ) => val,
-        _ = sleep(Duration::from_millis(INFLUX_QUERY_TIMEOUT_MS)) => {
-            return (StatusCode::REQUEST_TIMEOUT, "InfluxDB query timed out".to_string());
-        }
-    };
-
-    fn to_unix(w: &SessionStarts) -> String {
-        return w.time.timestamp_millis().to_string();
-    }
-
-    let time_bigram: Vec<(String, Option<String>)> = match req {
-        Ok(starts) => {
-            vprintln!("[sessions] influx returned {} DAM_Alive point(s)", starts.len());
-            let mut tb: Vec<(String, Option<String>)> = starts.windows(2)
-            .filter(|w| w[0].time < w[1].time)
-            .map(|w|
-                (
-                    to_unix(&w[0]),
-                    Some(to_unix(&w[1]))
-                )
-            )
-            .collect();
-            if let Some(last) = starts.last() {
-                tb.push((to_unix(last), None));
-            }
-            tb
-        },
+    let time_bigram = match req {
+        Ok(tb) => tb,
         Err(e) => {
-            error_println!("[sessions] INTERNAL_SERVER_ERROR: influx query failed: {}", e);
-            return (StatusCode::INTERNAL_SERVER_ERROR, format!("Error occurred while fetching session starts: {}", e));
-        },
+            error_println!("[sessions] INTERNAL_SERVER_ERROR: failed to get sessions: {}", e);
+            
+            return (StatusCode::INTERNAL_SERVER_ERROR, format!("Error occurred while fetching sessions: {}", e));
+        }
     };
 
     vprintln!("[sessions] returning {} session(s)", time_bigram.len());

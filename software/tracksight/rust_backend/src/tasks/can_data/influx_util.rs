@@ -1,13 +1,14 @@
 use futures::stream;
 use influxdb2::{Client, api::write::TimestampPrecision, models::{DataPoint, data_point::DataPointError}};
 use jsoncan_rust::can_database::DecodedSignal;
+use rmcp::schemars;
 use serde::{Deserialize, Serialize};
 use strum::Display;
 
 use crate::config::CONFIG;
 use crate::tasks::can_data::decoded_item::DecodedMarker;
 
-#[derive(Debug, Display, Serialize, Deserialize, PartialEq, Eq, Hash, Clone)]
+#[derive(Debug, Display, Serialize, Deserialize, PartialEq, Eq, Hash, Clone, schemars::JsonSchema)]
 #[strum(serialize_all = "lowercase")]
 pub enum InfluxSignalSource {
     Radio,
