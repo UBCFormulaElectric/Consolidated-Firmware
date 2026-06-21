@@ -30,22 +30,22 @@ struct SignalTilesResponse {
 }
 
 #[derive(Debug, Serialize)]
-struct SignalMetadata {
-    name: String,
-    min_val: f64,
-    max_val: f64,
-    unit: Option<String>,
-    enum_signal: Option<SignalMetadataEnumSignal>,
-    tx_node: String,
-    cycle_time_ms: Option<u32>,
-    id: u32,
-    msg_name: String,
+pub struct SignalMetadata {
+    pub name: String,
+    pub min_val: f64,
+    pub max_val: f64,
+    pub unit: Option<String>,
+    pub enum_signal: Option<SignalMetadataEnumSignal>,
+    pub tx_node: String,
+    pub cycle_time_ms: Option<u32>,
+    pub id: u32,
+    pub msg_name: String,
 }
 
 #[derive(Debug, Serialize)]
-struct SignalMetadataEnumSignal {
-    enum_name: String,
-    enum_values: HashMap<String, u32>,
+pub struct SignalMetadataEnumSignal {
+    pub enum_name: String,
+    pub enum_values: HashMap<String, u32>,
 }
 
 #[derive(Debug, Deserialize)]

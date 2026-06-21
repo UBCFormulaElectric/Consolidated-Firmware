@@ -1,12 +1,12 @@
-use std::sync::Arc;
+use std::{collections::HashMap, sync::Arc};
 
 use rmcp::{
     ErrorData as McpError, RoleServer, ServerHandler, handler::server::{router::tool::ToolRouter, wrapper::Parameters}, model::{AnnotateAble, Annotations, CallToolResult, Content, ListResourcesResult, PaginatedRequestParams, RawResource, Role, ServerCapabilities, ServerInfo}, schemars, service::RequestContext, tool, tool_handler, tool_router
 };
 
-use jsoncan_rust::can_database::CanDatabase;
+use jsoncan_rust::can_database::{CanDatabase, CanMessage};
 
-use crate::tasks::can_data::{influx_util::InfluxSignalSource, sessions::get_sessions};
+use crate::tasks::{can_data::{influx_util::InfluxSignalSource, sessions::get_sessions}, client_api::signal_api_handler::{SignalMetadata, SignalMetadataEnumSignal}};
 
 #[derive(Clone)]
 pub struct McpServer {
@@ -42,6 +42,30 @@ pub struct ListTxNodesResult {
     pub nodes: Vec<String>,
 }
 
+#[derive(Debug, serde::Deserialize, schemars::JsonSchema)]
+pub struct ListSignalsParams {
+    pub node_name: String,
+    pub page: Option<usize>,
+    pub page_size: Option<usize>,
+}
+
+#[derive(Debug, serde::Serialize, schemars::JsonSchema)]
+pub struct ListSignalsResult {
+    pub signals: Vec<String>,
+    
+    pub page: usize,
+    pub page_size: usize,
+    pub total: usize,
+    pub total_pages: usize,
+    pub has_next_page: bool,
+}
+
+#[derive(Debug, serde::Deserialize, schemars::JsonSchema)]
+pub struct SignalNameParam {
+    pub names: Vec<String>,
+}
+
+
 #[tool_router]
 impl McpServer {
     pub fn new(can_db: Arc<CanDatabase>, influx_client: Arc<influxdb2::Client>) -> Self {
@@ -50,6 +74,110 @@ impl McpServer {
             influx_client,
             tool_router: Self::tool_router(),
         }
+    }
+
+    #[tool(description = "Get metadata for multiple CAN bus signals by name.")]
+    async fn get_signals_metadata(&self, Parameters(SignalNameParam { names: signal_names }): Parameters<SignalNameParam>) -> Result<CallToolResult, McpError> {
+        let flat_map = | msg: &CanMessage | {
+            return msg.signals.iter().map(
+                | signal | {
+                    let can_enum: Option<SignalMetadataEnumSignal> = 
+                        if let Some(enum_name) = &signal.enum_name && 
+                            let Some(can_enum) = 
+                                self.can_db.get_enum(enum_name) {
+                                    Some(SignalMetadataEnumSignal {
+                                        enum_name: can_enum.name.clone(),
+                                        enum_values: can_enum.values.clone()
+                                    })
+                                } else {
+                                    None
+                                };
+                                
+                    (signal.name.clone(),
+                        SignalMetadata {
+                            name: signal.name.clone(),
+                            min_val: signal.min,
+                            max_val: signal.max,
+                            unit: signal.unit.clone(),
+                            enum_signal: can_enum,
+                            tx_node: msg.tx_node_name.clone(),
+                            cycle_time_ms: msg.cycle_time.clone(),
+                            id: msg.id,
+                            msg_name: msg.name.clone(),
+                        })
+                }
+            ).collect::<Vec<_>>()
+        };
+
+        let metadatas: HashMap<String, SignalMetadata> = self.can_db.get_all_msgs()
+            .unwrap_or_default()
+            .iter()
+            .filter(|msg| msg.signals.iter().any(|signal| signal_names.contains(&signal.name)))
+            .flat_map(flat_map)
+            .filter(|(name, _)| signal_names.contains(name))
+            .collect();
+
+        return Ok(CallToolResult::success(vec![Content::text(
+            serde_json::to_string(&metadatas).map_err(|e| {
+                McpError::internal_error(format!("Failed to serialize result: {}", e), None)
+            })?
+        )]));
+    }
+
+    #[tool(description = "List CAN bus signals for a given node.")]
+    async fn list_signals(
+        &self,
+        Parameters(ListSignalsParams { node_name, page, page_size }): Parameters<ListSignalsParams>,
+    ) -> Result<CallToolResult, McpError> {
+        let node = self.can_db.nodes.iter().find(|n| n.name == node_name);
+
+        if node.is_none() {
+            return Err(McpError::internal_error(
+                format!("Node '{}' not found in CAN database", node_name),
+                None,
+            ));
+        }
+
+        let page_size = page_size.unwrap_or(50);
+        if page_size == 0 {
+            return Err(McpError::invalid_params(
+                "page_size must be greater than 0",
+                None,
+            ));
+        }
+
+        let page = page.unwrap_or(0);
+
+        let all_signals = self.can_db
+            .get_all_msgs()
+            .into_iter()
+            .flatten()
+            .filter(|msg| { msg.tx_node_name == node_name })
+            .flat_map(|msg| { msg.signals.into_iter().map(|signal| signal.name.clone()) })
+            .collect::<Vec<_>>();
+
+        let total = all_signals.len();
+        let total_pages = total.div_ceil(page_size);
+
+        let signals = all_signals
+            .into_iter()
+            .skip(page * page_size)
+            .take(page_size)
+            .collect::<Vec<_>>();
+
+        let result = ListSignalsResult {
+            signals,
+            page,
+            page_size,
+            total,
+            total_pages,
+            has_next_page: page + 1 < total_pages,
+        };
+        let serialized = serde_json::to_string(&result).map_err(|e| {
+            McpError::internal_error(format!("Failed to serialize result: {}", e), None)
+        })?;
+
+        Ok(CallToolResult::success(vec![Content::text(serialized)]))
     }
 
     #[tool(description = "List CAN bus signal nodes available in the database.")]
