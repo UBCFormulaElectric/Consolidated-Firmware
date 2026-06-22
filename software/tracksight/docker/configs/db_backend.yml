@@ -8,3 +8,6 @@ services:
     extends:
       file: ../common.yml
       service: backend
+volumes:
+  influx-data:
+  influx-config:
