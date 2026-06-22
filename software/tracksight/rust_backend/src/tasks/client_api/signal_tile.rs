@@ -10,6 +10,7 @@ use chrono::{DateTime, FixedOffset, Utc};
 use futures::future::{ready, try_join_all};
 use influxdb2::{FromDataPoint, RequestError, models::Query};
 use moka::future::Cache;
+use rmcp::schemars;
 use serde::Serialize;
 use tokio::{select, time::sleep};
 
@@ -19,7 +20,7 @@ use crate::tasks::client_api::INFLUX_QUERY_TIMEOUT_MS;
 /**
  * The row for each signal value returned from InfluxDB
  */
-#[derive(Debug, Serialize, FromDataPoint, Default)]
+#[derive(Debug, Serialize, FromDataPoint, Default, schemars::JsonSchema)]
 pub struct InfluxSignalRow {
     // rename influx field names to match with frontend names
     #[serde(rename = "timestamp")]

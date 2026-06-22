@@ -3,13 +3,13 @@ use influxdb2::{Client, api::write::TimestampPrecision, models::{DataPoint, data
 use jsoncan_rust::can_database::DecodedSignal;
 use rmcp::schemars;
 use serde::{Deserialize, Serialize};
-use strum::Display;
+use strum::{Display, EnumString};
 
 use crate::config::CONFIG;
 use crate::tasks::can_data::decoded_item::DecodedMarker;
 
-#[derive(Debug, Display, Serialize, Deserialize, PartialEq, Eq, Hash, Clone, schemars::JsonSchema)]
-#[strum(serialize_all = "lowercase")]
+#[derive(Debug, Display, EnumString, Serialize, Deserialize, PartialEq, Eq, Hash, Clone, schemars::JsonSchema)]
+#[strum(serialize_all = "lowercase", ascii_case_insensitive)]
 pub enum InfluxSignalSource {
     Radio,
     SdCard,
