@@ -113,6 +113,19 @@ pub struct QueryAggregateResult {
     pub aggregates: Vec<SignalAggregate>,
 }
 
+#[derive(Debug, serde::Deserialize, schemars::JsonSchema)]
+pub struct AlertQueryParams {
+    pub start_utc: String,
+    pub end_utc: String,
+    
+    pub source: String,
+}
+
+#[derive(Debug, serde::Serialize, schemars::JsonSchema)]
+pub struct AlertInfo {
+    pub alerts: Vec<InfluxSignalRow>,
+}
+
 fn parse_source(source: &str) -> Result<InfluxSignalSource, McpError> {
     source.parse::<InfluxSignalSource>().map_err(|_| {
         error_println!("[mcp] invalid source {:?}", source);
@@ -143,6 +156,55 @@ impl McpServer {
             can_db,
             influx_client,
         }
+    }
+
+    #[tool(description = "Query alerts over a time range. Source can be 'Radio' or 'SdCard'.")]
+    async fn query_alerts(&self, Parameters(AlertQueryParams {
+        start_utc,
+        end_utc,
+        source,
+    }): Parameters<AlertQueryParams>) -> Result<CallToolResult, McpError> {
+        let source = parse_source(&source)?;
+
+        let source_str = source.to_string();
+
+        let query = format!(r#"
+                from(bucket: "{}")
+                |> range(start: time(v: "{start_utc}"), stop: time(v: "{end_utc}"))
+                |> filter(fn: (r) => r["_measurement"] == "{}")
+                |> filter(fn: (r) => r["source"] == "{source_str}")
+                |> filter(fn: (r) => r["signal_type"] == "alert")
+                |> toFloat()"#,
+                &CONFIG.influxdb_bucket,
+                &CONFIG.influxdb_measurement
+            );
+
+        let req: Result<Vec<InfluxSignalRow>, influxdb2::RequestError> = select! {
+            val = self.influx_client.query::<InfluxSignalRow>(
+                Some(influxdb2::models:: Query::new(query))
+            ) => val,
+            _ = sleep(Duration::from_millis(INFLUX_QUERY_TIMEOUT_MS)) => {
+                error_println!("[mcp] query_alerts: InfluxDB query timed out after {}ms", INFLUX_QUERY_TIMEOUT_MS);
+                return Err(McpError::internal_error(
+                    "InfluxDB query timed out, try a smaller time range",
+                    None,
+                ));
+            }
+        };
+
+        let alerts = req.map_err(|e| {
+            error_println!("[mcp] query_alerts: InfluxDB query failed: {}", e);
+            McpError::internal_error("Failed to query InfluxDB", None)
+        })?;
+
+        let result = AlertInfo { alerts };
+        let serialized = serde_json::to_string(&result).map_err(|e| {
+            error_println!("[mcp] query_alerts: failed to serialize result: {}", e);
+            McpError::internal_error(format!("Failed to serialize result: {}", e), None)
+        })?;
+
+        Ok(CallToolResult::success(vec![Content::text(serialized)]))
+
     }
 
     #[tool(
