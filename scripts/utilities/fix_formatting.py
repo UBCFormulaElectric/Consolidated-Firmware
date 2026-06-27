@@ -99,7 +99,7 @@ def fix_formatting(local: str | None):
 
     # Build clang-format command.
     executable_name = local if local is not None else CLANG_FORMAT_BINARY
-    n = 400
+    n = len(source_files) // (multiprocessing.cpu_count() * 2)  # Split files into chunks for multiprocessing
     pool = multiprocessing.Pool()  # Start a multiprocessing pool to speed up formatting
     try:
         results = pool.imap(
