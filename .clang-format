@@ -5,8 +5,7 @@ Language: Cpp
 # Aligns parameters contained within open brackets
 # .e.g longFunction (argument1,
 #                    argument2)
-# this should probably change to "Align" (as described above)
-AlignAfterOpenBracket: AlwaysBreak
+AlignAfterOpenBracket: true
 
 # Aligns the assignment operators                     
 AlignConsecutiveAssignments: true
@@ -142,13 +141,13 @@ ReflowComments: true
 SortIncludes: Never
 
 # TODO: Enable me when clang-format has been updated to understand me
-#SortUsingDeclarations: false
+SortUsingDeclarations: false
 
 # inserts a space between casts and the variables they're targeting
 SpaceAfterCStyleCast: false
 
 # TODO: Enable me when clang-format has been updated to understand me
-#SpaceAfterTemplateKeyword: false
+SpaceAfterTemplateKeyword: false
 
 # self-explanatory
 SpaceBeforeAssignmentOperators: true
