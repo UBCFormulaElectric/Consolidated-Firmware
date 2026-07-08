@@ -47,23 +47,23 @@ else ()
             message(FATAL_ERROR "❌ embedded.cmake must be included before logfs is subdirectoried")
         endif ()
         embedded_library(
-                "logfs_cm5"
+                "logfs_C"
                 "${LOGFS_C_SRCS}"
                 "${LOGFS_INCLUDE_DIRS}"
                 "cm7"
                 TRUE
         )
-        target_compile_options(logfs_cm5 PRIVATE
+        target_compile_options(logfs_C PRIVATE
                 -O3
         )
         embedded_library(
-                "logfs_cm7"
+                "logfs_CXX"
                 "${LOGFS_CPP_SRCS}"
                 "${LOGFS_INCLUDE_DIRS}"
                 "cm7"
                 TRUE
         )
-        target_compile_options(logfs_cm7 PRIVATE
+        target_compile_options(logfs_CXX PRIVATE
                 -O3
         )
     elseif ("${TARGET}" STREQUAL "test")
