@@ -53,6 +53,7 @@ template <std::integral T> T swapEndianness(const T value)
 
 namespace io::adbms
 {
+
 /**
  * This represents the wire representation of a register group read from the chip, which consists of the raw bytes
  * followed by the PEC10.
@@ -171,6 +172,7 @@ result<void> sendCmd(const uint16_t cmd)
 {
     const io::unique_semaphore lock{ spi_bus_lock };
     const Cmd                  tx_cmd{ cmd };
+    
     return adbms_spi_ls.transmitDma(tx_cmd.into_span());
 }
 

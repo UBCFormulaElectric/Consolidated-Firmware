@@ -19,6 +19,7 @@ inline constexpr uint8_t THERM_GPIOS_PER_SEGMENT = 8;
 
 namespace io::adbms
 {
+extern Segments<uint32_t> commandCountMismatches;
 
 inline constexpr uint8_t REG_GROUP_SIZE = 6;
 

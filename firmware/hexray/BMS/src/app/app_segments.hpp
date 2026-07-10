@@ -114,7 +114,6 @@ namespace broadcast
     void cellTempStats(const CellParam<float> &min, const CellParam<float> &max);
     void segmentVoltageStats(const SegmentParam<float> &min, const SegmentParam<float> &max);
     void packVoltage(const result<float> &pack);
-    void cmdCountMismatch(const io::adbms::Segments<uint8_t> &mismatches);
 } // namespace broadcast
 
 // app_segments_shared.cpp

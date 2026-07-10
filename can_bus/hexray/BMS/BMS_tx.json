@@ -5045,6 +5045,46 @@
       }
     }
   },
+  "CommandCountMismatches": {
+    "msg_id": 483,
+    "cycle_time": null,
+    "allowed_modes": [
+      "DEBUG"
+    ],
+    "description": "Per-segment rolling count of ADBMS command counter mismatches since boot (saturates at max)",
+    "signals": {
+      "Seg0_CommandCountMismatch": {
+        "bits": 32
+      },
+      "Seg1_CommandCountMismatch": {
+        "bits": 32
+      },
+      "Seg2_CommandCountMismatch": {
+        "bits": 32
+      },
+      "Seg3_CommandCountMismatch": {
+        "bits": 32
+      },
+      "Seg4_CommandCountMismatch": {
+        "bits": 32
+      },
+      "Seg5_CommandCountMismatch": {
+        "bits": 32
+      },
+      "Seg6_CommandCountMismatch": {
+        "bits": 32
+      },
+      "Seg7_CommandCountMismatch": {
+        "bits": 32
+      },
+      "Seg8_CommandCountMismatch": {
+        "bits": 32
+      },
+      "Seg9_CommandCountMismatch": {
+        "bits": 32
+      }
+    }
+  },
   "CellVoltageErrors_Seg0_Seg3": {
     "msg_id": 458,
     "cycle_time": null,
