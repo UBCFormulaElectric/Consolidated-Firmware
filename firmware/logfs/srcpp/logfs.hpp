@@ -117,7 +117,7 @@ public:
 class File
 {
 public:
-    File() = default;
+    File(){};
 
     Cache cache{};
     BlockData* cache_data = nullptr;

@@ -372,7 +372,7 @@ LogFsErr logfs_write(LogFs *fs, LogFsFile *file, const void *buf, uint32_t size)
     return LOGFS_ERR_OK;
 }
 
-LogFsErr(
+LogFsErr logfs_read(
     LogFs               *fs,
     LogFsFile           *file,
     void                *buf,
