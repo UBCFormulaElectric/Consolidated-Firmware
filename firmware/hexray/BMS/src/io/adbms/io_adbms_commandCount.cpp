@@ -4,33 +4,23 @@
 
 
 namespace {
+    using namespace io::adbms;
 
-    io::adbms::Segments<uint32_t> commandCountMismatches = {};
+    uint8_t expected_count = 0U;
+    Segments<uint32_t> mismatch_counts{};
     io::semaphore command_count_lock { true };
-}
 
-namespace io::adbms {
-    void getCommandCountMismatches() {
-        const io::unique_semaphore lock{ command_count_lock };
-        reutnr 
-        
+    uint8_t nextCount(const uint8_t c) { 
+        return c >= 63U ? 1U : static_cast<uint8_t>(c + 1U); 
     }
 
-
-    // Returns true if `cmd` is a command whose on-chip command counter increments (INC = Yes in
-    // Table 50). The four ADC-start commands carry option bits (RD/CONT/DCP/OW/PUP/CH…), so they are
-    // matched by masking those bits off and comparing against the fixed opcode; every other
-    // incrementing command is a single fixed opcode and is matched exactly.
     bool commandIncrements(const uint16_t cmd)
     {
-        // Option-bit masks per ADC-start family, built from the flag constants so they stay in sync.
         constexpr uint16_t ADCV_OPT  = RD | CONT | DCP | RSTF | OW1 | OW0;
         constexpr uint16_t ADSV_OPT  = CONT | DCP | OW1 | OW0;
         constexpr uint16_t ADAX_OPT  = OW | PUP | CH4 | CH3 | CH2 | CH1 | CH0;
         constexpr uint16_t ADAX2_OPT = CH3 | CH2 | CH1 | CH0;
 
-        // Compare against (BASE & ~OPT) rather than BASE, since a base may itself default some
-        // option bits set (e.g. ADCV_BASE has DCP set).
         if ((cmd & ~ADCV_OPT) == (ADCV_BASE & ~ADCV_OPT))
             return true;
         if ((cmd & ~ADSV_OPT) == (ADSV_BASE & ~ADSV_OPT))
@@ -71,5 +61,33 @@ namespace io::adbms {
                 return false;
         }
     }
-    
+}
+namespace io::adbms::commandCount {
+
+    result<void> reset() {
+        const auto res = sendCmd(RSTCC);
+        const io::unique_semaphore lock{ command_count_lock };
+        expected_count = 0U;
+        return res;
+    }
+
+    void increment(const uint16_t cmd) {
+        if (!commandIncrements(cmd)) return;
+        const io::unique_semaphore lock{ command_count_lock };
+        expected_count = nextCount(expected_count);
+    }
+
+    bool check(const uint8_t seg, const uint8_t received) {
+        const io::unique_semaphore lock{ command_count_lock };
+        if (received != expected_count) {
+            mismatch_counts[seg]++;
+            return false;
+        }
+        return true;
+    }
+
+    Segments<uint32_t> getMismatches() {
+        const io::unique_semaphore lock{ command_count_lock };
+        return mismatch_counts;
+    }
 }

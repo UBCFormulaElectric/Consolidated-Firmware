@@ -88,6 +88,9 @@ inline constexpr uint16_t ADAX2_BASE = 0x0400U;
 inline constexpr uint16_t SNAP   = 0x002DU;
 inline constexpr uint16_t UNSNAP = 0x002FU;
 
+// Command counter reset
+inline constexpr uint16_t RSTCC = 0x002EU;
+
 // ADCV and ADSV
 inline constexpr uint16_t RD   = 1U << 8; // redundant C + S ADC
 inline constexpr uint16_t CONT = 1U << 7; // continuous mode
