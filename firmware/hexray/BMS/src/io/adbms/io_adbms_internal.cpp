@@ -171,7 +171,11 @@ result<void> sendCmd(const uint16_t cmd)
 {
     const io::unique_semaphore lock{ spi_bus_lock };
     const Cmd                  tx_cmd{ cmd };
-    return adbms_spi_ls.transmitDma(tx_cmd.into_span());
+    const auto status = adbms_spi_ls.transmitDma(tx_cmd.into_span());
+    if (status) {
+        commandCount::increment(cmd);
+    }
+    return status;
 }
 
 result<bitset<32>> poll(const uint16_t cmd)
@@ -182,6 +186,9 @@ result<bitset<32>> poll(const uint16_t cmd)
     static_assert(sizeof(poll_buf) == 4);
     const auto status = adbms_spi_ls.transmitThenReceiveDma(
         tx_cmd.into_span(), { reinterpret_cast<uint8_t *>(&poll_buf), sizeof(poll_buf) });
+    if (status) {
+        commandCount::increment(cmd);
+    }
     return status ? result<std::bitset<32>>{ poll_buf } : unexpected(status.error());
 }
 
@@ -208,9 +215,14 @@ Segments<result<RegBuffer>> readRegGroup(const uint16_t cmd)
             regs[segment] = unexpected(ErrorCode::CHECKSUM_FAIL);
             continue;
         }
+        
+        if (not commandCount::check(static_cast<uint8_t>(segment), segment_reg_group.cmd_count())) {
+            regs[segment] = unexpected(ErrorCode::CMD_COUNT_MISMATCH);
+            continue;
+        }
+
         regs[segment] = segment_reg_group.getData();
     }
-
     return regs;
 }
 
@@ -219,7 +231,11 @@ result<void> writeRegGroup(const uint16_t cmd, Segments<RegBuffer> &regs)
     const io::unique_semaphore lock{ spi_bus_lock };
     ranges::reverse(regs);
     WriteCmd tx_buffer(cmd, regs);
-    return adbms_spi_ls.transmitDma(tx_buffer.into_span());
+    const auto status = adbms_spi_ls.transmitDma(tx_buffer.into_span()); 
+    if (status) {
+        commandCount::increment(cmd);
+    }
+    return status;
 }
 
 } // namespace io::adbms

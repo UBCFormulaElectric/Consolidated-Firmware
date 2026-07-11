@@ -199,6 +199,8 @@ void jobs_runAdbmsConfigs_tick()
 
     app::segments::broadcast::segmentHealthError(health);
 
+    app::segments::broadcast::debug::commandCount(io::adbms::commandCount::getMismatches());
+
     if (all_segments_ok)
     {
         LOG_INFO("All segments reachable and synced! Notifying...");

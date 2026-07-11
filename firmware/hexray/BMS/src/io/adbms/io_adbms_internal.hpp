@@ -150,7 +150,8 @@ inline constexpr uint16_t DEFAULT_REGISTER_VALUE = 0x8000;
  */
 [[nodiscard]] result<void> writeRegGroup(uint16_t cmd, array<array<uint8_t, REG_GROUP_SIZE>, NUM_SEGMENTS> &regs);
 
-// Returns a per-segment bitmap of command counter mismatches observed during
-// the last readRegGroup. Cleared/overwritten on each readRegGroup call.
-// Segments<bool> getCmdCountMismatches();
+namespace commandCount {
+    void increment(uint16_t cmd);
+    [[nodiscard]] bool check(uint8_t seg, uint8_t received);
+}
 } // namespace io::adbms

@@ -107,6 +107,7 @@ namespace broadcast
         void status(const io::adbms::Segments<io::adbms::StatusGroupsRes> &status);
         void cellOwcOk(const io::adbms::Cells<result<bool>> &owc_results, const result<void> &poll_ok);
         void balancing(const io::adbms::Cells<bool> &discharge_enabled, const io::adbms::Cells<uint8_t> &pwm_duty);
+        void commandCount(const io::adbms::Segments<uint32_t> &mismatches);
     } // namespace debug
 
     void segmentHealthError(const health::Snapshot &health);
