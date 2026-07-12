@@ -171,26 +171,46 @@ void jobs_runAdbmsConfigs_tick()
     const Segments<result<bool>> sync_res = app::segments::config::sync();
     {
         const io::unique_semaphore h{ health_lock };
-        for (size_t seg_num = 0; seg_num < NUM_SEGMENTS; seg_num++)
+        for (size_t seg = 0; seg < NUM_SEGMENTS; seg++)
         {
-            const auto &seg_res = sync_res[seg_num];
-            app::segments::health::setOrReset(seg_num, app::segments::health::ErrorBit::CONFIG, not seg_res);
+            const auto &seg_res = sync_res[seg];
+            app::segments::health::setOrReset(seg, app::segments::health::ErrorBit::CONFIG, not seg_res);
             if (!seg_res)
             {
                 all_segments_ok = false;
                 LOG_ERROR(
-                    "Failed to sync config on segment %d: %s", (int)seg_num, error_code_to_string(seg_res.error()));
+                    "Failed to sync config on segment %d: %s", (int)seg, error_code_to_string(seg_res.error()));
                 continue;
             }
             if (!seg_res.value())
             {
                 all_segments_ok = false;
                 LOG_ERROR(
-                    "Failed to sync config on segment %d: ADBMS config did not match in-memory config", (int)seg_num);
+                    "Failed to sync config on segment %d: ADBMS config did not match in-memory config", (int)seg);
             }
         }
     }
 
+    const io::adbms::ChainHealth chain_health = io::adbms::chain::getLatestHealth();
+    {
+        const io::unique_semaphore h{ health_lock };
+        for (size_t seg = 0; seg < NUM_SEGMENTS; seg++)
+        {
+            app::segments::health::setOrReset(
+                seg, app::segments::health::ErrorBit::UNREACHABLE, chain_health.device_fault[seg]);
+            
+            if (chain_health.device_fault[seg]) {
+                all_segments_ok = false;
+                LOG_ERROR("Segment %d is unreachable from both isoSPI ports", seg);
+            }
+        }
+    }
+
+    if (chain_health.link_break_present)
+    {
+        LOG_WARN("isoSPI break between segments %d and %d", chain_health.break_index, chain_health.break_index + 1);
+    }
+  
     std::array<std::bitset<app::segments::health::NUM_HEALTH_BITS>, MAX_NUM_SEGMENTS> health;
     {
         const io::unique_semaphore h{ health_lock };
