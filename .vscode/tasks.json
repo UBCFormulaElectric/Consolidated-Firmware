@@ -143,15 +143,6 @@
       ]
     },
     {
-      "label": "Build Embedded: PCM (Quintuna)",
-      "group": "build",
-      "type": "cmake",
-      "command": "build",
-      "targets": [
-        "quintuna_PCM_app.elf",
-      ]
-    },
-    {
       "label": "Build Embedded: h7dev",
       "group": "build",
       "type": "cmake",
@@ -311,6 +302,15 @@
       "command": "build",
       "targets": [
       "hexray_FSM_chimera.elf"
+      ]
+    },
+    {
+      "label": "Build Embedded: PCM (Hexray)",
+      "group": "build",
+      "type": "cmake",
+      "command": "build",
+      "targets": [
+        "hexray_PCM_app.elf",
       ]
     },
     {

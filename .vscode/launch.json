@@ -27,6 +27,7 @@
       ],
       "console": "integratedTerminal"
     },
+    // ========== HEXRAY CHIMERA ==========
     {
       "name": "Debug Chimera: VC (Hexray)",
       "cwd": "${workspaceRoot}",
@@ -273,6 +274,7 @@
         ]
       }
     },
+    // ========== HEXRAY BOARDS ==========
     {
       "name": "Debug Embedded: CRIT (Hexray)",
       "cwd": "${workspaceRoot}",
@@ -309,6 +311,43 @@
         "decoders": [
           {
             "label": "Debug logs: CRIT",
+            "port": 0,
+            "type": "console"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Debug Embedded: PCM (Hexray)",
+      "cwd": "${workspaceRoot}",
+      "executable": "build_fw_dev/firmware/hexray/PCM/hexray_PCM_app.elf",
+      "preLaunchTask": "Build Embedded: PCM (Hexray)",
+      // cortex configurations
+      "request": "launch",
+      "type": "cortex-debug",
+      "servertype": "jlink",
+      "linux": {
+        "serverpath": "JLinkGDBServerCLExe"
+      },
+      "osx": {
+        "serverpath": "JLinkGDBServer"
+      },
+      "windows": {
+        "serverpath": "JLinkGDBServerCL"
+      },
+      "serverArgs": [
+        "-speed",
+        "4000"
+      ],
+      "device": "STM32F412RG",
+      "interface": "swd",
+      "showDevDebugOutput": "none",
+      "rttConfig": {
+        "enabled": true,
+        "address": "auto",
+        "decoders": [
+          {
+            "label": "Debug logs: PCM",
             "port": 0,
             "type": "console"
           }
@@ -526,6 +565,7 @@
         ]
       }
     },
+    // ========== QUINTUNA BOARDS (remove) ==========
     {
       "name": "Debug Embedded: VC (Quintuna)",
       "cwd": "${workspaceRoot}",
@@ -780,84 +820,6 @@
       }
     },
     {
-      "name": "Debug Embedded: VCR (Quintuna)",
-      "cwd": "${workspaceRoot}",
-      "executable": "build_fw_dev/firmware/quintuna/VCR/quintuna_VCR_app.elf",
-      "symbolFiles": [
-        // This order matters, or RTT won't work! (app has to be last)
-        "build_fw_dev/firmware/quintuna/VCR/quintuna_VCR_app.elf"
-      ],
-      "preLaunchTask": "Build Embedded: VCR (Quintuna)",
-      // cortex configurations
-      "request": "launch",
-      "type": "cortex-debug",
-      "servertype": "jlink",
-      "linux": {
-        "serverpath": "JLinkGDBServerCLExe"
-      },
-      "osx": {
-        "serverpath": "JLinkGDBServer"
-      },
-      "windows": {
-        "serverpath": "JLinkGDBServerCL"
-      },
-      "serverArgs": [
-        "-speed",
-        "4000"
-      ],
-      "device": "STM32H733VG",
-      "interface": "swd",
-      "showDevDebugOutput": "none",
-      "rttConfig": {
-        "enabled": true,
-        "address": "auto",
-        "decoders": [
-          {
-            "label": "Debug logs: VCR",
-            "port": 0,
-            "type": "console"
-          }
-        ]
-      }
-    },
-    {
-      "name": "Debug Embedded: PCM (Quintuna)",
-      "cwd": "${workspaceRoot}",
-      "executable": "build_fw_dev/firmware/quintuna/PCM/quintuna_PCM_app.elf",
-      "preLaunchTask": "Build Embedded: PCM (Quintuna)",
-      // cortex configurations
-      "request": "launch",
-      "type": "cortex-debug",
-      "servertype": "jlink",
-      "linux": {
-        "serverpath": "JLinkGDBServerCLExe"
-      },
-      "osx": {
-        "serverpath": "JLinkGDBServer"
-      },
-      "windows": {
-        "serverpath": "JLinkGDBServerCL"
-      },
-      "serverArgs": [
-        "-speed",
-        "4000"
-      ],
-      "device": "STM32F412RG",
-      "interface": "swd",
-      "showDevDebugOutput": "none",
-      "rttConfig": {
-        "enabled": true,
-        "address": "auto",
-        "decoders": [
-          {
-            "label": "Debug logs: VCR",
-            "port": 0,
-            "type": "console"
-          }
-        ]
-      }
-    },
-    {
       "name": "Debug Embedded: SSM",
       "cwd": "${workspaceRoot}",
       // binary config
@@ -898,6 +860,7 @@
         ]
       }
     },
+    // ========== DEV BOARDS ==========
     {
       "name": "Debug Embedded: h7dev",
       "cwd": "${workspaceRoot}",
@@ -1066,20 +1029,6 @@
       }
     },
     {
-      "name": "Debug Tests: BMS (Quintuna)",
-      "type": "cppdbg",
-      "request": "launch",
-      "program": "${workspaceRoot}/build_fw_test/firmware/quintuna/BMS/quintuna_BMS_test",
-      "cwd": "${workspaceRoot}",
-      "preLaunchTask": "Build Tests: BMS (Quintuna)",
-      "linux": {
-        "MIMode": "gdb"
-      },
-      "osx": {
-        "MIMode": "lldb"
-      }
-    },
-    {
       "name": "Debug Tests: FSM (Hexray)",
       "type": "cppdbg",
       "request": "launch",
@@ -1149,6 +1098,7 @@
         "MIMode": "lldb"
       }
     },
+    // ========================
     {
       "name": "Debug Tests: JSON CAN intergation",
       "type": "cppdbg",
