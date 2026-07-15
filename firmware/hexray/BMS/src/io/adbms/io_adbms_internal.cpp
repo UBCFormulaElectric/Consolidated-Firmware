@@ -49,6 +49,14 @@ template <std::integral T> T swapEndianness(const T value)
     }
     return out;
 }
+
+const hw::spi::device &deviceFor(const io::adbms::Port port) {
+    return port == io::adbms::Port::LS ? adbms_spi_ls : adbms_spi_hs;
+}
+
+constexpr size_t wireToPhysical(const size_t wire_idx, const io::adbms::Port port) {
+    return port == io::adbms::Port::LS ? wire_idx : static_cast<size_t>(NUM_SEGMENTS - 1 - wire_idx);
+}
 } // namespace
 
 namespace io::adbms
@@ -167,39 +175,39 @@ struct __attribute__((packed)) WriteCmd
     [[nodiscard]] span<uint8_t> into_span() { return { reinterpret_cast<uint8_t *>(this), sizeof(WriteCmd) }; }
 };
 
-result<void> sendCmd(const uint16_t cmd)
+result<void> sendCmd(const uint16_t cmd, const Port port)
 {
     const io::unique_semaphore lock{ spi_bus_lock };
     const Cmd                  tx_cmd{ cmd };
-    const auto status = adbms_spi_ls.transmitDma(tx_cmd.into_span());
-    if (status) {
+    const auto status = deviceFor(port).transmitDma(tx_cmd.into_span());
+    if (status)
         commandCount::increment(cmd);
-    }
     return status;
 }
 
-result<bitset<32>> poll(const uint16_t cmd)
+result<bitset<32>> poll(const uint16_t cmd, const Port port)
 {
     const io::unique_semaphore lock{ spi_bus_lock };
     const Cmd                  tx_cmd{ cmd };
     uint32_t                   poll_buf;
     static_assert(sizeof(poll_buf) == 4);
-    const auto status = adbms_spi_ls.transmitThenReceiveDma(
-        tx_cmd.into_span(), { reinterpret_cast<uint8_t *>(&poll_buf), sizeof(poll_buf) });
-    if (status) {
+    const auto status = deviceFor(port).transmitThenReceiveDma(
+        tx_cmd.into_span(), { 
+        reinterpret_cast<uint8_t *>(&poll_buf), 
+        sizeof(poll_buf) });
+    if (status)
         commandCount::increment(cmd);
-    }
     return status ? result<std::bitset<32>>{ poll_buf } : unexpected(status.error());
 }
 
-Segments<result<RegBuffer>> readRegGroup(const uint16_t cmd)
+Segments<result<RegBuffer>> readRegGroup(const uint16_t cmd, const Port port)
 {
     const io::unique_semaphore  lock{ spi_bus_lock };
     Segments<result<RegBuffer>> regs;
     const Cmd                   tx_cmd{ cmd };
     Segments<RegGroupPayload>   rx_buffer;
 
-    if (const auto comm_status = adbms_spi_ls.transmitThenReceiveDma(
+    if (const auto comm_status = deviceFor(port).transmitThenReceiveDma(
             tx_cmd.into_span(), { reinterpret_cast<uint8_t *>(rx_buffer.data()), sizeof(rx_buffer) });
         !comm_status)
     {
@@ -207,9 +215,11 @@ Segments<result<RegBuffer>> readRegGroup(const uint16_t cmd)
         return regs;
     }
 
-    for (size_t segment = 0U; segment < NUM_SEGMENTS; ++segment)
+    for (size_t wire = 0U; wire < NUM_SEGMENTS; wire++)
     {
-        const auto &segment_reg_group = rx_buffer[segment];
+        const auto &segment_reg_group = rx_buffer[wire];
+        const size_t segment = wireToPhysical(wire,port);
+        
         if (not segment_reg_group.checksum())
         {
             regs[segment] = unexpected(ErrorCode::CHECKSUM_FAIL);
@@ -226,15 +236,15 @@ Segments<result<RegBuffer>> readRegGroup(const uint16_t cmd)
     return regs;
 }
 
-result<void> writeRegGroup(const uint16_t cmd, Segments<RegBuffer> &regs)
+result<void> writeRegGroup(const uint16_t cmd, Segments<RegBuffer> &regs, const Port port)
 {
     const io::unique_semaphore lock{ spi_bus_lock };
-    ranges::reverse(regs);
+    if (port == Port::LS)
+        ranges::reverse(regs);
     WriteCmd tx_buffer(cmd, regs);
-    const auto status = adbms_spi_ls.transmitDma(tx_buffer.into_span()); 
-    if (status) {
+    const auto status = deviceFor(port).transmitDma(tx_buffer.into_span()); 
+    if (status) 
         commandCount::increment(cmd);
-    }
     return status;
 }
 

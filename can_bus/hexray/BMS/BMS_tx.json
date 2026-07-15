@@ -5048,9 +5048,6 @@
   "CommandCountMismatches": {
     "msg_id": 483,
     "cycle_time": null,
-    "allowed_modes": [
-      "DEBUG"
-    ],
     "description": "Per-segment rolling count of ADBMS command counter mismatches since boot (saturates at max)",
     "signals": {
       "Seg0_CommandCountMismatch": {
@@ -5082,6 +5079,28 @@
       },
       "Seg9_CommandCountMismatch": {
         "bits": 32
+      }
+    }
+  },
+  "IsoSpiChainHealth": {
+    "msg_id": 484,
+    "cycle_time": null,
+    "description": "Reversible isoSPI chain health: whether a link break is present, where it is, and which segments were reached only via the reverse (high-side) port vs. unreachable from both ports",
+    "signals": {
+      "IsoSpiLinkBreakPresent": {
+        "bits": 1
+      },
+      "IsoSpiBreakIndex": {
+        "resolution": 1,
+        "signed": true,
+        "min": -1,
+        "max": 9
+      },
+      "IsoSpiRecoveredMask": {
+        "bits": 10
+      },
+      "IsoSpiUnrecoveredMask": {
+        "bits": 10
       }
     }
   },

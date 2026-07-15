@@ -119,16 +119,18 @@ inline constexpr uint16_t DEFAULT_REGISTER_VALUE = 0x8000;
 // Raw command helpers
 /**
  * @param cmd Command to send
+ * @param port Which isoSPI port to transmit on (defaults to the low-side / forward port)
  * @return Success if the command was acknowledged by the chip, or an error code if the SPI transaction failed
  */
-[[nodiscard]] result<void> sendCmd(uint16_t cmd);
+[[nodiscard]] result<void> sendCmd(uint16_t cmd, Port port = Port::LS);
 /**
  * @param cmd Poll command to send (e.g. PLAUX)
+ * @param port Which isoSPI port to transmit on (defaults to the low-side / forward port)
  * @return A bitmap indicating which segments are ready, where bit 0 corresponds to segment A, bit 1 to segment B, etc.;
  * @note Generally, you will check against POLL_STATUS_READY to see if all segments are ready, but you can also check
  * individual bits to see which segments are ready
  */
-[[nodiscard]] result<std::bitset<32>> poll(uint16_t cmd);
+[[nodiscard]] result<std::bitset<32>> poll(uint16_t cmd, Port port = Port::LS);
 /**
  * Reads a register group
  * If the SPI transaction fails, each segment's result will contain the error code
@@ -137,18 +139,46 @@ inline constexpr uint16_t DEFAULT_REGISTER_VALUE = 0x8000;
  * @throws ErrorCode::CMD_COUNT_MISMATCH if the command count byte doesn't match the expected value for a segment; that
  * segment's result will contain the error code and the expected count will be resynced to the received count
  * @param cmd the command to read the register group (e.g. RDCVA)
+ * @param port Which isoSPI port to read on (defaults to the low-side / forward port). The returned Segments is always
+ * in physical order regardless of which port was used.
  * @return a Segments of results, one per segment, containing either the register values or an error code if the read
  * failed
  */
-[[nodiscard]] Segments<result<RegBuffer>> readRegGroup(uint16_t cmd);
+[[nodiscard]] Segments<result<RegBuffer>> readRegGroup(uint16_t cmd, Port port = Port::LS);
 /**
  * Writes a register group
  * @param cmd the command to write the register group (e.g. WRCFGA)
  * @param regs the register values to write, organized by segment; the caller is responsible for ensuring the correct
  * values are
+ * @param port Which isoSPI port to write on (defaults to the low-side / forward port)
  * @return Success if the write was acknowledged by the chip, or an error code if the SPI transaction failed
  */
-[[nodiscard]] result<void> writeRegGroup(uint16_t cmd, array<array<uint8_t, REG_GROUP_SIZE>, NUM_SEGMENTS> &regs);
+[[nodiscard]] result<void>
+writeRegGroup(uint16_t cmd, array<array<uint8_t, REG_GROUP_SIZE>, NUM_SEGMENTS> &regs, Port port = Port::LS);
+
+/**
+ * Reads a register group with reversible-isoSPI redundancy. Reads forward (LS); for any segment that
+ * failed, re-reads reverse (HS) and substitutes the recovered value. Counter-safe, since register
+ * group reads do not increment the chip command counter. The result is in canonical physical order.
+ * Also updates the latest chain health (see chain::getLatestHealth).
+ * @param cmd the command to read the register group (e.g. RDCVA)
+ * @return a Segments of results, one per segment
+ */
+[[nodiscard]] Segments<result<RegBuffer>> readRegGroupRedundant(uint16_t cmd);
+
+/**
+ * Localizes a single isoSPI link break from a forward/reverse result pair.
+ * @return the index k such that the break sits between physical segments k and k+1, or -1 if there is
+ * no break or the failure pattern isn't a single contiguous break (pure function, unit-testable).
+ */
+[[nodiscard]] int8_t detectBreakLocation(const Segments<result<RegBuffer>> &fwd, const Segments<result<RegBuffer>> &rev);
+
+/**
+ * Classifies each segment from a forward/reverse result pair into recovered (reachable only via the
+ * reverse port, i.e. behind a link break) vs. unrecovered (dead on both ports, i.e. a device fault),
+ * and localizes the break (pure function, unit-testable).
+ */
+[[nodiscard]] ChainHealth classifyChain(const Segments<result<RegBuffer>> &fwd, const Segments<result<RegBuffer>> &rev);
 
 namespace commandCount {
     void increment(uint16_t cmd);

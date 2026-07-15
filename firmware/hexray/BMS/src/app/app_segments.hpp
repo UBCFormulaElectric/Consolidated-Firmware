@@ -107,10 +107,11 @@ namespace broadcast
         void status(const io::adbms::Segments<io::adbms::StatusGroupsRes> &status);
         void cellOwcOk(const io::adbms::Cells<result<bool>> &owc_results, const result<void> &poll_ok);
         void balancing(const io::adbms::Cells<bool> &discharge_enabled, const io::adbms::Cells<uint8_t> &pwm_duty);
-        void commandCount(const io::adbms::Segments<uint32_t> &mismatches);
     } // namespace debug
 
+    void commandCount(const io::adbms::Segments<uint32_t> &mismatches);
     void segmentHealthError(const health::Snapshot &health);
+    void chainHealth(const io::adbms::ChainHealth &chain_health);
     void cellVoltageStats(const CellParam<float> &min, const CellParam<float> &max);
     void cellTempStats(const CellParam<float> &min, const CellParam<float> &max);
     void segmentVoltageStats(const SegmentParam<float> &min, const SegmentParam<float> &max);

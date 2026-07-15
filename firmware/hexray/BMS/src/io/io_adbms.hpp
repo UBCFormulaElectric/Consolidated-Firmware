@@ -23,6 +23,12 @@ inline constexpr uint8_t REG_GROUP_SIZE = 6;
 
 using RegBuffer = std::array<uint8_t, REG_GROUP_SIZE>;
 
+enum class Port 
+{
+    LS,
+    HS
+};
+
 enum class OpenWireSwitch
 {
     ODD_CHANNELS,
@@ -213,6 +219,19 @@ template <typename T> using SegmentThermGpios = std::array<T, THERM_GPIOS_PER_SE
 template <typename T> using Cells             = Segments<SegmentCells<T>>;
 template <typename T> using Therms            = Segments<SegmentTherms<T>>;
 template <typename T> using ThermGpios        = Segments<SegmentThermGpios<T>>;
+
+// Default values indicate LS is able to communciate to all segemnts
+struct ChainHealth 
+{
+    bool link_break_present = false; // >= 1 segment is only reachable via HS
+    int break_index = -1; // Link break between segment k and k + 1; -1 means none/2+ breaks
+    Segments<bool> recovered{}; // Segment can communicate on HS but not LS (1 break); does not fault
+    Segments<bool> unrecovered{}; // Segment cannot communicate on HS and LS (2+ breaks); must fault
+};
+
+namespace chain{
+    [[nodiscard]] ChainHealth getLatestHealth();
+}
 
 namespace write
 {

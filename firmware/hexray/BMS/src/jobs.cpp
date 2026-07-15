@@ -197,11 +197,11 @@ void jobs_runAdbmsConfigs_tick()
         for (size_t seg = 0; seg < NUM_SEGMENTS; seg++)
         {
             app::segments::health::setOrReset(
-                seg, app::segments::health::ErrorBit::UNREACHABLE, chain_health.device_fault[seg]);
+                seg, app::segments::health::ErrorBit::UNREACHABLE, chain_health.unrecovered[seg]);
             
-            if (chain_health.device_fault[seg]) {
+            if (chain_health.unrecovered[seg]) {
                 all_segments_ok = false;
-                LOG_ERROR("Segment %d is unreachable from both isoSPI ports", seg);
+                LOG_ERROR("Segment %d is unreachable from both isoSPI ports", (int)seg);
             }
         }
     }
@@ -217,9 +217,10 @@ void jobs_runAdbmsConfigs_tick()
         health = app::segments::health::getAll();
     }
 
-    app::segments::broadcast::segmentHealthError(health);
 
-    app::segments::broadcast::debug::commandCount(io::adbms::commandCount::getMismatches());
+    app::segments::broadcast::segmentHealthError(health);
+    app::segments::broadcast::chainHealth(chain_health);
+    app::segments::broadcast::commandCount(io::adbms::commandCount::getMismatches());
 
     if (all_segments_ok)
     {

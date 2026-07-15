@@ -90,7 +90,7 @@ Cells<result<int16_t>> read::cellVoltage()
 
     for (size_t group = 0U; group < NUM_VOLT_REG_GROUPS; group++)
     {
-        const Segments<result<RegBuffer>> seg_reg = readRegGroup(cell_voltage_reg_groups[group]);
+        const Segments<result<RegBuffer>> seg_reg = readRegGroupRedundant(cell_voltage_reg_groups[group]);
 
         for (size_t seg = 0U; seg < NUM_SEGMENTS; seg++)
         {
@@ -129,7 +129,7 @@ Cells<result<int16_t>> read::secondaryCellVoltage()
 
     for (size_t group = 0U; group < NUM_VOLT_REG_GROUPS; group++)
     {
-        const Segments<result<RegBuffer>> seg_reg = readRegGroup(cell_voltage_reg_groups[group]);
+        const Segments<result<RegBuffer>> seg_reg = readRegGroupRedundant(cell_voltage_reg_groups[group]);
 
         for (size_t seg = 0U; seg < NUM_SEGMENTS; seg++)
         {

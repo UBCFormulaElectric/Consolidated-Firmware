@@ -439,8 +439,9 @@ namespace debug
         segment_stat_c_error_buffer.send();
         segment_stat_d_error_buffer.send();
     }
+} // namespace debug
 
-    void commandCount(const Segments<uint32_t> &mismatches)
+void commandCount(const Segments<uint32_t> &mismatches)
     {
         for (size_t seg = 0U; seg < NUM_SEGMENTS; seg++)
         {
@@ -452,7 +453,6 @@ namespace debug
         }
         command_count_mismatches_buffer.send();
     }
-} // namespace debug
 
 void segmentHealthError(const health::Snapshot &health)
 {
@@ -465,6 +465,29 @@ void segmentHealthError(const health::Snapshot &health)
         }
     }
     segment_health_errors_buffer.send();
+}
+
+// Reversible-isoSPI chain health. The per-segment flags are packed as bitmasks (bit N = segment N)
+// so the whole picture fits in one frame:
+//   recovered   = reachable only via the reverse (high-side) port, i.e. behind a link break
+//   unrecovered = unreachable from both ports, i.e. a genuine device fault
+void chainHealth(const io::adbms::ChainHealth &chain_health)
+{
+    uint16_t recovered_mask   = 0U;
+    uint16_t unrecovered_mask = 0U;
+    for (size_t seg = 0U; seg < NUM_SEGMENTS; seg++)
+    {
+        if (chain_health.recovered[seg])
+            recovered_mask = static_cast<uint16_t>(recovered_mask | (1U << seg));
+        if (chain_health.unrecovered[seg])
+            unrecovered_mask = static_cast<uint16_t>(unrecovered_mask | (1U << seg));
+    }
+
+    can_tx::BMS_IsoSpiLinkBreakPresent_set(chain_health.link_break_present);
+    can_tx::BMS_IsoSpiBreakIndex_set(static_cast<int8_t>(chain_health.break_index));
+    can_tx::BMS_IsoSpiRecoveredMask_set(recovered_mask);
+    can_tx::BMS_IsoSpiUnrecoveredMask_set(unrecovered_mask);
+    io::can_tx::BMS_IsoSpiChainHealth_sendAperiodic();
 }
 
 // These messages are aperiodic (cycle_time: null in the DBC): each setter only stages a signal into
