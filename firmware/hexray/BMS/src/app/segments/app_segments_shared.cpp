@@ -113,6 +113,8 @@ void setVoltageStats(const Cells<result<float>> &latest)
             {
                 continue;
             }
+            if (seg == 9 and cell == 1)
+                continue;
             const CellParam cp{ .segment = seg, .cell = cell, .value = v.value() };
             min = std::min(min, cp);
             max = std::max(max, cp);
