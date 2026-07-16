@@ -38,7 +38,8 @@ namespace prechargeDriveState
                 break;
             case app::precharge::State::SUCCESS:
                 io::irs::setPositive(app::can_utils::ContactorState::CONTACTOR_STATE_CLOSED);
-                if (io::irs::positiveState() == app::can_utils::ContactorState::CONTACTOR_STATE_CLOSED) {
+                if (io::irs::positiveState() == app::can_utils::ContactorState::CONTACTOR_STATE_CLOSED)
+                {
                     app::StateMachine::set_next_state(&drive_state);
                 }
                 break;
