@@ -25,10 +25,10 @@ namespace bmsOnStates
             .dam_efuse       = { true, 0, 5 },    // dam
             .f_inv_efuse     = { true, 200, 5 },  // f_inv
             .r_inv_efuse     = { true, 200, 5 },  // r_inv
-            .r_rad_fan_efuse = { false, 200, 5 }, // r_rad_fan
-            .l_rad_fan_efuse = { false, 200, 5 }, // l_rad_fan
-            .rr_pump_efuse   = { false, 200, 5 }, // rr_pump
-            .rl_pump_efuse   = { false, 200, 5 }, // rl_pump
+            .r_rad_fan_efuse = { false }, // r_rad_fan
+            .l_rad_fan_efuse = { false }, // l_rad_fan
+            .rr_pump_efuse   = { false }, // rr_pump
+            .rl_pump_efuse   = { false }, // rl_pump
         };
         app::powerManager::updateConfig(power_manager_state);
 

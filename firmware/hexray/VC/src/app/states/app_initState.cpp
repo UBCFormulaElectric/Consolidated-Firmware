@@ -23,12 +23,12 @@ namespace initState
         .rsm_efuse       = { true, 0, 5 },
         .bms_efuse       = { true, 0, 5 },
         .dam_efuse       = { true, 0, 5 },
-        .f_inv_efuse     = { false, 200, 5 },
-        .r_inv_efuse     = { false, 200, 5 },
-        .r_rad_fan_efuse = { false, 200, 5 },
-        .l_rad_fan_efuse = { false, 200, 5 },
-        .rr_pump_efuse   = { false, 200, 5 },
-        .rl_pump_efuse   = { false, 200, 5 },
+        .f_inv_efuse     = { false },
+        .r_inv_efuse     = { false },
+        .r_rad_fan_efuse = { false },
+        .l_rad_fan_efuse = { false },
+        .rr_pump_efuse   = { false },
+        .rl_pump_efuse   = { false },
     };
 
     static void runOnEntry()

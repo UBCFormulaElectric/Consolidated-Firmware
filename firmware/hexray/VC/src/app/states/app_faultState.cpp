@@ -21,12 +21,12 @@ namespace faultState
             .rsm_efuse       = { true, 0, 5 },    // rsm
             .bms_efuse       = { true, 0, 5 },    // bms
             .dam_efuse       = { true, 0, 5 },    // dam
-            .f_inv_efuse     = { false, 0, 5 },   // f_inv
-            .r_inv_efuse     = { false, 0, 5 },   // r_inv
-            .r_rad_fan_efuse = { false, 200, 5 }, // r_rad_fan
-            .l_rad_fan_efuse = { false, 200, 5 }, // l_rad_fan
-            .rr_pump_efuse   = { false, 200, 5 }, // rr_pump
-            .rl_pump_efuse   = { false, 200, 5 }, // rl_pump
+            .f_inv_efuse     = { false }, // f_inv
+            .r_inv_efuse     = { false }, // r_inv
+            .r_rad_fan_efuse = { false }, // r_rad_fan
+            .l_rad_fan_efuse = { false }, // l_rad_fan
+            .rr_pump_efuse   = { false }, // rr_pump
+            .rl_pump_efuse   = { false }, // rl_pump
         };
         app::powerManager::updateConfig(power_manager_state);
         can_tx::VC_State_set(VCState::VC_FAULT_STATE);
