@@ -16,7 +16,7 @@
         "TARGET": "binary",
         "USE_COMMIT_INFO": "ON",
         "BOOTLOAD": "ON",
-        "WATCHDOG": "ON"
+        "WATCHDOG": "OFF"
       },
       "binaryDir": "build_fw_dev"
     },

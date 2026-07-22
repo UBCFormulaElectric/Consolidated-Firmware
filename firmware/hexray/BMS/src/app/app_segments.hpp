@@ -15,8 +15,10 @@ inline constexpr uint8_t SECONDARY_CELL_CONV_TIME_MS = 8U;
 inline constexpr uint8_t AUX_CONV_TIME_MS            = 18U;
 
 extern io::semaphore spi_bus_lock;
-extern io::semaphore health_lock;
 extern io::semaphore shared_lock;
+
+inline constexpr uint32_t SYSVIEW_MARKER_CONFIG_LOCK = 3;
+inline constexpr uint32_t SYSVIEW_MARKER_SHARED_LOCK = 2;
 namespace app::segments
 {
 // Thermistor bank selected during AUX conversions.

@@ -46,22 +46,22 @@ static void vehicle_transmit_func(const JsonCanMsg &tx_msg)
 {
     const io::CanMsg msg = app::jsoncan::copyToCanMsg(tx_msg);
     const auto       res = vehicle_can_tx_queue.push(msg);
-    LOG_IF_ERR(res);
-    if (not res)
-    {
-        LOG_ERROR("failed on can id %d", tx_msg.std_id);
-    }
+    // LOG_IF_ERR(res);
+    // if (not res)
+    // {
+    //     LOG_ERROR("failed on can id %d", tx_msg.std_id);
+    // }
 }
 
 static void charger_transmit_func(const JsonCanMsg &tx_msg)
 {
     const io::CanMsg msg = app::jsoncan::copyToCanMsg(tx_msg);
     const auto       res = charger_can_tx_queue.push(msg);
-    LOG_IF_ERR(res);
-    if (not res)
-    {
-        LOG_ERROR("failed on can id %d", tx_msg.std_id);
-    }
+    // LOG_IF_ERR(res);
+    // if (not res)
+    // {
+    //     LOG_ERROR("failed on can id %d", tx_msg.std_id);
+    // }
 }
 
 void jobs_init()
@@ -130,7 +130,6 @@ void jobs_run100Hz_tick()
 #else
     bool acc_fault = false;
     {
-        io::unique_semaphore h{ health_lock };
         io::unique_semaphore s{ shared_lock };
         acc_fault = app::segments::alerts::tick();
     }
@@ -169,8 +168,10 @@ void jobs_runAdbmsConfigs_tick()
     bool all_segments_ok = true;
 
     const Segments<result<bool>> sync_res = app::segments::config::sync();
+
+    std::array<std::bitset<app::segments::health::NUM_HEALTH_BITS>, MAX_NUM_SEGMENTS> health;
     {
-        const io::unique_semaphore h{ health_lock };
+        const io::unique_semaphore s{ shared_lock };
         for (size_t seg_num = 0; seg_num < NUM_SEGMENTS; seg_num++)
         {
             const auto &seg_res = sync_res[seg_num];
@@ -189,11 +190,6 @@ void jobs_runAdbmsConfigs_tick()
                     "Failed to sync config on segment %d: ADBMS config did not match in-memory config", (int)seg_num);
             }
         }
-    }
-
-    std::array<std::bitset<app::segments::health::NUM_HEALTH_BITS>, MAX_NUM_SEGMENTS> health;
-    {
-        const io::unique_semaphore h{ health_lock };
         health = app::segments::health::getAll();
     }
 
@@ -214,7 +210,7 @@ void jobs_runAdbmsVoltages_tick()
 
     const result<void> cell_voltage_start_ok = io::adbms::command::startCellsAdc();
     {
-        const io::unique_semaphore h{ health_lock };
+        const io::unique_semaphore s{ shared_lock };
         app::segments::health::setOrResetAll(
             app::segments::health::ErrorBit::CELL_ADC_START, not cell_voltage_start_ok);
     }
@@ -228,7 +224,7 @@ void jobs_runAdbmsVoltages_tick()
 
     const result<void> cell_voltage_poll_ok = io::adbms::command::pollCellsAdc();
     {
-        const io::unique_semaphore h{ health_lock };
+        const io::unique_semaphore s{ shared_lock };
         app::segments::health::setOrResetAll(app::segments::health::ErrorBit::AUX_ADC_POLL, not cell_voltage_poll_ok);
     }
     if (not cell_voltage_poll_ok)
@@ -238,28 +234,22 @@ void jobs_runAdbmsVoltages_tick()
     }
 
     Cells<result<float>> cell_voltages = app::segments::conversion::cellVoltage();
+
+    app::segments::CellParam<float> max_voltage;
+    app::segments::CellParam<float> min_voltage;
+    app::segments::health::Snapshot health;
     {
-        const io::unique_semaphore h{ health_lock };
+        const io::unique_semaphore s{ shared_lock };
         for (size_t seg = 0; seg < NUM_SEGMENTS; seg++)
         {
             const bool seg_err = std::ranges::any_of(cell_voltages[seg], [](const result<float> &r) { return not r; });
             app::segments::health::setOrReset(seg, app::segments::health::ErrorBit::CELL_VOLTAGE, seg_err);
         }
-    }
 
-    app::segments::CellParam<float> max_voltage;
-    app::segments::CellParam<float> min_voltage;
-    {
-        const io::unique_semaphore s{ shared_lock };
         app::segments::shared::setVoltageStats(cell_voltages);
         max_voltage = app::segments::shared::getMaxCellVoltage();
         min_voltage = app::segments::shared::getMinCellVoltage();
-    }
-
-    app::segments::health::Snapshot health;
-    {
-        const io::unique_semaphore h{ health_lock };
-        health = app::segments::health::getAll();
+        health      = app::segments::health::getAll();
     }
 
     app::segments::broadcast::segmentHealthError(health);
@@ -280,7 +270,7 @@ void jobs_runAdbmsCellOwc_tick()
 
         const auto owc_voltage_start_ok = io::adbms::command::owcCells(channel);
         {
-            const io::unique_semaphore h{ health_lock };
+            const io::unique_semaphore s{ shared_lock };
             app::segments::health::setOrResetAll(
                 app::segments::health::ErrorBit::OWC_ADC_START, not owc_voltage_start_ok);
         }
@@ -294,7 +284,7 @@ void jobs_runAdbmsCellOwc_tick()
 
         const auto owc_voltage_poll_ok = io::adbms::command::pollSecondaryCellsAdc();
         {
-            const io::unique_semaphore h{ health_lock };
+            const io::unique_semaphore s{ shared_lock };
             app::segments::health::setOrResetAll(
                 app::segments::health::ErrorBit::AUX_ADC_POLL, not owc_voltage_poll_ok);
         }
@@ -307,8 +297,11 @@ void jobs_runAdbmsCellOwc_tick()
         owc_voltages[static_cast<size_t>(channel)] = app::segments::conversion::cellOwcVoltages();
     }
 
+    const Cells<result<bool>> cell_owc_ok = app::segments::calculate::cellOwcOk(owc_voltages);
+
+    app::segments::health::Snapshot health;
     {
-        const io::unique_semaphore h{ health_lock };
+        const io::unique_semaphore s{ shared_lock };
         for (size_t seg = 0; seg < NUM_SEGMENTS; seg++)
         {
             bool seg_err = false;
@@ -320,18 +313,8 @@ void jobs_runAdbmsCellOwc_tick()
             }
             app::segments::health::setOrReset(seg, app::segments::health::ErrorBit::CELL_OWC_VOLTAGE, seg_err);
         }
-    }
 
-    const Cells<result<bool>> cell_owc_ok = app::segments::calculate::cellOwcOk(owc_voltages);
-
-    {
-        io::unique_semaphore s{ shared_lock };
         app::segments::shared::setCellOwcOk(cell_owc_ok);
-    }
-
-    app::segments::health::Snapshot health;
-    {
-        const io::unique_semaphore h{ health_lock };
         health = app::segments::health::getAll();
     }
 
@@ -358,7 +341,7 @@ void jobs_runAdbmsAux_tick()
 
         const auto therm_voltage_start_ok = io::adbms::command::startAuxAdc();
         {
-            const io::unique_semaphore h{ health_lock };
+            const io::unique_semaphore s{ shared_lock };
             app::segments::health::setOrResetAll(
                 app::segments::health::ErrorBit::AUX_ADC_START, not therm_voltage_start_ok);
         }
@@ -373,7 +356,7 @@ void jobs_runAdbmsAux_tick()
 
         const auto therm_voltage_poll_ok = io::adbms::command::pollAuxAdc();
         {
-            const io::unique_semaphore h{ health_lock };
+            const io::unique_semaphore s{ shared_lock };
             app::segments::health::setOrResetAll(
                 app::segments::health::ErrorBit::AUX_ADC_POLL, not therm_voltage_poll_ok);
         }
@@ -398,6 +381,7 @@ void jobs_runAdbmsAux_tick()
     app::segments::CellParam<float>    min_temp;
     app::segments::SegmentParam<float> max_voltage;
     app::segments::SegmentParam<float> min_voltage;
+    app::segments::health::Snapshot    health;
     {
         io::unique_semaphore s{ shared_lock };
         app::segments::shared::setThermistorOwcOk(therm_owc_ok);
@@ -408,12 +392,7 @@ void jobs_runAdbmsAux_tick()
         min_temp     = app::segments::shared::getMinCellTemperature();
         max_voltage  = app::segments::shared::getMaxSegmentVoltage();
         min_voltage  = app::segments::shared::getMinSegmentVoltage();
-    }
-
-    app::segments::health::Snapshot health;
-    {
-        const io::unique_semaphore h{ health_lock };
-        health = app::segments::health::getAll();
+        health       = app::segments::health::getAll();
     }
 
     app::segments::broadcast::segmentHealthError(health);

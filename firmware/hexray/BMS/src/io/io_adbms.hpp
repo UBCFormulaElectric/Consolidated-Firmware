@@ -24,6 +24,8 @@ inline constexpr uint8_t REG_GROUP_SIZE = 6;
 
 using RegBuffer = std::array<uint8_t, REG_GROUP_SIZE>;
 
+inline constexpr uint32_t SYSVIEW_MARKER_SPI_BUS_LOCK = 1;
+
 enum class OpenWireSwitch
 {
     ODD_CHANNELS,

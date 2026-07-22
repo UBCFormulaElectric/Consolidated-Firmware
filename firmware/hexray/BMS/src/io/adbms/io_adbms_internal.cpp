@@ -11,7 +11,7 @@ using namespace std;
 
 namespace
 {
-io::semaphore spi_bus_lock{ true };
+io::semaphore spi_bus_lock{ true, io::adbms::SYSVIEW_MARKER_SPI_BUS_LOCK };
 
 consteval std::array<uint16_t, 256> pecTable(const uint16_t poly, const uint16_t size)
 {

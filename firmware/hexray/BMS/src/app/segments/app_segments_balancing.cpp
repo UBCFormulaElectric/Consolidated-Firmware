@@ -15,7 +15,7 @@
 namespace
 {
 constexpr float    DISCHARGE_THRESHOLD_V = 10e-3f;
-constexpr uint32_t SETTLE_TIME_MS        = 5 * 1000;
+constexpr uint32_t SETTLE_TIME_MS        = 1 * 1000;
 constexpr uint32_t BALANCE_TIME_MS       = 5 * 1000;
 
 using io::adbms::Cells;
@@ -113,7 +113,6 @@ void disable()
     pwm_duty.fill({});
     config::setBalanceConfig(discharge_enabled, pwm_duty, false);
     {
-        // const io::unique_semaphore s{ spi_bus_lock };
         LOG_IF_ERR(io::adbms::command::stopBalance());
     }
     balancing_state = can_utils::BalancingState::BALANCING_DISABLED;
@@ -156,7 +155,6 @@ void tick()
             if (balance_timer.updateAndGetState() == Timer::TimerState::EXPIRED)
             {
                 {
-                    // const io::unique_semaphore s{ spi_bus_lock };
                     LOG_IF_ERR(io::adbms::command::stopBalance());
                 }
                 settle_timer.restart();
