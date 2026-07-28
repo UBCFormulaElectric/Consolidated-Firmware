@@ -1,62 +1,101 @@
 {
-  "MuxStandard": {
-    "msg_id": 1990,
-    "description": "STANDARD mux: each signal lives on exactly ONE page (single-value keys). No cycle_time anywhere = aperiodic: set the selector, call _sendAperiodic(), rotate yourself.",
-    "mux_signals": {
-      "0": { "VoltA": { "resolution": 0.01, "min": 0, "max": 5, "unit": "V" } },
-      "1": { "VoltB": { "resolution": 0.01, "min": 0, "max": 5, "unit": "V" } },
-      "2": { "VoltC": { "resolution": 0.01, "min": 0, "max": 5, "unit": "V" } }
-    }
-  },
-
-  "MuxExtended": {
-    "msg_id": 1991,
-    "description": "EXTENDED mux: a group key covering MULTIPLE selector values, so a signal is shared across pages (emits SG_MUL_VAL_). '0'=single, '1-3'=range, '4,6'=list.",
-    "mux_signals": {
-      "0":   { "PageZeroOnly": { "bits": 8 } },
-      "1-3": { "SharedAcross1to3": { "bits": 16, "min": 0, "max": 65535 } },
-      "4,6": { "SharedOn4and6": { "enum": "ErrorCode" } }
-    }
-  },
-
-  "MuxAlwaysPresent": {
-    "msg_id": 1992,
-    "description": "ALWAYS-PRESENT signals ride EVERY frame via the top-level 'signals' block; 'mux_signals' holds the paged signals. (Aperiodic here.)",
-    "signals": {
-      "FrameCounter": { "bits": 8 },
-      "Flags": { "bits": 4 }
-    },
-    "mux_signals": {
-      "0": { "PageAData": { "bits": 12 } },
-      "1": { "PageBData": { "bits": 12 } }
-    }
-  },
-
-  "MuxPerPageRates": {
-    "msg_id": 1993,
-    "description": "PER-PAGE cycle times: each page is its own scheduled frame at its own rate via {cycle_time, signals}. NOTE: NO message-level cycle_time when mux_signals is present.",
-    "mux_signals": {
-      "0": { "cycle_time": 10,   "signals": { "FastVal":   { "bits": 12 } } },
-      "1": { "cycle_time": 100,  "signals": { "MediumVal": { "bits": 12 } } },
-      "2": { "cycle_time": 1000, "signals": { "SlowVal":   { "bits": 12 } } }
-    }
-  },
-
-  "MuxSignalStyles": {
-    "msg_id": 1994,
-    "description": "Explicit selector width via 'mux_bits' (overrides auto-size), plus every SIGNAL definition style allowed inside a page.",
+  "CellData": {
+    "msg_id": 483,
+    "description": "Per-segment cell voltages + errors, plus a stats page",
+    "cycle_time": 100,
+    "log_cycle_time": 1000,
+    "telem_cycle_time": 1000,
+    "allowed_modes": ["DEBUG"],
+    "disabled": false,
     "mux_bits": 4,
-    "mux_signals": {
+    "mux": {
+      "0-10": {
+        "description": "Extended range spanning every page: rides every frame. Multi-value key, so no overrides allowed.",
+        "signals": {
+          "FrameCounter": { "bits": 8 }
+        }
+      },
+      "10": {
+        "description": "Standard page overriding every inheritable field",
+        "cycle_time": 20,
+        "log_cycle_time": 100,
+        "telem_cycle_time": 100,
+        "allowed_modes": ["DEFAULT", "DEBUG"],
+        "signals": {
+          "MinCellVoltage": { "resolution": 0.001, "min": 2, "max": 5, "unit": "V" },
+          "MinCellVoltageSegment": { "bits": 4, "min": 0, "max": 9 },
+          "MaxCellVoltage": { "resolution": 0.001, "min": 2, "max": 5, "unit": "V" },
+          "MaxCellVoltageSegment": { "bits": 4, "min": 0, "max": 9 }
+        }
+      },
       "0": {
-        "ResolutionForm":   { "resolution": 0.01, "min": -10, "max": 10, "unit": "A" },
-        "BitsOnlyForm":     { "bits": 10 },
-        "BitsMinMaxForm":   { "bits": 12, "min": 0, "max": 4095 },
-        "ScaleOffsetForm":  { "bits": 8, "min": 0, "max": 100, "scale": 0.5, "offset": -20 },
-        "SignedForm":       { "bits": 16, "signed": true, "min": -32768, "max": 32767 },
-        "EnumForm":         { "enum": "ErrorCode" },
-        "BigEndianForm":    { "bits": 16, "big_endian": true },
-        "StartValueForm":   { "bits": 8, "start_value": 5 },
-        "ExplicitStartBit": { "bits": 8, "start_bit": 40 }
+        "signals": {
+          "Seg0_Cell0_Voltage": { "resolution": 0.001, "min": 2, "max": 5, "unit": "V" },
+          "Seg0_Cell1_Voltage": { "resolution": 0.001, "min": 2, "max": 5, "unit": "V" },
+          "Seg0_Cell0_Error": { "enum": "ErrorCode" },
+          "Seg0_Cell1_Error": { "enum": "ErrorCode" }
+        }
+      },
+      "1": {
+        "signals": {
+          "Seg1_Cell0_Voltage": { "resolution": 0.001, "min": 2, "max": 5, "unit": "V" },
+          "Seg1_Cell0_Error": { "enum": "ErrorCode" }
+        }
+      },
+      "2,4": {
+        "description": "Extended list: shared by pages 2 and 4 only",
+        "signals": {
+          "SharedDiag": { "bits": 12 }
+        }
+      }
+    }
+  },
+
+  "Vitals": {
+    "msg_id": 100,
+    "description": "Ordinary message in the same template: one distinct value, so NOT muxed and no selector bits",
+    "cycle_time": 100,
+    "allowed_modes": ["DEFAULT"],
+    "mux": {
+      "0": {
+        "signals": {
+          "State": { "enum": "BmsState" },
+          "Heartbeat": { "bits": 1 }
+        }
+      }
+    }
+  },
+
+  "OldThing": {
+    "msg_id": 101,
+    "description": "disabled: true means this is filtered out before anything else",
+    "disabled": true,
+    "mux": {
+      "0": {
+        "signals": {
+          "Legacy": { "bits": 8 }
+        }
+      }
+    }
+  },
+
+  "SignalStyles": {
+    "msg_id": 102,
+    "description": "Every signal parameter form",
+    "cycle_time": 100,
+    "mux": {
+      "0": {
+        "signals": {
+          "ResolutionForm": { "resolution": 0.01, "min": -10, "max": 10, "unit": "A" },
+          "BitsOnlyForm": { "bits": 10 },
+          "BitsMinMaxForm": { "bits": 12, "min": 0, "max": 4095 },
+          "ScaleOffsetForm": { "bits": 8, "min": 0, "max": 100, "scale": 0.5, "offset": -20 },
+          "SignedForm": { "bits": 16, "signed": true, "min": -32768, "max": 32767 },
+          "EnumForm": { "enum": "ErrorCode" },
+          "BigEndianForm": { "bits": 16, "big_endian": true },
+          "StartValueForm": { "bits": 8, "start_value": 5 },
+          "ExplicitStartBit": { "bits": 8, "start_bit": 40 }
+        }
       }
     }
   }
