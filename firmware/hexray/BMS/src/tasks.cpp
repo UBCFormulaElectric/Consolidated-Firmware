@@ -174,6 +174,38 @@ void tasks_run1kHz(void *arg)
     }
 }
 
+void tasks_runAdbmsChain(void *arg)
+{
+    constexpr uint32_t      period_ms                = 50U;
+    constexpr uint32_t      watchdog_grace_period_ms = 5U;
+    hw::watchdog::instance &watchdogAdbmsChain       = monitor.spawn_instance(period_ms + watchdog_grace_period_ms);
+
+    uint32_t start_ticks = osKernelGetTickCount();
+    forever
+    {
+        jobs_runAdbmsChain_tick();
+        watchdogAdbmsChain.checkIn();
+        start_ticks += period_ms;
+        osDelayUntil(start_ticks);
+    }
+}
+
+void tasks_runAdbmsReport(void *arg)
+{
+    constexpr uint32_t      period_ms                = 10U;
+    constexpr uint32_t      watchdog_grace_period_ms = 5U;
+    hw::watchdog::instance &watchdogAdbmsReport      = monitor.spawn_instance(period_ms + watchdog_grace_period_ms);
+
+    uint32_t           start_ticks = osKernelGetTickCount();
+    forever
+    {
+        jobs_runAdbmsReport_tick();
+        watchdogAdbmsReport.checkIn();
+        start_ticks += period_ms;
+        osDelayUntil(start_ticks);
+    }
+}
+
 void tasks_runChargerCanTx(void *arg)
 {
     forever
@@ -227,58 +259,6 @@ void tasks_runCanRx(void *arg)
     }
 }
 
-void tasks_runAdbmsVoltages(void *arg)
-{
-    const uint32_t period_ms   = 500U;
-    uint32_t       start_ticks = osKernelGetTickCount();
-
-    forever
-    {
-        jobs_runAdbmsVoltages_tick();
-        start_ticks += period_ms;
-        osDelayUntil(start_ticks);
-    }
-}
-
-void tasks_runAdbmsConfigs(void *arg)
-{
-    constexpr uint32_t period_ms   = 100U;
-    uint32_t           start_ticks = osKernelGetTickCount();
-
-    forever
-    {
-        jobs_runAdbmsConfigs_tick();
-        start_ticks += period_ms;
-        osDelayUntil(start_ticks);
-    }
-}
-
-void tasks_runAdbmsAux(void *arg)
-{
-    const uint32_t period_ms   = 1200U;
-    uint32_t       start_ticks = osKernelGetTickCount();
-
-    forever
-    {
-        jobs_runAdbmsAux_tick();
-        start_ticks += period_ms;
-        osDelayUntil(start_ticks);
-    }
-}
-
-void tasks_runAdbmsCellOwc(void *arg)
-{
-    const uint32_t period_ms   = 1000U;
-    uint32_t       start_ticks = osKernelGetTickCount();
-
-    forever
-    {
-        jobs_runAdbmsCellOwc_tick();
-        start_ticks += period_ms;
-        osDelayUntil(start_ticks);
-    }
-}
-
 void BMS_StartAllTasks()
 {
     Task1kHz.start();
@@ -289,8 +269,6 @@ void BMS_StartAllTasks()
     TaskChargerCanTx.start();
     TaskAdbmsVoltages.start();
     TaskAdbmsConfigs.start();
-    TaskAdbmsAux.start();
-    TaskAdbmsCellOwc.start();
 }
 
 void tasks_preInit()
