@@ -7,7 +7,7 @@
  * Broadcasts the vertical force of each wheel
  * calculated based on IMU accelerations
  */
-void app_wheelVerticalForces_broadcast(const ImuData *imu);
+void app_wheelVerticalForces_broadcast(const ImuData *imu, TractionControl_Inputs *inputs);
 
 /*
  * Calculates the load transfer constant needed to distribute torque
