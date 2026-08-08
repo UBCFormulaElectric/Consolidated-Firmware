@@ -4,7 +4,9 @@
 #include "app_canRx.hpp"
 #include "app_segments.hpp"
 #include "app_irs.hpp"
+#include "app_pack.hpp"
 #include "io_irs.hpp"
+#include "io_time.hpp"
 
 namespace app::states
 {
@@ -19,25 +21,32 @@ namespace balancingState
 
     static void balancingStateRunOnTick100Hz()
     {
-        const bool ir_negative_open =
-            (io::irs::negativeState() == app::can_utils::ContactorState::CONTACTOR_STATE_OPEN);
+        const bool ir_negative_open = (io::irs::negativeState() == app::can_utils::ContactorState::CONTACTOR_STATE_OPEN);
         const bool balancing_enabled = app::can_rx::Debug_CellBalancing_Request_get();
 
-        if (balancing_enabled && ir_negative_open)
+        if (!balancing_enabled || !ir_negative_open)
         {
-            io::unique_semaphore s{ shared_lock };
-            app::segments::balancing::tick();
+            app::StateMachine::set_next_state(&app::states::init_state);
+            return;
+        }
+        
+        const app::pack::BalancingView view = app::pack::balancingView();
+        const result<const app::pack::VoltStats *> volts =
+            view.voltage_stats.get(io::time::getCurrentMs(), app::pack::MAX_VOLTAGE_AGE_MS);
+
+        if (volts)
+        {
+            app::pack::balancing::tick(**volts);
         }
         else
         {
-            app::StateMachine::set_next_state(&app::states::init_state);
+            app::pack::balancing::disable();
         }
     }
 
     static void balancingStateRunOnExit()
     {
         app::segments::balancing::disable();
-        // Clear the balancing request so we don't immediately re-enter balancing from init.
         app::can_rx::Debug_CellBalancing_Request_update(false);
     }
 } // namespace balancingState

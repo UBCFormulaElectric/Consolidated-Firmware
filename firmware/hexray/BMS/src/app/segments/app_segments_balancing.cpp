@@ -4,6 +4,7 @@
 #include "app_canTx.hpp"
 #include "app_canRx.hpp"
 // #include "app_canUtils.hpp"
+#include "app_pack.hpp"
 #include "app_timer.hpp"
 
 #include "io_adbms.hpp"
@@ -26,25 +27,19 @@ Cells<uint8_t> pwm_duty;
 app::Timer     settle_timer(SETTLE_TIME_MS);
 app::Timer     balance_timer(BALANCE_TIME_MS);
 
-void updateCellsToBalance()
+void updateCellsToBalance(const app::pack::VoltStats &volt_stats, const app::pack::OwcStats &owc_stats)
 {
-    const Cells<result<float>> cell_voltages                   = app::segments::shared::getLatestVoltages();
-    const auto [min_cell_seg, min_cell_cell, min_cell_voltage] = app::segments::shared::getMinCellVoltage();
-    const Cells<result<bool>> cell_owc_ok                      = app::segments::shared::getLatestCellOwcOk();
+    const Cells<float> &cell_voltages = volt_stats.voltages;
+
+    const float   min_cell_voltage = volt_stats.min.value;
+    const uint8_t min_cell_seg     = volt_stats.min.segment;
+    const uint8_t min_cell_cell    = volt_stats.min.index;
 
     for (uint8_t seg = 0; seg < NUM_SEGMENTS; seg++)
     {
         // If any cell in the segment has a failed voltage read or a failed/flagged
         // owc, disable balancing for the entire segment
-        bool segment_ok = true;
-        for (uint8_t cell = 0; cell < CELLS_PER_SEGMENT; cell++)
-        {
-            if (!cell_voltages[seg][cell] || !cell_owc_ok[seg][cell].value_or(false))
-            {
-                segment_ok = false;
-                break;
-            }
-        }
+        const bool segment_ok = volt_stats.valid[seg].all() && owc_stats.cells_ok[seg].all();
 
         if (!segment_ok)
         {
@@ -65,16 +60,15 @@ void updateCellsToBalance()
             }
 
             // Never discharge below minimum allowed voltage
-            if (cell_voltages[seg][cell].value() <= app::segments::convertUVOVToFloat(VUV))
+            if (cell_voltages[seg][cell] <= app::segments::convertUVOVToFloat(VUV))
             {
                 discharge_enabled[seg][cell] = false;
                 continue;
             }
 
-            const float delta =
-                cell_voltages[seg][cell].value() - (app::can_rx::Debug_CellBalancing_OverrideValue_get()
-                                                        ? app::can_rx::Debug_CellBalancing_TargetValue_get()
-                                                        : min_cell_voltage);
+            const float delta = cell_voltages[seg][cell] - (app::can_rx::Debug_CellBalancing_OverrideValue_get()
+                                                                ? app::can_rx::Debug_CellBalancing_TargetValue_get()
+                                                                : min_cell_voltage);
 
             // Don't dischange below threshold
             if (delta < DISCHARGE_THRESHOLD_V)
@@ -118,7 +112,7 @@ void disable()
     balancing_state = can_utils::BalancingState::BALANCING_DISABLED;
 }
 
-void tick()
+void tick(const app::pack::VoltStats &volts, const app::pack::OwcStats &owc)
 {
     switch (balancing_state)
     {
@@ -133,7 +127,7 @@ void tick()
         {
             if (settle_timer.updateAndGetState() == Timer::TimerState::EXPIRED)
             {
-                updateCellsToBalance();
+                updateCellsToBalance(volts, owc);
                 {
                     // const io::unique_semaphore s{ spi_bus_lock };
                     if (const auto r = io::adbms::command::startBalance(); r)

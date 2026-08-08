@@ -5,6 +5,7 @@
 #include <utility>
 
 #include "util_errorCodes.hpp"
+#include "app_pack.hpp"
 #include "io_adbms.hpp"
 #include "io_semaphore.hpp"
 
@@ -64,7 +65,7 @@ namespace config
 namespace balancing
 {
     void init();
-    void tick();
+    void tick(const app::pack::VoltStats &volts, const app::pack::OwcStats &owc);
     void disable();
 } // namespace balancing
 

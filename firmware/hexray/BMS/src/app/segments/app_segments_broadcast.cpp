@@ -101,7 +101,13 @@ CellBroadcaster<
 using CanErr = app::can_utils::ErrorCode;
 constexpr CanErr toCanErr(const ErrorCode e)
 {
-    return static_cast<CanErr>(static_cast<uint8_t>(e));
+    // Internal ErrorCode values are reinterpreted as CAN ErrorCode values, so the two enums are
+    // positionally coupled: they agree up to POLL_INVALID (10), then CAN claims 11 and 12 for
+    // NO_SEGMENT_DEFINED and NO_ERROR. Any internal code at or past that has no CAN equivalent and
+    // must not be forwarded raw, or it would be reported as a completely different fault.
+    const auto raw = static_cast<uint8_t>(e);
+    return raw < static_cast<uint8_t>(CanErr::NO_SEGMENT_DEFINED) ? static_cast<CanErr>(raw)
+                                                                  : CanErr::ERROR_INDETERMINATE;
 }
 
 CellBroadcaster<
