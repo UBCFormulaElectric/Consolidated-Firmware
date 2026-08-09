@@ -94,19 +94,19 @@ void publish(const Snapshot &snapshot);
 
 namespace alerts
 {
-/**
- * Reset every debounce timer. Call once at boot, before the first tick.
- */
 void init();
-
-/**
- * Each of these debounces its conditions independently, publishes the matching CAN alerts, and reports whether any
- * fault-level condition has been held for its own debounce period. They must be called periodically, whether or not a
- * new snapshot arrived, so the timers keep advancing.
- */
 bool voltFault(const VoltStats &stats);      // invalid reads, undervoltage, overvoltage
 bool tempFault(const TempStats &stats);      // invalid reads, overtemp, undertemp
-bool owcFault(const OwcStats &stats);        // cell open wire (fault), thermistor open wire (info)
+bool owcFault(const OwcStats &stats);        // cell open wire, thermistor open wire
 bool flagFault(const ADBMS6830Flags &stats); // ADBMS6830 uv/ov, therm shutdown, self test, supply
 } // namespace alerts
+
+namespace balancing
+{
+void init();
+void disable();
+void tick (const VoltStats &volts);
+}
+
+
 } // namespace app::pack

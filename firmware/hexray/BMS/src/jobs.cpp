@@ -81,7 +81,11 @@ void jobs_init()
     io::can_tx::BMS_Bootup_sendAperiodic();
 
     app::precharge::init();
-    app::segments::sequence::init();
+
+    app::pack::alerts::init();
+    app::pack::balancing::init();
+    app::pack::sequence::init();
+
     app::segments::balancing::init();
 
     app::StateMachine::init(&app::states::init_state);

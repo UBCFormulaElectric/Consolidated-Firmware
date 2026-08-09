@@ -17,7 +17,6 @@ set(APP_SHARED_SRCS
 )
 set(APP_INCLUDE_DIRS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/app"
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/app/pack"
         "${SHARED_APP_INCLUDE_DIR}" "${SHARED_APP_INCLUDE_DIR_CPP}"
 )
 
