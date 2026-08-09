@@ -30,18 +30,11 @@ namespace balancingState
             return;
         }
         
-        const app::pack::BalancingView view = app::pack::balancingView();
-        const result<const app::pack::VoltStats *> volts =
-            view.voltage_stats.get(io::time::getCurrentMs(), app::pack::MAX_VOLTAGE_AGE_MS);
-
-        if (volts)
-        {
-            app::pack::balancing::tick(**volts);
-        }
-        else
-        {
-            app::pack::balancing::disable();
-        }
+      
+        // if (voltage data noti arrives)
+        // {
+        //     app::pack::balancing::tick(app::pack::latest().voltage_stats);
+        // }
     }
 
     static void balancingStateRunOnExit()

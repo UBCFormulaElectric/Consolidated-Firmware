@@ -10,12 +10,6 @@
 namespace app::pack
 {
 
-inline constexpr uint32_t MAX_VOLTAGE_AGE_MS = 100U;
-inline constexpr uint32_t MAX_TEMP_AGE_MS    = 500U;
-inline constexpr uint32_t MAX_OWC_AGE_MS     = 1000U;
-inline constexpr uint32_t MAX_FLAGS_AGE_MS   = 500U;
-inline constexpr uint32_t MAX_TRACTIVE_AGE_MS = 100U;
-
 using CellFlags    = std::array<std::bitset<CELLS_PER_SEGMENT>, NUM_SEGMENTS>;
 using ThermFlags   = std::array<std::bitset<THERMISTORS_PER_SEGMENT>, NUM_SEGMENTS>;
 using SegmentFlags = std::bitset<NUM_SEGMENTS>;
@@ -27,37 +21,19 @@ struct LocatedValue
     uint8_t index   = 0U;
 };
 
-template <typename T> class Stamped
+struct Stamped
 {
-  private:
-    T        value_{};
-    uint32_t updated_ms_ = 0U;
-    bool     valid_      = false;
+    uint32_t updated_ms = 0U;
+    bool     stamped    = false;
 
-  public:
-    void publish(const T &v, const uint32_t now_ms)
+    void stamp(const uint32_t now_ms)
     {
-        value_      = v;
-        updated_ms_ = now_ms;
-        valid_      = true;
-    }
-
-    [[nodiscard]] bool fresh(const uint32_t now_ms, const uint32_t max_age_ms) const
-    {
-        return valid_ && (now_ms - updated_ms_) <= max_age_ms;
-    }
-
-    [[nodiscard]] result<const T *> get(const uint32_t now_ms, const uint32_t max_age_ms) const
-    {
-        if (!fresh(now_ms, max_age_ms))
-        {
-            return std::unexpected(ErrorCode::STALE_VALUE);
-        }
-        return &value_;
+        updated_ms = now_ms;
+        stamped    = true;
     }
 };
 
-struct TractiveStats
+struct TractiveStats : Stamped
 {
     // everything needed from adbms2950 by other tasks
     // acc_voltage
@@ -65,13 +41,13 @@ struct TractiveStats
     // tractive_current
 };
 
-struct ADBMS2950Flags
+struct ADBMS2950Flags : Stamped
 {
     // these are the flags in the registers of the chip
     // whichever ones are relevent for faulting
 };
 
-struct VoltStats
+struct VoltStats : Stamped
 {
     LocatedValue            max{};
     LocatedValue            min{};
@@ -79,7 +55,7 @@ struct VoltStats
     CellFlags               valid{}; // bit set == this cell's voltage read succeeded
 };
 
-struct TempStats
+struct TempStats : Stamped
 {
     LocatedValue             max{};
     LocatedValue             min{};
@@ -87,51 +63,50 @@ struct TempStats
     ThermFlags               valid{}; // bit set == this thermistor's read succeeded
 };
 
-struct OwcStats
+struct OwcStats : Stamped
 {
     CellFlags  cells_ok{};
     ThermFlags therms_ok{};
 };
 
-struct ADBMS6830Flags
+//idk what to store here
+struct ADBMS6830Flags : Stamped
 {
-    CellFlags    ov_ok{};         
-    CellFlags    uv_ok{};         
-    SegmentFlags therm_shdn_ok{}; 
+    CellFlags    ov_ok{};
+    CellFlags    uv_ok{};
+    SegmentFlags therm_shdn_ok{};
     SegmentFlags self_test_ok{};
     SegmentFlags supply_ok{};
 };
 
 struct Snapshot
 {
-    Stamped<TractiveStats>  tractive_stats;
-    Stamped<VoltStats>      voltage_stats;
-    Stamped<TempStats>      temperature_stats;
-    Stamped<OwcStats>       owc_stats;
-    Stamped<ADBMS6830Flags> adbms6830_flags;
-    Stamped<ADBMS2950Flags> adbms2950_flags;
-};
-
-struct BalancingView
-{
-    Stamped<VoltStats> voltage_stats;
-};
-
-struct SocView
-{
-    Stamped<TractiveStats> tractive_stats;
-    Stamped<VoltStats>     voltage_stats;
-    Stamped<TempStats>     temperature_stats;
-};
-
-struct TractiveView
-{
-    Stamped<TractiveStats> tractive_stats;
+    TractiveStats  tractive_stats;
+    VoltStats      voltage_stats;
+    TempStats      temperature_stats;
+    OwcStats       owc_stats;
+    ADBMS6830Flags adbms6830_flags;
+    ADBMS2950Flags adbms2950_flags;
 };
 
 void publish(const Snapshot &snapshot);
-[[nodiscard]] BalancingView balancingView();
-[[nodiscard]] SocView       socView();
-[[nodiscard]] TractiveView  tractiveView();
 [[nodiscard]] Snapshot latest();
+
+namespace alerts
+{
+/**
+ * Reset every debounce timer. Call once at boot, before the first tick.
+ */
+void init();
+
+/**
+ * Each of these debounces its conditions independently, publishes the matching CAN alerts, and reports whether any
+ * fault-level condition has been held for its own debounce period. They must be called periodically, whether or not a
+ * new snapshot arrived, so the timers keep advancing.
+ */
+bool voltFault(const VoltStats &stats);      // invalid reads, undervoltage, overvoltage
+bool tempFault(const TempStats &stats);      // invalid reads, overtemp, undertemp
+bool owcFault(const OwcStats &stats);        // cell open wire (fault), thermistor open wire (info)
+bool flagFault(const ADBMS6830Flags &stats); // ADBMS6830 uv/ov, therm shutdown, self test, supply
+} // namespace alerts
 } // namespace app::pack

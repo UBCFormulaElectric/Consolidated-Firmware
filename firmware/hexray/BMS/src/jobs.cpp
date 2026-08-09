@@ -127,6 +127,15 @@ void jobs_run100Hz_tick()
     app::can_tx::BMS_ChargerConnectedType_set(io::charger::getConnectionStatus());
     app::charger::broadcast();
 
+    /*
+    if (voltage data noti arrives) check voltFault
+    if (temp data noti arrives) check tempFault
+    if (owc data noti arrives) check owcFault
+    if (ADBMS6830Flags data noti arrives) check check ADBMS6830Fault
+    packFault = voltFault || tempFault || owcFault || ADBMS6830Fault
+    bms_ok_latcch.setCurrentStatus(pack_fault ? io::FaultLatch::FaultLatchState::FAULT);
+    */
+    
     app::latches::broadcast();
 
     io::bspdtest::enable(app::can_rx::Debug_EnableTestCurrent_get());
@@ -150,7 +159,7 @@ void jobs_run1kHz_tick()
 
 void jobs_runAdbmsChain_tick()
 {
-    app::segments::sequence::tick();
+    app::pack::sequence::tick();
     app::pack::publish(app::segments::sequence::snapshot());
 }
 
