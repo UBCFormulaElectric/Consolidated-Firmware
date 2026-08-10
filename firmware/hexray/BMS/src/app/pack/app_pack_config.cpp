@@ -1,7 +1,10 @@
 #include "app_pack.hpp"
 #include "app_pack_internal.hpp"
+#include "util_retry.hpp"
 
 namespace {
+    constexpr uint8_t NUM_CONFIG_SYNC_TRIES = 3;
+
     constexpr std::array<io::adbms::SegmentConfig, NUM_SEGMENTS> createSegmentConfig() {
         std::array<io::adbms::SegmentConfig, NUM_SEGMENTS> config{};
         for (auto &[reg_a, reg_b] : config) {
@@ -64,29 +67,62 @@ namespace app::pack::config {
     }
 
     bool checkSegmentConfig() {
-        bool isOk = true;
-        Segments<result<io::adbms::SegmentConfig>> readback = io::adbms::read::configReg();
+        const io::adbms::Segments<result<io::adbms::SegmentConfig>> readback = io::adbms::read::configReg();
 
-        for(size_t seg = 0; seg < NUM_SEGMENTS; seg++) {
-            
+        for (size_t seg = 0; seg < NUM_SEGMENTS; seg++) {
+            if (!readback[seg]) {
+                LOG_WARN(
+                    "Config readback failed on seg %u: %s", static_cast<unsigned>(seg),
+                    error_code_to_string(readback[seg].error()));
+                return false;
+            }
+            if (readback[seg].value() != segment_config[seg]) {
+                LOG_WARN("Config mismatch on seg %u", static_cast<unsigned>(seg));
+                return false;
+            }
         }
-        
-        return isOk;
+
+        return true;
     }
 
     bool checkPwmConfig() {
-        bool isOk = true;
-        Segments<result<io::adbms::PwmConfig>> readback = io::adbms::read::pwmReg();
+        const io::adbms::Segments<result<io::adbms::PWMConfig>> readback = io::adbms::read::pwmReg();
 
-        for(size_t seg = 0; seg < NUM_SEGMENTS; seg++) {
-
+        for (size_t seg = 0; seg < NUM_SEGMENTS; seg++) {
+            if (!readback[seg]) {
+                LOG_WARN(
+                    "PWM readback failed on seg %u: %s", static_cast<unsigned>(seg),
+                    error_code_to_string(readback[seg].error()));
+                return false;
+            }
+            if (readback[seg].value() != pwm_config[seg]) {
+                LOG_WARN("PWM mismatch on seg %u", static_cast<unsigned>(seg));
+                return false;
+            }
         }
 
-        return isOk;
+        return true;
     }
 
-    result<void> syncSegmentConfig();
+    result<void> syncSegmentConfig() {
+        return util::retry(
+            []() -> result<void> {
+                RETURN_IF_ERR_SILENT(io::adbms::write::configReg(segment_config));
+                if (not checkSegmentConfig())
+                    return std::unexpected(ErrorCode::RETRY_FAILED);
+                return {};
+            },
+            NUM_CONFIG_SYNC_TRIES);
+    }
 
-    result<void> syncPwmConfig();
-
+    result<void> syncPwmConfig() {
+        return util::retry(
+            []() -> result<void> {
+                RETURN_IF_ERR_SILENT(io::adbms::write::pwmReg(pwm_config));
+                if (not checkPwmConfig())
+                    return std::unexpected(ErrorCode::RETRY_FAILED);
+                return {};
+            },
+            NUM_CONFIG_SYNC_TRIES);
+    }
 }

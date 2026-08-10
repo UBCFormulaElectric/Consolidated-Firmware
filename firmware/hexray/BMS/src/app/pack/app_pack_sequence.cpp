@@ -19,7 +19,14 @@ namespace {
     }
 
     void stepConfig() {
+        if (not app::pack::config::checkSegmentConfig())
+            LOG_IF_ERR(app::pack::config::syncSegmentConfig());
 
+        if (not app::pack::config::checkPwmConfig())
+            LOG_IF_ERR(app::pack::config::syncPwmConfig());
+
+        //need to broadcast mute status
+        //need to broadcast pwm value
     }
 
     void stepADBMS6830Flags() {
@@ -34,23 +41,16 @@ namespace app::pack::sequence {
     }
 
     void tick() {
-        uint32_t timeStamp = io::time::getCurrentMs();
-        
-        io::adbms::command::snap();
         // For ADBMS2950
         // if (runsOn(Step::TractiveCurrent, cycle))   stepTractiveCurrent();
         // if (runsOn(Step::TractiveVoltage, cycle))   stepTractiveVoltage();
         if (runsOn(Step::Cells, cycle))             stepCells();
         if (runsOn(Step::ThermsMux1, cycle))        stepTherms(ThermMux::MUX_0_7);
         if (runsOn(Step::ThermsMux2, cycle))        stepTherms(ThermMux::MUX_8_13);
-        io::adbms::command::unsnap();
-
         if (runsOn(Step::CellOpenWireOdd, cycle))   stepCellOpenWire(OpenWire::ODD);
         if (runsOn(Step::CellOpenWireEven, cycle))  stepCellOpenWire(OpenWire::EVEN);
         if (runsOn(Step::Config, cycle))            stepConfig();
         if (runsOn(Step::ADBMS6830Flags, cycle))    stepADBMS6830Flags(); //maybe change name
-        
-       
         cycle++;
     }
 }
