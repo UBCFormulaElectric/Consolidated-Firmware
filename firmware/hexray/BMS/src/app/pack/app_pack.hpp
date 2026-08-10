@@ -89,8 +89,21 @@ struct Snapshot
     ADBMS2950Flags adbms2950_flags;
 };
 
+struct BalancingRequest
+{
+    RequestKind    kind;
+    Cells<uint8_t> duty{};
+};
+
+enum class RequestKind {
+    MUTE_BALANCING,
+    UNMUTE_BALANCING
+};
+
+namespace view {
 void publish(const Snapshot &snapshot);
 [[nodiscard]] Snapshot latest();
+}
 
 namespace alerts
 {
@@ -106,6 +119,13 @@ namespace balancing
 void init();
 void disable();
 void tick (const VoltStats &volts);
+}
+
+namespace sequence 
+{
+void init();
+void tick();
+void snapshot();
 }
 
 

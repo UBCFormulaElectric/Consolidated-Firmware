@@ -16,7 +16,7 @@ namespace balancingState
     static void balancingStateRunOnEntry()
     {
         app::can_tx::BMS_State_set(app::can_utils::BmsState::BMS_BALANCING_STATE);
-        app::segments::balancing::init();
+        app::pack::balancing::init();
     }
 
     static void balancingStateRunOnTick100Hz()
@@ -30,7 +30,6 @@ namespace balancingState
             return;
         }
         
-      
         // if (voltage data noti arrives)
         // {
         //     app::pack::balancing::tick(app::pack::latest().voltage_stats);
@@ -39,7 +38,7 @@ namespace balancingState
 
     static void balancingStateRunOnExit()
     {
-        app::segments::balancing::disable();
+        app::pack::balancing::disable();
         app::can_rx::Debug_CellBalancing_Request_update(false);
     }
 } // namespace balancingState

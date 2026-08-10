@@ -7,9 +7,8 @@ namespace {
     inline constexpr uint32_t BALANCE_MS = 5000;
     inline constexpr uint32_t SETTLE_MS = 5000;
     inline constexpr float DISCHARGE_THRESHOLD_V = 10e-3f;
-
-    inline constexpr float MIN_BALANCE_V = 2.5f;
     inline constexpr uint8_t DISCHARGE_DUTY = 0x0F;
+    static_assert(DISCHARGE_DUTY <= 0x0F); 
     
     enum class State : uint8_t
     {
@@ -23,8 +22,8 @@ namespace {
     app::Timer balance_timer{ BALANCE_MS };
 
     void chooseTargets(const app::pack::VoltStats &volt_stats) {
-        Request request{};
-        request.kind = RequestKind::SET_BALANCING;
+        BalancingRequest request{};
+        request.kind = RequestKind::UNMUTE_BALANCING;
 
         const auto target = volt_stats.min;
 
@@ -37,11 +36,10 @@ namespace {
 
                 if (seg == target.segment && cell == target.index) continue;
 
-                if (volts <= MIN_BALANCE_V) continue;
+                if (volts <= V_FAULT_UV + DISCHARGE_THRESHOLD_V) continue;
 
                 if (volts - target.value < DISCHARGE_THRESHOLD_V) continue;
-
-                request.discharge_enabled[seg][cell] = true;
+                
                 request.duty[seg][cell]              = DISCHARGE_DUTY;
             }
 
@@ -60,7 +58,7 @@ namespace app::pack::balancing {
     void disable() {
         state = State::DISABLED;
         Request request{};
-        request.kind = RequestKind::STOP_BALANCING;
+        request.kind = RequestKind::MUTE_BALANCING;
         requests::post(request);
     }
 
@@ -82,7 +80,7 @@ namespace app::pack::balancing {
             case State::BALANCING:
                 if (balance_timer.updateAndGetState() == app::Timer::TimerState::EXPIRED) {
                     Request request{};
-                    request.kind = RequestKind::STOP_BALANCING;
+                    request.kind = RequestKind::MUTE_BALANCING;
                     requests::post(request);
 
                     settle_timer.restart();

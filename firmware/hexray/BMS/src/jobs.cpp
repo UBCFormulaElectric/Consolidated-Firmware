@@ -18,7 +18,6 @@
 #include "app_pack.hpp"
 #include "app_powerLimit.hpp"
 #include "app_precharge.hpp"
-#include "app_segments.hpp"
 #include "app_states.hpp"
 #include "app_tractiveSystem.hpp"
 #include "app_charger.hpp"
@@ -82,11 +81,8 @@ void jobs_init()
 
     app::precharge::init();
 
-    app::pack::alerts::init();
-    app::pack::balancing::init();
     app::pack::sequence::init();
-
-    app::segments::balancing::init();
+    app::pack::alerts::init();
 
     app::StateMachine::init(&app::states::init_state);
     app::can_tx::BMS_Heartbeat_set(true);
@@ -164,12 +160,12 @@ void jobs_run1kHz_tick()
 void jobs_runAdbmsChain_tick()
 {
     app::pack::sequence::tick();
-    app::pack::publish(app::segments::sequence::snapshot());
+    app::pack::view::publish(app::pack::sequence::snapshot());
 }
 
 void jobs_runAdbmsReport_tick()
 {
-    const app::pack::Snapshot local = app::pack::latest();
+    const app::pack::Snapshot local = app::pack::view::latest();
 }
 
 

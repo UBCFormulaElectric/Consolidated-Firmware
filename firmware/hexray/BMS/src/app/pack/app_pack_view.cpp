@@ -16,7 +16,7 @@ void publish(const Snapshot &snapshot)
     shared_snapshot = snapshot;
 }
 
-Snapshot all()
+Snapshot latest()
 {
     const io::unique_semaphore lock{ snapshot_lock };
     return shared_snapshot;
