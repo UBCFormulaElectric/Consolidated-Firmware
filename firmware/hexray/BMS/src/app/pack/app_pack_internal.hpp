@@ -12,6 +12,46 @@ enum class Step {
     ADBMS6830Flags
 };
 
+enum class CellStepState : uint8_t {
+    IDLE,
+    START_CONTINUOUS,           // ADCV RD=0 CONT=1 — while balancing
+    START_CONTINUOUS_REDUNDANT, // ADCV RD=1 CONT=1 — while not balancing; discharge stays off
+    READ_VOLTAGES,
+    RECOVER,
+};
+
+enum class ThermStepState : uint8_t {
+    IDLE,
+    MUX_0_7_START,
+    MUX_0_7_READ,
+    MUX_8_13_START,
+    MUX_8_13_READ,
+};
+
+enum class OwcStepState : uint8_t {
+    IDLE,
+    START_SADC_OW_ODD,
+    POLL_SADC_OW_ODD,
+    READ_SADC_OW_ODD,
+    START_SADC_OW_EVEN,
+    POLL_SADC_OW_EVEN,
+    READ_SADC_OW_EVEN,
+    START_SADC_REDUNDANT, // ADSV DCP=0 CONT=1 — re-arms the compare the OW passes stopped
+};
+
+enum class ConfigStepState : uint8_t {
+    IDLE,
+    WRITE,
+    VERIFY,
+    RECOVER,
+};
+
+enum class FlagsStepState : uint8_t {
+    IDLE,
+    READ_STATUS,
+    CLEAR_STATUS,
+};
+
 enum class ThermMux : size_t {
     MUX_0_7,
     MUX_8_13,
