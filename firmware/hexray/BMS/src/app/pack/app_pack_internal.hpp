@@ -14,8 +14,8 @@ enum class Step {
 
 enum class CellStepState : uint8_t {
     IDLE,
-    START_CONTINUOUS,           // ADCV RD=0 CONT=1 — while balancing
-    START_CONTINUOUS_REDUNDANT, // ADCV RD=1 CONT=1 — while not balancing; discharge stays off
+    START_REDUNDANT,          
+    START_NO_REDUNDANT,
     READ_VOLTAGES,
     RECOVER,
 };
@@ -36,14 +36,12 @@ enum class OwcStepState : uint8_t {
     START_SADC_OW_EVEN,
     POLL_SADC_OW_EVEN,
     READ_SADC_OW_EVEN,
-    START_SADC_REDUNDANT, // ADSV DCP=0 CONT=1 — re-arms the compare the OW passes stopped
 };
 
 enum class ConfigStepState : uint8_t {
     IDLE,
     WRITE,
-    VERIFY,
-    RECOVER,
+    CHECK,
 };
 
 enum class FlagsStepState : uint8_t {
