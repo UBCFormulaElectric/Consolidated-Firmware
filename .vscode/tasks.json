@@ -33,22 +33,6 @@
       "preset": "${command:cmake.activeConfigurePresetName}"
     },
     {
-      "label": "Build Embedded Quintuna",
-      "detail": "CMake Generate step",
-      "group": "build",
-      "type": "cmake",
-      "command": "build",
-      "targets": [
-        "quintuna_BMS.hex",
-        "quintuna_VC.hex",
-        "quintuna_CRIT.hex",
-        "quintuna_RSM.hex",
-        "quintuna_FSM.hex",
-        "quintuna_DAM.hex",
-        "can_bus_load_quintuna"
-      ]
-    },
-    {
       "label": "Build Embedded Hexray",
       "detail": "CMake Generate step",
       "group": "build",
@@ -68,88 +52,6 @@
       "type": "cmake",
       "command": "clean",
       "preset": "${command:cmake.activeBuildPresetName}"
-    },
-    {
-      "label": "Build Embedded: VCR (Quintuna)",
-      "group": "build",
-      "type": "cmake",
-      "command": "build",
-      "targets": [
-        "quintuna_VCR_app.elf",
-      ]
-    },
-    {
-      "label": "Build Embedded: BMS (Quintuna)",
-      "group": "build",
-      "type": "cmake",
-      "command": "build",
-      "targets": [
-        "quintuna_BMS.hex",
-      ]
-    },
-    {
-      "label": "Run Tests: BMS (Quintuna)",
-      "type": "shell",
-      "command": "${workspaceFolder}/build_fw_test/firmware/quintuna/BMS/quintuna_BMS_test",
-      "group": "test",
-      "presentation": {
-        "reveal": "always"
-      },
-      "problemMatcher": []
-    },
-    {
-      "label": "Build Embedded: VC (Quintuna)",
-      "group": "build",
-      "type": "cmake",
-      "command": "build",
-      "targets": [
-        "quintuna_VC.hex",
-      ]
-    },
-    {
-      "label": "Build Embedded: CRIT (Quintuna)",
-      "group": "build",
-      "type": "cmake",
-      "command": "build",
-      "targets": [
-        "quintuna_CRIT.hex",
-      ]
-    },
-    {
-      "label": "Build Embedded: DAM (Quintuna)",
-      "group": "build",
-      "type": "cmake",
-      "command": "build",
-      "targets": [
-        "quintuna_DAM.hex",
-      ]
-    },
-    {
-      "label": "Build Embedded: RSM (Quintuna)",
-      "group": "build",
-      "type": "cmake",
-      "command": "build",
-      "targets": [
-        "quintuna_RSM.hex",
-      ]
-    },
-    {
-      "label": "Build Embedded: FSM (Quintuna)",
-      "group": "build",
-      "type": "cmake",
-      "command": "build",
-      "targets": [
-        "quintuna_FSM.hex",
-      ]
-    },
-    {
-      "label": "Build Embedded: PCM (Quintuna)",
-      "group": "build",
-      "type": "cmake",
-      "command": "build",
-      "targets": [
-        "quintuna_PCM_app.elf",
-      ]
     },
     {
       "label": "Build Embedded: h7dev",
@@ -176,33 +78,6 @@
       "command": "build",
       "targets": [
         "ssm.hex"
-      ]
-    },
-    {
-      "label": "Build Tests: CRIT (Quintuna)",
-      "group": "build",
-      "type": "cmake",
-      "command": "build",
-      "targets": [
-        "quintuna_CRIT_test"
-      ]
-    },
-    {
-      "label": "Build Tests: VC (Quintuna)",
-      "group": "build",
-      "type": "cmake",
-      "command": "build",
-      "targets": [
-        "quintuna_VC_test"
-      ]
-    },
-    {
-      "label": "Build Tests: BMS (Quintuna)",
-      "group": "build",
-      "type": "cmake",
-      "command": "build",
-      "targets": [
-        "quintuna_BMS_test"
       ]
     },
     {
@@ -314,6 +189,15 @@
       ]
     },
     {
+      "label": "Build Embedded: PCM (Hexray)",
+      "group": "build",
+      "type": "cmake",
+      "command": "build",
+      "targets": [
+        "hexray_PCM_app.elf",
+      ]
+    },
+    {
       "label": "Build Embedded: RSM (Hexray)",
       "group": "build",
       "type": "cmake",
@@ -384,15 +268,6 @@
       "command": "build",
       "targets": [
         "jsoncan_test"
-      ]
-    },
-    {
-      "label": "CAN Bus Load: Quintuna",
-      "group": "build",
-      "type": "cmake",
-      "command": "build",
-      "targets": [
-        "can_bus_load_quintuna"
       ]
     },
     {

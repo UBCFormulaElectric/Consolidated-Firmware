@@ -33,11 +33,20 @@ static const hw::gpio pcm_en_in{ PCM_EN_GPIO_Port, PCM_EN_Pin };
 static const hw::gpio lv_buck_en_out{ LV_BUCK_EN_GPIO_Port, LV_BUCK_EN_Pin };
 static const hw::gpio led_out{ LED_GPIO_Port, LED_Pin };
 
-static auto state = PcmState::OFF;
+static auto          state        = PcmState::OFF;
+static volatile bool pcm_en_state = false;
 
 #ifdef PCM_DEBUG
 static char debug_buf[1024];
 #endif
+
+void HAL_GPIO_EXTI_Callback(const uint16_t GPIO_Pin)
+{
+    if (GPIO_Pin == pcm_en_in.getPin())
+    {
+        pcm_en_state = pcm_en_in.readPin();
+    }
+}
 
 [[noreturn]] static void tasks_tick(void *arg)
 {
@@ -143,7 +152,7 @@ static char debug_buf[1024];
         {
             case PcmState::OFF:
             {
-                if (pcm_en_in.readPin())
+                if (pcm_en_state)
                 {
                     LOG_INFO("trying to clear faults and turn on");
                     if (vicor::clearFaults().has_value() and vicor::operation(true).has_value())
@@ -161,7 +170,7 @@ static char debug_buf[1024];
             }
             case PcmState::VICOR_ONLY:
             {
-                if (not pcm_en_in.readPin() and vicor::operation(false).has_value())
+                if (not pcm_en_state and vicor::operation(false).has_value())
                 {
                     LOG_INFO("Going to OFF state");
                     state = PcmState::OFF;
@@ -181,7 +190,7 @@ static char debug_buf[1024];
             }
             case PcmState::ON: // everything on
             {
-                if (not pcm_en_in.readPin())
+                if (not pcm_en_state)
                 {
                     lv_buck_en_out.writePin(false);
 
