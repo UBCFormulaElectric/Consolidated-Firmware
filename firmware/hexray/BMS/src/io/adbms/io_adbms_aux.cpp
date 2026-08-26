@@ -38,23 +38,7 @@ result<void> command::startAuxAdc()
 
 result<void> command::pollAuxAdc()
 {
-    uint32_t attempt = 0;
-    return util::retry(
-        [&attempt]() -> result<void>
-        {
-            ++attempt;
-            LOG_INFO(
-                "pollAuxAdc retry attempt %lu/%lu", static_cast<unsigned long>(attempt),
-                static_cast<unsigned long>(POLL_RETRIES));
-            const auto rx_res = poll(PLAUX);
-            if (!rx_res)
-                return unexpected(rx_res.error());
-            if (rx_res.value().to_ulong() == POLL_STATUS_READY)
-                return {};
-            io::time::delay(POLL_RETRY_DELAY_MS);
-            return unexpected(ErrorCode::POLL_INVALID);
-        },
-        POLL_RETRIES);
+    return poll(PLAUX);
 }
 
 ThermGpios<result<int16_t>> read::thermGpioVoltage()

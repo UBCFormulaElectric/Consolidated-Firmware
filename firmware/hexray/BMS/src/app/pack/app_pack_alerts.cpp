@@ -12,7 +12,7 @@
 namespace
 {
 using app::Timer;
-using app::pack::ADBMS6830Flags;
+using app::pack::ADBMS6830Diag;
 using app::pack::OwcStats;
 using app::pack::TempStats;
 using app::pack::VoltStats;

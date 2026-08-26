@@ -6,7 +6,7 @@ struct State
 {
     // A newline terminated string containing the name of this state
     const char *name;
-
+`
     void (*run_on_entry)();
     void (*run_on_tick_1Hz)();
     void (*run_on_tick_100Hz)();

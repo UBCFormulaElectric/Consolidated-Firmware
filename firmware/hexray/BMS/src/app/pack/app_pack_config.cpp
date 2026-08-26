@@ -104,25 +104,11 @@ namespace app::pack::config {
         return true;
     }
 
-    result<void> syncSegmentConfig() {
-        return util::retry(
-            []() -> result<void> {
-                RETURN_IF_ERR_SILENT(io::adbms::write::configReg(segment_config));
-                if (not checkSegmentConfig())
-                    return std::unexpected(ErrorCode::RETRY_FAILED);
-                return {};
-            },
-            NUM_CONFIG_SYNC_TRIES);
+    result<void> writeSegmentConfig() {
+        return io::adbms::write::configReg(segment_config);
     }
 
-    result<void> syncPwmConfig() {
-        return util::retry(
-            []() -> result<void> {
-                RETURN_IF_ERR_SILENT(io::adbms::write::pwmReg(pwm_config));
-                if (not checkPwmConfig())
-                    return std::unexpected(ErrorCode::RETRY_FAILED);
-                return {};
-            },
-            NUM_CONFIG_SYNC_TRIES);
+    result<void> writePwmConfig() {
+        return io::adbms::write::pwmReg(pwm_config);
     }
 }

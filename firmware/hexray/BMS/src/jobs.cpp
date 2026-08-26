@@ -131,7 +131,7 @@ void jobs_run100Hz_tick()
     if (voltage data noti arrives) check voltFault
     if (temp data noti arrives) check tempFault
     if (owc data noti arrives) check owcFault
-    if (ADBMS6830Flags data noti arrives) check check ADBMS6830Fault
+    if (ADBMS6830Diag data noti arrives) check check ADBMS6830Fault
     packFault = voltFault || tempFault || owcFault || ADBMS6830Fault
     bms_ok_latcch.setCurrentStatus(pack_fault ? io::FaultLatch::FaultLatchState::FAULT);
     */

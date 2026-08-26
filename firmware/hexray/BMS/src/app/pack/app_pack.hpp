@@ -41,7 +41,7 @@ struct TractiveStats : Stamped
     // tractive_current
 };
 
-struct ADBMS2950Flags : Stamped
+struct ADBMS2950Diag : Stamped
 {
     // these are the flags in the registers of the chip
     // whichever ones are relevent for faulting
@@ -70,7 +70,7 @@ struct OwcStats : Stamped
 };
 
 //idk what to store here
-struct ADBMS6830Flags : Stamped
+struct ADBMS6830Diag : Stamped
 {
     CellFlags    ov_ok{};
     CellFlags    uv_ok{};
@@ -85,8 +85,8 @@ struct Snapshot
     VoltStats      voltage_stats;
     TempStats      temperature_stats;
     OwcStats       owc_stats;
-    ADBMS6830Flags adbms6830_flags;
-    ADBMS2950Flags adbms2950_flags;
+    ADBMS6830Diag adbms6830_diag;
+    ADBMS2950Diag adbms2950_diag;
 };
 
 struct BalancingRequest
@@ -111,7 +111,7 @@ void init();
 bool voltFault(const VoltStats &stats);      // invalid reads, undervoltage, overvoltage
 bool tempFault(const TempStats &stats);      // invalid reads, overtemp, undertemp
 bool owcFault(const OwcStats &stats);        // cell open wire, thermistor open wire
-bool flagFault(const ADBMS6830Flags &stats); // ADBMS6830 uv/ov, therm shutdown, self test, supply
+bool diagFault(const ADBMS6830Diag &stats); // ADBMS6830 uv/ov, therm shutdown, self test, supply
 } // namespace alerts
 
 namespace balancing
