@@ -5,6 +5,12 @@ services:
       # InfluxDB port is always 8086 internally
       - "${INFLUXDB_PORT}:8086"
     env_file: envs/influx.env
+    volumes:
+      # Persist InfluxDB data and config across container recreations.
+      # These named volumes survive `docker compose down` and image rebuilds;
+      # they are only deleted by `docker compose down -v` or `docker volume rm`.
+      - influx-data:/var/lib/influxdb2
+      - influx-config:/etc/influxdb2
     healthcheck:
       # Ping server every 30s in case something breaks.
       test: [ "CMD", "curl", "-f", "http://localhost:8086/health" ]

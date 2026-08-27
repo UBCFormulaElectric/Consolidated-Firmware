@@ -17,3 +17,6 @@ services:
         "npm",
         "start"
      ]
+volumes:
+  influx-data:
+  influx-config:

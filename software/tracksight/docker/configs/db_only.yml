@@ -4,3 +4,6 @@ services:
     extends:
       file: ../common.yml
       service: influx
+volumes:
+  influx-data:
+  influx-config:
