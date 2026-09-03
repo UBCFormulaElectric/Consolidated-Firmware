@@ -2,10 +2,8 @@
 
 #include "io_adbms.hpp"
 
-enum class ThermMux : size_t {
-    MUX_0_7,
-    MUX_8_13,
-};
+extern const float V_FAULT_UV;
+extern const float V_FAULT_OV;
 
 enum class OwcParity : size_t {
     NONE,
@@ -20,10 +18,8 @@ struct SequenceState {
 
 namespace app::pack::config
 {
-[[nodiscard]] result<void> setThermMuxConfig(ThermMux mux);
-[[nodiscard]] result<void> setBalanceConfig(bool balancing_muted, const io::adbms::Cells<uint8_t> &duty);
-[[nodiscard]] bool checkSegmentConfig();
-[[nodiscard]] bool checkPwmConfig();
-[[nodiscard]] result<void> writeSegmentConfig();
-[[nodiscard]] result<void> writePwmConfig();
+[[nodiscard]] result<void> setSegmentConfig(io::adbms::ThermistorMux mux);
+[[nodiscard]] result<void> setPWMConfig(const io::adbms::Cells<uint8_t> &duty);
+[[nodiscard]] result<void> checkSegmentConfig();
+[[nodiscard]] result<void> checkPWMConfig();
 } // namespace app::pack::config

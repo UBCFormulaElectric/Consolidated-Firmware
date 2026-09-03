@@ -1,94 +1,69 @@
-#include <cstdint>
+#include <algorithm>
+#include <cmath>
+#include <limits>
 
+#include "app_canRx.hpp"
 #include "app_pack.hpp"
-#include "app_timer.hpp"
+#include "app_pack_internal.hpp"
+#include "io_semaphore.hpp"
 
 namespace {
-    inline constexpr uint32_t BALANCE_MS = 5000;
-    inline constexpr uint32_t SETTLE_MS = 5000;
-    inline constexpr float DISCHARGE_THRESHOLD_V = 10e-3f;
-    inline constexpr uint8_t DISCHARGE_DUTY = 0x0F;
-    static_assert(DISCHARGE_DUTY <= 0x0F); 
-    
-    enum class State : uint8_t
-    {
-        DISABLED,
-        SETTLING,
-        BALANCING,
-    };
+    const io::semaphore request_lock{ true };
+    app::pack::Request shared_request{};
 
-    State state = State::DISABLED;
-    app::Timer settle_timer{ SETTLE_MS };
-    app::Timer balance_timer{ BALANCE_MS };
-
-    void chooseTargets(const app::pack::VoltStats &volt_stats) {
-        BalancingRequest request{};
-        request.kind = RequestKind::UNMUTE_BALANCING;
-
-        const auto target = volt_stats.min;
-
-        for (uint8_t seg = 0U; seg < NUM_SEGMENTS; ++seg) {
-            if (!volt_stats.valid[seg].all()) continue;
-
-            for (uint8_t cell = 0; cell < CELLS_PER_SEGMENT; ++cell)
-            {
-                const float volts = volt_stats.voltages[seg][cell];
-
-                if (seg == target.segment && cell == target.index) continue;
-
-                if (volts <= V_FAULT_UV + DISCHARGE_THRESHOLD_V) continue;
-
-                if (volts - target.value < DISCHARGE_THRESHOLD_V) continue;
-                
-                request.duty[seg][cell]              = DISCHARGE_DUTY;
-            }
-
-        }
-        requests::post(request);
-    }
+    constexpr float DISCHARGE_THRESHOLD_V = 10e-3f;
+    constexpr uint8_t MAX_DUTY = 0x0F;
 }
 
 namespace app::pack::balancing {
-    void init() {
-        state = State::DISABLED;
-        settle_timer.stop();
-        balance_timer.stop();
-    }
+    io::adbms::Cells<uint8_t> determineBalance(
+        const io::adbms::Cells<float> &voltages, const CellFlags &valid) {
+        io::adbms::Cells<uint8_t> duty{};
 
-    void disable() {
-        state = State::DISABLED;
-        Request request{};
-        request.kind = RequestKind::MUTE_BALANCING;
-        requests::post(request);
-    }
+        const auto commanded_duty = static_cast<uint8_t>(
+            std::lround(can_rx::Debug_CellBalancing_DutyCycle_get() / 100.0f * MAX_DUTY));
 
-    void tick (const VoltStats &volts){
-        switch (state)
-        {
-            case State::DISABLED:
-                settle_timer.restart();
-                state = State::SETTLING;
-                break;
+        if (commanded_duty == 0)
+            return duty;
 
-            case State::SETTLING:
-                if (settle_timer.updateAndGetState() == app::Timer::TimerState::EXPIRED) {
-                    chooseTargets(volts);
-                    balance_timer.restart();
-                    state = State::BALANCING;
-                }
-                break;
-            case State::BALANCING:
-                if (balance_timer.updateAndGetState() == app::Timer::TimerState::EXPIRED) {
-                    Request request{};
-                    request.kind = RequestKind::MUTE_BALANCING;
-                    requests::post(request);
-
-                    settle_timer.restart();
-                    state = State::SETTLING;
-                }
-                break;
-            default:
-                break;
+        float leader = std::numeric_limits<float>::max();
+        for (uint8_t seg = 0; seg < NUM_SEGMENTS; seg++) {
+            for (uint8_t cell = 0; cell < CELLS_PER_SEGMENT; cell++) {
+                if (valid[seg][cell])
+                    leader = std::min(leader, voltages[seg][cell]);
+            }
         }
+
+        if (leader == std::numeric_limits<float>::max())
+            return duty;
+
+        for (uint8_t seg = 0; seg < NUM_SEGMENTS; seg++) {
+            if (!valid[seg].all())
+                continue;
+
+            for (uint8_t cell = 0; cell < CELLS_PER_SEGMENT; cell++) {
+                const float volts = voltages[seg][cell];
+
+                if (volts <= V_FAULT_UV)
+                    continue;
+
+                if (volts - leader < DISCHARGE_THRESHOLD_V)
+                    continue;
+
+                duty[seg][cell] = commanded_duty;
+            }
+        }
+
+        return duty;
+    }
+
+    Request getRequest() {
+        const io::unique_semaphore s{ request_lock };
+        return shared_request;
+    }
+
+    void setRequest(const Request &r) {
+        const io::unique_semaphore s{ request_lock };
+        shared_request = r;
     }
 }

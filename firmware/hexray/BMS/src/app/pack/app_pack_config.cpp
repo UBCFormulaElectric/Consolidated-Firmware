@@ -1,10 +1,19 @@
+#include <cmath>
+
 #include "app_pack.hpp"
 #include "app_pack_internal.hpp"
 #include "util_retry.hpp"
 
 namespace {
-    constexpr uint8_t NUM_CONFIG_SYNC_TRIES = 3;
 
+    // The chip encodes both thresholds the same way: V = value * 16 * 150uV + 1.5V.
+    constexpr float UVOV_LSB_V    = 16.0f * 150e-6f;
+    constexpr float UVOV_OFFSET_V = 1.5f;
+
+    // NOT done here in createSegmentConfig: V_FAULT_UV/OV are extern const defined in
+    // app_pack_alerts.cpp, and the order of static initialization across translation units is
+    // unspecified. Reading them at static-init time could pick up 0.0f and silently program a
+    // 1.5 V threshold. setSegmentConfig() runs long after static init, so it converts there.
     constexpr std::array<io::adbms::SegmentConfig, NUM_SEGMENTS> createSegmentConfig() {
         std::array<io::adbms::SegmentConfig, NUM_SEGMENTS> config{};
         for (auto &[reg_a, reg_b] : config) {
@@ -13,11 +22,6 @@ namespace {
             reg_a.gpio_1_8  = 0xFF;
             reg_a.gpio_9_10 = 0x03;
             reg_a.fc        = 0x03;
-
-            reg_b.vuv_0_7  = static_cast<uint8_t>(VUV & 0xFF);
-            reg_b.vuv_8_11 = static_cast<uint8_t>(VUV >> 8 & 0x0F);
-            reg_b.vov_0_3  = static_cast<uint8_t>(VOV & 0x0F);
-            reg_b.vov_4_11 = static_cast<uint8_t>(VOV >> 4 & 0xFF);
         }
         return config;
     }
@@ -29,25 +33,35 @@ namespace {
         return config;
     }   
 
-    Segments<io::adbms::SegmentConfig> segment_config = createSegmentConfig();
-    Segments<io::adbms::PWMConfig> pwm_config = createPWMConfig();
-}   
+    io::adbms::Segments<io::adbms::SegmentConfig> segment_config = createSegmentConfig();
+    io::adbms::Segments<io::adbms::PWMConfig>     pwm_config     = createPwmConfig();
+}
 
 namespace app::pack::config {
-    result<void> setThermMuxConfig(const ThermMux mux) {
+    result<void> setSegmentConfig(const io::adbms::ThermistorMux mux) {
+        // Single source of truth: the same thresholds app_pack_alerts.cpp faults on are what the
+        // chip's own comparators get, so software and hardware can never disagree about them.
+        const auto vuv = static_cast<uint16_t>(std::lround((V_FAULT_UV - UVOV_OFFSET_V) / UVOV_LSB_V));
+        const auto vov = static_cast<uint16_t>(std::lround((V_FAULT_OV - UVOV_OFFSET_V) / UVOV_LSB_V));
+
         for (uint8_t seg = 0; seg < NUM_SEGMENTS; seg++) {
-            segment_config[seg].reg_a.gpio_1_8  = 0xFF;
-            segment_config[seg].reg_a.gpio_9_10 = 0x2 | (mux == ThermMux::MUX_8_13);
+            auto &[reg_a, reg_b] = segment_config[seg];
+
+            // GPIO9/10 drive the external mux select. Bit 1 is always set; bit 0 picks the bank.
+            reg_a.gpio_1_8  = 0xFF;
+            reg_a.gpio_9_10 = 0x2 | (mux == io::adbms::ThermistorMux::ODD);
+
+            reg_b.vuv_0_7  = static_cast<uint8_t>(vuv & 0xFF);
+            reg_b.vuv_8_11 = static_cast<uint8_t>(vuv >> 8 & 0x0F);
+            reg_b.vov_0_3  = static_cast<uint8_t>(vov & 0x0F);
+            reg_b.vov_4_11 = static_cast<uint8_t>(vov >> 4 & 0xFF);
         }
 
-        RETURN_IF_ERR_SILENT(io::adbms::write::configReg(segment_config));
-        return {};
+        return io::adbms::write::configReg(segment_config);
     }
 
-    result<void> setBalanceConfig(const bool balancing_muted, const io::adbms::Cells<uint8_t> &duty) {
+    result<void> setPWMConfig(const io::adbms::Cells<uint8_t> &duty) {
         for (uint8_t seg = 0; seg < NUM_SEGMENTS; seg++) {
-            segment_config[seg].reg_a.mute_st = balancing_muted;
-
             const auto &d   = duty[seg];
             pwm_config[seg] = {
                 .reg_a = { static_cast<uint8_t>(d[0] & 0x0F), static_cast<uint8_t>(d[1] & 0x0F),
@@ -61,12 +75,10 @@ namespace app::pack::config {
             };
         }
 
-        RETURN_IF_ERR_SILENT(io::adbms::write::configReg(segment_config));
-        RETURN_IF_ERR_SILENT(io::adbms::write::pwmReg(pwm_config));
-        return {};
+        return io::adbms::write::pwmReg(pwm_config);
     }
 
-    bool checkSegmentConfig() {
+    result<void> checkSegmentConfig() {
         const io::adbms::Segments<result<io::adbms::SegmentConfig>> readback = io::adbms::read::configReg();
 
         for (size_t seg = 0; seg < NUM_SEGMENTS; seg++) {
@@ -74,18 +86,18 @@ namespace app::pack::config {
                 LOG_WARN(
                     "Config readback failed on seg %u: %s", static_cast<unsigned>(seg),
                     error_code_to_string(readback[seg].error()));
-                return false;
+                return std::unexpected(readback[seg].error());
             }
             if (readback[seg].value() != segment_config[seg]) {
                 LOG_WARN("Config mismatch on seg %u", static_cast<unsigned>(seg));
-                return false;
+                return std::unexpected(ErrorCode::MISMATCH);
             }
         }
 
-        return true;
+        return {};
     }
 
-    bool checkPwmConfig() {
+    result<void> checkPWMConfig() {
         const io::adbms::Segments<result<io::adbms::PWMConfig>> readback = io::adbms::read::pwmReg();
 
         for (size_t seg = 0; seg < NUM_SEGMENTS; seg++) {
@@ -93,22 +105,14 @@ namespace app::pack::config {
                 LOG_WARN(
                     "PWM readback failed on seg %u: %s", static_cast<unsigned>(seg),
                     error_code_to_string(readback[seg].error()));
-                return false;
+                return std::unexpected(readback[seg].error());
             }
             if (readback[seg].value() != pwm_config[seg]) {
                 LOG_WARN("PWM mismatch on seg %u", static_cast<unsigned>(seg));
-                return false;
+                return std::unexpected(ErrorCode::MISMATCH);
             }
         }
 
-        return true;
-    }
-
-    result<void> writeSegmentConfig() {
-        return io::adbms::write::configReg(segment_config);
-    }
-
-    result<void> writePwmConfig() {
-        return io::adbms::write::pwmReg(pwm_config);
+        return {};
     }
 }

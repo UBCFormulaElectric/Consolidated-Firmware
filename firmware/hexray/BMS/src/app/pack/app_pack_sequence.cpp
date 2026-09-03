@@ -38,6 +38,10 @@ namespace {
 
     result<void> measureOnEntry() {
         RETURN_IF_ERR(io::adbms::command::stopBalance());
+        // MEASURE never reads aux, so the bank is irrelevant here -- passing the tracked one
+        // keeps the chip on whatever the sequencer believes is selected.
+        RETURN_IF_ERR(app::pack::config::setSegmentConfig(xadc_therm_mux));
+        RETURN_IF_ERR(app::pack::config::checkSegmentConfig());
         RETURN_IF_ERR(io::adbms::command::startCadc(true));  // RD on
         RETURN_IF_ERR(io::adbms::command::startSadc(true, io::adbms::OpenWireParity::NONE)); // CONT on
         return {};
@@ -50,12 +54,14 @@ namespace {
     }
 
     result<void> balanceOnEntry() {
+        RETURN_IF_ERR(app::pack::config::setPWMConfig(app::pack::balancing::getRequest().duty));
+        RETURN_IF_ERR(app::pack::config::checkPWMConfig());
         RETURN_IF_ERR(io::adbms::command::startCadc(false)); // RD off
         RETURN_IF_ERR(io::adbms::command::startSadc(false, io::adbms::OpenWireParity::NONE)); // CONT off
-        RETURN_IF_ERR(app::pack::config::setBalanceConfig());
         RETURN_IF_ERR(io::adbms::command::startBalance());
         return {};
     }
+
     void balanceOnTick() {
         LOG_IF_ERR(io::adbms::command::snap());
         LOG_IF_ERR(io::adbms::read::Cadc(false)); // RD off
@@ -64,14 +70,17 @@ namespace {
 
     result<void> diagnosticOnEntry() {
         RETURN_IF_ERR(io::adbms::command::stopBalance());
+        // Selects the bank this sweep will read, so it has to happen before startAuxadc below.
+        RETURN_IF_ERR(app::pack::config::setSegmentConfig(xadc_therm_mux));
+        RETURN_IF_ERR(app::pack::config::checkSegmentConfig());
         RETURN_IF_ERR(io::adbms::command::startCadc(false)); // RD off
         RETURN_IF_ERR(io::adbms::command::startSadc(false, sadc_ow_parity)); // CONT off
-        RETURN_IF_ERR(app::pack::config::setThermMuxConfig(xadc_therm_mux));
         RETURN_IF_ERR(io::adbms::command::startAuxadc());
         sadc_done = false;
         xadc_done = false;
         return {};
     }
+
     void diagnosticOnTick() {
         const bool sadc_ready = io::adbms::command::pollSadc().has_value();
         const bool xadc_ready = io::adbms::command::pollXadc().has_value();
@@ -90,13 +99,10 @@ namespace {
         LOG_IF_ERR(io::adbms::command::unsnap());
 
         if (sadc_done && xadc_done) {
-            const bool balancing =
-                app::pack::requests::get().kind == app::pack::RequestKind::UNMUTE_BALANCING;
-            setNextState(balancing ? &balance_state : &measure_state);
+            setNextState(
+                app::pack::balancing::getRequest().start_balance ? &balance_state : &measure_state);
         }
     }
-
-
 }
 
 namespace app::pack::sequence {
@@ -123,8 +129,7 @@ namespace app::pack::sequence {
                                : io::adbms::ThermistorMux::EVEN;
             setNextState(&diagnostic_state);
         } else if (current != &diagnostic_state) {
-            const bool balancing = requests::get().kind == RequestKind::UNMUTE_BALANCING;
-            setNextState(balancing ? &balance_state : &measure_state);
+            setNextState(balancing::getRequest().start_balance ? &balance_state : &measure_state);
         }
         runStateMachine();
     }

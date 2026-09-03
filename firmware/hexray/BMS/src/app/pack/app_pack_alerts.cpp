@@ -1,4 +1,5 @@
 #include "app_pack.hpp"
+#include "app_pack_internal.hpp"
 
 #include <algorithm>
 #include <array>
@@ -8,6 +9,9 @@
 #include "app_stateMachine.hpp"
 #include "app_states.hpp"
 #include "app_timer.hpp"
+
+extern const float V_FAULT_UV = 2.5f;
+extern const float V_FAULT_OV = 4.25f;
 
 namespace
 {
@@ -21,9 +25,9 @@ using app::pack::VoltStats;
 constexpr uint32_t FAULT_V_DEBOUNCE_MS   = 1000;
 constexpr uint32_t FAULT_T_DEBOUNCE_MS   = 3000;
 constexpr uint32_t FAULT_OWC_DEBOUNCE_MS = 5000;
-constexpr float    V_FAULT_UV            = 2.5f;   
-constexpr float    V_FAULT_OV            = 4.25f;  
-constexpr float    T_FAULT_OT            = 55.0f;  
+// V_FAULT_UV / V_FAULT_OV are defined above the anonymous namespace -- app_pack_config.cpp
+// converts them into the chip's UV/OV register encodings.
+constexpr float    T_FAULT_OT            = 55.0f;
 constexpr float    T_CHARGE_FAULT_OT     = 45.0f;
 constexpr float    T_FAULT_UT            = -20.0f; 
 constexpr float    T_CHARGE_FAULT_UT     = 0.0f; 

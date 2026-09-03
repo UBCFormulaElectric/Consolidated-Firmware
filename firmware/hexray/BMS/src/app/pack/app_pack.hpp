@@ -89,21 +89,11 @@ struct Snapshot
     ADBMS2950Diag adbms2950_diag;
 };
 
-enum class RequestKind {
-    MUTE_BALANCING,
-    UNMUTE_BALANCING
-};
-
-struct BalancingRequest
+struct Request
 {
-    RequestKind               kind = RequestKind::MUTE_BALANCING;
+    bool start_balance = false;
     io::adbms::Cells<uint8_t> duty{};
 };
-
-namespace requests {
-void                           post(const BalancingRequest &request);
-[[nodiscard]] BalancingRequest get();
-} // namespace requests
 
 namespace view {
 void publish(const Snapshot &snapshot);
@@ -121,9 +111,14 @@ bool diagFault(const ADBMS6830Diag &stats); // ADBMS6830 uv/ov, therm shutdown, 
 
 namespace balancing
 {
-void init();
-void disable();
-void tick (const VoltStats &volts);
+// Per-cell discharge duty for the current voltages. Cells within DISCHARGE_THRESHOLD_V of the
+// lowest valid cell, cells at the voltage floor, and every cell in a segment with a failed read
+// come back as 0 (off). Pure -- it does not post; hand the result to setRequest().
+[[nodiscard]] io::adbms::Cells<uint8_t> determineBalance(
+    const io::adbms::Cells<float> &voltages, const CellFlags &valid);
+
+[[nodiscard]] Request getRequest();
+void                  setRequest(const Request &r);
 }
 
 namespace sequence 
