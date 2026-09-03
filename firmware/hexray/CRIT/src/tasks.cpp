@@ -18,7 +18,7 @@
 #include "hw_bootup.hpp"
 #include "hw_runTimeStat.hpp"
 
-static constexpr size_t  TASK_COUNT = 5;
+static constexpr size_t  TASK_COUNT = 6;
 [[noreturn]] static void tasks_run1Hz(void *arg);
 [[noreturn]] static void tasks_run100Hz(void *arg);
 [[noreturn]] static void tasks_run10Hz(void *arg);
@@ -37,7 +37,7 @@ static hw::rtos::StaticTask::StaticTaskStack<512> TaskCanTxStack;
 static hw::rtos::StaticTask Task1kHz(osPriorityRealtime, "Task1kHz", tasks_run1kHz, Task1kHzStack);
 static hw::rtos::StaticTask Task1Hz(osPriorityAboveNormal, "Task1Hz", tasks_run1Hz, Task1HzStack);
 static hw::rtos::StaticTask Task100Hz(osPriorityHigh, "Task100Hz", tasks_run100Hz, Task100HzStack);
-static hw::rtos::StaticTask Task10Hz(osPriorityHigh, "Task100Hz", tasks_run10Hz, Task10HzStack);
+static hw::rtos::StaticTask Task10Hz(osPriorityHigh, "Task10Hz", tasks_run10Hz, Task10HzStack);
 static hw::rtos::StaticTask TaskCanRx(osPriorityNormal, "TaskCanRx", tasks_runCanRx, TaskCanRxStack);
 static hw::rtos::StaticTask TaskCanTx(osPriorityNormal, "TaskCanTx", tasks_runCanTx, TaskCanTxStack);
 
@@ -76,6 +76,12 @@ static hw::runtimeStat::monitor<TASK_COUNT> runtimeMonitor(
             app::can_tx::CRIT_TaskRunCanTxCpuUsage_set,
             app::can_tx::CRIT_TaskRunCanTxCpuUsageMax_set,
             app::can_tx::CRIT_TaskRunCanTxStackUsage_set,
+        },
+        {
+            Task10Hz,
+            app::can_tx::CRIT_TaskRun10HzCpuUsage_set,
+            app::can_tx::CRIT_TaskRun10HzCpuUsageMax_set,
+            app::can_tx::CRIT_TaskRun10HzStackUsage_set,
         },
     } });
 
@@ -246,6 +252,10 @@ void tasks_init()
 
     jobs_init();
     CRIT_StartAllTasks();
+    if (static_cast<size_t>(uxTaskGetNumberOfTasks()) != TASK_COUNT)
+    {
+        LOG_ERROR("Amount of tasks OS is handling does not match TASK_COUNT");
+    }
     osKernelStart();
     forever {}
 }

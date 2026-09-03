@@ -192,6 +192,24 @@
         "min": 0,
         "max": 100,
         "unit": "%"
+      },
+      "TaskRun10HzCpuUsageMax": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRun10HzCpuUsage": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRun10HzStackUsage": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
       }
     },
     "data_capture": {
