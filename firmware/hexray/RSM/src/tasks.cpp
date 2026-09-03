@@ -22,7 +22,7 @@
 #include "hw_bootup.hpp"
 #include "hw_runTimeStat.hpp"
 
-constexpr size_t         TASK_COUNT = 5;
+constexpr size_t         TASK_COUNT = 6;
 [[noreturn]] static void tasks_run1Hz(void *arg);
 [[noreturn]] static void tasks_run100Hz(void *arg);
 [[noreturn]] static void tasks_run1kHz(void *arg);
@@ -57,7 +57,9 @@ static hw::runtimeStat::monitor<TASK_COUNT> runtimeMonitor{
           { TaskCanRx, app::can_tx::RSM_TaskRunCanRxCpuUsage_set, app::can_tx::RSM_TaskRunCanRxCpuUsageMax_set,
             app::can_tx::RSM_TaskRunCanRxStackUsage_set },
           { TaskCanTx, app::can_tx::RSM_TaskRunCanTxCpuUsage_set, app::can_tx::RSM_TaskRunCanTxCpuUsageMax_set,
-            app::can_tx::RSM_TaskRunCanTxStackUsage_set } },
+            app::can_tx::RSM_TaskRunCanTxStackUsage_set },
+          { TaskImu, app::can_tx::RSM_TaskRunImuCpuUsage_set, app::can_tx::RSM_TaskRunImuCpuUsageMax_set,
+            app::can_tx::RSM_TaskRunImuStackUsage_set } },
     },
 };
 
@@ -229,6 +231,10 @@ void tasks_init()
 
     jobs_init();
     RSM_StartAllTasks();
+    if (static_cast<size_t>(uxTaskGetNumberOfTasks()) != TASK_COUNT)
+    {
+        LOG_ERROR("Amount of tasks OS is handling does not match TASK_COUNT");
+    }
     osKernelStart();
     forever {}
 }
