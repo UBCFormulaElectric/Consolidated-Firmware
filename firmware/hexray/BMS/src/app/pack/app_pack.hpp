@@ -89,16 +89,21 @@ struct Snapshot
     ADBMS2950Diag adbms2950_diag;
 };
 
-struct BalancingRequest
-{
-    RequestKind    kind;
-    Cells<uint8_t> duty{};
-};
-
 enum class RequestKind {
     MUTE_BALANCING,
     UNMUTE_BALANCING
 };
+
+struct BalancingRequest
+{
+    RequestKind               kind = RequestKind::MUTE_BALANCING;
+    io::adbms::Cells<uint8_t> duty{};
+};
+
+namespace requests {
+void                           post(const BalancingRequest &request);
+[[nodiscard]] BalancingRequest get();
+} // namespace requests
 
 namespace view {
 void publish(const Snapshot &snapshot);

@@ -2,12 +2,6 @@
 
 #include "io_adbms.hpp"
 
-enum class ADBMSState : size_t {
-    MEASURE,
-    BALANCE,
-    DIAGNOSTIC,
-};
- 
 enum class ThermMux : size_t {
     MUX_0_7,
     MUX_8_13,
@@ -20,10 +14,8 @@ enum class OwcParity : size_t {
 };
 
 struct SequenceState {
-    const char *name;
-    bool (*run_on_entry)();  // true = entry complete, safe to start ticking
+    result<void> (*run_on_entry)();
     void (*run_on_tick)();
-    bool (*run_on_exit)();   // true = exit complete, safe to leave
 };
 
 namespace app::pack::config
