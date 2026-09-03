@@ -111,9 +111,12 @@ bool diagFault(const ADBMS6830Diag &stats); // ADBMS6830 uv/ov, therm shutdown, 
 
 namespace balancing
 {
+<<<<<<< Updated upstream
 // Per-cell discharge duty for the current voltages. Cells within DISCHARGE_THRESHOLD_V of the
 // lowest valid cell, cells at the voltage floor, and every cell in a segment with a failed read
 // come back as 0 (off). Pure -- it does not post; hand the result to setRequest().
+=======
+>>>>>>> Stashed changes
 [[nodiscard]] io::adbms::Cells<uint8_t> determineBalance(
     const io::adbms::Cells<float> &voltages, const CellFlags &valid);
 

@@ -16,8 +16,12 @@ namespace {
 }
 
 namespace app::pack::balancing {
+<<<<<<< Updated upstream
     io::adbms::Cells<uint8_t> determineBalance(
         const io::adbms::Cells<float> &voltages, const CellFlags &valid) {
+=======
+    io::adbms::Cells<uint8_t> determineBalance(const io::adbms::Cells<float> &voltages, const CellFlags &valid) {
+>>>>>>> Stashed changes
         io::adbms::Cells<uint8_t> duty{};
 
         const auto commanded_duty = static_cast<uint8_t>(
