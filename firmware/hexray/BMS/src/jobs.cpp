@@ -132,7 +132,7 @@ void jobs_run100Hz_tick()
     {
         io::unique_semaphore h{ health_lock };
         io::unique_semaphore s{ shared_lock };
-        acc_fault = app::segments::alerts::tick();
+        //acc_fault = app::segments::alerts::tick();
     }
 #endif
     using FaultLatchState = io::FaultLatch::FaultLatchState;

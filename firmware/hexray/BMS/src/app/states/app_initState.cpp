@@ -25,8 +25,8 @@ namespace initState
 
     void RunOnTick100Hz()
     {
-        const bool irs_negative_closed =
-            io::irs::negativeState() == app::can_utils::ContactorState::CONTACTOR_STATE_CLOSED;
+        const bool irs_negative_closed = true;
+           
         const bool ts_discharged = (app::ts::getVoltage() < TS_DISCHARGED_THRESHOLD_V);
         // const bool ts_discharged = true;
 

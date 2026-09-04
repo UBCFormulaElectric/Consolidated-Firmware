@@ -21,16 +21,22 @@ BroadcastBuffer<uint8_t, MAX_NUM_SEGMENTS, io::can_tx::BMS_SegmentCMDCNT_sendApe
 // Debug Messages
 CellBroadcaster<
     float,
-    io::can_tx::BMS_CellVoltages_Seg0_Seg3_sendAperiodic,
-    io::can_tx::BMS_CellVoltages_Seg4_Seg7_sendAperiodic,
+    2,
+    io::can_tx::BMS_CellVoltages_Seg0_Seg1_sendAperiodic,
+    io::can_tx::BMS_CellVoltages_Seg2_Seg3_sendAperiodic,
+    io::can_tx::BMS_CellVoltages_Seg4_Seg5_sendAperiodic,
+    io::can_tx::BMS_CellVoltages_Seg6_Seg7_sendAperiodic,
     io::can_tx::BMS_CellVoltages_Seg8_Seg9_sendAperiodic>
     cell_voltage_setters(
-        app::can_tx::BMS_CellVoltages_Seg0_Seg3_getData(),
-        app::can_tx::BMS_CellVoltages_Seg4_Seg7_getData(),
+        app::can_tx::BMS_CellVoltages_Seg0_Seg1_getData(),
+        app::can_tx::BMS_CellVoltages_Seg2_Seg3_getData(),
+        app::can_tx::BMS_CellVoltages_Seg4_Seg5_getData(),
+        app::can_tx::BMS_CellVoltages_Seg6_Seg7_getData(),
         app::can_tx::BMS_CellVoltages_Seg8_Seg9_getData());
 
 CellBroadcaster<
     float,
+    4,
     io::can_tx::BMS_CellTemps_Seg0_Seg3_sendAperiodic,
     io::can_tx::BMS_CellTemps_Seg4_Seg7_sendAperiodic,
     io::can_tx::BMS_CellTemps_Seg8_Seg9_sendAperiodic>
@@ -90,6 +96,7 @@ BroadcastBuffer<bool, MAX_NUM_SEGMENTS * CELLS_PER_SEGMENT, io::can_tx::BMS_Cell
 
 CellBroadcaster<
     uint8_t,
+    4,
     io::can_tx::BMS_CellPwmDuty_Seg0_Seg3_sendAperiodic,
     io::can_tx::BMS_CellPwmDuty_Seg4_Seg7_sendAperiodic,
     io::can_tx::BMS_CellPwmDuty_Seg8_Seg9_sendAperiodic>
@@ -106,6 +113,7 @@ constexpr CanErr toCanErr(const ErrorCode e)
 
 CellBroadcaster<
     CanErr,
+    4,
     io::can_tx::BMS_CellVoltageErrors_Seg0_Seg3_sendAperiodic,
     io::can_tx::BMS_CellVoltageErrors_Seg4_Seg7_sendAperiodic,
     io::can_tx::BMS_CellVoltageErrors_Seg8_Seg9_sendAperiodic>
@@ -116,6 +124,7 @@ CellBroadcaster<
 
 CellBroadcaster<
     CanErr,
+    4,
     io::can_tx::BMS_CellTempErrors_Seg0_Seg3_sendAperiodic,
     io::can_tx::BMS_CellTempErrors_Seg4_Seg7_sendAperiodic,
     io::can_tx::BMS_CellTempErrors_Seg8_Seg9_sendAperiodic>
@@ -126,6 +135,7 @@ CellBroadcaster<
 
 CellBroadcaster<
     CanErr,
+    4,
     io::can_tx::BMS_CellOpenWireCheckErrors_Seg0_Seg3_sendAperiodic,
     io::can_tx::BMS_CellOpenWireCheckErrors_Seg4_Seg7_sendAperiodic,
     io::can_tx::BMS_CellOpenWireCheckErrors_Seg8_Seg9_sendAperiodic>
@@ -136,6 +146,7 @@ CellBroadcaster<
 
 CellBroadcaster<
     CanErr,
+    4,
     io::can_tx::BMS_ThermistorOpenWireCheckErrors_Seg0_Seg3_sendAperiodic,
     io::can_tx::BMS_ThermistorOpenWireCheckErrors_Seg4_Seg7_sendAperiodic,
     io::can_tx::BMS_ThermistorOpenWireCheckErrors_Seg8_Seg9_sendAperiodic>

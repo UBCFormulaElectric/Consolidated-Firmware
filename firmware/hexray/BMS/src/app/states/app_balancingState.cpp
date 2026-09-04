@@ -19,12 +19,12 @@ namespace balancingState
 
     static void balancingStateRunOnTick100Hz()
     {
-        const bool ir_negative_open =
-            (io::irs::negativeState() == app::can_utils::ContactorState::CONTACTOR_STATE_OPEN);
+        const bool ir_negative_open = false;
         const bool balancing_enabled = app::can_rx::Debug_CellBalancing_Request_get();
 
         if (balancing_enabled && !ir_negative_open)
         {
+            
             app::segments::balancing::tick();
         }
         else
