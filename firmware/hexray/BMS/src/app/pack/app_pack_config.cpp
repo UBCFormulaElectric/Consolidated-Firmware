@@ -6,20 +6,9 @@
 
 namespace {
 
-<<<<<<< Updated upstream
-    // The chip encodes both thresholds the same way: V = value * 16 * 150uV + 1.5V.
     constexpr float UVOV_LSB_V    = 16.0f * 150e-6f;
     constexpr float UVOV_OFFSET_V = 1.5f;
 
-    // NOT done here in createSegmentConfig: V_FAULT_UV/OV are extern const defined in
-    // app_pack_alerts.cpp, and the order of static initialization across translation units is
-    // unspecified. Reading them at static-init time could pick up 0.0f and silently program a
-    // 1.5 V threshold. setSegmentConfig() runs long after static init, so it converts there.
-=======
-    constexpr float UVOV_LSB_V    = 16.0f * 150e-6f;
-    constexpr float UVOV_OFFSET_V = 1.5f;
-
->>>>>>> Stashed changes
     constexpr std::array<io::adbms::SegmentConfig, NUM_SEGMENTS> createSegmentConfig() {
         std::array<io::adbms::SegmentConfig, NUM_SEGMENTS> config{};
         for (auto &[reg_a, reg_b] : config) {
@@ -45,21 +34,12 @@ namespace {
 
 namespace app::pack::config {
     result<void> setSegmentConfig(const io::adbms::ThermistorMux mux) {
-<<<<<<< Updated upstream
-        // Single source of truth: the same thresholds app_pack_alerts.cpp faults on are what the
-        // chip's own comparators get, so software and hardware can never disagree about them.
-=======
->>>>>>> Stashed changes
         const auto vuv = static_cast<uint16_t>(std::lround((V_FAULT_UV - UVOV_OFFSET_V) / UVOV_LSB_V));
         const auto vov = static_cast<uint16_t>(std::lround((V_FAULT_OV - UVOV_OFFSET_V) / UVOV_LSB_V));
 
         for (uint8_t seg = 0; seg < NUM_SEGMENTS; seg++) {
             auto &[reg_a, reg_b] = segment_config[seg];
 
-<<<<<<< Updated upstream
-            // GPIO9/10 drive the external mux select. Bit 1 is always set; bit 0 picks the bank.
-=======
->>>>>>> Stashed changes
             reg_a.gpio_1_8  = 0xFF;
             reg_a.gpio_9_10 = 0x2 | (mux == io::adbms::ThermistorMux::ODD);
 

@@ -38,11 +38,6 @@ namespace {
 
     result<void> measureOnEntry() {
         RETURN_IF_ERR(io::adbms::command::stopBalance());
-<<<<<<< Updated upstream
-        // MEASURE never reads aux, so the bank is irrelevant here -- passing the tracked one
-        // keeps the chip on whatever the sequencer believes is selected.
-=======
->>>>>>> Stashed changes
         RETURN_IF_ERR(app::pack::config::setSegmentConfig(xadc_therm_mux));
         RETURN_IF_ERR(app::pack::config::checkSegmentConfig());
         RETURN_IF_ERR(io::adbms::command::startCadc(true));  // RD on
@@ -52,12 +47,8 @@ namespace {
 
     void measureOnTick() {
         LOG_IF_ERR(io::adbms::command::snap());
-<<<<<<< Updated upstream
-        LOG_IF_ERR(io::adbms::read::Cadc(true)); // RD on
-=======
         LOG_IF_ERR(io::adbms::read::Cadc(true, local.voltage_stats)); // RD on
         app::pack::broadcast::cellVoltages(local.voltage_stats);
->>>>>>> Stashed changes
         LOG_IF_ERR(io::adbms::command::unsnap());
     }
 
@@ -72,21 +63,13 @@ namespace {
 
     void balanceOnTick() {
         LOG_IF_ERR(io::adbms::command::snap());
-<<<<<<< Updated upstream
-        LOG_IF_ERR(io::adbms::read::Cadc(false)); // RD off
-=======
         LOG_IF_ERR(io::adbms::read::Cadc(false, local.voltage_stats)); // RD off
         app::pack::broadcast::cellVoltages(local.voltage_stats);
->>>>>>> Stashed changes
         LOG_IF_ERR(io::adbms::command::unsnap());
     }
 
     result<void> diagnosticOnEntry() {
         RETURN_IF_ERR(io::adbms::command::stopBalance());
-<<<<<<< Updated upstream
-        // Selects the bank this sweep will read, so it has to happen before startAuxadc below.
-=======
->>>>>>> Stashed changes
         RETURN_IF_ERR(app::pack::config::setSegmentConfig(xadc_therm_mux));
         RETURN_IF_ERR(app::pack::config::checkSegmentConfig());
         RETURN_IF_ERR(io::adbms::command::startCadc(false)); // RD off
@@ -103,17 +86,6 @@ namespace {
 
         LOG_IF_ERR(io::adbms::command::snap());
         LOG_IF_ERR(io::adbms::read::Cadc(false)); // RD off
-<<<<<<< Updated upstream
-        if (sadc_ready && !sadc_done) {
-            LOG_IF_ERR(io::adbms::read::Sadc(sadc_ow_parity));
-            sadc_done = true;
-        }
-        if (xadc_ready && !xadc_done) {
-            LOG_IF_ERR(io::adbms::read::Xadc(xadc_therm_mux));
-            xadc_done = true;
-        }
-        LOG_IF_ERR(io::adbms::read::flags());
-=======
         app::pack::broadcast::cellVoltages(local.voltage_stats);
 
         if (sadc_ready && !sadc_done) {
@@ -130,7 +102,6 @@ namespace {
 
         LOG_IF_ERR(io::adbms::read::flags(local.adbms6830_diag));
         io::adbms::broadcast::adbmsFlags(local.adbms6830_diag);
->>>>>>> Stashed changes
         LOG_IF_ERR(io::adbms::command::unsnap());
 
         if (sadc_done && xadc_done) {
