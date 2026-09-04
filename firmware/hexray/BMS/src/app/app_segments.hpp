@@ -5,6 +5,7 @@
 #include <utility>
 
 #include "util_errorCodes.hpp"
+#include "app_pack.hpp"
 #include "io_adbms.hpp"
 #include "io_semaphore.hpp"
 
@@ -15,8 +16,10 @@ inline constexpr uint8_t SECONDARY_CELL_CONV_TIME_MS = 8U;
 inline constexpr uint8_t AUX_CONV_TIME_MS            = 18U;
 
 extern io::semaphore spi_bus_lock;
-extern io::semaphore health_lock;
 extern io::semaphore shared_lock;
+
+inline constexpr uint32_t SYSVIEW_MARKER_CONFIG_LOCK = 3;
+inline constexpr uint32_t SYSVIEW_MARKER_SHARED_LOCK = 2;
 namespace app::segments
 {
 // Thermistor bank selected during AUX conversions.
@@ -58,14 +61,6 @@ namespace config
     [[nodiscard]] io::adbms::Segments<result<bool>> sync();
 } // namespace config
 
-// app_segments_balancing.cpp
-namespace balancing
-{
-    void init();
-    void tick();
-    void disable();
-} // namespace balancing
-
 // app_segments_health.cpp
 namespace health
 {
@@ -94,28 +89,6 @@ namespace health
     bool     getAnyError(size_t seg);
     Snapshot getAll();
 } // namespace health
-
-// app_segments_broadcast.cpp
-namespace broadcast
-{
-    namespace debug
-    {
-        void cellVoltages(const io::adbms::Cells<result<float>> &voltages, const result<void> &poll_ok);
-        void thermTemps(const io::adbms::Therms<result<float>> &temps, const result<void> &poll_ok);
-        void thermOwcOk(const io::adbms::Therms<result<bool>> &therm_owc, const result<void> &poll_ok);
-        void segVoltages(const io::adbms::Segments<result<float>> &seg_voltages);
-        void status(const io::adbms::Segments<io::adbms::StatusGroupsRes> &status);
-        void cellOwcOk(const io::adbms::Cells<result<bool>> &owc_results, const result<void> &poll_ok);
-        void balancing(const io::adbms::Cells<bool> &discharge_enabled, const io::adbms::Cells<uint8_t> &pwm_duty);
-    } // namespace debug
-
-    void segmentHealthError(const health::Snapshot &health);
-    void cellVoltageStats(const CellParam<float> &min, const CellParam<float> &max);
-    void cellTempStats(const CellParam<float> &min, const CellParam<float> &max);
-    void segmentVoltageStats(const SegmentParam<float> &min, const SegmentParam<float> &max);
-    void packVoltage(const result<float> &pack);
-    void cmdCountMismatch(const io::adbms::Segments<uint8_t> &mismatches);
-} // namespace broadcast
 
 // app_segments_shared.cpp
 namespace shared
