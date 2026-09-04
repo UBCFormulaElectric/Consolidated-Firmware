@@ -125,6 +125,14 @@ bool isThermOpenWireInfo(const OwcStats &stats)
     return stats.stamped && anyClear(stats.therms_ok);
 }
 
+app::pack::PackChannel<VoltStats>::Subscription volt_sub{ "alerts_volt" };
+app::pack::PackChannel<TempStats>::Subscription temp_sub{ "alerts_temp" };
+app::pack::PackChannel<OwcStats>::Subscription  owc_sub{ "alerts_owc" };
+
+bool volt_fault_active = false;
+bool temp_fault_active = false;
+bool owc_fault_active  = false;
+
 template <typename T> struct Entry
 {
     bool (*condition)(const T &);
@@ -188,12 +196,52 @@ template <typename T, size_t N> void stopEntries(std::array<Entry<T>, N> &entrie
     for (auto &[_c, _s, timer] : entries)
         timer.stop();
 }
+
+// invalid reads, undervoltage, overvoltage
+bool voltFault(const VoltStats &stats)
+{
+    const bool fault_active = runEntries(volt_fault_entries, stats);
+    runEntries(volt_warning_entries, stats);
+    runEntries(volt_info_entries, stats);
+    return fault_active;
+}
+
+// invalid reads, overtemp, undertemp
+bool tempFault(const TempStats &stats)
+{
+    const bool fault_active = runEntries(temp_fault_entries, stats);
+    runEntries(temp_warning_entries, stats);
+    runEntries(temp_info_entries, stats);
+    return fault_active;
+}
+
+// cell open wire, thermistor open wire
+bool owcFault(const OwcStats &stats)
+{
+    const bool fault_active = runEntries(owc_fault_entries, stats);
+    runEntries(owc_info_entries, stats);
+    return fault_active;
+}
+
+// TODO: ADBMS6830 uv/ov, therm shutdown, self test, supply
+[[maybe_unused]] bool diagFault(const ADBMS6830Diag &)
+{
+    return false;
+}
 } // namespace
 
 namespace app::pack::alerts
 {
 void init()
 {
+    voltage_channel.subscribe(volt_sub);
+    temperature_channel.subscribe(temp_sub);
+    owc_channel.subscribe(owc_sub);
+
+    volt_fault_active = false;
+    temp_fault_active = false;
+    owc_fault_active  = false;
+
     stopEntries(volt_fault_entries);
     stopEntries(volt_warning_entries);
     stopEntries(volt_info_entries);
@@ -204,26 +252,16 @@ void init()
     stopEntries(owc_info_entries);
 }
 
-bool voltFault(const VoltStats &stats)
+bool tick()
 {
-    const bool fault_active = runEntries(volt_fault_entries, stats);
-    runEntries(volt_warning_entries, stats);
-    runEntries(volt_info_entries, stats);
-    return fault_active;
-}
+    while (const auto stats = volt_sub.pop(0))
+        volt_fault_active = voltFault(*stats);
+    while (const auto stats = temp_sub.pop(0))
+        temp_fault_active = tempFault(*stats);
+    while (const auto stats = owc_sub.pop(0))
+        owc_fault_active = owcFault(*stats);
+    //need to add diag/flag faults
 
-bool tempFault(const TempStats &stats)
-{
-    const bool fault_active = runEntries(temp_fault_entries, stats);
-    runEntries(temp_warning_entries, stats);
-    runEntries(temp_info_entries, stats);
-    return fault_active;
-}
-
-bool owcFault(const OwcStats &stats)
-{
-    const bool fault_active = runEntries(owc_fault_entries, stats);
-    runEntries(owc_info_entries, stats);
-    return fault_active;
+    return volt_fault_active || temp_fault_active || owc_fault_active;
 }
 } // namespace app::pack::alerts

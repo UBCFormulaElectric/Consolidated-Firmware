@@ -5,12 +5,6 @@
 extern const float V_FAULT_UV;
 extern const float V_FAULT_OV;
 
-enum class OwcParity : size_t {
-    NONE,
-    EVEN,
-    ODD,
-};
-
 struct SequenceState {
     result<void> (*run_on_entry)();
     void (*run_on_tick)();

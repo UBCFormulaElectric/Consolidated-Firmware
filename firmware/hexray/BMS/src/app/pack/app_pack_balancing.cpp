@@ -10,17 +10,15 @@
 namespace {
     const io::semaphore request_lock{ true };
     app::pack::Request shared_request{};
+    app::pack::PackChannel<app::pack::VoltStats>::Subscription voltage_sub{ "balancing_volts" };
 
     constexpr float DISCHARGE_THRESHOLD_V = 10e-3f;
     constexpr uint8_t MAX_DUTY = 0x0F;
-}
 
-namespace app::pack::balancing {
-    io::adbms::Cells<uint8_t> determineBalance(const io::adbms::Cells<float> &voltages, const CellFlags &valid) {
+    io::adbms::Cells<uint8_t> determineBalance(const io::adbms::Cells<float> &voltages, const app::pack::CellFlags &valid) {
         io::adbms::Cells<uint8_t> duty{};
 
-        const auto commanded_duty = static_cast<uint8_t>(
-            std::lround(can_rx::Debug_CellBalancing_DutyCycle_get() / 100.0f * MAX_DUTY));
+        const auto commanded_duty = static_cast<uint8_t>(std::lround(app::can_rx::Debug_CellBalancing_DutyCycle_get() / 100.0f * MAX_DUTY));
 
         if (commanded_duty == 0)
             return duty;
@@ -52,8 +50,27 @@ namespace app::pack::balancing {
                 duty[seg][cell] = commanded_duty;
             }
         }
-
         return duty;
+    }
+}
+
+namespace app::pack::balancing {
+    void init() {
+        voltage_channel.subscribe(voltage_sub);
+        setRequest({});
+    }
+
+    void tick() {
+        while (const auto stats = voltage_sub.pop(0)) {
+            setRequest({
+                .start_balance = true,
+                .duty          = determineBalance(stats->voltages, stats->valid),
+            });
+        }
+    }
+
+    void stop() {
+        setRequest({});
     }
 
     Request getRequest() {

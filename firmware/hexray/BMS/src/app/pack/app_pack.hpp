@@ -4,6 +4,7 @@
 #include <bitset>
 #include <cstdint>
 
+#include "app_channel.hpp"
 #include "util_errorCodes.hpp"
 #include "io_adbms.hpp"
 
@@ -52,7 +53,7 @@ struct VoltStats : Stamped
     LocatedValue            max{};
     LocatedValue            min{};
     io::adbms::Cells<float> voltages{};
-    CellFlags               valid{}; // bit set == this cell's voltage read succeeded
+    CellFlags               valid{};
 };
 
 struct TempStats : Stamped
@@ -60,7 +61,7 @@ struct TempStats : Stamped
     LocatedValue             max{};
     LocatedValue             min{};
     io::adbms::Therms<float> temperatures{};
-    ThermFlags               valid{}; // bit set == this thermistor's read succeeded
+    ThermFlags               valid{};
 };
 
 struct OwcStats : Stamped
@@ -95,24 +96,26 @@ struct Request
     io::adbms::Cells<uint8_t> duty{};
 };
 
-namespace view {
-void publish(const Snapshot &snapshot);
-[[nodiscard]] Snapshot latest();
-}
+inline constexpr size_t CHANNEL_DEPTH       = 2;
+inline constexpr size_t CHANNEL_SUBSCRIBERS = 2;
+template <typename T> using PackChannel = Channel<T, CHANNEL_DEPTH, CHANNEL_SUBSCRIBERS>;
+
+inline PackChannel<VoltStats>     voltage_channel{};
+inline PackChannel<TempStats>     temperature_channel{};
+inline PackChannel<OwcStats>      owc_channel{};
+inline PackChannel<ADBMS6830Diag> diag_channel{};
 
 namespace alerts
 {
 void init();
-bool voltFault(const VoltStats &stats);      // invalid reads, undervoltage, overvoltage
-bool tempFault(const TempStats &stats);      // invalid reads, overtemp, undertemp
-bool owcFault(const OwcStats &stats);        // cell open wire, thermistor open wire
-bool diagFault(const ADBMS6830Diag &stats); // ADBMS6830 uv/ov, therm shutdown, self test, supply
+bool tick();
 } // namespace alerts
 
 namespace balancing
 {
-[[nodiscard]] io::adbms::Cells<uint8_t> determineBalance(
-    const io::adbms::Cells<float> &voltages, const CellFlags &valid);
+void init();
+void tick();
+void stop();
 
 [[nodiscard]] Request getRequest();
 void                  setRequest(const Request &r);
@@ -122,7 +125,6 @@ namespace sequence
 {
 void init();
 void tick();
-void snapshot();
 }
 
 

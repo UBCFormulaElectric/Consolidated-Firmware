@@ -83,6 +83,7 @@ void jobs_init()
 
     app::pack::sequence::init();
     app::pack::alerts::init();
+    app::pack::balancing::init();
 
     app::StateMachine::init(&app::states::init_state);
     app::can_tx::BMS_Heartbeat_set(true);
@@ -127,15 +128,10 @@ void jobs_run100Hz_tick()
     app::can_tx::BMS_ChargerConnectedType_set(io::charger::getConnectionStatus());
     app::charger::broadcast();
 
-    /*
-    if (voltage data noti arrives) check voltFault
-    if (temp data noti arrives) check tempFault
-    if (owc data noti arrives) check owcFault
-    if (ADBMS6830Diag data noti arrives) check check ADBMS6830Fault
-    packFault = voltFault || tempFault || owcFault || ADBMS6830Fault
-    bms_ok_latcch.setCurrentStatus(pack_fault ? io::FaultLatch::FaultLatchState::FAULT);
-    */
-    
+    const bool pack_fault = app::pack::alerts::tick();
+    bms_ok_latch.setCurrentStatus(
+        pack_fault ? io::FaultLatch::FaultLatchState::FAULT : io::FaultLatch::FaultLatchState::OK);
+
     app::latches::broadcast();
 
     io::bspdtest::enable(app::can_rx::Debug_EnableTestCurrent_get());
@@ -160,12 +156,6 @@ void jobs_run1kHz_tick()
 void jobs_runAdbmsChain_tick()
 {
     app::pack::sequence::tick();
-    app::pack::view::publish(app::pack::sequence::snapshot());
-}
-
-void jobs_runAdbmsReport_tick()
-{
-    const app::pack::Snapshot local = app::pack::view::latest();
 }
 
 

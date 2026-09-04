@@ -34,6 +34,7 @@ namespace {
 
 namespace app::pack::config {
     result<void> setSegmentConfig(const io::adbms::ThermistorMux mux) {
+        //not sure if i should do this (need to constexpr it)
         const auto vuv = static_cast<uint16_t>(std::lround((V_FAULT_UV - UVOV_OFFSET_V) / UVOV_LSB_V));
         const auto vov = static_cast<uint16_t>(std::lround((V_FAULT_OV - UVOV_OFFSET_V) / UVOV_LSB_V));
 
