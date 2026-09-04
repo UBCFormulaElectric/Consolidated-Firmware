@@ -21,6 +21,13 @@ namespace {
     bool sadc_done = false;
     bool xadc_done = false;
 
+    result<void> measureOnEntry();
+    void         measureOnTick();
+    result<void> balanceOnEntry();
+    void         balanceOnTick();
+    result<void> diagnosticOnEntry();
+    void         diagnosticOnTick();
+
     const SequenceState measure_state{ measureOnEntry, measureOnTick};
     const SequenceState balance_state{ balanceOnEntry, balanceOnTick};
     const SequenceState diagnostic_state{ diagnosticOnEntry, diagnosticOnTick};
@@ -43,6 +50,7 @@ namespace {
 
     result<void> measureOnEntry() {
         RETURN_IF_ERR(io::adbms::command::stopBalance());
+        app::pack::broadcast::balancing({});
         RETURN_IF_ERR(app::pack::config::setSegmentConfig(xadc_therm_mux));
         RETURN_IF_ERR(app::pack::config::checkSegmentConfig());
         RETURN_IF_ERR(io::adbms::command::startCadc(true));  // RD on
@@ -52,6 +60,7 @@ namespace {
 
     void measureOnTick() {
         LOG_IF_ERR(io::adbms::command::snap());
+        local.voltage_stats.updated_ms = io::time::getCurrentMs();
         LOG_IF_ERR(io::adbms::read::Cadc(true, local.voltage_stats)); // RD on
         app::pack::broadcast::cellVoltages(local.voltage_stats);
         app::pack::voltage_channel.publish(local.voltage_stats);
@@ -59,8 +68,10 @@ namespace {
     }
 
     result<void> balanceOnEntry() {
-        RETURN_IF_ERR(app::pack::config::setPWMConfig(app::pack::balancing::getRequest().duty));
+        const io::adbms::Cells<uint8_t> duty = app::pack::balancing::getRequest().duty;
+        RETURN_IF_ERR(app::pack::config::setPWMConfig(duty));
         RETURN_IF_ERR(app::pack::config::checkPWMConfig());
+        app::pack::broadcast::balancing(duty);
         RETURN_IF_ERR(io::adbms::command::startCadc(false)); // RD off
         RETURN_IF_ERR(io::adbms::command::startSadc(false, io::adbms::OpenWireParity::NONE)); // CONT off
         RETURN_IF_ERR(io::adbms::command::startBalance());
@@ -69,6 +80,7 @@ namespace {
 
     void balanceOnTick() {
         LOG_IF_ERR(io::adbms::command::snap());
+        local.voltage_stats.updated_ms = io::time::getCurrentMs();
         LOG_IF_ERR(io::adbms::read::Cadc(false, local.voltage_stats)); // RD off
         app::pack::broadcast::cellVoltages(local.voltage_stats);
         app::pack::voltage_channel.publish(local.voltage_stats);
@@ -92,25 +104,30 @@ namespace {
         const bool xadc_ready = io::adbms::command::pollXadc().has_value();
 
         LOG_IF_ERR(io::adbms::command::snap());
-        LOG_IF_ERR(io::adbms::read::Cadc(false)); // RD off
+        const auto time = io::time::getCurrentMs();
+        local.voltage_stats.updated_ms = time;
+        LOG_IF_ERR(io::adbms::read::Cadc(false, local.voltage_stats)); // RD off
         app::pack::broadcast::cellVoltages(local.voltage_stats);
 
         if (sadc_ready && !sadc_done) {
+            local.owc_stats.updated_ms = time;
             LOG_IF_ERR(io::adbms::read::Sadc(sadc_ow_parity, local.owc_stats));
-            io::adbms::broadcast::cellOpenWire(local.owc_stats);
+            app::pack::broadcast::cellOpenWire(local.owc_stats);
             app::pack::owc_channel.publish(local.owc_stats);
             sadc_done = true;
         }
 
         if (xadc_ready && !xadc_done) {
+            local.temperature_stats.updated_ms = time;
             LOG_IF_ERR(io::adbms::read::Xadc(xadc_therm_mux, local.temperature_stats));
-            io::adbms::broadcast::cellTemps(local.temperature_stats);
+            app::pack::broadcast::cellTemps(local.temperature_stats);
             app::pack::temperature_channel.publish(local.temperature_stats);
             xadc_done = true;
         }
 
+        local.adbms6830_diag.updated_ms = time;
         LOG_IF_ERR(io::adbms::read::flags(local.adbms6830_diag));
-        io::adbms::broadcast::adbmsFlags(local.adbms6830_diag);
+        app::pack::broadcast::adbmsFlags(local.adbms6830_diag);
         app::pack::diag_channel.publish(local.adbms6830_diag);
         LOG_IF_ERR(io::adbms::command::clearFlags());
         LOG_IF_ERR(io::adbms::command::unsnap());
@@ -149,9 +166,5 @@ namespace app::pack::sequence {
             setNextState(balancing::getRequest().start_balance ? &balance_state : &measure_state);
         }
         runStateMachine();
-    }
-
-    Snapshot snapshot() {
-        return local;
     }
 }

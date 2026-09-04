@@ -18,7 +18,7 @@ template <typename T, size_t DEPTH, size_t MAX_SUBSCRIBERS> class Channel
         assert(subscriber_count < MAX_SUBSCRIBERS);
         subscription.init();
         subscribers[subscriber_count] = &subscription;
-        subscriber_count++
+        subscriber_count++;
     }
 
     void publish(const T &value) const

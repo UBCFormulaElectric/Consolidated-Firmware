@@ -57,72 +57,72 @@ template <size_t BITS, size_t SEGMENTS> bool anyClear(const std::array<std::bits
 // Fault conditions
 bool isVoltInvalidFault(const VoltStats &stats)
 {
-    return !stats.stamped || anyClear(stats.valid);
+    return stats.updated_ms == 0U || anyClear(stats.valid);
 }
 bool isUnderVoltageFault(const VoltStats &stats)
 {
-    return stats.stamped && stats.min.value < V_FAULT_UV;
+    return stats.updated_ms != 0U && stats.min.value < V_FAULT_UV;
 }
 bool isOverVoltageFault(const VoltStats &stats)
 {
-    return stats.stamped && stats.max.value > V_FAULT_OV;
+    return stats.updated_ms != 0U && stats.max.value > V_FAULT_OV;
 }
 bool isTempInvalidFault(const TempStats &stats)
 {
-    return !stats.stamped || anyClear(stats.valid);
+    return stats.updated_ms == 0U || anyClear(stats.valid);
 }
 bool isOverTempFault(const TempStats &stats)
 {
     const bool charging = app::StateMachine::get_current_state() == &app::states::charge_state;
-    return stats.stamped && stats.max.value > (charging ? std::min(T_FAULT_OT, T_CHARGE_FAULT_OT) : T_FAULT_OT);
+    return stats.updated_ms != 0U && stats.max.value > (charging ? std::min(T_FAULT_OT, T_CHARGE_FAULT_OT) : T_FAULT_OT);
 }
 bool isUnderTempFault(const TempStats &stats)
 {
     const bool charging = app::StateMachine::get_current_state() == &app::states::charge_state;
-    return stats.stamped && stats.min.value < (charging ? std::max(T_FAULT_UT, T_CHARGE_FAULT_UT) : T_FAULT_UT);
+    return stats.updated_ms != 0U && stats.min.value < (charging ? std::max(T_FAULT_UT, T_CHARGE_FAULT_UT) : T_FAULT_UT);
 }
 bool isCellOpenWireFault(const OwcStats &stats)
 {
-    return stats.stamped && anyClear(stats.cells_ok);
+    return stats.updated_ms != 0U && anyClear(stats.cells_ok);
 }
 
 // Warning conditions
 bool isUnderVoltageWarn(const VoltStats &stats)
 {
-    return stats.stamped && stats.min.value < V_WARN_UV;
+    return stats.updated_ms != 0U && stats.min.value < V_WARN_UV;
 }
 bool isOverVoltageWarn(const VoltStats &stats)
 {
-    return stats.stamped && stats.max.value > V_WARN_OV;
+    return stats.updated_ms != 0U && stats.max.value > V_WARN_OV;
 }
 bool isOverTempWarn(const TempStats &stats)
 {
     const bool charging = app::StateMachine::get_current_state() == &app::states::charge_state;
-    return stats.stamped && stats.max.value > (charging ? std::min(T_WARN_OT, T_CHARGE_WARN_OT) : T_WARN_OT);
+    return stats.updated_ms != 0U && stats.max.value > (charging ? std::min(T_WARN_OT, T_CHARGE_WARN_OT) : T_WARN_OT);
 }
 bool isUnderTempWarn(const TempStats &stats)
 {
     const bool charging = app::StateMachine::get_current_state() == &app::states::charge_state;
-    return stats.stamped && stats.min.value < (charging ? std::max(T_WARN_UT, T_CHARGE_WARN_UT) : T_WARN_UT);
+    return stats.updated_ms != 0U && stats.min.value < (charging ? std::max(T_WARN_UT, T_CHARGE_WARN_UT) : T_WARN_UT);
 }
 
 // Info conditions
 bool isUnderVoltageInfo(const VoltStats &stats)
 {
-    return stats.stamped && stats.min.value < V_INFO_UV;
+    return stats.updated_ms != 0U && stats.min.value < V_INFO_UV;
 }
 bool isOverVoltageInfo(const VoltStats &stats)
 {
-    return stats.stamped && stats.max.value > V_INFO_OV;
+    return stats.updated_ms != 0U && stats.max.value > V_INFO_OV;
 }
 bool isOverTempInfo(const TempStats &stats)
 {
     const bool charging = app::StateMachine::get_current_state() == &app::states::charge_state;
-    return stats.stamped && stats.max.value > (charging ? std::min(T_INFO_OT, T_CHARGE_INFO_OT) : T_INFO_OT);
+    return stats.updated_ms != 0U && stats.max.value > (charging ? std::min(T_INFO_OT, T_CHARGE_INFO_OT) : T_INFO_OT);
 }
 bool isThermOpenWireInfo(const OwcStats &stats)
 {
-    return stats.stamped && anyClear(stats.therms_ok);
+    return stats.updated_ms != 0U && anyClear(stats.therms_ok);
 }
 
 app::pack::PackChannel<VoltStats>::Subscription volt_sub{ "alerts_volt" };

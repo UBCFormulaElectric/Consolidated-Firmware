@@ -31,7 +31,7 @@ namespace {
             }
         }
 
-        if (leader == std::numeric_limits<float>::max())
+        if (leader >= std::numeric_limits<float>::max())
             return duty;
 
         for (uint8_t seg = 0; seg < NUM_SEGMENTS; seg++) {

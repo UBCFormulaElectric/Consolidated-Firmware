@@ -22,57 +22,51 @@ struct LocatedValue
     uint8_t index   = 0U;
 };
 
-struct Stamped
+struct TractiveStats
 {
     uint32_t updated_ms = 0U;
-    bool     stamped    = false;
-
-    void stamp(const uint32_t now_ms)
-    {
-        updated_ms = now_ms;
-        stamped    = true;
-    }
-};
-
-struct TractiveStats : Stamped
-{
     // everything needed from adbms2950 by other tasks
     // acc_voltage
     // tractive_voltage
     // tractive_current
 };
 
-struct ADBMS2950Diag : Stamped
+struct ADBMS2950Diag
 {
+    uint32_t updated_ms = 0U;
     // these are the flags in the registers of the chip
     // whichever ones are relevent for faulting
 };
 
-struct VoltStats : Stamped
+struct VoltStats
 {
+    uint32_t                updated_ms = 0U;
     LocatedValue            max{};
     LocatedValue            min{};
     io::adbms::Cells<float> voltages{};
     CellFlags               valid{};
 };
 
-struct TempStats : Stamped
+struct TempStats
 {
+    uint32_t                 updated_ms = 0U;
     LocatedValue             max{};
     LocatedValue             min{};
     io::adbms::Therms<float> temperatures{};
     ThermFlags               valid{};
 };
 
-struct OwcStats : Stamped
+struct OwcStats
 {
+    uint32_t   updated_ms = 0U;
     CellFlags  cells_ok{};
     ThermFlags therms_ok{};
 };
 
 //idk what to store here
-struct ADBMS6830Diag : Stamped
+struct ADBMS6830Diag
 {
+    uint32_t     updated_ms = 0U;
     CellFlags    ov_ok{};
     CellFlags    uv_ok{};
     SegmentFlags therm_shdn_ok{};
@@ -126,6 +120,15 @@ namespace sequence
 void init();
 void tick();
 }
+
+namespace broadcast
+{
+void cellVoltages(const VoltStats &stats);
+void cellTemps(const TempStats &stats);
+void cellOpenWire(const OwcStats &stats);
+void adbmsFlags(const ADBMS6830Diag &diag);
+void balancing(const io::adbms::Cells<uint8_t> &duty);
+} // namespace broadcast
 
 
 } // namespace app::pack
