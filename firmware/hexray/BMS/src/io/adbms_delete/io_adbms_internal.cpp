@@ -138,7 +138,7 @@ class __attribute__((packed)) Cmd
         return static_cast<uint16_t>(remainder << 1U);
     }
 
-  public:
+    public:
     explicit Cmd(const uint16_t _cmd)
     {
         cmd   = swapEndianness(_cmd);
