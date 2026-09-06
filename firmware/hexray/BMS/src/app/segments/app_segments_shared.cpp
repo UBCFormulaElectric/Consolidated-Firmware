@@ -26,7 +26,7 @@ SegmentParam<float> latest_min_segment_voltage{};
 result<float> pack_voltage;
 } // namespace
 
-io::semaphore shared_lock{ true };
+io::semaphore shared_lock{ true, SYSVIEW_MARKER_SHARED_LOCK };
 
 namespace app::segments::shared
 {

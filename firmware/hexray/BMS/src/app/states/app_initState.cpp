@@ -25,9 +25,9 @@ namespace initState
 
     void RunOnTick100Hz()
     {
-        const bool irs_negative_closed =
-            io::irs::negativeState() == app::can_utils::ContactorState::CONTACTOR_STATE_CLOSED;
-        const bool ts_discharged = (app::ts::getVoltage() < TS_DISCHARGED_THRESHOLD_V);
+        const bool irs_negative_closed = io::irs::negativeState() == app::can_utils::ContactorState::CONTACTOR_STATE_CLOSED;
+        const bool ts_discharged = app::ts::getVoltage() < TS_DISCHARGED_THRESHOLD_V;
+        const bool cell_balancing_enabled = app::can_rx::Debug_CellBalancing_Request_get();
         // const bool ts_discharged = true;
 
         // ONLY RUN THIS WHEN CELLS HAVE HAD TIME TO SETTLE
@@ -45,13 +45,10 @@ namespace initState
             const bool external_charging_request = app::can_rx::Debug_StartCharging_get();
 
             const auto conn_status = io::charger::getConnectionStatus();
-            const bool charger_connected =
-                (conn_status == app::can_utils::ChargerConnectedType::CHARGER_CONNECTED_WALL) ||
-                (conn_status == app::can_utils::ChargerConnectedType::CHARGER_CONNECTED_EVSE);
+            const bool charger_connected = (conn_status == app::can_utils::ChargerConnectedType::CHARGER_CONNECTED_WALL) || (conn_status == app::can_utils::ChargerConnectedType::CHARGER_CONNECTED_EVSE);
 
-            const bool precharge_for_driving =
-                (app::can_rx::VC_State_get() == app::can_utils::VCState::VC_BMS_ON_STATE) && !charger_connected;
-            const bool cell_balancing_enabled = app::can_rx::Debug_CellBalancing_Request_get();
+            const bool precharge_for_driving = (app::can_rx::VC_State_get() == app::can_utils::VCState::VC_BMS_ON_STATE) && !charger_connected;
+            
 
             if (external_charging_request && charger_connected)
             {
@@ -61,10 +58,9 @@ namespace initState
             {
                 app::StateMachine::set_next_state(&precharge_drive_state);
             }
-            else if (cell_balancing_enabled)
-            {
-                app::StateMachine::set_next_state(&balancing_state);
-            }
+            
+        } else if (!irs_negative_closed && cell_balancing_enabled) {
+            app::StateMachine::set_next_state(&balancing_state);
         }
     }
 } // namespace initState
