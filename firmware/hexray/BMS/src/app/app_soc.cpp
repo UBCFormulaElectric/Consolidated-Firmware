@@ -1,4 +1,5 @@
 #include "app_soc.hpp"
+#include "app_pack.hpp"
 
 #include <array>
 #include <cstddef>
@@ -220,13 +221,34 @@ constexpr P30BTable P30B_TAU1_CHG_S = { {
     { 19.84500334f, 27.69980701f,        50.28894551f, 73.45802012f },
     { 19.84500334f, 27.69980701f,        50.28894551f, 73.45802012f },
 } };
+
+app::pack::PackChannel<app::pack::VoltStats>::Subscription volt_sub{ "soc_volt" };
+app::pack::PackChannel<app::pack::TempStats>::Subscription temp_sub{ "soc_temp" };
+
+app::soc::SocStats soc {};
+app::pack::VoltStats volts {};
+app::pack::TempStats temps {};
+
 } // namespace
 
 namespace app::soc
 {
-void update() {
-    // read of all cell voltages
-    // read of all cell temps
+void init() {
+    app::pack::voltage_channel.subscribe(volt_sub);
+    app::pack::temperature_channel.subscribe(temp_sub);
+    
+    //if there are intial soc values in sd card use that else use ocv lookup
+    //or maybe just take mean of the two idk
 }
-void broadcast() {}
+void update() {
+
+    while (const auto stats = volt_sub.pop(0)) volts = *stats;
+    while (const auto stats = temp_sub.pop(0)) temps = *stats;
+
+    if (volts.updated_ms > soc.updated_ms || temps.updated_ms > soc.updated_ms)
+        calculate(volts, temps);
+}
+void broadcast() {
+    
+}
 } // namespace app::soc
