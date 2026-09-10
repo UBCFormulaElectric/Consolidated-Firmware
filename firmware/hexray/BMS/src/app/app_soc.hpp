@@ -1,5 +1,10 @@
 #pragma once
 
+#include "app_pack.hpp"
+#include "io_adbms.hpp"
+
+#include <cstdint>
+
 namespace app::soc
 {
 struct SocStats {
@@ -10,6 +15,7 @@ struct SocStats {
     app::pack::CellFlags      valid{};
 };
 
+void init();
 void update();
 void broadcast();
 } // namespace app::soc
