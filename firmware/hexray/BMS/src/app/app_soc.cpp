@@ -1,12 +1,14 @@
 #include "app_soc.hpp"
 #include "app_pack.hpp"
 #include "app_canTx.hpp"
+#include "app_tractiveSystem.hpp"
 
 #include <array>
 #include <cstddef>
 
 namespace
 {
+constexpr size_t CELLS_IN_PARALLEL = 4;
 constexpr size_t P30B_SOC_N  = 21U;
 constexpr size_t P30B_TEMP_N = 4U;
 using P30BTable = std::array<std::array<float, P30B_TEMP_N>, P30B_SOC_N>;
@@ -223,12 +225,82 @@ constexpr P30BTable P30B_TAU1_CHG_S = { {
     { { 19.84500334f, 27.69980701f,        50.28894551f, 73.45802012f } },
 } };
 
+struct Interp {
+    float soc_i;
+    float soc_f;
+    float temp_i
+    float temp_f;
+};
+
+struct SocState {
+    float v1  = 0.0f;
+    float p00 = 0;      //P_SOC (need to come up with initial value)
+    float p01 = 0.0f;   //P_SOC_V1
+    float p11 = 0;      //P_V1 (need to come up with initial value)
+};
+
 app::pack::PackChannel<app::pack::VoltStats>::Subscription volt_sub{ "soc_volt" };
 app::pack::PackChannel<app::pack::TempStats>::Subscription temp_sub{ "soc_temp" };
 
 app::soc::SocStats     soc_stats{};
 app::pack::VoltStats   volt_stats{};
 app::pack::TempStats   temp_stats{};
+io::adbms::Cells<SocState> soc_states{};
+
+
+float lookup(const P30BTable &table, const Interp &in) {
+}
+
+void calculate(const app::pack::VoltStats &volts, const app::pack::TempStats &temps) {
+    const float dt_s  = static_cast<float>(volt_stats.updated_ms - soc_stats.updated_ms) * 1.0e-3f;
+    soc_stats.updated_ms = volt_stats.updated_ms;
+
+    const float cell_current_a = -app::ts::getCurrent() / static_cast<float>(CELLS_IN_PARALLEL);   //prob should change the convention (+ for discharge instead of + for charge) change this shit in ts file
+
+    const bool charging = cell_current_a < 0;
+    for (size_t seg = 0; seg < NUM_SEGMENTS; seg++) {
+        for (size_t cell = 0; cell < CELLS_PER_SEGMENT; cell++) {
+            if (!volts.valid[seg][cell]) 
+                continue;// should soc value go invalid???? prob not
+
+            const float temp_c = temps.valid[seg][cell] ? temps.temperatures[seg][cell] : 0; //what should be the invalid temp path
+
+            SocState &soc_state = soc_states[seg][cell];
+
+         
+            
+            // this is for reset so it can intialize with ocv lookup
+            if (!soc_stats.valid[seg][cell]) {
+                soc_stats.soc[seg][cell] = 
+                soc_stats.valid[seg][cell] = true;
+                soc_state = {};
+                continue;
+            }
+
+            const float r0 = charging ? lookup(P30B_R0_CHG_OHM, soc, temp_c) : lookup(P30B_R0_DIS_OH, soc, temp_c);
+            const float r1 = 
+            const float tau_s = charging ? lookup(P30B_TAU1_CHG_S, soc, temp_c) : lookup(P30B_TAU1_DIS_S, soc, temp_c); 
+            const float a = std::exp(-dt_s / tau_s);
+
+            //Predict next state and covariance
+            soc_stats.soc[seg][cell] -= cell_current_a * dt_s / P30B_CAP_AS;
+            soc_state.v1 = a* soc_state.v1 + r1 * (1.0f - a) * cell_current_a;
+            soc_state.p00 += Q_SOC; // need to come up with this value
+            soc_state.p01 += a;
+            soc_state.p11 = a * a * soc_state.p11 + Q_V1; //need to come up with this value
+
+            //Calculate innovation
+            const float innovation = volts.votlages[seg][cell] - (lookup(P30B_OCV_V, ocv, temp) - r0 * cell_current_a - soc_state.v1);
+
+
+        }
+    }   
+}
+
+
+}
+
+
 
 } // namespace
 
@@ -244,12 +316,13 @@ void init()
 
 void update()
 {
-    while (const auto stats = volt_sub.pop(0))
+    while (const auto stats = volt_sub.pop(0)) 
         volt_stats = *stats;
     while (const auto stats = temp_sub.pop(0))
         temp_stats = *stats;
 
-    // The ekf step goes here.
+    if (volt_stats.updated_ms > soc_stats.updated_ms || temp_stats.updated_ms > soc_stats.updated_ms) 
+        calculate(volt_stats, temp_stats);
 }
 
 void broadcast()
