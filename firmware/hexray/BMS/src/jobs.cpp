@@ -18,6 +18,7 @@
 #include "app_pack.hpp"
 #include "app_powerLimit.hpp"
 #include "app_precharge.hpp"
+#include "app_soc.hpp"
 #include "app_states.hpp"
 #include "app_tractiveSystem.hpp"
 #include "app_charger.hpp"
@@ -84,6 +85,7 @@ void jobs_init()
     app::pack::sequence::init();
     app::pack::alerts::init();
     app::pack::balancing::init();
+    app::soc::init();
 
     app::StateMachine::init(&app::states::init_state);
     app::can_tx::BMS_Heartbeat_set(true);
@@ -92,6 +94,7 @@ void jobs_init()
 void jobs_run1Hz_tick()
 {
     app::StateMachine::tick1Hz();
+    app::soc::broadcast();
     io::can_tx::enqueue1HzMsgs();
 }
 
@@ -127,6 +130,8 @@ void jobs_run100Hz_tick()
     // Charger connection status
     app::can_tx::BMS_ChargerConnectedType_set(io::charger::getConnectionStatus());
     app::charger::broadcast();
+
+    app::soc::update();
 
     const bool pack_fault = app::pack::alerts::tick();
     bms_ok_latch.setCurrentStatus(

@@ -125,9 +125,9 @@ bool isThermOpenWireInfo(const OwcStats &stats)
     return stats.updated_ms != 0U && anyClear(stats.therms_ok);
 }
 
-app::pack::PackChannel<VoltStats>::Subscription volt_sub{ "alerts_volt" };
-app::pack::PackChannel<TempStats>::Subscription temp_sub{ "alerts_temp" };
-app::pack::PackChannel<OwcStats>::Subscription  owc_sub{ "alerts_owc" };
+app::pack::PackChannel<app::pack::VoltStats>::Subscription volt_sub{ "alerts_volt" };
+app::pack::PackChannel<app::pack::TempStats>::Subscription temp_sub{ "alerts_temp" };
+app::pack::PackChannel<app::pack::OwcStats>::Subscription  owc_sub{ "alerts_owc" };
 
 bool volt_fault_active = false;
 bool temp_fault_active = false;
