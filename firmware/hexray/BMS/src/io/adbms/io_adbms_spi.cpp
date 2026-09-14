@@ -69,20 +69,21 @@ namespace {
 }
 
 namespace io::adbms::spi {
-    sendCmd(const hw::spi::device &port, const uint16_t cmd) {
+    result<void> sendCmd(const hw::spi::device &port, const uint16_t cmd) {
         const Cmd tx_cmd {cmd};
         return port.transmitDma(tx_cmd.into)
     }
 
-    poll(const hw::spi::device &port, const uint16_t cmd) {
+    result<void> poll(const hw::spi::device &port, const uint16_t cmd) {
+
+    } 
+
+    //prob need to template
+    Segments<result<void>> readRegGroup(const hw::spi::device &port, const uint16_t cmd, std::span<RegGroupPayload> rx) {
 
     }
 
-    readRegGroup(const hw::spi::device &port, const uint16_t cmd, std::span<RegGroupPayload> rx) {
-
-    }
-
-    writeRegGroup(const hw::spi::device &port, const uint16_t, std::span<Reg) {
+    Segments<result<void>> writeRegGroup(const hw::spi::device &port, const uint16_t, std::span<Reg) {
 
     } 
 
