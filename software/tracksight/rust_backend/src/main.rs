@@ -8,9 +8,9 @@ use tokio::sync::RwLock;
 use tokio::sync::broadcast;
 use tokio::task::{JoinError, JoinSet};
 
-use crate::config::CONFIG;
+use crate::config::{CONFIG, SerialType};
 use crate::tasks::telem_message::TelemetryOutgoingMessage;
-use crate::tasks::{HealthCheckError, Task};
+use crate::tasks::{HealthCheckError, HealthCheckSenderExt, Task};
 use crate::tasks::can_data::load_can_database;
 use crate::utils::{green};
 
@@ -119,30 +119,38 @@ async fn main() {
             let can_db_clone = base_can_db.clone();
             let client_out_msg_rx_clone = client_out_msg_rx.resubscribe();
 
-            if CONFIG.mock {
-                spawn_task(
-                    tasks,
-                    Task::SerialHandler,
-                    run_mock_task(
-                        shutdown_rx_clone,
-                        hc_tx_clone,
-                        can_queue_tx_clone,
-                        diag_tx_clone,
-                        can_db_clone,
-                    ),
-                );
-            } else {
-                spawn_task(
-                    tasks,
-                    Task::SerialHandler,
-                    run_serial_task(
-                        shutdown_rx_clone,
-                        hc_tx_clone,
-                        can_queue_tx_clone,
-                        diag_tx_clone,
-                        client_out_msg_rx_clone,
-                    ),
-                );
+            match CONFIG.serial {
+                SerialType::RADIO => {
+                    spawn_task(
+                        tasks,
+                        Task::SerialHandler,
+                        run_serial_task(
+                            shutdown_rx_clone,
+                            hc_tx_clone,
+                            can_queue_tx_clone,
+                            diag_tx_clone,
+                            client_out_msg_rx_clone,
+                        ),
+                    );
+                },
+                SerialType::MOCK => {
+                    spawn_task(
+                        tasks,
+                        Task::SerialHandler,
+                        run_mock_task(
+                            shutdown_rx_clone,
+                            hc_tx_clone,
+                            can_queue_tx_clone,
+                            diag_tx_clone,
+                            can_db_clone,
+                        ),
+                    );
+                },
+                SerialType::NONE => {
+                    spawn_task(tasks, Task::SerialHandler, async move {
+                        hc_tx_clone.send_health_check(Task::SerialHandler, true).await;
+                    });
+                }
             }
         }
     };
