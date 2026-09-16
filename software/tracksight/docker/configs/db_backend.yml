@@ -1,4 +1,4 @@
-name: tracksight-wireless
+name: tracksight-backend
 services:
   influx:
     extends:
@@ -8,3 +8,6 @@ services:
     extends:
       file: ../common.yml
       service: backend
+
+volumes:
+  influxdb:

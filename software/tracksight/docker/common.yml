@@ -1,6 +1,8 @@
 services:
   influx:
     image: influxdb:2-alpine
+    volumes:
+      - influxdb:/var/lib/influxdb2
     container_name: influxdb
     ports:
       # InfluxDB port is always 8086 internally
@@ -21,8 +23,8 @@ services:
       context: ../../../
       dockerfile: software/tracksight/rust_backend/Dockerfile
       # Used to build backend with different verbosity levels
-      # args: 
-      #   DOCKER_VERBOSITY: "VERBOSE" # or "DEBUG"
+      args: 
+        DOCKER_VERBOSITY: ${DOCKER_VERBOSITY}
     # Let backend know it's running in docker
     environment:
       DOCKER: "true"
@@ -70,3 +72,4 @@ services:
   #   restart: unless-stopped
   #   ports:
   #     - '3000:3000'
+  
