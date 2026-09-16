@@ -1,6 +1,7 @@
 services:
   influx:
     image: influxdb:2-alpine
+    container_name: influxdb
     ports:
       # InfluxDB port is always 8086 internally
       - "${INFLUXDB_PORT}:8086"
@@ -15,6 +16,7 @@ services:
       start_period: 10s
       start_interval: 1s
   backend:
+    container_name: backend
     build:
       context: ../../../
       dockerfile: software/tracksight/rust_backend/Dockerfile
@@ -49,6 +51,7 @@ services:
       # start_period: 10s
       # start_interval: 1s
   frontend:
+    container_name: frontend
     build: 
       context: ../../../
       dockerfile: software/tracksight/frontend/Dockerfile
