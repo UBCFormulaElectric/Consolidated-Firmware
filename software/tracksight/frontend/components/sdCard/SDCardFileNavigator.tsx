@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import useSDCardFiles from "@/lib/hooks/useSDCardFiles";
 import useDumpSDCardFile, { DumpSDCardFileError } from "@/lib/mutations/useDumpSDCardFile";
@@ -27,6 +27,7 @@ const SDCardFileNavigator = (props: SDCardFileNavigatorProps) => {
   const dumpSDCardFile = useDumpSDCardFile();
 
   const [selectedFiles, setSelectedFiles] = useState<SDCardFile[]>([]);
+  const selectionAnchor = useRef<SDCardFile | null>(null);
   const [dumpError, setDumpError] = useState<{
     message: string;
     statusCode: number;
@@ -39,12 +40,27 @@ const SDCardFileNavigator = (props: SDCardFileNavigatorProps) => {
 
   useEffect(() => {
     setSelectedFiles([]);
+    selectionAnchor.current = null;
     setDumpError(null);
     setPendingDump(null);
   }, [sdCard]);
 
-  const handleToggleFile = (file: SDCardFile) => {
+  const handleToggleFile = (file: SDCardFile, selectRange: boolean) => {
     setSelectedFiles((prev) => {
+      if (selectRange && selectionAnchor.current && availableFiles.data) {
+        const anchorIndex = availableFiles.data.indexOf(selectionAnchor.current);
+        const fileIndex = availableFiles.data.indexOf(file);
+
+        if (anchorIndex !== -1 && fileIndex !== -1) {
+          const range = availableFiles.data.slice(
+            Math.min(anchorIndex, fileIndex),
+            Math.max(anchorIndex, fileIndex) + 1
+          );
+
+          return [...new Set([...prev, ...range])];
+        }
+      }
+
       const exists = prev.includes(file);
 
       if (exists) {
@@ -53,6 +69,8 @@ const SDCardFileNavigator = (props: SDCardFileNavigatorProps) => {
         return [...prev, file];
       }
     });
+
+    selectionAnchor.current = file;
   };
 
   const handleDump = async (filesToDump: SDCardFile[], overwrite: boolean = false) => {

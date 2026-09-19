@@ -9,7 +9,7 @@ type SDCardFile = string;
 type SDCardFileListProps = {
   files: SDCardFile[] | null;
   selectedFiles: SDCardFile[];
-  onToggleFile: (file: SDCardFile) => void;
+  onToggleFile: (file: SDCardFile, selectRange: boolean) => void;
   isLoading: boolean;
   noSDCardSelected: boolean;
   hasError: boolean;
@@ -91,7 +91,7 @@ const SDCardFileList = (props: SDCardFileListProps) => {
               className={`h-min p-4 select-none border-b flex flex-row items-center gap-4 border-black w-full hover:cursor-pointer ${
                 isSelected ? "bg-blue-100" : "hover:bg-blue-100/50"
               }`}
-              onClick={() => onToggleFile(file)}
+              onClick={(event) => onToggleFile(file, event.shiftKey)}
             >
               <input type="checkbox" checked={isSelected} readOnly className="accent-blue-500" />
               <FileDigitIcon
