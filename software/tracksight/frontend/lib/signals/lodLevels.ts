@@ -11,7 +11,7 @@ export function tileIndexForTimestamp(timestampMs: number, sampleIntervalMs: num
 
 export function markTilesCovered(coveredTiles: Set<number>, sampleIntervalMs: number, startMs: number, endMs: number): void {
     if (sampleIntervalMs <= 0) return;
-    
+
     const first = tileIndexForTimestamp(startMs, sampleIntervalMs);
     const last = tileIndexForTimestamp(endMs, sampleIntervalMs);
 
@@ -22,11 +22,7 @@ export function markTilesCovered(coveredTiles: Set<number>, sampleIntervalMs: nu
 
 export type LevelPoint = { timestampMs: number; value: number };
 
-export function mergeSortedPoints(
-    existingTimestamps: number[],
-    existingValues: number[],
-    batch: LevelPoint[],
-): { timestamps: number[]; values: number[] } {
+export function mergeSortedPoints(existingTimestamps: number[], existingValues: number[], batch: LevelPoint[]): { timestamps: number[]; values: number[] } {
     const sorted = [...batch].sort((a, b) => a.timestampMs - b.timestampMs);
 
     const timestamps: number[] = [];
@@ -42,7 +38,7 @@ export function mergeSortedPoints(
 
     let i = 0;
     let j = 0;
-    
+
     while (i < existingTimestamps.length && j < sorted.length) {
         if (existingTimestamps[i] < sorted[j].timestampMs) {
             push(existingTimestamps[i], existingValues[i]);
@@ -56,12 +52,12 @@ export function mergeSortedPoints(
             j++;
         }
     }
-    
+
     while (i < existingTimestamps.length) {
         push(existingTimestamps[i], existingValues[i]);
         i++;
     }
-    
+
     while (j < sorted.length) {
         push(sorted[j].timestampMs, sorted[j].value);
         j++;
