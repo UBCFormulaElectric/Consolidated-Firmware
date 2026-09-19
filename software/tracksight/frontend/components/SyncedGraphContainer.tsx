@@ -51,10 +51,7 @@ function useSuppressScrollWhileLocked(containerRef: RefObject<HTMLDivElement | n
         if (!container) return;
 
         const suppressScroll = (e: WheelEvent) => {
-            if (
-                !isViewportLocked 
-                || Math.abs(e.deltaX) <= Math.abs(e.deltaY)
-            ) return;
+            if (!isViewportLocked || Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return;
 
             e.preventDefault();
         };
