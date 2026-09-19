@@ -1,3 +1,4 @@
+import { scaleToFitRange } from "@/lib/graphViewport";
 import { createContext, ReactNode, RefObject, UIEvent, useCallback, useContext, useEffect, useMemo, useRef } from "react";
 import { useDisplayControlContext } from "./PausePlayControl";
 import { CHART_PADDING } from "./widgets/render";
@@ -39,7 +40,6 @@ export function useSyncedGraph() {
 
 const RIGHT_PAD = 10;
 const LEFT_PAD = CHART_PADDING.left;
-const MIN_SCALE_PX_PER_SEC = 0.001;
 const MAX_SCALE_PX_PER_SEC = 10000;
 
 function useSuppressScrollWhileLocked(containerRef: RefObject<HTMLDivElement | null>) {
@@ -51,10 +51,7 @@ function useSuppressScrollWhileLocked(containerRef: RefObject<HTMLDivElement | n
         if (!container) return;
 
         const suppressScroll = (e: WheelEvent) => {
-            if (
-                !isViewportLocked 
-                || Math.abs(e.deltaX) <= Math.abs(e.deltaY)
-            ) return;
+            if (!isViewportLocked || Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return;
 
             e.preventDefault();
         };
@@ -187,8 +184,7 @@ export default function SyncedGraphContainer({ children, initialTimeRange, onVie
                 const container = scrollContainerRef.current;
                 if (container) {
                     const timeRange = Math.max(range.max - range.min, 1);
-                    const availableWidth = Math.max(container.clientWidth - RIGHT_PAD, 1);
-                    scalePxPerSecRef.current = availableWidth / timeRange;
+                    scalePxPerSecRef.current = scaleToFitRange(container.clientWidth, timeRange, LEFT_PAD + RIGHT_PAD);
                     syncContainerScrollLeft(container, 0);
                 }
             }
@@ -252,7 +248,9 @@ export default function SyncedGraphContainer({ children, initialTimeRange, onVie
             if (deltaScale === 0) return;
 
             const prevScale = scalePxPerSecRef.current;
-            const nextScale = Math.min(Math.max(prevScale * Math.exp(deltaScale), MIN_SCALE_PX_PER_SEC), MAX_SCALE_PX_PER_SEC);
+            const globalRange = globalTimeRangeRef.current;
+            const minScale = globalRange ? scaleToFitRange(container.clientWidth, globalRange.max - globalRange.min, LEFT_PAD + RIGHT_PAD) : Number.EPSILON;
+            const nextScale = Math.min(Math.max(prevScale * Math.exp(deltaScale), minScale), MAX_SCALE_PX_PER_SEC);
             if (nextScale === prevScale) {
                 return;
             }
@@ -260,8 +258,8 @@ export default function SyncedGraphContainer({ children, initialTimeRange, onVie
             // Anchor zoom to center of viewport when unlocked
             if (!isViewportLockedRef.current) {
                 const viewportCenter = scrollLeftRef.current + container.clientWidth / 2;
-                const centerTime = viewportCenter / prevScale;
-                const newCenterPos = centerTime * nextScale;
+                const centerTime = (viewportCenter - LEFT_PAD) / prevScale;
+                const newCenterPos = centerTime * nextScale + LEFT_PAD;
                 const newScrollLeft = newCenterPos - container.clientWidth / 2;
                 scrollLeftRef.current = Math.max(0, newScrollLeft);
             }

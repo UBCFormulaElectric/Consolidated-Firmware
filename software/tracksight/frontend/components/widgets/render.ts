@@ -243,6 +243,11 @@ function render_numerical(context: CanvasRenderingContext2D, width: number, char
 
     let [all_series_min, all_series_max] = series_bounds.reduce(([min, max], meta) => [Math.min(min, meta.min), Math.max(max, meta.max)], [Infinity, -Infinity]);
 
+    if (!Number.isFinite(all_series_min) || !Number.isFinite(all_series_max)) {
+        all_series_min = 0;
+        all_series_max = 1;
+    }
+
     // edge case where all values are the same
     if (all_series_min === all_series_max) {
         all_series_min -= 1;
@@ -345,7 +350,10 @@ function render_numerical(context: CanvasRenderingContext2D, width: number, char
             }
 
             const value = lod.data.get(closestIdx);
-            const drawX = timeToX(lod.timestamps[closestIdx]);
+            const closestTimestamp = lod.timestamps[closestIdx];
+            if (closestTimestamp < visibleStartTime || closestTimestamp > visibleEndTime) continue;
+
+            const drawX = timeToX(closestTimestamp);
             const y = numericalTop + chartHeight - ((value - all_series_min) / (all_series_max - all_series_min)) * chartHeight;
 
             context.beginPath();
