@@ -46,9 +46,11 @@ const SDCardFileNavigator = (props: SDCardFileNavigatorProps) => {
   }, [sdCard]);
 
   const handleToggleFile = (file: SDCardFile, selectRange: boolean) => {
+    const anchor = selectionAnchor.current;
+
     setSelectedFiles((prev) => {
-      if (selectRange && selectionAnchor.current && availableFiles.data) {
-        const anchorIndex = availableFiles.data.indexOf(selectionAnchor.current);
+      if (selectRange && anchor && availableFiles.data) {
+        const anchorIndex = availableFiles.data.indexOf(anchor);
         const fileIndex = availableFiles.data.indexOf(file);
 
         if (anchorIndex !== -1 && fileIndex !== -1) {
