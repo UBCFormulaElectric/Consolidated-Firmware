@@ -60,7 +60,6 @@ services:
     environment:
       FRONTEND_PORT: ${FRONTEND_PORT}
       BACKEND_PORT: ${BACKEND_PORT}
-    env_file: envs/frontend.env
     ports:
       - "${FRONTEND_PORT}:${FRONTEND_PORT}"
     # depends_on:
