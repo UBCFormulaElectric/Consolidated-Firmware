@@ -73,6 +73,13 @@ const SDCardFileNavigator = (props: SDCardFileNavigatorProps) => {
     selectionAnchor.current = file;
   };
 
+  const handleToggleAll = () => {
+    setSelectedFiles((prev) =>
+      prev.length === availableFiles.data?.length ? [] : (availableFiles.data ?? [])
+    );
+    selectionAnchor.current = null;
+  };
+
   const handleDump = async (filesToDump: SDCardFile[], overwrite: boolean = false) => {
     if (!sdCard || filesToDump.length === 0) {
       return;
@@ -131,6 +138,7 @@ const SDCardFileNavigator = (props: SDCardFileNavigatorProps) => {
         files={files}
         selectedFiles={selectedFiles}
         onToggleFile={handleToggleFile}
+        onToggleAll={handleToggleAll}
         isLoading={isLoadingFiles}
         noSDCardSelected={noSDCardSelected}
         hasError={hasError}

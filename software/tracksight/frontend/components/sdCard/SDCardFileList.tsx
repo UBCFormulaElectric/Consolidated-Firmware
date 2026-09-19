@@ -10,18 +10,25 @@ type SDCardFileListProps = {
   files: SDCardFile[] | null;
   selectedFiles: SDCardFile[];
   onToggleFile: (file: SDCardFile, selectRange: boolean) => void;
+  onToggleAll: () => void;
   isLoading: boolean;
   noSDCardSelected: boolean;
   hasError: boolean;
 };
 
-const SDCardFileListFrame = (props: { children: React.ReactNode }) => {
+const SDCardFileListFrame = (props: {
+  children: React.ReactNode;
+  headerAction?: React.ReactNode;
+}) => {
   return (
     <div
       className="border border-black rounded h-full flex flex-col overflow-hidden"
       style={PANEL_SIZE}
     >
-      <span className="shrink-0 font-bold text-lg border-b border-black w-full p-4 bg-gray-100">Files</span>
+      <div className="shrink-0 font-bold text-lg border-b border-black w-full p-4 bg-gray-100 flex items-center justify-between">
+        <span>Files</span>
+        {props.headerAction}
+      </div>
       <div className="flex-1 min-h-0 overflow-y-scroll overscroll-contain scrollbar-hidden -mb-px">
         {props.children}
       </div>
@@ -53,7 +60,15 @@ const SDCardFileListSkeleton = () => {
 };
 
 const SDCardFileList = (props: SDCardFileListProps) => {
-  const { files, selectedFiles, onToggleFile, isLoading, noSDCardSelected, hasError } = props;
+  const {
+    files,
+    selectedFiles,
+    onToggleFile,
+    onToggleAll,
+    isLoading,
+    noSDCardSelected,
+    hasError,
+  } = props;
 
   if (noSDCardSelected) {
     return <SDCardFileListMessage>Select an SD card above to continue.</SDCardFileListMessage>;
@@ -80,7 +95,13 @@ const SDCardFileList = (props: SDCardFileListProps) => {
   }
 
   return (
-    <SDCardFileListFrame>
+    <SDCardFileListFrame
+      headerAction={
+        <button type="button" className="text-sm text-blue-600" onClick={onToggleAll}>
+          {selectedFiles.length === files.length ? "Deselect all" : "Select all"}
+        </button>
+      }
+    >
       <div className="flex flex-col">
         {files.map((file) => {
           const isSelected = selectedFiles.includes(file);
