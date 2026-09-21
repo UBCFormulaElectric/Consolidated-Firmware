@@ -40,7 +40,10 @@ void jobs_initImu()
 {
     app::imu::init();
 }
-void jobs_run1Hz_tick() {}
+void jobs_run1Hz_tick()
+{
+    io::can_tx::enqueue1HzMsgs();
+}
 void jobs_run100Hz_tick()
 {
     app::apps::broadcast();
