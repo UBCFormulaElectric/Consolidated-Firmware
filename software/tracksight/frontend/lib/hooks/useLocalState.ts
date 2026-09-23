@@ -31,18 +31,17 @@ export function useLocalState<T>(
     setIsInitialized(true);
   }, [name]);
 
-  //setting
-  const setLocalState: Dispatch<SetStateAction<T>> = (value) => {
-    setState((previousState) => {
-      const nextState = value instanceof Function ? value(previousState) : value;
-      try {
-        localStorage.setItem(name, ser(nextState));
-      } catch (error) {
-        console.error(`Failed to save localStorage key \"${name}\"`, error);
-      }
-      return nextState;
-    });
-  };
+  useEffect(() => {
+    if (!isInitialized) {
+      return;
+    }
 
-  return [state, setLocalState, isInitialized];
+    try {
+      localStorage.setItem(name, ser(state));
+    } catch (error) {
+      console.error(`Failed to save localStorage key \"${name}\"`, error);
+    }
+  }, [state, isInitialized, name, ser]);
+
+  return [state, setState, isInitialized];
 }

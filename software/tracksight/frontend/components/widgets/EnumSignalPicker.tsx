@@ -1,209 +1,46 @@
 "use client";
 
-import { KeyboardEvent, memo, useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import SignalPicker from "./SignalPicker";
+import { BooleanSignalMetadata, EnumSignalMetadata, isBooleanSignalMetadata, isEnumSignalMetadata, SignalMetadata } from "@/lib/types/Signal";
 
-import { fetchSignalMetadata } from "@/lib/api/signals";
-import { API_BASE_URL } from "@/lib/constants";
-import { BooleanSignalMetadata, EnumSignalMetadata, isBooleanSignalMetadata, isEnumSignalMetadata } from "@/lib/types/Signal";
+type EnumOrBooleanSignalMetadata = EnumSignalMetadata | BooleanSignalMetadata;
 
-const MAX_RENDERED_SIGNALS = 100;
-
-function normalizeSearchText(value: string): string {
-  return value.trim().toLowerCase().replace(/[_-]+/g, " ");
+function isEnumOrBooleanSignalMetadata(signal: SignalMetadata): signal is EnumOrBooleanSignalMetadata {
+    return isEnumSignalMetadata(signal) || isBooleanSignalMetadata(signal);
 }
 
-function getSignalSubtitle(signal: EnumSignalMetadata | BooleanSignalMetadata): string {
-  const parts = [signal.msg_name, signal.tx_node];
+function getSearchableText(signal: EnumOrBooleanSignalMetadata): string {
+    const enumName = isEnumSignalMetadata(signal) ? signal.enum_signal.enum_name : "";
 
-  if (isEnumSignalMetadata(signal)) {
-    parts.push(signal.enum_signal.enum_name);
-  }
-
-  if (signal.cycle_time_ms !== null) {
-    parts.push(`${signal.cycle_time_ms}ms`);
-  }
-
-  return parts.join(" • ");
+    return [signal.name, signal.msg_name, signal.tx_node, enumName].filter(Boolean).join(" ");
 }
 
-export const EnumSignalPicker = memo(function EnumSignalPicker(props: { query: string; selectedSignalName: string | null; onQueryChange: (value: string) => void; onSelectSignal: (signal: EnumSignalMetadata | BooleanSignalMetadata) => void }) {
-  const { query, selectedSignalName, onQueryChange, onSelectSignal } = props;
-  const containerRef = useRef<HTMLDivElement | null>(null);
-  const [isListOpen, setIsListOpen] = useState(false);
-  const [highlightedIndex, setHighlightedIndex] = useState(0);
-  const { data: availableSignals = [], isLoading, error } = useQuery({
-    queryKey: ["available-enum-signals"],
-    queryFn: async () => fetchSignalMetadata(API_BASE_URL),
-    select: (signals) => signals.filter((signal) => {
-      return (
-        isEnumSignalMetadata(signal)
-        || isBooleanSignalMetadata(signal)
-      )
-    }).sort((left, right) => left.name.localeCompare(right.name)) as (EnumSignalMetadata | BooleanSignalMetadata)[],
-    staleTime: 5 * 60 * 1000,
-    gcTime: 30 * 60 * 1000,
-    retry: (failureCount) => failureCount < 2,
-  });
-  const deferredQuery = useDeferredValue(query);
-  const normalizedQuery = normalizeSearchText(deferredQuery);
+function getSignalSubtitle(signal: EnumOrBooleanSignalMetadata): string {
+    const parts = [signal.msg_name, signal.tx_node];
 
-  const searchableSignals = useMemo(() => {
-    return availableSignals.map((signal) => ({
-      signal,
-      searchableText: (
-        isEnumSignalMetadata(signal)
-          ?normalizeSearchText([signal.name, signal.msg_name, signal.tx_node, signal?.enum_signal?.enum_name].filter(Boolean).join(" "))
-          : isBooleanSignalMetadata(signal)
-            ? normalizeSearchText([signal.name, signal.msg_name, signal.tx_node].filter(Boolean).join(" "))
-            : ""
-      ),
-    }));
-  }, [availableSignals]);
-
-  const matchingSignals = useMemo(() => {
-    if (!normalizedQuery) {
-      return availableSignals;
+    if (isEnumSignalMetadata(signal)) {
+        parts.push(signal.enum_signal.enum_name);
     }
 
-    return searchableSignals.filter((entry) => entry.searchableText.includes(normalizedQuery)).map((entry) => entry.signal);
-  }, [availableSignals, normalizedQuery, searchableSignals]);
-
-  const visibleSignals = useMemo(() => matchingSignals.slice(0, MAX_RENDERED_SIGNALS), [matchingSignals]);
-
-  useEffect(() => {
-    setHighlightedIndex(0);
-  }, [normalizedQuery]);
-
-  useEffect(() => {
-    const handlePointerDown = (event: MouseEvent) => {
-      if (!containerRef.current?.contains(event.target as Node)) {
-        setIsListOpen(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handlePointerDown);
-    return () => document.removeEventListener("mousedown", handlePointerDown);
-  }, []);
-
-  const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === "ArrowDown") {
-      event.preventDefault();
-      setIsListOpen(true);
-      setHighlightedIndex((prev) => (prev + 1) % visibleSignals.length);
-      return;
+    if (signal.cycle_time_ms !== null) {
+        parts.push(`${signal.cycle_time_ms}ms`);
     }
 
-    if (event.key === "ArrowUp") {
-      event.preventDefault();
-      setIsListOpen(true);
-      setHighlightedIndex((prev) => (prev - 1 + visibleSignals.length) % visibleSignals.length);
-      return;
-    }
+    return parts.join(" • ");
+}
 
-    if (event.key === "Enter" && isListOpen && visibleSignals[highlightedIndex]) {
-      event.preventDefault();
-      onSelectSignal(visibleSignals[highlightedIndex]);
-      setIsListOpen(false);
-      return;
-    }
+function EnumSignalItem({ data: signal }: { data: EnumOrBooleanSignalMetadata }) {
+    return (
+        <>
+            <div className="flex w-full items-center justify-between gap-3">
+                <span className="min-w-0 truncate font-medium text-gray-900">{signal.name}</span>
+                <span className="max-w-1/4 shrink-0 truncate text-xs uppercase tracking-wide text-gray-500">{isEnumSignalMetadata(signal) ? signal.enum_signal.enum_name : "BOOLEAN"}</span>
+            </div>
+            <p className="mt-1 truncate text-xs text-gray-500">{getSignalSubtitle(signal)}</p>
+        </>
+    );
+}
 
-    if (event.key === "Escape") {
-      event.preventDefault();
-      setIsListOpen(false);
-    }
-  };
-
-  useEffect(() => {
-    if (isListOpen && containerRef.current) {
-      const listElement = containerRef.current.querySelector(".max-h-64");
-      const highlightedElement = listElement?.children[highlightedIndex] as HTMLElement;
-
-      if (listElement && highlightedElement) {
-        const listRect = listElement.getBoundingClientRect();
-        const highlightedRect = highlightedElement.getBoundingClientRect();
-
-        if (highlightedRect.bottom > listRect.bottom) {
-          highlightedElement.scrollIntoView({ block: "end" });
-        } else if (highlightedRect.top < listRect.top) {
-          highlightedElement.scrollIntoView({ block: "start" });
-        }
-      }
-    }
-  }, [highlightedIndex, isListOpen]);
-
-  return (
-    <div ref={containerRef} className="w-full max-w-md">
-      <label className="block text-sm font-medium text-gray-700 mb-1">Signal Name</label>
-      <input
-        type="text"
-        value={query}
-        onChange={(event) => {
-          onQueryChange(event.target.value);
-          setIsListOpen(true);
-        }}
-        onFocus={() => setIsListOpen(true)}
-        onKeyDown={handleKeyDown}
-        className="w-full border rounded px-3 py-2 text-gray-900 bg-white"
-        placeholder="Search by signal, message, enum name, or node"
-        autoFocus
-        autoComplete="off"
-        spellCheck={false}
-      />
-      <div className="mt-2 rounded-md border border-gray-200 bg-white">
-        <div className="border-b border-gray-100 px-3 py-2 text-xs text-gray-500">
-          {isLoading
-            ? "Loading available signals..."
-            : matchingSignals.length > MAX_RENDERED_SIGNALS
-              ? `Showing first ${visibleSignals.length} of ${matchingSignals.length} matching signals`
-              : query.trim().length === 0
-                ? `Showing ${visibleSignals.length} signals`
-                : `${visibleSignals.length} matching signals`}
-        </div>
-        {error ? (
-          <p className="px-3 py-3 text-sm text-red-600">Failed to load available signals.</p>
-        ) : isListOpen ? (
-          <div className="max-h-64 overflow-y-auto py-1 scrollbar-hidden">
-            {visibleSignals.length === 0 ? (
-              <p className="px-3 py-3 text-sm text-gray-500">No signals match this search.</p>
-            ) : (
-              <>
-                {visibleSignals.map((signal, index) => {
-                  const isHighlighted = index === highlightedIndex;
-                  const isSelected = signal.name === selectedSignalName;
-
-                  return (
-                    <button
-                      key={signal.name}
-                      type="button"
-                      onMouseDown={(event) => event.preventDefault()}
-                      onClick={() => {
-                        onSelectSignal(signal);
-                        setIsListOpen(false);
-                      }}
-                      className={`w-full px-3 py-2 text-left transition-colors ${isHighlighted ? "bg-blue-200" : "hover:bg-blue-100"} ${isSelected ? "bg-blue-100" : ""}`}
-                      style={{ contentVisibility: "auto", containIntrinsicSize: "48px" }}
-                    >
-                      <div className="flex items-center justify-between gap-3 w-full">
-                        <span className="font-medium text-gray-900">{signal.name}</span>
-                        {isEnumSignalMetadata(signal) 
-                          ? <span className="text-xs uppercase min-w-0 truncate tracking-wide text-gray-500">{signal.enum_signal.enum_name}</span>
-                          : <span className="text-xs uppercase min-w-0 truncate tracking-wide text-gray-500">BOOLEAN</span>
-                        }
-                      </div>
-                      <p className="mt-1 text-xs text-gray-500">{getSignalSubtitle(signal)}</p>
-                    </button>
-                  );
-                })}
-              </>
-            )}
-          </div>
-        ) : (
-          <button type="button" onClick={() => setIsListOpen(true)} className="w-full px-3 py-3 text-left text-sm text-gray-500 hover:bg-gray-50">
-            Show matching signals
-          </button>
-        )}
-      </div>
-    </div>
-  );
-});
+export function EnumSignalPicker(props: { selectedSignals: EnumOrBooleanSignalMetadata[]; onSelectedSignalsChange: (signals: EnumOrBooleanSignalMetadata[]) => void }) {
+    return <SignalPicker {...props} filter={isEnumOrBooleanSignalMetadata} getSearchableText={getSearchableText} ItemRenderer={EnumSignalItem} placeholder="Search by signal, message, enum name, or node" />;
+}
