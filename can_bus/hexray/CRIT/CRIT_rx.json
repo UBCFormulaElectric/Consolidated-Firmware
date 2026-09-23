@@ -7,6 +7,14 @@
     "DAM_Vitals",
     "VC_GlobalShdnNodeStatus",
     "BMS_LatchStatus",
-    "BMS_TractiveSystem"
+    "BMS_TractiveSystem",
+    "INVFL_FLInverterInfo1",
+    "INVFR_FRInverterInfo1",
+    "INVRL_RLInverterInfo1",
+    "INVRR_RRInverterInfo1",
+    "INVFL_FLInverterInfo2",
+    "INVFR_FRInverterInfo2",
+    "INVRL_RLInverterInfo2",
+    "INVRR_RRInverterInfo2"
   ]
 }
