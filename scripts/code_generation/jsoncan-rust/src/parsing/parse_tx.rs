@@ -80,6 +80,12 @@ pub enum JsonCanSignal {
     },
 }
 
+#[derive(Deserialize, Debug)]
+struct JsonMuxGroupRaw {
+    cycle_time: Option<u32>,
+    signals: IndexMap<String, JsonCanSignal>,
+}
+
 #[derive(Deserialize)]
 struct JsonDataCapture {
     log_cycle_time: Option<u32>,
@@ -90,7 +96,11 @@ struct JsonDataCapture {
 #[derive(Deserialize)]
 struct JsonTxMsg {
     msg_id: u32, // todo extra validity checks
-    signals: IndexMap<String, JsonCanSignal>,
+    #[serde(default)]
+    signals: IndexMap<String, JsonCanSignal>, 
+    #[serde(default)]
+    mux_signals: IndexMap<String, JsonMuxGroupRaw>,
+    mux_bits: Option<u16>, 
     cycle_time: Option<u32>, // todo extra validity checks
     disabled: Option<bool>,
     description: Option<String>,
@@ -103,10 +113,22 @@ pub enum JsonCanBusMode {
     Some(Vec<String>),
 }
 
+pub struct JsonMuxGroup {
+    pub values: Vec<u32>,
+    pub cycle_time: Option<u32>,
+    pub signals: IndexMap<String, JsonCanSignal>,
+}
+
+pub struct JsonMux {
+    pub bits: Option<u16>,
+    pub groups: Vec<JsonMuxGroup>,
+}
+
 pub struct JsonCanMessage {
     pub name: String,
     pub id: u32,
     pub signals: IndexMap<String, JsonCanSignal>,
+    pub mux: Option<JsonMux>,
     pub cycle_time: Option<u32>,
     pub description: Option<String>,
     pub log_cycle_time: Option<u32>,
