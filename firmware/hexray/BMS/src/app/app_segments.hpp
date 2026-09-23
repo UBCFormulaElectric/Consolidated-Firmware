@@ -109,12 +109,13 @@ namespace broadcast
         void balancing(const io::adbms::Cells<bool> &discharge_enabled, const io::adbms::Cells<uint8_t> &pwm_duty);
     } // namespace debug
 
+    void commandCount(const io::adbms::Segments<uint32_t> &mismatches);
     void segmentHealthError(const health::Snapshot &health);
+    void chainHealth(const io::adbms::ChainHealth &chain_health);
     void cellVoltageStats(const CellParam<float> &min, const CellParam<float> &max);
     void cellTempStats(const CellParam<float> &min, const CellParam<float> &max);
     void segmentVoltageStats(const SegmentParam<float> &min, const SegmentParam<float> &max);
     void packVoltage(const result<float> &pack);
-    void cmdCountMismatch(const io::adbms::Segments<uint8_t> &mismatches);
 } // namespace broadcast
 
 // app_segments_shared.cpp
