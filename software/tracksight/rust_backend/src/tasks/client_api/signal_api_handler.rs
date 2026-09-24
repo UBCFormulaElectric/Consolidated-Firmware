@@ -232,10 +232,57 @@ async fn signal_tiles(
     };
 }
 
-async fn signal_csv() -> impl IntoResponse {
-    // TODO implement
-    // todo!("to implement signal csv download");
-    return (StatusCode::OK, Json(()));
+#[derive(Deserialize)]
+struct CsvQuery {
+    start: String,
+    end: String,
+    source: InfluxSignalSource,
+}
+
+impl CsvQuery {
+    fn flux(&self, bucket: &str, measurement: &str) -> Result<String, (StatusCode, &'static str)> {
+        let (Some(start), Some(end)) = (rfc3339_to_utc(&self.start), rfc3339_to_utc(&self.end)) else {
+            return Err((StatusCode::BAD_REQUEST, "Start and end must be RFC3339 timestamps"));
+        };
+        if start >= end {
+            return Err((StatusCode::BAD_REQUEST, "Start must be before end"));
+        }
+        Ok(format!(r#"
+            from(bucket: {})
+            |> range(start: time(v: "{}"), stop: time(v: "{}"))
+            |> filter(fn: (r) => r["_measurement"] == {})
+            |> filter(fn: (r) => r["source"] == "{}")
+            |> keep(columns: ["_time", "signal_name", "_value", "source"])
+            |> rename(columns: {{_time: "timestamp", _value: "value"}})
+        "#, serde_json::to_string(bucket).unwrap(), start.to_rfc3339(), end.to_rfc3339(),
+            serde_json::to_string(measurement).unwrap(), self.source))
+    }
+}
+
+async fn signal_csv(Query(params): Query<CsvQuery>) -> Result<axum::response::Response, (StatusCode, &'static str)> {
+    let query = params.flux(&CONFIG.influxdb_bucket, &CONFIG.influxdb_measurement)?;
+    let response = reqwest::Client::new()
+        .post(format!("{}/api/v2/query", CONFIG.influxdb_url.trim_end_matches('/')))
+        .query(&[("org", &CONFIG.influxdb_org)])
+        .header("Authorization", format!("Token {}", CONFIG.influxdb_token))
+        .header("Accept", "application/csv")
+        .json(&serde_json::json!({
+            "query": query,
+            "dialect": {"annotations": [], "dateTimeFormat": "RFC3339Nano"}
+        }))
+        .timeout(Duration::from_millis(INFLUX_QUERY_TIMEOUT_MS))
+        .send().await
+        .and_then(reqwest::Response::error_for_status)
+        .map_err(|_| (StatusCode::BAD_GATEWAY, "Could not export data from InfluxDB"))?;
+
+    Ok((
+        [
+            ("Content-Type", "text/csv; charset=utf-8".to_string()),
+            ("Content-Disposition", format!("attachment; filename=tracksight-{}-{}.csv", params.source, params.start.replace(':', "-"))),
+            ("Cache-Control", "no-store".to_string()),
+        ],
+        axum::body::Body::from_stream(response.bytes_stream()),
+    ).into_response())
 }
 
 #[derive(Debug, FromDataPoint, Default)]
@@ -407,4 +454,29 @@ pub fn get_signal_router() -> Router<AppState> {
         .route("/signal/tiles/{signal}/{start}/{end}", get(signal_tiles))
         .route("/signal/sessions/{start}/{end}", get(signal_sessions))
         .route("/signal/markers/{start}/{end}", get(signal_markers));
+}
+
+#[cfg(test)]
+mod export_tests {
+    use super::*;
+
+    #[test]
+    fn export_preserves_session_boundaries_and_source() {
+        let mut params = CsvQuery {
+            start: "2026-09-23T10:00:00.123-07:00".into(),
+            end: "2026-09-23T17:00:00.456Z".into(),
+            source: InfluxSignalSource::SdCard,
+        };
+        let query = params.flux("telemetry", "car_live").unwrap();
+        assert!(query.contains("2026-09-23T17:00:00.123+00:00"));
+        assert!(query.contains("2026-09-23T17:00:00.456+00:00"));
+        assert!(query.contains(r#"r["source"] == "sdcard""#));
+        assert!(!query.contains("aggregateWindow"));
+        params.end = params.start.clone();
+        assert!(params.flux("telemetry", "car_live").is_err());
+        params.end = "2026-09-23T16:00:00Z".into();
+        assert!(params.flux("telemetry", "car_live").is_err());
+        params.start = "invalid".into();
+        assert!(params.flux("telemetry", "car_live").is_err());
+    }
 }
