@@ -31,6 +31,20 @@ try {
         if (-not $usbipd) { throw "usbipd-win install failed. Install it manually from https://github.com/dorssel/usbipd-win/releases" }
     }
 
+    # usbipd-win 4.0 replaced `usbipd wsl attach` with `usbipd attach --wsl` and added `usbipd state`, which this
+    # script uses, so upgrade older installs. `--version` prints e.g. "4.3.0+42.Branch.master.Sha.abc".
+    $version = [string](& $usbipd --version 2>$null)
+    $major = if ($version -match '^\s*(\d+)\.') { [int]$Matches[1] } else { 0 }
+    if ($major -lt 4) {
+        Write-Host "usbipd-win $($version.Trim()) is too old (need 4.0+), upgrading with winget..." -ForegroundColor Yellow
+        winget upgrade --exact --id dorssel.usbipd-win --accept-source-agreements --accept-package-agreements
+        $usbipd = Find-Usbipd
+        $version = [string](& $usbipd --version 2>$null)
+        if (-not ($version -match '^\s*(\d+)\.' -and [int]$Matches[1] -ge 4)) {
+            throw "usbipd-win upgrade failed. Uninstall the old version, then install the latest from https://github.com/dorssel/usbipd-win/releases"
+        }
+    }
+
     # 2. Pick the USB device to pass through.
     $devices = @((& $usbipd state | ConvertFrom-Json).Devices | Where-Object { $_.BusId })
     if ($devices.Count -eq 0) { throw "No USB devices found. Plug in the SD card reader and try again." }
