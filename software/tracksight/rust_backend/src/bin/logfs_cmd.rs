@@ -1,6 +1,16 @@
-use std::{fs, io::{self, Write}, path::Path, sync::Arc};
+use std::{fs, io::{self, Write}, path::{Path, PathBuf}, sync::Arc};
 
+use jsoncan_rust::{can_database::CanDatabase, parsing::JsonCanParser};
 use logfs::{LogFsOpenFlags_LOGFS_OPEN_CREATE, LogFsOpenFlags_LOGFS_OPEN_RD_WR, logfs::*};
+
+#[path = "../can_log.rs"]
+mod can_log;
+#[path = "../mf4.rs"]
+mod mf4;
+#[path = "../log_export.rs"]
+mod log_export;
+
+use log_export::{ExportFormat, decode_log};
 
 const COMMAND_SELECT_DISK: &str = "selectdisk";
 const COMMAND_LS_DISK: &str = "lsdisk";
@@ -10,9 +20,11 @@ const COMMAND_LS: &str = "ls";
 const COMMAND_CD: &str = "cd";
 const COMMAND_CAT: &str = "cat";
 const COMMAND_WRITE: &str = "write";
+const COMMAND_EXPORT: &str = "export";
 const COMMAND_EXIT: &str = "exit";
 const COMMAND_HELP: &str = "help";
 
+// Arguments ending in '?' are optional.
 static COMMANDS: &[(&str, &[&str])] = &[
     (COMMAND_SELECT_DISK, &["disk"]),
     (COMMAND_LS_DISK, &[]),
@@ -22,9 +34,17 @@ static COMMANDS: &[(&str, &[&str])] = &[
     (COMMAND_CD, &["dir"]),
     (COMMAND_CAT, &["file"]),
     (COMMAND_WRITE, &["file", "data"]),
+    (COMMAND_EXPORT, &["file|*", "mf4|csv|xlsx|all?"]),
     (COMMAND_EXIT, &[]),
     (COMMAND_HELP, &[]),
 ];
+
+// Resolved at build time; the launcher always builds from this checkout.
+const CAN_DB_DIR: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../../can_bus/hexray");
+const EXPORT_DIR: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../utils/logfs_cmd/exports");
+
+// Not a CAN log (firmware boot counter), skipped by `export *`.
+const BOOTCOUNT_FILE: &str = "bootcount.txt";
 
 /*
     Simple command interface to debug and interact with LogFS. Run with `cargo run --bin logfs_cmd`
@@ -36,6 +56,7 @@ fn main() {
     let mut stdout = io::stdout();
 
     let mut logfs: Option<LogFs> = None;
+    let mut can_db: Option<CanDatabase> = None; // loaded on first export
 
     let mut curr_disk: Option<String> = None;
     let mut curr_dir: Vec<String> = vec!["/".to_string()]; // always starts with root
@@ -185,6 +206,46 @@ fn main() {
                     println!("No disk selected.");
                 }
             }
+            COMMAND_EXPORT => {
+                if let Some(ref mut l) = logfs {
+                    let formats = match args.get(1) {
+                        None => vec![ExportFormat::Mf4],
+                        Some(arg) => match ExportFormat::parse_list(arg) {
+                            Some(formats) => formats,
+                            None => {
+                                println!("Unknown export format '{}'. Use mf4, csv, xlsx or all.", arg);
+                                continue;
+                            }
+                        },
+                    };
+                    if can_db.is_none() {
+                        can_db = load_can_database();
+                    }
+                    let Some(ref db) = can_db else { continue };
+
+                    let dir = dir_to_path(&curr_dir);
+                    let files = if args[0] == "*" {
+                        match l.ls(&dir) {
+                            Ok(entries) => entries.into_iter().filter(|e| e != BOOTCOUNT_FILE).collect(),
+                            Err(e) => {
+                                eprintln!("Error listing directory: {}", e);
+                                continue;
+                            }
+                        }
+                    } else {
+                        vec![args[0].to_string()]
+                    };
+
+                    for file_name in files {
+                        let path = join_path(&dir, &file_name);
+                        if let Err(e) = export_file(l, db, &path, &formats) {
+                            eprintln!("Error exporting '{}': {}", path, e);
+                        }
+                    }
+                } else {
+                    println!("No disk selected.");
+                }
+            }
             COMMAND_EXIT => {
                 break;
             }
@@ -196,15 +257,73 @@ fn main() {
     }
 }
 
+fn load_can_database() -> Option<CanDatabase> {
+    let dir = match fs::canonicalize(CAN_DB_DIR) {
+        Ok(dir) => dir,
+        Err(e) => {
+            eprintln!("CAN database folder '{}' not found: {}", CAN_DB_DIR, e);
+            return None;
+        }
+    };
+    println!("Loading CAN database from {}...", dir.display());
+    match CanDatabase::from(JsonCanParser::new(dir.to_string_lossy().into_owned())) {
+        Ok(db) => Some(db),
+        Err(e) => {
+            eprintln!("Failed to load CAN database: {:?}", e);
+            None
+        }
+    }
+}
+
+/// Export a CAN log on the card to `EXPORT_DIR/<file name>.<ext>` in each of `formats`.
+fn export_file(logfs: &mut LogFs, can_db: &CanDatabase, path: &str, formats: &[ExportFormat]) -> Result<(), String> {
+    let (metadata, data) = logfs.cat(path).map_err(|e| e.to_string())?;
+    let log = decode_log(can_db, &metadata, &data)?;
+    println!(
+        "'{}': {} frames, {} signals{}",
+        path,
+        log.frame_count,
+        log.signal_count(),
+        if log.unknown_ids > 0 {
+            format!(" ({} frames with {} IDs not in the CAN database skipped)", log.unknown_frames, log.unknown_ids)
+        } else {
+            String::new()
+        }
+    );
+
+    let export_dir = Path::new(EXPORT_DIR);
+    fs::create_dir_all(export_dir).map_err(|e| e.to_string())?;
+    // logfs_cmd runs under sudo; hand the exports back to the invoking user so they aren't root-owned.
+    chown_to_sudo_user(export_dir);
+    let stem = Path::new(path).file_stem().ok_or("invalid file name")?;
+    let base: PathBuf = fs::canonicalize(export_dir).map_err(|e| e.to_string())?.join(stem);
+
+    for format in formats {
+        let out = base.with_extension(format.extension());
+        log.write(*format, &out)?;
+        chown_to_sudo_user(&out);
+        println!("  -> {}", out.display());
+    }
+    Ok(())
+}
+
+fn chown_to_sudo_user(path: &Path) {
+    let id = |var| std::env::var(var).ok().and_then(|v| v.parse::<u32>().ok());
+    if let (Some(uid), Some(gid)) = (id("SUDO_UID"), id("SUDO_GID")) {
+        let _ = std::os::unix::fs::chown(path, Some(uid), Some(gid));
+    }
+}
+
 fn validate_args(command: &str, arg_count: usize) -> bool {
     if let Some((_, expected)) = COMMANDS.iter().find(|(cmd, _)| *cmd == command) {
-        if arg_count != expected.len() {
-            println!(
-                "Error: '{}' expects {} argument(s), got {}",
-                command,
-                expected.len(),
-                arg_count
-            );
+        let required = expected.iter().filter(|a| !a.ends_with('?')).count();
+        if arg_count < required || arg_count > expected.len() {
+            let count = if required == expected.len() {
+                required.to_string()
+            } else {
+                format!("{}-{}", required, expected.len())
+            };
+            println!("Error: '{}' expects {} argument(s), got {}", command, count, arg_count);
             return false;
         }
     }
@@ -214,7 +333,10 @@ fn validate_args(command: &str, arg_count: usize) -> bool {
 fn print_help() {
     println!("Available commands:");
     for (cmd, args) in COMMANDS {
-        println!("  {} {}", cmd, args.iter().map(|x| format!("<{x}>")).collect::<Vec<_>>().join(" "));
+        println!("  {} {}", cmd, args.iter().map(|x| match x.strip_suffix('?') {
+            Some(optional) => format!("[{optional}]"),
+            None => format!("<{x}>"),
+        }).collect::<Vec<_>>().join(" "));
     }
 }
 
