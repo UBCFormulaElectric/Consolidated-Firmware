@@ -43,8 +43,9 @@ In your Linux environment (native Linux, or your WSL2 distro on Windows):
   ```bash
   wsl --update
   ```
-- [usbipd-win](https://github.com/dorssel/usbipd-win) is required. The script installs it through `winget` if it's
-  missing. You may need to re-run the script once after the first install.
+- [usbipd-win](https://github.com/dorssel/usbipd-win) 4.0 or newer is required. The script installs it through
+  `winget` if it's missing, and upgrades it if it's older than 4.0 (older versions use different commands). You may
+  need to re-run the script once after an install or upgrade.
 
 ### Running
 
