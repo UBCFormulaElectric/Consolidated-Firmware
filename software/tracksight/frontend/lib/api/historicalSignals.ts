@@ -1,4 +1,5 @@
 import { API_BASE_URL } from "@/lib/constants";
+import { historicalPointsInRange } from "@/lib/historicalRange";
 import { SignalType } from "../types/Signal";
 
 type HistoricalSignalRow = {
@@ -60,10 +61,6 @@ export async function fetchHistoricalSignal(params: { signalName: string; signal
 
     return {
         resolutionMs: resolution_ms,
-        points: rows.map((row) => ({
-            name: row.name,
-            value: row.value,
-            timestampMs: Date.parse(row.timestamp),
-        })),
+        points: historicalPointsInRange(rows, { min: startUtcMs, max: endUtcMs }),
     };
 }

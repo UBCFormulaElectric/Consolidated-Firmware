@@ -1,4 +1,4 @@
-import { scaleToFitRange } from "@/lib/graphViewport";
+import { scaleToFitRange, scrollLeftToShowRange } from "@/lib/graphViewport";
 import { createContext, ReactNode, RefObject, UIEvent, useCallback, useContext, useEffect, useMemo, useRef } from "react";
 import { useDisplayControlContext } from "./PausePlayControl";
 import { CHART_PADDING } from "./widgets/render";
@@ -16,7 +16,7 @@ export type SyncedGraphContext_t = {
 
     // mutations
     updateWithTimestamp(timestamp: number): void; // NOTE: PLEASE CALL THIS EVERY SINGLE TIME A NEW DATA POINT IS ADDED!!!
-    setTimeRange(range: TimeRange, fitViewport?: boolean): void;
+    setTimeRange(range: TimeRange, fitViewport?: boolean, visibleRange?: TimeRange): void;
 
     // transformations
     timeToX(t: number): number;
@@ -177,21 +177,21 @@ export default function SyncedGraphContainer({ children, initialTimeRange, onVie
     );
 
     const setTimeRange = useCallback(
-        (range: TimeRange, fitViewport = false) => {
+        (range: TimeRange, fitViewport = false, visibleRange = range) => {
             globalTimeRangeRef.current = range;
 
             if (fitViewport) {
                 const container = scrollContainerRef.current;
                 if (container) {
-                    const timeRange = Math.max(range.max - range.min, 1);
+                    const timeRange = Math.max(visibleRange.max - visibleRange.min, 1);
                     scalePxPerSecRef.current = scaleToFitRange(container.clientWidth, timeRange, LEFT_PAD + RIGHT_PAD);
-                    syncContainerScrollLeft(container, 0);
+                    scrollLeftRef.current = scrollLeftToShowRange(range.min, visibleRange.min, scalePxPerSecRef.current);
                 }
             }
 
             updateGraphWidth();
         },
-        [globalTimeRangeRef, scalePxPerSecRef, scrollContainerRef, syncContainerScrollLeft, updateGraphWidth]
+        [globalTimeRangeRef, scalePxPerSecRef, scrollContainerRef, updateGraphWidth]
     );
 
     useEffect(() => {

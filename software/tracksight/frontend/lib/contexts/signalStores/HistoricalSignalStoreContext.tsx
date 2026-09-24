@@ -5,6 +5,7 @@ import { useWidgetManager } from "@/components/widgets/WidgetManagerContext";
 import { fetchHistoricalSignal, HistoricalSignalResult, HistoricalSignalSource } from "@/lib/api/historicalSignals";
 import { useHistoricalSelection } from "@/lib/contexts/HistoricalSelectionContext";
 import { SignalDataStoreProvider } from "@/lib/contexts/signalStores/SignalStoreContext";
+import { rangeOfHistoricalPoints } from "@/lib/historicalRange";
 import HistoricalSignalStore from "@/lib/signals/HistoricalSignalStore";
 import { SignalMetadata, SignalType } from "@/lib/types/Signal";
 
@@ -28,6 +29,7 @@ export const HistoricalSignalStoreProvider = memo(function HistoricalSignalStore
     const initializedSelectedRangeKeyRef = useRef<string | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
+    const [hasNoSignalData, setHasNoSignalData] = useState(false);
 
     if (!signalStoreRef.current) {
         signalStoreRef.current = new HistoricalSignalStore(updateWithTimestamp);
@@ -53,6 +55,7 @@ export const HistoricalSignalStoreProvider = memo(function HistoricalSignalStore
         const load = async () => {
             setError(null);
             setIsLoading(true);
+            if (initializedSelectedRangeKeyRef.current !== selectedRangeKey) setHasNoSignalData(false);
 
             const results = await Promise.allSettled(
                 selectedSignals.map(async (signal) => ({
@@ -67,21 +70,19 @@ export const HistoricalSignalStoreProvider = memo(function HistoricalSignalStore
                 }))
             );
 
-            {
-                const alertResult = await fetchHistoricalSignal({
-                    signalName: "alert",
-                    signalType: SignalType.ALERT,
-                    startUtcMs,
-                    endUtcMs,
-                    source,
-                });
-
-                signalStoreRef.current.mergeAlerts(alertResult.resolutionMs, startUtcMs, endUtcMs, alertResult.points);
-            }
+            const alertResult = await fetchHistoricalSignal({
+                signalName: "alert",
+                signalType: SignalType.ALERT,
+                startUtcMs,
+                endUtcMs,
+                source,
+            });
 
             if (isCancelled) {
                 return;
             }
+
+            signalStoreRef.current.mergeAlerts(alertResult.resolutionMs, startUtcMs, endUtcMs, alertResult.points);
 
             const failures = results.filter((result) => result.status === "rejected");
             const successes = results.filter((result): result is PromiseFulfilledResult<{ signal: SignalMetadata; result: HistoricalSignalResult }> => result.status === "fulfilled");
@@ -91,9 +92,16 @@ export const HistoricalSignalStoreProvider = memo(function HistoricalSignalStore
                 signalStoreRef.current.mergeSignal(signal, signalResult.resolutionMs, startUtcMs, endUtcMs, signalResult.points);
             });
 
+            const signalRange = rangeOfHistoricalPoints(
+                successes.map((result) => result.value.result.points),
+                selectedRange
+            );
+            const alertRange = rangeOfHistoricalPoints([alertResult.points], selectedRange);
+
             const shouldFitViewport = initializedSelectedRangeKeyRef.current !== selectedRangeKey;
             if (shouldFitViewport) {
-                setTimeRange(selectedRange, true);
+                setHasNoSignalData(failures.length === 0 && selectedSignals.length > 0 && !signalRange);
+                setTimeRange(selectedRange, true, signalRange ?? alertRange ?? selectedRange);
                 initializedSelectedRangeKeyRef.current = selectedRangeKey;
             }
 
@@ -125,6 +133,7 @@ export const HistoricalSignalStoreProvider = memo(function HistoricalSignalStore
     return (
         <SignalDataStoreProvider signalStore={signalStoreRef}>
             {error ? <div className="mx-4 mb-3 rounded border border-red-500 bg-red-100 px-3 py-2 text-sm whitespace-pre-line text-red-600">{error}</div> : null}
+            {hasNoSignalData ? <div className="mx-4 mb-3 rounded border border-gray-300 bg-gray-50 px-3 py-2 text-sm text-gray-600">No data for the selected signals in this session. Try another session.</div> : null}
             {children}
         </SignalDataStoreProvider>
     );
