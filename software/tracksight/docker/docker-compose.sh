@@ -9,4 +9,4 @@ if ! [ -f "envs/common.env" ]; then
 fi
 
 echo "Running Docker compose with $1"
-docker compose --env-file envs/common.env -f $1 up --build
+docker compose --env-file envs/common.env -f $1 up --build "${@:2}"
