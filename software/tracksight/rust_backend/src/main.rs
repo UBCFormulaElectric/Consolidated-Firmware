@@ -14,6 +14,7 @@ use crate::tasks::{HealthCheckError, HealthCheckSenderExt, MAX_CHANNEL_BUFFER_SI
 use crate::tasks::can_data::load_can_database;
 use crate::utils::{green};
 
+mod can_log;
 mod mock;
 mod config;
 mod tasks;
