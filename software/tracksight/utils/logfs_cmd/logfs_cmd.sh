@@ -26,8 +26,8 @@ for _ in $(seq 15); do
 done
 lsblk -d -o NAME,SIZE,RM,TRAN,MODEL
 if ! grep -qx 1 /sys/block/*/removable 2>/dev/null; then
-    echo -e "\033[0;33mWarning: no drive with RM=1 found; logfs_cmd's lsdisk/selectdisk only accept removable drives.\033[0m"
+    echo -e "\033[0;33mWarning: no drive with RM=1 found; use the explicit /dev path shown by lsblk with --disk or selectdisk.\033[0m"
 fi
 
 echo "Starting logfs_cmd (try: lsdisk, selectdisk /dev/sdX, mount, ls, export * all). Type 'help' for commands."
-sudo "$bin"
+sudo "$bin" "$@"

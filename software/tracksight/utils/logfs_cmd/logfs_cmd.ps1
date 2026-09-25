@@ -1,6 +1,11 @@
 # Attaches a USB drive / SD card reader to WSL2 with usbipd-win, then builds and runs logfs_cmd inside WSL.
 # The drive is detached (handed back to Windows) when logfs_cmd exits.
 
+param(
+    [Parameter(ValueFromRemainingArguments = $true)]
+    [string[]]$CliArgs
+)
+
 $ErrorActionPreference = "Stop"
 
 # usbipd bind needs admin, so relaunch elevated if we aren't already.
@@ -68,7 +73,7 @@ try {
 
     # 4. Build and run logfs_cmd inside WSL.
     $wslScript = (wsl.exe -e wslpath -a "$PSScriptRoot\logfs_cmd.sh").Trim()
-    wsl.exe -e bash "$wslScript"
+    wsl.exe -e bash "$wslScript" @CliArgs
 } catch {
     Write-Host "Error: $_" -ForegroundColor Red
 } finally {
