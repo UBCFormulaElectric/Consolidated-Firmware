@@ -1,4 +1,4 @@
-use std::{fs, io::{self, Write}, path::{Path, PathBuf}, sync::Arc};
+use std::{fs, io::{self, Write}, os::unix::fs::FileTypeExt, path::{Path, PathBuf}, sync::Arc};
 
 use jsoncan_rust::{can_database::CanDatabase, parsing::JsonCanParser};
 use logfs::{LogFsOpenFlags_LOGFS_OPEN_CREATE, LogFsOpenFlags_LOGFS_OPEN_RD_WR, logfs::*};
@@ -47,7 +47,7 @@ const EXPORT_DIR: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../utils/logfs_cm
 const BOOTCOUNT_FILE: &str = "bootcount.txt";
 
 /*
-    Simple command interface to debug and interact with LogFS. Run with `cargo run --bin logfs_cmd`
+    Simple command interface to debug and interact with LogFS. Run with `cargo run --bin logfs_cmd` 
     Not fully functional and working kinda jank
 */
 
@@ -55,11 +55,58 @@ fn main() {
     let stdin = io::stdin();
     let mut stdout = io::stdout();
 
+    let cli = match parse_cli_args() {
+        Ok(cli) => cli,
+        Err(message) => {
+            if !message.is_empty() {
+                eprintln!("{}", message);
+            }
+            return;
+        }
+    };
+
     let mut logfs: Option<LogFs> = None;
     let mut can_db: Option<CanDatabase> = None; // loaded on first export
 
     let mut curr_disk: Option<String> = None;
     let mut curr_dir: Vec<String> = vec!["/".to_string()]; // always starts with root
+
+    if let Some(disk) = cli.disk {
+        if !is_block_device(&disk) {
+            eprintln!("Disk '{}' is not an existing block device.", disk);
+            return;
+        }
+        let unix_disk = Arc::new(LogFsUnixDisk::new(512, 1024 * 1024 * 15, Path::new(&disk)).unwrap());
+        logfs = Some(LogFs::new(512, 1024 * 1024 * 15, unix_disk, 0, false));
+        curr_disk = Some(disk);
+
+        if let Some(export_file_name) = cli.export {
+            let Some(ref mut filesystem) = logfs else { unreachable!() };
+            if let Err(error) = filesystem.mount() {
+                eprintln!("Error mounting disk: {}", error);
+                return;
+            }
+            can_db = load_can_database();
+            let Some(ref database) = can_db else { return };
+            let files = if export_file_name == "*" {
+                match filesystem.ls("/") {
+                    Ok(entries) => entries.into_iter().filter(|entry| entry != BOOTCOUNT_FILE).collect(),
+                    Err(error) => {
+                        eprintln!("Error listing directory: {}", error);
+                        return;
+                    }
+                }
+            } else {
+                vec![export_file_name]
+            };
+            for file_name in files {
+                if let Err(error) = export_file(filesystem, database, &join_path("/", &file_name), &[cli.format]) {
+                    eprintln!("Error exporting '{}': {}", file_name, error);
+                }
+            }
+            return;
+        }
+    }
 
     loop {
         print!("<{}> {} > ", curr_disk.as_deref().unwrap_or_default(), dir_to_path(&curr_dir));
@@ -82,13 +129,13 @@ fn main() {
         match command {
             COMMAND_SELECT_DISK => {
                 let disk = args[0];
-                if find_detachable_drives().iter().any(|d| d == disk) {
+                if find_detachable_drives().iter().any(|d| d == disk) || is_block_device(disk) {
                     println!("Disk '{}' selected.", disk);
                     let unix_disk = Arc::new(LogFsUnixDisk::new(512, 1024 * 1024 * 15, Path::new(disk)).unwrap());
                     logfs = Some(LogFs::new(512, 1024 * 1024 * 15, unix_disk, 0, false));
                     curr_disk = Some(disk.to_string());
                 } else {
-                    println!("Disk '{}' not found among detachable drives.", disk);
+                    println!("Disk '{}' is not an existing block device.", disk);
                 }
             }
             COMMAND_LS_DISK => {
@@ -275,6 +322,44 @@ fn load_can_database() -> Option<CanDatabase> {
     }
 }
 
+struct CliArgs {
+    disk: Option<String>,
+    export: Option<String>,
+    format: ExportFormat,
+}
+
+fn parse_cli_args() -> Result<CliArgs, String> {
+    let mut args = std::env::args().skip(1);
+    let mut disk = None;
+    let mut export = None;
+    let mut format = ExportFormat::Mf4;
+
+    while let Some(argument) = args.next() {
+        match argument.as_str() {
+            "--disk" => disk = Some(args.next().ok_or("--disk requires /dev/sdX")?),
+            "--export" => export = Some(args.next().ok_or("--export requires a file name or *")?),
+            "--format" => {
+                let value = args.next().ok_or("--format requires mf4, csv, xlsx or all")?;
+                let formats = ExportFormat::parse_list(&value).ok_or("--format requires mf4, csv, xlsx or all")?;
+                if formats.len() != 1 {
+                    return Err("command-line export supports one format at a time".to_string());
+                }
+                format = formats[0];
+            }
+            "-h" | "--help" => {
+                println!("Usage: logfs_cmd [--disk /dev/sdX --export <file|*> [--format mf4|csv|xlsx]]");
+                return Err(String::new());
+            }
+            unknown => return Err(format!("Unknown option '{}'. Use --help for usage.", unknown)),
+        }
+    }
+
+    if export.is_some() && disk.is_none() {
+        return Err("--export requires --disk /dev/sdX".to_string());
+    }
+    Ok(CliArgs { disk, export, format })
+}
+
 /// Export a CAN log on the card to `EXPORT_DIR/<file name>.<ext>` in each of `formats`.
 fn export_file(logfs: &mut LogFs, can_db: &CanDatabase, path: &str, formats: &[ExportFormat]) -> Result<(), String> {
     let (metadata, data) = logfs.cat(path).map_err(|e| e.to_string())?;
@@ -364,6 +449,12 @@ fn find_detachable_drives() -> Vec<String> {
         }
     }
     drives
+}
+
+fn is_block_device(disk: &str) -> bool {
+    fs::metadata(disk)
+        .map(|metadata| metadata.file_type().is_block_device())
+        .unwrap_or(false)
 }
 
 fn dir_to_path(dir: &[String]) -> String {
