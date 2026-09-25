@@ -56,6 +56,15 @@ In your Linux environment (native Linux, or your WSL2 distro on Windows):
 4. It attaches the reader to WSL, builds `logfs_cmd`, and starts it. Enter your WSL password when `sudo` asks.
 5. Type `exit` when you're done. The reader is detached and goes back to Windows.
 
+For a one-shot MF4 export after attaching the card, pass the Rust CLI arguments through the launcher:
+
+```bash
+software/tracksight/utils/logfs_cmd/logfs_cmd.sh --disk /dev/sdb --export '*' --format mf4
+```
+
+This mounts the card, exports the named log (or every log with `*`), and exits. The default format is `mf4`,
+so `--format mf4` may be omitted. Quote `*` so the shell does not expand it before `logfs_cmd` receives it.
+
 While the reader is attached to WSL, Windows can't see it. That's expected.
 
 ## Using logfs_cmd
@@ -116,9 +125,9 @@ CSV and XLSX columns: `time_s` (seconds since the log started), `timestamp`, `si
 
 ## Troubleshooting
 
-- **`lsdisk` shows nothing / "no drive with RM=1 found":** `logfs_cmd` only accepts drives the kernel reports as removable.
-  Check the `RM` column in the `lsblk` output the script prints. Some card readers report `RM=0`, and
-  `selectdisk` will refuse those.
+- **`lsdisk` shows nothing / "no drive with RM=1 found":** Check the `RM` column in the `lsblk` output the
+  script prints. Some WSL card readers report `RM=0`; pass the actual block-device path explicitly instead,
+  for example `--disk /dev/sdb` or `selectdisk /dev/sdb`.
 - **Windows: the drive never shows up in WSL:** run `dmesg | tail` inside WSL after attaching. If there's no
   `usb-storage` / `sd` message, run `wsl --update`. If it still doesn't appear, your WSL kernel may lack USB storage
   support.
