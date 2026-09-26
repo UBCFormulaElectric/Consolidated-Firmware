@@ -1,7 +1,7 @@
 "use client";
 
-import SignalPicker from "./SignalPicker";
 import { BooleanSignalMetadata, EnumSignalMetadata, isBooleanSignalMetadata, isEnumSignalMetadata, SignalMetadata } from "@/lib/types/Signal";
+import SignalPicker from "./SignalPicker";
 
 type EnumOrBooleanSignalMetadata = EnumSignalMetadata | BooleanSignalMetadata;
 
@@ -41,6 +41,6 @@ function EnumSignalItem({ data: signal }: { data: EnumOrBooleanSignalMetadata })
     );
 }
 
-export function EnumSignalPicker(props: { selectedSignals: EnumOrBooleanSignalMetadata[]; onSelectedSignalsChange: (signals: EnumOrBooleanSignalMetadata[]) => void }) {
+export function EnumSignalPicker(props: { selectedSignals: EnumOrBooleanSignalMetadata[]; onSelectedSignalsChange: (signals: EnumOrBooleanSignalMetadata[]) => void; onConfirm: (signals: EnumOrBooleanSignalMetadata[]) => void }) {
     return <SignalPicker {...props} filter={isEnumOrBooleanSignalMetadata} getSearchableText={getSearchableText} ItemRenderer={EnumSignalItem} placeholder="Search by signal, message, enum name, or node" />;
 }

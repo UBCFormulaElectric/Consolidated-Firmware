@@ -20,6 +20,7 @@ type SignalPickerProps<T extends SignalMetadata> = {
 
     selectedSignals: T[];
     onSelectedSignalsChange: (signals: T[]) => void;
+    onConfirm: (signals: T[]) => void;
 };
 
 function normalizeSearchText(value: string): string {
@@ -35,7 +36,7 @@ function getStatusText(isLoading: boolean, visibleCount: number, matchingCount: 
 }
 
 function SignalPicker<T extends SignalMetadata>(props: SignalPickerProps<T>) {
-    const { filter, getSearchableText, ItemRenderer, placeholder, selectedSignals, onSelectedSignalsChange } = props;
+    const { filter, getSearchableText, ItemRenderer, placeholder, selectedSignals, onSelectedSignalsChange, onConfirm } = props;
 
     const listRef = useRef<HTMLDivElement | null>(null);
     const [query, setQuery] = useState("");
@@ -73,15 +74,16 @@ function SignalPicker<T extends SignalMetadata>(props: SignalPickerProps<T>) {
     }, [highlightedIndex]);
 
     const toggleSignal = useCallback(
-        (signal: T) => {
-            if (selectedSignalNames.has(signal.name)) {
-                onSelectedSignalsChange(selectedSignals.filter((selected) => selected.name !== signal.name));
-                return;
-            }
+        (signal: T, shouldConfirm = false) => {
+            const nextSignals = selectedSignalNames.has(signal.name) ? selectedSignals.filter((selected) => selected.name !== signal.name) : [...selectedSignals, signal];
 
-            onSelectedSignalsChange([...selectedSignals, signal]);
+            onSelectedSignalsChange(nextSignals);
+
+            if (!shouldConfirm) return;
+
+            onConfirm(nextSignals);
         },
-        [onSelectedSignalsChange, selectedSignalNames, selectedSignals]
+        [onConfirm, onSelectedSignalsChange, selectedSignalNames, selectedSignals]
     );
     const toggleAllMatching = () => {
         const matchingSignalNames = new Set(matchingSignals.map((signal) => signal.name));
@@ -121,7 +123,8 @@ function SignalPicker<T extends SignalMetadata>(props: SignalPickerProps<T>) {
 
             if (event.key === "Enter" && visibleSignals[highlightedIndex]) {
                 event.preventDefault();
-                toggleSignal(visibleSignals[highlightedIndex]);
+
+                toggleSignal(visibleSignals[highlightedIndex], !event.shiftKey);
             }
         };
 
@@ -172,7 +175,7 @@ function SignalPicker<T extends SignalMetadata>(props: SignalPickerProps<T>) {
                                     key={signal.name}
                                     type="button"
                                     onMouseDown={(event) => event.preventDefault()}
-                                    onClick={() => toggleSignal(signal)}
+                                    onClick={(event) => toggleSignal(signal, !event.shiftKey)}
                                     onMouseOver={(e) => {
                                         if (previousMousePositionRef.current) {
                                             const { x: prevX, y: prevY } = previousMousePositionRef.current;
