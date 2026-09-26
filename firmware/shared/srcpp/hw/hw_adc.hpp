@@ -41,6 +41,17 @@ template <size_t NUM_ADC_CHANNELS> class adcchip
             case ADC_RESOLUTION_10B:
                 full_scale = MAX_10_BITS_VALUE;
                 break;
+// 14/16-bit resolutions only exist on the STM32H7 ADCs; the H5 and F4 HALs do not define them.
+#ifdef ADC_RESOLUTION_14B
+            case ADC_RESOLUTION_14B:
+                full_scale = MAX_14_BITS_VALUE;
+                break;
+#endif
+#ifdef ADC_RESOLUTION_16B
+            case ADC_RESOLUTION_16B:
+                full_scale = MAX_16_BITS_VALUE;
+                break;
+#endif
             case ADC_RESOLUTION_12B:
             default:
                 full_scale = MAX_12_BITS_VALUE;

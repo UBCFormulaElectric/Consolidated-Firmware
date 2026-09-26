@@ -10,7 +10,7 @@ namespace
 }
 namespace app::pumpControl
 {
-static constexpr uint32_t RAMP_DURATION_MS = 5000;
+static constexpr uint32_t RAMP_DURATION_MS = 40000;
 static Timer              ramp_timer_rl{ RAMP_DURATION_MS };
 static Timer              ramp_timer_rr{ RAMP_DURATION_MS };
 static constexpr uint8_t  MAX_PUMP_VALUE = 50;

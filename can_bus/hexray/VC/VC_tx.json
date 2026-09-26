@@ -485,6 +485,18 @@
       "RightRadiatorFanStatus": {
         "bits": 1
       },
+      "RearLeftPumpOK": {
+        "bits": 1
+      },
+      "RearRightPumpOK": {
+        "bits": 1
+      },
+      "LeftRadiatorFanOK": {
+        "bits": 1
+      },
+      "RightRadiatorFanOK": {
+        "bits": 1
+      },
       "RearRightPumpRetry": {
         "bits": 8
       },
@@ -686,6 +698,24 @@
         "unit": "A"
       },
       "FrontStatus": {
+        "bits": 1
+      },
+      "FrontInvertersOK": {
+        "bits": 1
+      },
+      "RSMOK": {
+        "bits": 1
+      },
+      "BMSOK": {
+        "bits": 1
+      },
+      "RearInvertersOK": {
+        "bits": 1
+      },
+      "DAMOK": {
+        "bits": 1
+      },
+      "FrontOK": {
         "bits": 1
       },
       "RSMRetry": {

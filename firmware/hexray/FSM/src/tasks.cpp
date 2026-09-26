@@ -42,39 +42,39 @@ static hw::rtos::StaticTask TaskImu(osPriorityHigh, "TaskImu", tasks_runImu, Tas
 static hw::rtos::StaticTask TaskCanTx(osPriorityNormal, "TaskCanTx", tasks_runCanTx, TaskCanTxStack);
 static hw::rtos::StaticTask TaskCanRx(osPriorityNormal, "TaskCanRx", tasks_runCanRx, TaskCanRxStack);
 
-static hw::runtimeStat::monitor<5> runtimeMonitor{
-    { app::can_tx::FSM_CoreCpuUsage_set, app::can_tx::FSM_CoreCpuUsageMax_set },
-    { { {
-            Task1kHz,
-            app::can_tx::FSM_TaskRun1kHzCpuUsage_set,
-            app::can_tx::FSM_TaskRun1kHzCpuUsageMax_set,
-            app::can_tx::FSM_TaskRun1kHzStackUsage_set,
-        },
-        {
-            Task100Hz,
-            app::can_tx::FSM_TaskRun100HzCpuUsage_set,
-            app::can_tx::FSM_TaskRun100HzCpuUsageMax_set,
-            app::can_tx::FSM_TaskRun100HzStackUsage_set,
-        },
-        {
-            Task1Hz,
-            app::can_tx::FSM_TaskRun1HzCpuUsage_set,
-            app::can_tx::FSM_TaskRun1HzCpuUsageMax_set,
-            app::can_tx::FSM_TaskRun1HzStackUsage_set,
-        },
-        {
-            TaskCanTx,
-            app::can_tx::FSM_TaskRunCanTxCpuUsage_set,
-            app::can_tx::FSM_TaskRunCanTxCpuUsageMax_set,
-            app::can_tx::FSM_TaskRunCanTxStackUsage_set,
-        },
-        {
-            TaskCanRx,
-            app::can_tx::FSM_TaskRunCanRxCpuUsage_set,
-            app::can_tx::FSM_TaskRunCanRxCpuUsageMax_set,
-            app::can_tx::FSM_TaskRunCanRxStackUsage_set,
-        } } },
-};
+// static hw::runtimeStat::monitor<5> runtimeMonitor{
+//     { app::can_tx::FSM_CoreCpuUsage_set, app::can_tx::FSM_CoreCpuUsageMax_set },
+//     { { {
+//             Task1kHz,
+//             app::can_tx::FSM_TaskRun1kHzCpuUsage_set,
+//             app::can_tx::FSM_TaskRun1kHzCpuUsageMax_set,
+//             app::can_tx::FSM_TaskRun1kHzStackUsage_set,
+//         },
+//         {
+//             Task100Hz,
+//             app::can_tx::FSM_TaskRun100HzCpuUsage_set,
+//             app::can_tx::FSM_TaskRun100HzCpuUsageMax_set,
+//             app::can_tx::FSM_TaskRun100HzStackUsage_set,
+//         },
+//         {
+//             Task1Hz,
+//             app::can_tx::FSM_TaskRun1HzCpuUsage_set,
+//             app::can_tx::FSM_TaskRun1HzCpuUsageMax_set,
+//             app::can_tx::FSM_TaskRun1HzStackUsage_set,
+//         },
+//         {
+//             TaskCanTx,
+//             app::can_tx::FSM_TaskRunCanTxCpuUsage_set,
+//             app::can_tx::FSM_TaskRunCanTxCpuUsageMax_set,
+//             app::can_tx::FSM_TaskRunCanTxStackUsage_set,
+//         },
+//         {
+//             TaskCanRx,
+//             app::can_tx::FSM_TaskRunCanRxCpuUsage_set,
+//             app::can_tx::FSM_TaskRunCanRxCpuUsageMax_set,
+//             app::can_tx::FSM_TaskRunCanRxStackUsage_set,
+//         } } },
+// };
 
 static hw::watchdog::monitor<TASK_COUNT> monitor{
     hiwdg,
@@ -93,7 +93,7 @@ void tasks_run1Hz(void *arg)
         jobs_run1Hz_tick();
 
         watchdog1hz.checkIn();
-        runtimeMonitor.checkin();
+        // runtimeMonitor.checkin();
 
         start_ticks += period_ms;
         io::time::delayUntil(start_ticks);

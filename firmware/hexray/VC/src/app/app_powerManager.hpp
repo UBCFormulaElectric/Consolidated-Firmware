@@ -3,6 +3,7 @@
 
 #include <cstdint>
 #include <cassert>
+#include "main.h"
 
 namespace app::powerManager
 {
@@ -12,6 +13,21 @@ struct EfuseConfig
     bool     efuse_enable{ false };
     uint32_t timeout{ 0 };
     uint8_t  max_retry{ 0 };
+};
+
+// Order matches the efuses struct below
+enum class Efuse_E : uint8_t
+{
+    FRONT,
+    RSM,
+    BMS,
+    DAM,
+    F_INV,
+    R_INV,
+    R_RAD_FAN,
+    L_RAD_FAN,
+    RR_PUMP,
+    RL_PUMP,
 };
 
 template <typename T> struct Efuses
