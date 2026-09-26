@@ -44,7 +44,7 @@ def _send_data():
         #         update_can_db(config_path)
         #     except HTTPError:
         #         logger.critical(
-        #             f"Could not fetch new commit information for quintuna at commit {canmsg.can_value.hex()}"
+        #             f"Could not fetch new commit information for {CAR_NAME} at commit {canmsg.can_value.hex()}"
         #         )
         #         continue  # do not continue to parse this message
         msg = live_can_db.get_message_by_id(canmsg.can_id)

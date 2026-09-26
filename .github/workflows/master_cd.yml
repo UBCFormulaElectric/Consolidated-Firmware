@@ -14,21 +14,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-#          - board: quintuna_VC.hex
-#            bin_name: quintuna_VC_app_metadata.hex
-#            build_dir: firmware/quintuna/VC
-#          - board: quintuna_BMS.hex
-#            bin_name: quintuna_BMS_app_metadata.hex
-#            build_dir: firmware/quintuna/BMS
-#          - board: quintuna_FSM.hex
-#            bin_name: quintuna_FSM_app_metadata.hex
-#            build_dir: firmware/quintuna/FSM
-#          - board: quintuna_RSM.hex
-#            bin_name: quintuna_RSM_app_metadata.hex
-#            build_dir: firmware/quintuna/RSM
-#          - board: quintuna_DAM.hex
-#            bin_name: quintuna_DAM_app_metadata.hex
-#            build_dir: firmware/quintuna/DAM
           - board: hexray_VC.hex
             bin_name: hexray_VC_app_metadata.hex
             build_dir: firmware/hexray/VC
@@ -73,11 +58,11 @@ jobs:
             can_bus
       - name: Generate and Upload DBC
         uses: ./.github/actions/build_dbc
-      - name: Upload Quintuna DBC to Artifact
+      - name: Upload Hexray DBC to Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: quintuna.dbc
-          path: quintuna.dbc
+          name: hexray.dbc
+          path: hexray.dbc
 
   # ======= MAKE THE RELEASE =======
   make-release:
@@ -101,12 +86,8 @@ jobs:
         with:
           # https://github.com/actions/download-artifact#download-all-artifacts
           files: |
-            quintuna_VC_app_metadata.hex/quintuna_VC_app_metadata.hex
-            quintuna_BMS_app_metadata.hex/quintuna_BMS_app_metadata.hex
-            quintuna_FSM_app_metadata.hex/quintuna_FSM_app_metadata.hex
-            quintuna_RSM_app_metadata.hex/quintuna_RSM_app_metadata.hex
-            quintuna_DAM_app_metadata.hex/quintuna_DAM_app_metadata.hex
-            quintuna.dbc/quintuna.dbc
+            hexray_VC_app_metadata.hex/hexray_VC_app_metadata.hex
+            hexray.dbc/hexray.dbc
           latest: true
           title: "Stable Binaries and DBCs"
           body: "This release contains the latest stable binaries and DBCs."
