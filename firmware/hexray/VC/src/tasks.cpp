@@ -64,23 +64,53 @@ static hw::rtos::StaticTask
 static hw::rtos::StaticTask TaskSbgEllipse(osPriorityNormal, "TaskSbgEllipse", tasks_sbgEllipse, TaskSbgEllipseStack);
 
 static hw::runtimeStat::monitor<TASK_COUNT> runtimeMonitor{
-    { app::can_tx::VC_CoreCpuUsage_set, app::can_tx::VC_CoreCpuUsageMax_set },
     {
-        { { Task1kHz, app::can_tx::VC_TaskRun1kHzCpuUsage_set, app::can_tx::VC_TaskRun1kHzCpuUsageMax_set,
-            app::can_tx::VC_TaskRun1kHzStackUsage_set },
-          { Task1Hz, app::can_tx::VC_TaskRun1HzCpuUsage_set, app::can_tx::VC_TaskRun1HzCpuUsageMax_set,
-            app::can_tx::VC_TaskRun1HzStackUsage_set },
-          { Task100Hz, app::can_tx::VC_TaskRun100HzCpuUsage_set, app::can_tx::VC_TaskRun100HzCpuUsageMax_set,
-            app::can_tx::VC_TaskRun100HzStackUsage_set },
-          { TaskCanRx, app::can_tx::VC_TaskRunCanRxCpuUsage_set, app::can_tx::VC_TaskRunCanRxCpuUsageMax_set,
-            app::can_tx::VC_TaskRunCanRxStackUsage_set },
-          { TaskCan1Tx, app::can_tx::VC_TaskRunCan1TxCpuUsage_set, app::can_tx::VC_TaskRunCan1TxCpuUsageMax_set,
-            app::can_tx::VC_TaskRunCan1TxStackUsage_set },
-          { TaskCan2Tx, app::can_tx::VC_TaskRunCan2TxCpuUsage_set, app::can_tx::VC_TaskRunCan2TxCpuUsageMax_set,
-            app::can_tx::VC_TaskRunCan2TxStackUsage_set },
-          { TaskPowerMonitoring, app::can_tx::VC_TaskRunPowerMonitoringCpuUsage_set,
-            app::can_tx::VC_TaskRunPowerMonitoringCpuUsageMax_set,
-            app::can_tx::VC_TaskRunPowerMonitoringStackUsage_set } },
+        .cpu_usage_setter     = app::can_tx::VC_CoreCpuUsage_set,
+        .cpu_usage_max_setter = app::can_tx::VC_CoreCpuUsageMax_set,
+    },
+    {
+        { {
+              .t                      = Task1kHz,
+              .cpu_usage_setter       = app::can_tx::VC_TaskRun1kHzCpuUsage_set,
+              .cpu_usage_max_setter   = app::can_tx::VC_TaskRun1kHzCpuUsageMax_set,
+              .stack_usage_max_setter = app::can_tx::VC_TaskRun1kHzStackUsage_set,
+          },
+          {
+              .t                      = Task1Hz,
+              .cpu_usage_setter       = app::can_tx::VC_TaskRun1HzCpuUsage_set,
+              .cpu_usage_max_setter   = app::can_tx::VC_TaskRun1HzCpuUsageMax_set,
+              .stack_usage_max_setter = app::can_tx::VC_TaskRun1HzStackUsage_set,
+          },
+          {
+              .t                      = Task100Hz,
+              .cpu_usage_setter       = app::can_tx::VC_TaskRun100HzCpuUsage_set,
+              .cpu_usage_max_setter   = app::can_tx::VC_TaskRun100HzCpuUsageMax_set,
+              .stack_usage_max_setter = app::can_tx::VC_TaskRun100HzStackUsage_set,
+          },
+          {
+              .t                      = TaskCanRx,
+              .cpu_usage_setter       = app::can_tx::VC_TaskRunCanRxCpuUsage_set,
+              .cpu_usage_max_setter   = app::can_tx::VC_TaskRunCanRxCpuUsageMax_set,
+              .stack_usage_max_setter = app::can_tx::VC_TaskRunCanRxStackUsage_set,
+          },
+          {
+              .t                      = TaskCan1Tx,
+              .cpu_usage_setter       = app::can_tx::VC_TaskRunCan1TxCpuUsage_set,
+              .cpu_usage_max_setter   = app::can_tx::VC_TaskRunCan1TxCpuUsageMax_set,
+              .stack_usage_max_setter = app::can_tx::VC_TaskRunCan1TxStackUsage_set,
+          },
+          {
+              .t                      = TaskCan2Tx,
+              .cpu_usage_setter       = app::can_tx::VC_TaskRunCan2TxCpuUsage_set,
+              .cpu_usage_max_setter   = app::can_tx::VC_TaskRunCan2TxCpuUsageMax_set,
+              .stack_usage_max_setter = app::can_tx::VC_TaskRunCan2TxStackUsage_set,
+          },
+          {
+              .t                      = TaskPowerMonitoring,
+              .cpu_usage_setter       = app::can_tx::VC_TaskRunPowerMonitoringCpuUsage_set,
+              .cpu_usage_max_setter   = app::can_tx::VC_TaskRunPowerMonitoringCpuUsageMax_set,
+              .stack_usage_max_setter = app::can_tx::VC_TaskRunPowerMonitoringStackUsage_set,
+          } },
         // Battery Monitoring and IMU...
     },
 };
@@ -158,7 +188,9 @@ void tasks_runCan1Tx(void *arg)
     {
         const auto msg = fdcan_tx_queue.pop();
         if (not msg)
+        {
             continue;
+        }
         if (const auto &m = msg.value(); m.bus == app::can_utils::BusEnum::Bus_FDCAN)
         {
             const auto res = fdcan1.fdcan_transmit(hw::CanMsg{
@@ -202,7 +234,9 @@ void tasks_runCanRx(void *arg)
     {
         const auto msg = can_rx_queue.pop();
         if (not msg)
+        {
             continue;
+        }
         io::can_rx::updateRxTableWithMessage(app::jsoncan::copyFromCanMsg(msg.value()));
     }
 }
@@ -212,7 +246,7 @@ void tasks_runCanRx(void *arg)
     static uint32_t         start_ticks = 0;
     start_ticks                         = osKernelGetTickCount();
 
-    app::batteryMonitoring::init();
+    LOG_IF_ERR(app::batteryMonitoring::init());
     for (;;)
     {
         jobs_runBatteryMonitoring_tick();

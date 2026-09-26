@@ -1,38 +1,94 @@
-﻿# https://clang.llvm.org/docs/ClangFormatStyleOptions.html
+﻿# https://releases.llvm.org/17.0.1/tools/clang/docs/ClangFormatStyleOptions.html
 ---
 Language: Cpp
+
+# The extra indent or outdent of access modifiers of a class, like public, private, protected
+AccessModifierOffset: -2
 
 # Aligns parameters contained within open brackets
 # .e.g longFunction (argument1,
 #                    argument2)
-# this should probably change to "Align" (as described above)
-AlignAfterOpenBracket: AlwaysBreak
+AlignAfterOpenBracket: AlwaysBreak # TODO change to true
 
-# Aligns the assignment operators                     
-AlignConsecutiveAssignments: true
+AlignArrayOfStructures: Left
+
+# Aligns the assignment operators
+AlignConsecutiveAssignments:
+  Enabled: true
+  AcrossEmptyLines: false
+  AcrossComments: false
+  AlignCompound: false
+  EnumAssignments: false
+  PadOperators: false
+
+AlignConsecutiveBitFields:
+  Enabled: true
+  AcrossEmptyLines: false
+  AcrossComments: false
 
 # Aligns the variable names
-AlignConsecutiveDeclarations: true
+AlignConsecutiveDeclarations:
+  Enabled: true
+  AcrossEmptyLines: false
+  AcrossComments: false
+  AlignFunctionDeclarations: false
+  AlignFunctionPointers: false
+
+AlignConsecutiveMacros:
+  Enabled: true
+  AcrossEmptyLines: false
+  AcrossComments: false
+
+AlignConsecutiveShortCaseStatements:
+  Enabled: true
+  AcrossEmptyLines: false
+  AcrossComments: true
+  AlignCaseArrows: false
+  AlignCaseColons: false
 
 # Options for aligning backslashes in escaped newlines.
 # Align escaped newlines as far left as possible.
-AlignEscapedNewlines: Left
+AlignEscapedNewlines: LeftWithLastLine
 
 # Aligns operands that need to be split over multiple lines
 AlignOperands: true
 
 # Align comments
-AlignTrailingComments: true
+AlignTrailingComments:
+  Kind: Always
+  OverEmptyLines: 2
+  AlignPPAndNotPP: true
+
+# within a function call or braced initializer list
+# false => if the arguments need to be folded, they must be on seperate lines
+AllowAllArgumentsOnNextLine: false
 
 # if function declaration doesn't fit on a line, put all params
 # of function dec. onto next line. Overrides BinPackParameters option
 # void myFunc(
 #       int a, int b, int c, int d, int e);
+# in particular, false requires the parameters be on seperate lines if they overflow a line
 AllowAllParametersOfDeclarationOnNextLine: false
+
+# never add a break before ae noexcept
+AllowBreakBeforeNoexceptSpecifier: Never
 
 # Allows braced statements to be on a single line
 # e.g. if (eval) { return true; }
-AllowShortBlocksOnASingleLine: Never
+AllowShortBlocksOnASingleLine: Always
+
+# Whether to merge a short switch labeled rule into a single line.
+# this specifically applies to case expressions
+AllowShortCaseExpressionOnASingleLine: true
+
+# compress short case labels onto one line
+AllowShortCaseLabelsOnASingleLine: true
+
+# compound requirements on single line
+AllowShortCompoundRequirementOnASingleLine: true
+
+# DO NOT compress short enums onto one line
+AllowShortEnumsOnASingleLine: false
 
 # only merge functions defined inside a class, including empty ones
 # Other options include "empty" where onyl empty functions are inline
@@ -45,13 +101,18 @@ AllowShortFunctionsOnASingleLine: Inline
 # vs.
 # if (a)
 #     operation;
-AllowShortIfStatementsOnASingleLine: false
-
-# self-explanatory. 
-AllowShortCaseLabelsOnASingleLine: false
+AllowShortIfStatementsOnASingleLine: AllIfsAndElse
 
 # self-explanatory. for(;;) operation;
-AllowShortLoopsOnASingleLine: false
+AllowShortLoopsOnASingleLine: true
+
+AllowShortNamespacesOnASingleLine: false
+
+# The function declaration return type breaking style to use.
+AlwaysBreakAfterReturnType: None
+
+# TODO when clang23 drops
+#AllowShortRecordOnASingleLine: Never
 
 # break long strings into multiple lines and then align the strings
 AlwaysBreakBeforeMultilineStrings: false
@@ -59,15 +120,22 @@ AlwaysBreakBeforeMultilineStrings: false
 # Forces the params and names following the template decl. to
 # break into multiline
 # e.g.
-# template <typename T> 
+# template <typename T>
 # T foo (int a, int b)
 AlwaysBreakTemplateDeclarations: MultiLine
 
 # if false, a function call's arguments get their own lines
+# for when you call functions
 BinPackArguments: true
 
 # if false, a function declaration's args get their own lines
+# for when you declare functions
 BinPackParameters: false
+
+# spacing for bitfield colons. we are putting the space after the colon
+BitFieldColonSpacing: After
+
+BreakAfterAttributes: Leave # lowkey a fan of Never
 
 # forces the operator to be the end of line and the second monomial
 # term to a new line
@@ -76,21 +144,36 @@ BinPackParameters: false
 #            c;
 BreakBeforeBinaryOperators: None
 
+BreakBeforeBraces: Attach # TODO this is weird
+
+# puts template of concept on seperate lines
+BreakBeforeConceptDeclarations: Always
+
+# fold asm colons only if it exceeds line length
+BreakBeforeInlineASMColon: OnlyMultiline
+
 # forces each operand to a new line
 BreakBeforeTernaryOperators: true
 
-BreakBeforeBraces: Allman
+# forces the constructor initializer list to be on a new line after the colon
+BreakConstructorInitializers: AfterColon
+
+# forces each inheritance to be on a new line after the comma
+BreakInheritanceList: AfterComma
+
+# allow string breaking
+BreakStringLiterals: true
 
 # self-explanatory
+# TODO make it longer
 ColumnLimit: 120
 
 # stop clang from trying to format the special
 # Cube-generated starting and ending comments
 CommentPragmas: '^( #####(\#+))'
 
-# Either fits all the constructor call args onto one line
-# or each param gets their own line if they don't fit
-ConstructorInitializerAllOnOneLineOrOnePerLine: true
+# whether consecutive namespace declarations will be on the same line
+CompactNamespaces: false
 
 # number of char to use for indentation of contructor initializer lists
 # class::construct() : \noOfChars a(a), \noOfChars b(b) {};
@@ -109,8 +192,44 @@ ContinuationIndentWidth: 4
 # - indentation with the continuation indentation, not with block indent
 Cpp11BracedListStyle: false
 
+# don't do this
+DerivePointerAlignment: false
+
+# fuck it
+#DisableFormat: true
+
+EmptyLineAfterAccessModifier: Never
+EmptyLineBeforeAccessModifier: LogicalBlock
+
+# adds namespace comments at the end of namespaces
+FixNamespaceComments: true
+
+# i would like to play with this, but so far it is not powerful enough
+IncludeBlocks: Preserve
+#IncludeCategories:
+#IncludeIsMainRegex:
+#IncludeIsMainSourceRegex:
+
+# please indent access modifiers for classes properly
+IndentAccessModifiers: true
+
+# case blocks should be indented
+IndentCaseBlocks: true
+
 # "case" keywords are indented from the "switch"
 IndentCaseLabels: true
+
+# do not indent within extern, as i consider it to be a modifier
+IndentExternBlock: NoIndent
+
+# similar justification for labels
+IndentGotoLabels: false
+
+# this is actually very helpful for readability
+IndentPPDirectives: BeforeHash
+
+# naw
+IndentRequiresClause: false
 
 # self-explanatory
 IndentWidth: 4
@@ -121,63 +240,126 @@ IndentWidth: 4
 #   stupidlyLongFunctionDeclaration();
 IndentWrappedFunctionNames: true
 
+# by request of gte, as codified in the ez-gte brace comprimise
+InsertBraces: true
+
+# idk why my shit yell at me
+InsertNewlineAtEOF: true
+
+IntegerLiteralSeparator:
+  Binary: 0
+  Decimal: 3
+  DecimalMinDigits: 5
+  Hex: 0
+
+KeepEmptyLinesAtEOF: true
+
 # empty line at start of new scope is kept
 KeepEmptyLinesAtTheStartOfBlocks: false
+
+# align the lambda body to the declaration
+LambdaBodyIndentation: Signature
+
+LineEnding: CRLF
+
+MaxEmptyLinesToKeep: 1
+
+# if "None", no namespaces are indented
+# if "Inner", only inner namespaces are indented
+# if "All", every new scope is indented (intuitive)
+NamespaceIndentation: None
+
+# indentation for preprocessors
+PPIndentWidth: 1
+
+PackConstructorInitializers: BinPack
+
+# what the fucky https://releases.llvm.org/17.0.1/tools/clang/docs/ClangFormatStyleOptions.html#:~:text=PenaltyBreakAssignment%20(Unsigned,its%20own%20line.
 
 # Changed this. Made it C specific. Should also be left aligned.
 # "Left"   : Leave the pointer character in a variable declaration to the left (e.g. int* a)
 # "Right"  : Align pointer to right (e.g. int *a)
 # "Middle" : Align pointer between type and var name (e.g. int * a)
-PointerAlignment: Right
+PointerAlignment: Left
 
-# if "None", no namespaces are indented
-# if "Inner", only inner namespaces are indented
-# if "All", every new scope is indented (intuitive)
-NamespaceIndentation: Inner
+QualifierAlignment: Custom
+QualifierOrder: ['inline', 'static', 'friend', 'volatile', 'restrict', 'const', 'constexpr', 'type']
+
+# todo lowkey could be useful for proto files
+#RawStringFormats:
+
+# make references same as pointer alignment
+ReferenceAlignment: Pointer
 
 # splits long comments into multiline
 ReflowComments: true
 
-# lists of the include headers in alphabetical order
-SortIncludes: Never
+# gte-ez comprimise as mentioned above
+RemoveBracesLLVM: false
 
-# TODO: Enable me when clang-format has been updated to understand me
-#SortUsingDeclarations: false
+# remove redundancies
+RemoveParentheses: ReturnStatement
+RemoveSemicolon: true
+
+# put requires on its own line
+RequiresClausePosition: OwnLine
+
+# concept require statement alignment
+RequiresExpressionIndentation: OuterScope
+
+# let the user decide
+SeparateDefinitionBlocks: Leave
+
+# 3+ lines is a no longer a short namespace
+ShortNamespaceLines: 2
+
+# lists of the include headers in alphabetical order
+SortIncludes: Never # TODO check if this could be useful?
+
+# sort usings maximally
+SortUsingDeclarations: LexicographicNumeric
 
 # inserts a space between casts and the variables they're targeting
 SpaceAfterCStyleCast: false
-
-# TODO: Enable me when clang-format has been updated to understand me
-#SpaceAfterTemplateKeyword: false
-
+# no space after nots!!
+SpaceAfterLogicalNot: false
+# no space after templates!!
+SpaceAfterTemplateKeyword: false
+SpaceAroundPointerQualifiers: Default
 # self-explanatory
 SpaceBeforeAssignmentOperators: true
-
+SpaceBeforeCaseColon: false
+SpaceBeforeCpp11BracedList: false
+SpaceBeforeCtorInitializerColon: false
+SpaceBeforeInheritanceColon: false
+SpaceBeforeJsonColon: false
 # "Never"             : don't put a space before opening parantheses
 # "ControlStatements" : only put space before parantheses belonging to ctrl statements
 # "Always"            : always put a space before opening params
 SpaceBeforeParens: ControlStatements
-
 # self-explanatory
 SpaceInEmptyParentheses: false
-
+# insert space in for(a : b) loops
+SpaceBeforeRangeBasedForLoopColon: true
+SpaceBeforeSquareBrackets: false
+SpaceInEmptyBlock: false
 # number of spaces before c-style comments "//"
 SpacesBeforeTrailingComments: 1
-
 # spaces inserted after < and before > in template argument lists
 SpacesInAngles: false
-
 # Spaces in parantheses for casting e.g. ( int )
 SpacesInCStyleCastParentheses: false
-
 # Spaces inserted between array brackets
 SpacesInContainerLiterals: false
-
+SpacesInLineCommentPrefix:
+  Maximum: 1
+  Minimum: 1
 # self-explanatory
-SpacesInParentheses: false
-
+SpacesInParens: Never
 # self-explanatory
 SpacesInSquareBrackets: false
+
+Standard: Auto
 
 # self-explanatory
 TabWidth: 4
