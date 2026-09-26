@@ -3,7 +3,6 @@ use tokio::io::{AsyncReadExt, AsyncWriteExt, ReadHalf, WriteHalf};
 use tokio::sync::{broadcast, mpsc};
 use tokio_serial::{SerialPortBuilderExt, SerialStream};
 use std::collections::VecDeque;
-use std::io::{Error, ErrorKind};
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
 const ERROR_RATE_WINDOW_SECS: usize = 60;
@@ -152,38 +151,46 @@ pub async fn run_serial_task(
  * Subhandler that manages packet reading, sends packet bytes to main task
  */
 async fn packet_reader_handler(
-    mut shutdown_flag: broadcast::Receiver<()>, 
-    mut serial_read: ReadHalf<SerialStream>, 
+    mut shutdown_flag: broadcast::Receiver<()>,
+    mut serial_read: ReadHalf<SerialStream>,
     in_msg_tx: mpsc::Sender<SerialReaderOutput>
-) {   
-    loop {
+) {
+    let mut decoder = FrameDecoder::default();
+    let mut read_buf = [0u8; 1024];
+    'outer: loop {
+        // hand off every complete frame already buffered before reading more
+        loop {
+            match decoder.decode() {
+                DecodeResult::Frame(packet_bytes) => {
+                    if let Ok(parsed) = parse_incoming_telem_message(&packet_bytes) {
+                        if in_msg_tx.send(SerialReaderOutput::Message(parsed)).await.is_err() {
+                            break 'outer; // packet receiver closed, exit thread
+                        }
+                    } else {
+                        eprintln!("Failed to parse telemetry message: {:?}", packet_bytes);
+                        in_msg_tx.send(SerialReaderOutput::InvalidData).await.ok();
+                    }
+                },
+                DecodeResult::Invalid(reason) => {
+                    // Recoverable: the decoder already slid past the bad magic byte
+                    eprintln!("{reason}");
+                    in_msg_tx.send(SerialReaderOutput::InvalidData).await.ok();
+                },
+                DecodeResult::NeedMore => break,
+            }
+        }
+
+        // read() is cancel-safe, so a shutdown mid-read loses no buffered bytes
         select! {
             _ = shutdown_flag.recv() => break,
-            result = read_packet(&mut serial_read) => {
+            result = serial_read.read(&mut read_buf) => {
                 match result {
-                    Ok(packet_bytes) =>  {
-                        if let Ok(parsed) = parse_incoming_telem_message(&packet_bytes) {        
-                            match in_msg_tx.send(SerialReaderOutput::Message(parsed)).await {
-                                Ok(_) => {},
-                                Err(_) => break, // packet receiver closed, exit thread
-                            }
-                        } else {
-                            eprintln!("Failed to parse telemetry message: {:?}", packet_bytes);
-                            in_msg_tx.send(SerialReaderOutput::InvalidData).await.ok();
-                        }
-                    },
-                    Err(e) => {
-                        // InvalidData = parse-level errors from read_packet (bad magic,
-                        // bad length, CRC mismatch). Recoverable — log and keep reading.
-                        // Anything else is a real OS-level I/O failure (e.g. ENXIO/errno 6
-                        // when the serial device is yanked); panic so main.rs restarts us.
-                        if e.kind() == ErrorKind::InvalidData {
-                            eprintln!("{e}");
-                            in_msg_tx.send(SerialReaderOutput::InvalidData).await.ok();
-                        } else {
-                            panic!("Fatal serial read error: {e}");
-                        }
-                    },
+                    // port is O_NONBLOCK, so 0 bytes only means the device hung up
+                    Ok(0) => panic!("Fatal serial read error: serial port closed"),
+                    Ok(n) => decoder.push(&read_buf[..n]),
+                    // Real OS-level I/O failure (e.g. ENXIO/errno 6 when the serial
+                    // device is yanked); panic so main.rs restarts us.
+                    Err(e) => panic!("Fatal serial read error: {e}"),
                 }
             }
         }
@@ -222,66 +229,75 @@ fn parse_incoming_telem_message(payload: &Vec<u8>) -> Result<TelemetryIncomingMe
     return Ok(parsed_message);
 }
 
+enum DecodeResult {
+    Frame(Vec<u8>),
+    Invalid(&'static str),
+    NeedMore,
+}
+
 /**
- * Reading bytes until legitimate packet is formed
+ * Incremental frame decoder over a byte buffer.
+ * On a bad header or CRC mismatch only the leading magic byte is dropped and the
+ * rest of the buffer is rescanned, so a truncated or corrupted frame can't swallow
+ * the frames behind it (same resync strategy as the DAM's app_telemRx).
  */
-async fn read_packet(serial_read: &mut ReadHalf<SerialStream>) -> Result<Vec<u8>, Error> {
-    let mut header_buffer = [0x0; TelemetryIncomingMessage::HEADER_SIZE];
-    let mut index = 0;
+#[derive(Default)]
+struct FrameDecoder {
+    buf: Vec<u8>,
+}
 
-    // keep reading until magic bytes
-    loop {
-        while index < 2 {
-            match serial_read.read(&mut header_buffer[index..]).await {
-                Ok(n) => index += n,
-                Err(e) => return Err(e)
-            }
+impl FrameDecoder {
+    fn push(&mut self, bytes: &[u8]) {
+        self.buf.extend_from_slice(bytes);
+    }
+
+    fn decode(&mut self) -> DecodeResult {
+        const MAGIC: [u8; 2] = TelemetryIncomingMessage::MAGIC;
+        const HEADER_SIZE: usize = TelemetryIncomingMessage::HEADER_SIZE;
+
+        // hunt for magic, dropping everything before it
+        match self.buf.windows(2).position(|w| w == MAGIC) {
+            Some(start) => {
+                self.buf.drain(..start);
+            },
+            None => {
+                // keep a trailing first magic byte, its partner may be in the next read
+                let keep = usize::from(self.buf.last() == Some(&MAGIC[0]));
+                self.buf.drain(..self.buf.len() - keep);
+                return DecodeResult::NeedMore;
+            },
         }
-        if header_buffer[0..2] == TelemetryIncomingMessage::MAGIC {
-            break;
+
+        if self.buf.len() < HEADER_SIZE {
+            return DecodeResult::NeedMore;
         }
-        // if magic byte not matched, rotate buffer
-        header_buffer.rotate_left(1);
-        index -= 1;
+
+        let payload_length = self.buf[2] as usize;
+        if payload_length > TelemetryIncomingMessage::MAX_PAYLOAD_SIZE {
+            self.buf.drain(..1);
+            return DecodeResult::Invalid("Payload length exceeds maximum");
+        }
+        if payload_length == 0 {
+            self.buf.drain(..1);
+            return DecodeResult::Invalid("Payload length is 0");
+        }
+
+        let frame_size = HEADER_SIZE + payload_length;
+        if self.buf.len() < frame_size {
+            return DecodeResult::NeedMore;
+        }
+
+        let expected_crc = u32::from_le_bytes([self.buf[3], self.buf[4], self.buf[5], self.buf[6]]);
+        let payload = &self.buf[HEADER_SIZE..frame_size];
+        if CRC32_CALC.checksum(payload) != expected_crc {
+            self.buf.drain(..1);
+            return DecodeResult::Invalid("CRC mismatch");
+        }
+
+        let payload = payload.to_vec();
+        self.buf.drain(..frame_size);
+        DecodeResult::Frame(payload)
     }
-
-    // magic bytes have matched, make sure that the rest of the header has been fully read
-    serial_read.read_exact(&mut header_buffer[index..]).await?;
-
-    // header has been read, now read until payload is fully read
-    let payload_length = header_buffer[2] as usize;
-    // assert payload length is less than max
-    if payload_length > TelemetryIncomingMessage::MAX_PAYLOAD_SIZE {
-        // TODO wow this is horrible, probably just log and return generic error
-        return Err(Error::new(
-            ErrorKind::InvalidData,
-            "Payload length exceeds maximum",
-        ));
-    }
-
-    if payload_length == 0 {
-        return Err(Error::new(
-            ErrorKind::InvalidData,
-            "Payload length is 0",
-        ));
-    }
-
-    // read payload buffer
-    let mut payload_buffer = vec![0u8; payload_length];
-    serial_read.read_exact(&mut payload_buffer).await?;
-
-    // checksum, probably works
-    let expected_crc = u32::from_le_bytes(header_buffer[3..7].try_into().unwrap_or_default());
-    let calculated_crc: u32 = CRC32_CALC.checksum(&payload_buffer);
-
-    if expected_crc != calculated_crc {
-        return Err(Error::new(
-            ErrorKind::InvalidData,
-            "CRC mismatch",
-        ));
-    }
-
-    return Ok(payload_buffer);
 }
 
 /**
@@ -352,4 +368,119 @@ fn generate_packet(message: TelemetryOutgoingMessage) -> Vec<u8> {
     packet.extend_from_slice(&payload);
     
     return packet;
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn encode_frame(payload: &[u8]) -> Vec<u8> {
+        let mut frame = TelemetryIncomingMessage::MAGIC.to_vec();
+        frame.push(payload.len() as u8);
+        frame.extend_from_slice(&CRC32_CALC.checksum(payload).to_le_bytes());
+        frame.extend_from_slice(payload);
+        frame
+    }
+
+    fn can_payload(id: u8) -> Vec<u8> {
+        let mut payload = vec![TelemetryIncomingMessage::CAN_BYTE, id, 0, 0, 0];
+        payload.extend_from_slice(&1_000u64.to_le_bytes());
+        payload.extend_from_slice(&[0xDE, 0xAD, 0xBE, 0xEF]);
+        payload
+    }
+
+    /// Drain the decoder, returning (frames, invalid_count)
+    fn decode_all(decoder: &mut FrameDecoder) -> (Vec<Vec<u8>>, usize) {
+        let mut frames = Vec::new();
+        let mut invalid = 0;
+        loop {
+            match decoder.decode() {
+                DecodeResult::Frame(f) => frames.push(f),
+                DecodeResult::Invalid(_) => invalid += 1,
+                DecodeResult::NeedMore => return (frames, invalid),
+            }
+        }
+    }
+
+    #[test]
+    fn decodes_back_to_back_frames() {
+        let mut decoder = FrameDecoder::default();
+        decoder.push(&[encode_frame(&can_payload(1)), encode_frame(&can_payload(2))].concat());
+        assert_eq!(decode_all(&mut decoder), (vec![can_payload(1), can_payload(2)], 0));
+    }
+
+    #[test]
+    fn decodes_frame_split_byte_by_byte() {
+        let mut decoder = FrameDecoder::default();
+        let mut frames = Vec::new();
+        for byte in encode_frame(&can_payload(1)) {
+            decoder.push(&[byte]);
+            frames.extend(decode_all(&mut decoder).0);
+        }
+        assert_eq!(frames, vec![can_payload(1)]);
+    }
+
+    #[test]
+    fn skips_leading_garbage() {
+        let mut decoder = FrameDecoder::default();
+        decoder.push(&[0x00, 0xAA, 0x12, 0x55, 0xFF]);
+        decoder.push(&encode_frame(&can_payload(1)));
+        assert_eq!(decode_all(&mut decoder), (vec![can_payload(1)], 0));
+    }
+
+    #[test]
+    fn truncated_frame_does_not_swallow_next_frame() {
+        // radio drops the tail of frame 1; frame 2 must still decode
+        let mut truncated = encode_frame(&can_payload(1));
+        truncated.truncate(truncated.len() - 3);
+        let mut decoder = FrameDecoder::default();
+        decoder.push(&[truncated, encode_frame(&can_payload(2)), encode_frame(&can_payload(3))].concat());
+        let (frames, invalid) = decode_all(&mut decoder);
+        assert_eq!(frames, vec![can_payload(2), can_payload(3)]);
+        assert!(invalid >= 1);
+    }
+
+    #[test]
+    fn corrupted_crc_does_not_swallow_next_frame() {
+        let mut corrupted = encode_frame(&can_payload(1));
+        let last = corrupted.len() - 1;
+        corrupted[last] ^= 0xFF;
+        let mut decoder = FrameDecoder::default();
+        decoder.push(&[corrupted, encode_frame(&can_payload(2))].concat());
+        assert_eq!(decode_all(&mut decoder), (vec![can_payload(2)], 1));
+    }
+
+    #[test]
+    fn false_magic_with_max_length_does_not_swallow_next_frames() {
+        // false magic claiming a 100 byte payload in front of several real frames
+        let false_header = [0xAA, 0x55, 100, 0, 0, 0, 0];
+        let real = [encode_frame(&can_payload(1)), encode_frame(&can_payload(2)), encode_frame(&can_payload(3)), encode_frame(&can_payload(4))].concat();
+        let mut decoder = FrameDecoder::default();
+        decoder.push(&[&false_header[..], &real[..]].concat());
+        // 103 bytes buffered < 107 claimed: frames are held (not lost) until the false header can be CRC-rejected
+        assert_eq!(decode_all(&mut decoder), (vec![], 0));
+        decoder.push(&encode_frame(&can_payload(5)));
+        let (frames, invalid) = decode_all(&mut decoder);
+        assert_eq!(frames, (1..=5).map(can_payload).collect::<Vec<_>>());
+        assert_eq!(invalid, 1);
+    }
+
+    #[test]
+    fn rejects_bad_length_and_resyncs() {
+        let mut decoder = FrameDecoder::default();
+        decoder.push(&[0xAA, 0x55, 0, 0, 0, 0, 0]);
+        decoder.push(&[0xAA, 0x55, 200, 0, 0, 0, 0]);
+        decoder.push(&encode_frame(&can_payload(1)));
+        assert_eq!(decode_all(&mut decoder), (vec![can_payload(1)], 2));
+    }
+
+    #[test]
+    fn buffer_stays_bounded_on_garbage() {
+        let mut decoder = FrameDecoder::default();
+        for _ in 0..100 {
+            decoder.push(&[0x11; 1024]);
+            decode_all(&mut decoder);
+        }
+        assert!(decoder.buf.len() <= 1);
+    }
 }
