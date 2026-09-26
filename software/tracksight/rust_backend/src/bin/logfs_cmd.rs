@@ -18,6 +18,8 @@ static COMMANDS: &[(&str, &[&str])] = &[
     (COMMAND_LS_DISK, &[]),
     (COMMAND_FORMAT, &[]),
     (COMMAND_MOUNT, &[]),
+    (COMMAND_LS, &[]),
+    (COMMAND_CD, &["dir"]),
     (COMMAND_CAT, &["file"]),
     (COMMAND_WRITE, &["file", "data"]),
     (COMMAND_EXIT, &[]),

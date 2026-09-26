@@ -1,6 +1,6 @@
+import { HistoricalSignalPoint } from "@/lib/api/historicalSignals";
 import SignalStore, { SignalStoreReturnType } from "@/lib/signals/SignalStore";
 import { AlertSignalMetadata, SignalMetadata, SignalType } from "@/lib/types/Signal";
-import { HistoricalSignalPoint } from "@/lib/api/historicalSignals";
 
 const alertMetadata = (name: string): AlertSignalMetadata => ({
     name,

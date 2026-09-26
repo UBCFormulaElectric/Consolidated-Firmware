@@ -2,8 +2,8 @@ import { useMemo } from "react";
 
 import { useQuery } from "@tanstack/react-query";
 
-import { HistoricalSignalSource } from "@/lib/api/historicalSignals";
 import { fetchHistoricalSessionsForRange, HistoricalSession } from "@/lib/api/historicalSessions";
+import { HistoricalSignalSource } from "@/lib/api/historicalSignals";
 
 const toTimezoneDateKey = (utcMs: number, timeZone: string) => {
     return new Intl.DateTimeFormat("en-CA", { timeZone, year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date(utcMs));

@@ -41,12 +41,7 @@ async function waitForSocketId(): Promise<string> {
     return socket.id;
 }
 
-async function postSubscriptionAction<TBody extends object>(
-    path: string,
-    body: TBody,
-    allowedStatuses: number[] = []
-) {
-
+async function postSubscriptionAction<TBody extends object>(path: string, body: TBody, allowedStatuses: number[] = []) {
     console.log(API_BASE_URL, path, body);
     const response = await fetch(`${API_BASE_URL}${path}`, {
         method: "POST",

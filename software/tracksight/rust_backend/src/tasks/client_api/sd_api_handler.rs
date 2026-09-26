@@ -74,7 +74,7 @@ async fn sd_dump(State(state): State<AppState>, Json(SdDumpPayload{drive, file, 
                 }
             }
         },
-        Err(_) => return (StatusCode::INTERNAL_SERVER_ERROR, format!("Failed to query database for existing dumps of file")),
+        Err(e) => return (StatusCode::INTERNAL_SERVER_ERROR, format!("Failed to query database for existing dumps of file: {e:?}")),
     };
     
     match dump_sd_file(
