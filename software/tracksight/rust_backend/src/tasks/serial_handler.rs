@@ -201,9 +201,22 @@ async fn packet_reader_handler(
 /**
  * Intakes incoming packet bytes and parses into telemetry incoming message
  */
-fn parse_incoming_telem_message(payload: &Vec<u8>) -> Result<TelemetryIncomingMessage, ()> {
-    let parsed_message: TelemetryIncomingMessage = match payload[0] {
+fn parse_incoming_telem_message(payload: &[u8]) -> Result<TelemetryIncomingMessage, ()> {
+    // type(1) + can_id(4) + timestamp(8), followed by 0..=64 bytes of CAN data
+    const CAN_HEADER_SIZE: usize = 13;
+    const MAX_CAN_DATA_SIZE: usize = 64;
+
+    let Some(&message_type) = payload.first() else {
+        eprintln!("Empty telemetry message");
+        return Err(());
+    };
+
+    let parsed_message: TelemetryIncomingMessage = match message_type {
         TelemetryIncomingMessage::CAN_BYTE => {
+            if !(CAN_HEADER_SIZE..=CAN_HEADER_SIZE + MAX_CAN_DATA_SIZE).contains(&payload.len()) {
+                eprintln!("Invalid CAN message length: {}", payload.len());
+                return Err(());
+            }
             let can_id = u32::from_le_bytes([payload[1], payload[2], payload[3], payload[4]]);
             let can_timestamp = u64::from_le_bytes(
                 [payload[5], payload[6], payload[7], payload[8],
@@ -219,7 +232,13 @@ fn parse_incoming_telem_message(payload: &Vec<u8>) -> Result<TelemetryIncomingMe
                 }
             }
         },
-        TelemetryIncomingMessage::NTP_BYTE => TelemetryIncomingMessage::NTP,
+        TelemetryIncomingMessage::NTP_BYTE => {
+            if payload.len() != 1 {
+                eprintln!("Invalid NTP message length: {}", payload.len());
+                return Err(());
+            }
+            TelemetryIncomingMessage::NTP
+        },
         invalid => {
             eprintln!("Invalid message type: {invalid}");
             return Err(());
@@ -482,5 +501,49 @@ mod tests {
             decode_all(&mut decoder);
         }
         assert!(decoder.buf.len() <= 1);
+    }
+
+    #[test]
+    fn parses_can_message() {
+        let parsed = parse_incoming_telem_message(&can_payload(0x42));
+        assert!(matches!(
+            parsed,
+            Ok(TelemetryIncomingMessage::Can { body })
+                if body.can_id == 0x42 && body.can_timestamp == 1_000 && body.payload == [0xDE, 0xAD, 0xBE, 0xEF]
+        ));
+    }
+
+    #[test]
+    fn parses_can_message_with_no_data() {
+        // e.g. TelemMarkEvent: zero data bytes
+        let parsed = parse_incoming_telem_message(&can_payload(0x42)[..13]);
+        assert!(matches!(parsed, Ok(TelemetryIncomingMessage::Can { body }) if body.payload.is_empty()));
+    }
+
+    #[test]
+    fn rejects_short_can_message_without_panicking() {
+        for len in 1..13 {
+            assert!(parse_incoming_telem_message(&can_payload(0x42)[..len]).is_err());
+        }
+    }
+
+    #[test]
+    fn rejects_oversized_can_message() {
+        let mut payload = can_payload(0x42)[..13].to_vec();
+        payload.extend_from_slice(&[0; 65]);
+        assert!(parse_incoming_telem_message(&payload).is_err());
+    }
+
+    #[test]
+    fn validates_ntp_message_length() {
+        let ntp = TelemetryIncomingMessage::NTP_BYTE;
+        assert!(matches!(parse_incoming_telem_message(&[ntp]), Ok(TelemetryIncomingMessage::NTP)));
+        assert!(parse_incoming_telem_message(&[ntp, 0]).is_err());
+    }
+
+    #[test]
+    fn rejects_empty_and_unknown_messages() {
+        assert!(parse_incoming_telem_message(&[]).is_err());
+        assert!(parse_incoming_telem_message(&[0x7F]).is_err());
     }
 }
