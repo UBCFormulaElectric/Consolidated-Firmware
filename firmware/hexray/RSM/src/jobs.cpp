@@ -14,7 +14,6 @@
 #include "app_rsmShdnLoop.hpp"
 
 #include "io_canQueues.hpp"
-#include "io_imus.hpp"
 #include "io_brakeLight.hpp"
 #include "io_time.hpp"
 #include "io_canMsg.hpp"

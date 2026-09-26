@@ -178,28 +178,28 @@
       "GyroX": {
         "resolution": 0.01,
         "signed": true,
-        "min": -20,
-        "max": 20,
+        "min": -250,
+        "max": 250,
         "unit": "deg/s"
       },
       "GyroY": {
         "resolution": 0.01,
         "signed": true,
-        "min": -20,
-        "max": 20,
+        "min": -250,
+        "max": 250,
         "unit": "deg/s"
       },
       "GyroZ": {
         "resolution": 0.01,
         "signed": true,
-        "min": -20,
-        "max": 20,
+        "min": -250,
+        "max": 250,
         "unit": "deg/s"
       }
     },
     "data_capture": {
       "telem_cycle_time": 1000,
-      "log_cycle_time": 1000
+      "log_cycle_time": 10
     }
   },
   "ShdnNodeStatus": {
