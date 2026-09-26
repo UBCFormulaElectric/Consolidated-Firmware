@@ -31,7 +31,7 @@ namespace
 
         return value < 0.0 ? -small_epsilon : small_epsilon;
     }
-    [[nodiscard]] autodiff::dual safeTemplateDenominator(const autodiff::dual &value)
+    [[nodiscard]] DecimalDual<double> safeTemplateDenominator(const DecimalDual<double> &value)
     {
         const double primal = autodiff::val(value);
         if (std::fabs(static_cast<float>(primal)) >= SMALL_EPSILON)
@@ -60,7 +60,7 @@ namespace
             return -1.0;
         return 0.0;
     }
-    [[nodiscard]] autodiff::dual sign(const autodiff::dual &value)
+    [[nodiscard]] DecimalDual<double> sign(const DecimalDual<double> &value)
     {
         if (value > 0.0f)
             return 1.0f;
@@ -88,10 +88,14 @@ template <DecimalOrDual T>
 template float TireModel::computeCombinedFx_N(float normal_load_N, float slip_angle_rad, const float &slip_ratio) const;
 template double
     TireModel::computeCombinedFx_N(float normal_load_N, float slip_angle_rad, const double &slip_ratio) const;
-template autodiff::dual TireModel::computeCombinedFx_N<autodiff::dual>(
-    float                 normal_load_N,
-    float                 slip_angle_rad,
-    const autodiff::dual &slip_ratio) const;
+template DecimalDual<double> TireModel::computeCombinedFx_N<DecimalDual<double>>(
+    float                      normal_load_N,
+    float                      slip_angle_rad,
+    const DecimalDual<double> &slip_ratio) const;
+template DecimalDual<float> TireModel::computeCombinedFx_N<DecimalDual<float>>(
+    float                     normal_load_N,
+    float                     slip_angle_rad,
+    const DecimalDual<float> &slip_ratio) const;
 
 template <DecimalOrDual T>
 [[nodiscard]] T TireModel::computeCombinedFy_N(const float fz_N, const float alpha_rad, const T &kappa) const
@@ -106,10 +110,30 @@ template float
     TireModel::computeCombinedFy_N<float>(float normal_load_N, float slip_angle_rad, const float &slip_ratio) const;
 template double
     TireModel::computeCombinedFy_N<double>(float normal_load_N, float slip_angle_rad, const double &slip_ratio) const;
-template autodiff::dual TireModel::computeCombinedFy_N<autodiff::dual>(
-    float                 normal_load_N,
-    float                 slip_angle_rad,
-    const autodiff::dual &slip_ratio) const;
+template DecimalDual<double> TireModel::computeCombinedFy_N<DecimalDual<double>>(
+    float                      normal_load_N,
+    float                      slip_angle_rad,
+    const DecimalDual<double> &slip_ratio) const;
+template DecimalDual<float> TireModel::computeCombinedFy_N<DecimalDual<float>>(
+    float                     normal_load_N,
+    float                     slip_angle_rad,
+    const DecimalDual<float> &slip_ratio) const;
+
+template <Decimal T> T TireModel::effectiveRollingRadius_m(const float fz_N, const T v_x_mps) const
+{
+    // MF 6.2 with dpi = 0 and linear vertical stiffness, so the normalized deflection rho_d = Fz / Fz0.
+    // Free-rolling Omega * R0 ~= v_x is used in the centrifugal growth term.
+    const T     speed_ratio      = v_x_mps / static_cast<T>(rolling_radius_.LONGVL);
+    const T     r_omega          = static_cast<T>(R0) * (static_cast<T>(rolling_radius_.Q_RE0) +
+                                                static_cast<T>(rolling_radius_.Q_V1) * speed_ratio * speed_ratio);
+    const float nominal_deflection = FZ0 / rolling_radius_.VERTICAL_STIFFNESS;
+    const float rho_d              = std::fmax(fz_N, 0.0f) / FZ0;
+    const float load_term =
+        rolling_radius_.DREFF * std::atan(rolling_radius_.BREFF * rho_d) + rolling_radius_.FREFF * rho_d;
+    return r_omega - static_cast<T>(nominal_deflection * load_term);
+}
+template float  TireModel::effectiveRollingRadius_m(float fz_N, float v_x_mps) const;
+template double TireModel::effectiveRollingRadius_m(float fz_N, double v_x_mps) const;
 
 // [[nodiscard]] float TireModel::slipRatioToWheelAngularVelocity(const float slip_ratio, const float
 // wheel_vel_x_mps)

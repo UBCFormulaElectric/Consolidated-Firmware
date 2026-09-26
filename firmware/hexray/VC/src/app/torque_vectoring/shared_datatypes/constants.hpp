@@ -11,6 +11,12 @@ namespace app::tv::shared_datatypes::vd_constants
 
 inline constexpr float GRAVITY           = 9.81f;     // m/s^2
 inline constexpr float SMALL_EPSILON     = 0.000001f; // Numerical stability for division
+// Floor on the longitudinal speed used as the denominator of slip ratio / slip angle. Below this, tiny lateral
+// velocities would otherwise produce huge slip angles (atan2(v_y, ~0) -> +-90 deg) and poison the allocator.
+inline constexpr float SLIP_REGULARIZATION_SPEED_MPS = 1.0f;
+// Braking (negative APPS) requests fade out linearly below this speed so the motors stop the car instead of
+// driving it backwards once v_x reaches zero.
+inline constexpr float BRAKE_FADE_SPEED_MPS = 2.0f;
 inline constexpr float FRONTAL_AREA_M2   = 0.94f;     // m^2 from aero team
 inline constexpr float AIR_DENSITY_KGPM3 = 1.2205f;   // kg/m^3
 inline constexpr float LIFT_COEFF        = 1.7f;      // from aero team
@@ -34,9 +40,11 @@ inline constexpr float WHEEL_RADIUS_M = WHEEL_DIAMETER_IN * IN_TO_M / 2.0f;
 // VEHICLE MASS & CENTER OF GRAVITY
 // =============================================================================
 
-inline constexpr double CAR_MASS_AT_CG_KG = 300.0; // Mass with driver (verified with suspension team)
+inline constexpr double CAR_MASS_CG_NO_DRIVER_KG = 186.0f; // Mass with driver (verified with suspension team)
+inline constexpr double DRIVER_MASS_KG = 70.0f; // Mass with driver (verified with suspension team)
+inline constexpr double CAR_MASS_AT_CG_KG = CAR_MASS_CG_NO_DRIVER_KG + DRIVER_MASS_KG; // Mass with driver (verified with suspension team)
 // Estimated yaw moment of inertia about CG (TODO: Update with suspension team)
-inline constexpr float CAR_YAW_MOMENT_INERTIA_KGM2 = 150.0f;
+inline constexpr float CAR_YAW_MOMENT_INERTIA_KGM2 = 400.0f;
 
 inline constexpr float DIST_FRONT_AXLE_CG_m = 0.837f; // Distance from front axle to CG (parameter 'a')
 inline constexpr float DIST_REAR_AXLE_CG_m =
@@ -57,7 +65,6 @@ inline constexpr float FRONT_WEIGHT_DISTRIBUTION = WEIGHT_ACROSS_BODY * DIST_FRO
 inline constexpr float MAX_TORQUE_REQUEST_NM     = 20.5f;  // Safety limit (actual max is 21 Nm)
 inline constexpr float NOMINAL_TORQUE_REQUEST_NM = 9.8f;   // Nominal continuous torque
 inline constexpr float MAX_REGEN_Nm              = -15.0f; // Maximum regenerative braking torque
-
 inline constexpr uint16_t POWER_TO_TORQUE_CONVERSION_FACTOR = 9550; // 60/(2*pi)*1000 for T = P/ω
 
 // =============================================================================
@@ -92,7 +99,7 @@ inline constexpr float PID_POWER_FACTOR_MAX = 0.1f;    // TODO: May need adjustm
 // =============================================================================
 
 inline constexpr float SLIP_RATIO_IDEAL = 0.05f; // Ideal slip ratio for maximum traction
-inline constexpr float MAX_AX_MPS2      = 30;    // TODO idk this number bruh
+inline constexpr float MAX_AX_MPS2      = 9.81f * 1.8f;    // TODO idk this number bruh
 
 inline constexpr float STEER_WHEEL_RANGE_rad = 1.48632f;
 inline constexpr float STEER_WHEEL_RANGE_deg = RAD_TO_DEG(1.48632f);

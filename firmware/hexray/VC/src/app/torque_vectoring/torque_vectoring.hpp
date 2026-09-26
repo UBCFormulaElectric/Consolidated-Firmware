@@ -2,7 +2,9 @@
 #include "shared_datatypes/constants.hpp"
 #include "shared_datatypes/vehicle_state_estimator.hpp"
 #include "shared_datatypes/wheel_set.hpp"
-// #include <iostream>
+#include "estimation/tire_model.hpp"
+#include <algorithm>
+#include <cmath>
 
 template <Decimal T> struct ControlOutput
 {
@@ -41,23 +43,30 @@ ControlOutputAutonomous<T> update_autonomous(const app::tv::shared_datatypes::Ve
  * @param v_x_mps current longitudinal vehicle speed in meters per second
  * @return wheel velocity setpoints
  */
-template <typename T>
+template <Decimal T>
 app::tv::shared_datatypes::wheel_set<T>
     kappa_update(const app::tv::shared_datatypes::wheel_set<T> &kappas, const T v_x_mps)
 {
-    // std::cout << "Vx: " << v_x_mps << std::endl;
-    // std::cout << "Kappas: " << kappas.fl << kappas.fr << kappas.rl << kappas.rr << std::endl;
+    const T v_regularized = std::max(
+        std::abs(v_x_mps), static_cast<T>(app::tv::shared_datatypes::vd_constants::SLIP_REGULARIZATION_SPEED_MPS));
 
-    T v_x_mps_capped = std::max(v_x_mps, static_cast<T>(1));
+    // Slip is defined against the effective rolling radius, not the unloaded radius. Only v_x is available at this
+    // rate, so the loads come from static weight + aero (no load transfer, which moves Re by ~0.4% at 1.5 g).
+    const auto [fz_fl, fz_fr, fz_rl, fz_rr] = app::tv::shared_datatypes::VehicleState<T>{ .v_x_mps = v_x_mps }.est_Fz_N();
+
+    const auto motor_speed_request = [&](const T kappa, const T fz_N)
+    {
+        // Reverse is not a supported mode: never request backwards wheel rotation.
+        const T wheel_surface_speed_request = std::max(v_x_mps + kappa * v_regularized, T(0));
+        const T rolling_radius_m =
+            app::tv::estimation::tire_model.effectiveRollingRadius_m(static_cast<float>(fz_N), std::abs(v_x_mps));
+        return static_cast<T>(GEAR_RATIO) * wheel_surface_speed_request / rolling_radius_m;
+    };
 
     return {
-        .fl = GEAR_RATIO * (static_cast<T>(1) + kappas.fl) *
-              (v_x_mps_capped / static_cast<T>(app::tv::shared_datatypes::vd_constants::WHEEL_RADIUS_M)),
-        .fr = GEAR_RATIO * (static_cast<T>(1) + kappas.fr) *
-              (v_x_mps_capped / static_cast<T>(app::tv::shared_datatypes::vd_constants::WHEEL_RADIUS_M)),
-        .rl = GEAR_RATIO * (static_cast<T>(1) + kappas.rl) *
-              (v_x_mps_capped / static_cast<T>(app::tv::shared_datatypes::vd_constants::WHEEL_RADIUS_M)),
-        .rr = GEAR_RATIO * (static_cast<T>(1) + kappas.rr) *
-              (v_x_mps_capped / static_cast<T>(app::tv::shared_datatypes::vd_constants::WHEEL_RADIUS_M)),
+        .fl = motor_speed_request(kappas.fl, fz_fl),
+        .fr = motor_speed_request(kappas.fr, fz_fr),
+        .rl = motor_speed_request(kappas.rl, fz_rl),
+        .rr = motor_speed_request(kappas.rr, fz_rr),
     };
 }

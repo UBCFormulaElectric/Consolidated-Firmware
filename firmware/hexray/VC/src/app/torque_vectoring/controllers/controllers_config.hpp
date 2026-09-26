@@ -4,7 +4,7 @@
 namespace app::tv::controllers::dyrc
 {
 static constexpr app::PID::Config PID_DYRC_config{
-    .Kp               = 0.25f,
+    .Kp               = 400.0f,
     .Ki               = 0.0f,
     .Kd               = 0.0f,
     .Kb               = 0.0f,
@@ -21,5 +21,5 @@ static constexpr app::PID::Config PID_DYRC_config{
     .sample_time      = 0.01f // 10 ms sample time (100 Hz
 };
 
-static constexpr float DYRC_ku = 0.0f;
+static constexpr float DYRC_ku = 5e-4f;
 } // namespace app::tv::controllers::dyrc

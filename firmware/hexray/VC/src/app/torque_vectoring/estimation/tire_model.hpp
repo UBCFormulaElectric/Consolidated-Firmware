@@ -22,6 +22,15 @@ class TireModel
     template <DecimalOrDual T> [[nodiscard]] T computeCombinedFx_N(float fz_N, float alpha_rad, const T &kappa) const;
     template <DecimalOrDual T> [[nodiscard]] T computeCombinedFy_N(float fz_N, float alpha_rad, const T &kappa) const;
 
+    /**
+     * MF 6.2 effective rolling radius Re, i.e. the radius in the slip definition kappa = (omega * Re - v_x) / |v_x|
+     * that the fit (and the Simulink tire block) use. Re is noticeably smaller than the unloaded radius (~2% here),
+     * which is as large as a typical part-throttle slip target, so wheel speed setpoints must use it.
+     * @param fz_N normal load
+     * @param v_x_mps wheel longitudinal speed, used for the centrifugal radius growth term
+     */
+    template <Decimal T> [[nodiscard]] T effectiveRollingRadius_m(float fz_N, T v_x_mps) const;
+
     struct TireFitPureParamFy
     {
         float p_Cy1;
@@ -129,20 +138,33 @@ class TireModel
         float rVy6;
     };
 
+    struct TireRollingRadiusParam
+    {
+        float LONGVL;             // reference speed V0
+        float VERTICAL_STIFFNESS; // Cz
+        float Q_RE0;
+        float Q_V1;
+        float BREFF;
+        float DREFF;
+        float FREFF;
+    };
+
     TireModel() = delete;
 
   protected:
     constexpr TireModel(
-        const TireFitPureParamFx &fit_pure_fx,
-        const TireFitPureParamFy &fit_pure_fy,
-        const TireFitCombParamFx &fit_comb_fx,
-        const TireFitCombParamFy &fit_comb_fy,
-        const TireScalingFactors &scaling_factors)
+        const TireFitPureParamFx     &fit_pure_fx,
+        const TireFitPureParamFy     &fit_pure_fy,
+        const TireFitCombParamFx     &fit_comb_fx,
+        const TireFitCombParamFy     &fit_comb_fy,
+        const TireScalingFactors     &scaling_factors,
+        const TireRollingRadiusParam &rolling_radius)
       : fit_pure_fx_(fit_pure_fx),
         fit_pure_fy_(fit_pure_fy),
         fit_comb_fx_(fit_comb_fx),
         fit_comb_fy_(fit_comb_fy),
-        scaling_factors_(scaling_factors)
+        scaling_factors_(scaling_factors),
+        rolling_radius_(rolling_radius)
     {
     }
 
@@ -265,6 +287,7 @@ class TireModel
     const TireFitCombParamFx &fit_comb_fx_;
     const TireFitCombParamFy &fit_comb_fy_;
     const TireScalingFactors &scaling_factors_;
+    const TireRollingRadiusParam &rolling_radius_;
 };
 
 class HoosierTireModel : public TireModel
@@ -375,6 +398,17 @@ class HoosierTireModel : public TireModel
         .LVYKA = 1.0f,
     };
 
+    // From the same fit as the rows above (sim/tires/full_norm.tir).
+    static constexpr TireRollingRadiusParam HOOSIER_ROLLING_RADIUS_12_PSI = {
+        .LONGVL             = 11.1f,
+        .VERTICAL_STIFFNESS = 105669.01997824281f,
+        .Q_RE0              = 0.98f,
+        .Q_V1               = 0.0017791477520795367f,
+        .BREFF              = 8.003051539111455f,
+        .DREFF              = 0.1473049985743718f,
+        .FREFF              = 0.1752313270320525f,
+    };
+
   public:
     constexpr HoosierTireModel()
       : TireModel(
@@ -382,7 +416,8 @@ class HoosierTireModel : public TireModel
             HOOSIER_FIT_PURE_FY_12_PSI,
             HOOSIER_FIT_COMB_FX_12_PSI,
             HOOSIER_FIT_COMB_FY_12_PSI,
-            HOOSIER_SCALING_FACTORS)
+            HOOSIER_SCALING_FACTORS,
+            HOOSIER_ROLLING_RADIUS_12_PSI)
     {
     }
 };

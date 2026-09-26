@@ -171,14 +171,8 @@ elseif ("${TARGET}" STREQUAL "test")
 
 
     # MATLAB STATIC LIBRARY
-    file(GLOB_RECURSE TV_SRCS CONFIGURE_DEPENDS
-            "${CMAKE_CURRENT_SOURCE_DIR}/src/app/torque_vectoring/*.cpp"
-            "${SHARED_APP_INCLUDE_DIR_CPP}/app_pid.cpp"
-    )
-    add_library("hexray_VC_torque_vectoring" STATIC ${TV_SRCS})
-    target_include_directories("hexray_VC_torque_vectoring" PUBLIC "${INCLUDE_DIRS}")
-    target_link_libraries("hexray_VC_torque_vectoring" PUBLIC "autodiff_interface" "eigen_interface" "m")
-    target_compile_options("hexray_VC_torque_vectoring" PRIVATE /MT)
+    set(TV_ARCHIVE_OUTPUT_DIR "${CMAKE_CURRENT_BINARY_DIR}")
+    add_subdirectory(src/app/torque_vectoring)
 
 
     # MATPLOTLIB TESTING
@@ -193,6 +187,6 @@ elseif ("${TARGET}" STREQUAL "test")
             ${SHARED_UTIL_INCLUDE_DIR_CPP}
     )
     target_link_libraries(test_controls PRIVATE "matplotlib_cpp" "autodiff_interface")
-    target_compile_options(test_controls PRIVATE /Zi)
+    target_compile_options(test_controls PRIVATE /Zi /bigobj)
     target_link_options(test_controls PRIVATE /DEBUG /INCREMENTAL:NO)
 endif ()

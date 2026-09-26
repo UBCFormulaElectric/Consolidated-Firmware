@@ -2,6 +2,8 @@
 #include "torque_vectoring/shared_datatypes/wheel_set.hpp"
 #include "torque_vectoring/shared_datatypes/constants.hpp"
 #include "torque_vectoring/shared_datatypes/decimal_dual.hpp"
+#include <algorithm>
+#include <cmath>
 
 namespace app::tv::shared_datatypes
 {
@@ -14,6 +16,7 @@ template <Decimal T> struct VehicleState
     T            a_x_mps2       = 0.0f;
     T            a_y_mps2       = 0.0f;
     T            apps           = 0.0f;
+    T            brake          = 0.0f; // brake pedal, 0..1
     wheel_set<T> delta{};
 
     /**
@@ -45,14 +48,17 @@ template <Decimal T> struct VehicleState
 
     [[nodiscard]] wheel_set<T> alphas() const
     {
-        const auto [fl_v, fr_v, rl_v, rr_v]         = v_in_tire_frame();
-        const auto [fl_rot, fr_rot, rl_rot, rr_rot] = delta;
-        return {
-            std::atan2(fl_v.y, safe_vx(fl_v.x)) - fl_rot,
-            std::atan2(fr_v.y, safe_vx(fr_v.x)) - fr_rot,
-            std::atan2(rl_v.y, safe_vx(rl_v.x)) - rl_rot,
-            std::atan2(rr_v.y, safe_vx(rr_v.x)) - rr_rot,
+        // v_in_tire_frame() has already rotated each wheel velocity by its steer angle, so steer must not be
+        // subtracted again here. The tire fit uses the TYDEX / ISO-W convention alpha = -atan(v_y / |v_x|) (positive
+        // alpha -> positive Fy), with |v_x| floored so near-standstill noise in v_y / yaw rate cannot produce
+        // +-90 deg slip angles.
+        const auto [fl_v, fr_v, rl_v, rr_v] = v_in_tire_frame();
+        const auto slip_angle               = [](const Pair<T> &v)
+        {
+            return -std::atan2(
+                v.y, std::max(std::abs(v.x), static_cast<T>(vd_constants::SLIP_REGULARIZATION_SPEED_MPS)));
         };
+        return { slip_angle(fl_v), slip_angle(fr_v), slip_angle(rl_v), slip_angle(rr_v) };
     }
 
     // AERODYNAMIC EFFECTS
@@ -146,7 +152,9 @@ template <Decimal T> struct VehicleState
     template <DecimalOrDual F> [[nodiscard]] F est_Mz_N(wheel_set<Pair<F>> tires_F_N) const
     {
         // TODO aligning moment contributions to the yaw moment equation
-        tires_F_N.rotate(delta);
+        // Tire forces are in each tire's (steered) frame; bring them into the body frame, i.e. rotate by +delta.
+        // rotate() goes body -> tire (by -delta), so it is given the negated steer angles.
+        tires_F_N.rotate(wheel_set<T>{ -delta.fl, -delta.fr, -delta.rl, -delta.rr });
         const F fl_moment =
             (vd_constants::DIST_FRONT_AXLE_CG_m * tires_F_N.fl.y) - (vd_constants::HALF_TRACK_M * tires_F_N.fl.x);
         const F fr_moment =

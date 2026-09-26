@@ -9,10 +9,30 @@
 using namespace app::tv::shared_datatypes;
 using namespace vd_constants;
 
+tv_debug tv_debug_data{};
+
 template <Decimal T> ControlOutput<T> update(const VehicleState<T> &state)
 {
     //------------------------------------- HIGH LEVEL CONTROLLER ----------------------------//
-    const T ax_mps2_setpoint = MAX_AX_MPS2 * state.apps;
+    // Net longitudinal request from both pedals (each 0..1). Braking requests fade out at low speed so the motors
+    // stop helping before standstill (otherwise they lock the wheels / reverse the car); the brakes finish the stop.
+    // const T pedal      = state.apps - state.brake;
+    // const T brake_fade = std::clamp(state.v_x_mps / static_cast<T>(BRAKE_FADE_SPEED_MPS), T(0), T(1));
+    // const T ax_mps2_setpoint = pedal >= 0 ? MAX_AX_MPS2 * pedal : MAX_AX_MPS2 * pedal * brake_fade;
+    T apps      = state.apps;
+    T apps_remap                     = state.apps - 0.2;
+
+    if (apps_remap < 0.0) {
+        T regen_derate = std::clamp(((state.v_x_mps * 3.6) - 5.0) / 5.0, 0.0, 1.0);
+        apps = (apps_remap / 0.2) * regen_derate;
+    } else if (apps_remap < 0.1) {
+        apps = 0.0;
+    } else {
+        apps = (apps_remap - 0.1) / (1.0 - 0.2 - 0.1);
+    }
+    
+    const T ax_mps2_setpoint = MAX_AX_MPS2 * apps;
+    tv_debug_data.veh_state.beta_rad = state.est_beta_rad();
     // Direct yaw rate control: corrective yaw moment
     const T omegadot_radps2_setpoint = app::tv::controllers::dyrc::computeYawMoment(
         state.yaw_rate_radps, (state.delta.fl + state.delta.fr) / 2, state.v_x_mps);
@@ -44,27 +64,34 @@ extern "C" void update_matlab(
     const double a_x,
     const double a_y,
     const double apps,
+    const double brake,
     const double delta_fl,
     const double delta_fr,
     double       kappas[4],
     double       torque_max[4],
-    double       torque_min[4])
+    double       torque_min[4],
+    tv_debug    *debug)
 {
+    // The Vehicle Dynamics Blockset plant reports body quantities in SAE J670 axes (x forward, y right, z down:
+    // positive steer / yaw rate / lateral velocity / lateral accel = to the right). The controller uses ISO 8855
+    // (y left, z up, left wheels at +y), so every lateral quantity changes sign at this boundary. Without this the
+    // controller's left/right is mirrored relative to the real wheels: the yaw-rate loop becomes positive feedback
+    // and torque vectoring acts backwards in corners.
     const VehicleState state = { .v_x_mps        = v_x,
-                                 .v_y_mps        = v_y,
-                                 .yaw_rate_radps = yaw_rate,
+                                 .v_y_mps        = -v_y,
+                                 .yaw_rate_radps = -yaw_rate,
                                  .a_x_mps2       = a_x,
-                                 .a_y_mps2       = a_y,
+                                 .a_y_mps2       = -a_y,
                                  .apps           = apps,
+                                 .brake          = brake,
                                  .delta          = {
-                                              .fl = delta_fl,
-                                              .fr = delta_fr,
+                                              .fl = -delta_fl,
+                                              .fr = -delta_fr,
                                               .rl = 0.0f,
                                               .rr = 0.0f,
                                  } };
     // bring it in
     const auto [k_kappas, k_torque_max, k_torque_min] = update(state);
-    // std::cout << "DIH" << std::endl;
     // update
     kappas[0]     = k_kappas.fl;
     kappas[1]     = k_kappas.fr;
@@ -78,6 +105,7 @@ extern "C" void update_matlab(
     torque_min[1] = k_torque_min.fr;
     torque_min[2] = k_torque_min.rl;
     torque_min[3] = k_torque_min.rr;
+    *debug = tv_debug_data;
 }
 
 template <Decimal T> ControlOutputAutonomous<T> update_autonomous(const VehicleState<T> &state)
