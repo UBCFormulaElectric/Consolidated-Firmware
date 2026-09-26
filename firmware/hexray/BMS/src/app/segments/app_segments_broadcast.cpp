@@ -21,22 +21,30 @@ BroadcastBuffer<uint8_t, MAX_NUM_SEGMENTS, io::can_tx::BMS_SegmentCMDCNT_sendApe
 // Debug Messages
 CellBroadcaster<
     float,
-    io::can_tx::BMS_CellVoltages_Seg0_Seg3_sendAperiodic,
-    io::can_tx::BMS_CellVoltages_Seg4_Seg7_sendAperiodic,
+    io::can_tx::BMS_CellVoltages_Seg0_Seg1_sendAperiodic,
+    io::can_tx::BMS_CellVoltages_Seg2_Seg3_sendAperiodic,
+    io::can_tx::BMS_CellVoltages_Seg4_Seg5_sendAperiodic,
+    io::can_tx::BMS_CellVoltages_Seg6_Seg7_sendAperiodic,
     io::can_tx::BMS_CellVoltages_Seg8_Seg9_sendAperiodic>
     cell_voltage_setters(
-        app::can_tx::BMS_CellVoltages_Seg0_Seg3_getData(),
-        app::can_tx::BMS_CellVoltages_Seg4_Seg7_getData(),
+        app::can_tx::BMS_CellVoltages_Seg0_Seg1_getData(),
+        app::can_tx::BMS_CellVoltages_Seg2_Seg3_getData(),
+        app::can_tx::BMS_CellVoltages_Seg4_Seg5_getData(),
+        app::can_tx::BMS_CellVoltages_Seg6_Seg7_getData(),
         app::can_tx::BMS_CellVoltages_Seg8_Seg9_getData());
 
 CellBroadcaster<
     float,
-    io::can_tx::BMS_CellTemps_Seg0_Seg3_sendAperiodic,
-    io::can_tx::BMS_CellTemps_Seg4_Seg7_sendAperiodic,
+    io::can_tx::BMS_CellTemps_Seg0_Seg1_sendAperiodic,
+    io::can_tx::BMS_CellTemps_Seg2_Seg3_sendAperiodic,
+    io::can_tx::BMS_CellTemps_Seg4_Seg5_sendAperiodic,
+    io::can_tx::BMS_CellTemps_Seg6_Seg7_sendAperiodic,
     io::can_tx::BMS_CellTemps_Seg8_Seg9_sendAperiodic>
     cell_temperature_setters(
-        app::can_tx::BMS_CellTemps_Seg0_Seg3_getData(),
-        app::can_tx::BMS_CellTemps_Seg4_Seg7_getData(),
+        app::can_tx::BMS_CellTemps_Seg0_Seg1_getData(),
+        app::can_tx::BMS_CellTemps_Seg2_Seg3_getData(),
+        app::can_tx::BMS_CellTemps_Seg4_Seg5_getData(),
+        app::can_tx::BMS_CellTemps_Seg6_Seg7_getData(),
         app::can_tx::BMS_CellTemps_Seg8_Seg9_getData());
 
 BroadcastBuffer<float, MAX_NUM_SEGMENTS, io::can_tx::BMS_SegmentVoltages_sendAperiodic>
