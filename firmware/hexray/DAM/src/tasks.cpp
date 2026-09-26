@@ -425,6 +425,10 @@ void tasks_init()
 
     jobs_init();
     DAM_StartAllTasks();
+    if (static_cast<size_t>(uxTaskGetNumberOfTasks()) != TASK_COUNT)
+    {
+        LOG_ERROR("Amount of tasks OS is handling does not match TASK_COUNT");
+    }
     osKernelStart();
     forever {}
 }
