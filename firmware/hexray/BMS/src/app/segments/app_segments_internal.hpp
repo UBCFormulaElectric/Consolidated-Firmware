@@ -62,7 +62,7 @@ template <typename T, size_t N, void (*Send)()> class BroadcastBuffer
 };
 
 // Per-cell signals split across several CAN messages, each holding a whole number of segments in order.
-template <typename T, void (*... Send)()> class CellBroadcaster
+template <typename T, void (*...Send)()> class CellBroadcaster
 {
     std::array<std::span<T>, sizeof...(Send)> _msgs;
 
