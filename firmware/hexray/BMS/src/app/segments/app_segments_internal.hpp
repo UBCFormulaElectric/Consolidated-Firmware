@@ -1,6 +1,7 @@
 #pragma once
 
 #include <algorithm>
+#include <array>
 #include <cmath>
 #include <span>
 #include "app_segments.hpp"
@@ -60,51 +61,40 @@ template <typename T, size_t N, void (*Send)()> class BroadcastBuffer
     void send() const { Send(); }
 };
 
-template <typename T, void (*Send03)(), void (*Send47)(), void (*Send89)()> class CellBroadcaster
+// Per-cell signals split across several CAN messages, each holding a whole number of segments in order.
+template <typename T, void (*... Send)()> class CellBroadcaster
 {
-    std::span<T, 4 * CELLS_PER_SEGMENT> _segments0_3;
-    std::span<T, 4 * CELLS_PER_SEGMENT> _segments4_7;
-    std::span<T, 2 * CELLS_PER_SEGMENT> _segments8_9;
+    std::array<std::span<T>, sizeof...(Send)> _msgs;
 
   public:
-    template <typename Seg03, typename Seg47, typename Seg89>
-    CellBroadcaster(Seg03 &segments0_3_can, Seg47 &segments4_7_can, Seg89 &segments8_9_can)
-      : _segments0_3{ reinterpret_cast<T *>(&segments0_3_can), 4 * CELLS_PER_SEGMENT },
-        _segments4_7{ reinterpret_cast<T *>(&segments4_7_can), 4 * CELLS_PER_SEGMENT },
-        _segments8_9{ reinterpret_cast<T *>(&segments8_9_can), 2 * CELLS_PER_SEGMENT }
+    template <typename... CanMsgs>
+    explicit CellBroadcaster(CanMsgs &...can_msgs)
+      : _msgs{ { std::span<T>{ reinterpret_cast<T *>(&can_msgs), sizeof(CanMsgs) / sizeof(T) }... } }
     {
-        static_assert(sizeof(Seg03) == 4 * CELLS_PER_SEGMENT * sizeof(T));
-        static_assert(sizeof(Seg47) == 4 * CELLS_PER_SEGMENT * sizeof(T));
-        static_assert(sizeof(Seg89) == 2 * CELLS_PER_SEGMENT * sizeof(T));
+        static_assert(sizeof...(CanMsgs) == sizeof...(Send));
+        static_assert(((sizeof(CanMsgs) % (CELLS_PER_SEGMENT * sizeof(T)) == 0) && ...));
+        static_assert((sizeof(CanMsgs) + ...) == MAX_NUM_SEGMENTS * CELLS_PER_SEGMENT * sizeof(T));
     }
 
-    std::span<T, CELLS_PER_SEGMENT> operator[](const size_t seg) const
+    std::span<T, CELLS_PER_SEGMENT> operator[](size_t seg) const
     {
-        if (seg < 4)
+        size_t msg = 0U;
+        while (seg >= _msgs[msg].size() / CELLS_PER_SEGMENT)
         {
-            return std::span<T, CELLS_PER_SEGMENT>{ _segments0_3.data() + seg * CELLS_PER_SEGMENT, CELLS_PER_SEGMENT };
+            seg -= _msgs[msg].size() / CELLS_PER_SEGMENT;
+            msg++;
         }
-        if (seg < 8)
-        {
-            return std::span<T, CELLS_PER_SEGMENT>{ _segments4_7.data() + (seg - 4) * CELLS_PER_SEGMENT,
-                                                    CELLS_PER_SEGMENT };
-        }
-        return std::span<T, CELLS_PER_SEGMENT>{ _segments8_9.data() + (seg - 8) * CELLS_PER_SEGMENT,
-                                                CELLS_PER_SEGMENT };
+        return std::span<T, CELLS_PER_SEGMENT>{ _msgs[msg].data() + seg * CELLS_PER_SEGMENT, CELLS_PER_SEGMENT };
     }
 
     void fill(const T &value) const
     {
-        std::fill(_segments0_3.begin(), _segments0_3.end(), value);
-        std::fill(_segments4_7.begin(), _segments4_7.end(), value);
-        std::fill(_segments8_9.begin(), _segments8_9.end(), value);
+        for (const auto &msg : _msgs)
+        {
+            std::fill(msg.begin(), msg.end(), value);
+        }
     }
 
-    void send() const
-    {
-        Send03();
-        Send47();
-        Send89();
-    }
+    void send() const { (Send(), ...); }
 };
 } // namespace app::segments
