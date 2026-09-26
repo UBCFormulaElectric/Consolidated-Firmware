@@ -109,12 +109,12 @@ function NumericalWidgetEditSignalsModal(props: { widget: NumericalGraphWidgetDa
         setSelectedSignals(isOpen ? widget.signals : []);
     };
 
-    const handleSave = () => {
-        const nextColorPalette = buildNextColorPalette(widget.options.colorPalette, selectedSignals, () => chroma.random());
+    const handleSave = (signals = selectedSignals) => {
+        const nextColorPalette = buildNextColorPalette(widget.options.colorPalette, signals, () => chroma.random());
 
         updateWidget(widget, (previousWidget) => ({
             ...previousWidget,
-            signals: selectedSignals,
+            signals,
             options: {
                 ...previousWidget.options,
                 colorPalette: nextColorPalette,
@@ -136,12 +136,12 @@ function NumericalWidgetEditSignalsModal(props: { widget: NumericalGraphWidgetDa
                     <DialogDescription>Choose which live numerical signals this graph shows.</DialogDescription>
                 </DialogHeader>
                 <div className="min-w-0 space-y-4">
-                    <NumericalSignalPicker selectedSignals={selectedSignals} onSelectedSignalsChange={setSelectedSignals} />
+                    <NumericalSignalPicker selectedSignals={selectedSignals} onSelectedSignalsChange={setSelectedSignals} onConfirm={handleSave} />
                     <div className="flex justify-end gap-2 pt-2">
                         <button type="button" onClick={() => handleOpenChange(false)} className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded cursor-pointer">
                             Cancel
                         </button>
-                        <button type="button" onClick={handleSave} disabled={!hasChanges} className="px-4 py-2 bg-blue-600 text-white hover:bg-blue-700 rounded cursor-pointer disabled:cursor-not-allowed disabled:opacity-60">
+                        <button type="button" onClick={() => handleSave()} disabled={!hasChanges} className="px-4 py-2 bg-blue-600 text-white hover:bg-blue-700 rounded cursor-pointer disabled:cursor-not-allowed disabled:opacity-60">
                             Save
                         </button>
                     </div>
@@ -165,12 +165,12 @@ function EnumWidgetEditSignalsModal(props: { widget: EnumTimelineWidgetData }) {
         setSelectedSignals(isOpen ? widget.signals : []);
     };
 
-    const handleSave = () => {
-        const nextColorPalette = buildNextColorPalette(widget.options.colorPalette, selectedSignals, buildEnumPalette);
+    const handleSave = (signals = selectedSignals) => {
+        const nextColorPalette = buildNextColorPalette(widget.options.colorPalette, signals, buildEnumPalette);
 
         updateWidget(widget, (previousWidget) => ({
             ...previousWidget,
-            signals: selectedSignals,
+            signals,
             options: {
                 ...previousWidget.options,
                 colorPalette: nextColorPalette,
@@ -192,12 +192,12 @@ function EnumWidgetEditSignalsModal(props: { widget: EnumTimelineWidgetData }) {
                     <DialogDescription>Choose which live enum signals this timeline shows.</DialogDescription>
                 </DialogHeader>
                 <div className="min-w-0 space-y-4">
-                    <EnumSignalPicker selectedSignals={selectedSignals} onSelectedSignalsChange={setSelectedSignals} />
+                    <EnumSignalPicker selectedSignals={selectedSignals} onSelectedSignalsChange={setSelectedSignals} onConfirm={handleSave} />
                     <div className="flex justify-end gap-2 pt-2">
                         <button type="button" onClick={() => handleOpenChange(false)} className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded cursor-pointer">
                             Cancel
                         </button>
-                        <button type="button" onClick={handleSave} disabled={!hasChanges} className="px-4 py-2 bg-blue-600 text-white hover:bg-blue-700 rounded cursor-pointer disabled:cursor-not-allowed disabled:opacity-60">
+                        <button type="button" onClick={() => handleSave()} disabled={!hasChanges} className="px-4 py-2 bg-blue-600 text-white hover:bg-blue-700 rounded cursor-pointer disabled:cursor-not-allowed disabled:opacity-60">
                             Save
                         </button>
                     </div>

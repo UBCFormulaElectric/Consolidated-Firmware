@@ -1,7 +1,7 @@
 "use client";
 
-import SignalPicker from "./SignalPicker";
 import { isNumericalSignalMetadata, NumericalSignalMetadata } from "@/lib/types/Signal";
+import SignalPicker from "./SignalPicker";
 
 function getSearchableText(signal: NumericalSignalMetadata): string {
     return [signal.name, signal.msg_name, signal.tx_node, signal.unit].filter(Boolean).join(" ");
@@ -33,6 +33,6 @@ function NumericalSignalItem({ data: signal }: { data: NumericalSignalMetadata }
     );
 }
 
-export function NumericalSignalPicker(props: { selectedSignals: NumericalSignalMetadata[]; onSelectedSignalsChange: (signals: NumericalSignalMetadata[]) => void }) {
+export function NumericalSignalPicker(props: { selectedSignals: NumericalSignalMetadata[]; onSelectedSignalsChange: (signals: NumericalSignalMetadata[]) => void; onConfirm: (signals: NumericalSignalMetadata[]) => void }) {
     return <SignalPicker {...props} filter={isNumericalSignalMetadata} getSearchableText={getSearchableText} ItemRenderer={NumericalSignalItem} placeholder="Search by signal, message, unit, or node" />;
 }
