@@ -62,8 +62,11 @@ namespace {
             static constexpr uint16_t           PEC10_POLY = 10;
             static constexpr std::array<uint16_t, 256> pec10Table = generatePecTable(PEC10_POLY, PEC10_SIZE);
 
+            uint8_t
+
 
         public:
+
 
     }
 }
