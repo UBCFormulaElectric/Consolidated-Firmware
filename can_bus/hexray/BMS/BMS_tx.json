@@ -757,6 +757,9 @@
         "max": 5,
         "unit": "V"
       }
+    },
+    "data_capture": {
+      "log_cycle_time": 1000
     }
   },
   "CellVoltages_Seg4_Seg7": {
@@ -1103,6 +1106,9 @@
         "max": 5,
         "unit": "V"
       }
+    },
+    "data_capture": {
+      "log_cycle_time": 1000
     }
   },
   "CellVoltages_Seg8_Seg9": {
@@ -1281,6 +1287,9 @@
         "max": 5,
         "unit": "V"
       }
+    },
+    "data_capture": {
+      "log_cycle_time": 1000
     }
   },
   "Fans": {
@@ -1640,6 +1649,9 @@
         "max": 70,
         "unit": "degC"
       }
+    },
+    "data_capture": {
+      "log_cycle_time": 1000
     }
   },
   "CellTemps_Seg4_Seg7": {
@@ -1986,6 +1998,9 @@
         "max": 70,
         "unit": "degC"
       }
+    },
+    "data_capture": {
+      "log_cycle_time": 1000
     }
   },
   "CellTemps_Seg8_Seg9": {
@@ -2164,6 +2179,9 @@
         "max": 70,
         "unit": "degC"
       }
+    },
+    "data_capture": {
+      "log_cycle_time": 1000
     }
   },
   "CellOpenWireCheckOk": {
