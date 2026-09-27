@@ -2,7 +2,7 @@
 
 import { useAlertStore } from "@/lib/contexts/signalStores/SignalStoreContext";
 import { getVisibleTelemetryMarkers, TelemetryMarker } from "@/lib/telemetryMarkers";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useSyncedGraph } from "../SyncedGraphContainer";
 import { LODAwareAlertSeries } from "./CanvasChartTypes";
 import { render_hover_line, selectLOD } from "./render";
@@ -268,6 +268,7 @@ function AlertTimeline() {
     const scrollableRef = useRef<HTMLDivElement>(null);
     const wrapperRef = useRef<HTMLDivElement>(null);
     const animationFrame = useRef<number | null>(null);
+    const [hasMore, setHasMore] = useState(false);
 
     const { globalTimeRangeRef, XToTime, timeToX, hoverXRef } = useSyncedGraph();
 
@@ -320,7 +321,9 @@ function AlertTimeline() {
                 lastSignature.current = signature;
 
                 if (scrollableRef.current) {
-                    scrollableRef.current.style.height = `${containerHeightForLanes(Math.max(alertModel.current.laneCount, 1))}px`;
+                    const contentHeight = containerHeightForLanes(Math.max(alertModel.current.laneCount, 1));
+                    scrollableRef.current.style.height = `${contentHeight}px`;
+                    setHasMore((wrapperRef.current?.scrollTop ?? 0) + containerHeightForLanes(MAX_SLIP_STREAM_LANES) < contentHeight - 1);
                 }
             }
 
@@ -351,51 +354,6 @@ function AlertTimeline() {
         };
     }, [canvasRef.current]);
 
-    useEffect(() => {
-        const wrapper = wrapperRef.current;
-        if (!wrapper) return;
-
-        const findScrollableAncestor = (el: HTMLElement | null): HTMLElement | Window => {
-            let node = el?.parentElement ?? null;
-
-            while (node) {
-                if (node === document.body) break;
-
-                const style = getComputedStyle(node);
-                const overflowY = style.overflowY;
-
-                const canScroll = (overflowY === "auto" || overflowY === "scroll" || overflowY === "overlay") && node.scrollHeight > node.clientHeight;
-
-                if (canScroll) return node;
-
-                node = node.parentElement;
-            }
-            return window;
-        };
-
-        const handleWheel = (e: WheelEvent) => {
-            const deltaY = e.deltaY;
-            if (deltaY === 0) return;
-
-            const atTop = wrapper.scrollTop <= 0;
-            const atBottom = wrapper.scrollTop + wrapper.clientHeight >= wrapper.scrollHeight - 1;
-
-            const wouldChain = (deltaY < 0 && atTop) || (deltaY > 0 && atBottom);
-            if (!wouldChain) return;
-
-            e.preventDefault();
-
-            const ancestor = findScrollableAncestor(wrapper);
-            ancestor.scrollBy({ top: deltaY });
-        };
-
-        wrapper.addEventListener("wheel", handleWheel, { passive: false });
-
-        return () => {
-            wrapper.removeEventListener("wheel", handleWheel);
-        };
-    }, []);
-
     const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
         const canvas = canvasRef.current;
         if (!canvas) {
@@ -418,10 +376,17 @@ function AlertTimeline() {
     };
 
     return (
-        <div className="flex flex-col gap-5">
+        <div className="flex flex-col gap-2">
+            <div className="flex items-center justify-between px-4 pt-2 text-sm font-semibold">
+                <span>Alerts</span>
+                {hasMore && <span className="text-xs font-normal text-gray-500">Scroll for more ↓</span>}
+            </div>
             <div
-                className="overflow-y-scroll scrollbar-hidden overscroll-none"
+                className="overflow-y-auto"
                 ref={wrapperRef}
+                tabIndex={0}
+                aria-label="Alerts"
+                onScroll={(event) => setHasMore(event.currentTarget.scrollTop + event.currentTarget.clientHeight < event.currentTarget.scrollHeight - 1)}
                 style={{
                     maxHeight: `${containerHeightForLanes(MAX_SLIP_STREAM_LANES)}px`,
                 }}
