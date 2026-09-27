@@ -74,8 +74,19 @@ function HistoricContent(props: { selectedRange: { min: number; max: number }; s
         <SyncedGraphContainer initialTimeRange={selectedRange} onViewportSettled={handleViewportSettled}>
             <HistoricalSignalStoreProvider startUtcMs={fetchRange.min} endUtcMs={fetchRange.max} source={selectedSource} selectedRange={selectedRange}>
                 <AlertTimeline />
-                {widgets.length === 0 ? <div className="grid h-full place-items-center text-gray-500">Select signals by adding a widget and choosing signals.</div> : <DataDashboard />}
-                <WidgetAdder />
+                {widgets.length === 0 ? (
+                    <div className="flex h-full flex-col items-center justify-center gap-4 text-sm text-gray-500">
+                        <p>Choose a signal to explore this session.</p>
+                        <WidgetAdder />
+                    </div>
+                ) : (
+                    <>
+                        <DataDashboard />
+                        <div className="flex justify-center py-8">
+                            <WidgetAdder />
+                        </div>
+                    </>
+                )}
             </HistoricalSignalStoreProvider>
         </SyncedGraphContainer>
     );

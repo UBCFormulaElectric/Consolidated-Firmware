@@ -3,7 +3,6 @@
 import chroma, { Color } from "chroma-js";
 import { ReactNode, RefObject, useCallback, useState } from "react";
 
-import { PlusButton } from "@/components/icons/PlusButton";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { BooleanSignalMetadata, EnumSignalMetadata, isEnumSignalMetadata, NumericalSignalMetadata, SignalMetadata } from "@/lib/types/Signal";
 import { EnumTimelineWidgetData, NumericalGraphWidgetData, WidgetData } from "@/lib/types/Widget";
@@ -13,7 +12,7 @@ import NumericalCanvasChart from "./NumericalCanvasChart";
 import { NumericalSignalPicker } from "./NumericalSignalPicker";
 import { useWidgetManager } from "./WidgetManagerContext";
 
-function buildEnumPalette(signal: EnumSignalMetadata | BooleanSignalMetadata): { color: Color; enumValueColors: Record<number, Color> } {
+export function buildEnumPalette(signal: EnumSignalMetadata | BooleanSignalMetadata): { color: Color; enumValueColors: Record<number, Color> } {
     const enumValues = isEnumSignalMetadata(signal) ? Object.values(signal.enum_signal.enum_values).sort((left, right) => left - right) : [0, 1];
     const startingHue = Math.random() * 360;
     const hueStep = enumValues.length > 0 ? 360 / enumValues.length : 360;
@@ -59,8 +58,8 @@ function SignalButton(props: { signal: SignalMetadata; handleRemoveSignal: (sign
     );
 }
 
-function WidgetConfiguration(props: { id: string; children?: ReactNode }) {
-    const { id, children } = props;
+function WidgetConfiguration(props: { id: string; title: string; children?: ReactNode }) {
+    const { id, title, children } = props;
     const { removeWidget } = useWidgetManager();
 
     const deleteSelfWidget = useCallback(() => {
@@ -70,9 +69,11 @@ function WidgetConfiguration(props: { id: string; children?: ReactNode }) {
     return (
         <div className="px-6">
             <div className="flex items-center gap-2 mb-4">
-                <h3 className="font-semibold">Widget {id}</h3>
-                <button type="button" onClick={deleteSelfWidget} title="Remove graph" className="w-6 h-6 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center text-sm font-bold transition-colors cursor-pointer">
-                    ×
+                <h3 className="truncate text-sm font-semibold" title={title}>
+                    {title}
+                </h3>
+                <button type="button" onClick={deleteSelfWidget} className="shrink-0 rounded px-2 py-1 text-xs font-medium text-red-700 hover:bg-red-50 focus-visible:outline-2 focus-visible:outline-red-600">
+                    Remove chart
                 </button>
             </div>
             <div className="flex flex-wrap items-center gap-3">{children}</div>
@@ -127,8 +128,8 @@ function NumericalWidgetAddSignalModal(props: { widget: NumericalGraphWidgetData
     return (
         <Dialog open={modalOpen} onOpenChange={setModalOpen}>
             <DialogTrigger asChild>
-                <button type="button" className="cursor-pointer" title="Add numerical signal">
-                    <PlusButton />
+                <button type="button" className="rounded border border-blue-600 px-3 py-1.5 text-sm font-medium text-blue-700 hover:bg-blue-50 focus-visible:outline-2 focus-visible:outline-blue-600">
+                    Add signal
                 </button>
             </DialogTrigger>
             <DialogContent>
@@ -209,8 +210,8 @@ function EnumWidgetAddSignalModal(props: { widget: EnumTimelineWidgetData }) {
     return (
         <Dialog open={modalOpen} onOpenChange={setModalOpen}>
             <DialogTrigger asChild>
-                <button type="button" className="cursor-pointer" title="Add enum signal">
-                    <PlusButton />
+                <button type="button" className="rounded border border-blue-600 px-3 py-1.5 text-sm font-medium text-blue-700 hover:bg-blue-50 focus-visible:outline-2 focus-visible:outline-blue-600">
+                    Add signal
                 </button>
             </DialogTrigger>
             <DialogContent>
@@ -268,7 +269,7 @@ export function Widget(props: WidgetData & { hoveredSignal: RefObject<string | n
 
             return (
                 <>
-                    <WidgetConfiguration id={widget.id}>
+                    <WidgetConfiguration id={widget.id} title={widget.signals.map((signal) => signal.name).join(" · ") || "Numerical chart"}>
                         {widget.signals.map((signal) => (
                             <SignalButton key={signal.name} signal={signal} handleRemoveSignal={handleRemoveSignal} hoverSignalName={hoveredSignal} color={widget.options.colorPalette[signal.name] ?? chroma("#ffffff")} />
                         ))}
@@ -293,7 +294,7 @@ export function Widget(props: WidgetData & { hoveredSignal: RefObject<string | n
 
             return (
                 <>
-                    <WidgetConfiguration id={widget.id}>
+                    <WidgetConfiguration id={widget.id} title={widget.signals.map((signal) => signal.name).join(" · ") || "State timeline"}>
                         {widget.signals.map((signal) => (
                             <SignalButton key={signal.name} signal={signal} handleRemoveSignal={handleRemoveSignal} hoverSignalName={hoveredSignal} color={widget.options.colorPalette[signal.name]?.color ?? chroma("#ffffff")} />
                         ))}

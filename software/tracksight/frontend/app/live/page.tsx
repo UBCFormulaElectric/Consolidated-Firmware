@@ -12,7 +12,7 @@ import { MockSignalStoreProvider } from "@/lib/contexts/signalStores/MockSignalS
 const USE_MOCK_DATA = process.env.NEXT_PUBLIC_USE_MOCK_DATA === "true";
 
 function Content() {
-    const { initializedFromLocalStorage } = useWidgetManager();
+    const { initializedFromLocalStorage, widgets } = useWidgetManager();
     const DataSourceProvider = USE_MOCK_DATA ? MockSignalStoreProvider : LiveSignalStoreProvider;
 
     return (
@@ -22,6 +22,7 @@ function Content() {
                     <AlertTimeline />
                     <DataDashboard />
                     <div className="flex flex-col py-8 items-center gap-4">
+                        {widgets.length === 0 && <p className="text-sm text-gray-500">Choose a signal to create your first chart.</p>}
                         <WidgetAdder />
                     </div>
                 </>
