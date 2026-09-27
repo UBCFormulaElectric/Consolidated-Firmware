@@ -9,7 +9,6 @@ const inter = Inter({ subsets: ["latin"] });
 import { HistoricalSelectionProvider } from "@/lib/contexts/HistoricalSelectionContext";
 import QueryProvider from "@/lib/contexts/QueryProvider";
 import { TimezoneProvider } from "@/lib/contexts/TimezoneContext";
-import Script from "next/script";
 import Navbar from "./Navbar";
 
 export const metadata: Metadata = {
@@ -25,7 +24,6 @@ export default async function RootLayout({
     return (
         <html lang="en" suppressHydrationWarning>
             <head>
-                <Script src="//unpkg.com/react-scan/dist/auto.global.js" crossOrigin="anonymous" strategy="beforeInteractive" />
                 <link rel="icon" type="image/png" href="/favicon/favicon-96x96.png" sizes="96x96" />
                 <link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg" />
                 <link rel="shortcut icon" href="/favicon/favicon.ico" />

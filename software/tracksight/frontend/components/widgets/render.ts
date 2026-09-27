@@ -457,7 +457,6 @@ function render_markers(context: CanvasRenderingContext2D, width: number, height
         const xPosition = timeToX(marker.timestampMs);
         if (xPosition < CHART_PADDING.left || xPosition > width - CHART_PADDING.right) return;
 
-        context.save();
         context.strokeStyle = "rgba(220, 38, 38, 0.85)";
         context.lineWidth = 1.5;
         context.beginPath();
