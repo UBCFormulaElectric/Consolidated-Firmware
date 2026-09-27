@@ -14,6 +14,7 @@ interface WidgetManagerContext {
     initializedFromLocalStorage: boolean;
     appendWidget: (newWidget: WidgetData) => void;
     removeWidget: (widgetToRemove: string) => void;
+    moveWidget: (widgetToMove: string, insertionIndex: number) => void;
     appendSignal: <T extends WidgetType, Widget extends Extract<WidgetData, { type: T }>>(widget: Widget, newSignal: any) => void;
     removeSignal: (widget: WidgetData, nameOfSignalToRemove: string) => void;
     updateWidget: <T extends WidgetType, Widget extends Extract<WidgetData, { type: T }>>(widget: Widget, updater: (prevWidget: Widget) => Widget) => void;
@@ -170,6 +171,35 @@ export function WidgetManager({ children, storageKey = LOCAL_STORAGE_KEY }: { ch
         [setWidgets]
     );
 
+    // insertionIndex is the gap the widget is dropped into, measured against the list before the move (0 to widgets.length)
+    const moveWidget = useCallback(
+        (widgetToMove: string, insertionIndex: number) => {
+            setWidgets((prev) => {
+                const fromIndex = prev.findIndex((widget) => widget.id === widgetToMove);
+                if (fromIndex === -1) {
+                    IS_DEBUG && console.warn("Widget to move not found");
+                    return prev;
+                }
+
+                // Removing the widget first shifts every later gap up by one
+                const toIndex = insertionIndex > fromIndex ? insertionIndex - 1 : insertionIndex;
+                if (toIndex === fromIndex) {
+                    return prev;
+                }
+
+                // Shift the widgets in between over by one in a single copy, keeping every widget object's identity
+                const nextWidgets = [...prev];
+                const direction = toIndex > fromIndex ? 1 : -1;
+                for (let index = fromIndex; index !== toIndex; index += direction) {
+                    nextWidgets[index] = prev[index + direction];
+                }
+                nextWidgets[toIndex] = prev[fromIndex];
+                return nextWidgets;
+            });
+        },
+        [setWidgets]
+    );
+
     const appendSignal = useCallback(
         <T extends WidgetType, Widget extends Extract<WidgetData, { type: T }>>(widget: Widget, newSignal: any) => {
             setWidgets((prev) => {
@@ -245,12 +275,13 @@ export function WidgetManager({ children, storageKey = LOCAL_STORAGE_KEY }: { ch
             widgets,
             appendWidget,
             removeWidget,
+            moveWidget,
             appendSignal,
             removeSignal,
             updateWidget,
             initializedFromLocalStorage: isInitialized,
         }),
-        [widgets, appendWidget, removeWidget, appendSignal, removeSignal, updateWidget, isInitialized]
+        [widgets, appendWidget, removeWidget, moveWidget, appendSignal, removeSignal, updateWidget, isInitialized]
     );
 
     return <WidgetManagerContext value={contextValue}>{children}</WidgetManagerContext>;

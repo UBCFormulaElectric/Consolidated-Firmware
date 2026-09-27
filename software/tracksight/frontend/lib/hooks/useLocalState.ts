@@ -1,5 +1,5 @@
 "use client";
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useCallback, useEffect, useState } from "react";
 
 // TODO move to a util folder?
 export function useLocalState<T>(
@@ -28,17 +28,18 @@ export function useLocalState<T>(
         setIsInitialized(true);
     }, [name]);
 
-  useEffect(() => {
-    if (!isInitialized) {
-      return;
-    }
+  //setting
+  const setLocalState: Dispatch<SetStateAction<T>> = useCallback((value) => {
+    setState((previousState) => {
+        const nextState = value instanceof Function ? value(previousState) : value;
+        try {
+            localStorage.setItem(name, ser(nextState));
+        } catch (error) {
+            console.error(`Failed to save localStorage key \"${name}\"`, error);
+        }
+        return nextState;
+    });
+  }, [name, ser]);
 
-    try {
-      localStorage.setItem(name, ser(state));
-    } catch (error) {
-      console.error(`Failed to save localStorage key \"${name}\"`, error);
-    }
-  }, [state, isInitialized, name, ser]);
-
-  return [state, setState, isInitialized];
+  return [state, setLocalState, isInitialized];
 }
