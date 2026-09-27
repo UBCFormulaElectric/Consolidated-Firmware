@@ -1,3 +1,4 @@
+import { formatTimeSpan } from "@/lib/utils/formatTimeSpan";
 import { createContext, PointerEvent, ReactNode, RefObject, UIEvent, useCallback, useContext, useEffect, useMemo, useRef } from "react";
 import { useDisplayControlContext, ViewportLockButton } from "./PausePlayControl";
 import { CHART_PADDING } from "./widgets/render";
@@ -12,6 +13,7 @@ export type SyncedGraphContext_t = {
     hoverXRef: RefObject<number | null>;
     globalTimeRangeRef: RefObject<TimeRange | null>;
     scrollLeftRef: RefObject<number>;
+    isLive: boolean; // follows incoming data rather than showing a fixed historical session
 
     // mutations
     updateWithTimestamp(timestamp: number): void; // NOTE: PLEASE CALL THIS EVERY SINGLE TIME A NEW DATA POINT IS ADDED!!!
@@ -46,13 +48,6 @@ const MAX_CONTENT_WIDTH_PX = 15_000_000;
 const WHEEL_ZOOM_SENSITIVITY = 0.005;
 const MAX_WHEEL_ZOOM_DELTA = 50; // caps one mouse wheel notch at ~1.28x while leaving small trackpad pinch deltas untouched
 const WHEEL_LINE_HEIGHT_PX = 16;
-
-function formatTimeSpan(ms: number) {
-    if (ms < 1000) return `${ms < 10 ? ms.toFixed(1) : Math.round(ms)} ms`;
-    if (ms < 60_000) return `${(ms / 1000).toFixed(ms < 10_000 ? 1 : 0)} s`;
-    if (ms < 3_600_000) return `${(ms / 60_000).toFixed(ms < 600_000 ? 1 : 0)} min`;
-    return `${(ms / 3_600_000).toFixed(1)} h`;
-}
 
 export default function SyncedGraphContainer({ children, initialTimeRange, onViewportSettled }: SyncedGraphContainerProps) {
     const { isViewportLocked } = useDisplayControlContext();
@@ -432,10 +427,11 @@ export default function SyncedGraphContainer({ children, initialTimeRange, onVie
             updateWithTimestamp,
             setTimeRange,
             scrollLeftRef,
+            isLive: !initialTimeRange,
             timeToX,
             XToTime,
         }),
-        [scalePxPerSecRef, hoverXRef, globalTimeRangeRef, updateWithTimestamp, setTimeRange, scrollLeftRef, timeToX, XToTime]
+        [scalePxPerSecRef, hoverXRef, globalTimeRangeRef, updateWithTimestamp, setTimeRange, scrollLeftRef, initialTimeRange, timeToX, XToTime]
     );
 
     return (
