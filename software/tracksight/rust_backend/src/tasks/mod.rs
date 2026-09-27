@@ -11,6 +11,12 @@ use tokio::{select, sync::{broadcast, mpsc}, time::sleep};
 
 use crate::{utils::red, vprintln};
 
+/*
+This is for buffer size for channels between workers
+Let's us control how many signals we can hold between sends
+*/
+pub const MAX_CHANNEL_BUFFER_SIZE: usize = 32768;
+
 // im not even going to lie
 // this is kind of an overkill for a health check on tasks
 // it can probably also be implemented a lot more cleanly
