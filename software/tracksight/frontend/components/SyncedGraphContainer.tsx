@@ -174,7 +174,7 @@ export default function SyncedGraphContainer({ children, initialTimeRange, onVie
                 const container = scrollContainerRef.current;
                 if (container) {
                     const timeRange = Math.max(range.max - range.min, 1);
-                    const availableWidth = Math.max(container.clientWidth - RIGHT_PAD, 1);
+                    const availableWidth = Math.max(container.clientWidth - LEFT_PAD - RIGHT_PAD, 1);
                     scalePxPerSecRef.current = availableWidth / timeRange;
                     syncContainerScrollLeft(container, 0);
                 }
