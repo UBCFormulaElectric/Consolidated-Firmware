@@ -34,12 +34,11 @@ function Content() {
 
 export default function LiveDataPage() {
     return (
-        <div id="live-page" className="pt-14 h-[calc(100vh-3.5rem)] w-screen flex flex-col overflow-hidden">
+        <div id="live-page" className="h-screen w-screen pt-14 flex flex-col overflow-hidden">
             <DisplayControlProvider>
-                <div className="fixed top-14 left-0 z-60 flex w-screen -translate-y-1/2 justify-center pointer-events-none">
-                    <div className="pointer-events-auto relative rounded-full bg-white p-2 before:pointer-events-none before:absolute before:inset-0 before:rounded-full before:border before:border-gray-200 before:[clip-path:inset(47%_-2px_-2px_-2px)] before:content-['']">
-                        <ViewportLockButton />
-                    </div>
+                <div className="flex items-center justify-between border-b border-gray-200 px-4 py-2">
+                    <span className="text-xs text-gray-500">Ctrl + scroll to zoom</span>
+                    <ViewportLockButton />
                 </div>
                 <div className="flex-1 min-h-0 w-full relative">
                     <SyncedGraphContainer>
