@@ -66,7 +66,7 @@ export function getFormatters(timeZone: string) {
 }
 
 // left is a gutter shared by every time-aligned canvas: y-axis labels on charts, row names on timelines
-export const CHART_PADDING = { top: 15, right: 0, bottom: 40, left: 168 };
+export const CHART_PADDING = { top: 15, right: 0, bottom: 40, left: 200 };
 // row names in the gutter line up with the 24px (px-6) inset of the section and widget headers
 export const GUTTER_DOT_X = 29;
 export const GUTTER_LABEL_X = 40;
