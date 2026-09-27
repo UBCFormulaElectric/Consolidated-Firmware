@@ -96,12 +96,12 @@ export default function SyncedGraphContainer({ children, initialTimeRange, onVie
         (container: HTMLDivElement, nextScrollLeft: number) => {
             scrollLeftRef.current = nextScrollLeft;
 
-            if (container.scrollLeft === nextScrollLeft) {
-                return;
-            }
-
-            ignoreProgrammaticScrollRef.current = true;
+            // the browser rounds scrollLeft, so only expect a scroll event when the position actually moved
+            const previousScrollLeft = container.scrollLeft;
             container.scrollLeft = nextScrollLeft;
+            if (container.scrollLeft !== previousScrollLeft) {
+                ignoreProgrammaticScrollRef.current = true;
+            }
         },
         [scrollLeftRef]
     );
