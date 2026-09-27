@@ -198,3 +198,23 @@
 .graph-scrollbar::-webkit-scrollbar-corner {
     background: transparent;
 }
+
+/* one-shot ring when a new alert starts; see AlertStatusChip */
+@keyframes alert-flash {
+    from {
+        box-shadow: 0 0 0 0 currentColor;
+    }
+    to {
+        box-shadow: 0 0 0 10px transparent;
+    }
+}
+
+.alert-flash {
+    animation: alert-flash 0.9s ease-out 2;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .alert-flash {
+        animation: none;
+    }
+}

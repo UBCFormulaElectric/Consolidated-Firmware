@@ -1,5 +1,6 @@
 "use client";
 
+import { AlertStatus } from "@/components/AlertStatusChip";
 import { ALERT_SEVERITY_COLOR, ALERT_SEVERITY_ORDER, AlertIntervals, AlertSeverity, parseAlertName, ParsedAlertName } from "@/lib/alerts";
 import { useAlertStore } from "@/lib/contexts/signalStores/SignalStoreContext";
 import { useTimezone } from "@/lib/contexts/TimezoneContext";
@@ -21,6 +22,7 @@ const LABEL_MAX_WIDTH = COUNT_RIGHT_X - GUTTER_LABEL_X - 22; // leaves room for 
 const EDGE_MARKER_WIDTH = 6;
 const EDGE_TOLERANCE_PX = 4;
 const BAR_HIT_SLOP_PX = 3;
+const OFFSCREEN_STATUS_INTERVAL_MS = 250;
 
 const ROW_STRIPE_COLOR = "rgba(15, 23, 42, 0.03)";
 const ROW_HOVER_COLOR = "rgba(37, 99, 235, 0.08)";
@@ -73,7 +75,7 @@ function AlertTimeline() {
     const [activeAbove, setActiveAbove] = useState<OffscreenActive>(null);
     const [activeBelow, setActiveBelow] = useState<OffscreenActive>(null);
 
-    const { globalTimeRangeRef, XToTime, timeToX, hoverXRef, isLive } = useSyncedGraph();
+    const { globalTimeRangeRef, XToTime, timeToX, hoverXRef, isLive, reportAlertStatus } = useSyncedGraph();
     const { timezone } = useTimezone();
 
     // the render loop is started once, so it reads everything that can change through refs
@@ -85,6 +87,8 @@ function AlertTimeline() {
     isLiveRef.current = isLive;
     const timezoneRef = useRef(timezone);
     timezoneRef.current = timezone;
+    const reportAlertStatusRef = useRef(reportAlertStatus);
+    reportAlertStatusRef.current = reportAlertStatus;
 
     const storeRef = useAlertStore();
 
@@ -101,6 +105,7 @@ function AlertTimeline() {
         let rows: AlertRow[] = [];
         let offscreenKey = "";
         let tooltipKey = "";
+        let statusKey = "";
 
         const setTooltip = (lines: string[] | null, clientX = 0, clientY = 0) => {
             const tooltip = tooltipRef.current;
@@ -185,6 +190,44 @@ function AlertTimeline() {
             setActiveBelow(below);
         };
 
+        const syncStatus = (referenceTime: number, activeRows: boolean[]) => {
+            const status: AlertStatus = { fault: 0, warning: 0, info: 0, newestStart: 0 };
+            rows.forEach((row, rowIndex) => {
+                if (!activeRows[rowIndex]) return;
+                status[row.severity]++;
+                status.newestStart = Math.max(status.newestStart, row.tracker.intervals[row.tracker.firstEndingAfter(referenceTime)].start);
+            });
+
+            const key = `${status.fault}|${status.warning}|${status.info}|${status.newestStart}`;
+            if (key === statusKey) return;
+            statusKey = key;
+            reportAlertStatusRef.current(status);
+        };
+
+        // live dots answer "what is wrong right now"; historical dots follow the cursor, else the right edge of the view
+        const getReferenceTime = (latest: number, rightEdge: number) => {
+            const hoverX = hoverXRef.current;
+            return isLiveRef.current ? latest : hoverX !== null ? XToTimeRef.current(hoverX) : rightEdge;
+        };
+
+        // while scrolled offscreen nothing is drawn, but the toolbar chip still needs current status
+        const updateStatusOnly = () => {
+            const store = storeRef.current;
+            const range = globalTimeRangeRef.current;
+            if (!store || !range) return;
+
+            const width = canvas.getBoundingClientRect().width;
+            const leftEdge = XToTimeRef.current(CHART_PADDING.left);
+            const rightEdge = XToTimeRef.current(width);
+            syncRows(store, leftEdge, rightEdge, width - CHART_PADDING.left);
+
+            const referenceTime = getReferenceTime(range.max, rightEdge);
+            syncStatus(
+                referenceTime,
+                rows.map((row) => row.tracker.isActiveAt(referenceTime))
+            );
+        };
+
         const renderRows = () => {
             animationFrame.current = requestAnimationFrame(renderRows);
 
@@ -212,9 +255,8 @@ function AlertTimeline() {
             const rightEdge = toTime(width);
             syncRows(store, leftEdge, rightEdge, width - plotLeft);
 
-            // live dots answer "what is wrong right now"; historical dots follow the cursor, else the right edge of the view
             const hoverX = hoverXRef.current;
-            const referenceTime = isLiveRef.current ? range.max : hoverX !== null ? toTime(hoverX) : rightEdge;
+            const referenceTime = getReferenceTime(range.max, rightEdge);
             const edgeTime = toTime(width + EDGE_TOLERANCE_PX);
 
             const mouse = mousePos.current;
@@ -354,20 +396,29 @@ function AlertTimeline() {
 
             setTooltip(tooltipLines, mouse?.clientX, mouse?.clientY);
             syncOffscreenHints(activeRows);
+            syncStatus(referenceTime, activeRows);
         };
 
+        let statusInterval: number | null = null;
         const observer = new IntersectionObserver((entries) => {
             const entry = entries[entries.length - 1];
-            if (entry.isIntersecting && animationFrame.current === null) animationFrame.current = requestAnimationFrame(renderRows);
-            if (!entry.isIntersecting && animationFrame.current !== null) {
-                cancelAnimationFrame(animationFrame.current);
-                animationFrame.current = null;
+            if (entry.isIntersecting) {
+                if (statusInterval !== null) window.clearInterval(statusInterval);
+                statusInterval = null;
+                if (animationFrame.current === null) animationFrame.current = requestAnimationFrame(renderRows);
+                return;
             }
+
+            if (animationFrame.current !== null) cancelAnimationFrame(animationFrame.current);
+            animationFrame.current = null;
+            statusInterval ??= window.setInterval(updateStatusOnly, OFFSCREEN_STATUS_INTERVAL_MS);
         });
         observer.observe(canvas);
 
         return () => {
+            reportAlertStatusRef.current(null);
             observer.disconnect();
+            if (statusInterval !== null) window.clearInterval(statusInterval);
             if (animationFrame.current !== null) cancelAnimationFrame(animationFrame.current);
             animationFrame.current = null;
         };

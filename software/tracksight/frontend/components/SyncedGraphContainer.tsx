@@ -1,5 +1,6 @@
 import { formatTimeSpan } from "@/lib/utils/formatTimeSpan";
-import { createContext, PointerEvent, ReactNode, RefObject, UIEvent, useCallback, useContext, useEffect, useMemo, useRef } from "react";
+import { createContext, PointerEvent, ReactNode, RefObject, UIEvent, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
+import { AlertStatus, AlertStatusChip } from "./AlertStatusChip";
 import { useDisplayControlContext, ViewportLockButton } from "./PausePlayControl";
 import { CHART_PADDING } from "./widgets/render";
 
@@ -18,6 +19,8 @@ export type SyncedGraphContext_t = {
     // mutations
     updateWithTimestamp(timestamp: number): void; // NOTE: PLEASE CALL THIS EVERY SINGLE TIME A NEW DATA POINT IS ADDED!!!
     setTimeRange(range: TimeRange, fitViewport?: boolean): void;
+
+    reportAlertStatus(status: AlertStatus | null): void; // feeds the toolbar chip; callers should only report changes
 
     // transformations
     timeToX(t: number): number;
@@ -67,6 +70,7 @@ export default function SyncedGraphContainer({ children, initialTimeRange, onVie
     const pendingWidthRef = useRef(false);
     const pendingZoomRef = useRef<{ factor: number; anchorX: number } | null>(null);
     const panRef = useRef<{ pointerId: number; lastX: number } | null>(null);
+    const [alertStatus, setAlertStatus] = useState<AlertStatus | null>(null);
 
     // zoom management
     const scalePxPerSecRef = useRef<number>(1);
@@ -428,6 +432,7 @@ export default function SyncedGraphContainer({ children, initialTimeRange, onVie
             setTimeRange,
             scrollLeftRef,
             isLive: !initialTimeRange,
+            reportAlertStatus: setAlertStatus,
             timeToX,
             XToTime,
         }),
@@ -438,8 +443,13 @@ export default function SyncedGraphContainer({ children, initialTimeRange, onVie
         <SyncedGraphContext.Provider value={CTXVAL}>
             <div className="flex h-full flex-col">
                 <div className="flex shrink-0 items-center justify-between gap-3 border-b border-gray-200 px-4 py-2">
-                    <span className="hidden text-xs text-gray-500 sm:inline">{isViewportLocked ? "Ctrl + scroll or pinch to zoom · pause follow to browse" : "Drag or scroll sideways to pan · Ctrl + scroll or pinch to zoom"}</span>
-                    <div className="flex items-center gap-2">
+                    <div className="flex min-w-0 items-center gap-3">
+                        {/* lives outside the scroll area so active alerts stay visible while reading charts further down.
+                            the jump isn't smooth: following live rewrites scrollLeft every frame, which cancels smooth scrolls */}
+                        <AlertStatusChip status={alertStatus} isLive={!initialTimeRange} onClick={() => scrollContainerRef.current?.scrollTo({ top: 0 })} />
+                        <span className="hidden truncate text-xs text-gray-500 lg:inline">{isViewportLocked ? "Ctrl + scroll or pinch to zoom · pause follow to browse" : "Drag or scroll sideways to pan · Ctrl + scroll or pinch to zoom"}</span>
+                    </div>
+                    <div className="flex shrink-0 items-center gap-2">
                         {initialTimeRange && (
                             <button type="button" onClick={() => setTimeRange(initialTimeRange, true)} className="rounded border px-3 py-1.5 text-sm hover:bg-gray-50">
                                 Fit session
