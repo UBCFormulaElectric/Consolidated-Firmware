@@ -72,6 +72,7 @@ export default function SyncedGraphContainer({ children, initialTimeRange, onVie
     const scrollContainerRef = useRef<HTMLDivElement | null>(null); // NEW: Ref for the scrolling wrapper
     const isViewportLockedRef = useRef(isViewportLocked);
     const viewportSettleTimeoutRef = useRef<number | null>(null);
+    const widthUpdateFrameRef = useRef<number | null>(null);
     const ignoreProgrammaticScrollRef = useRef(false); //clamping scroll position or fitting the window would cause refetches to jack's api
 
     // zoom management
@@ -137,6 +138,9 @@ export default function SyncedGraphContainer({ children, initialTimeRange, onVie
             if (viewportSettleTimeoutRef.current !== null) {
                 window.clearTimeout(viewportSettleTimeoutRef.current);
             }
+            if (widthUpdateFrameRef.current !== null) {
+                cancelAnimationFrame(widthUpdateFrameRef.current);
+            }
         },
         []
     );
@@ -146,6 +150,7 @@ export default function SyncedGraphContainer({ children, initialTimeRange, onVie
         const global_tr = globalTimeRangeRef.current;
         const container = scrollContainerRef.current;
         if (contentRef.current && global_tr && container) {
+            // ponytail: live history grows scroll width; window it if long sessions hit browser limits.
             const container_width = scalePxPerSecRef.current * (global_tr.max - global_tr.min);
             contentRef.current.style.width = `${container_width + LEFT_PAD + RIGHT_PAD}px`;
 
@@ -163,6 +168,14 @@ export default function SyncedGraphContainer({ children, initialTimeRange, onVie
         }
     }, [contentRef, globalTimeRangeRef, scalePxPerSecRef, scrollContainerRef, syncContainerScrollLeft]);
 
+    const scheduleGraphWidth = useCallback(() => {
+        if (widthUpdateFrameRef.current !== null) return;
+        widthUpdateFrameRef.current = requestAnimationFrame(() => {
+            widthUpdateFrameRef.current = null;
+            updateGraphWidth();
+        });
+    }, [updateGraphWidth]);
+
     const updateWithTimestamp = useCallback(
         (timestamp: number) => {
             if (!globalTimeRangeRef.current || timestamp < globalTimeRangeRef.current.min || timestamp > globalTimeRangeRef.current.max) {
@@ -170,10 +183,10 @@ export default function SyncedGraphContainer({ children, initialTimeRange, onVie
                     min: Math.min(timestamp, globalTimeRangeRef.current?.min || timestamp),
                     max: Math.max(timestamp, globalTimeRangeRef.current?.max || timestamp),
                 };
-                updateGraphWidth();
+                scheduleGraphWidth();
             }
         },
-        [updateGraphWidth]
+        [scheduleGraphWidth]
     );
 
     const setTimeRange = useCallback(

@@ -4,7 +4,7 @@ import { RefObject, useEffect, useRef } from "react";
 
 /**
  * Drives a requestAnimationFrame loop on a <canvas>, handling DPR scaling
- * and automatic resize. The `draw` callback is invoked every frame with a
+ * and automatic resize. While visible, `draw` is invoked every frame with a
  * correctly-scaled 2D context and the current CSS width.
  */
 export function useCanvasRenderLoop(canvasRef: RefObject<HTMLCanvasElement | null>, height: number, draw: (ctx: CanvasRenderingContext2D, cssWidth: number) => void) {
@@ -13,14 +13,13 @@ export function useCanvasRenderLoop(canvasRef: RefObject<HTMLCanvasElement | nul
     drawRef.current = draw;
 
     const dpr = typeof window !== "undefined" ? window.devicePixelRatio || 1 : 1;
-    const animationFrameId = useRef<number | null>(null);
-
     useEffect(() => {
         const canvas = canvasRef.current;
         if (!canvas) return;
         const context = canvas.getContext("2d");
         if (!context) return;
 
+        let animationFrameId: number | null = null;
         const renderFrame = () => {
             const cssWidth = canvas.getBoundingClientRect().width;
             const nextCanvasWidth = Math.max(1, Math.floor(cssWidth * dpr));
@@ -34,16 +33,21 @@ export function useCanvasRenderLoop(canvasRef: RefObject<HTMLCanvasElement | nul
 
             drawRef.current(context, cssWidth);
 
-            animationFrameId.current = requestAnimationFrame(renderFrame);
+            animationFrameId = requestAnimationFrame(renderFrame);
         };
 
-        animationFrameId.current = requestAnimationFrame(renderFrame);
+        const observer = new IntersectionObserver(([entry]) => {
+            if (entry.isIntersecting && animationFrameId === null) animationFrameId = requestAnimationFrame(renderFrame);
+            if (!entry.isIntersecting && animationFrameId !== null) {
+                cancelAnimationFrame(animationFrameId);
+                animationFrameId = null;
+            }
+        });
+        observer.observe(canvas);
 
         return () => {
-            if (animationFrameId.current !== null) {
-                cancelAnimationFrame(animationFrameId.current);
-                animationFrameId.current = null;
-            }
+            observer.disconnect();
+            if (animationFrameId !== null) cancelAnimationFrame(animationFrameId);
         };
-    }, [canvasRef.current, height, dpr]);
+    }, [canvasRef, height, dpr]);
 }

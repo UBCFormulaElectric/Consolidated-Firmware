@@ -345,14 +345,21 @@ function AlertTimeline() {
             animationFrame.current = requestAnimationFrame(renderSlipStream);
         };
 
-        animationFrame.current = requestAnimationFrame(renderSlipStream);
+        const observer = new IntersectionObserver(([entry]) => {
+            if (entry.isIntersecting && animationFrame.current === null) animationFrame.current = requestAnimationFrame(renderSlipStream);
+            if (!entry.isIntersecting && animationFrame.current !== null) {
+                cancelAnimationFrame(animationFrame.current);
+                animationFrame.current = null;
+            }
+        });
+        observer.observe(canvas);
 
         return () => {
-            if (animationFrame.current) {
-                cancelAnimationFrame(animationFrame.current);
-            }
+            observer.disconnect();
+            if (animationFrame.current !== null) cancelAnimationFrame(animationFrame.current);
+            animationFrame.current = null;
         };
-    }, [canvasRef.current]);
+    }, []);
 
     const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
         const canvas = canvasRef.current;
