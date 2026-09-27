@@ -75,7 +75,7 @@ function AlertTimeline() {
     const [activeAbove, setActiveAbove] = useState<OffscreenActive>(null);
     const [activeBelow, setActiveBelow] = useState<OffscreenActive>(null);
 
-    const { globalTimeRangeRef, XToTime, timeToX, hoverXRef, isLive, reportAlertStatus } = useSyncedGraph();
+    const { globalTimeRangeRef, XToTime, timeToX, hoverXRef, isLive, reportAlertStatus, highlightedAlertRef } = useSyncedGraph();
     const { timezone } = useTimezone();
 
     // the render loop is started once, so it reads everything that can change through refs
@@ -263,6 +263,9 @@ function AlertTimeline() {
             const hoveredRowIndex = mouse ? Math.floor((mouse.y - ROWS_PADDING_Y) / ROW_HEIGHT) : -1;
             let tooltipLines: string[] | null = null;
 
+            const hoveredRow = rows[hoveredRowIndex];
+            highlightedAlertRef.current = hoveredRow ? { tracker: hoveredRow.tracker, color: ALERT_SEVERITY_COLOR[hoveredRow.severity], latestTime: range.max } : null;
+
             ctx.strokeStyle = GUTTER_DIVIDER_COLOR;
             ctx.lineWidth = 1;
             ctx.beginPath();
@@ -417,6 +420,7 @@ function AlertTimeline() {
 
         return () => {
             reportAlertStatusRef.current(null);
+            highlightedAlertRef.current = null;
             observer.disconnect();
             if (statusInterval !== null) window.clearInterval(statusInterval);
             if (animationFrame.current !== null) cancelAnimationFrame(animationFrame.current);

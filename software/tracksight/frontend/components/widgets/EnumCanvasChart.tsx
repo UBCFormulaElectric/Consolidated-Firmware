@@ -15,7 +15,7 @@ import { useRef } from "react";
 export default function EnumCanvasChart({ id, options, signals, hoveredSignal, onHoverTimestampChange }: EnumTimelineWidgetData) {
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
     const layoutRef = useRef<ChartLayout | null>(null);
-    const { globalTimeRangeRef, hoverXRef, XToTime } = useSyncedGraph();
+    const { globalTimeRangeRef, hoverXRef, XToTime, highlightedAlertRef } = useSyncedGraph();
     const { timezone } = useTimezone();
 
     const { height, timeTickCount } = options;
@@ -51,7 +51,8 @@ export default function EnumCanvasChart({ id, options, signals, hoveredSignal, o
                 max: XToTime(cssWidth - CHART_PADDING.right),
             },
             getVisibleTelemetryMarkers(XToTime(CHART_PADDING.left), XToTime(cssWidth - CHART_PADDING.right)),
-            timezone
+            timezone,
+            highlightedAlertRef.current
         );
     });
 

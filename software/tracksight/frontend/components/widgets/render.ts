@@ -5,6 +5,7 @@ import { ENUM_COLORS } from "@/lib/constants";
 // types
 import { ChartLayout, LODAwareNumericalSeries, LODAwareSeries } from "./CanvasChartTypes";
 // utils
+import { AlertHighlight } from "@/lib/alerts";
 import { bisect } from "@/lib/bisect";
 import { coversRange } from "@/lib/signals/lodLevels";
 import { TelemetryMarker } from "@/lib/telemetryMarkers";
@@ -71,6 +72,7 @@ export const CHART_PADDING = { top: 15, right: 0, bottom: 40, left: 200 };
 export const GUTTER_DOT_X = 29;
 export const GUTTER_LABEL_X = 40;
 export const GUTTER_LABEL_FONT = "12px sans-serif";
+const ALERT_HIGHLIGHT_ALPHA = 0.14;
 
 const fittedTextCache = new Map<string, string>();
 
@@ -495,7 +497,24 @@ function render_markers(context: CanvasRenderingContext2D, width: number, height
     });
 }
 
-export default function render(context: CanvasRenderingContext2D, width: number, height: number, layoutRef: RefObject<ChartLayout | null>, chartData: WidgetData, timeTickCount: number, hoverTime: number | null, hoveredSignal: RefObject<string | null> | undefined, { min: visibleStartTime, max: visibleEndTime }: { min: number; max: number }, markers: TelemetryMarker[], timeZone: string) {
+function render_alert_highlight(context: CanvasRenderingContext2D, width: number, height: number, highlight: AlertHighlight, visibleStartTime: number, visibleEndTime: number, timeToX: (t: number) => number) {
+    const { intervals, open } = highlight.tracker;
+
+    context.fillStyle = highlight.color;
+    context.globalAlpha = ALERT_HIGHLIGHT_ALPHA;
+    for (let i = highlight.tracker.firstEndingAfter(visibleStartTime); i < intervals.length; i++) {
+        const interval = intervals[i];
+        if (interval.start > visibleEndTime) break;
+
+        const end = open && i === intervals.length - 1 ? Math.max(interval.end, highlight.latestTime) : interval.end;
+        const startX = Math.max(timeToX(interval.start), CHART_PADDING.left);
+        const endX = Math.min(Math.max(timeToX(end), startX + 2), width - CHART_PADDING.right);
+        context.fillRect(startX, CHART_PADDING.top, endX - startX, height - CHART_PADDING.top - CHART_PADDING.bottom);
+    }
+    context.globalAlpha = 1;
+}
+
+export default function render(context: CanvasRenderingContext2D, width: number, height: number, layoutRef: RefObject<ChartLayout | null>, chartData: WidgetData, timeTickCount: number, hoverTime: number | null, hoveredSignal: RefObject<string | null> | undefined, { min: visibleStartTime, max: visibleEndTime }: { min: number; max: number }, markers: TelemetryMarker[], timeZone: string, alertHighlight: AlertHighlight | null = null) {
     context.clearRect(0, 0, width, height);
 
     const numericalTop = CHART_PADDING.top;
@@ -514,6 +533,9 @@ export default function render(context: CanvasRenderingContext2D, width: number,
         chartWidth,
         paddingLeft: CHART_PADDING.left,
     };
+
+    // drawn first so the shading sits under the data
+    if (alertHighlight) render_alert_highlight(context, width, height, alertHighlight, visibleStartTime, visibleEndTime, timeToX);
 
     let hover_value: Array<{ name: string; value: string }> | null = null;
 

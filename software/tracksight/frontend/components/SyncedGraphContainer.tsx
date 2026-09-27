@@ -1,3 +1,4 @@
+import { AlertHighlight } from "@/lib/alerts";
 import { formatTimeSpan } from "@/lib/utils/formatTimeSpan";
 import { createContext, PointerEvent, ReactNode, RefObject, UIEvent, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { AlertStatus, AlertStatusChip } from "./AlertStatusChip";
@@ -15,6 +16,7 @@ export type SyncedGraphContext_t = {
     globalTimeRangeRef: RefObject<TimeRange | null>;
     scrollLeftRef: RefObject<number>;
     isLive: boolean; // follows incoming data rather than showing a fixed historical session
+    highlightedAlertRef: RefObject<AlertHighlight | null>; // set by the alert rows on hover, shaded by every chart
 
     // mutations
     updateWithTimestamp(timestamp: number): void; // NOTE: PLEASE CALL THIS EVERY SINGLE TIME A NEW DATA POINT IS ADDED!!!
@@ -421,6 +423,7 @@ export default function SyncedGraphContainer({ children, initialTimeRange, onVie
 
     // hover
     const hoverXRef = useRef<number | null>(null);
+    const highlightedAlertRef = useRef<AlertHighlight | null>(null);
 
     // context
     const CTXVAL = useMemo<SyncedGraphContext_t>(
@@ -433,6 +436,7 @@ export default function SyncedGraphContainer({ children, initialTimeRange, onVie
             scrollLeftRef,
             isLive: !initialTimeRange,
             reportAlertStatus: setAlertStatus,
+            highlightedAlertRef,
             timeToX,
             XToTime,
         }),

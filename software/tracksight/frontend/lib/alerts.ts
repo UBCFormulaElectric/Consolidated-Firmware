@@ -21,6 +21,14 @@ export function parseAlertName(name: string): ParsedAlertName {
 
 export type AlertInterval = { start: number; end: number };
 
+/** the alert row being hovered, shaded across every chart so its effect on the signals is visible */
+export type AlertHighlight = {
+    tracker: AlertIntervals;
+    color: string;
+    /** newest data time; an alert still active at its last sample is shaded up to here */
+    latestTime: number;
+};
+
 /**
  * Active intervals of one alert series at one LOD. Live samples are appended to the same arrays,
  * so only new samples are scanned; a different array (LOD switch, historical merge) rebuilds from scratch.
