@@ -4,10 +4,11 @@ import { ChevronDown, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+import { DevPerfMeter } from "@/components/DevPerfMeter";
 import { ErrorRateIndicator } from "@/components/ErrorRateIndicator";
 import { TimezoneSelector } from "@/components/common/TimezoneSelector";
 import { formatSessionLabel } from "@/lib/api/historicalSessions";
-import { API_BASE_URL, IS_MOCK } from "@/lib/constants";
+import { API_BASE_URL, IS_DEBUG, IS_MOCK } from "@/lib/constants";
 import { useHistoricalSelection } from "@/lib/contexts/HistoricalSelectionContext";
 import { useTimezone } from "@/lib/contexts/TimezoneContext";
 
@@ -65,6 +66,7 @@ function Navbar() {
                 </div>
                 <div className="flex items-center gap-4">
                     {isHistorical ? <HistoricalNavControls /> : null}
+                    {IS_MOCK || IS_DEBUG ? <DevPerfMeter /> : null}
                     <TimezoneSelector />
                     <ErrorRateIndicator />
                 </div>

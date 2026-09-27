@@ -1,4 +1,5 @@
 import { LODAwareAlertSeries, LODAwareEnumSeries, LODAwareNumericalSeries } from "@/components/widgets/CanvasChartTypes";
+import { perfStats } from "../perfStats";
 import { SeriesData } from "../seriesData";
 import { SignalMetadata, SignalType } from "../types/Signal";
 import { LevelPoint, markTilesCovered, mergeSortedPoints } from "./lodLevels";
@@ -260,6 +261,7 @@ abstract class SignalStore {
     }
 
     addDataPoint(signalName: string, timestamp: number, value: number): void {
+        perfStats.samplesIngested++;
         this.updateWithTimestamp(timestamp);
         const entry = this.storage[signalName];
 
