@@ -1,4 +1,4 @@
-import { createContext, ReactNode, RefObject, UIEvent, useCallback, useContext, useEffect, useMemo, useRef } from "react";
+import { createContext, PointerEvent, ReactNode, RefObject, UIEvent, useCallback, useContext, useEffect, useMemo, useRef } from "react";
 import { useDisplayControlContext, ViewportLockButton } from "./PausePlayControl";
 import { CHART_PADDING } from "./widgets/render";
 
@@ -71,6 +71,7 @@ export default function SyncedGraphContainer({ children, initialTimeRange, onVie
     const layoutFrameRef = useRef<number | null>(null);
     const pendingWidthRef = useRef(false);
     const pendingZoomRef = useRef<{ factor: number; anchorX: number } | null>(null);
+    const panRef = useRef<{ pointerId: number; lastX: number } | null>(null);
 
     // zoom management
     const scalePxPerSecRef = useRef<number>(1);
@@ -365,6 +366,30 @@ export default function SyncedGraphContainer({ children, initialTimeRange, onVie
         };
     }, [queueZoom]);
 
+    // click-and-drag panning for mice; touch and trackpads already pan natively
+    const handlePointerDown = useCallback((event: PointerEvent<HTMLDivElement>) => {
+        if (event.button !== 0 || event.pointerType !== "mouse" || isViewportLockedRef.current || !(event.target instanceof HTMLCanvasElement)) return;
+        event.preventDefault();
+        event.currentTarget.setPointerCapture(event.pointerId);
+        event.currentTarget.dataset.panning = "";
+        panRef.current = { pointerId: event.pointerId, lastX: event.clientX };
+        hoverXRef.current = null;
+    }, []);
+
+    const handlePointerMove = useCallback((event: PointerEvent<HTMLDivElement>) => {
+        const pan = panRef.current;
+        if (!pan || pan.pointerId !== event.pointerId) return;
+        event.currentTarget.scrollLeft -= event.clientX - pan.lastX; // onScroll picks this up like any user scroll
+        pan.lastX = event.clientX;
+    }, []);
+
+    const handlePointerUp = useCallback((event: PointerEvent<HTMLDivElement>) => {
+        if (panRef.current?.pointerId !== event.pointerId) return;
+        panRef.current = null;
+        delete event.currentTarget.dataset.panning;
+        if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId);
+    }, []);
+
     useEffect(() => {
         if (!isViewportLocked) {
             return;
@@ -417,7 +442,7 @@ export default function SyncedGraphContainer({ children, initialTimeRange, onVie
         <SyncedGraphContext.Provider value={CTXVAL}>
             <div className="flex h-full flex-col">
                 <div className="flex shrink-0 items-center justify-between gap-3 border-b border-gray-200 px-4 py-2">
-                    <span className="hidden text-xs text-gray-500 sm:inline">{isViewportLocked ? "Ctrl + scroll or pinch to zoom · pause follow to browse" : "Scroll sideways to pan · Ctrl + scroll or pinch to zoom"}</span>
+                    <span className="hidden text-xs text-gray-500 sm:inline">{isViewportLocked ? "Ctrl + scroll or pinch to zoom · pause follow to browse" : "Drag or scroll sideways to pan · Ctrl + scroll or pinch to zoom"}</span>
                     <div className="flex items-center gap-2">
                         {initialTimeRange && (
                             <button type="button" onClick={() => setTimeRange(initialTimeRange, true)} className="rounded border px-3 py-1.5 text-sm hover:bg-gray-50">
@@ -434,7 +459,7 @@ export default function SyncedGraphContainer({ children, initialTimeRange, onVie
                         {!initialTimeRange && <ViewportLockButton />}
                     </div>
                 </div>
-                <div ref={scrollContainerRef} className={isViewportLocked ? "min-h-0 w-full flex-1 overflow-x-hidden overflow-y-scroll" : "min-h-0 w-full flex-1 overflow-x-auto overflow-y-scroll"} style={{ overscrollBehaviorX: "contain" }} onScroll={updateLeftScroll}>
+                <div ref={scrollContainerRef} className={isViewportLocked ? "min-h-0 w-full flex-1 overflow-x-hidden overflow-y-scroll" : "min-h-0 w-full flex-1 overflow-x-auto overflow-y-scroll [&_canvas]:cursor-grab data-panning:select-none data-panning:[&_canvas]:cursor-grabbing"} style={{ overscrollBehaviorX: "contain" }} onScroll={updateLeftScroll} onPointerDown={handlePointerDown} onPointerMove={handlePointerMove} onPointerUp={handlePointerUp} onPointerCancel={handlePointerUp}>
                     <div ref={contentRef} className="min-w-full relative">
                         <div
                             className="sticky left-0"
