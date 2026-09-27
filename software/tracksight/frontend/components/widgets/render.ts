@@ -514,6 +514,7 @@ export default function render(context: CanvasRenderingContext2D, width: number,
     context.textAlign = "center";
     context.textBaseline = "top";
     context.fillStyle = "#000000";
+    context.font = "12px sans-serif";
 
     const tickSpacing = niceNumber(timeRange / numTimeTicks, true);
     const firstTick = Math.floor(visibleStartTime / tickSpacing) * tickSpacing;
