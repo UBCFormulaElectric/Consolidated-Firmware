@@ -1,10 +1,7 @@
 import "@/app/globals.css";
 
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
 import type { ReactNode } from "react";
-
-const inter = Inter({ subsets: ["latin"] });
 
 import { HistoricalSelectionProvider } from "@/lib/contexts/HistoricalSelectionContext";
 import QueryProvider from "@/lib/contexts/QueryProvider";
@@ -31,7 +28,7 @@ export default async function RootLayout({
                 <meta name="apple-mobile-web-app-title" content="Tracksight" />
                 <link rel="manifest" href="/favicon/site.webmanifest" />
             </head>
-            <body className={`${inter.className} overflow-y-hidden`} style={{ overflowX: "overlay" }}>
+            <body className="font-sans overflow-y-hidden" style={{ overflowX: "overlay" }}>
                 <TimezoneProvider>
                     <QueryProvider>
                         <HistoricalSelectionProvider>
