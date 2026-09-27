@@ -160,8 +160,10 @@ function AlertTimeline() {
             const wrapper = wrapperRef.current;
             if (!wrapper) return;
 
+            // derive the viewport from the row count rather than the DOM: a new row is drawn a frame before React grows the canvas
+            const viewportHeight = Math.min(heightForRows(rows.length), heightForRows(MAX_VISIBLE_ROWS));
             const firstVisible = Math.ceil((wrapper.scrollTop - ROWS_PADDING_Y) / ROW_HEIGHT);
-            const lastVisible = Math.floor((wrapper.scrollTop + wrapper.clientHeight - ROWS_PADDING_Y) / ROW_HEIGHT) - 1;
+            const lastVisible = Math.floor((wrapper.scrollTop + viewportHeight - ROWS_PADDING_Y) / ROW_HEIGHT) - 1;
 
             const summarize = (from: number, to: number): OffscreenActive => {
                 let count = 0;
