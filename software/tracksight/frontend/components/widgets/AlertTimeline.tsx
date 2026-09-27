@@ -9,16 +9,26 @@ import { getVisibleTelemetryMarkers } from "@/lib/telemetryMarkers";
 import { formatTimeSpan } from "@/lib/utils/formatTimeSpan";
 import { useEffect, useRef, useState } from "react";
 import { useSyncedGraph } from "../SyncedGraphContainer";
-import { CHART_PADDING, fitText, getFormatters, GUTTER_DOT_X, GUTTER_LABEL_FONT, GUTTER_LABEL_X, render_hover_line, selectLOD } from "./render";
+import { CHART_PADDING, getFormatters, render_hover_line, selectLOD } from "./render";
 
-// One fixed row per alert: names stay still in the gutter and only the unlabelled bars move with time,
+// One fixed row per alert: names stay still at the left and only the unlabelled bars move with time,
 // so the section stays readable while data scrolls quickly.
 const ROW_HEIGHT = 20;
 const BAR_HEIGHT = 10;
 const ROWS_PADDING_Y = 6;
 const MAX_VISIBLE_ROWS = 12;
-const COUNT_RIGHT_X = CHART_PADDING.left - 10;
-const LABEL_MAX_WIDTH = COUNT_RIGHT_X - GUTTER_LABEL_X - 22; // leaves room for the count
+
+// Bars share the charts' time axis from CHART_PADDING.left, so names are drawn over the left of each row on a
+// backdrop (in live view that is the oldest data in view) rather than in a gutter that would push every chart right.
+const NAME_COLUMN_WIDTH = 200;
+const NAME_FADE_WIDTH = 24;
+const NAME_DOT_X = 29; // lines up with the 24px (px-6) inset of the section and chart headers
+const NAME_X = 40;
+const NAME_FONT = "12px sans-serif";
+const COUNT_RIGHT_X = NAME_COLUMN_WIDTH - 10;
+const NAME_MAX_WIDTH = COUNT_RIGHT_X - NAME_X - 22; // leaves room for the count
+const NAME_BACKDROP_RGB = "249, 250, 251"; // the section's gray-50
+const NAME_BACKDROP_ALPHA = 0.92;
 const EDGE_MARKER_WIDTH = 6;
 const EDGE_TOLERANCE_PX = 4;
 const BAR_HIT_SLOP_PX = 3;
@@ -26,7 +36,6 @@ const OFFSCREEN_STATUS_INTERVAL_MS = 250;
 
 const ROW_STRIPE_COLOR = "rgba(15, 23, 42, 0.03)";
 const ROW_HOVER_COLOR = "rgba(37, 99, 235, 0.08)";
-const GUTTER_DIVIDER_COLOR = "#e5e7eb";
 const INACTIVE_DOT_COLOR = "#cbd5e1";
 const NODE_TEXT_COLOR = "#9ca3af";
 const ACTIVE_TEXT_COLOR = "#111827";
@@ -35,6 +44,24 @@ const COUNT_FONT = "11px sans-serif";
 const MARKER_COLOR = "rgba(220, 38, 38, 0.85)";
 
 const heightForRows = (rows: number) => ROWS_PADDING_Y * 2 + rows * ROW_HEIGHT;
+
+const fittedNameCache = new Map<string, string>();
+
+/** truncates `text` with an ellipsis to fit `maxWidth` in the context's current font; cached since names rarely change */
+function fitText(context: CanvasRenderingContext2D, text: string, maxWidth: number): string {
+    const key = `${context.font}|${maxWidth}|${text}`;
+    const cached = fittedNameCache.get(key);
+    if (cached !== undefined) return cached;
+
+    let fitted = text;
+    if (context.measureText(text).width > maxWidth) {
+        let end = text.length;
+        while (end > 0 && context.measureText(`${text.slice(0, end)}…`).width > maxWidth) end--;
+        fitted = `${text.slice(0, end)}…`;
+    }
+    fittedNameCache.set(key, fitted);
+    return fitted;
+}
 
 type AlertRow = ParsedAlertName & {
     name: string;
@@ -266,12 +293,9 @@ function AlertTimeline() {
             const hoveredRow = rows[hoveredRowIndex];
             highlightedAlertRef.current = hoveredRow ? { tracker: hoveredRow.tracker, color: ALERT_SEVERITY_COLOR[hoveredRow.severity], latestTime: range.max } : null;
 
-            ctx.strokeStyle = GUTTER_DIVIDER_COLOR;
-            ctx.lineWidth = 1;
-            ctx.beginPath();
-            ctx.moveTo(plotLeft - 0.5, 0);
-            ctx.lineTo(plotLeft - 0.5, height);
-            ctx.stroke();
+            const nameBackdrop = ctx.createLinearGradient(NAME_COLUMN_WIDTH, 0, NAME_COLUMN_WIDTH + NAME_FADE_WIDTH, 0);
+            nameBackdrop.addColorStop(0, `rgba(${NAME_BACKDROP_RGB}, ${NAME_BACKDROP_ALPHA})`);
+            nameBackdrop.addColorStop(1, `rgba(${NAME_BACKDROP_RGB}, 0)`);
 
             const activeRows = rows.map((row, rowIndex) => {
                 const top = ROWS_PADDING_Y + rowIndex * ROW_HEIGHT;
@@ -280,39 +304,7 @@ function AlertTimeline() {
                 const { intervals, open } = row.tracker;
                 const isActive = row.tracker.isActiveAt(referenceTime);
 
-                if (rowIndex === hoveredRowIndex) {
-                    ctx.fillStyle = ROW_HOVER_COLOR;
-                    ctx.fillRect(0, top, width, ROW_HEIGHT);
-                } else if (rowIndex % 2 === 1) {
-                    ctx.fillStyle = ROW_STRIPE_COLOR;
-                    ctx.fillRect(0, top, width, ROW_HEIGHT);
-                }
-
-                ctx.beginPath();
-                ctx.arc(GUTTER_DOT_X, centerY, 4, 0, Math.PI * 2);
-                if (isActive) {
-                    ctx.fillStyle = color;
-                    ctx.fill();
-                } else {
-                    ctx.strokeStyle = INACTIVE_DOT_COLOR;
-                    ctx.lineWidth = 1.5;
-                    ctx.stroke();
-                }
-
-                ctx.font = GUTTER_LABEL_FONT;
-                ctx.textAlign = "left";
-                ctx.textBaseline = "middle";
-                let labelX = GUTTER_LABEL_X;
-                if (row.node) {
-                    const nodeText = `${row.node} `;
-                    ctx.fillStyle = NODE_TEXT_COLOR;
-                    ctx.fillText(nodeText, labelX, centerY);
-                    labelX += ctx.measureText(nodeText).width;
-                }
-                ctx.fillStyle = isActive ? ACTIVE_TEXT_COLOR : INACTIVE_TEXT_COLOR;
-                ctx.fillText(fitText(ctx, row.shortName, LABEL_MAX_WIDTH - (labelX - GUTTER_LABEL_X)), labelX, centerY);
-
-                // bars
+                // bars first so the name backdrop can sit over them
                 ctx.save();
                 ctx.beginPath();
                 ctx.rect(plotLeft, top, width - plotLeft, ROW_HEIGHT);
@@ -334,7 +326,7 @@ function AlertTimeline() {
 
                     countInView++;
                     if (end > edgeTime) continuesPastRightEdge = true;
-                    if (rowIndex === hoveredRowIndex && mouse && mouse.x >= startX - BAR_HIT_SLOP_PX && mouse.x <= endX + BAR_HIT_SLOP_PX) {
+                    if (rowIndex === hoveredRowIndex && mouse && mouse.x >= NAME_COLUMN_WIDTH && mouse.x >= startX - BAR_HIT_SLOP_PX && mouse.x <= endX + BAR_HIT_SLOP_PX) {
                         hoveredInterval = { start: interval.start, end, ongoing };
                     }
 
@@ -343,6 +335,50 @@ function AlertTimeline() {
                     ctx.fill();
                 }
                 ctx.restore();
+
+                ctx.fillStyle = `rgba(${NAME_BACKDROP_RGB}, ${NAME_BACKDROP_ALPHA})`;
+                ctx.fillRect(0, top, NAME_COLUMN_WIDTH, ROW_HEIGHT);
+                ctx.fillStyle = nameBackdrop;
+                ctx.fillRect(NAME_COLUMN_WIDTH, top, NAME_FADE_WIDTH, ROW_HEIGHT);
+
+                if (rowIndex === hoveredRowIndex) {
+                    ctx.fillStyle = ROW_HOVER_COLOR;
+                    ctx.fillRect(0, top, width, ROW_HEIGHT);
+                } else if (rowIndex % 2 === 1) {
+                    ctx.fillStyle = ROW_STRIPE_COLOR;
+                    ctx.fillRect(0, top, width, ROW_HEIGHT);
+                }
+
+                ctx.beginPath();
+                ctx.arc(NAME_DOT_X, centerY, 4, 0, Math.PI * 2);
+                if (isActive) {
+                    ctx.fillStyle = color;
+                    ctx.fill();
+                } else {
+                    ctx.strokeStyle = INACTIVE_DOT_COLOR;
+                    ctx.lineWidth = 1.5;
+                    ctx.stroke();
+                }
+
+                ctx.font = NAME_FONT;
+                ctx.textAlign = "left";
+                ctx.textBaseline = "middle";
+                let nameX = NAME_X;
+                if (row.node) {
+                    const nodeText = `${row.node} `;
+                    ctx.fillStyle = NODE_TEXT_COLOR;
+                    ctx.fillText(nodeText, nameX, centerY);
+                    nameX += ctx.measureText(nodeText).width;
+                }
+                ctx.fillStyle = isActive ? ACTIVE_TEXT_COLOR : INACTIVE_TEXT_COLOR;
+                ctx.fillText(fitText(ctx, row.shortName, NAME_MAX_WIDTH - (nameX - NAME_X)), nameX, centerY);
+
+                if (countInView > 0) {
+                    ctx.font = COUNT_FONT;
+                    ctx.textAlign = "right";
+                    ctx.fillStyle = NODE_TEXT_COLOR;
+                    ctx.fillText(`${countInView}`, COUNT_RIGHT_X, centerY);
+                }
 
                 if (continuesPastRightEdge) {
                     // the bar runs on into time that is out of view
@@ -358,16 +394,9 @@ function AlertTimeline() {
                     ctx.fill();
                 }
 
-                if (countInView > 0) {
-                    ctx.font = COUNT_FONT;
-                    ctx.textAlign = "right";
-                    ctx.fillStyle = NODE_TEXT_COLOR;
-                    ctx.fillText(`${countInView}`, COUNT_RIGHT_X, centerY);
-                }
-
                 if (rowIndex === hoveredRowIndex && mouse) {
                     const timeZone = timezoneRef.current;
-                    if (mouse.x < plotLeft) {
+                    if (mouse.x < NAME_COLUMN_WIDTH) {
                         tooltipLines = [row.name, `${isActive ? "Active" : "Inactive"} · ${countInView} ${countInView === 1 ? "occurrence" : "occurrences"} in view`];
                     } else if (hoveredInterval) {
                         const { start, end, ongoing } = hoveredInterval;
@@ -380,7 +409,8 @@ function AlertTimeline() {
 
             ctx.save();
             ctx.beginPath();
-            ctx.rect(plotLeft, 0, width - plotLeft, height);
+            // vertical lines stay off the names so they remain readable
+            ctx.rect(NAME_COLUMN_WIDTH, 0, width - NAME_COLUMN_WIDTH, height);
             ctx.clip();
             ctx.strokeStyle = MARKER_COLOR;
             ctx.lineWidth = 1.5;
@@ -391,11 +421,11 @@ function AlertTimeline() {
                 ctx.lineTo(x, height);
                 ctx.stroke();
             });
-            ctx.restore();
 
             if (hoverX !== null) {
                 render_hover_line(ctx, width, height, toTime(hoverX), toX, false);
             }
+            ctx.restore();
 
             setTooltip(tooltipLines, mouse?.clientX, mouse?.clientY);
             syncOffscreenHints(activeRows);
@@ -432,7 +462,7 @@ function AlertTimeline() {
         const rect = event.currentTarget.getBoundingClientRect();
         const x = event.clientX - rect.left;
         mousePos.current = { x, y: event.clientY - rect.top, clientX: event.clientX, clientY: event.clientY };
-        hoverXRef.current = x >= CHART_PADDING.left ? x : null;
+        hoverXRef.current = x >= NAME_COLUMN_WIDTH ? x : null; // hovering names shouldn't move the charts' hover line
     };
 
     const handleMouseLeave = () => {
@@ -456,7 +486,7 @@ function AlertTimeline() {
             </div>
             <div ref={wrapperRef} className="relative overflow-y-auto" tabIndex={0} aria-label="Alert rows" style={{ maxHeight: heightForRows(MAX_VISIBLE_ROWS) }}>
                 {rowCount === 0 && (
-                    <p className="pointer-events-none absolute inset-y-0 flex items-center text-xs text-gray-500" style={{ left: GUTTER_LABEL_X }}>
+                    <p className="pointer-events-none absolute inset-y-0 flex items-center text-xs text-gray-500" style={{ left: NAME_X }}>
                         {isLive ? "No alerts have fired yet." : "No alerts in the loaded data."}
                     </p>
                 )}

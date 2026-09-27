@@ -66,31 +66,8 @@ export function getFormatters(timeZone: string) {
     return FORMATTERS_CACHE.get(timeZone)!;
 }
 
-// left is a gutter shared by every time-aligned canvas: y-axis labels on charts, row names on timelines
-export const CHART_PADDING = { top: 15, right: 0, bottom: 40, left: 200 };
-// row names in the gutter line up with the 24px (px-6) inset of the section and widget headers
-export const GUTTER_DOT_X = 29;
-export const GUTTER_LABEL_X = 40;
-export const GUTTER_LABEL_FONT = "12px sans-serif";
+export const CHART_PADDING = { top: 15, right: 0, bottom: 40, left: 60 };
 const ALERT_HIGHLIGHT_ALPHA = 0.14;
-
-const fittedTextCache = new Map<string, string>();
-
-/** truncates `text` with an ellipsis to fit `maxWidth` in the context's current font; cached since names rarely change */
-export function fitText(context: CanvasRenderingContext2D, text: string, maxWidth: number): string {
-    const key = `${context.font}|${maxWidth}|${text}`;
-    const cached = fittedTextCache.get(key);
-    if (cached !== undefined) return cached;
-
-    let fitted = text;
-    if (context.measureText(text).width > maxWidth) {
-        let end = text.length;
-        while (end > 0 && context.measureText(`${text.slice(0, end)}…`).width > maxWidth) end--;
-        fitted = `${text.slice(0, end)}…`;
-    }
-    fittedTextCache.set(key, fitted);
-    return fitted;
-}
 
 function isLevelUsable(lod: LODAwareSeries["lods"][number], visibleStart: number, visibleEnd: number): boolean {
     if (lod.timestamps.length === 0) return false;
@@ -178,14 +155,8 @@ function render_enum(
 
         context.beginPath();
         context.fillStyle = widgetConfig.options.colorPalette[widgetConfig.signals[series_idx]?.name ?? ""]?.color.hex() ?? "#333";
-        context.arc(GUTTER_DOT_X, currentStripY + ENUM_STRIP_HEIGHT / 2, 5, 0, Math.PI * 2);
+        context.arc(CHART_PADDING.left / 2, currentStripY + ENUM_STRIP_HEIGHT / 2, 6, 0, Math.PI * 2);
         context.fill();
-
-        context.fillStyle = "#111827";
-        context.font = GUTTER_LABEL_FONT;
-        context.textAlign = "left";
-        context.textBaseline = "middle";
-        context.fillText(fitText(context, series.label, CHART_PADDING.left - GUTTER_LABEL_X - 8), GUTTER_LABEL_X, currentStripY + ENUM_STRIP_HEIGHT / 2);
 
         for (let data_idx = binarySearchForFirstEnumIndex(seriesTimestamps, visibleStartTime); data_idx <= binarySearchForFirstEnumIndex(seriesTimestamps, visibleEndTime); data_idx++) {
             const dataStartTime = seriesTimestamps[data_idx];
