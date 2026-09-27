@@ -45,13 +45,15 @@ export function getMockAlertNames(count: number): string[] {
     return names;
 }
 
+const MOCK_SIGNAL_COUNT = 60;
+
 /** A mixed catalog of numerical (~70%), enum (~20%) and boolean (~10%) signals, standing in for /signal/metadata. */
-export function getMockSignalCatalog(count: number): SignalMetadata[] {
-    const random = seededRandom(count);
+export function getMockSignalCatalog(): SignalMetadata[] {
+    const random = seededRandom(MOCK_SIGNAL_COUNT);
     const signals: SignalMetadata[] = [];
     const cycleTimes = [10, 20, 100, 1000];
 
-    for (let i = 0; i < count; i++) {
+    for (let i = 0; i < MOCK_SIGNAL_COUNT; i++) {
         const node = NODES[i % NODES.length];
         const round = Math.floor(i / NODES.length);
         const common = { tx_node: node, msg_name: `${node}_MockMessage${Math.floor(i / 4)}`, id: 1000 + i, cycle_time_ms: cycleTimes[Math.floor(random() * cycleTimes.length)] };

@@ -1,5 +1,5 @@
 import { getMockAlertNames } from "@/lib/mock/catalog";
-import { getMockConfig } from "@/lib/mock/config";
+import { readMockParam } from "@/lib/mock/config";
 import SignalStore from "@/lib/signals/SignalStore";
 import { addTelemetryMarker } from "../telemetryMarkers";
 import { isEnumSignalMetadata, SignalMetadata, SignalType } from "../types/Signal";
@@ -12,6 +12,8 @@ const TICK_MS = 10;
 // a throttled background tab skips ahead rather than emitting a burst of backlogged samples
 const MAX_CATCH_UP_MS = 1_000;
 const MOCK_MARKER_INTERVAL_MS = 8_000;
+const SAMPLE_HZ = 100; // per charted signal, the fastest real cycle time (10 ms)
+const DEFAULT_ALERT_COUNT = 12;
 
 // real alert messages are sent at 10 Hz and are inactive most of the time
 const ALERT_SAMPLE_INTERVAL_MS = 100;
@@ -49,7 +51,7 @@ class MockSignalStore extends SignalStore {
 
         if (typeof window === "undefined") return;
 
-        getMockAlertNames(getMockConfig().alertCount).forEach((name) => {
+        getMockAlertNames(readMockParam("mockAlerts") ?? DEFAULT_ALERT_COUNT).forEach((name) => {
             const signal = alertMetadata(name);
             this.getOrCreateSignalData(signal);
             this.generators.set(name, this.createGenerator(signal, ALERT_SAMPLE_INTERVAL_MS));
@@ -136,7 +138,7 @@ class MockSignalStore extends SignalStore {
         this.incrementSubscribers(signal.name);
 
         if (this.getSubscriberCount(signal.name) === 1 && signal.type !== SignalType.ALERT) {
-            this.generators.set(signal.name, this.createGenerator(signal, 1000 / getMockConfig().sampleHz));
+            this.generators.set(signal.name, this.createGenerator(signal, 1000 / SAMPLE_HZ));
         }
 
         return signalData.data as any;

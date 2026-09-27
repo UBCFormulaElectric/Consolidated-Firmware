@@ -9,7 +9,7 @@ import { LiveSignalStoreProvider } from "@/lib/contexts/signalStores/LiveSignalS
 import { MockSignalStoreProvider } from "@/lib/contexts/signalStores/MockSignalStoreContext";
 import { getMockSignalCatalog } from "@/lib/mock/catalog";
 import { createMockCharts } from "@/lib/mock/charts";
-import { getMockConfig } from "@/lib/mock/config";
+import { readMockParam } from "@/lib/mock/config";
 import { useEffect } from "react";
 
 const USE_MOCK_DATA = process.env.NEXT_PUBLIC_USE_MOCK_DATA === "true";
@@ -22,11 +22,11 @@ function Content() {
         // ?mockCharts=N swaps in N random charts for stress testing, then drops the param so a reload keeps them
         if (!USE_MOCK_DATA || !initializedFromLocalStorage) return;
 
-        const url = new URL(window.location.href);
-        const count = Number(url.searchParams.get("mockCharts"));
-        if (!Number.isInteger(count) || count <= 0) return;
+        const count = readMockParam("mockCharts");
+        if (!count) return;
 
-        replaceWidgets(createMockCharts(count, getMockSignalCatalog(getMockConfig().signalCount)));
+        replaceWidgets(createMockCharts(count, getMockSignalCatalog()));
+        const url = new URL(window.location.href);
         url.searchParams.delete("mockCharts");
         window.history.replaceState(null, "", url);
     }, [initializedFromLocalStorage, replaceWidgets]);
