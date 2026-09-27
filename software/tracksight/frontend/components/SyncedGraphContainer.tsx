@@ -8,7 +8,7 @@ export interface TimeRange {
 }
 export type SyncedGraphContext_t = {
     // internal
-    scalePxPerSecRef: RefObject<number>; // a measure of zoom
+    scalePxPerSecRef: RefObject<number>; // a measure of zoom (NOTE: actually px per ms, timestamps are in ms)
     hoverXRef: RefObject<number | null>;
     globalTimeRangeRef: RefObject<TimeRange | null>;
     scrollLeftRef: RefObject<number>;
@@ -39,8 +39,20 @@ export function useSyncedGraph() {
 
 const RIGHT_PAD = 10;
 const LEFT_PAD = CHART_PADDING.left;
-const MIN_SCALE_PX_PER_SEC = 0.001;
-const MAX_SCALE_PX_PER_SEC = 10000;
+const MIN_SCALE_PX_PER_MS = 0.001;
+const MAX_SCALE_PX_PER_MS = 10000;
+// browsers stop laying out elements past ~17.9M px (Firefox) / ~33.5M px (Chrome), so cap how wide zoom can make the content
+const MAX_CONTENT_WIDTH_PX = 15_000_000;
+const WHEEL_ZOOM_SENSITIVITY = 0.005;
+const MAX_WHEEL_ZOOM_DELTA = 50; // caps one mouse wheel notch at ~1.28x while leaving small trackpad pinch deltas untouched
+const WHEEL_LINE_HEIGHT_PX = 16;
+
+function formatTimeSpan(ms: number) {
+    if (ms < 1000) return `${ms < 10 ? ms.toFixed(1) : Math.round(ms)} ms`;
+    if (ms < 60_000) return `${(ms / 1000).toFixed(ms < 10_000 ? 1 : 0)} s`;
+    if (ms < 3_600_000) return `${(ms / 60_000).toFixed(ms < 600_000 ? 1 : 0)} min`;
+    return `${(ms / 3_600_000).toFixed(1)} h`;
+}
 
 export default function SyncedGraphContainer({ children, initialTimeRange, onViewportSettled }: SyncedGraphContainerProps) {
     const { isViewportLocked } = useDisplayControlContext();
@@ -48,10 +60,17 @@ export default function SyncedGraphContainer({ children, initialTimeRange, onVie
     // object refs
     const contentRef = useRef<HTMLDivElement | null>(null); // Renamed from containerRef, this one grows
     const scrollContainerRef = useRef<HTMLDivElement | null>(null); // NEW: Ref for the scrolling wrapper
+    const spanLabelRef = useRef<HTMLSpanElement | null>(null);
     const isViewportLockedRef = useRef(isViewportLocked);
+    const hasFixedRangeRef = useRef(Boolean(initialTimeRange));
+    hasFixedRangeRef.current = Boolean(initialTimeRange);
     const viewportSettleTimeoutRef = useRef<number | null>(null);
-    const widthUpdateFrameRef = useRef<number | null>(null);
     const ignoreProgrammaticScrollRef = useRef(false); //clamping scroll position or fitting the window would cause refetches to jack's api
+
+    // layout work (width growth from live data, wheel/pinch zoom) is coalesced into at most one update per frame
+    const layoutFrameRef = useRef<number | null>(null);
+    const pendingWidthRef = useRef(false);
+    const pendingZoomRef = useRef<{ factor: number; anchorX: number } | null>(null);
 
     // zoom management
     const scalePxPerSecRef = useRef<number>(1);
@@ -115,21 +134,37 @@ export default function SyncedGraphContainer({ children, initialTimeRange, onVie
             if (viewportSettleTimeoutRef.current !== null) {
                 window.clearTimeout(viewportSettleTimeoutRef.current);
             }
-            if (widthUpdateFrameRef.current !== null) {
-                cancelAnimationFrame(widthUpdateFrameRef.current);
+            if (layoutFrameRef.current !== null) {
+                cancelAnimationFrame(layoutFrameRef.current);
             }
         },
         []
     );
+
+    const getScaleBounds = useCallback((container: HTMLDivElement, range: TimeRange) => {
+        const span = Math.max(range.max - range.min, 1);
+        const fitScale = Math.max(container.clientWidth - LEFT_PAD - RIGHT_PAD, 1) / span;
+        const max = Math.min(MAX_SCALE_PX_PER_MS, MAX_CONTENT_WIDTH_PX / span);
+        // historical sessions have nothing outside them, so zooming out stops at the whole session
+        const min = Math.min(hasFixedRangeRef.current ? fitScale : MIN_SCALE_PX_PER_MS, max);
+        return { min, max };
+    }, []);
 
     // Update width when zoom changes
     const updateGraphWidth = useCallback(() => {
         const global_tr = globalTimeRangeRef.current;
         const container = scrollContainerRef.current;
         if (contentRef.current && global_tr && container) {
-            // ponytail: live history grows scroll width; window it if long sessions hit browser limits.
+            // long live sessions keep growing the range; zoom out rather than exceed the browser's max element width
+            scalePxPerSecRef.current = Math.min(scalePxPerSecRef.current, getScaleBounds(container, global_tr).max);
+
             const container_width = scalePxPerSecRef.current * (global_tr.max - global_tr.min);
             contentRef.current.style.width = `${container_width + LEFT_PAD + RIGHT_PAD}px`;
+
+            if (spanLabelRef.current) {
+                const spanLabel = formatTimeSpan((container.clientWidth - LEFT_PAD) / scalePxPerSecRef.current);
+                if (spanLabelRef.current.textContent !== spanLabel) spanLabelRef.current.textContent = spanLabel;
+            }
 
             if (isViewportLockedRef.current) {
                 // When locked, scroll to show the rightmost data at the right edge of the viewport
@@ -143,15 +178,67 @@ export default function SyncedGraphContainer({ children, initialTimeRange, onVie
             const clampedScrollLeft = Math.min(scrollLeftRef.current, maxScrollLeft);
             syncContainerScrollLeft(container, clampedScrollLeft);
         }
-    }, [contentRef, globalTimeRangeRef, scalePxPerSecRef, scrollContainerRef, syncContainerScrollLeft]);
+    }, [contentRef, getScaleBounds, globalTimeRangeRef, scalePxPerSecRef, scrollContainerRef, syncContainerScrollLeft]);
 
-    const scheduleGraphWidth = useCallback(() => {
-        if (typeof requestAnimationFrame === "undefined" || widthUpdateFrameRef.current !== null) return;
-        widthUpdateFrameRef.current = requestAnimationFrame(() => {
-            widthUpdateFrameRef.current = null;
+    /**
+     * Zooms by `factor`, keeping the time under screen-space `anchorX` in place (or the newest data pinned right when locked).
+     * Returns whether the scale changed.
+     */
+    const applyZoom = useCallback(
+        (factor: number, anchorX: number) => {
+            const container = scrollContainerRef.current;
+            const range = globalTimeRangeRef.current;
+            if (!container || !range) return false;
+
+            const prevScale = scalePxPerSecRef.current;
+            const { min, max } = getScaleBounds(container, range);
+            const nextScale = Math.min(Math.max(prevScale * factor, min), max);
+            if (nextScale === prevScale) return false;
+
+            if (!isViewportLockedRef.current) {
+                // inverse of timeToX: ms from range.min to the anchored time
+                const anchorOffsetMs = (anchorX - LEFT_PAD + scrollLeftRef.current) / prevScale;
+                scrollLeftRef.current = Math.max(0, anchorOffsetMs * nextScale + LEFT_PAD - anchorX);
+            }
+
+            scalePxPerSecRef.current = nextScale;
             updateGraphWidth();
+            scheduleViewportSettled();
+            return true;
+        },
+        [getScaleBounds, scheduleViewportSettled, updateGraphWidth]
+    );
+
+    const flushPendingLayout = useCallback(() => {
+        if (layoutFrameRef.current !== null) {
+            cancelAnimationFrame(layoutFrameRef.current);
+            layoutFrameRef.current = null;
+        }
+
+        const zoom = pendingZoomRef.current;
+        const needsWidth = pendingWidthRef.current;
+        pendingZoomRef.current = null;
+        pendingWidthRef.current = false;
+
+        const zoomed = zoom !== null && applyZoom(zoom.factor, zoom.anchorX);
+        if (needsWidth && !zoomed) updateGraphWidth();
+    }, [applyZoom, updateGraphWidth]);
+
+    const scheduleLayout = useCallback(() => {
+        if (typeof requestAnimationFrame === "undefined" || layoutFrameRef.current !== null) return;
+        layoutFrameRef.current = requestAnimationFrame(() => {
+            layoutFrameRef.current = null;
+            flushPendingLayout();
         });
-    }, [updateGraphWidth]);
+    }, [flushPendingLayout]);
+
+    const queueZoom = useCallback(
+        (factor: number, anchorX: number) => {
+            pendingZoomRef.current = { factor: (pendingZoomRef.current?.factor ?? 1) * factor, anchorX };
+            scheduleLayout();
+        },
+        [scheduleLayout]
+    );
 
     const updateWithTimestamp = useCallback(
         (timestamp: number) => {
@@ -160,10 +247,11 @@ export default function SyncedGraphContainer({ children, initialTimeRange, onVie
                     min: Math.min(timestamp, globalTimeRangeRef.current?.min || timestamp),
                     max: Math.max(timestamp, globalTimeRangeRef.current?.max || timestamp),
                 };
-                scheduleGraphWidth();
+                pendingWidthRef.current = true;
+                scheduleLayout();
             }
         },
-        [scheduleGraphWidth]
+        [scheduleLayout]
     );
 
     const setTimeRange = useCallback(
@@ -228,25 +316,54 @@ export default function SyncedGraphContainer({ children, initialTimeRange, onVie
     const zoomBy = useCallback(
         (factor: number) => {
             const container = scrollContainerRef.current;
-            if (!container || !globalTimeRangeRef.current) return;
-            const prevScale = scalePxPerSecRef.current;
-            const nextScale = Math.min(Math.max(prevScale * factor, MIN_SCALE_PX_PER_SEC), MAX_SCALE_PX_PER_SEC);
-            if (nextScale === prevScale) return;
-
-            if (!isViewportLockedRef.current) {
-                const viewportCenter = scrollLeftRef.current + container.clientWidth / 2;
-                const centerTime = viewportCenter / prevScale;
-                const newCenterPos = centerTime * nextScale;
-                const newScrollLeft = newCenterPos - container.clientWidth / 2;
-                scrollLeftRef.current = Math.max(0, newScrollLeft);
-            }
-
-            scalePxPerSecRef.current = nextScale;
-            updateGraphWidth();
-            scheduleViewportSettled();
+            if (!container) return;
+            flushPendingLayout();
+            applyZoom(factor, (LEFT_PAD + container.clientWidth) / 2);
         },
-        [scheduleViewportSettled, updateGraphWidth]
+        [applyZoom, flushPendingLayout]
     );
+
+    useEffect(() => {
+        // wheel/gesture listeners must be non-passive to stop the browser from zooming the whole page
+        const container = scrollContainerRef.current;
+        if (!container) return;
+
+        const anchorFor = (clientX: number) => clientX - container.getBoundingClientRect().left;
+
+        // Chromium and Firefox report trackpad pinch as ctrl + wheel
+        const handleWheel = (event: WheelEvent) => {
+            if (!event.ctrlKey) return;
+            event.preventDefault();
+
+            const deltaPx = event.deltaMode === WheelEvent.DOM_DELTA_LINE ? event.deltaY * WHEEL_LINE_HEIGHT_PX : event.deltaMode === WheelEvent.DOM_DELTA_PAGE ? event.deltaY * container.clientHeight : event.deltaY;
+            const delta = Math.min(Math.max(deltaPx, -MAX_WHEEL_ZOOM_DELTA), MAX_WHEEL_ZOOM_DELTA);
+            if (delta === 0) return;
+
+            queueZoom(Math.exp(-delta * WHEEL_ZOOM_SENSITIVITY), anchorFor(event.clientX)); // invert for natural zoom
+        };
+
+        // Safari reports trackpad pinch as its non-standard gesture events instead
+        let lastGestureScale = 1;
+        const handleGestureStart = (event: Event) => {
+            event.preventDefault();
+            lastGestureScale = 1;
+        };
+        const handleGestureChange = (event: Event) => {
+            event.preventDefault();
+            const { scale, clientX } = event as Event & { scale: number; clientX: number };
+            queueZoom(scale / lastGestureScale, anchorFor(clientX));
+            lastGestureScale = scale;
+        };
+
+        container.addEventListener("wheel", handleWheel, { passive: false });
+        container.addEventListener("gesturestart", handleGestureStart, { passive: false });
+        container.addEventListener("gesturechange", handleGestureChange, { passive: false });
+        return () => {
+            container.removeEventListener("wheel", handleWheel);
+            container.removeEventListener("gesturestart", handleGestureStart);
+            container.removeEventListener("gesturechange", handleGestureChange);
+        };
+    }, [queueZoom]);
 
     useEffect(() => {
         if (!isViewportLocked) {
@@ -256,14 +373,27 @@ export default function SyncedGraphContainer({ children, initialTimeRange, onVie
         updateGraphWidth();
     }, [isViewportLocked, updateGraphWidth]);
     // screen space conversions
+    // Readers flush pending layout first so every canvas in a frame draws against the same, current scroll/zoom.
     /**
      * given a screen space x, gets the time associated with it based on the current zoom and scroll
      */
-    const XToTime = useCallback((x: number) => (x - LEFT_PAD + scrollLeftRef.current) / scalePxPerSecRef.current + globalTimeRangeRef.current!.min, [scrollLeftRef, scalePxPerSecRef, globalTimeRangeRef]);
+    const XToTime = useCallback(
+        (x: number) => {
+            if (layoutFrameRef.current !== null) flushPendingLayout();
+            return (x - LEFT_PAD + scrollLeftRef.current) / scalePxPerSecRef.current + globalTimeRangeRef.current!.min;
+        },
+        [flushPendingLayout, scrollLeftRef, scalePxPerSecRef, globalTimeRangeRef]
+    );
     /**
      * given a time, gets the screen space x associated with it based on the current zoom and scroll
      */
-    const timeToX = useCallback((t: number) => (t - globalTimeRangeRef.current!.min) * scalePxPerSecRef.current - scrollLeftRef.current + LEFT_PAD, [scrollLeftRef, scalePxPerSecRef, globalTimeRangeRef]);
+    const timeToX = useCallback(
+        (t: number) => {
+            if (layoutFrameRef.current !== null) flushPendingLayout();
+            return (t - globalTimeRangeRef.current!.min) * scalePxPerSecRef.current - scrollLeftRef.current + LEFT_PAD;
+        },
+        [flushPendingLayout, scrollLeftRef, scalePxPerSecRef, globalTimeRangeRef]
+    );
 
     // hover
     const hoverXRef = useRef<number | null>(null);
@@ -287,7 +417,7 @@ export default function SyncedGraphContainer({ children, initialTimeRange, onVie
         <SyncedGraphContext.Provider value={CTXVAL}>
             <div className="flex h-full flex-col">
                 <div className="flex shrink-0 items-center justify-between gap-3 border-b border-gray-200 px-4 py-2">
-                    <span className="hidden text-xs text-gray-500 sm:inline">{isViewportLocked ? "Pause follow to browse" : "Scroll sideways to browse"}</span>
+                    <span className="hidden text-xs text-gray-500 sm:inline">{isViewportLocked ? "Ctrl + scroll or pinch to zoom · pause follow to browse" : "Scroll sideways to pan · Ctrl + scroll or pinch to zoom"}</span>
                     <div className="flex items-center gap-2">
                         {initialTimeRange && (
                             <button type="button" onClick={() => setTimeRange(initialTimeRange, true)} className="rounded border px-3 py-1.5 text-sm hover:bg-gray-50">
@@ -297,7 +427,7 @@ export default function SyncedGraphContainer({ children, initialTimeRange, onVie
                         <button type="button" onClick={() => zoomBy(1 / 1.5)} className="rounded border px-3 py-1.5 text-sm hover:bg-gray-50" aria-label="Zoom out">
                             −
                         </button>
-                        <span className="text-sm">Zoom</span>
+                        <span ref={spanLabelRef} className="min-w-16 text-center text-sm tabular-nums" title="Visible time window" />
                         <button type="button" onClick={() => zoomBy(1.5)} className="rounded border px-3 py-1.5 text-sm hover:bg-gray-50" aria-label="Zoom in">
                             +
                         </button>
