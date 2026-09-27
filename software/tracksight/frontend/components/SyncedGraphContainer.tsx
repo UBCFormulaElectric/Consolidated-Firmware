@@ -61,6 +61,7 @@ export default function SyncedGraphContainer({ children, initialTimeRange, onVie
     const contentRef = useRef<HTMLDivElement | null>(null); // Renamed from containerRef, this one grows
     const scrollContainerRef = useRef<HTMLDivElement | null>(null); // NEW: Ref for the scrolling wrapper
     const spanLabelRef = useRef<HTMLSpanElement | null>(null);
+    const viewportRef = useRef<HTMLDivElement | null>(null); // sticky, visible-width wrapper every canvas lives in
     const isViewportLockedRef = useRef(isViewportLocked);
     const hasFixedRangeRef = useRef(Boolean(initialTimeRange));
     hasFixedRangeRef.current = Boolean(initialTimeRange);
@@ -367,6 +368,21 @@ export default function SyncedGraphContainer({ children, initialTimeRange, onVie
         };
     }, [queueZoom]);
 
+    useEffect(() => {
+        // Every canvas must span exactly the visible width, or charts spill under the vertical scrollbar and
+        // clip their right edge while other canvases don't. clientWidth excludes the scrollbar, whatever its size.
+        const container = scrollContainerRef.current;
+        const viewport = viewportRef.current;
+        if (!container || !viewport) return;
+
+        const observer = new ResizeObserver(() => {
+            viewport.style.width = `${container.clientWidth}px`;
+            updateGraphWidth(); // keeps the newest data pinned right when following live
+        });
+        observer.observe(container);
+        return () => observer.disconnect();
+    }, [updateGraphWidth]);
+
     // click-and-drag panning for mice; touch and trackpads already pan natively
     const handlePointerDown = useCallback((event: PointerEvent<HTMLDivElement>) => {
         if (event.button !== 0 || event.pointerType !== "mouse" || isViewportLockedRef.current || !(event.target instanceof HTMLCanvasElement)) return;
@@ -471,12 +487,8 @@ export default function SyncedGraphContainer({ children, initialTimeRange, onVie
                 </div>
                 <div ref={scrollContainerRef} className={isViewportLocked ? "min-h-0 w-full flex-1 overflow-x-hidden overflow-y-scroll" : "min-h-0 w-full flex-1 overflow-x-auto overflow-y-scroll [&_canvas]:cursor-grab data-panning:select-none data-panning:[&_canvas]:cursor-grabbing"} style={{ overscrollBehaviorX: "contain" }} onScroll={updateLeftScroll} onPointerDown={handlePointerDown} onPointerMove={handlePointerMove} onPointerUp={handlePointerUp} onPointerCancel={handlePointerUp}>
                     <div ref={contentRef} className="min-w-full relative">
-                        <div
-                            className="sticky left-0"
-                            style={{
-                                width: `calc(100vw - 18px)`, // this is the set width of the scrollbar (global.css)
-                            }}
-                        >
+                        {/* width tracks the container's visible width (see the ResizeObserver above), never 100vw */}
+                        <div ref={viewportRef} className="sticky left-0">
                             {children}
                         </div>
                     </div>
