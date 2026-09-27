@@ -14,7 +14,8 @@ export const MOCK_STATES = [
     "SKIBIDI",
 ];
 
-export const ALERT_SIGNALS = ["CPU Usage", "Memory Usage", "Disk Space", "Network Traffic", "Temperature", "Power Consumption", "Fan Speed", "GPU Usage", "Battery Level", "Process Count", "Thread Count", "IO Wait", "Page Faults", "Context Switches", "Interrupts", "System Load", "Swap Usage", "Latency", "Error Rate", "Throughput"];
+// named like real CAN alerts ({node}_{Fault|Warning|Info}_{name}) so severity parsing is exercised
+export const ALERT_SIGNALS = ["BMS_Fault_CellOvertemp", "BMS_Fault_CellUndervoltage", "VC_Fault_InverterRetry", "BMS_Warning_CellImbalance", "BMS_Warning_ChargerDisconnected", "VC_Warning_LowBattery", "FSM_Warning_SteeringAngleOutOfRange", "RSM_Warning_CoolantTempHigh", "VC_Info_RegenDisabled", "BMS_Info_BalancingActive", "DAM_Info_SdCardFull", "CRIT_Info_DriveModeChanged"];
 
 const INITIAL_DATA_POINTS = 0;
 
