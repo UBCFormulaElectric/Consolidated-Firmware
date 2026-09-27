@@ -559,6 +559,5 @@ export function render_empty(context: CanvasRenderingContext2D, width: number, h
     context.font = "14px sans-serif";
     context.textAlign = "center";
     context.textBaseline = "middle";
-    context.fillText("No data collected yet.", width / 2, height / 2);
-    context.restore();
+    context.fillText("No samples to display.", width / 2, height / 2);
 }

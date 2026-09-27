@@ -22,7 +22,7 @@ export default function NumericalCanvasChart({ id, options, signals, hoveredSign
     const chartData = useSignalDataStores(signals);
 
     useCanvasRenderLoop(canvasRef, height, (context, cssWidth) => {
-        if (!globalTimeRangeRef.current) {
+        if (!globalTimeRangeRef.current || chartData.current.every((series) => series.lods.every((lod) => lod.timestamps.length === 0))) {
             render_empty(context, cssWidth, height);
             return;
         }

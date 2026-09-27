@@ -1,7 +1,7 @@
 "use client";
 
 import { useSyncedGraph } from "@/components/SyncedGraphContainer";
-import { ChartLayout } from "@/components/widgets/CanvasChartTypes";
+import { ChartLayout, LODAwareEnumSeries } from "@/components/widgets/CanvasChartTypes";
 import render, { CHART_PADDING, render_empty } from "@/components/widgets/render";
 import { useSignalDataStores } from "@/lib/contexts/signalStores/SignalStoreContext";
 import { useTimezone } from "@/lib/contexts/TimezoneContext";
@@ -24,7 +24,7 @@ export default function EnumCanvasChart({ id, options, signals, hoveredSignal, o
     const chartData = useSignalDataStores(signals);
 
     useCanvasRenderLoop(canvasRef, canvasHeight, (context, cssWidth) => {
-        if (!globalTimeRangeRef.current) {
+        if (!globalTimeRangeRef.current || (chartData.current as LODAwareEnumSeries[]).every((series) => series.lods.every((lod) => lod.timestamps.length === 0))) {
             render_empty(context, cssWidth, canvasHeight);
             return;
         }

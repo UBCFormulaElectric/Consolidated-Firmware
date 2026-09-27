@@ -1,5 +1,6 @@
 "use client";
 
+import { IS_MOCK } from "@/lib/constants";
 import { useSocket } from "@/lib/hooks/signals/useSocket";
 import { useEffect, useMemo, useState } from "react";
 
@@ -10,6 +11,19 @@ export function ErrorRateIndicator() {
     const [history, setHistory] = useState<number[]>([]);
     const [isHovered, setIsHovered] = useState(false);
     const socket = useSocket();
+    const [isConnected, setIsConnected] = useState(false);
+
+    useEffect(() => {
+        const connect = () => setIsConnected(true);
+        const disconnect = () => setIsConnected(false);
+        setIsConnected(socket.connected);
+        socket.on("connect", connect);
+        socket.on("disconnect", disconnect);
+        return () => {
+            socket.off("connect", connect);
+            socket.off("disconnect", disconnect);
+        };
+    }, [socket]);
 
     useEffect(() => {
         const handleDiagnostic = (payload: any) => {
@@ -45,7 +59,11 @@ export function ErrorRateIndicator() {
     }, [history]);
 
     return (
-        <div onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)} className="relative flex items-center px-3 py-1 rounded-md transition-colors hover:bg-gray-50 cursor-default">
+        <div onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)} className="relative flex items-center gap-3 px-3 py-1 rounded-md transition-colors hover:bg-gray-50 cursor-default">
+            <span className="flex items-center gap-1 text-xs text-gray-600" role="status">
+                <span className={`size-2 rounded-full ${IS_MOCK ? "bg-blue-500" : isConnected ? "bg-green-500" : "bg-red-500"}`} />
+                {IS_MOCK ? "Demo data" : isConnected ? "Connected" : "Disconnected"}
+            </span>
             <div className="flex flex-col items-end mr-2">
                 <span className="text-[9px] font-bold text-gray-400 uppercase tracking-tighter leading-none">Error Rate (1m)</span>
                 <div className="flex items-baseline gap-0.5 leading-none">
