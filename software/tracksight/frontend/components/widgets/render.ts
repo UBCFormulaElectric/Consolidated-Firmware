@@ -65,7 +65,8 @@ export function getFormatters(timeZone: string) {
     return FORMATTERS_CACHE.get(timeZone)!;
 }
 
-export const CHART_PADDING = { top: 15, right: 0, bottom: 40, left: 60 };
+// left is a gutter shared by every time-aligned canvas: y-axis labels on charts, row names on timelines
+export const CHART_PADDING = { top: 15, right: 0, bottom: 40, left: 168 };
 
 function isLevelUsable(lod: LODAwareSeries["lods"][number], visibleStart: number, visibleEnd: number): boolean {
     if (lod.timestamps.length === 0) return false;
