@@ -218,14 +218,13 @@ function AlertTimeline() {
         };
 
         const syncStatus = (referenceTime: number, activeRows: boolean[]) => {
-            const status: AlertStatus = { fault: 0, warning: 0, info: 0, newestStart: 0 };
+            const status: AlertStatus = { fault: 0, warning: 0, info: 0 };
             rows.forEach((row, rowIndex) => {
                 if (!activeRows[rowIndex]) return;
                 status[row.severity]++;
-                status.newestStart = Math.max(status.newestStart, row.tracker.intervals[row.tracker.firstEndingAfter(referenceTime)].start);
             });
 
-            const key = `${status.fault}|${status.warning}|${status.info}|${status.newestStart}`;
+            const key = `${status.fault}|${status.warning}|${status.info}`;
             if (key === statusKey) return;
             statusKey = key;
             reportAlertStatusRef.current(status);
