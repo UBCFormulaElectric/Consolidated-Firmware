@@ -2,7 +2,7 @@ services:
   influx:
     image: influxdb:2-alpine
     volumes:
-      - influxdb:/var/lib/influxdb2
+      - ${INFLUXDB_DATA_DIR:-influxdb}:/var/lib/influxdb2
     container_name: influxdb
     ports:
       # InfluxDB port is always 8086 internally
@@ -32,8 +32,6 @@ services:
     network_mode: host
     extra_hosts:
       - "influx:127.0.0.1"
-    # ports:
-    #  - "${BACKEND_PORT}:${BACKEND_PORT}"
     env_file: envs/backend.env
     # Privileged provides access to all serial ports, not need to pass serial port through
     privileged: true
@@ -62,13 +60,4 @@ services:
       BACKEND_PORT: ${BACKEND_PORT}
     ports:
       - "${FRONTEND_PORT}:${FRONTEND_PORT}"
-    # depends_on:
-    #   backend:
-    #     condition: service_healthy
-  # grafana:
-  #   image: grafana/grafana-enterprise
-  #   container_name: grafana
-  #   restart: unless-stopped
-  #   ports:
-  #     - '3000:3000'
   
