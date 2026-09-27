@@ -1,5 +1,6 @@
 import { AlertHighlight } from "@/lib/alerts";
 import { formatTimeSpan } from "@/lib/utils/formatTimeSpan";
+import { Search } from "lucide-react";
 import { createContext, PointerEvent, ReactNode, RefObject, UIEvent, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { AlertStatusChip } from "./AlertStatusChip";
 import { useDisplayControlContext, ViewportLockButton } from "./PausePlayControl";
@@ -462,26 +463,28 @@ export default function SyncedGraphContainer({ children, initialTimeRange, onVie
     return (
         <SyncedGraphContext.Provider value={CTXVAL}>
             <div className="flex h-full flex-col">
-                <div className="flex shrink-0 items-center justify-between gap-3 border-b border-gray-200 px-4 py-2">
-                    <div className="flex min-w-0 items-center gap-3">
-                        {/* lives outside the scroll area so active alerts stay visible while reading charts further down.
-                            the jump isn't smooth: following live rewrites scrollLeft every frame, which cancels smooth scrolls */}
+                <div className="grid shrink-0 grid-cols-[1fr_auto_1fr] items-center gap-3 border-b border-gray-200 px-4 py-2">
+                    {/* lives outside the scroll area so active alerts stay visible while reading charts further down.
+                        the jump isn't smooth: following live rewrites scrollLeft every frame, which cancels smooth scrolls */}
+                    <div className="justify-self-start">
                         <AlertStatusChip activeCount={activeAlertCount} isLive={!initialTimeRange} onClick={() => scrollContainerRef.current?.scrollTo({ top: 0 })} />
-                        <span className="hidden truncate text-xs text-gray-500 lg:inline">{isViewportLocked ? "Ctrl + scroll or pinch to zoom · pause follow to browse" : "Drag or scroll sideways to pan · Ctrl + scroll or pinch to zoom"}</span>
                     </div>
-                    <div className="flex shrink-0 items-center gap-2">
+                    <div className="flex items-center rounded-full border border-gray-300 bg-white" title="Zoom · or Ctrl + scroll / pinch over the charts">
+                        <Search className="ml-3 size-4 text-gray-500" aria-hidden />
+                        <button type="button" onClick={() => zoomBy(1 / 1.5)} className="px-3 py-1 text-sm hover:bg-gray-50" aria-label="Zoom out">
+                            −
+                        </button>
+                        <span ref={spanLabelRef} className="min-w-16 text-center text-sm tabular-nums" aria-label="Visible time window" />
+                        <button type="button" onClick={() => zoomBy(1.5)} className="rounded-r-full px-3 py-1 text-sm hover:bg-gray-50" aria-label="Zoom in">
+                            +
+                        </button>
+                    </div>
+                    <div className="flex items-center gap-2 justify-self-end">
                         {initialTimeRange && (
                             <button type="button" onClick={() => setTimeRange(initialTimeRange, true)} className="rounded border px-3 py-1.5 text-sm hover:bg-gray-50">
                                 Fit session
                             </button>
                         )}
-                        <button type="button" onClick={() => zoomBy(1 / 1.5)} className="rounded border px-3 py-1.5 text-sm hover:bg-gray-50" aria-label="Zoom out">
-                            −
-                        </button>
-                        <span ref={spanLabelRef} className="min-w-16 text-center text-sm tabular-nums" title="Visible time window" />
-                        <button type="button" onClick={() => zoomBy(1.5)} className="rounded border px-3 py-1.5 text-sm hover:bg-gray-50" aria-label="Zoom in">
-                            +
-                        </button>
                         {!initialTimeRange && <ViewportLockButton />}
                     </div>
                 </div>
