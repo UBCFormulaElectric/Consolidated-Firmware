@@ -384,10 +384,12 @@ function AlertTimeline() {
     };
 
     return (
-        <div className="flex flex-col gap-2">
-            <div className="flex items-center justify-between px-4 pt-2 text-sm font-semibold">
-                <span>Alerts</span>
-                {hasMore && <span className="text-xs font-normal text-gray-500">Scroll for more ↓</span>}
+        <section aria-labelledby="alerts-heading" className="flex flex-col gap-2 border-b-2 border-gray-300 bg-gray-50">
+            <div className="flex items-center justify-between px-6 pt-3">
+                <h2 id="alerts-heading" className="text-xs font-semibold tracking-wide text-gray-600 uppercase">
+                    Alerts
+                </h2>
+                {hasMore && <span className="text-xs text-gray-500">Scroll for more ↓</span>}
             </div>
             <div
                 className="overflow-y-auto"
@@ -409,7 +411,7 @@ function AlertTimeline() {
                     <canvas className="w-full h-full" ref={canvasRef} onMouseMove={handleMouseMove} onMouseLeave={handleMouseLeave}></canvas>
                 </div>
             </div>
-        </div>
+        </section>
     );
 }
 

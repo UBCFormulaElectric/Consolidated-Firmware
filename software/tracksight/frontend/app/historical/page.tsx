@@ -2,13 +2,12 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
-import { WidgetAdder } from "@/app/live/WidgetAdder";
 import DataDashboard from "@/components/DataDashboard";
 import HistoricalSelectionModal from "@/components/historical/HistoricalSelectionModal";
 import { DisplayControlProvider } from "@/components/PausePlayControl";
 import SyncedGraphContainer, { TimeRange } from "@/components/SyncedGraphContainer";
 import AlertTimeline from "@/components/widgets/AlertTimeline";
-import { WidgetManager, useWidgetManager } from "@/components/widgets/WidgetManagerContext";
+import { WidgetManager } from "@/components/widgets/WidgetManagerContext";
 import { fetchHistoricalMarkers } from "@/lib/api/historicalMarkers";
 import { HistoricalSignalSource } from "@/lib/api/historicalSignals";
 import { useHistoricalSelection } from "@/lib/contexts/HistoricalSelectionContext";
@@ -30,7 +29,6 @@ const expandViewportFetchRange = (range: TimeRange, bounds: TimeRange): TimeRang
 
 function HistoricContent(props: { selectedRange: { min: number; max: number }; selectedSource: HistoricalSignalSource }) {
     const { selectedRange, selectedSource } = props;
-    const { widgets } = useWidgetManager();
     const [fetchRange, setFetchRange] = useState<TimeRange>(selectedRange);
 
     useEffect(() => {
@@ -74,19 +72,7 @@ function HistoricContent(props: { selectedRange: { min: number; max: number }; s
         <SyncedGraphContainer initialTimeRange={selectedRange} onViewportSettled={handleViewportSettled}>
             <HistoricalSignalStoreProvider startUtcMs={fetchRange.min} endUtcMs={fetchRange.max} source={selectedSource} selectedRange={selectedRange}>
                 <AlertTimeline />
-                {widgets.length === 0 ? (
-                    <div className="flex h-full flex-col items-center justify-center gap-4 text-sm text-gray-500">
-                        <p>Choose a signal to explore this session.</p>
-                        <WidgetAdder />
-                    </div>
-                ) : (
-                    <>
-                        <DataDashboard />
-                        <div className="flex justify-center py-8">
-                            <WidgetAdder />
-                        </div>
-                    </>
-                )}
+                <DataDashboard emptyMessage="Choose a signal to explore this session." />
             </HistoricalSignalStoreProvider>
         </SyncedGraphContainer>
     );
