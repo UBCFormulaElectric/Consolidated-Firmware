@@ -72,6 +72,8 @@ class MockSignalStore extends SignalStore {
         this.markerIntervalId = null;
         this.markerCount = 0;
 
+        if (typeof window === "undefined") return;
+
         ALERT_SIGNALS.forEach((signalName) => {
             let previousValue = 0;
 

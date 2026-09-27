@@ -146,7 +146,7 @@ export default function SyncedGraphContainer({ children, initialTimeRange, onVie
     }, [contentRef, globalTimeRangeRef, scalePxPerSecRef, scrollContainerRef, syncContainerScrollLeft]);
 
     const scheduleGraphWidth = useCallback(() => {
-        if (widthUpdateFrameRef.current !== null) return;
+        if (typeof requestAnimationFrame === "undefined" || widthUpdateFrameRef.current !== null) return;
         widthUpdateFrameRef.current = requestAnimationFrame(() => {
             widthUpdateFrameRef.current = null;
             updateGraphWidth();
