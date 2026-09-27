@@ -33,6 +33,7 @@ export const HistoricalSignalStoreProvider = memo(function HistoricalSignalStore
         signalStoreRef.current = new HistoricalSignalStore(updateWithTimestamp);
     }
 
+    const previousSelectedSignalsRef = useRef<SignalMetadata[]>([]);
     const selectedSignals = useMemo(() => {
         const signalsByName = new Map<string, SignalMetadata>();
         widgets.forEach((widget) => {
@@ -42,7 +43,16 @@ export const HistoricalSignalStoreProvider = memo(function HistoricalSignalStore
                 });
             }
         });
-        return [...signalsByName.values()];
+
+        const previousSelectedSignals = previousSelectedSignalsRef.current;
+        const isSameSignalSet = previousSelectedSignals.length === signalsByName.size && previousSelectedSignals.every((signal) => signalsByName.has(signal.name));
+        if (isSameSignalSet) {
+            return previousSelectedSignals;
+        }
+
+        const nextSelectedSignals = [...signalsByName.values()];
+        previousSelectedSignalsRef.current = nextSelectedSignals;
+        return nextSelectedSignals;
     }, [widgets]);
 
     const selectedRangeKey = `${source}:${selectedRange.min}:${selectedRange.max}`;

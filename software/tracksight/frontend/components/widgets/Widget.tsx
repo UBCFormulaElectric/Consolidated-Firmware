@@ -1,12 +1,15 @@
 "use client";
 
 import chroma, { Color } from "chroma-js";
-import { ReactNode, RefObject, useCallback, useState } from "react";
+import { memo, ReactNode, RefObject, useCallback, useState } from "react";
+import { useDrag } from "react-dnd";
 
 import { PlusButton } from "@/components/icons/PlusButton";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { DRAGGABLE_TYPES } from "@/lib/constants";
 import { BooleanSignalMetadata, EnumSignalMetadata, isEnumSignalMetadata, NumericalSignalMetadata, SignalMetadata } from "@/lib/types/Signal";
 import { EnumTimelineWidgetData, NumericalGraphWidgetData, WidgetData } from "@/lib/types/Widget";
+import { GripVertical } from "lucide-react";
 import EnumCanvasChart from "./EnumCanvasChart";
 import { EnumSignalPicker } from "./EnumSignalPicker";
 import NumericalCanvasChart from "./NumericalCanvasChart";
@@ -59,8 +62,8 @@ function SignalButton(props: { signal: SignalMetadata; handleRemoveSignal: (sign
     );
 }
 
-function WidgetConfiguration(props: { id: string; children?: ReactNode }) {
-    const { id, children } = props;
+function WidgetConfiguration(props: { id: string; children?: ReactNode; dragHandle: React.RefObject<HTMLDivElement> }) {
+    const { id, children, dragHandle } = props;
     const { removeWidget } = useWidgetManager();
 
     const deleteSelfWidget = useCallback(() => {
@@ -70,6 +73,9 @@ function WidgetConfiguration(props: { id: string; children?: ReactNode }) {
     return (
         <div className="px-6">
             <div className="flex items-center gap-2 mb-4">
+                <div ref={dragHandle}>
+                    <GripVertical className="w-6 h-6 cursor-grab" />
+                </div>
                 <h3 className="font-semibold">Widget {id}</h3>
                 <button type="button" onClick={deleteSelfWidget} title="Remove graph" className="w-6 h-6 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center text-sm font-bold transition-colors cursor-pointer">
                     ×
@@ -248,9 +254,20 @@ function EnumWidgetAddSignalModal(props: { widget: EnumTimelineWidgetData }) {
     );
 }
 
-export function Widget(props: WidgetData & { hoveredSignal: RefObject<string | null> }) {
-    const { hoveredSignal } = props;
+export const Widget = memo(function Widget(props: WidgetData & { hoveredSignal: RefObject<string | null> }) {
+    const { hoveredSignal, id } = props;
     const { updateWidget } = useWidgetManager();
+
+    const [{ isDragging }, drag] = useDrag(
+        () => ({
+            type: DRAGGABLE_TYPES.WIDGET,
+            item: { id: id },
+            collect: (monitor) => ({
+                isDragging: !!monitor.isDragging(),
+            }),
+        }),
+        [id]
+    );
 
     switch (props.type) {
         case "numericalGraph": {
@@ -268,7 +285,7 @@ export function Widget(props: WidgetData & { hoveredSignal: RefObject<string | n
 
             return (
                 <>
-                    <WidgetConfiguration id={widget.id}>
+                    <WidgetConfiguration id={widget.id} dragHandle={drag as unknown as React.RefObject<HTMLDivElement>}>
                         {widget.signals.map((signal) => (
                             <SignalButton key={signal.name} signal={signal} handleRemoveSignal={handleRemoveSignal} hoverSignalName={hoveredSignal} color={widget.options.colorPalette[signal.name] ?? chroma("#ffffff")} />
                         ))}
@@ -293,7 +310,7 @@ export function Widget(props: WidgetData & { hoveredSignal: RefObject<string | n
 
             return (
                 <>
-                    <WidgetConfiguration id={widget.id}>
+                    <WidgetConfiguration id={widget.id} dragHandle={drag as unknown as React.RefObject<HTMLDivElement>}>
                         {widget.signals.map((signal) => (
                             <SignalButton key={signal.name} signal={signal} handleRemoveSignal={handleRemoveSignal} hoverSignalName={hoveredSignal} color={widget.options.colorPalette[signal.name]?.color ?? chroma("#ffffff")} />
                         ))}
@@ -304,4 +321,4 @@ export function Widget(props: WidgetData & { hoveredSignal: RefObject<string | n
             );
         }
     }
-}
+});
