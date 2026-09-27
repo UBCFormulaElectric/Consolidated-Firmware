@@ -1,5 +1,5 @@
 import { createContext, ReactNode, RefObject, UIEvent, useCallback, useContext, useEffect, useMemo, useRef } from "react";
-import { useDisplayControlContext } from "./PausePlayControl";
+import { useDisplayControlContext, ViewportLockButton } from "./PausePlayControl";
 import { CHART_PADDING } from "./widgets/render";
 
 export interface TimeRange {
@@ -42,28 +42,6 @@ const LEFT_PAD = CHART_PADDING.left;
 const MIN_SCALE_PX_PER_SEC = 0.001;
 const MAX_SCALE_PX_PER_SEC = 10000;
 
-function useSuppressScrollWhileLocked(containerRef: RefObject<HTMLDivElement | null>) {
-    const { isViewportLocked } = useDisplayControlContext();
-
-    useEffect(() => {
-        // handle scroll events (needs to be here because of passive: false)
-        const container = containerRef.current;
-        if (!container) return;
-
-        const suppressScroll = (e: WheelEvent) => {
-            if (!isViewportLocked || Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return;
-
-            e.preventDefault();
-        };
-
-        container.addEventListener("wheel", suppressScroll, { passive: false });
-
-        return () => {
-            container.removeEventListener("wheel", suppressScroll);
-        };
-    }, [containerRef, isViewportLocked]);
-}
-
 export default function SyncedGraphContainer({ children, initialTimeRange, onViewportSettled }: SyncedGraphContainerProps) {
     const { isViewportLocked } = useDisplayControlContext();
 
@@ -77,7 +55,6 @@ export default function SyncedGraphContainer({ children, initialTimeRange, onVie
 
     // zoom management
     const scalePxPerSecRef = useRef<number>(1);
-    useSuppressScrollWhileLocked(scrollContainerRef);
 
     // glokbal time range
     const globalTimeRangeRef = useRef<TimeRange | null>(null);
@@ -248,26 +225,14 @@ export default function SyncedGraphContainer({ children, initialTimeRange, onVie
         [scheduleViewportSettled, scrollLeftRef, syncContainerScrollLeft]
     );
 
-    useEffect(() => {
-        const container = scrollContainerRef.current;
-        if (!container) return;
-
-        const handleWheelZoom = (event: WheelEvent) => {
-            if (!event.ctrlKey) {
-                return;
-            }
-
-            event.preventDefault();
-            const deltaScale = event.deltaY * -0.005; // invert for natural zoom
-            if (deltaScale === 0) return;
-
+    const zoomBy = useCallback(
+        (factor: number) => {
+            const container = scrollContainerRef.current;
+            if (!container || !globalTimeRangeRef.current) return;
             const prevScale = scalePxPerSecRef.current;
-            const nextScale = Math.min(Math.max(prevScale * Math.exp(deltaScale), MIN_SCALE_PX_PER_SEC), MAX_SCALE_PX_PER_SEC);
-            if (nextScale === prevScale) {
-                return;
-            }
+            const nextScale = Math.min(Math.max(prevScale * factor, MIN_SCALE_PX_PER_SEC), MAX_SCALE_PX_PER_SEC);
+            if (nextScale === prevScale) return;
 
-            // Anchor zoom to center of viewport when unlocked
             if (!isViewportLockedRef.current) {
                 const viewportCenter = scrollLeftRef.current + container.clientWidth / 2;
                 const centerTime = viewportCenter / prevScale;
@@ -279,13 +244,9 @@ export default function SyncedGraphContainer({ children, initialTimeRange, onVie
             scalePxPerSecRef.current = nextScale;
             updateGraphWidth();
             scheduleViewportSettled();
-        };
-
-        container.addEventListener("wheel", handleWheelZoom, { passive: false });
-        return () => {
-            container.removeEventListener("wheel", handleWheelZoom);
-        };
-    }, [scalePxPerSecRef, scheduleViewportSettled, scrollContainerRef, updateGraphWidth]);
+        },
+        [scheduleViewportSettled, updateGraphWidth]
+    );
 
     useEffect(() => {
         if (!isViewportLocked) {
@@ -324,17 +285,35 @@ export default function SyncedGraphContainer({ children, initialTimeRange, onVie
 
     return (
         <SyncedGraphContext.Provider value={CTXVAL}>
-            {/* outer wrapper handles overflow/scrolling; this the viewport */}
-            <div ref={scrollContainerRef} className={isViewportLocked ? "w-full overflow-x-hidden overflow-y-scroll h-full" : "w-full overflow-x-auto overflow-y-scroll h-full"} style={{ overscrollBehaviorX: "contain" }} onScroll={updateLeftScroll}>
-                {/* inner content grows in width */}
-                <div ref={contentRef} className="min-w-full relative">
-                    <div
-                        className="sticky left-0"
-                        style={{
-                            width: `calc(100vw - 18px)`, // this is the set width of the scrollbar (global.css)
-                        }}
-                    >
-                        {children}
+            <div className="flex h-full flex-col">
+                <div className="flex shrink-0 items-center justify-between gap-3 border-b border-gray-200 px-4 py-2">
+                    <span className="hidden text-xs text-gray-500 sm:inline">{isViewportLocked ? "Pause follow to browse" : "Scroll sideways to browse"}</span>
+                    <div className="flex items-center gap-2">
+                        {initialTimeRange && (
+                            <button type="button" onClick={() => setTimeRange(initialTimeRange, true)} className="rounded border px-3 py-1.5 text-sm hover:bg-gray-50">
+                                Fit session
+                            </button>
+                        )}
+                        <button type="button" onClick={() => zoomBy(1 / 1.5)} className="rounded border px-3 py-1.5 text-sm hover:bg-gray-50" aria-label="Zoom out">
+                            −
+                        </button>
+                        <span className="text-sm">Zoom</span>
+                        <button type="button" onClick={() => zoomBy(1.5)} className="rounded border px-3 py-1.5 text-sm hover:bg-gray-50" aria-label="Zoom in">
+                            +
+                        </button>
+                        {!initialTimeRange && <ViewportLockButton />}
+                    </div>
+                </div>
+                <div ref={scrollContainerRef} className={isViewportLocked ? "min-h-0 w-full flex-1 overflow-x-hidden overflow-y-scroll" : "min-h-0 w-full flex-1 overflow-x-auto overflow-y-scroll"} style={{ overscrollBehaviorX: "contain" }} onScroll={updateLeftScroll}>
+                    <div ref={contentRef} className="min-w-full relative">
+                        <div
+                            className="sticky left-0"
+                            style={{
+                                width: `calc(100vw - 18px)`, // this is the set width of the scrollbar (global.css)
+                            }}
+                        >
+                            {children}
+                        </div>
                     </div>
                 </div>
             </div>

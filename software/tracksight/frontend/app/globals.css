@@ -19,7 +19,7 @@
 }
 
 @layer base {
-    :root {
+    body {
         @apply text-sm;
     }
 }

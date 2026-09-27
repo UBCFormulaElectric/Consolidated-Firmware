@@ -2,7 +2,7 @@
 
 import { WidgetAdder } from "@/app/live/WidgetAdder";
 import DataDashboard from "@/components/DataDashboard";
-import { DisplayControlProvider, ViewportLockButton } from "@/components/PausePlayControl";
+import { DisplayControlProvider } from "@/components/PausePlayControl";
 import SyncedGraphContainer from "@/components/SyncedGraphContainer";
 import AlertTimeline from "@/components/widgets/AlertTimeline";
 import { useWidgetManager, WidgetManager } from "@/components/widgets/WidgetManagerContext";
@@ -35,12 +35,8 @@ function Content() {
 
 export default function LiveDataPage() {
     return (
-        <div id="live-page" className="h-screen w-screen pt-14 flex flex-col overflow-hidden">
+        <div id="live-page" className="h-screen w-screen pt-16 flex flex-col overflow-hidden">
             <DisplayControlProvider>
-                <div className="flex items-center justify-between border-b border-gray-200 px-4 py-2">
-                    <span className="text-xs text-gray-500">Ctrl + scroll to zoom</span>
-                    <ViewportLockButton />
-                </div>
                 <div className="flex-1 min-h-0 w-full relative">
                     <SyncedGraphContainer>
                         <WidgetManager>

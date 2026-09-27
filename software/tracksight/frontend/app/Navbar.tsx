@@ -54,8 +54,8 @@ function Navbar() {
     ];
 
     return (
-        <nav aria-label="Main navigation" className="fixed top-0 left-0 z-50 h-min w-screen bg-white border-b border-b-gray-200">
-            <div className="flex flex-row items-center justify-between px-8 py-4 select-none">
+        <nav aria-label="Main navigation" className="fixed top-0 left-0 z-50 h-16 w-screen bg-white border-b border-b-gray-200">
+            <div className="flex h-full flex-row items-center justify-between px-8 select-none">
                 <div className="flex flex-row items-center gap-6">
                     {links.map(({ href, label }) => (
                         <Link key={href} href={href} aria-current={pathname === href ? "page" : undefined} className={`rounded px-1 py-0.5 text-sm font-medium focus-visible:outline-2 focus-visible:outline-blue-600 ${pathname === href ? "text-blue-700 underline underline-offset-8" : "text-gray-700 hover:text-blue-700"}`}>
