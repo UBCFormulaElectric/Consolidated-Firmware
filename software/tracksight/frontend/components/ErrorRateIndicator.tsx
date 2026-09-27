@@ -65,7 +65,7 @@ export function ErrorRateIndicator() {
                 {IS_MOCK ? "Demo data" : isConnected ? "Connected" : "Disconnected"}
             </span>
             <div className="flex flex-col items-end mr-2">
-                <span className="text-[9px] font-bold text-gray-400 uppercase tracking-tighter leading-none">Error Rate (1m)</span>
+                <span className="text-[11px] font-bold text-gray-500 uppercase tracking-tight leading-none">Error Rate (1m)</span>
                 <div className="flex items-baseline gap-0.5 leading-none">
                     <span className="text-sm font-black text-gray-800 tabular-nums">{value !== null ? value.toFixed(1) : "--"}</span>
                     <span className="text-[10px] font-bold text-gray-400">%</span>

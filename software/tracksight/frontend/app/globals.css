@@ -20,7 +20,7 @@
 
 @layer base {
     :root {
-        @apply text-xs;
+        @apply text-sm;
     }
 }
 

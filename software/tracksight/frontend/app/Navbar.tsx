@@ -47,15 +47,21 @@ function HistoricalNavControls() {
 function Navbar() {
     const pathname = usePathname();
     const isHistorical = pathname === "/historical";
+    const links = [
+        { href: "/live", label: "Live Data" },
+        { href: "/historical", label: "Historical Data" },
+        { href: "/sd/dump", label: "SD Card Dump" },
+    ];
 
     return (
-        <nav className="fixed top-0 left-0 z-50 h-min w-screen bg-white border-b border-b-gray-200">
+        <nav aria-label="Main navigation" className="fixed top-0 left-0 z-50 h-min w-screen bg-white border-b border-b-gray-200">
             <div className="flex flex-row items-center justify-between px-8 py-4 select-none">
                 <div className="flex flex-row items-center gap-6">
-                    <Link href="/">Home</Link>
-                    <Link href="/live">Live Data</Link>
-                    <Link href="/historical">Historical Data</Link>
-                    <Link href="/sd/dump">SD Card Dump</Link>
+                    {links.map(({ href, label }) => (
+                        <Link key={href} href={href} aria-current={pathname === href ? "page" : undefined} className={`rounded px-1 py-0.5 text-sm font-medium focus-visible:outline-2 focus-visible:outline-blue-600 ${pathname === href ? "text-blue-700 underline underline-offset-8" : "text-gray-700 hover:text-blue-700"}`}>
+                            {label}
+                        </Link>
+                    ))}
                 </div>
                 <div className="flex items-center gap-4">
                     {isHistorical ? <HistoricalNavControls /> : null}
