@@ -1,22 +1,29 @@
-export type AlertSeverity = "fault" | "warning" | "info";
-
-export const ALERT_SEVERITY_ORDER: Record<AlertSeverity, number> = { fault: 0, warning: 1, info: 2 };
-export const ALERT_SEVERITY_COLOR: Record<AlertSeverity, string> = { fault: "#dc2626", warning: "#d97706", info: "#64748b" };
-
 export type ParsedAlertName = {
     node: string | null;
-    severity: AlertSeverity;
-    shortName: string;
+    /** the rest of the name after the node prefix */
+    label: string;
 };
 
-// jsoncan names every alert {node}_{Fault|Warning|Info}_{name} (scripts/code_generation/jsoncan/src/json_parsing/parse_alert.py)
-const ALERT_NAME_PATTERN = /^([A-Za-z0-9]+)_(Fault|Warning|Info)_(.+)$/;
+// jsoncan names every alert {node}_{Fault|Warning|Info}_{name} (scripts/code_generation/jsoncan/src/json_parsing/parse_alert.py).
+// Only the node is used for now: how alerts should be categorised is still being settled with the other subteams.
+const ALERT_NODE_PATTERN = /^([A-Za-z0-9]+)_(.+)$/;
 
 export function parseAlertName(name: string): ParsedAlertName {
-    const match = ALERT_NAME_PATTERN.exec(name);
-    if (!match) return { node: null, severity: "info", shortName: name };
+    const match = ALERT_NODE_PATTERN.exec(name);
+    return match ? { node: match[1], label: match[2] } : { node: null, label: name };
+}
 
-    return { node: match[1], severity: match[2].toLowerCase() as AlertSeverity, shortName: match[3] };
+// no red, amber or green, so a node's colour never reads as a severity
+const NODE_COLORS: Record<string, string> = { BMS: "#2563eb", CRIT: "#475569", DAM: "#0891b2", FSM: "#0d9488", RSM: "#db2777", VC: "#7c3aed" };
+const FALLBACK_NODE_COLORS = ["#c026d3", "#92400e", "#1e3a8a", "#6b21a8"];
+
+export function alertNodeColor(node: string | null): string {
+    if (!node) return FALLBACK_NODE_COLORS[0];
+    if (NODE_COLORS[node]) return NODE_COLORS[node];
+
+    let hash = 0;
+    for (let i = 0; i < node.length; i++) hash = (hash * 31 + node.charCodeAt(i)) | 0;
+    return FALLBACK_NODE_COLORS[Math.abs(hash) % FALLBACK_NODE_COLORS.length];
 }
 
 export type AlertInterval = { start: number; end: number };

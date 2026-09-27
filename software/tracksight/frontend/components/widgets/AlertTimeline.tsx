@@ -1,7 +1,6 @@
 "use client";
 
-import { AlertStatus } from "@/components/AlertStatusChip";
-import { ALERT_SEVERITY_COLOR, ALERT_SEVERITY_ORDER, AlertIntervals, AlertSeverity, parseAlertName, ParsedAlertName } from "@/lib/alerts";
+import { AlertIntervals, alertNodeColor, parseAlertName, ParsedAlertName } from "@/lib/alerts";
 import { useAlertStore } from "@/lib/contexts/signalStores/SignalStoreContext";
 import { useTimezone } from "@/lib/contexts/TimezoneContext";
 import SignalStore from "@/lib/signals/SignalStore";
@@ -37,7 +36,7 @@ const OFFSCREEN_STATUS_INTERVAL_MS = 250;
 const ROW_STRIPE_COLOR = "rgba(15, 23, 42, 0.03)";
 const ROW_HOVER_COLOR = "rgba(37, 99, 235, 0.08)";
 const INACTIVE_DOT_COLOR = "#cbd5e1";
-const NODE_TEXT_COLOR = "#9ca3af";
+const COUNT_TEXT_COLOR = "#9ca3af";
 const ACTIVE_TEXT_COLOR = "#111827";
 const INACTIVE_TEXT_COLOR = "#6b7280";
 const COUNT_FONT = "11px sans-serif";
@@ -65,15 +64,17 @@ function fitText(context: CanvasRenderingContext2D, text: string, maxWidth: numb
 
 type AlertRow = ParsedAlertName & {
     name: string;
+    color: string;
     firstSeen: number;
     tracker: AlertIntervals;
 };
 
-type OffscreenActive = { count: number; worst: AlertSeverity } | null;
+type OffscreenActive = number | null;
 
 type MousePosition = { x: number; y: number; clientX: number; clientY: number } | null;
 
-const compareRows = (left: AlertRow, right: AlertRow) => ALERT_SEVERITY_ORDER[left.severity] - ALERT_SEVERITY_ORDER[right.severity] || left.firstSeen - right.firstSeen || left.name.localeCompare(right.name);
+// grouped by node so colours cluster, then by when each alert first fired
+const compareRows = (left: AlertRow, right: AlertRow) => (left.node ?? "").localeCompare(right.node ?? "") || left.firstSeen - right.firstSeen || left.name.localeCompare(right.name);
 
 function formatTimestamp(timestampMs: number, timeZone: string) {
     const date = new Date(timestampMs);
@@ -84,8 +85,8 @@ function OffscreenHint({ direction, active }: { direction: "above" | "below"; ac
     if (!active) return null;
 
     return (
-        <span className="text-xs font-medium" style={{ color: ALERT_SEVERITY_COLOR[active.worst] }}>
-            {direction === "above" ? "▲" : "▼"} {active.count} active {direction}
+        <span className="text-xs font-medium text-gray-600">
+            {direction === "above" ? "▲" : "▼"} {active} active {direction}
         </span>
     );
 }
@@ -132,7 +133,7 @@ function AlertTimeline() {
         let rows: AlertRow[] = [];
         let offscreenKey = "";
         let tooltipKey = "";
-        let statusKey = "";
+        let reportedActiveCount: number | null = null;
 
         const setTooltip = (lines: string[] | null, clientX = 0, clientY = 0) => {
             const tooltip = tooltipRef.current;
@@ -177,7 +178,8 @@ function AlertTimeline() {
 
                 // an alert gets a row the first time it fires and keeps it, so rows never shuffle under the reader
                 if (tracker.intervals.length > 0 && !rows.some((row) => row.name === name)) {
-                    rows.push({ name, ...parseAlertName(name), firstSeen: tracker.intervals[0].start, tracker });
+                    const parsed = parseAlertName(name);
+                    rows.push({ name, ...parsed, color: alertNodeColor(parsed.node), firstSeen: tracker.intervals[0].start, tracker });
                     rowsChanged = true;
                 }
             });
@@ -199,13 +201,10 @@ function AlertTimeline() {
 
             const summarize = (from: number, to: number): OffscreenActive => {
                 let count = 0;
-                let worst: AlertSeverity = "info";
                 for (let i = Math.max(from, 0); i <= Math.min(to, rows.length - 1); i++) {
-                    if (!activeRows[i]) continue;
-                    count++;
-                    if (ALERT_SEVERITY_ORDER[rows[i].severity] < ALERT_SEVERITY_ORDER[worst]) worst = rows[i].severity;
+                    if (activeRows[i]) count++;
                 }
-                return count > 0 ? { count, worst } : null;
+                return count > 0 ? count : null;
             };
 
             const above = summarize(0, firstVisible - 1);
@@ -217,17 +216,11 @@ function AlertTimeline() {
             setActiveBelow(below);
         };
 
-        const syncStatus = (referenceTime: number, activeRows: boolean[]) => {
-            const status: AlertStatus = { fault: 0, warning: 0, info: 0 };
-            rows.forEach((row, rowIndex) => {
-                if (!activeRows[rowIndex]) return;
-                status[row.severity]++;
-            });
-
-            const key = `${status.fault}|${status.warning}|${status.info}`;
-            if (key === statusKey) return;
-            statusKey = key;
-            reportAlertStatusRef.current(status);
+        const syncStatus = (activeRows: boolean[]) => {
+            const activeCount = activeRows.filter(Boolean).length;
+            if (activeCount === reportedActiveCount) return;
+            reportedActiveCount = activeCount;
+            reportAlertStatusRef.current(activeCount);
         };
 
         // live dots answer "what is wrong right now"; historical dots follow the cursor, else the right edge of the view
@@ -248,10 +241,7 @@ function AlertTimeline() {
             syncRows(store, leftEdge, rightEdge, width - CHART_PADDING.left);
 
             const referenceTime = getReferenceTime(range.max, rightEdge);
-            syncStatus(
-                referenceTime,
-                rows.map((row) => row.tracker.isActiveAt(referenceTime))
-            );
+            syncStatus(rows.map((row) => row.tracker.isActiveAt(referenceTime)));
         };
 
         const renderRows = () => {
@@ -290,7 +280,7 @@ function AlertTimeline() {
             let tooltipLines: string[] | null = null;
 
             const hoveredRow = rows[hoveredRowIndex];
-            highlightedAlertRef.current = hoveredRow ? { tracker: hoveredRow.tracker, color: ALERT_SEVERITY_COLOR[hoveredRow.severity], latestTime: range.max } : null;
+            highlightedAlertRef.current = hoveredRow ? { tracker: hoveredRow.tracker, color: hoveredRow.color, latestTime: range.max } : null;
 
             const nameBackdrop = ctx.createLinearGradient(NAME_COLUMN_WIDTH, 0, NAME_COLUMN_WIDTH + NAME_FADE_WIDTH, 0);
             nameBackdrop.addColorStop(0, `rgba(${NAME_BACKDROP_RGB}, ${NAME_BACKDROP_ALPHA})`);
@@ -299,7 +289,7 @@ function AlertTimeline() {
             const activeRows = rows.map((row, rowIndex) => {
                 const top = ROWS_PADDING_Y + rowIndex * ROW_HEIGHT;
                 const centerY = top + ROW_HEIGHT / 2;
-                const color = ALERT_SEVERITY_COLOR[row.severity];
+                const { color } = row;
                 const { intervals, open } = row.tracker;
                 const isActive = row.tracker.isActiveAt(referenceTime);
 
@@ -365,17 +355,17 @@ function AlertTimeline() {
                 let nameX = NAME_X;
                 if (row.node) {
                     const nodeText = `${row.node} `;
-                    ctx.fillStyle = NODE_TEXT_COLOR;
+                    ctx.fillStyle = color; // the node prefix doubles as the legend for the row's colour
                     ctx.fillText(nodeText, nameX, centerY);
                     nameX += ctx.measureText(nodeText).width;
                 }
                 ctx.fillStyle = isActive ? ACTIVE_TEXT_COLOR : INACTIVE_TEXT_COLOR;
-                ctx.fillText(fitText(ctx, row.shortName, NAME_MAX_WIDTH - (nameX - NAME_X)), nameX, centerY);
+                ctx.fillText(fitText(ctx, row.label, NAME_MAX_WIDTH - (nameX - NAME_X)), nameX, centerY);
 
                 if (countInView > 0) {
                     ctx.font = COUNT_FONT;
                     ctx.textAlign = "right";
-                    ctx.fillStyle = NODE_TEXT_COLOR;
+                    ctx.fillStyle = COUNT_TEXT_COLOR;
                     ctx.fillText(`${countInView}`, COUNT_RIGHT_X, centerY);
                 }
 
@@ -428,7 +418,7 @@ function AlertTimeline() {
 
             setTooltip(tooltipLines, mouse?.clientX, mouse?.clientY);
             syncOffscreenHints(activeRows);
-            syncStatus(referenceTime, activeRows);
+            syncStatus(activeRows);
         };
 
         let statusInterval: number | null = null;
