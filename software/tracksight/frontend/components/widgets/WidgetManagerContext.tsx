@@ -13,6 +13,7 @@ interface WidgetManagerContext {
     widgets: WidgetData[];
     initializedFromLocalStorage: boolean;
     appendWidget: (newWidget: WidgetData) => void;
+    replaceWidgets: (nextWidgets: WidgetData[]) => void;
     removeWidget: (widgetToRemove: string) => void;
     appendSignal: <T extends WidgetType, Widget extends Extract<WidgetData, { type: T }>>(widget: Widget, newSignal: any) => void;
     removeSignal: (widget: WidgetData, nameOfSignalToRemove: string) => void;
@@ -153,6 +154,13 @@ export function WidgetManager({ children, storageKey = LOCAL_STORAGE_KEY }: { ch
         [setWidgets]
     );
 
+    const replaceWidgets = useCallback(
+        (nextWidgets: WidgetData[]) => {
+            setWidgets(nextWidgets.map((widget) => ({ ...widget, id: uuidv4() })));
+        },
+        [setWidgets]
+    );
+
     const removeWidget = useCallback(
         (widgetToRemove: string) => {
             setWidgets((prev) => {
@@ -244,13 +252,14 @@ export function WidgetManager({ children, storageKey = LOCAL_STORAGE_KEY }: { ch
         () => ({
             widgets,
             appendWidget,
+            replaceWidgets,
             removeWidget,
             appendSignal,
             removeSignal,
             updateWidget,
             initializedFromLocalStorage: isInitialized,
         }),
-        [widgets, appendWidget, removeWidget, appendSignal, removeSignal, updateWidget, isInitialized]
+        [widgets, appendWidget, replaceWidgets, removeWidget, appendSignal, removeSignal, updateWidget, isInitialized]
     );
 
     return <WidgetManagerContext value={contextValue}>{children}</WidgetManagerContext>;

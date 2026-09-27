@@ -7,12 +7,29 @@ import AlertTimeline from "@/components/widgets/AlertTimeline";
 import { useWidgetManager, WidgetManager } from "@/components/widgets/WidgetManagerContext";
 import { LiveSignalStoreProvider } from "@/lib/contexts/signalStores/LiveSignalStoreContext";
 import { MockSignalStoreProvider } from "@/lib/contexts/signalStores/MockSignalStoreContext";
+import { getMockSignalCatalog } from "@/lib/mock/catalog";
+import { createMockCharts } from "@/lib/mock/charts";
+import { getMockConfig } from "@/lib/mock/config";
+import { useEffect } from "react";
 
 const USE_MOCK_DATA = process.env.NEXT_PUBLIC_USE_MOCK_DATA === "true";
 
 function Content() {
-    const { initializedFromLocalStorage } = useWidgetManager();
+    const { initializedFromLocalStorage, replaceWidgets } = useWidgetManager();
     const DataSourceProvider = USE_MOCK_DATA ? MockSignalStoreProvider : LiveSignalStoreProvider;
+
+    useEffect(() => {
+        // ?mockCharts=N swaps in N random charts for stress testing, then drops the param so a reload keeps them
+        if (!USE_MOCK_DATA || !initializedFromLocalStorage) return;
+
+        const url = new URL(window.location.href);
+        const count = Number(url.searchParams.get("mockCharts"));
+        if (!Number.isInteger(count) || count <= 0) return;
+
+        replaceWidgets(createMockCharts(count, getMockSignalCatalog(getMockConfig().signalCount)));
+        url.searchParams.delete("mockCharts");
+        window.history.replaceState(null, "", url);
+    }, [initializedFromLocalStorage, replaceWidgets]);
 
     return (
         <DataSourceProvider>
