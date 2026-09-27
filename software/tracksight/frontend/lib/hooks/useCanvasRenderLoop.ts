@@ -36,7 +36,8 @@ export function useCanvasRenderLoop(canvasRef: RefObject<HTMLCanvasElement | nul
             animationFrameId = requestAnimationFrame(renderFrame);
         };
 
-        const observer = new IntersectionObserver(([entry]) => {
+        const observer = new IntersectionObserver((entries) => {
+            const entry = entries[entries.length - 1]; // entries are chronological; only the latest state matters
             if (entry.isIntersecting && animationFrameId === null) animationFrameId = requestAnimationFrame(renderFrame);
             if (!entry.isIntersecting && animationFrameId !== null) {
                 cancelAnimationFrame(animationFrameId);

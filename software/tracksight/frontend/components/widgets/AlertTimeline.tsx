@@ -345,7 +345,8 @@ function AlertTimeline() {
             animationFrame.current = requestAnimationFrame(renderSlipStream);
         };
 
-        const observer = new IntersectionObserver(([entry]) => {
+        const observer = new IntersectionObserver((entries) => {
+            const entry = entries[entries.length - 1];
             if (entry.isIntersecting && animationFrame.current === null) animationFrame.current = requestAnimationFrame(renderSlipStream);
             if (!entry.isIntersecting && animationFrame.current !== null) {
                 cancelAnimationFrame(animationFrame.current);
