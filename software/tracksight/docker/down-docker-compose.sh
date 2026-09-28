@@ -4,4 +4,4 @@ if [ -z "$1" ]; then
 fi
 
 echo "Downing Docker compose with $1"
-docker compose -f $1 down "${@:2}"
+docker compose --env-file envs/common.env -f $1 down "${@:2}"

@@ -38,9 +38,6 @@ services:
     volumes:
       - /dev:/dev
       - /sys:/sys:ro
-    depends_on:
-      influx:
-        condition: service_healthy
     # healthcheck:
     #   # Ping server every 30s in case something breaks.
     #   test: [ "CMD", "curl", "-f", "http://localhost:${BACKEND_PORT}/api/health" ]
