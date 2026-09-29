@@ -1,6 +1,4 @@
 import { createContext, ReactNode, RefObject, UIEvent, useCallback, useContext, useEffect, useMemo, useRef } from "react";
-import { DndProvider } from "react-dnd";
-import { HTML5Backend } from "react-dnd-html5-backend";
 
 import { useDisplayControlContext } from "./PausePlayControl";
 import { CHART_PADDING } from "./widgets/render";
@@ -314,22 +312,20 @@ export default function SyncedGraphContainer({ children, initialTimeRange, onVie
 
     return (
         <SyncedGraphContext.Provider value={CTXVAL}>
-            <DndProvider backend={HTML5Backend}>
-                {/* outer wrapper handles overflow/scrolling; this the viewport */}
-                <div ref={scrollContainerRef} className={isViewportLocked ? "w-full overflow-x-hidden overflow-y-scroll h-full" : "w-full overflow-x-auto overflow-y-scroll h-full"} style={{ overscrollBehaviorX: "contain" }} onScroll={updateLeftScroll}>
-                    {/* inner content grows in width */}
-                    <div ref={contentRef} className="min-w-full relative">
-                        <div
-                            className="sticky left-0"
-                            style={{
-                                width: `calc(100vw - 18px)`, // this is the set width of the scrollbar (global.css)
-                            }}
-                        >
-                            {children}
-                        </div>
+            {/* outer wrapper handles overflow/scrolling; this the viewport */}
+            <div ref={scrollContainerRef} className={isViewportLocked ? "w-full overflow-x-hidden overflow-y-scroll h-full" : "w-full overflow-x-auto overflow-y-scroll h-full"} style={{ overscrollBehaviorX: "contain" }} onScroll={updateLeftScroll}>
+                {/* inner content grows in width */}
+                <div ref={contentRef} className="min-w-full relative">
+                    <div
+                        className="sticky left-0"
+                        style={{
+                            width: `calc(100vw - 18px)`, // this is the set width of the scrollbar (global.css)
+                        }}
+                    >
+                        {children}
                     </div>
                 </div>
-            </DndProvider>
+            </div>
         </SyncedGraphContext.Provider>
     );
 }

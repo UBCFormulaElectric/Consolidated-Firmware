@@ -2,14 +2,14 @@
 
 import chroma, { Color } from "chroma-js";
 import { memo, ReactNode, RefObject, useCallback, useState } from "react";
-import { useDrag } from "react-dnd";
+import { ConnectDragSource, useDrag } from "react-dnd";
 
 import { EditButton } from "@/components/icons/EditButton";
 import { PlusButton } from "@/components/icons/PlusButton";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { DRAGGABLE_TYPES } from "@/lib/constants";
 import { BooleanSignalMetadata, EnumSignalMetadata, isEnumSignalMetadata, NumericalSignalMetadata, SignalMetadata } from "@/lib/types/Signal";
-import { EnumTimelineWidgetData, NumericalGraphWidgetData, SignalDragItem, WidgetData } from "@/lib/types/Widget";
+import { EnumTimelineWidgetData, NumericalGraphWidgetData, SignalDragItem, WidgetData, WidgetDragItem } from "@/lib/types/Widget";
 import { GripVertical } from "lucide-react";
 import EnumCanvasChart from "./EnumCanvasChart";
 import { EnumSignalPicker } from "./EnumSignalPicker";
@@ -86,7 +86,7 @@ function SignalButton(props: { signal: SignalMetadata; widgetId: string; handleR
     );
 }
 
-function WidgetConfiguration(props: { id: string; children?: ReactNode; dragHandle: React.RefObject<HTMLDivElement> }) {
+function WidgetConfiguration(props: { id: string; children?: ReactNode; dragHandle: ConnectDragSource }) {
     const { id, children, dragHandle } = props;
     const { removeWidget } = useWidgetManager();
 
@@ -97,7 +97,11 @@ function WidgetConfiguration(props: { id: string; children?: ReactNode; dragHand
     return (
         <div className="px-6">
             <div className="flex items-center gap-2 mb-4">
-                <div ref={dragHandle}>
+                <div
+                    ref={(node) => {
+                        dragHandle(node);
+                    }}
+                >
                     <GripVertical className="w-6 h-6 cursor-grab" />
                 </div>
                 <h3 className="font-semibold">Widget {id}</h3>
@@ -196,13 +200,10 @@ export const Widget = memo(function Widget(props: WidgetData & { hoveredSignal: 
     const { hoveredSignal, id } = props;
     const { updateWidget, removeSignal } = useWidgetManager();
 
-    const [{ isDragging }, drag] = useDrag(
+    const [, drag] = useDrag(
         () => ({
             type: DRAGGABLE_TYPES.WIDGET,
-            item: { id: id },
-            collect: (monitor) => ({
-                isDragging: !!monitor.isDragging(),
-            }),
+            item: (): WidgetDragItem => ({ id }),
         }),
         [id]
     );
@@ -223,7 +224,7 @@ export const Widget = memo(function Widget(props: WidgetData & { hoveredSignal: 
 
             return (
                 <>
-                    <WidgetConfiguration id={widget.id} dragHandle={drag as unknown as React.RefObject<HTMLDivElement>}>
+                    <WidgetConfiguration id={widget.id} dragHandle={drag}>
                         {widget.signals.map((signal) => (
                             <SignalButton key={signal.name} signal={signal} widgetId={widget.id} handleRemoveSignal={handleRemoveSignal} hoverSignalName={hoveredSignal} color={widget.options.colorPalette[signal.name] ?? chroma("#ffffff")} />
                         ))}
@@ -248,7 +249,7 @@ export const Widget = memo(function Widget(props: WidgetData & { hoveredSignal: 
 
             return (
                 <>
-                    <WidgetConfiguration id={widget.id} dragHandle={drag as unknown as React.RefObject<HTMLDivElement>}>
+                    <WidgetConfiguration id={widget.id} dragHandle={drag}>
                         {widget.signals.map((signal) => (
                             <SignalButton key={signal.name} signal={signal} widgetId={widget.id} handleRemoveSignal={handleRemoveSignal} hoverSignalName={hoveredSignal} color={widget.options.colorPalette[signal.name]?.color ?? chroma("#ffffff")} />
                         ))}

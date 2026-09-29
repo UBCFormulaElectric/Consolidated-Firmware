@@ -1,7 +1,7 @@
 "use client";
 
 import { DRAGGABLE_TYPES } from "@/lib/constants";
-import { canWidgetAcceptSignal, SignalDragItem, WidgetData } from "@/lib/types/Widget";
+import { canWidgetAcceptSignal, SignalDragItem, WidgetData, WidgetDragItem } from "@/lib/types/Widget";
 import { RefObject, useEffect, useLayoutEffect, useRef } from "react";
 import { useDragLayer, useDrop, XYCoord } from "react-dnd";
 import { Widget } from "./widgets/Widget";
@@ -13,8 +13,6 @@ const SCROLL_THRESHOLD = { TOP: 100, BOTTOM: 50 };
 const clamp01 = (value: number) => Math.min(Math.max(value, 0), 1);
 
 const SWAP_ANIMATION: KeyframeAnimationOptions = { duration: 200, easing: "cubic-bezier(0.2, 0, 0, 1)" };
-
-type WidgetDragItem = { id: string };
 
 function getTranslateY(node: HTMLElement): number {
     const transform = getComputedStyle(node).transform;
@@ -122,7 +120,6 @@ function DataDashboard() {
                 moveWidget(item.id, index);
             },
             collect: (monitor) => ({
-                isOver: monitor.isOver(),
                 draggedWidgetId: monitor.getItemType() === DRAGGABLE_TYPES.WIDGET ? (monitor.getItem() as WidgetDragItem).id : null,
             }),
         }),
