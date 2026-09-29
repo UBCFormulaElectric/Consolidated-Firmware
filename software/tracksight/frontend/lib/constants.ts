@@ -7,6 +7,7 @@ const IS_DEBUG = process.env.NEXT_PUBLIC_IS_DEBUG === "true";
 
 const DRAGGABLE_TYPES = {
     WIDGET: "widget",
+    SIGNAL: "signal",
 }
 
 export { API_BASE_URL, IS_DEBUG, IS_MOCK, MAX_RECONECTION_ATTEMPTS, DRAGGABLE_TYPES };

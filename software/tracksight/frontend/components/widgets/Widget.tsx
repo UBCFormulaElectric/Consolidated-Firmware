@@ -8,7 +8,7 @@ import { PlusButton } from "@/components/icons/PlusButton";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { DRAGGABLE_TYPES } from "@/lib/constants";
 import { BooleanSignalMetadata, EnumSignalMetadata, isEnumSignalMetadata, NumericalSignalMetadata, SignalMetadata } from "@/lib/types/Signal";
-import { EnumTimelineWidgetData, NumericalGraphWidgetData, WidgetData } from "@/lib/types/Widget";
+import { EnumTimelineWidgetData, NumericalGraphWidgetData, SignalDragItem, WidgetData } from "@/lib/types/Widget";
 import { GripVertical } from "lucide-react";
 import EnumCanvasChart from "./EnumCanvasChart";
 import { EnumSignalPicker } from "./EnumSignalPicker";
@@ -38,12 +38,35 @@ function removeColorPaletteEntry<T>(palette: Record<string, T>, signalName: stri
     return nextPalette;
 }
 
-function SignalButton(props: { signal: SignalMetadata; handleRemoveSignal: (signalName: string) => void; hoverSignalName: RefObject<string | null>; color: Color }) {
-    const { signal, handleRemoveSignal, hoverSignalName, color } = props;
+function SignalButton(props: { signal: SignalMetadata; widgetId: string; handleRemoveSignal: (signalName: string) => void; hoverSignalName: RefObject<string | null>; color: Color }) {
+    const { signal, widgetId, handleRemoveSignal, hoverSignalName, color } = props;
+
+    const [{ isDragging }, drag] = useDrag(
+        () => ({
+            type: DRAGGABLE_TYPES.SIGNAL,
+            item: (): SignalDragItem => {
+                hoverSignalName.current = null;
+
+                return { signal, currentWidgetId: widgetId };
+            },
+            isDragging: (monitor) => {
+                const item = monitor.getItem<SignalDragItem>();
+
+                return item.signal.name === signal.name && item.currentWidgetId === widgetId;
+            },
+            collect: (monitor) => ({
+                isDragging: monitor.isDragging(),
+            }),
+        }),
+        [signal, widgetId, hoverSignalName]
+    );
 
     return (
         <div
-            className="select-none flex items-center gap-2 px-3 py-1.5 rounded-full border-2 hover:opacity-80 transition-opacity cursor-crosshair"
+            ref={(node) => {
+                drag(node);
+            }}
+            className={`select-none flex items-center gap-2 px-3 py-1.5 rounded-full border-2 transition-opacity cursor-grab ${isDragging ? "opacity-50" : "hover:opacity-80"}`}
             style={{ backgroundColor: color.brighten(1).hex(), borderColor: color.darken(1).hex() }}
             onMouseEnter={() => {
                 hoverSignalName.current = signal.name;
@@ -287,7 +310,7 @@ export const Widget = memo(function Widget(props: WidgetData & { hoveredSignal: 
                 <>
                     <WidgetConfiguration id={widget.id} dragHandle={drag as unknown as React.RefObject<HTMLDivElement>}>
                         {widget.signals.map((signal) => (
-                            <SignalButton key={signal.name} signal={signal} handleRemoveSignal={handleRemoveSignal} hoverSignalName={hoveredSignal} color={widget.options.colorPalette[signal.name] ?? chroma("#ffffff")} />
+                            <SignalButton key={signal.name} signal={signal} widgetId={widget.id} handleRemoveSignal={handleRemoveSignal} hoverSignalName={hoveredSignal} color={widget.options.colorPalette[signal.name] ?? chroma("#ffffff")} />
                         ))}
                         <NumericalWidgetAddSignalModal widget={widget} />
                     </WidgetConfiguration>
@@ -312,7 +335,7 @@ export const Widget = memo(function Widget(props: WidgetData & { hoveredSignal: 
                 <>
                     <WidgetConfiguration id={widget.id} dragHandle={drag as unknown as React.RefObject<HTMLDivElement>}>
                         {widget.signals.map((signal) => (
-                            <SignalButton key={signal.name} signal={signal} handleRemoveSignal={handleRemoveSignal} hoverSignalName={hoveredSignal} color={widget.options.colorPalette[signal.name]?.color ?? chroma("#ffffff")} />
+                            <SignalButton key={signal.name} signal={signal} widgetId={widget.id} handleRemoveSignal={handleRemoveSignal} hoverSignalName={hoveredSignal} color={widget.options.colorPalette[signal.name]?.color ?? chroma("#ffffff")} />
                         ))}
                         <EnumWidgetAddSignalModal widget={widget} />
                     </WidgetConfiguration>
