@@ -30,12 +30,6 @@ function buildEnumPalette(signal: EnumSignalMetadata | BooleanSignalMetadata): {
     };
 }
 
-function removeColorPaletteEntry<T>(palette: Record<string, T>, signalName: string): Record<string, T> {
-    const nextPalette = { ...palette };
-    delete nextPalette[signalName];
-    return nextPalette;
-}
-
 function SignalButton(props: { signal: SignalMetadata; handleRemoveSignal: (signalName: string) => void; hoverSignalName: RefObject<string | null>; color: Color }) {
     const { signal, handleRemoveSignal, hoverSignalName, color } = props;
 
@@ -112,11 +106,7 @@ function NumericalWidgetEditSignalsModal(props: { widget: NumericalGraphWidgetDa
 
     return (
         <Dialog open={modalOpen} onOpenChange={setModalOpen}>
-            <DialogTrigger asChild>
-                <button type="button" className="cursor-pointer" title={hasNoSignals ? "Add numerical signals" : "Edit numerical signals"}>
-                    {hasNoSignals ? <PlusButton /> : <EditButton />}
-                </button>
-            </DialogTrigger>
+            <DialogTrigger asChild>{hasNoSignals ? <PlusButton title="Add numerical signals" /> : <EditButton title="Edit numerical signals" />}</DialogTrigger>
             <DialogContent>
                 <DialogHeader>
                     <DialogTitle className="text-lg font-bold mb-4">Edit Numerical Signals</DialogTitle>
@@ -153,11 +143,7 @@ function EnumWidgetEditSignalsModal(props: { widget: EnumTimelineWidgetData }) {
 
     return (
         <Dialog open={modalOpen} onOpenChange={setModalOpen}>
-            <DialogTrigger asChild>
-                <button type="button" className="cursor-pointer" title={hasNoSignals ? "Add enum signals" : "Edit enum signals"}>
-                    {hasNoSignals ? <PlusButton /> : <EditButton />}
-                </button>
-            </DialogTrigger>
+            <DialogTrigger asChild>{hasNoSignals ? <PlusButton title="Add enum signals" /> : <EditButton title="Edit enum signals" />}</DialogTrigger>
             <DialogContent>
                 <DialogHeader>
                     <DialogTitle className="text-lg font-bold mb-4">Edit Enum Signals</DialogTitle>
@@ -173,27 +159,16 @@ function EnumWidgetEditSignalsModal(props: { widget: EnumTimelineWidgetData }) {
 
 export function Widget(props: WidgetData & { hoveredSignal: RefObject<string | null> }) {
     const { hoveredSignal } = props;
-    const { updateWidget } = useWidgetManager();
+    const { removeSignal } = useWidgetManager();
 
     switch (props.type) {
         case "numericalGraph": {
             const widget = props as NumericalGraphWidgetData;
-            const handleRemoveSignal = (signalName: string) => {
-                updateWidget(widget, (previousWidget) => ({
-                    ...previousWidget,
-                    signals: previousWidget.signals.filter((signal) => signal.name !== signalName),
-                    options: {
-                        ...previousWidget.options,
-                        colorPalette: removeColorPaletteEntry(previousWidget.options.colorPalette, signalName),
-                    },
-                }));
-            };
-
             return (
                 <>
                     <WidgetConfiguration id={widget.id}>
                         {widget.signals.map((signal) => (
-                            <SignalButton key={signal.name} signal={signal} handleRemoveSignal={handleRemoveSignal} hoverSignalName={hoveredSignal} color={widget.options.colorPalette[signal.name] ?? chroma("#ffffff")} />
+                            <SignalButton key={signal.name} signal={signal} handleRemoveSignal={(signalName) => removeSignal(widget, signalName)} hoverSignalName={hoveredSignal} color={widget.options.colorPalette[signal.name] ?? chroma("#ffffff")} />
                         ))}
                         <NumericalWidgetEditSignalsModal widget={widget} />
                     </WidgetConfiguration>
@@ -203,22 +178,11 @@ export function Widget(props: WidgetData & { hoveredSignal: RefObject<string | n
         }
         case "enumTimeline": {
             const widget = props as EnumTimelineWidgetData;
-            const handleRemoveSignal = (signalName: string) => {
-                updateWidget(widget, (previousWidget) => ({
-                    ...previousWidget,
-                    signals: previousWidget.signals.filter((signal) => signal.name !== signalName),
-                    options: {
-                        ...previousWidget.options,
-                        colorPalette: removeColorPaletteEntry(previousWidget.options.colorPalette, signalName),
-                    },
-                }));
-            };
-
             return (
                 <>
                     <WidgetConfiguration id={widget.id}>
                         {widget.signals.map((signal) => (
-                            <SignalButton key={signal.name} signal={signal} handleRemoveSignal={handleRemoveSignal} hoverSignalName={hoveredSignal} color={widget.options.colorPalette[signal.name]?.color ?? chroma("#ffffff")} />
+                            <SignalButton key={signal.name} signal={signal} handleRemoveSignal={(signalName) => removeSignal(widget, signalName)} hoverSignalName={hoveredSignal} color={widget.options.colorPalette[signal.name]?.color ?? chroma("#ffffff")} />
                         ))}
                         <EnumWidgetEditSignalsModal widget={widget} />
                     </WidgetConfiguration>
