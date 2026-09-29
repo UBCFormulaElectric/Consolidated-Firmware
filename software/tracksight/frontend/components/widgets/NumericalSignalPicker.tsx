@@ -33,6 +33,6 @@ function NumericalSignalItem({ data: signal }: { data: NumericalSignalMetadata }
     );
 }
 
-export function NumericalSignalPicker(props: { selectedSignals: NumericalSignalMetadata[]; onSelectedSignalsChange: (signals: NumericalSignalMetadata[]) => void; onConfirm: (signals: NumericalSignalMetadata[]) => void }) {
+export function NumericalSignalPicker(props: { initialSignals: NumericalSignalMetadata[]; onConfirm: (signals: NumericalSignalMetadata[]) => void; onCancel: () => void }) {
     return <SignalPicker {...props} filter={isNumericalSignalMetadata} getSearchableText={getSearchableText} ItemRenderer={NumericalSignalItem} placeholder="Search by signal, message, unit, or node" />;
 }

@@ -18,13 +18,19 @@ type SignalPickerProps<T extends SignalMetadata> = {
     ItemRenderer: SignalItemRenderer<T>;
     placeholder: string;
 
-    selectedSignals: T[];
-    onSelectedSignalsChange: (signals: T[]) => void;
+    initialSignals: T[];
     onConfirm: (signals: T[]) => void;
+    onCancel: () => void;
 };
 
 function normalizeSearchText(value: string): string {
     return value.trim().toLowerCase().replace(/[_-]+/g, " ");
+}
+
+function haveSameSignalNames(left: SignalMetadata[], right: SignalMetadata[]): boolean {
+    const leftNames = new Set(left.map((signal) => signal.name));
+
+    return left.length === right.length && right.every((signal) => leftNames.has(signal.name));
 }
 
 function getStatusText(isLoading: boolean, visibleCount: number, matchingCount: number, hasQuery: boolean): string {
@@ -36,10 +42,11 @@ function getStatusText(isLoading: boolean, visibleCount: number, matchingCount: 
 }
 
 function SignalPicker<T extends SignalMetadata>(props: SignalPickerProps<T>) {
-    const { filter, getSearchableText, ItemRenderer, placeholder, selectedSignals, onSelectedSignalsChange, onConfirm } = props;
+    const { filter, getSearchableText, ItemRenderer, placeholder, initialSignals, onConfirm, onCancel } = props;
 
     const listRef = useRef<HTMLDivElement | null>(null);
     const [query, setQuery] = useState("");
+    const [selectedSignals, setSelectedSignals] = useState(initialSignals);
     const [highlightedIndex, setHighlightedIndex] = useState(0);
     const { data: allSignals = [], isLoading, error } = useAvailableSignals();
     const previousMousePositionRef = useRef<{ x: number; y: number } | null>(null);
@@ -62,6 +69,7 @@ function SignalPicker<T extends SignalMetadata>(props: SignalPickerProps<T>) {
 
     const selectedSignalNames = useMemo(() => new Set(selectedSignals.map((signal) => signal.name)), [selectedSignals]);
     const areAllMatchingSelected = matchingSignals.length > 0 && matchingSignals.every((signal) => selectedSignalNames.has(signal.name));
+    const hasChanges = !haveSameSignalNames(initialSignals, selectedSignals);
 
     useEffect(() => {
         setHighlightedIndex(0);
@@ -77,25 +85,25 @@ function SignalPicker<T extends SignalMetadata>(props: SignalPickerProps<T>) {
         (signal: T, shouldConfirm = false) => {
             const nextSignals = selectedSignalNames.has(signal.name) ? selectedSignals.filter((selected) => selected.name !== signal.name) : [...selectedSignals, signal];
 
-            onSelectedSignalsChange(nextSignals);
+            setSelectedSignals(nextSignals);
 
             if (!shouldConfirm) return;
 
             onConfirm(nextSignals);
         },
-        [onConfirm, onSelectedSignalsChange, selectedSignalNames, selectedSignals]
+        [onConfirm, selectedSignalNames, selectedSignals]
     );
     const toggleAllMatching = () => {
         const matchingSignalNames = new Set(matchingSignals.map((signal) => signal.name));
         const signalsOutsideMatch = selectedSignals.filter((signal) => !matchingSignalNames.has(signal.name));
 
         if (areAllMatchingSelected) {
-            onSelectedSignalsChange(signalsOutsideMatch);
+            setSelectedSignals(signalsOutsideMatch);
 
             return;
         }
 
-        onSelectedSignalsChange([...signalsOutsideMatch, ...matchingSignals]);
+        setSelectedSignals([...signalsOutsideMatch, ...matchingSignals]);
     };
 
     const moveHighlight = useCallback(
@@ -199,6 +207,14 @@ function SignalPicker<T extends SignalMetadata>(props: SignalPickerProps<T>) {
                         })}
                     </div>
                 )}
+            </div>
+            <div className="flex justify-end gap-2 pt-6">
+                <button type="button" onClick={onCancel} className="cursor-pointer rounded px-4 py-2 text-gray-600 hover:bg-gray-100">
+                    Cancel
+                </button>
+                <button type="button" onClick={() => onConfirm(selectedSignals)} disabled={!hasChanges} className="cursor-pointer rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60">
+                    Save
+                </button>
             </div>
         </div>
     );

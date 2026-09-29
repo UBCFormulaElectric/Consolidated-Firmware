@@ -85,12 +85,6 @@ function EmptyWidgetState(props: { message: string }) {
     return <div className="mx-6 mt-4 rounded-lg border border-dashed border-gray-300 bg-gray-50 px-6 py-12 text-center text-sm text-gray-500">{props.message}</div>;
 }
 
-function haveSameSignalNames(left: SignalMetadata[], right: SignalMetadata[]): boolean {
-    const leftNames = new Set(left.map((signal) => signal.name));
-
-    return left.length === right.length && right.every((signal) => leftNames.has(signal.name));
-}
-
 function buildNextColorPalette<S extends SignalMetadata, T>(previousPalette: Record<string, T>, signals: S[], createEntry: (signal: S) => T): Record<string, T> {
     return Object.fromEntries(signals.map((signal) => [signal.name, previousPalette[signal.name] ?? createEntry(signal)]));
 }
@@ -98,18 +92,11 @@ function buildNextColorPalette<S extends SignalMetadata, T>(previousPalette: Rec
 function NumericalWidgetEditSignalsModal(props: { widget: NumericalGraphWidgetData }) {
     const { widget } = props;
     const [modalOpen, setModalOpen] = useState(false);
-    const [selectedSignals, setSelectedSignals] = useState<NumericalSignalMetadata[]>([]);
     const { updateWidget } = useWidgetManager();
 
-    const hasChanges = !haveSameSignalNames(widget.signals, selectedSignals);
     const hasNoSignals = widget.signals.length === 0;
 
-    const handleOpenChange = (isOpen: boolean) => {
-        setModalOpen(isOpen);
-        setSelectedSignals(isOpen ? widget.signals : []);
-    };
-
-    const handleSave = (signals = selectedSignals) => {
+    const handleSave = (signals: NumericalSignalMetadata[]) => {
         const nextColorPalette = buildNextColorPalette(widget.options.colorPalette, signals, () => chroma.random());
 
         updateWidget(widget, (previousWidget) => ({
@@ -120,11 +107,11 @@ function NumericalWidgetEditSignalsModal(props: { widget: NumericalGraphWidgetDa
                 colorPalette: nextColorPalette,
             },
         }));
-        handleOpenChange(false);
+        setModalOpen(false);
     };
 
     return (
-        <Dialog open={modalOpen} onOpenChange={handleOpenChange}>
+        <Dialog open={modalOpen} onOpenChange={setModalOpen}>
             <DialogTrigger asChild>
                 <button type="button" className="cursor-pointer" title={hasNoSignals ? "Add numerical signals" : "Edit numerical signals"}>
                     {hasNoSignals ? <PlusButton /> : <EditButton />}
@@ -135,16 +122,8 @@ function NumericalWidgetEditSignalsModal(props: { widget: NumericalGraphWidgetDa
                     <DialogTitle className="text-lg font-bold mb-4">Edit Numerical Signals</DialogTitle>
                     <DialogDescription>Choose which live numerical signals this graph shows.</DialogDescription>
                 </DialogHeader>
-                <div className="min-w-0 space-y-4">
-                    <NumericalSignalPicker selectedSignals={selectedSignals} onSelectedSignalsChange={setSelectedSignals} onConfirm={handleSave} />
-                    <div className="flex justify-end gap-2 pt-2">
-                        <button type="button" onClick={() => handleOpenChange(false)} className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded cursor-pointer">
-                            Cancel
-                        </button>
-                        <button type="button" onClick={() => handleSave()} disabled={!hasChanges} className="px-4 py-2 bg-blue-600 text-white hover:bg-blue-700 rounded cursor-pointer disabled:cursor-not-allowed disabled:opacity-60">
-                            Save
-                        </button>
-                    </div>
+                <div className="min-w-0">
+                    <NumericalSignalPicker initialSignals={widget.signals} onConfirm={handleSave} onCancel={() => setModalOpen(false)} />
                 </div>
             </DialogContent>
         </Dialog>
@@ -154,18 +133,11 @@ function NumericalWidgetEditSignalsModal(props: { widget: NumericalGraphWidgetDa
 function EnumWidgetEditSignalsModal(props: { widget: EnumTimelineWidgetData }) {
     const { widget } = props;
     const [modalOpen, setModalOpen] = useState(false);
-    const [selectedSignals, setSelectedSignals] = useState<(EnumSignalMetadata | BooleanSignalMetadata)[]>([]);
     const { updateWidget } = useWidgetManager();
 
-    const hasChanges = !haveSameSignalNames(widget.signals, selectedSignals);
     const hasNoSignals = widget.signals.length === 0;
 
-    const handleOpenChange = (isOpen: boolean) => {
-        setModalOpen(isOpen);
-        setSelectedSignals(isOpen ? widget.signals : []);
-    };
-
-    const handleSave = (signals = selectedSignals) => {
+    const handleSave = (signals: (EnumSignalMetadata | BooleanSignalMetadata)[]) => {
         const nextColorPalette = buildNextColorPalette(widget.options.colorPalette, signals, buildEnumPalette);
 
         updateWidget(widget, (previousWidget) => ({
@@ -176,11 +148,11 @@ function EnumWidgetEditSignalsModal(props: { widget: EnumTimelineWidgetData }) {
                 colorPalette: nextColorPalette,
             },
         }));
-        handleOpenChange(false);
+        setModalOpen(false);
     };
 
     return (
-        <Dialog open={modalOpen} onOpenChange={handleOpenChange}>
+        <Dialog open={modalOpen} onOpenChange={setModalOpen}>
             <DialogTrigger asChild>
                 <button type="button" className="cursor-pointer" title={hasNoSignals ? "Add enum signals" : "Edit enum signals"}>
                     {hasNoSignals ? <PlusButton /> : <EditButton />}
@@ -191,16 +163,8 @@ function EnumWidgetEditSignalsModal(props: { widget: EnumTimelineWidgetData }) {
                     <DialogTitle className="text-lg font-bold mb-4">Edit Enum Signals</DialogTitle>
                     <DialogDescription>Choose which live enum signals this timeline shows.</DialogDescription>
                 </DialogHeader>
-                <div className="min-w-0 space-y-4">
-                    <EnumSignalPicker selectedSignals={selectedSignals} onSelectedSignalsChange={setSelectedSignals} onConfirm={handleSave} />
-                    <div className="flex justify-end gap-2 pt-2">
-                        <button type="button" onClick={() => handleOpenChange(false)} className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded cursor-pointer">
-                            Cancel
-                        </button>
-                        <button type="button" onClick={() => handleSave()} disabled={!hasChanges} className="px-4 py-2 bg-blue-600 text-white hover:bg-blue-700 rounded cursor-pointer disabled:cursor-not-allowed disabled:opacity-60">
-                            Save
-                        </button>
-                    </div>
+                <div className="min-w-0">
+                    <EnumSignalPicker initialSignals={widget.signals} onConfirm={handleSave} onCancel={() => setModalOpen(false)} />
                 </div>
             </DialogContent>
         </Dialog>

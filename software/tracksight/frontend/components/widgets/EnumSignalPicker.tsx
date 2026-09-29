@@ -41,6 +41,6 @@ function EnumSignalItem({ data: signal }: { data: EnumOrBooleanSignalMetadata })
     );
 }
 
-export function EnumSignalPicker(props: { selectedSignals: EnumOrBooleanSignalMetadata[]; onSelectedSignalsChange: (signals: EnumOrBooleanSignalMetadata[]) => void; onConfirm: (signals: EnumOrBooleanSignalMetadata[]) => void }) {
+export function EnumSignalPicker(props: { initialSignals: EnumOrBooleanSignalMetadata[]; onConfirm: (signals: EnumOrBooleanSignalMetadata[]) => void; onCancel: () => void }) {
     return <SignalPicker {...props} filter={isEnumOrBooleanSignalMetadata} getSearchableText={getSearchableText} ItemRenderer={EnumSignalItem} placeholder="Search by signal, message, enum name, or node" />;
 }
