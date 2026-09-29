@@ -1,7 +1,8 @@
 "use client";
 
 import { DRAGGABLE_TYPES } from "@/lib/constants";
-import { useEffect, useLayoutEffect, useRef } from "react";
+import { canWidgetAcceptSignal, SignalDragItem, WidgetData } from "@/lib/types/Widget";
+import { RefObject, useEffect, useLayoutEffect, useRef } from "react";
 import { useDragLayer, useDrop, XYCoord } from "react-dnd";
 import { Widget } from "./widgets/Widget";
 import { useWidgetManager } from "./widgets/WidgetManagerContext";
@@ -48,6 +49,40 @@ const getFirstScrollableAncestor = (node: HTMLElement): HTMLElement | null => {
     return null;
 };
 
+function DashboardWidgetSlot(props: { widget: WidgetData; stackOrder: number; isDraggedWidget: boolean; hoveredSignal: RefObject<string | null>; itemRefs: RefObject<Map<string, HTMLDivElement>> }) {
+    const { widget, stackOrder, isDraggedWidget, hoveredSignal, itemRefs } = props;
+    const { moveSignal } = useWidgetManager();
+
+    const [, drop] = useDrop(
+        () => ({
+            accept: DRAGGABLE_TYPES.SIGNAL,
+            canDrop: (item: SignalDragItem) => canWidgetAcceptSignal(widget, item.signal),
+            hover: (item: SignalDragItem, monitor) => {
+                if (!monitor.canDrop()) return;
+
+                moveSignal(item.signal.name, item.currentWidgetId, widget.id);
+                item.currentWidgetId = widget.id;
+            },
+        }),
+        [widget, moveSignal]
+    );
+
+    return (
+        <div
+            ref={(node) => {
+                drop(node);
+
+                if (node) itemRefs.current.set(widget.id, node);
+                else itemRefs.current.delete(widget.id);
+            }}
+            className={`sticky left-0 w-screen ${isDraggedWidget ? "opacity-50" : ""}`}
+            style={{ zIndex: stackOrder }}
+        >
+            <Widget {...widget} hoveredSignal={hoveredSignal} />
+        </div>
+    );
+}
+
 function DataDashboard() {
     const { widgets, moveWidget } = useWidgetManager();
 
@@ -76,8 +111,10 @@ function DataDashboard() {
 
     const [{ draggedWidgetId }, drop] = useDrop(
         () => ({
-            accept: DRAGGABLE_TYPES.WIDGET,
+            accept: [DRAGGABLE_TYPES.WIDGET, DRAGGABLE_TYPES.SIGNAL],
             hover: (item: WidgetDragItem, monitor) => {
+                if (monitor.getItemType() !== DRAGGABLE_TYPES.WIDGET) return;
+
                 const index = getDropIndex(listRef.current, monitor.getClientOffset());
 
                 if (index === null) return;
@@ -86,14 +123,14 @@ function DataDashboard() {
             },
             collect: (monitor) => ({
                 isOver: monitor.isOver(),
-                draggedWidgetId: (monitor.getItem() as WidgetDragItem | null)?.id ?? null,
+                draggedWidgetId: monitor.getItemType() === DRAGGABLE_TYPES.WIDGET ? (monitor.getItem() as WidgetDragItem).id : null,
             }),
         }),
         [moveWidget]
     );
 
     const { isDragging } = useDragLayer((monitor) => ({
-        isDragging: monitor.isDragging() && monitor.getItemType() === DRAGGABLE_TYPES.WIDGET,
+        isDragging: monitor.isDragging() && (monitor.getItemType() === DRAGGABLE_TYPES.WIDGET || monitor.getItemType() === DRAGGABLE_TYPES.SIGNAL),
     }));
 
     useEffect(() => {
@@ -132,17 +169,7 @@ function DataDashboard() {
         >
             <div ref={listRef} className="relative flex h-full min-w-full flex-col gap-16 py-3">
                 {widgets.map((widget, index) => (
-                    <div
-                        key={widget.id}
-                        ref={(node) => {
-                            if (node) itemRefs.current.set(widget.id, node);
-                            else itemRefs.current.delete(widget.id);
-                        }}
-                        className={`sticky left-0 w-screen ${widget.id === draggedWidgetId ? "opacity-50" : ""}`}
-                        style={{ zIndex: widgets.length - index }}
-                    >
-                        <Widget {...widget} hoveredSignal={hoveredSignal} />
-                    </div>
+                    <DashboardWidgetSlot key={widget.id} widget={widget} stackOrder={widgets.length - index} isDraggedWidget={widget.id === draggedWidgetId} hoveredSignal={hoveredSignal} itemRefs={itemRefs} />
                 ))}
             </div>
         </div>
