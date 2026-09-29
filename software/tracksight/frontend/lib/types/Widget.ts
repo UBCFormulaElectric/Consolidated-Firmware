@@ -59,6 +59,10 @@ export const WIDGET_ACCEPTED_SIGNAL_TYPES: Record<WidgetType, SignalType[]> = {
     enumTimeline: [SignalType.ENUM, SignalType.BOOLEAN],
 };
 
+export type WidgetDragItem = {
+    id: string;
+};
+
 export type SignalDragItem = {
     signal: SignalMetadata;
     currentWidgetId: string;
