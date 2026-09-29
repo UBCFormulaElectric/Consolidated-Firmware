@@ -1,12 +1,13 @@
 "use client";
 
 import { Check } from "lucide-react";
-import { FC, KeyboardEvent, useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
+import { FC, KeyboardEvent, useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 
 import { useAvailableSignals } from "@/lib/hooks/useAvailableSignals";
 import { SignalMetadata } from "@/lib/types/Signal";
 
 const MAX_RENDERED_SIGNALS = 100;
+const SELECT_ALL_SIGNAL_LIMIT = 25;
 
 type SignalItemRenderer<T extends SignalMetadata> = FC<{
     data: T;
@@ -81,18 +82,16 @@ function SignalPicker<T extends SignalMetadata>(props: SignalPickerProps<T>) {
         highlightedElement?.scrollIntoView({ block: "nearest" });
     }, [highlightedIndex]);
 
-    const toggleSignal = useCallback(
-        (signal: T, shouldConfirm = false) => {
-            const nextSignals = selectedSignalNames.has(signal.name) ? selectedSignals.filter((selected) => selected.name !== signal.name) : [...selectedSignals, signal];
+    const toggleSignal = (signal: T, shouldConfirm = false) => {
+        const nextSignals = selectedSignalNames.has(signal.name) ? selectedSignals.filter((selected) => selected.name !== signal.name) : [...selectedSignals, signal];
 
-            setSelectedSignals(nextSignals);
+        setSelectedSignals(nextSignals);
 
-            if (!shouldConfirm) return;
+        if (!shouldConfirm) return;
 
-            onConfirm(nextSignals);
-        },
-        [onConfirm, selectedSignalNames, selectedSignals]
-    );
+        onConfirm(nextSignals);
+    };
+
     const toggleAllMatching = () => {
         const matchingSignalNames = new Set(matchingSignals.map((signal) => signal.name));
         const signalsOutsideMatch = selectedSignals.filter((signal) => !matchingSignalNames.has(signal.name));
@@ -106,42 +105,30 @@ function SignalPicker<T extends SignalMetadata>(props: SignalPickerProps<T>) {
         setSelectedSignals([...signalsOutsideMatch, ...matchingSignals]);
     };
 
-    const moveHighlight = useCallback(
-        (offset: number) => {
-            if (visibleSignals.length === 0) return;
+    const moveHighlight = (offset: number) => {
+        if (visibleSignals.length === 0) return;
 
-            setHighlightedIndex((previous) => (previous + offset + visibleSignals.length) % visibleSignals.length);
-        },
-        [visibleSignals.length]
-    );
+        setHighlightedIndex((previous) => (previous + offset + visibleSignals.length) % visibleSignals.length);
+    };
 
-    useEffect(() => {
-        const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
-            if (event.key === "ArrowDown") {
-                event.preventDefault();
-                moveHighlight(1);
-                return;
-            }
+    const handleInputKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+        if (event.key === "ArrowDown") {
+            event.preventDefault();
+            moveHighlight(1);
+            return;
+        }
 
-            if (event.key === "ArrowUp") {
-                event.preventDefault();
-                moveHighlight(-1);
-                return;
-            }
+        if (event.key === "ArrowUp") {
+            event.preventDefault();
+            moveHighlight(-1);
+            return;
+        }
 
-            if (event.key === "Enter" && visibleSignals[highlightedIndex]) {
-                event.preventDefault();
-
-                toggleSignal(visibleSignals[highlightedIndex], !event.shiftKey);
-            }
-        };
-
-        document.addEventListener("keydown", handleKeyDown as any);
-
-        return () => {
-            document.removeEventListener("keydown", handleKeyDown as any);
-        };
-    }, [moveHighlight, toggleSignal, visibleSignals, highlightedIndex]);
+        if (event.key === "Enter" && visibleSignals[highlightedIndex]) {
+            event.preventDefault();
+            toggleSignal(visibleSignals[highlightedIndex], !event.shiftKey);
+        }
+    };
 
     return (
         <div className="w-full">
@@ -158,11 +145,11 @@ function SignalPicker<T extends SignalMetadata>(props: SignalPickerProps<T>) {
                     ))}
                 </div>
             )}
-            <input type="text" value={query} onChange={(event) => setQuery(event.target.value)} className="w-full rounded border bg-white px-3 py-2 text-gray-900" placeholder={placeholder} autoFocus autoComplete="off" spellCheck={false} />
+            <input type="text" value={query} onChange={(event) => setQuery(event.target.value)} onKeyDown={handleInputKeyDown} className="w-full rounded border bg-white px-3 py-2 text-gray-900" placeholder={placeholder} autoFocus autoComplete="off" spellCheck={false} />
             <div className="mt-2 rounded-md border border-gray-200 bg-white">
                 <div className="flex items-center justify-between gap-3 border-b border-gray-100 px-3 py-2 text-xs text-gray-500">
                     <span>{getStatusText(isLoading, visibleSignals.length, matchingSignals.length, normalizedQuery.length > 0)}</span>
-                    {normalizedQuery.length > 0 && matchingSignals.length > 0 && (
+                    {normalizedQuery.length > 0 && matchingSignals.length > 0 && matchingSignals.length < SELECT_ALL_SIGNAL_LIMIT && (
                         <button type="button" onClick={toggleAllMatching} className="cursor-pointer font-medium text-blue-600 hover:text-blue-700">
                             {areAllMatchingSelected ? "Deselect all matching" : `Select all ${matchingSignals.length} matching`}
                         </button>
@@ -170,7 +157,7 @@ function SignalPicker<T extends SignalMetadata>(props: SignalPickerProps<T>) {
                 </div>
                 {error ? (
                     <p className="px-3 py-3 text-sm text-red-600">Failed to load available signals: {error.message}</p>
-                ) : visibleSignals.length === 0 ? (
+                ) : isLoading ? null : visibleSignals.length === 0 ? (
                     <p className="px-3 py-3 text-sm text-gray-500">No signals match this search.</p>
                 ) : (
                     <div ref={listRef} className="scrollbar-hidden max-h-64 overflow-y-auto py-1">
