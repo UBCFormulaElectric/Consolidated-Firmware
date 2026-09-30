@@ -205,7 +205,6 @@ export function WidgetManager({ children, storageKey = LOCAL_STORAGE_KEY }: { ch
         [setWidgets]
     );
 
-    // insertionIndex is the gap the widget is dropped into, measured against the list before the move (0 to widgets.length)
     const moveWidget = useCallback(
         (widgetToMove: string, insertionIndex: number) => {
             setWidgets((prev) => {
@@ -215,13 +214,11 @@ export function WidgetManager({ children, storageKey = LOCAL_STORAGE_KEY }: { ch
                     return prev;
                 }
 
-                // Removing the widget first shifts every later gap up by one
                 const toIndex = insertionIndex > fromIndex ? insertionIndex - 1 : insertionIndex;
                 if (toIndex === fromIndex) {
                     return prev;
                 }
 
-                // Shift the widgets in between over by one in a single copy, keeping every widget object's identity
                 const nextWidgets = [...prev];
                 const direction = toIndex > fromIndex ? 1 : -1;
                 for (let index = fromIndex; index !== toIndex; index += direction) {
