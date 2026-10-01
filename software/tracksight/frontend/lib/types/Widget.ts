@@ -1,7 +1,7 @@
 import { LODAwareEnumSeries, LODAwareNumericalSeries } from "@/components/widgets/CanvasChartTypes";
 import { Color } from "chroma-js";
 import type { FC, RefObject } from "react";
-import { BooleanSignalMetadata, EnumSignalMetadata, NumericalSignalMetadata } from "./Signal";
+import { BooleanSignalMetadata, EnumSignalMetadata, NumericalSignalMetadata, SignalMetadata, SignalType } from "./Signal";
 
 export type EnumTimelineWidgetSchema = {
     type: "enumTimeline";
@@ -53,6 +53,26 @@ export type NumericalGraphWidgetData = BaseWidgetRenderer &
     };
 
 type WidgetData = EnumTimelineWidgetData | NumericalGraphWidgetData;
+
+export const WIDGET_ACCEPTED_SIGNAL_TYPES: Record<WidgetType, SignalType[]> = {
+    numericalGraph: [SignalType.NUMERICAL],
+    enumTimeline: [SignalType.ENUM, SignalType.BOOLEAN],
+};
+
+export type WidgetDragItem = {
+    id: string;
+};
+
+export type SignalDragItem = {
+    signal: SignalMetadata;
+    currentWidgetId: string;
+};
+
+export const canWidgetAcceptSignal = (widget: WidgetData, signal: SignalMetadata): boolean => {
+    if (!WIDGET_ACCEPTED_SIGNAL_TYPES[widget.type].includes(signal.type)) return false;
+
+    return !widget.signals.some((existingSignal) => existingSignal.name === signal.name);
+};
 
 type WidgetRendererProps = WidgetData;
 type WidgetRenderer = FC<WidgetRendererProps>;

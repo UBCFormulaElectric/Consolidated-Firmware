@@ -18,6 +18,7 @@ class LiveSignalStore extends SignalStore {
     private subscribeToSignal: SignalMutationFunction;
     private unsubscribeFromSignal: SignalMutationFunction;
     private lodBuffers: Map<string, HaarLodBuffer[] | ModeLodBuffer[]>;
+    private pendingUnsubscribes: Map<string, ReturnType<typeof setTimeout>>;
 
     constructor(updateWithTimestamp: (timestamp: number) => void, subscribeToSignal: SignalMutationFunction, unsubscribeFromSignal: SignalMutationFunction) {
         super(updateWithTimestamp);
@@ -25,6 +26,7 @@ class LiveSignalStore extends SignalStore {
         this.subscribeToSignal = subscribeToSignal;
         this.unsubscribeFromSignal = unsubscribeFromSignal;
         this.lodBuffers = new Map();
+        this.pendingUnsubscribes = new Map();
 
         socket.on("data", (payload) => {
             const {
@@ -113,6 +115,14 @@ class LiveSignalStore extends SignalStore {
 
         if (this.getSubscriberCount(signal.name) !== 1) return signalData.data as any;
 
+        const pendingUnsubscribe = this.pendingUnsubscribes.get(signal.name);
+        if (pendingUnsubscribe !== undefined) {
+            clearTimeout(pendingUnsubscribe);
+            this.pendingUnsubscribes.delete(signal.name);
+
+            return signalData.data as any;
+        }
+
         if (signal.type !== SignalType.ALERT) this.lodBuffers.set(signal.name, new Array(NUM_LOD_LEVELS).fill(null));
 
         this.subscribeToSignal(signal.name, {
@@ -129,19 +139,25 @@ class LiveSignalStore extends SignalStore {
 
         if (!shouldCleanup) return;
 
-        this.markAsUnsubscribed(signal.name);
-        this.lodBuffers.delete(signal.name);
+        const pendingUnsubscribe = setTimeout(() => {
+            this.pendingUnsubscribes.delete(signal.name);
 
-        this.unsubscribeFromSignal(signal.name, {
-            onSuccess: () => {
-                if (this.getSubscriberCount(signal.name) !== 0) return;
+            this.markAsUnsubscribed(signal.name);
+            this.lodBuffers.delete(signal.name);
 
-                this.removeSignal(signal.name);
-            },
-            onError: (error) => {
-                console.error(`Error unsubscribing from signal ${signal.name}:`, error);
-            },
-        });
+            this.unsubscribeFromSignal(signal.name, {
+                onSuccess: () => {
+                    if (this.getSubscriberCount(signal.name) !== 0) return;
+
+                    this.removeSignal(signal.name);
+                },
+                onError: (error) => {
+                    console.error(`Error unsubscribing from signal ${signal.name}:`, error);
+                },
+            });
+        }, 0);
+
+        this.pendingUnsubscribes.set(signal.name, pendingUnsubscribe);
     }
 }
 
