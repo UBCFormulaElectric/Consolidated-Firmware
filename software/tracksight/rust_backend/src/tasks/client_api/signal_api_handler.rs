@@ -261,7 +261,7 @@ impl CsvQuery {
 
 async fn signal_csv(Query(params): Query<CsvQuery>) -> Result<axum::response::Response, (StatusCode, &'static str)> {
     let query = params.flux(&CONFIG.influxdb_bucket, &CONFIG.influxdb_measurement)?;
-    let response = reqwest::Client::new()
+    let request = reqwest::Client::new()
         .post(format!("{}/api/v2/query", CONFIG.influxdb_url.trim_end_matches('/')))
         .query(&[("org", &CONFIG.influxdb_org)])
         .header("Authorization", format!("Token {}", CONFIG.influxdb_token))
@@ -269,11 +269,18 @@ async fn signal_csv(Query(params): Query<CsvQuery>) -> Result<axum::response::Re
         .json(&serde_json::json!({
             "query": query,
             "dialect": {"annotations": [], "dateTimeFormat": "RFC3339Nano"}
-        }))
-        .timeout(Duration::from_millis(INFLUX_QUERY_TIMEOUT_MS))
-        .send().await
-        .and_then(reqwest::Response::error_for_status)
-        .map_err(|_| (StatusCode::BAD_GATEWAY, "Could not export data from InfluxDB"))?;
+        }));
+
+    // only bound the wait for InfluxDB to start answering: a request timeout would also cover the
+    // streamed body and cut off any export that takes longer than that to download
+    let response = select! {
+        response = request.send() => response
+            .and_then(reqwest::Response::error_for_status)
+            .map_err(|_| (StatusCode::BAD_GATEWAY, "Could not export data from InfluxDB"))?,
+        _ = sleep(Duration::from_millis(INFLUX_QUERY_TIMEOUT_MS)) => {
+            return Err((StatusCode::GATEWAY_TIMEOUT, "InfluxDB did not start the export in time"));
+        }
+    };
 
     Ok((
         [
