@@ -19,12 +19,15 @@ function toField(words: string[]): SearchField {
 }
 
 export function prepareSignalSearch<T extends SignalMetadata>(signals: T[]): SearchableSignal<T>[] {
-    return signals.map((signal) => {
-        const other = [signal.msg_name, signal.tx_node];
-        if (isNumericalSignalMetadata(signal) && signal.unit) other.push(signal.unit);
-        if (isEnumSignalMetadata(signal)) other.push(signal.enum_signal.enum_name);
-        return { signal, name: toField(splitWords(signal.name)), other: toField(other.flatMap(splitWords)) };
-    });
+    // sorted once here so an empty query lists signals A→Z instead of in the backend's hash map order
+    return [...signals]
+        .sort((left, right) => left.name.localeCompare(right.name))
+        .map((signal) => {
+            const other = [signal.msg_name, signal.tx_node];
+            if (isNumericalSignalMetadata(signal) && signal.unit) other.push(signal.unit);
+            if (isEnumSignalMetadata(signal)) other.push(signal.enum_signal.enum_name);
+            return { signal, name: toField(splitWords(signal.name)), other: toField(other.flatMap(splitWords)) };
+        });
 }
 
 /** smallest edit distance (with adjacent swaps) between `token` and any prefix of `word`, giving up past `limit` */
