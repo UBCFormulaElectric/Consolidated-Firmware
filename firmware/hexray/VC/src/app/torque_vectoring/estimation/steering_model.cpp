@@ -12,14 +12,14 @@ namespace
 {
 // Linear interpolation of inner wheel with respect to steering angle
 // Note: 0.09803348769 Degrees of error at full lock
-template <Decimal T> inline float inner_wheel_ang_rad(const T steer_ang_rad)
+template <Decimal T> inline T inner_wheel_ang_rad(const T steer_ang_rad)
 {
     return (static_cast<T>(0.2651718671) * steer_ang_rad);
 }
 
 // Linear interpolation of outer wheel with respect to steering angle
 // Note: 0.3468418335 Degrees of error at full lock
-template <Decimal T> inline float outer_wheel_ang_rad(const T steer_ang_rad)
+template <Decimal T> inline T outer_wheel_ang_rad(const T steer_ang_rad)
 {
     return (static_cast<T>(0.274579971) * steer_ang_rad);
 }
@@ -60,4 +60,5 @@ template <Decimal T> [[nodiscard]] wheel_set<T> wheel_steer_angles(const T steer
 
     return wheel_ang_rad;
 }
+template wheel_set<tv_real> wheel_steer_angles(tv_real steer_ang_rad);
 } // namespace app::tv::estimators::steering

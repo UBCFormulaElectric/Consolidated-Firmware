@@ -21,7 +21,7 @@ namespace
 {
     // ---- Optimizer tuning ----
     constexpr float W_FX = 0.5f;
-    constexpr float W_MZ = 0.5f;
+    constexpr float W_MZ = 0.05f;
     constexpr float W_R  = 0.01f;
 
     constexpr int MAX_ITER = 20;
@@ -274,8 +274,8 @@ template <Decimal T>
         DecimalDual<T>(best_slip(2)),
         DecimalDual<T>(best_slip(3)),
     });
-    const double      r_fx                 = autodiff::val(residual_at_solution(0));
-    const double      r_mz                 = autodiff::val(residual_at_solution(1));
+    const T           r_fx                 = autodiff::val(residual_at_solution(0));
+    const T           r_mz                 = autodiff::val(residual_at_solution(1));
     tv_debug_data.optimizer                = {
                        .kappas     = { best_slip(0), best_slip(1), best_slip(2), best_slip(3) },
                        .r_ax       = r_fx,
@@ -294,6 +294,6 @@ template <Decimal T>
     };
 }
 
-template wheel_set<float>  optimize(const VehicleState<float> &state, float ax_setpoint, float omegadot_setpoint);
-template wheel_set<double> optimize(const VehicleState<double> &state, double ax_setpoint, double omegadot_setpoint);
+template wheel_set<tv_real>
+    optimize(const VehicleState<tv_real> &state, tv_real ax_setpoint, tv_real omegadot_setpoint);
 } // namespace app::tv::controllers::allocator

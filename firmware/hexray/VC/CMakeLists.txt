@@ -229,20 +229,22 @@ elseif ("${TARGET}" STREQUAL "test")
     add_subdirectory(src/app/torque_vectoring)
 
 
-    # MATPLOTLIB TESTING
-    add_executable(test_controls)
-    target_sources(test_controls PRIVATE
-            "${CMAKE_CURRENT_SOURCE_DIR}/plot_tests.cpp"
-            "${CMAKE_CURRENT_SOURCE_DIR}/src/app/torque_vectoring/estimation/tire_model.cpp"
-            "${CMAKE_CURRENT_SOURCE_DIR}/src/app/torque_vectoring/controllers/torque_allocator.cpp"
-    )
-    target_include_directories(test_controls PRIVATE
-            "${CMAKE_CURRENT_SOURCE_DIR}/src/app"
-            ${SHARED_UTIL_INCLUDE_DIR_CPP}
-    )
-    target_link_libraries(test_controls PRIVATE "matplotlib_cpp" "autodiff_interface")
-    target_compile_options(test_controls PRIVATE /Zi /bigobj)
-    target_link_options(test_controls PRIVATE /DEBUG /INCREMENTAL:NO)
+    # MATPLOTLIB TESTING (only when matplotlib-cpp could be configured, see cmake/matplotlib.cmake)
+    if (TARGET matplotlib_cpp)
+        add_executable(test_controls)
+        target_sources(test_controls PRIVATE
+                "${CMAKE_CURRENT_SOURCE_DIR}/plot_tests.cpp"
+                "${CMAKE_CURRENT_SOURCE_DIR}/src/app/torque_vectoring/estimation/tire_model.cpp"
+                "${CMAKE_CURRENT_SOURCE_DIR}/src/app/torque_vectoring/controllers/torque_allocator.cpp"
+        )
+        target_include_directories(test_controls PRIVATE
+                "${CMAKE_CURRENT_SOURCE_DIR}/src/app"
+                ${SHARED_UTIL_INCLUDE_DIR_CPP}
+        )
+        target_link_libraries(test_controls PRIVATE "matplotlib_cpp" "autodiff_interface")
+        target_compile_options(test_controls PRIVATE /Zi /bigobj)
+        target_link_options(test_controls PRIVATE /DEBUG /INCREMENTAL:NO)
+    endif ()
     
     target_link_libraries("hexray_VC_test" PRIVATE "hexray_VC_commit_info" "hexray_VC_jsoncan" "m")
     target_compile_definitions("hexray_VC_test" PRIVATE STM32H733xx)

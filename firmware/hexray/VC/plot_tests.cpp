@@ -31,7 +31,8 @@ static void plot_combined_fx()
         fxs.reserve(kappas.size());
         for (const double kappa : kappas)
         {
-            fxs.push_back(app::tv::estimation::tire_model.computeCombinedFx_N<double>(fz_N, alpha_rad, kappa));
+            fxs.push_back(static_cast<double>(app::tv::estimation::tire_model.computeCombinedFx_N<tv_real>(
+                fz_N, alpha_rad, static_cast<tv_real>(kappa))));
         }
         std::stringstream ss;
         ss << "\\alpha = " << std::setprecision(2) << alpha_rad;
@@ -68,7 +69,8 @@ static void plot_combined_fy()
         fys.reserve(alphas.size());
         for (const float alpha : alphas)
         {
-            fys.push_back(app::tv::estimation::tire_model.computeCombinedFy_N<double>(fz_N, alpha, kappa));
+            fys.push_back(static_cast<double>(app::tv::estimation::tire_model.computeCombinedFy_N<tv_real>(
+                fz_N, alpha, static_cast<tv_real>(kappa))));
         }
         std::stringstream ss;
         ss << "\\kappa = " << std::setprecision(2) << kappa;

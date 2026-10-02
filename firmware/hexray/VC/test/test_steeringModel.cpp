@@ -3,7 +3,7 @@
 
 #include "vc_fakes.hpp"
 #include "torque_vectoring/estimation/steering_model.hpp"
-#include "torque_vectoring/datatypes/datatypes_vd_constants.hpp"
+#include "torque_vectoring/shared_datatypes/constants.hpp"
 #include "util_utils.hpp"
 
 class TVSteeringModelTest : public VCBaseTest
@@ -11,34 +11,34 @@ class TVSteeringModelTest : public VCBaseTest
 };
 
 using namespace app::tv::estimators;
-using namespace app::tv::datatypes;
+using namespace app::tv::shared_datatypes;
 
 TEST_F(TVSteeringModelTest, ZeroSteeringAngle)
 {
-    steering::WheelSteerAngles ws_ang_rad = steering::wheel_steer_angles(0.0f);
+    wheel_set<float> ws_ang_rad = steering::wheel_steer_angles(0.0f);
 
-    ASSERT_FLOAT_EQ(ws_ang_rad.rr_rad, 0.0f);
-    ASSERT_FLOAT_EQ(ws_ang_rad.rl_rad, 0.0f);
-    ASSERT_FLOAT_EQ(ws_ang_rad.fr_rad, 0.0f);
-    ASSERT_FLOAT_EQ(ws_ang_rad.fl_rad, 0.0f);
+    ASSERT_FLOAT_EQ(ws_ang_rad.rr, 0.0f);
+    ASSERT_FLOAT_EQ(ws_ang_rad.rl, 0.0f);
+    ASSERT_FLOAT_EQ(ws_ang_rad.fr, 0.0f);
+    ASSERT_FLOAT_EQ(ws_ang_rad.fl, 0.0f);
 }
 
 TEST_F(TVSteeringModelTest, MaxSteeringAngleRightTurn)
 {
-    steering::WheelSteerAngles ws_ang_rad = steering::wheel_steer_angles(vd_constants::STEER_WHEEL_RANGE_rad);
+    wheel_set<float> ws_ang_rad = steering::wheel_steer_angles(vd_constants::STEER_WHEEL_RANGE_rad);
 
-    ASSERT_FLOAT_EQ(ws_ang_rad.rr_rad, 0.0f);
-    ASSERT_FLOAT_EQ(ws_ang_rad.rl_rad, 0.0f);
-    EXPECT_NEAR(0.395840674f, ws_ang_rad.fr_rad, 0.002f);
-    EXPECT_NEAR(0.414166631f, ws_ang_rad.fl_rad, 0.0065f);
+    ASSERT_FLOAT_EQ(ws_ang_rad.rr, 0.0f);
+    ASSERT_FLOAT_EQ(ws_ang_rad.rl, 0.0f);
+    EXPECT_NEAR(0.395840674f, ws_ang_rad.fr, 0.002f);
+    EXPECT_NEAR(0.414166631f, ws_ang_rad.fl, 0.0065f);
 }
 
 TEST_F(TVSteeringModelTest, MaxSteeringAngleLeftTurn)
 {
-    steering::WheelSteerAngles ws_ang_rad = steering::wheel_steer_angles(-vd_constants::STEER_WHEEL_RANGE_rad);
+    wheel_set<float> ws_ang_rad = steering::wheel_steer_angles(-vd_constants::STEER_WHEEL_RANGE_rad);
 
-    ASSERT_FLOAT_EQ(ws_ang_rad.rr_rad, 0.0f);
-    ASSERT_FLOAT_EQ(ws_ang_rad.rl_rad, 0.0f);
-    EXPECT_NEAR(-0.414166631f, ws_ang_rad.fr_rad, 0.0065f);
-    EXPECT_NEAR(-0.395840674f, ws_ang_rad.fl_rad, 0.002f);
+    ASSERT_FLOAT_EQ(ws_ang_rad.rr, 0.0f);
+    ASSERT_FLOAT_EQ(ws_ang_rad.rl, 0.0f);
+    EXPECT_NEAR(-0.414166631f, ws_ang_rad.fr, 0.0065f);
+    EXPECT_NEAR(-0.395840674f, ws_ang_rad.fl, 0.002f);
 }

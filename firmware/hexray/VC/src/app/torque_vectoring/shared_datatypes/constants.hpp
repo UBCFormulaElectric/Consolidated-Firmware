@@ -41,9 +41,9 @@ inline constexpr float WHEEL_RADIUS_M = WHEEL_DIAMETER_IN * IN_TO_M / 2.0f;
 // VEHICLE MASS & CENTER OF GRAVITY
 // =============================================================================
 
-inline constexpr double CAR_MASS_CG_NO_DRIVER_KG = 186.0f; // Mass with driver (verified with suspension team)
-inline constexpr double DRIVER_MASS_KG           = 70.0f;  // Mass with driver (verified with suspension team)
-inline constexpr double CAR_MASS_AT_CG_KG =
+inline constexpr float CAR_MASS_CG_NO_DRIVER_KG = 223.7f; // Mass with driver (verified with suspension team)
+inline constexpr float DRIVER_MASS_KG           = 70.0f;  // Mass with driver (verified with suspension team)
+inline constexpr float CAR_MASS_AT_CG_KG =
     CAR_MASS_CG_NO_DRIVER_KG + DRIVER_MASS_KG; // Mass with driver (verified with suspension team)
 // Estimated yaw moment of inertia about CG (TODO: Update with suspension team)
 inline constexpr float CAR_YAW_MOMENT_INERTIA_KGM2 = 400.0f;
@@ -77,11 +77,18 @@ inline constexpr float MOTOR_TEMP_POWER_DECREMENTING_RATIO =
 inline constexpr float MAX_BATTERY_TEMP = 45.0f; // TODO: Verify this is current
 
 // =============================================================================
+// REGEN ADDITIONAL PARAMETERS
+// =============================================================================
+
+inline constexpr float MIN_SPEED_REGEN_KMH = 5.0f;
+inline constexpr float REGEN_PEDAL_REGION  = 0.2f;
+inline constexpr float PEDAL_DEADZONE      = 0.1f;
+
+// =============================================================================
 // WHEEL AND STEERING PARAMETERS
 // =============================================================================
 
-inline constexpr float SLIP_RATIO_IDEAL = 0.05f;        // Ideal slip ratio for maximum traction
-inline constexpr float MAX_AX_MPS2      = 9.81f * 1.8f; // TODO idk this number bruh
+inline constexpr float MAX_AX_MPS2 = 9.81f * 1.8f; // TODO idk this number bruh
 
 inline constexpr float STEER_WHEEL_RANGE_rad = 1.48632f;
 inline constexpr float STEER_WHEEL_RANGE_deg = RAD_TO_DEG(1.48632f);

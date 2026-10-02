@@ -27,13 +27,13 @@ typedef struct
     double beta_rad;     // body sideslip angle
     double alpha_rad[4]; // tire slip angles
     double fz_N[4];      // estimated normal loads
-} veh_state;
+} veh_state_info;
 
 typedef struct
 {
     optimizer_info optimizer;
     yrc_info       yrc;
-    veh_state      veh_state;
+    veh_state_info veh_state;
 } tv_debug;
 
 #ifdef __cplusplus

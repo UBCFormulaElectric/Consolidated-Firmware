@@ -1,6 +1,9 @@
 #pragma once
 
 #include <cstdint>
+#include <cmath>
+
+#include <util_units.hpp>
 
 // =============================================================================
 // MOTOR & POWERTRAIN SPECIFICATIONS

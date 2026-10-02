@@ -11,7 +11,7 @@ namespace app::tv::estimation
 // static namespace :)
 namespace
 {
-    [[nodiscard]] float safeTemplateDenominator(const float value)
+    [[nodiscard, maybe_unused]] float safeTemplateDenominator(const float value)
     {
         if (std::fabs(value) >= SMALL_EPSILON)
         {
@@ -20,7 +20,7 @@ namespace
 
         return value < 0.0f ? -SMALL_EPSILON : SMALL_EPSILON;
     }
-    [[nodiscard]] double safeTemplateDenominator(const double value)
+    [[nodiscard, maybe_unused]] double safeTemplateDenominator(const double value)
     {
         const double small_epsilon = static_cast<double>(SMALL_EPSILON);
 
@@ -31,20 +31,20 @@ namespace
 
         return value < 0.0 ? -small_epsilon : small_epsilon;
     }
-    [[nodiscard]] DecimalDual<double> safeTemplateDenominator(const DecimalDual<double> &value)
+    [[nodiscard, maybe_unused]] DecimalDual<double> safeTemplateDenominator(const DecimalDual<double> &value)
     {
         const double primal = autodiff::val(value);
         if (std::fabs(static_cast<float>(primal)) >= SMALL_EPSILON)
             return value;
         return primal < 0.0 ? -SMALL_EPSILON : SMALL_EPSILON;
     }
-    [[nodiscard]] float safeSignedDenominator(const float value)
+    [[nodiscard, maybe_unused]] float safeSignedDenominator(const float value)
     {
         if (std::fabs(value) >= SMALL_EPSILON)
             return value;
         return value < 0.0f ? -SMALL_EPSILON : SMALL_EPSILON;
     }
-    [[nodiscard]] constexpr float sign(const float value)
+    [[nodiscard, maybe_unused]] constexpr float sign(const float value)
     {
         if (value > 0.0f)
             return 1.0f;
@@ -52,7 +52,7 @@ namespace
             return -1.0f;
         return 0.0f;
     }
-    [[nodiscard]] constexpr double sign(const double value)
+    [[nodiscard, maybe_unused]] constexpr double sign(const double value)
     {
         if (value > 0.0)
             return 1.0;
@@ -60,7 +60,7 @@ namespace
             return -1.0;
         return 0.0;
     }
-    [[nodiscard]] DecimalDual<double> sign(const DecimalDual<double> &value)
+    [[nodiscard, maybe_unused]] DecimalDual<double> sign(const DecimalDual<double> &value)
     {
         if (value > 0.0f)
             return 1.0f;
@@ -85,17 +85,12 @@ template <DecimalOrDual T>
     // Combined-slip longitudinal force: F_x = G_xa * F_x0.
     return coefficients.g_xa * pure_fx_0;
 }
-template float TireModel::computeCombinedFx_N(float normal_load_N, float slip_angle_rad, const float &slip_ratio) const;
-template double
-    TireModel::computeCombinedFx_N(float normal_load_N, float slip_angle_rad, const double &slip_ratio) const;
-template DecimalDual<double> TireModel::computeCombinedFx_N<DecimalDual<double>>(
-    float                      normal_load_N,
-    float                      slip_angle_rad,
-    const DecimalDual<double> &slip_ratio) const;
-template DecimalDual<float> TireModel::computeCombinedFx_N<DecimalDual<float>>(
-    float                     normal_load_N,
-    float                     slip_angle_rad,
-    const DecimalDual<float> &slip_ratio) const;
+template tv_real
+    TireModel::computeCombinedFx_N(float normal_load_N, float slip_angle_rad, const tv_real &slip_ratio) const;
+template DecimalDual<tv_real> TireModel::computeCombinedFx_N<DecimalDual<tv_real>>(
+    float                       normal_load_N,
+    float                       slip_angle_rad,
+    const DecimalDual<tv_real> &slip_ratio) const;
 
 template <DecimalOrDual T>
 [[nodiscard]] T TireModel::computeCombinedFy_N(const float fz_N, const float alpha_rad, const T &kappa) const
@@ -106,18 +101,12 @@ template <DecimalOrDual T>
     // Combined-slip lateral force: F_y = G_yk * F_y0 + S_vyk.
     return coefficients.g_yk * T(pure_fy_0) + coefficients.s_vyk;
 }
-template float
-    TireModel::computeCombinedFy_N<float>(float normal_load_N, float slip_angle_rad, const float &slip_ratio) const;
-template double
-    TireModel::computeCombinedFy_N<double>(float normal_load_N, float slip_angle_rad, const double &slip_ratio) const;
-template DecimalDual<double> TireModel::computeCombinedFy_N<DecimalDual<double>>(
-    float                      normal_load_N,
-    float                      slip_angle_rad,
-    const DecimalDual<double> &slip_ratio) const;
-template DecimalDual<float> TireModel::computeCombinedFy_N<DecimalDual<float>>(
-    float                     normal_load_N,
-    float                     slip_angle_rad,
-    const DecimalDual<float> &slip_ratio) const;
+template tv_real
+    TireModel::computeCombinedFy_N<tv_real>(float normal_load_N, float slip_angle_rad, const tv_real &slip_ratio) const;
+template DecimalDual<tv_real> TireModel::computeCombinedFy_N<DecimalDual<tv_real>>(
+    float                       normal_load_N,
+    float                       slip_angle_rad,
+    const DecimalDual<tv_real> &slip_ratio) const;
 
 template <Decimal T> T TireModel::effectiveRollingRadius_m(const float fz_N, const T v_x_mps) const
 {
@@ -132,8 +121,7 @@ template <Decimal T> T TireModel::effectiveRollingRadius_m(const float fz_N, con
         rolling_radius_.DREFF * std::atan(rolling_radius_.BREFF * rho_d) + rolling_radius_.FREFF * rho_d;
     return r_omega - static_cast<T>(nominal_deflection * load_term);
 }
-template float  TireModel::effectiveRollingRadius_m(float fz_N, float v_x_mps) const;
-template double TireModel::effectiveRollingRadius_m(float fz_N, double v_x_mps) const;
+template tv_real TireModel::effectiveRollingRadius_m(float fz_N, tv_real v_x_mps) const;
 
 // [[nodiscard]] float TireModel::slipRatioToWheelAngularVelocity(const float slip_ratio, const float
 // wheel_vel_x_mps)

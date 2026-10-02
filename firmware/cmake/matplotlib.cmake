@@ -1,8 +1,15 @@
 message("")
 message("Configuring matplotlib-cpp...")
 
+# Optional: matplotlib-cpp needs the Python development headers/libraries. If they are not installed, skip the target
+# (and anything that links it) instead of failing the whole configure.
+find_package(Python3 COMPONENTS Development)
+if (NOT Python3_Development_FOUND)
+    message(STATUS "Python3 development files not found. Skipping matplotlib-cpp (plotting tests will not be built).")
+    return()
+endif ()
+
 # Library target
-find_package(Python3 COMPONENTS Development REQUIRED)
 add_library(matplotlib_cpp INTERFACE)
 target_include_directories(matplotlib_cpp INTERFACE ${matplotlibcpp_SOURCE_DIR})
 target_link_libraries(matplotlib_cpp INTERFACE
