@@ -105,7 +105,7 @@ class MockSignalStore extends SignalStore {
 
     private emitSample(generator: SampleGenerator, timestamp: number) {
         const { signal, periodMs } = generator;
-        const onLodSample = (level: number, intervalMs: number, lodTimestamp: number, lodValue: number) => this.addDataPointAtLOD(signal.name, level, intervalMs, lodTimestamp, lodValue);
+        const onLodSample = (level: number, _intervalMs: number, lodTimestamp: number, lodValue: number) => this.addDataPointAtLOD(signal.name, level, lodTimestamp, lodValue);
 
         switch (signal.type) {
             case SignalType.NUMERICAL: {

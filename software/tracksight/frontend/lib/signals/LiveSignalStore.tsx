@@ -83,8 +83,8 @@ class LiveSignalStore extends SignalStore {
                 throw new Error(`Received data for signal ${signalName} which is not initialized in lodBuffers`);
             }
 
-            const onLodSample = (level: number, intervalMs: number, timestamp: number, value: number) => {
-                this.addDataPointAtLOD(signalName, level, intervalMs, timestamp, value);
+            const onLodSample = (level: number, _intervalMs: number, timestamp: number, value: number) => {
+                this.addDataPointAtLOD(signalName, level, timestamp, value);
             };
 
             if (signal_type === "Numerical") {
