@@ -5,16 +5,32 @@
 #include <gtest/gtest.h>
 #include <cmath>
 
+#include "io_bmsShdn.hpp"
+#include "io_bspdTest.hpp"
+#include "io_canQueues.hpp"
+#include "io_canTx.hpp"
+#include "io_charger.hpp"
+#include "io_fans.hpp"
+#include "io_imd.hpp"
+#include "io_shdnLoopNode.hpp"
+#include "io_tractiveSystem.hpp"
+#include "io_time.hpp"
+#include "segments/app_segments_internal.hpp"
+
+#include "app_segments.hpp"
+
 #include "util_errorCodes.hpp"
 #include "util_utils.hpp"
-#include "io_time.hpp"
+#include "io_canQueues.hpp"
 
-using namespace app::can_utils;
+io::queue<io::CanMsg, 128> charger_can_tx_queue{ "" };
+io::queue<io::CanMsg, 250> vehicle_can_tx_queue{ "" };
+io::queue<io::CanMsg, 128> can_rx_queue{ "" };
 
 struct FaultLatchParams
 {
-    io::faultLatch::FaultLatch     *arg0;
-    io::faultLatch::FaultLatchState arg1;
+    const io::FaultLatch           *arg0;
+    io::FaultLatch::FaultLatchState arg1;
 
     bool operator==(const FaultLatchParams &other) const { return arg0 == other.arg0 && arg1 == other.arg1; }
 };
@@ -22,224 +38,41 @@ template <> struct std::hash<FaultLatchParams>
 {
     std::size_t operator()(const FaultLatchParams &params) const noexcept
     {
-        return hash<const io::faultLatch::FaultLatch *>()(params.arg0) ^
-               hash<io::faultLatch::FaultLatchState>()(params.arg1);
+        return hash<const io::FaultLatch *>()(params.arg0) ^ hash<io::FaultLatch::FaultLatchState>()(params.arg1);
     }
 };
 static std::unordered_map<FaultLatchParams, uint32_t> setCurrentStatus_call_count;
 
-using namespace io::adbms;
-
-extern "C"
-{
-    // #include "io_adbms.h"
-    //     static std::array<SegmentConfig, NUM_SEGMENTS> segment_config{};
-
-    //     void io_adbms_readConfigurationRegisters(SegmentConfig configs[NUM_SEGMENTS], std::expected<void, ErrorCode>
-    //     success[NUM_SEGMENTS])
-    //     {
-    //         for (size_t i = 0; i < NUM_SEGMENTS; i++)
-    //         {
-    //             configs[i] = segment_config[i];
-    //             success[i] = ;
-    //         }
-    //     }
-    //     std::expected<void, ErrorCode> io_adbms_writeConfigurationRegisters(const SegmentConfig config[NUM_SEGMENTS])
-    //     {
-    //         std::ranges::copy_n(config, NUM_SEGMENTS, segment_config.data());
-    //         return;
-    //     }
-
-    static std::array<std::array<uint16_t, CELLS_PER_SEGMENT>, NUM_SEGMENTS> voltage_regs{};
-
-    static bool     started_adc_conversion     = false;
-    static bool     started_overlap_test       = false;
-    static bool     started_self_test_voltages = false;
-    static uint16_t expected_self_test_value   = 0x0;
-
-    //     std::expected<void, ErrorCode> io_adbms_startCellsAdcConversion(void)
-    //     {
-    //         started_adc_conversion = true;
-    //         return;
-    //     }
-    //     std::expected<void, ErrorCode> io_adbms_overlapADCTest(void)
-    //     {
-    //         started_overlap_test = true;
-    //         return;
-    //     }
-    //     std::expected<void, ErrorCode> io_adbms_sendSelfTestVoltages(void)
-    //     {
-    //         started_self_test_voltages = true;
-    //         return;
-    //     }
-    //     void io_adbms_readVoltageRegisters(
-    //         uint16_t cell_voltage_regs[NUM_SEGMENTS][CELLS_PER_SEGMENT],
-    //         std::expected<void, ErrorCode> comm_success[NUM_SEGMENTS][CELLS_PER_SEGMENT])
-    //     {
-    //         if (started_adc_conversion || started_overlap_test)
-    //         {
-    //             memcpy(cell_voltage_regs, voltage_regs.data(), sizeof(uint16_t) * NUM_SEGMENTS * CELLS_PER_SEGMENT);
-    //         }
-    //         else if (started_self_test_voltages)
-    //         {
-    //             // Fill with self-test values
-    //             for (int i = 0; i < NUM_SEGMENTS; i++)
-    //             {
-    //                 for (int j = 0; j < CELLS_PER_SEGMENT; j++)
-    //                 {
-    //                     cell_voltage_regs[i][j] = expected_self_test_value; // Example self-test value
-    //                 }
-    //             }
-    //         }
-    //         else
-    //         {
-    //             FAIL() << "Did not start ADC conversion, overlap test or self-test voltages";
-    //         }
-    //         for (int i = 0; i < NUM_SEGMENTS; i++)
-    //         {
-    //             for (int j = 0; j < CELLS_PER_SEGMENT; j++)
-    //             {
-    //                 comm_success[i][j] = ;
-    //             }
-    //         }
-    //         started_adc_conversion = false;
-    //     }
-
-    static std::array<std::array<uint16_t, AUX_REGS_PER_SEGMENT>, NUM_SEGMENTS> aux_regs_storage{};
-
-    //     bool started_therm_adc_conversion = false;
-    //     bool started_self_test_aux        = false;
-
-    //     void io_ltc6813_readAuxRegisters(
-    //         uint16_t aux_regs[NUM_SEGMENTS][AUX_REGS_PER_SEGMENT],
-    //         std::expected<void, ErrorCode> comm_success[NUM_SEGMENTS][AUX_REGS_PER_SEGMENT])
-    //     {
-    //         if (started_therm_adc_conversion || started_self_test_aux)
-    //         {
-    //             memcpy(aux_regs, aux_regs_storage.data(), sizeof(uint16_t) * NUM_SEGMENTS * AUX_REGS_PER_SEGMENT);
-    //             for (int i = 0; i < NUM_SEGMENTS; i++)
-    //             {
-    //                 for (int j = 0; j < AUX_REGS_PER_SEGMENT; j++)
-    //                 {
-    //                     // aux_regs[i][j]     = 0;
-    //                     comm_success[i][j] = ;
-    //                 }
-    //             }
-    //         }
-    //         else
-    //         {
-    //             FAIL() << "Did not start thermistor ADC conversion";
-    //         }
-    //         started_therm_adc_conversion = false;
-    //     }
-
-    //     std::expected<void, ErrorCode> io_adbms_startThermistorsAdcConversion(void)
-    //     {
-    //         started_therm_adc_conversion = true;
-    //         return;
-    //     }
-    //     void     io_adbms_wakeup(void) {}
-    //     std::expected<void, ErrorCode> io_adbms_pollAdcConversions(void)
-    //     {
-    //         return;
-    //     }
-    //     std::expected<void, ErrorCode> io_adbms_sendBalanceCommand(void)
-    //     {
-    //         return;
-    //     }
-    //     std::expected<void, ErrorCode> io_adbms_sendStopBalanceCommand(void)
-    //     {
-    //         return;
-    //     }
-    //     std::expected<void, ErrorCode> io_adbms_owcPull(const PullDirection pull_direction)
-    //     {
-    //         UNUSED(pull_direction);
-    //         return;
-    //     }
-    //     std::expected<void, ErrorCode> io_adbms_sendSelfTestAux(void)
-    //     {
-    //         started_self_test_aux = true;
-    //         return;
-    //     }
-    //     std::expected<void, ErrorCode> io_adbms_sendSelfTestStat(void)
-    //     {
-    //         return;
-    //     }
-    //     std::expected<void, ErrorCode> io_adbms_diagnoseMUX(void)
-    //     {
-    //         return;
-    //     }
-    //     std::expected<void, ErrorCode> io_adbms_startInternalADCConversions(void)
-    //     {
-    //         return;
-    //     }
-    //     void io_adbms_getStatus(StatusRegGroups status[NUM_SEGMENTS], std::expected<void, ErrorCode>
-    //     success[NUM_SEGMENTS])
-    //     {
-    //         UNUSED(status);
-    //         for (int i = 0; i < NUM_SEGMENTS; i++)
-    //         {
-    //             success[i] = ;
-    //         }
-    //     }
-    //     std::expected<void, ErrorCode> io_adbms_clearCellRegisters(void)
-    //     {
-    //         return;
-    //     }
-    //     std::expected<void, ErrorCode> io_adbms_clearAuxRegisters(void)
-    //     {
-    //         return;
-    //     }
-    //     std::expected<void, ErrorCode> io_adbms_clearStatRegisters(void)
-    //     {
-    //         return;
-    //     }
-
-#include "io_canTx.hpp"
-    void io_canTx_init(
-        void (*transmit_can1_msg_func)(const JsonCanMsg *),
-        void (*transmit_charger_msg_func)(const JsonCanMsg *))
-    {
-        UNUSED(transmit_can1_msg_func);
-        UNUSED(transmit_charger_msg_func);
-    }
-}
-
-// C++ namespace wrappers so production C++ code (io::*) can call the
-// same fake state used by the C-style io_* functions above. Tests may
-// continue to use `fakes::*` helpers to mutate this state.
 namespace io
 {
-#include "io_irs.hpp"
 namespace irs
 {
-    static ContactorState positive_state  = ContactorState::CONTACTOR_STATE_OPEN;
-    static ContactorState precharge_state = ContactorState::CONTACTOR_STATE_OPEN;
-    static ContactorState negative_state  = ContactorState::CONTACTOR_STATE_OPEN;
+    static auto positive_state  = app::can_utils::ContactorState::CONTACTOR_STATE_OPEN;
+    static auto precharge_state = app::can_utils::ContactorState::CONTACTOR_STATE_OPEN;
+    static auto negative_state  = app::can_utils::ContactorState::CONTACTOR_STATE_OPEN;
 
-    ContactorState negativeState()
+    app::can_utils::ContactorState negativeState()
     {
         return negative_state;
     }
-    void setPositive(const ContactorState state)
+    void setPositive(const app::can_utils::ContactorState state)
     {
         positive_state = state;
     }
-    ContactorState positiveState()
+    app::can_utils::ContactorState positiveState()
     {
         return positive_state;
     }
-    void setPrecharge(const ContactorState state)
+    void setPrecharge(const app::can_utils::ContactorState state)
     {
         precharge_state = state;
     }
-    ContactorState prechargeState()
+    app::can_utils::ContactorState prechargeState()
     {
         return precharge_state;
     }
 } // namespace irs
 
-#include "io_tractiveSystem.hpp"
 namespace ts
 {
     static float voltage               = 0.0f;
@@ -270,7 +103,6 @@ namespace ts
     }
 } // namespace ts
 
-#include "io_imd.hpp"
 namespace imd
 {
     static float   frequency   = 0.0f;
@@ -293,37 +125,14 @@ namespace imd
         return time::getCurrentMs();
     }
 } // namespace imd
-
-#include "io_faultLatch.hpp"
-namespace faultLatch
-{
-    // The unit test faultlatchg logic here is agnostic to whether the latch and current status are inverted
-    FaultLatch bms_ok_latch{ FaultLatchState::OK, FaultLatchState::OK, false };
-    FaultLatch imd_ok_latch{ FaultLatchState::OK, FaultLatchState::OK, true };
-    FaultLatch bspd_ok_latch{ FaultLatchState::OK, FaultLatchState::OK, true };
-
-    void setCurrentStatus(const FaultLatch *latch, const FaultLatchState status)
-    {
-        assert(!latch->read_only);
-        fakes::faultLatch::updateFaultLatch(const_cast<FaultLatch *>(latch), status);
-    }
-    FaultLatchState getCurrentStatus(const FaultLatch *latch)
-    {
-        return latch->status;
-    }
-    FaultLatchState getLatchedStatus(const FaultLatch *latch)
-    {
-        return latch->latched_state;
-    }
-} // namespace faultLatch
-
-#include "io_charger.hpp"
 namespace charger
 {
-    static ChargerConnectedType connectionStatus = ChargerConnectedType::CHARGER_DISCONNECTED;
-    static float                evse_dutyCycle   = 0.0f;
+    static app::can_utils::ChargerConnectedType connectionStatus =
+        app::can_utils::ChargerConnectedType::CHARGER_DISCONNECTED;
+    static float evse_dutyCycle = 0.0f;
+    static float evse_frequency = 0.0f;
 
-    ChargerConnectedType getConnectionStatus()
+    app::can_utils::ChargerConnectedType getConnectionStatus()
     {
         return connectionStatus;
     }
@@ -331,30 +140,24 @@ namespace charger
     {
         return evse_dutyCycle;
     }
+    float getCPFrequency()
+    {
+        return evse_frequency;
+    }
 } // namespace charger
 
-#include "io_bmsShdn.hpp"
+} // namespace io
+
+namespace io
+{
+
 namespace shdn
 {
-    static bool msd_shdn_sns    = false;
-    static bool hv_p_intlck_sns = false;
-    static bool hv_n_intlck_sns = false;
-
-    bool msd_shdn_sns_pin_get()
-    {
-        return msd_shdn_sns;
-    }
-    bool hv_p_intlck_sns_pin_get()
-    {
-        return hv_p_intlck_sns;
-    }
-    bool hv_n_intlck_sns_pin_get()
-    {
-        return hv_n_intlck_sns;
-    }
+    node hv_p_ok_node(app::can_tx::BMS_HVPShdnOKStatus_set);
+    node hv_n_ok_node(app::can_tx::BMS_HVNShdnOKStatus_set);
+    node loop_ok_node(app::can_tx::BMS_ShdnTermOKStatus_set);
 } // namespace shdn
 
-#include "io_fans.hpp"
 namespace fans
 {
     void tick(const bool enable)
@@ -363,7 +166,6 @@ namespace fans
     }
 } // namespace fans
 
-#include "io_bspdTest.hpp"
 namespace bspdtest
 {
     void enable(const bool enable)
@@ -386,60 +188,175 @@ namespace bspdtest
 
 namespace adbms
 {
-    bool started_therm_adc_conversion = false;
-    bool started_cell_adc_conversion  = false;
+    Cells<result<int16_t>>    cell_voltages{};
+    Segments<result<int16_t>> segment_voltages{};
+    Segments<SegmentConfig>   config{};
+    Segments<PWMConfig>       pwm{};
 
-    std::expected<void, ErrorCode> sendCommand(const uint16_t command)
+    namespace write
     {
-        UNUSED(command);
-        return {};
-    }
-
-    std::expected<void, ErrorCode> poll(uint16_t cmd, uint8_t *poll_buf, uint16_t poll_buf_len)
-    {
-        UNUSED(cmd);
-        std::memset(poll_buf, 0, poll_buf_len);
-        return {};
-    }
-
-    void readRegGroup(
-        uint16_t                       cmd,
-        uint16_t                       regs[NUM_SEGMENTS][REGS_PER_GROUP],
-        std::expected<void, ErrorCode> comm_success[NUM_SEGMENTS])
-    {
-        UNUSED(cmd);
-        std::memset(regs, 0, NUM_SEGMENTS * REGS_PER_GROUP * sizeof(uint16_t));
-        for (size_t i = 0; i < NUM_SEGMENTS; i++)
+        [[nodiscard]] result<void> pwmReg(const Segments<PWMConfig> &)
         {
-            comm_success[i] = {};
+            return result<void>{};
         }
-    }
 
-    std::expected<void, ErrorCode> writeRegGroup(uint16_t cmd, uint16_t regs[NUM_SEGMENTS][REGS_PER_GROUP])
-    {
-        UNUSED(cmd);
-        UNUSED(regs);
-        return {};
-    }
+        [[nodiscard]] result<void> configReg(const Segments<SegmentConfig> &)
+        {
+            return result<void>{};
+        }
+    } // namespace write
 
-    std::expected<void, ErrorCode> sendBalanceCommand(void)
+    namespace read
     {
-        return {};
-    }
+        [[nodiscard]] Segments<result<SegmentConfig>> configReg()
+        {
+            Segments<result<SegmentConfig>> out;
+            for (size_t seg = 0U; seg < NUM_SEGMENTS; ++seg)
+            {
+                out[seg] = config[seg];
+            }
+            return out;
+        }
 
-    std::expected<void, ErrorCode> sendStopBalanceCommand(void)
+        [[nodiscard]] Segments<result<PWMConfig>> pwmReg()
+        {
+            Segments<result<PWMConfig>> out;
+            for (size_t seg = 0U; seg < NUM_SEGMENTS; ++seg)
+            {
+                out[seg] = pwm[seg];
+            }
+            return out;
+        }
+
+        [[nodiscard]] Cells<result<int16_t>> cellVoltage()
+        {
+            return cell_voltages;
+        }
+
+        [[nodiscard]] Cells<result<int16_t>> secondaryCellVoltage()
+        {
+            return cell_voltages;
+        }
+
+        [[nodiscard]] Segments<result<int16_t>> segVoltage()
+        {
+            return segment_voltages;
+        }
+
+        [[nodiscard]] ThermGpios<result<int16_t>> thermGpioVoltage()
+        {
+            return ThermGpios<result<int16_t>>{};
+        }
+
+        [[nodiscard]] Segments<StatusGroupsRes> status()
+        {
+            return Segments<StatusGroupsRes>{};
+        }
+    } // namespace read
+
+    namespace command
     {
-        return {};
-    }
+        [[nodiscard]] result<void> startCellsAdc()
+        {
+            return result<void>{};
+        }
+
+        [[nodiscard]] result<void> startAuxAdc()
+        {
+            return result<void>{};
+        }
+
+        [[nodiscard]] result<void> pollSecondaryCellsAdc()
+        {
+            return result<void>{};
+        }
+
+        [[nodiscard]] result<void> pollCellsAdc()
+        {
+            return result<void>{};
+        }
+
+        [[nodiscard]] result<void> pollAuxAdc()
+        {
+            return result<void>{};
+        }
+
+        [[nodiscard]] result<void> startBalance()
+        {
+            return result<void>{};
+        }
+
+        [[nodiscard]] result<void> stopBalance()
+        {
+            return result<void>{};
+        }
+
+        [[nodiscard]] result<void> owcCells(OpenWireSwitch owcSwitch)
+        {
+            return result<void>{};
+        }
+    } // namespace command
+
+    namespace clear
+    {
+        [[nodiscard]] result<void> aux()
+        {
+            return result<void>{};
+        }
+
+        [[nodiscard]] result<void> flags()
+        {
+            return result<void>{};
+        }
+
+        [[nodiscard]] result<void> cell()
+        {
+            return result<void>{};
+        }
+
+        [[nodiscard]] result<void> secondaryCell()
+        {
+            return result<void>{};
+        }
+
+        [[nodiscard]] result<void> filteredCell()
+        {
+            return result<void>{};
+        }
+
+        [[nodiscard]] result<void> stat()
+        {
+            return result<void>{};
+        }
+    } // namespace clear
 } // namespace adbms
-
 } // namespace io
+
+// Faultlatch
+
+io::FaultLatch bms_ok_latch{ io::FaultLatch::FaultLatchState::OK, io::FaultLatch::FaultLatchState::OK, false };
+io::FaultLatch imd_ok_latch{ io::FaultLatch::FaultLatchState::OK, io::FaultLatch::FaultLatchState::OK, true };
+io::FaultLatch bspd_ok_latch{ io::FaultLatch::FaultLatchState::OK, io::FaultLatch::FaultLatchState::OK, true };
+
+void io::FaultLatch::setCurrentStatus(FaultLatchState new_status) const
+{
+    assert(!this->read_only);
+    fakes::faultLatch::updateFaultLatch(const_cast<io::FaultLatch *>(this), new_status);
+}
+io::FaultLatch::FaultLatchState io::FaultLatch::getCurrentStatus() const
+{
+    return this->status;
+}
+io::FaultLatch::FaultLatchState io::FaultLatch::getLatchedStatus() const
+{
+    return this->latched_state;
+}
 
 namespace fakes
 {
 namespace irs
 {
-    void setNegativeState(const ContactorState state)
+    void setNegativeState(const app::can_utils::ContactorState state)
     {
         io::irs::negative_state = state;
     }
@@ -471,14 +388,15 @@ namespace ts
 
 namespace faultLatch
 {
-    using namespace io::faultLatch;
+    using io::FaultLatch;
+    using FaultLatchState = FaultLatch::FaultLatchState;
 
     void resetFaultLatch(const FaultLatch *latch)
     {
         const_cast<FaultLatch *>(latch)->status        = FaultLatchState::OK;
         const_cast<FaultLatch *>(latch)->latched_state = FaultLatchState::OK;
     }
-    void updateFaultLatch(FaultLatch *latch, const FaultLatchState status)
+    void updateFaultLatch(FaultLatch *latch, FaultLatchState status)
     {
         if (latch->latched_state == FaultLatchState::OK && status == FaultLatchState::FAULT)
         {
@@ -491,13 +409,14 @@ namespace faultLatch
     {
         setCurrentStatus_call_count = {};
     }
-    uint32_t setCurrentStatus_getCallsWithArgs(const FaultLatch *latch, const FaultLatchState status)
+    uint32_t setCurrentStatus_getCallsWithArgs(const FaultLatch *latch, FaultLatchState status)
     {
         return setCurrentStatus_call_count[FaultLatchParams{ const_cast<FaultLatch *>(latch), status }];
     }
 } // namespace faultLatch
 
 namespace imd
+
 {
     void setFrequency(const float frequency)
     {
@@ -513,83 +432,101 @@ namespace imd
     }
 } // namespace imd
 
-namespace segments
+namespace adbms
 {
-    void setCellVoltages(const std::array<std::array<float, CELLS_PER_SEGMENT>, NUM_SEGMENTS> &voltages)
+    static int16_t voltageToReg(const float voltage)
     {
-        for (size_t i = 0; i < NUM_SEGMENTS; i++)
+        return static_cast<int16_t>((voltage - 1.5f) / 150e-6f);
+    }
+
+    void setCellVoltage(const int seg, const int cell, const float voltage)
+    {
+        io::adbms::cell_voltages[static_cast<size_t>(seg)][static_cast<size_t>(cell)] = voltageToReg(voltage);
+    }
+
+    void setPackVoltageEvenly(const float voltage)
+    {
+        const float cell_voltage    = voltage / static_cast<float>(NUM_SEGMENTS * CELLS_PER_SEGMENT);
+        const float segment_voltage = voltage / static_cast<float>(NUM_SEGMENTS);
+        for (size_t seg = 0; seg < NUM_SEGMENTS; seg++)
         {
-            for (size_t j = 0; j < CELLS_PER_SEGMENT; j++)
+            io::adbms::segment_voltages[seg] = voltageToReg(segment_voltage / 25.0f);
+            for (size_t cell = 0; cell < CELLS_PER_SEGMENT; cell++)
             {
-                voltage_regs[i][j] = static_cast<uint16_t>(voltages[i][j] * 1e4f);
+                setCellVoltage(static_cast<int>(seg), static_cast<int>(cell), cell_voltage);
             }
         }
     }
 
-    void setCellVoltage(const size_t segment, const size_t cell, const float voltage)
+    void setSegmentVoltageError(const ErrorCode error)
     {
-        voltage_regs[segment][cell] = static_cast<uint16_t>(voltage * 1e4f);
-    }
-
-    void setCellTemperatures(const std::array<std::array<float, AUX_REGS_PER_SEGMENT>, NUM_SEGMENTS> &temperatures)
-    {
-        for (size_t i = 0; i < NUM_SEGMENTS; i++)
+        for (size_t seg = 0; seg < NUM_SEGMENTS; seg++)
         {
-            for (size_t j = 0; j < AUX_REGS_PER_SEGMENT; j++)
-            {
-                float T_k = temperatures[i][j] + 273.15f;
-                float k   = -3610.0f * (1.0f / T_k - 1.0f / 298.15f);
-
-                aux_regs_storage[i][j] = static_cast<uint16_t>(3.0f / (1.0f + exp2f(k)));
-            }
+            io::adbms::segment_voltages[seg] = std::unexpected(error);
         }
     }
 
-    void setPackVoltageEvenly(const float pack_voltage)
+    constexpr uint16_t VUV = 0x01A1; // 2.5V
+    constexpr uint16_t VOV = 0x0465; // 4.2V
+
+    io::adbms::SegmentConfig healthySegmentConfig()
     {
-        const float cell_voltage = pack_voltage / (NUM_SEGMENTS * CELLS_PER_SEGMENT);
-        std::array<std::array<float, CELLS_PER_SEGMENT>, NUM_SEGMENTS> v{};
-        for (size_t i = 0; i < NUM_SEGMENTS; i++)
+        io::adbms::SegmentConfig sc{};
+        sc.reg_a.cth       = 0x01;
+        sc.reg_a.ref_on    = 0x01;
+        sc.reg_a.gpio_1_8  = 0xFF;
+        sc.reg_a.gpio_9_10 = 0x03;
+        sc.reg_a.fc        = 0x03;
+
+        sc.reg_b.vuv_0_7  = static_cast<uint8_t>(VUV & 0xFF);
+        sc.reg_b.vuv_8_11 = static_cast<uint8_t>((VUV >> 8) & 0x0F);
+        sc.reg_b.vov_0_3  = static_cast<uint8_t>(VOV & 0x0F);
+        sc.reg_b.vov_4_11 = static_cast<uint8_t>((VOV >> 4) & 0xFF);
+        return sc;
+    }
+
+    io::adbms::PWMConfig healthyPwmConfig()
+    {
+        io::adbms::PWMConfig pc{};
+        pc.reg_b.res = 0xFFFFFFFFu;
+        return pc;
+    }
+
+    void setHealthyConfigs()
+    {
+        for (size_t seg = 0U; seg < NUM_SEGMENTS; ++seg)
         {
-            for (size_t j = 0; j < CELLS_PER_SEGMENT; j++)
-            {
-                v[i][j] = cell_voltage;
-            }
+            io::adbms::config[seg] = healthySegmentConfig();
+            io::adbms::pwm[seg]    = healthyPwmConfig();
         }
-        setCellVoltages(v);
     }
 
-    void setExpectedVoltageSelfTestValue(const uint16_t value)
+    void setMismatchedConfigs()
     {
-        expected_self_test_value = value;
-    }
-
-    void SetAuxRegs(const float voltage)
-    {
-        for (size_t i = 0; i < NUM_SEGMENTS; i++)
+        for (size_t seg = 0U; seg < NUM_SEGMENTS; ++seg)
         {
-            for (size_t j = 0; j < AUX_REGS_PER_SEGMENT; j++)
-            {
-                aux_regs_storage[i][j] = static_cast<uint16_t>(voltage * 1000); // Not sure if conversion is correct
-            }
+            io::adbms::SegmentConfig sc = healthySegmentConfig();
+            sc.reg_a.flag_d             = 0xFF;
+            io::adbms::config[seg]      = sc;
+            io::adbms::pwm[seg]         = healthyPwmConfig();
         }
     }
 
-    void SetAuxReg(const uint8_t segment, const uint8_t cell, const float voltage)
-    {
-        aux_regs_storage[segment][cell] = static_cast<uint16_t>(voltage * 1000); // Not sure if conversion is correct
-    }
-} // namespace segments
+} // namespace adbms
 
 namespace charger
 {
-    void setConnectionStatus(const ChargerConnectedType status)
+    void setConnectionStatus(const app::can_utils::ChargerConnectedType status)
     {
         io::charger::connectionStatus = status;
     }
     void setCPDutyCycle(const float duty_cycle)
     {
         io::charger::evse_dutyCycle = duty_cycle;
+    }
+    void setCPFrequency(const float frequency)
+    {
+        io::charger::evse_frequency = frequency;
     }
 } // namespace charger
 } // namespace fakes

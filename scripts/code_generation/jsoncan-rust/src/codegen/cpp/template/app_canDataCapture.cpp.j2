@@ -10,6 +10,7 @@
 #include "app_canUtils.hpp"
 
 namespace app::can_data_capture {
+{%- if enabled %}
 /* -------------------------------- Macros -------------------------------- */
 
 
@@ -49,7 +50,7 @@ void init()
     {{msg.name}}_next_log_time_ms = 0U;
     {%- endif %}
     {%- endfor %}
-    
+
     // Reset next telem capture times.
     {%- for msg in messages %}
     {%- if msg.telem_cycle_time.is_some() && msg.telem_cycle_time != msg.cycle_time %}
@@ -68,8 +69,16 @@ bool needsLog(uint32_t msg_id, uint32_t time_ms)
         case app::can_utils::{{ msg.name }}_Signals::MSG_ID:
         {
         {%- if msg.log_cycle_time != msg.cycle_time %}
-            if (time_ms > {{msg.name}}_next_log_time_ms) {{msg.name}}_next_log_time_ms = time_ms + {{msg.name}}_LOG_CYCLE_TIME;
-            return time_ms > {{msg.name}}_next_log_time_ms;
+            if (time_ms >= {{msg.name}}_next_log_time_ms)
+            {
+                {{msg.name}}_next_log_time_ms = time_ms + {{msg.name}}_LOG_CYCLE_TIME;
+                return true;
+            }
+            else
+            {
+                // Not ready to capture yet.
+                return false;
+            }
         {%- else %}
             return true;
         {%- endif %}
@@ -92,10 +101,10 @@ bool needsTelem(uint32_t msg_id, uint32_t time_ms)
         case app::can_utils::{{ msg.name }}_Signals::MSG_ID:
         {
         {%- if msg.telem_cycle_time != msg.cycle_time %}
-            if (time_ms > {{msg.name}}_next_log_time_ms)
+            if (time_ms >= {{msg.name}}_next_telem_time_ms)
             {
                 // Capture msg && increment variable.
-                {{msg.name}}_next_log_time_ms = time_ms + {{msg.name}}_TELEM_CYCLE_TIME;
+                {{msg.name}}_next_telem_time_ms = time_ms + {{msg.name}}_TELEM_CYCLE_TIME;
                 return true;
             }
             else
@@ -114,4 +123,11 @@ bool needsTelem(uint32_t msg_id, uint32_t time_ms)
     }
     return false;
 }
+{%- else %}
+/* ------------------------- Function Definitions ------------------------- */
+// Data capture is not enabled for this node (see bus.json loggers).
+void init() {}
+bool needsLog(uint32_t, uint32_t) { return false; }
+bool needsTelem(uint32_t, uint32_t) { return false; }
+{%- endif %}
 }

@@ -69,11 +69,11 @@ struct config
  * @param c config
  * @return success of operation
  */
-std::expected<void, ErrorCode> update(const config &c);
+result<void> update(const config &c);
 
 /**
  * @brief Set the brightness of the LEDs.
  * @param brightness Value from 0.0 (off) to 1.0 (max brightness).
  */
-std::expected<void, ErrorCode> setBrightness(float brightness);
+result<void> setBrightness(float brightness);
 } // namespace io::leds

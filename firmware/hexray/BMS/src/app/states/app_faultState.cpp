@@ -1,11 +1,9 @@
-#include <cstddef>
-
 #include "app_states.hpp"
 #include "app_precharge.hpp"
-// #include "app_segments.hpp"
 #include "io_irs.hpp"
 #include "io_faultLatch.hpp"
 #include "app_canTx.hpp"
+#include "app_canAlerts.hpp"
 
 namespace app::states
 {
@@ -22,20 +20,11 @@ namespace faultState
 
     static void runOnTick100Hz()
     {
-#ifdef TARGET_HV_SUPPLY
-        const bool acc_fault_cleared = true;
-#else
-        // TODO: Change back if we ever get to segments again
-        // const bool acc_fault_cleared = !app::segments::checkFaults();
-        const bool acc_fault_cleared = true;
-#endif
-
-        // const bool precharge_ok = !app_precharge_limitExceeded(); // Optional condition
-
-        const bool bms_fault_cleared =
-            (io::faultLatch::getLatchedStatus(&io::faultLatch::bms_ok_latch) == io::faultLatch::FaultLatchState::OK);
-
-        if (acc_fault_cleared && bms_fault_cleared)
+        // Stay latched in fault until every fault source has cleared. This includes the
+        // hardware-latched bms/imd/bspd latches (which hold FAULT until externally reset
+        // and acknowledged) as well as any other active board fault. Only once no board
+        // reports a fault do we return to init.
+        if (!app::can_alerts::AnyBoardHasFault())
         {
             app::StateMachine::set_next_state(&init_state);
         }

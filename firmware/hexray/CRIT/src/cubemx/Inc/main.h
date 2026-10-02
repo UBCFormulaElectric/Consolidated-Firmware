@@ -43,7 +43,9 @@ extern "C"
     extern SPI_HandleTypeDef   hspi3;
     extern TIM_HandleTypeDef   htim3;
     extern TIM_HandleTypeDef   htim4;
+    extern TIM_HandleTypeDef   htim7;
     extern PCD_HandleTypeDef   hpcd_USB_DRD_FS;
+    extern IWDG_HandleTypeDef  hiwdg;
 
     /* USER CODE END ET */
 
@@ -68,9 +70,12 @@ extern "C"
 
 /* Private defines -----------------------------------------------------------*/
 #define PWM_TIMER_FREQUENCY 4000
-#define PWM_TIMER_CLK 250000000
 #define PWM_TIMER_PSC 250
 #define PWM_TIMER_ARR PWM_TIMER_CLK / (PWM_TIMER_FREQUENCY * PWM_TIMER_PSC)
+#define PWM_TIMER_CLK 250000000
+#define IWDG_RESET_FREQUENCY 5
+#define IWDG_PRESCALER 4
+#define LSI_FREQUENCY 32000
 #define BOOT_Pin GPIO_PIN_13
 #define BOOT_GPIO_Port GPIOC
 #define LED_Pin GPIO_PIN_14
@@ -79,6 +84,8 @@ extern "C"
 #define LED_DATA_GPIO_Port GPIOC
 #define LED_DIMMING_Pin GPIO_PIN_2
 #define LED_DIMMING_GPIO_Port GPIOC
+#define D_P_PULLUP_Pin GPIO_PIN_2
+#define D_P_PULLUP_GPIO_Port GPIOA
 #define LED_RCK_Pin GPIO_PIN_3
 #define LED_RCK_GPIO_Port GPIOA
 #define _7SEG_RCK_Pin GPIO_PIN_4
@@ -105,10 +112,13 @@ extern "C"
 #define LAUNCH_CONTROL_SIG_GPIO_Port GPIOC
 #define ROT_S_Pin GPIO_PIN_8
 #define ROT_S_GPIO_Port GPIOA
+#define ROT_S_EXTI_IRQn EXTI8_IRQn
 #define ROT_B_Pin GPIO_PIN_9
 #define ROT_B_GPIO_Port GPIOA
+#define ROT_B_EXTI_IRQn EXTI9_IRQn
 #define ROT_A_Pin GPIO_PIN_10
 #define ROT_A_GPIO_Port GPIOA
+#define ROT_A_EXTI_IRQn EXTI10_IRQn
 #define USB_D_N_Pin GPIO_PIN_11
 #define USB_D_N_GPIO_Port GPIOA
 #define USB_D_P_Pin GPIO_PIN_12

@@ -13,49 +13,48 @@ const ARRAY_GROWTH_FACTOR = 2;
 //             If we end up only needing <100m elements we can safely switch back to the standard array to
 //             get some of those v8 optimizations back.
 class AutoResizingTypedArray {
-  private array: Float64Array;
-  private _length: number;
+    private array: Float64Array;
+    private _length: number;
 
-  constructor() {
-    this.array = new Float64Array(INITIAL_ARRAY_SIZE);
-    this._length = 0;
-  }
-
-  push(value: number) {
-    if (this.length >= this.array.length) {
-      this.resize();
+    constructor() {
+        this.array = new Float64Array(INITIAL_ARRAY_SIZE);
+        this._length = 0;
     }
 
-    this.array[this.length] = value;
-    this._length += 1;
+    push(value: number) {
+        if (this.length >= this.array.length) {
+            this.resize();
+        }
 
-    if (this.length % 100_000 === 0)
-      console.log("%c[TypedArray]: Current length:", "color: lightgreen;", this.length);
-  }
+        this.array[this.length] = value;
+        this._length += 1;
 
-  get(index: number): number {
-    if (index < 0 || index >= this.length) {
-      throw new Error("Index out of bounds");
+        if (this.length % 100_000 === 0) console.log("%c[TypedArray]: Current length:", "color: lightgreen;", this.length);
     }
 
-    return this.array[index];
-  }
+    get(index: number): number {
+        if (index < 0 || index >= this.length) {
+            throw new Error("Index out of bounds");
+        }
 
-  get length(): number {
-    return this._length;
-  }
-
-  private resize() {
-    const newSize = Math.min(this.array.length * ARRAY_GROWTH_FACTOR, MAX_ARRAY_SIZE);
-
-    if (newSize <= this.array.length) {
-      throw new Error("Exceeded maximum array size");
+        return this.array[index];
     }
 
-    const newArray = new Float64Array(newSize);
-    newArray.set(this.array);
-    this.array = newArray;
-  }
+    get length(): number {
+        return this._length;
+    }
+
+    private resize() {
+        const newSize = Math.min(this.array.length * ARRAY_GROWTH_FACTOR, MAX_ARRAY_SIZE);
+
+        if (newSize <= this.array.length) {
+            throw new Error("Exceeded maximum array size");
+        }
+
+        const newArray = new Float64Array(newSize);
+        newArray.set(this.array);
+        this.array = newArray;
+    }
 }
 
 export default AutoResizingTypedArray;

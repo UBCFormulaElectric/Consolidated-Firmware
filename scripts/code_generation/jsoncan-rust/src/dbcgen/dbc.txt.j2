@@ -10,7 +10,7 @@ BU_: {{ nodes_list.join(" ") }}
 {% for msg in messages %}
 BO_ {{msg.dbc_id()}} {{msg.name}}: {{msg.dlc()}} {{msg.tx_node_name}}
 {%- for signal in msg.signals %}
-	SG_ {{signal.name}}: {{signal.start_bit}}|{{signal.bits}}{{signal.endian_macro()}}{{signal.signed_macro()}} ({{signal.scale}},{{signal.offset}}) [{{signal.min}}|{{signal.max}}] "{{signal.unit.as_deref().unwrap_or("")}}" {{receivers(msg)}}
+	SG_ {{signal.name}}: {{signal.dbc_start_bit()}}|{{signal.bits}}{{signal.endian_macro()}}{{signal.signed_macro()}} ({{signal.scale}},{{signal.offset}}) [{{signal.min}}|{{signal.max}}] "{{signal.unit.as_deref().unwrap_or("")}}" {{receivers(msg)}}
 {%- endfor %}
 {%- endfor %}
 

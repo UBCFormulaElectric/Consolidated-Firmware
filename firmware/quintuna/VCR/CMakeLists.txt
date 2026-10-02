@@ -95,7 +95,6 @@ if ("${TARGET}" STREQUAL "binary")
             "quintuna_VCR_stm32"
             "quintuna_VCR_jsoncan"
             "quintuna_VCR_commit_info")
-    target_compile_definitions("quintuna_VCR_app.elf" PRIVATE NO_BOOTLOADER)
 
     # embedded_image(
     #         "quintuna_VCR"

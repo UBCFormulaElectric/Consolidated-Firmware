@@ -1,40 +1,32 @@
 #pragma once
 
-#include <cstdint>
-#include <expected>
 #include "util_errorCodes.hpp"
-#include "io_efuses.hpp"
 #include "io_pump.hpp"
 #include "io_potentiometer.hpp"
 
+#include <expected>
+
 namespace io
 {
-class Pump
+class pump
 {
   public:
 #ifdef TARGET_EMBEDDED
-    constexpr explicit Pump(const Potentiometer &pot, bool invert, Efuse &efuse)
-      : pot_{ pot }, invert_{ invert }, efuse_{ efuse }
-    {
-    }
+    constexpr explicit pump(const Potentiometer &pot, const bool invert) : pot_{ pot }, invert_{ invert } {}
 #elif defined(TARGET_TEST)
-    constexpr explicit Pump() {}
+    constexpr explicit pump() {}
 #endif
 
-    std::expected<void, ErrorCode>    setPercentage(uint8_t percentage) const;
-    std::expected<uint8_t, ErrorCode> getPercentage() const;
-    std::expected<void, ErrorCode>    enable(bool enable) const;
-    std::expected<bool, ErrorCode>    isEnabled() const;
-    std::expected<bool, ErrorCode>    ok() const;
-    std::expected<bool, ErrorCode>    isReady() const;
+    result<void>    setPercentage(uint8_t percentage) const;
+    result<uint8_t> getPercentage() const;
 
   private:
-    static constexpr uint8_t logicalToHw(bool invert, uint8_t percent)
+    static constexpr uint8_t logicalToHw(const bool invert, const uint8_t percent)
     {
         return invert ? static_cast<uint8_t>(100u - percent) : percent;
     }
 
-    static constexpr uint8_t hwToLogical(bool invert, uint8_t percent)
+    static constexpr uint8_t hwToLogical(const bool invert, const uint8_t percent)
     {
         return invert ? static_cast<uint8_t>(100u - percent) : percent;
     }
@@ -42,7 +34,6 @@ class Pump
 #ifdef TARGET_EMBEDDED
     const Potentiometer &pot_;
     bool                 invert_;
-    Efuse               &efuse_;
 #endif
 };
 } // namespace io

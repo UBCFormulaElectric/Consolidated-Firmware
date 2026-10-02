@@ -6,8 +6,14 @@ use dotenv::{dotenv, from_filename};
 use crate::utils::{red};
 use crate::vprintln;
 
+pub enum SerialType {
+    RADIO,
+    MOCK,
+    NONE
+}
+
 pub struct Config {
-    pub mock: bool,
+    pub serial: SerialType,
     pub serial_port: String,
     pub serial_baud_rate: u32,
     pub influxdb_url: String,
@@ -23,6 +29,12 @@ pub struct Config {
 pub static CONFIG: LazyLock<Config> = LazyLock::new(|| load_env_file());
 
 const DEFAULT_BACKEND_ENV_FILE: &str = "backend.env";
+
+/**
+ * Loads the environment variables specified in `DEFAULT_BACKEND_ENV_FILE`
+ * If any required variables are missing, the `unwrap()` will panick and prevent backend from running
+ * Optional variables are handled appropriately by defaults and whatnot
+ */
 fn load_env_file() -> Config {
     dotenv().ok();
     let docker: bool = get_var::<bool>("DOCKER").unwrap_or(false);
@@ -32,17 +44,17 @@ fn load_env_file() -> Config {
             .expect(&format!("{} file not found, could not load env file!", DEFAULT_BACKEND_ENV_FILE));
     }
 
-    let mock: bool = get_var::<bool>("MOCK").unwrap_or(false);
+    let serial: SerialType = match get_var::<String>("SERIAL").unwrap_or("NONE".to_string()).as_str() {
+        "RADIO" => SerialType::RADIO,
+        "MOCK" => SerialType::MOCK,
+        _ => SerialType::NONE,
+    };
 
     let serial_port: String = get_var::<String>("SERIAL_PORT").unwrap();
 
     let serial_baud_rate: u32 = get_var::<u32>("SERIAL_BAUD_RATE").unwrap();
 
-    let influxdb_url: String = if docker {
-        "http://influx:8086".to_string()
-    } else {
-        get_var::<String>("INFLUXDB_URL").unwrap()
-    };
+    let influxdb_url: String = get_var::<String>("INFLUXDB_URL").unwrap();
 
     let influxdb_org: String = get_var::<String>("INFLUXDB_ORG").unwrap();
 
@@ -89,7 +101,7 @@ fn load_env_file() -> Config {
     };
 
     return Config {
-        mock: mock,
+        serial: serial,
         serial_port: serial_port,
         serial_baud_rate: serial_baud_rate,
         influxdb_url: influxdb_url,

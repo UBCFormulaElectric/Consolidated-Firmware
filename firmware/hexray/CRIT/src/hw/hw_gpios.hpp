@@ -2,15 +2,15 @@
 
 #include "hw_gpio.hpp"
 
-extern hw::Gpio boot_led;
-extern hw::Gpio status_led;
-extern hw::Gpio push_drive_sig;
-extern hw::Gpio telem_sig;
-extern hw::Gpio regen_sig;
-extern hw::Gpio torque_vectoring_sig;
-extern hw::Gpio launch_control_sig;
-extern hw::Gpio rot_s;
-extern hw::Gpio rot_b;
-extern hw::Gpio rot_a;
-extern hw::Gpio led_rck;
-extern hw::Gpio seven_seg_rck;
+extern const hw::gpio boot_led;
+extern const hw::gpio status_led;
+extern const hw::gpio push_drive_sig;
+extern const hw::gpio telem_sig;
+extern const hw::gpio regen_sig;
+extern const hw::gpio torque_vectoring_sig;
+extern const hw::gpio launch_control_sig;
+extern const hw::gpio rot_s;
+extern const hw::gpio rot_b;
+extern const hw::gpio rot_a;
+extern const hw::gpio led_rck;
+extern const hw::gpio seven_seg_rck;

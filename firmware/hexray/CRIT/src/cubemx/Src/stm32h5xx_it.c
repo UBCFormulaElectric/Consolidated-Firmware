@@ -62,6 +62,7 @@ extern SPI_HandleTypeDef   hspi2;
 extern SPI_HandleTypeDef   hspi3;
 extern TIM_HandleTypeDef   htim3;
 extern TIM_HandleTypeDef   htim4;
+extern TIM_HandleTypeDef   htim7;
 extern PCD_HandleTypeDef   hpcd_USB_DRD_FS;
 extern TIM_HandleTypeDef   htim6;
 
@@ -168,6 +169,48 @@ void DebugMon_Handler(void)
 /******************************************************************************/
 
 /**
+ * @brief This function handles EXTI Line8 interrupt.
+ */
+void EXTI8_IRQHandler(void)
+{
+    /* USER CODE BEGIN EXTI8_IRQn 0 */
+
+    /* USER CODE END EXTI8_IRQn 0 */
+    HAL_GPIO_EXTI_IRQHandler(ROT_S_Pin);
+    /* USER CODE BEGIN EXTI8_IRQn 1 */
+
+    /* USER CODE END EXTI8_IRQn 1 */
+}
+
+/**
+ * @brief This function handles EXTI Line9 interrupt.
+ */
+void EXTI9_IRQHandler(void)
+{
+    /* USER CODE BEGIN EXTI9_IRQn 0 */
+
+    /* USER CODE END EXTI9_IRQn 0 */
+    HAL_GPIO_EXTI_IRQHandler(ROT_B_Pin);
+    /* USER CODE BEGIN EXTI9_IRQn 1 */
+
+    /* USER CODE END EXTI9_IRQn 1 */
+}
+
+/**
+ * @brief This function handles EXTI Line10 interrupt.
+ */
+void EXTI10_IRQHandler(void)
+{
+    /* USER CODE BEGIN EXTI10_IRQn 0 */
+
+    /* USER CODE END EXTI10_IRQn 0 */
+    HAL_GPIO_EXTI_IRQHandler(ROT_A_Pin);
+    /* USER CODE BEGIN EXTI10_IRQn 1 */
+
+    /* USER CODE END EXTI10_IRQn 1 */
+}
+
+/**
  * @brief This function handles FDCAN1 interrupt 0.
  */
 void FDCAN1_IT0_IRQHandler(void)
@@ -235,6 +278,20 @@ void TIM6_IRQHandler(void)
     /* USER CODE BEGIN TIM6_IRQn 1 */
 
     /* USER CODE END TIM6_IRQn 1 */
+}
+
+/**
+ * @brief This function handles TIM7 global interrupt.
+ */
+void TIM7_IRQHandler(void)
+{
+    /* USER CODE BEGIN TIM7_IRQn 0 */
+
+    /* USER CODE END TIM7_IRQn 0 */
+    HAL_TIM_IRQHandler(&htim7);
+    /* USER CODE BEGIN TIM7_IRQn 1 */
+
+    /* USER CODE END TIM7_IRQn 1 */
 }
 
 /**

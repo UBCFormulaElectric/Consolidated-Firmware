@@ -19,7 +19,7 @@ class DAMChimeraConfig final : public chimera_v2::config
   public:
     ~DAMChimeraConfig() override = default;
 
-    std::optional<std::reference_wrapper<const hw::Gpio>> id_to_gpio(const _GpioNetName *gnn) const override
+    std::optional<std::reference_wrapper<const hw::gpio>> id_to_gpio(const _GpioNetName *gnn) const override
     {
         if (gnn->which_name != gpio_net_name_tag)
         {
@@ -86,8 +86,12 @@ class DAMChimeraConfig final : public chimera_v2::config
 
 } dam_config;
 
-static hw::rtos::StaticTask<8096>
-    TaskChimera(osPriorityRealtime, "TaskChimera", [](void *) { chimera_v2::task(dam_config); });
+static hw::rtos::StaticTask::StaticTaskStack<8096> chimeraStack;
+static hw::rtos::StaticTask                        TaskChimera(
+    osPriorityRealtime,
+    "TaskChimera",
+    [](void *) { chimera_v2::task(dam_config); },
+    chimeraStack);
 
 void tasks_preInit() {}
 char USBD_PRODUCT_STRING_FS[] = "dam";

@@ -9,6 +9,7 @@ use crate::{
 #[template(path = "app_canDataCapture.cpp.j2")]
 struct AppCanDataCaptureModuleSource<'a> {
     messages: &'a Vec<CanMessage>,
+    enabled: bool,
 }
 
 #[derive(Template)]
@@ -17,14 +18,19 @@ struct AppCanDataCaptureModuleHeader {}
 
 pub struct AppCanDataCaptureModule {
     messages: Vec<CanMessage>,
+    enabled: bool,
 }
 
 impl AppCanDataCaptureModule {
     pub fn new(can_db: &CanDatabase, node_name: &str) -> Self {
         Self {
-            messages: can_db
-                .get_message_by_node(node_name)
-                .expect("Node not found"),
+            messages: can_db.get_all_msgs().expect("Failed to get all messages"),
+            enabled: can_db
+                .nodes
+                .iter()
+                .find(|n| n.name == node_name)
+                .map(|n| n.collects_data)
+                .unwrap_or(false),
         }
     }
 }
@@ -36,6 +42,7 @@ impl CPPGenerator for AppCanDataCaptureModule {
     fn source_template(&self) -> Result<String, askama::Error> {
         AppCanDataCaptureModuleSource {
             messages: &self.messages,
+            enabled: self.enabled,
         }
         .render()
     }

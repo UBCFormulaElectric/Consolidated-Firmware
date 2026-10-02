@@ -1,3 +1,11 @@
 {
-  "messages": ["BMS_ElconControls"]
+  "messages": [
+    "BMS_ElconControls",
+    "BMS_EvseCPStatus",
+    "BMS_Vitals",
+    "BMS_TractiveSystem",
+    "BMS_Contactors",
+    "BMS_CellVoltageStats",
+    "BMS_CellTempStats"
+  ]
 }

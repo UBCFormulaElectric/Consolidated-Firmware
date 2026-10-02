@@ -7,9 +7,10 @@ pub enum CanDBError {
         tx_msg_name: String,
     },
     DuplicateTxMsgID {
+        tx_msg_name_1: String,
         tx_node_name_1: String,
+        tx_msg_name_2: String,
         tx_node_name_2: String,
-        tx_msg_name: String,
     },
     DuplicateTxSignalName {
         // duplicate within a single message
@@ -61,6 +62,7 @@ pub enum CanDBError {
         bus_name: String,
     },
     PoolConnectionError(r2d2::Error),
+    MessageNotFound {msg_name: String}
 }
 
 impl Debug for CanDBError {
@@ -76,13 +78,14 @@ impl Debug for CanDBError {
                 tx_msg_name, tx_node_name_1, tx_node_name_2,
             ),
             CanDBError::DuplicateTxMsgID {
-                tx_msg_name,
+                tx_msg_name_1,
                 tx_node_name_1,
+                tx_msg_name_2,
                 tx_node_name_2,
             } => write!(
                 f,
-                "Duplicate transmitted message ID found for message '{}' in nodes '{}' and '{}'. Message IDs must be unique across all transmitting nodes.",
-                tx_msg_name, tx_node_name_1, tx_node_name_2,
+                "Duplicate transmitted message ID found for message '{}' in node '{}' and message '{}' in node '{}'. Message IDs must be unique across all transmitting nodes.",
+                tx_msg_name_1, tx_node_name_1, tx_msg_name_2, tx_node_name_2,
             ),
             CanDBError::DuplicateTxSignalName {
                 signal_name,
@@ -179,6 +182,13 @@ impl Debug for CanDBError {
                 forwarder_name, bus_name
             ),
             CanDBError::PoolConnectionError(error) => write!(f, "Pool connection error: {}", error),
+            CanDBError::MessageNotFound { msg_name } => {
+                write!(
+                    f,
+                    "Message '{}' not found in database. Make sure it is correctly defined in the TX JSON.",
+                    msg_name
+                )
+            }
         }
     }
 }

@@ -24,7 +24,7 @@ namespace
     constexpr float W_MZ = 0.5f;
     constexpr float W_R  = 0.01f;
 
-    constexpr int                     MAX_ITER          = 20;
+    constexpr int MAX_ITER = 20;
     // Static bound on each wheel's slip target. The tire's Fx peak moves with slip angle (~0.09 at alpha = 0,
     // ~0.24 at alpha = 0.1), so this is a compromise: too low caps cornering force, too high lets straight-line
     // targets go past the peak (unstable wheel-speed loop, second cost basin, cycle-to-cycle jumps).
@@ -32,9 +32,9 @@ namespace
     // The combined-slip Fx fit (rCx1 sits on its fit bound at 1.4) flips sign beyond |alpha| ~ 0.22 rad, which is
     // outside the measured data. Saturate the slip angle fed to the fit at the edge of its valid region.
     constexpr float FIT_MAX_ALPHA_RAD = 0.2f;
-    constexpr float                   NORMAL_MATRIX_EPS = 1e-6f; // Levenberg-Marquardt damping floor
-    constexpr float                   STEP_TOLERANCE    = 1e-5f;
-    constexpr float                   COST_TOLERANCE    = 1e-6f;
+    constexpr float NORMAL_MATRIX_EPS = 1e-6f; // Levenberg-Marquardt damping floor
+    constexpr float STEP_TOLERANCE    = 1e-5f;
+    constexpr float COST_TOLERANCE    = 1e-6f;
 
     constexpr float LM_LAMBDA_INIT = 1e-3f;
     // When the force request is infeasible (e.g. full throttle), the Gauss-Newton step overshoots the flat tire peak.
@@ -67,9 +67,9 @@ template <Decimal T>
     //     return { .fl = 0.0f, .fr = 0.0f, .rl = 0.0f, .rr = 0.0f };
     // }
 
-    static const T SQRT_W_FX = std::sqrt(W_FX);
-    static const T SQRT_W_MZ = std::sqrt(W_MZ);
-    static const T SQRT_W_R  = std::sqrt(W_R);
+    static const T SQRT_W_FX     = std::sqrt(W_FX);
+    static const T SQRT_W_MZ     = std::sqrt(W_MZ);
+    static const T SQRT_W_R      = std::sqrt(W_R);
     static Vec4<T> previous_slip = Vec4<T>::Zero(); // warm start for the next cycle
 
     // const wheel_set<float> blended_des_f_x{
@@ -177,10 +177,10 @@ template <Decimal T>
         Vec4<T> opt_slip = start;
         for (int i = 0; i < 4; ++i)
             opt_slip(i) = std::clamp(opt_slip(i), -static_cast<T>(SLIP_CLAMP), static_cast<T>(SLIP_CLAMP));
-        float   current_cost = costAt(opt_slip);
-        Vec4<T> best_slip    = opt_slip;
-        float   best_cost    = current_cost;
-        T              lambda          = static_cast<T>(LM_LAMBDA_INIT);
+        float    current_cost = costAt(opt_slip);
+        Vec4<T>  best_slip    = opt_slip;
+        float    best_cost    = current_cost;
+        T        lambda       = static_cast<T>(LM_LAMBDA_INIT);
         uint32_t iter;
         for (iter = 0; iter < MAX_ITER; ++iter)
         {
@@ -194,7 +194,8 @@ template <Decimal T>
             DualVec6<T> residual_at_kappa;
             Mat64<T>    jacobian_residual_at_kappa;
             autodiff::jacobian(
-                residualVector, autodiff::wrt(kappa), autodiff::at(kappa), residual_at_kappa, jacobian_residual_at_kappa);
+                residualVector, autodiff::wrt(kappa), autodiff::at(kappa), residual_at_kappa,
+                jacobian_residual_at_kappa);
             const Vec6<T> residuals_at_kappa_primal{
                 autodiff::val(residual_at_kappa(0)), autodiff::val(residual_at_kappa(1)),
                 autodiff::val(residual_at_kappa(2)), autodiff::val(residual_at_kappa(3)),
@@ -203,8 +204,8 @@ template <Decimal T>
             const Mat44<T> normal_matrix = jacobian_residual_at_kappa.transpose() * jacobian_residual_at_kappa;
             const Vec4<T>  rhs           = -jacobian_residual_at_kappa.transpose() * residuals_at_kappa_primal;
 
-            const float cost_before   = current_cost;
-            bool        accepted_step = false;
+            const float cost_before    = current_cost;
+            bool        accepted_step  = false;
             Vec4<T>     accepted_delta = Vec4<T>::Zero();
 
             // Increase damping until the nonlinear cost decreases. Larger lambda moves the update away from the
@@ -251,7 +252,6 @@ template <Decimal T>
                 best_slip = opt_slip;
             }
 
-
             if (!accepted_step || accepted_delta.norm() < STEP_TOLERANCE ||
                 (cost_before - current_cost) < COST_TOLERANCE)
                 break;
@@ -260,31 +260,30 @@ template <Decimal T>
         return { best_slip, best_cost };
     };
 
-    uint32_t       cold_iterations = 0, warm_iterations = 0;
+    uint32_t cold_iterations = 0, warm_iterations = 0;
     const auto [cold_slip, cold_cost] = solveFrom(Vec4<T>::Zero(), cold_iterations);
     const auto [warm_slip, warm_cost] = solveFrom(previous_slip, warm_iterations);
-    const bool    use_warm  = warm_cost <= cold_cost + COST_TOLERANCE;
-    const Vec4<T> best_slip = use_warm ? warm_slip : cold_slip;
-    previous_slip           = best_slip;
+    const bool    use_warm            = warm_cost <= cold_cost + COST_TOLERANCE;
+    const Vec4<T> best_slip           = use_warm ? warm_slip : cold_slip;
+    previous_slip                     = best_slip;
 
     // Residuals at the chosen slips, reported in the debug struct.
-    const DualVec6<T> residual_at_solution = residualVector(
-        {
-            DecimalDual<T>(best_slip(0)),
-            DecimalDual<T>(best_slip(1)),
-            DecimalDual<T>(best_slip(2)),
-            DecimalDual<T>(best_slip(3)),
-        });
-    const double r_fx       = autodiff::val(residual_at_solution(0));
-    const double r_mz       = autodiff::val(residual_at_solution(1));
-    tv_debug_data.optimizer = {
-        .kappas     = { best_slip(0), best_slip(1), best_slip(2), best_slip(3) },
-        .r_ax       = r_fx,
-        .r_Mz       = r_mz,
-        .fx_des_N   = CAR_MASS_AT_CG_KG * ax_setpoint,
-        .mz_des_Nm  = omegadot_setpoint,
-        .fx_pred_N  = (r_fx / SQRT_W_FX + CAR_MASS_AT_CG_KG * ax_setpoint / 1000) * 1000,
-        .mz_pred_Nm = (r_mz / SQRT_W_MZ + omegadot_setpoint / 1000) * 1000,
+    const DualVec6<T> residual_at_solution = residualVector({
+        DecimalDual<T>(best_slip(0)),
+        DecimalDual<T>(best_slip(1)),
+        DecimalDual<T>(best_slip(2)),
+        DecimalDual<T>(best_slip(3)),
+    });
+    const double      r_fx                 = autodiff::val(residual_at_solution(0));
+    const double      r_mz                 = autodiff::val(residual_at_solution(1));
+    tv_debug_data.optimizer                = {
+                       .kappas     = { best_slip(0), best_slip(1), best_slip(2), best_slip(3) },
+                       .r_ax       = r_fx,
+                       .r_Mz       = r_mz,
+                       .fx_des_N   = CAR_MASS_AT_CG_KG * ax_setpoint,
+                       .mz_des_Nm  = omegadot_setpoint,
+                       .fx_pred_N  = (r_fx / SQRT_W_FX + CAR_MASS_AT_CG_KG * ax_setpoint / 1000) * 1000,
+                       .mz_pred_Nm = (r_mz / SQRT_W_MZ + omegadot_setpoint / 1000) * 1000,
     };
 
     return {

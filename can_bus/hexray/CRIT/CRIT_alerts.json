@@ -15,16 +15,24 @@
       "description": "Missing heartbeat signal from the FSM."
     },
     "MissingVCHeartbeat": {
-      "id": 953,
+      "id": 952,
       "description": "Missing heartbeat signal from the VC."
     },
     "MissingRSMHeartbeat": {
-      "id": 952,
+      "id": 953,
       "description": "Missing heartbeat signal from the RSM."
     },
     "MissingDAMHeartbeat": {
-      "id": 952,
+      "id": 954,
       "description": "Missing heartbeat signal from the DAM."
+    },
+    "WatchdogTimeout": {
+      "id": 955,
+      "description": "Watchdog timeout detected."
+    },
+    "StackOverflow": {
+      "id": 956,
+      "description": "An RTOS task stack overflowed on the previous boot cycle."
     }
 },
   "warnings": {},

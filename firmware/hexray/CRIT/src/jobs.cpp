@@ -1,17 +1,20 @@
 #include "jobs.hpp"
 
 #include "app_canTx.hpp"
-#include "app_commitInfo.h"
+#include "app_commitInfo.hpp"
 #include "app_jsoncan.hpp"
+#include "app_switches.hpp"
+#include "app_leds.hpp"
 #include "screens/app_screens.hpp"
+#include "app_heartbeatMonitors.hpp"
+#include "app_brightness.hpp"
+#include "app_powerGauge.hpp"
 
 #include "io_canTx.hpp"
-#include "io_switches.hpp"
 #include "io_time.hpp"
-#include "io_leds.hpp"
-#include "io_powerGauge.hpp"
-#include <io_canTx.hpp>
 #include "io_canQueues.hpp"
+#include "io_leds.hpp"
+#include "io_sevenSeg.hpp"
 
 void jobs_init()
 {
@@ -28,8 +31,10 @@ void jobs_init()
     app::can_tx::CRIT_Hash_set(GIT_COMMIT_HASH);
     app::can_tx::CRIT_Clean_set(GIT_COMMIT_CLEAN);
     app::can_tx::CRIT_Heartbeat_set(true);
+    io::can_tx::CRIT_Bootup_sendAperiodic();
 
     app::screens::init();
+    app::leds::init();
 }
 
 void jobs_run1Hz_tick()
@@ -38,42 +43,28 @@ void jobs_run1Hz_tick()
 }
 void jobs_run100Hz_tick()
 {
-    // TODO move this to app_leds
-    io::leds::update({
-        io::leds::color::OFF,
-        io::leds::color::OFF,
-        io::leds::color::OFF,
-        io::leds::color::OFF,
-        io::leds::color::OFF,
-        io::leds::color::OFF,
-        io::leds::color::OFF,
-        io::leds::color::OFF,
-        io::leds::color::OFF,
-        false,
-        false,
-        false,
-        false,
-        false,
-    });
-    io::leds::setBrightness(1.0);
+    app::switches::broadcast();
 
-    app::screens::tick();
+    static bool prev_telem_mark = false;
+    const bool  telem_mark      = app::switches::telem_get();
+    if (telem_mark && !prev_telem_mark)
+    {
+        io::can_tx::CRIT_TelemMarkEvent_sendAperiodic();
+    }
+    prev_telem_mark = telem_mark;
 
-    // io::power_gauge::update({});
-
-    // update the state from the switches
-    app::can_tx::CRIT_TorqueVectoringSwitch_set(io::switches::torque_vectoring_get());
-    app::can_tx::CRIT_LaunchControlSwitch_set(io::switches::launch_control_get());
-    app::can_tx::CRIT_RegenSwitch_set(io::switches::regen_get());
-    app::can_tx::CRIT_StartButton_set(io::switches::start_get());
-    // TODO debounce and find rising edge
-    // if (const bool has_rising_edge = io::switches::telem_mark_get(); has_rising_edge)
-    // {
-    //     io::can_tx::CRIT_TelemMarkEvent_sendAperiodic();
-    // }
+    hb_monitor.checkIn();
+    hb_monitor.broadcastFaults();
 
     // enqueue can messages
     io::can_tx::enqueue100HzMsgs();
+}
+void jobs_run10Hz_tick()
+{
+    app::leds::setLeds();
+    app::screens::tick();
+    LOG_IF_ERR(io::seven_seg::setBrightness(std::max(static_cast<uint8_t>(5u), app::brightness)));
+    app::power_gauge::update();
 }
 void jobs_run1kHz_tick()
 {

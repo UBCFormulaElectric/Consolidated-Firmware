@@ -13,21 +13,21 @@ namespace io::suspension
 {
 float getRLTravel()
 {
-    return travelFromVoltage(hw::adcs::susp_travel_rl_3v3.getVoltage());
+    return travelFromVoltage(susp_travel_rl_3v3.getVoltage());
 }
 
 float getRRTravel()
 {
-    return travelFromVoltage(hw::adcs::susp_travel_rr_3v3.getVoltage());
+    return travelFromVoltage(susp_travel_rr_3v3.getVoltage());
 }
 
 bool RR_OCSC()
 {
-    return hw::gpio::susp_travel_rr_ocsc.readPin();
+    return susp_travel_rr_ocsc.readPin();
 }
 
 bool RL_OCSC()
 {
-    return hw::gpio::susp_travel_rl_ocsc.readPin();
+    return susp_travel_rl_ocsc.readPin();
 }
 } // namespace io::suspension

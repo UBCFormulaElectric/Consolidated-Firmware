@@ -53,9 +53,7 @@ export function useSignalData(onFlush?: () => void) {
 
         currentTimeUpdateCounter.current++;
         const isHighFrequency = timeSinceLastBatch < 100;
-        const updateFrequency = isHighFrequency
-            ? CURRENT_TIME_UPDATE_FREQUENCY * 2
-            : CURRENT_TIME_UPDATE_FREQUENCY;
+        const updateFrequency = isHighFrequency ? CURRENT_TIME_UPDATE_FREQUENCY * 2 : CURRENT_TIME_UPDATE_FREQUENCY;
 
         if (currentTimeUpdateCounter.current >= updateFrequency) {
             currentTimeUpdateCounter.current = 0;
@@ -66,30 +64,33 @@ export function useSignalData(onFlush?: () => void) {
         if (onFlush) onFlush();
     }, [onFlush]);
 
-    const addDataPoint = useCallback((dataPoint: DataPoint) => {
-        pendingDataUpdates.current.push(dataPoint);
+    const addDataPoint = useCallback(
+        (dataPoint: DataPoint) => {
+            pendingDataUpdates.current.push(dataPoint);
 
-        if (pendingDataUpdates.current.length >= MAX_BATCH_SIZE) {
-            if (rafUpdateTimer.current) {
-                cancelAnimationFrame(rafUpdateTimer.current);
-                rafUpdateTimer.current = null;
+            if (pendingDataUpdates.current.length >= MAX_BATCH_SIZE) {
+                if (rafUpdateTimer.current) {
+                    cancelAnimationFrame(rafUpdateTimer.current);
+                    rafUpdateTimer.current = null;
+                }
+                if (batchUpdateTimer.current) {
+                    clearTimeout(batchUpdateTimer.current);
+                    batchUpdateTimer.current = null;
+                }
+                flushPendingDataUpdates();
+                return;
             }
-            if (batchUpdateTimer.current) {
-                clearTimeout(batchUpdateTimer.current);
-                batchUpdateTimer.current = null;
-            }
-            flushPendingDataUpdates();
-            return;
-        }
 
-        if (!rafUpdateTimer.current && !batchUpdateTimer.current) {
-            if (typeof requestAnimationFrame !== "undefined") {
-                rafUpdateTimer.current = requestAnimationFrame(flushPendingDataUpdates);
-            } else {
-                batchUpdateTimer.current = setTimeout(flushPendingDataUpdates, BATCH_INTERVAL_MS);
+            if (!rafUpdateTimer.current && !batchUpdateTimer.current) {
+                if (typeof requestAnimationFrame !== "undefined") {
+                    rafUpdateTimer.current = requestAnimationFrame(flushPendingDataUpdates);
+                } else {
+                    batchUpdateTimer.current = setTimeout(flushPendingDataUpdates, BATCH_INTERVAL_MS);
+                }
             }
-        }
-    }, [flushPendingDataUpdates]);
+        },
+        [flushPendingDataUpdates]
+    );
 
     const pruneSignalData = useCallback((name: string) => {
         if (DEBUG) console.log(`Pruning all data for signal: ${name}`);

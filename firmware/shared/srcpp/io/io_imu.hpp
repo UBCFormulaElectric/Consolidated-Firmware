@@ -53,14 +53,14 @@ enum class AccelScale : uint8_t
  */
 enum class GyroDlpfConfig : uint8_t
 {
-    BW_250HZ_NOISE_306HZ = 0x0U, // Internal Base Rate = 8kHz
-    BW_176HZ_NOISE_177HZ,        // Internal Base Rate = 1kHz
-    BW_92HZ_NOISE_108HZ,         // Internal Base Rate = 1kHz
-    BW_41HZ_NOISE_59HZ,          // Internal Base Rate = 1kHz
-    BW_20HZ_NOISE_31HZ,          // Internal Base Rate = 1kHz
-    BW_10HZ_NOISE_16HZ,          // Internal Base Rate = 1kHz
-    BW_5HZ_NOISE_8HZ,            // Internal Base Rate = 1kHz
-    BW_3KHZ_NOISE_3KHZ,          // Internal Base Rate = 8kHz
+    BW_250HZ_NOISE_306HZ = 0x0U, // Gyro ODR = 8kHz; SMPLRT_DIV is ignored
+    BW_176HZ_NOISE_177HZ,        // Gyro ODR = 1kHz / (1 + SMPLRT_DIV)
+    BW_92HZ_NOISE_108HZ,         // Gyro ODR = 1kHz / (1 + SMPLRT_DIV)
+    BW_41HZ_NOISE_59HZ,          // Gyro ODR = 1kHz / (1 + SMPLRT_DIV)
+    BW_20HZ_NOISE_31HZ,          // Gyro ODR = 1kHz / (1 + SMPLRT_DIV)
+    BW_10HZ_NOISE_16HZ,          // Gyro ODR = 1kHz / (1 + SMPLRT_DIV)
+    BW_5HZ_NOISE_8HZ,            // Gyro ODR = 1kHz / (1 + SMPLRT_DIV)
+    BW_3KHZ_NOISE_3KHZ,          // Gyro ODR = 8kHz; SMPLRT_DIV is ignored
 };
 
 enum class AccelDlpfConfig : uint8_t
@@ -80,11 +80,10 @@ enum class AccelDlpfConfig : uint8_t
  * Enable/Disable accelerometer and gyroscope low pass filters
  * Adjust cutoff frequency of their respectie low pass filters
  *
- * Adjust ODR via Sample Rate Divider (Output Data Rate of IMU), where:
+ * Adjust ODR via Sample Rate Divider (Output Data Rate of IMU), where applicable:
  *
  * ODR = Internal Base Rate / (1 + Sample Rate Divider)
- * Look at Internal Base Rates for the Accelerometer and Gryoscope depending
- * on cutoff frequency above
+ * Gyro SMPLRT_DIV is only effective when DLPF is enabled and DLPF_CFG is 1..6.
  *
  * Note: If Fifo is enabled, Accel and Gyro ODR should be the same
  * to prevent data duplication in the Fifo
@@ -115,7 +114,21 @@ struct ImuFilterConfig
         if (enable_gyro_dlpf == false)
             return 32000U;
 
-        return (gyro_dlpf_cutoff == GyroDlpfConfig::BW_250HZ_NOISE_306HZ) ? calculateOdr(8000U) : calculateOdr(1000U);
+        switch (gyro_dlpf_cutoff)
+        {
+            case GyroDlpfConfig::BW_250HZ_NOISE_306HZ:
+            case GyroDlpfConfig::BW_3KHZ_NOISE_3KHZ:
+                return 8000U;
+            case GyroDlpfConfig::BW_176HZ_NOISE_177HZ:
+            case GyroDlpfConfig::BW_92HZ_NOISE_108HZ:
+            case GyroDlpfConfig::BW_41HZ_NOISE_59HZ:
+            case GyroDlpfConfig::BW_20HZ_NOISE_31HZ:
+            case GyroDlpfConfig::BW_10HZ_NOISE_16HZ:
+            case GyroDlpfConfig::BW_5HZ_NOISE_8HZ:
+                return calculateOdr(1000U);
+            default:
+                return 0U;
+        }
     }
 };
 
@@ -162,7 +175,7 @@ struct ImuFifoConfig
 
 namespace io
 {
-class Imu
+class imu
 {
   public:
     struct AccelData
@@ -176,7 +189,7 @@ class Imu
 
   private:
 #ifdef TARGET_EMBEDDED
-    const hw::spi::SpiDevice &imu_spi_handle;
+    const hw::spi::device &imu_spi_handle;
 #endif
 
     ImuFilterConfig filter_config;
@@ -187,35 +200,36 @@ class Imu
 
   public:
 #ifdef TARGET_EMBEDDED
-    constexpr explicit Imu(
-        const hw::spi::SpiDevice &in_imu_spi_handle,
-        const ImuFilterConfig    &in_filter_config = ImuFilterConfig{})
+    constexpr explicit imu(
+        const hw::spi::device &in_imu_spi_handle,
+        const ImuFilterConfig &in_filter_config = ImuFilterConfig{})
       : imu_spi_handle(in_imu_spi_handle), filter_config(in_filter_config)
     {
     }
 #elif TARGET_TEST
-    constexpr explicit Imu() {}
+    constexpr explicit imu() {}
 #endif
 
-    [[nodiscard]] std::expected<void, ErrorCode> init() const;
+    [[nodiscard]] result<void> init() const;
 
-    std::expected<float, ErrorCode> getAccelX() const;
-    std::expected<float, ErrorCode> getAccelY() const;
-    std::expected<float, ErrorCode> getAccelZ() const;
+    result<float> getAccelX() const;
+    result<float> getAccelY() const;
+    result<float> getAccelZ() const;
 
-    std::expected<float, ErrorCode> getGyroX() const;
-    std::expected<float, ErrorCode> getGyroY() const;
-    std::expected<float, ErrorCode> getGyroZ() const;
+    result<float> getGyroX() const;
+    result<float> getGyroY() const;
+    result<float> getGyroZ() const;
 
-    std::expected<float, ErrorCode> getTemp() const;
+    result<float> getTemp() const;
 
-    std::expected<AccelData, ErrorCode> getAccelAll() const;
-    std::expected<GyroData, ErrorCode>  getGyroAll() const;
+    result<AccelData> getAccelAll() const;
+    result<GyroData>  getGyroAll() const;
 
 #ifdef TARGET_TEST
     mutable bool  initialized   = false;
     mutable float _accel_x_fake = 0.0f, _accel_y_fake = 0.0f, _accel_z_fake = 0.0f, _gyro_x_fake = 0.0f,
                   _gyro_y_fake = 0.0f, _gyro_z_fake = 0.0f;
+    mutable result<void> init_status = {};
 
     void reset_init();
     bool get_init() const;
@@ -225,6 +239,7 @@ class Imu
     void set_GyroRoll(float gyro_x_fake) const;
     void set_GyroPitch(float gyro_y_fake) const;
     void set_GyroYaw(float gyro_z_fake) const;
+    void imu_status_set(bool status);
 #endif
 };
 } // namespace io

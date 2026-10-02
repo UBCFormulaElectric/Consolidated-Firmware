@@ -169,26 +169,28 @@ impl CanDatabase {
 
         // resolve explicit rx messages
         for (rx_name, rx_msg_names) in rx_msg_names_to_resolve.into_iter() {
-            let rx_msgs: Vec<u32> = rx_msg_names
+            let rx_msgs: Result<Vec<u32>, CanDBError> = rx_msg_names
                 .iter()
-                .map(|m| {
-                    db.get_message_id_by_name(m)
-                        .expect(&format!("Message {} not found in database", m))
-                })
+                .map(|m| db.get_message_id_by_name(m))
                 .collect();
-            if let RxMsgs::RxMsgs(old_rx_msgs) = &mut db
-                .nodes
-                .iter_mut()
-                .find(|n| n.name == rx_name)
-                .expect(&format!("Node {} not found in database", rx_name))
-                .rx_msgs_names
-            {
-                *old_rx_msgs = rx_msgs;
-            } else {
-                panic!(
-                    "Node {} was marked as receiving all messages, but is also trying to explicitly receive some messages. This is a code bug probably.",
-                    rx_name
-                );
+            match rx_msgs {
+                Err(e) => return Err(e),
+                Ok(rx_msgs) => {
+                    if let RxMsgs::RxMsgs(old_rx_msgs) = &mut db
+                        .nodes
+                        .iter_mut()
+                        .find(|n| n.name == rx_name)
+                        .expect(&format!("Node {} not found in database", rx_name))
+                        .rx_msgs_names
+                    {
+                        *old_rx_msgs = rx_msgs;
+                    } else {
+                        panic!(
+                            "Node {} was marked as receiving all messages, but is also trying to explicitly receive some messages. This is a code bug probably.",
+                            rx_name
+                        );
+                    }
+                }
             }
         }
 
@@ -208,7 +210,7 @@ impl CanDatabase {
             let tx_node_name = msg.tx_node_name.clone();
             db.add_tx_msg(msg)?;
             // rx on all nodes
-            db.nodes.iter_mut().for_each(|n| {
+            db.nodes.iter_mut().filter(|n| n.alerts.is_some()).for_each(|n| {
                 if n.name == tx_node_name {return;}
                 match &mut n.rx_msgs_names {
                     RxMsgs::All => (),

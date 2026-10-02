@@ -12,7 +12,7 @@
   "Debug": {
     "msg_id": 707,
     "cycle_time": 1000,
-    "description": "VC Debug Signals",
+    "description": "RSM Debug Signals",
     "signals": {
       "TxOverflowCount": {
         "bits": 16
@@ -24,16 +24,26 @@
         "enum": "CanResetReason"
       },
       "StackOverflowTask": {
-        "bits": 8
+        "bits": 32
       },
       "WatchdogTimeoutTask": {
-        "bits": 8
+        "bits": 32
       }
+    },
+    "data_capture": {
+      "telem_cycle_time": 1000,
+      "log_cycle_time": 1000
     }
   },
-  "CommitInfo": {
+  "Bootup": {
     "msg_id": 708,
-    "cycle_time": 100,
+    "cycle_time": null,
+    "description": "Async bootup message!",
+    "signals": {}
+  },
+  "CommitInfo": {
+    "msg_id": 709,
+    "cycle_time": 1000,
     "description": "RSM Commit Info",
     "signals": {
       "Hash": {
@@ -42,18 +52,10 @@
       "Clean": {
         "bits": 1
       }
-    }
-  },
-  "Coolant": {
-    "msg_id": 709,
-    "cycle_time": 1000,
-    "signals": {
-      "CoolantFlowRate": {
-        "resolution": 0.1,
-        "min": 0,
-        "max": 100,
-        "unit": "L/min"
-      }
+    },
+    "data_capture": {
+      "telem_cycle_time": 1000,
+      "log_cycle_time": 1000
     }
   },
   "SuspensionTravel": {
@@ -73,6 +75,10 @@
         "max": 10,
         "unit": "cm"
       }
+    },
+    "data_capture": {
+      "telem_cycle_time": 1000,
+      "log_cycle_time": 1000
     }
   },
   "IMU": {
@@ -81,46 +87,56 @@
     "description": "IMU data",
     "signals": {
       "AccelX": {
-        "resolution": 0.1,
-        "min": -20,
-        "max": 20,
-        "unit": "m/s^2"
+        "resolution": 0.01,
+        "signed": true,
+        "min": -5,
+        "max": 5,
+        "unit": "g"
       },
       "AccelY": {
-        "resolution": 0.1,
-        "min": -20,
-        "max": 20,
-        "unit": "m/s^2"
+        "resolution": 0.01,
+        "signed": true,
+        "min": -5,
+        "max": 5,
+        "unit": "g"
       },
       "AccelZ": {
-        "resolution": 0.1,
-        "min": -20,
-        "max": 20,
-        "unit": "m/s^2"
+        "resolution": 0.01,
+        "signed": true,
+        "min": -5,
+        "max": 5,
+        "unit": "g"
       },
       "GyroX": {
-        "resolution": 0.1,
+        "resolution": 0.01,
+        "signed": true,
         "min": -20,
         "max": 20,
-        "unit": "deg/s^2"
+        "unit": "deg/s"
       },
       "GyroY": {
-        "resolution": 0.1,
+        "resolution": 0.01,
+        "signed": true,
         "min": -20,
         "max": 20,
-        "unit": "deg/s^2"
+        "unit": "deg/s"
       },
       "GyroZ": {
-        "resolution": 0.1,
+        "resolution": 0.01,
+        "signed": true,
         "min": -20,
         "max": 20,
-        "unit": "deg/s^2"
+        "unit": "deg/s"
       }
+    },
+    "data_capture": {
+      "telem_cycle_time": 1000,
+      "log_cycle_time": 1000
     }
   },
   "Brakes": {
     "msg_id": 712,
-    "cycle_time": 1000,
+    "cycle_time": 100,
     "description": "Front and rear brake pressures",
     "signals": {
       "RearBrakePressure": {
@@ -132,35 +148,187 @@
       "BrakeActuated": {
         "bits": 1
       }
+    },
+    "data_capture": {
+      "telem_cycle_time": 1000,
+      "log_cycle_time": 1000
     }
   },
   "ShdnNodeStatus": {
     "msg_id": 713,
-    "cycle_time": 10,
+    "cycle_time": 100,
     "description": "RSM shutdown nodes",
     "signals": {
       "RearLeftMotorInterlock": {
         "bits": 1
       }
+    },
+    "data_capture": {
+      "telem_cycle_time": 1000,
+      "log_cycle_time": 1000
     }
   },
-  "Bootup": {
-    "msg_id": 799,
-    "cycle_time": null,
-    "description": "Async bootup message!",
-    "signals": {}
-  },
-  "TireSensor" : {
+  "RearLeftPumpPercentage": {
     "msg_id": 714,
-    "cycle_time" : 100,
-    "description" :" Tire sensor information",
-    "signals" : {
-      "TireTemperature" : {
+    "cycle_time": 100,
+    "description": "Rear pump information",
+    "signals": {
+      "RearLeftPumpPercentage": {
+        "resolution": 1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      }
+    },
+    "data_capture": {
+      "telem_cycle_time": 1000,
+      "log_cycle_time": 1000
+    }
+  },
+  "CPUDataLogInfo": {
+    "msg_id": 716,
+    "cycle_time": 100,
+    "description": "RSM cpu and stack information",
+    "signals": {
+      "CoreCpuUsageMax": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "CoreCpuUsage": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRun1HzCpuUsageMax": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRun1HzCpuUsage": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRun1HzStackUsage": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRun100HzCpuUsageMax": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRun100HzCpuUsage": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRun100HzStackUsage": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRun1kHzCpuUsageMax": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRun1kHzCpuUsage": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRun1kHzStackUsage": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRunCanTxCpuUsageMax": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRunCanTxCpuUsage": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRunCanTxStackUsage": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRunCanRxCpuUsageMax": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRunCanRxCpuUsage": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRunCanRxStackUsage": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      }
+    },
+    "data_capture": {
+      "telem_cycle_time": 1000,
+      "log_cycle_time": 1000
+    }
+  },
+  "Coolant": {
+    "msg_id": 717,
+    "cycle_time": 1000,
+    "signals": {
+      "CoolantFlowRate": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "L/min"
+      }
+    },
+    "data_capture": {
+      "telem_cycle_time": 1000,
+      "log_cycle_time": 1000
+    }
+  },
+  "TireSensor": {
+    "msg_id": 798,
+    "cycle_time": 1000,
+    "description": "Tire sensor information",
+    "signals": {
+      "TireTemperature": {
         "resolution": 0.1,
         "min": -20,
         "max": 200,
         "unit": "°C"
       }
+    },
+    "data_capture": {
+      "telem_cycle_time": 1000,
+      "log_cycle_time": 1000
     }
   }
 }

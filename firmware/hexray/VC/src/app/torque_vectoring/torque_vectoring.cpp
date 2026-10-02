@@ -19,19 +19,24 @@ template <Decimal T> ControlOutput<T> update(const VehicleState<T> &state)
     // const T pedal      = state.apps - state.brake;
     // const T brake_fade = std::clamp(state.v_x_mps / static_cast<T>(BRAKE_FADE_SPEED_MPS), T(0), T(1));
     // const T ax_mps2_setpoint = pedal >= 0 ? MAX_AX_MPS2 * pedal : MAX_AX_MPS2 * pedal * brake_fade;
-    T apps      = state.apps;
-    T apps_remap                     = state.apps - 0.2;
+    T apps       = state.apps;
+    T apps_remap = state.apps - 0.2;
 
-    if (apps_remap < 0.0) {
+    if (apps_remap < 0.0)
+    {
         T regen_derate = std::clamp(((state.v_x_mps * 3.6) - 5.0) / 5.0, 0.0, 1.0);
-        apps = (apps_remap / 0.2) * regen_derate;
-    } else if (apps_remap < 0.1) {
+        apps           = (apps_remap / 0.2) * regen_derate;
+    }
+    else if (apps_remap < 0.1)
+    {
         apps = 0.0;
-    } else {
+    }
+    else
+    {
         apps = (apps_remap - 0.1) / (1.0 - 0.2 - 0.1);
     }
-    
-    const T ax_mps2_setpoint = MAX_AX_MPS2 * apps;
+
+    const T ax_mps2_setpoint         = MAX_AX_MPS2 * apps;
     tv_debug_data.veh_state.beta_rad = state.est_beta_rad();
     // Direct yaw rate control: corrective yaw moment
     const T omegadot_radps2_setpoint = app::tv::controllers::dyrc::computeYawMoment(
@@ -105,7 +110,7 @@ extern "C" void update_matlab(
     torque_min[1] = k_torque_min.fr;
     torque_min[2] = k_torque_min.rl;
     torque_min[3] = k_torque_min.rr;
-    *debug = tv_debug_data;
+    *debug        = tv_debug_data;
 }
 
 template <Decimal T> ControlOutputAutonomous<T> update_autonomous(const VehicleState<T> &state)

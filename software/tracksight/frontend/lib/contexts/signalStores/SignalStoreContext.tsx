@@ -1,102 +1,88 @@
 "use client";
 
-import { createContext, RefObject, ReactNode, useContext, useEffect, useRef } from "react";
 import SignalStore, { SignalStoreReturnType } from "@/lib/signals/SignalStore";
-import { AlertSignalMetadata, SignalMetadata } from "@/lib/types/Signal";
-import { AlertSeries } from "@/components/widgets/CanvasChartTypes";
+import { SignalMetadata } from "@/lib/types/Signal";
+import { createContext, ReactNode, RefObject, useContext, useEffect, useRef } from "react";
 
 const SignalDataStoreContext = createContext<RefObject<SignalStore> | null>(null);
 
-function SignalDataStoreProvider({ children, signalStore }: { children: ReactNode, signalStore: RefObject<SignalStore> }) {
-  return (
-    <SignalDataStoreContext.Provider
-      value={signalStore}
-    >
-      {children}
-    </SignalDataStoreContext.Provider>
-  );
-};
+function SignalDataStoreProvider({ children, signalStore }: { children: ReactNode; signalStore: RefObject<SignalStore> }) {
+    return <SignalDataStoreContext.Provider value={signalStore}>{children}</SignalDataStoreContext.Provider>;
+}
 
 const useSignalDataStore = <T extends SignalMetadata>(signal: T) => {
-  const context = useContext(SignalDataStoreContext);
+    const context = useContext(SignalDataStoreContext);
 
-  if (context === null) {
-    throw new Error("useSignalDataStore must be used within a SignalDataStoreProvider");
-  }
+    if (context === null) {
+        throw new Error("useSignalDataStore must be used within a SignalDataStoreProvider");
+    }
 
-  const signalStore = context;
-  const cachedReferenceRef = useRef<SignalStoreReturnType<T> | null>(null);
+    const signalStore = context;
+    const cachedReferenceRef = useRef<SignalStoreReturnType<T> | null>(null);
 
-  useEffect(() => {
-    return () => {
-      if (!signalStore.current) return;
+    useEffect(() => {
+        const store = signalStore.current;
 
-      signalStore.current.purgeReferenceToSignal(signal);
-    };
-  }, [signal, signalStore]);
+        return () => {
+            if (!store) return;
 
-  useEffect(() => {
-    if (!signalStore.current) return;
+            store.purgeReferenceToSignal(signal);
+        };
+    }, [signal, signalStore]);
 
-    cachedReferenceRef.current = signalStore.current.getReferenceToSignal(signal);
-  }, [signal, signalStore]);
+    useEffect(() => {
+        if (!signalStore.current) return;
 
+        cachedReferenceRef.current = signalStore.current.getReferenceToSignal(signal);
+    }, [signal, signalStore]);
 
-  return cachedReferenceRef;
-}
+    return cachedReferenceRef;
+};
 
 const useSignalDataStores = <T extends SignalMetadata[]>(signals: T) => {
-  const context = useContext(SignalDataStoreContext);
+    const context = useContext(SignalDataStoreContext);
 
-  if (context === null) {
-    throw new Error("useSignalDataStores must be used within a SignalDataStoreProvider");
-  }
+    if (context === null) {
+        throw new Error("useSignalDataStores must be used within a SignalDataStoreProvider");
+    }
 
-  const signalStore = context;
-  const cachedReferencesRef = useRef<SignalStoreReturnType<T[number]>[]>([]);
+    const signalStore = context;
+    const cachedReferencesRef = useRef<SignalStoreReturnType<T[number]>[]>([]);
 
-  useEffect(() => {
-    return () => {
-      if (!signalStore.current) return;
+    useEffect(() => {
+        const store = signalStore.current;
 
-      signals.forEach((signal) => {
-        signalStore.current!.purgeReferenceToSignal(signal);
-      });
-    };
-  }, [signals, signalStore]);
+        return () => {
+            if (!store) return;
 
-  useEffect(() => {
-    if (!signalStore.current) return;
+            signals.forEach((signal) => {
+                store.purgeReferenceToSignal(signal);
+            });
+        };
+    }, [signals, signalStore]);
 
-    cachedReferencesRef.current = [];
-    signals.forEach((signal) => {
-      const reference = signalStore.current!.getReferenceToSignal<T[number]>(signal);
+    useEffect(() => {
+        if (!signalStore.current) return;
 
-      cachedReferencesRef.current.push(reference);
-    });
-  }, [signals, signalStore]);
+        cachedReferencesRef.current = [];
+        signals.forEach((signal) => {
+            const reference = signalStore.current!.getReferenceToSignal<T[number]>(signal);
 
-  return cachedReferencesRef;
-}
+            cachedReferencesRef.current.push(reference);
+        });
+    }, [signals, signalStore]);
 
-const useAlertDataStores = () => {
-  const context = useContext(SignalDataStoreContext);
+    return cachedReferencesRef;
+};
 
-  if (context === null) {
-    throw new Error("useAlertDataStores must be used within a SignalDataStoreProvider");
-  }
+const useAlertStore = (): RefObject<SignalStore> => {
+    const context = useContext(SignalDataStoreContext);
 
-  const signalStore = context;
-  const cachedReferencesRef = useRef<{ [signalName: string]: AlertSeries } | null>(null);
+    if (context === null) {
+        throw new Error("useAlertStore must be used within a SignalDataStoreProvider");
+    }
 
-  useEffect(() => {
-    if (!signalStore.current) return;
+    return context;
+};
 
-    cachedReferencesRef.current = signalStore.current.getAlertData();
-  }, [signalStore]);
-
-  return cachedReferencesRef;
-}
-
-export { SignalDataStoreProvider, useSignalDataStore, useSignalDataStores, useAlertDataStores };
-
+export { SignalDataStoreProvider, useAlertStore, useSignalDataStore, useSignalDataStores };

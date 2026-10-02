@@ -123,9 +123,9 @@ template <Decimal T> T TireModel::effectiveRollingRadius_m(const float fz_N, con
 {
     // MF 6.2 with dpi = 0 and linear vertical stiffness, so the normalized deflection rho_d = Fz / Fz0.
     // Free-rolling Omega * R0 ~= v_x is used in the centrifugal growth term.
-    const T     speed_ratio      = v_x_mps / static_cast<T>(rolling_radius_.LONGVL);
-    const T     r_omega          = static_cast<T>(R0) * (static_cast<T>(rolling_radius_.Q_RE0) +
-                                                static_cast<T>(rolling_radius_.Q_V1) * speed_ratio * speed_ratio);
+    const T     speed_ratio        = v_x_mps / static_cast<T>(rolling_radius_.LONGVL);
+    const T     r_omega            = static_cast<T>(R0) * (static_cast<T>(rolling_radius_.Q_RE0) +
+                                            static_cast<T>(rolling_radius_.Q_V1) * speed_ratio * speed_ratio);
     const float nominal_deflection = FZ0 / rolling_radius_.VERTICAL_STIFFNESS;
     const float rho_d              = std::fmax(fz_N, 0.0f) / FZ0;
     const float load_term =

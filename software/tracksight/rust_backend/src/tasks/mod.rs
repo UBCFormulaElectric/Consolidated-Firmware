@@ -62,7 +62,7 @@ impl HealthCheck {
         return HealthCheck { hc_tx: sender, hc_rx: receiver, checked_tasks: tasks_set }
     }
 
-    pub async fn wait_for_health_checks(self) -> Result<(), HealthCheckError> {
+    pub async fn wait_for_health_checks(&mut self) -> Result<(), HealthCheckError> {
         select! {
             health_check_res = self.track_health_checks() => {
                 return health_check_res;
@@ -74,9 +74,24 @@ impl HealthCheck {
     }
 
     /**
+     * Wait for a single specific task to report healthy. Used after a task
+     * restart to confirm the new instance came up successfully.
+     */
+    pub async fn wait_for_health_check(&mut self, expected: Task) -> Result<(), HealthCheckError> {
+        select! {
+            res = self.track_single_health_check(expected) => {
+                return res;
+            },
+            _ = sleep(Duration::from_millis(HealthCheck::HEALTH_CHECK_TIMEOUT_MS)) => {
+                return Err(HealthCheckError::Timeout);
+            }
+        }
+    }
+
+    /**
      * Helper function to track incoming health checks
      */
-    async fn track_health_checks(mut self) -> Result<(), HealthCheckError> {
+    async fn track_health_checks(&mut self) -> Result<(), HealthCheckError> {
         while self.checked_tasks.len() <= Task::ENUM_COUNT {
             match self.hc_rx.recv().await {
                 Some((task, status)) => {
@@ -85,7 +100,7 @@ impl HealthCheck {
                     }
 
                     self.checked_tasks.insert(task);
-                    
+
                     if self.checked_tasks.len() >= Task::ENUM_COUNT {
                         break;
                     }
@@ -96,6 +111,31 @@ impl HealthCheck {
             }
         }
         return Ok(());
+    }
+
+    /**
+     * Helper that waits until `expected` reports healthy on the channel.
+     * Any other tasks that emit checks in the meantime are still recorded
+     * so we don't lose track of them.
+     */
+    async fn track_single_health_check(&mut self, expected: Task) -> Result<(), HealthCheckError> {
+        loop {
+            match self.hc_rx.recv().await {
+                Some((task, status)) => {
+                    if !status {
+                        return Err(HealthCheckError::TaskFailure(task));
+                    }
+                    let is_match = task == expected;
+                    self.checked_tasks.insert(task);
+                    if is_match {
+                        return Ok(());
+                    }
+                }
+                None => {
+                    return Err(HealthCheckError::ChannelsClosed);
+                }
+            }
+        }
     }
 }
 

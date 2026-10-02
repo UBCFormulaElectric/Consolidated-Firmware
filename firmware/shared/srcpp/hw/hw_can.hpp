@@ -5,6 +5,7 @@
 #include "hw_hal.hpp"
 
 #include <array>
+#include <expected>
 #include <span>
 
 namespace hw
@@ -25,9 +26,10 @@ struct CanMsg
 
     explicit CanMsg() = default;
 
-    uint32_t                                       std_id = 0;
-    uint32_t                                       dlc    = 0;
-    mutable std::array<uint8_t, CAN_PAYLOAD_BYTES> data{};
+    uint32_t std_id = 0;
+    uint32_t dlc    = 0;
+
+    alignas(8) mutable std::array<uint8_t, CAN_PAYLOAD_BYTES> data{};
 
     [[nodiscard]] std::span<uint16_t, CAN_PAYLOAD_BYTES / 2> getDataAsWords()
     {
@@ -79,7 +81,7 @@ class BaseCan
      * Initialize CAN driver.
      * @param can_handle STM32 HAL CAN handle.
      */
-    virtual void init() const = 0;
+    virtual void init(const bool should_start = true) const = 0;
 
     /**
      * Stop and deinitialize the CAN peripheral.
@@ -91,7 +93,7 @@ class BaseCan
      * @param msg CAN msg to be TXed.
      * @return Whether or not the transmission was successful.
      */
-    virtual std::expected<void, ErrorCode> can_transmit(const CanMsg &msg) const = 0;
+    virtual result<void> can_transmit(const CanMsg &msg) const = 0;
 
     /**
      * Receive a CAN msg from the bus, returning whether or not a message is available.
@@ -99,7 +101,7 @@ class BaseCan
      * @param rx_fifo Which RX FIFO to receive a message from.
      * @return Whether or not the reception was successful.
      */
-    virtual std::expected<CanMsg, ErrorCode> receive(uint32_t rx_fifo) const = 0;
+    virtual result<CanMsg> receive(uint32_t rx_fifo) const = 0;
 };
 /**
  * @attention THIS MUST BE DEFINED IN YOUR CONFIGURATIONS
@@ -113,7 +115,7 @@ class can final : public BaseCan
     CAN_HandleTypeDef *const hcan;
 
   private:
-    std::expected<void, ErrorCode> tx(const CAN_TxHeaderTypeDef &tx_header, const CanMsg &msg) const;
+    result<void> tx(const CAN_TxHeaderTypeDef &tx_header, const CanMsg &msg) const;
 
   public:
     ~can() override = default;
@@ -122,21 +124,23 @@ class can final : public BaseCan
 
     constexpr CAN_HandleTypeDef *getHcan() const { return hcan; }
 
-    void init() const override;
+    void init(const bool should_start = true) const override;
 
     void deinit() const override;
 
-    std::expected<void, ErrorCode> can_transmit(const CanMsg &msg) const override;
+    result<void> can_transmit(const CanMsg &msg) const override;
 
-    std::expected<CanMsg, ErrorCode> receive(uint32_t rx_fifo) const override;
+    result<CanMsg> receive(uint32_t rx_fifo) const override;
 };
 
 const can &can_getHandle(const CAN_HandleTypeDef *hcan);
 #elif defined(STM32H733xx) or defined(STM32H562xx)
 class fdcan final : public BaseCan
 {
-    FDCAN_HandleTypeDef *const     hfdcan;
-    std::expected<void, ErrorCode> tx(FDCAN_TxHeaderTypeDef &tx_header, const CanMsg &msg) const;
+    FDCAN_HandleTypeDef *const hfdcan;
+    result<void>               tx(FDCAN_TxHeaderTypeDef &tx_header, const CanMsg &msg) const;
+
+    mutable bool up = false;
 
   public:
     ~fdcan() override = default;
@@ -145,15 +149,21 @@ class fdcan final : public BaseCan
 
     constexpr FDCAN_HandleTypeDef *getHfdcan() const { return hfdcan; }
 
-    void init() const override;
+    void init(const bool should_start = true) const override;
 
     void deinit() const override;
 
-    std::expected<void, ErrorCode> can_transmit(const CanMsg &msg) const override;
+    [[nodiscard]] result<void> can_transmit(const CanMsg &msg) const override;
 
-    std::expected<void, ErrorCode> fdcan_transmit(const CanMsg &msg) const;
+    [[nodiscard]] result<void> fdcan_transmit(const CanMsg &msg) const;
 
-    std::expected<CanMsg, ErrorCode> receive(uint32_t rx_fifo) const override;
+    [[nodiscard]] result<CanMsg> receive(uint32_t rx_fifo) const override;
+
+    result<void> start() const;
+
+    result<void> stop() const;
+
+    bool is_up() const;
 };
 
 const fdcan &fdcan_getHandle(const FDCAN_HandleTypeDef *hfdcan);

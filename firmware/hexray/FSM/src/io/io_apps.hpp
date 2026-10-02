@@ -3,11 +3,6 @@
 namespace io::apps
 {
 /**
- * Initializes some apps-related values
- */
-void init(void);
-
-/**
  * Calculates pedal percentage by comparing the current angle to the max angle
  * @return pedal percentage based on primary accelerator pedal sensor
  */

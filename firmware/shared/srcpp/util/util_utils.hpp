@@ -27,6 +27,30 @@ template <typename T> [[nodiscard]] inline constexpr bool SIGN(const T x)
 }
 #endif
 
+#ifdef __cplusplus
+#include <limits>
+#include <type_traits>
+
+template <typename T> inline constexpr T READ_BITS(const T bits, const T offset, const T width)
+{
+    using UnsignedT                     = std::make_unsigned_t<T>;
+    constexpr UnsignedT bits_in_type    = std::numeric_limits<UnsignedT>::digits;
+    const UnsignedT     unsigned_offset = static_cast<UnsignedT>(offset);
+    const UnsignedT     unsigned_width  = static_cast<UnsignedT>(width);
+
+    if (unsigned_width == 0U || unsigned_offset >= bits_in_type)
+    {
+        return T{ 0 };
+    }
+
+    const unsigned clamped_width =
+        (unsigned_width > bits_in_type - unsigned_offset) ? bits_in_type - unsigned_offset : unsigned_width;
+    const UnsignedT mask = std::numeric_limits<UnsignedT>::max() >> (bits_in_type - clamped_width);
+
+    return static_cast<T>((static_cast<UnsignedT>(bits) >> unsigned_offset) & mask);
+}
+#endif
+
 /* @brief Extract the basename from a file path */
 #ifdef _MSC_VER
 constexpr const char *filename_only(const char *path)
@@ -78,6 +102,9 @@ constexpr const char *filename_only(const char *path)
 #if defined(_WIN32)
 #include <windows.h>
 #include <intrin.h>
+#ifdef NO_ERROR
+#undef NO_ERROR // we are not using this macro in tests luckly, so this is good
+#endif
 #define IS_DEBUGGER_PRESENT() (IsDebuggerPresent() != 0)
 #define DEBUG_BREAK() __debugbreak()
 #elif defined(__APPLE__) || defined(__linux__)

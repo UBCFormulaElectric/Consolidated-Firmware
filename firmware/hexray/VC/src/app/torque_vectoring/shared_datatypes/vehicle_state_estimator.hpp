@@ -53,8 +53,7 @@ template <Decimal T> struct VehicleState
         // alpha -> positive Fy), with |v_x| floored so near-standstill noise in v_y / yaw rate cannot produce
         // +-90 deg slip angles.
         const auto [fl_v, fr_v, rl_v, rr_v] = v_in_tire_frame();
-        const auto slip_angle               = [](const Pair<T> &v)
-        {
+        const auto slip_angle               = [](const Pair<T> &v) {
             return -std::atan2(
                 v.y, std::max(std::abs(v.x), static_cast<T>(vd_constants::SLIP_REGULARIZATION_SPEED_MPS)));
         };

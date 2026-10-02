@@ -36,15 +36,19 @@ if __name__ == "__main__":
     # set up path arg
     parser = ArgumentParser()
     parser.add_argument("--output-header", type=str, required=True)
-    parser.add_argument("--output-source", type=str, required=True)
     args = parser.parse_args()
 
     # get template for rendering
     module_dir = os.path.dirname(os.path.relpath(__file__))
     template_dir = os.path.join(module_dir, "templates")
     env = jinja2.Environment(loader=jinja2.FileSystemLoader(template_dir))
-    header_template = env.get_template("./app_commitInfo.h.j2")
-    source_template = env.get_template("./app_commitInfo.c.j2")
+    if args.output_header.endswith(".h"):
+        cpp = False
+    elif args.output_header.endswith(".hpp"):
+        cpp = True
+    else:
+        raise ValueError("Output header must end with .h or .hpp")
+    header_template = env.get_template("./app_commitInfo.hpp.j2" if cpp else "./app_commitInfo.h.j2")
 
     # data to expose to header
     data: GitData | None = None
@@ -83,13 +87,7 @@ if __name__ == "__main__":
 
     # recursively generate output dirs if they do not exist
     os.makedirs(os.path.dirname(args.output_header), exist_ok=True)
-    os.makedirs(os.path.dirname(args.output_source), exist_ok=True)
 
     # write
     with open(args.output_header, "w+") as file:
         file.write(header_template.render(data))
-
-    with open(args.output_source, "w+") as file:
-        file.write(
-            source_template.render({"header": os.path.basename(args.output_header)})
-        )

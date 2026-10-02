@@ -49,6 +49,7 @@ extern "C"
     extern SD_HandleTypeDef    hsd1;
     extern UART_HandleTypeDef  huart2;
     extern PCD_HandleTypeDef   hpcd_USB_DRD_FS;
+    extern TIM_HandleTypeDef   htim7;
     /* USER CODE END EC */
 
     /* Exported macro ------------------------------------------------------------*/

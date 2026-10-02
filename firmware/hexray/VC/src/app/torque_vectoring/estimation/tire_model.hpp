@@ -282,11 +282,11 @@ class TireModel
     template <DecimalOrDual T> [[nodiscard]] T computePureFx_N(float fz, const T &kappa) const;
     [[nodiscard]] float                        computePureFy_N(float fz_N, float alpha) const;
 
-    const TireFitPureParamFx &fit_pure_fx_;
-    const TireFitPureParamFy &fit_pure_fy_;
-    const TireFitCombParamFx &fit_comb_fx_;
-    const TireFitCombParamFy &fit_comb_fy_;
-    const TireScalingFactors &scaling_factors_;
+    const TireFitPureParamFx     &fit_pure_fx_;
+    const TireFitPureParamFy     &fit_pure_fy_;
+    const TireFitCombParamFx     &fit_comb_fx_;
+    const TireFitCombParamFy     &fit_comb_fy_;
+    const TireScalingFactors     &scaling_factors_;
     const TireRollingRadiusParam &rolling_radius_;
 };
 

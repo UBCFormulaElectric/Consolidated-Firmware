@@ -52,7 +52,8 @@ app::tv::shared_datatypes::wheel_set<T>
 
     // Slip is defined against the effective rolling radius, not the unloaded radius. Only v_x is available at this
     // rate, so the loads come from static weight + aero (no load transfer, which moves Re by ~0.4% at 1.5 g).
-    const auto [fz_fl, fz_fr, fz_rl, fz_rr] = app::tv::shared_datatypes::VehicleState<T>{ .v_x_mps = v_x_mps }.est_Fz_N();
+    const auto [fz_fl, fz_fr, fz_rl, fz_rr] =
+        app::tv::shared_datatypes::VehicleState<T>{ .v_x_mps = v_x_mps }.est_Fz_N();
 
     const auto motor_speed_request = [&](const T kappa, const T fz_N)
     {

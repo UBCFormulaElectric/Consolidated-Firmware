@@ -51,7 +51,7 @@ class config
 
   public:
     // A table of Protobuf-generated net names to GPIO peripherals.
-    virtual std::optional<std::reference_wrapper<const hw::Gpio>> id_to_gpio(const _GpioNetName *gnn) const = 0;
+    virtual std::optional<std::reference_wrapper<const hw::gpio>> id_to_gpio(const _GpioNetName *gnn) const = 0;
 #endif
 
 #ifdef HAL_ADC_MODULE_ENABLED
@@ -61,7 +61,7 @@ class config
 
   public:
     // A table of Protobuf-generated net names to ADC peripherals.
-    virtual std::optional<std::reference_wrapper<const hw::Adc>> id_to_adc(const _AdcNetName *ann) const = 0;
+    virtual std::optional<std::reference_wrapper<const hw::adc>> id_to_adc(const _AdcNetName *ann) const = 0;
 #endif
 
 #ifdef HAL_I2C_MODULE_ENABLED
@@ -71,8 +71,8 @@ class config
 
   public:
     // A table of Protobuf-generated net names to I2C peripherals.
-    // virtual const hw::i2c::I2CDevice &id_to_i2c();
-    virtual std::optional<std::reference_wrapper<const hw::i2c::I2CDevice>> id_to_i2c(const _I2cNetName *inn) const = 0;
+    // virtual const hw::i2c::device &id_to_i2c();
+    virtual std::optional<std::reference_wrapper<const hw::i2c::device>> id_to_i2c(const _I2cNetName *inn) const = 0;
 #endif
 
 #ifdef HAL_SPI_MODULE_ENABLED
@@ -82,7 +82,7 @@ class config
 
   public:
     // A table of Protobuf-generated net names to SPI peripherals.
-    virtual std::optional<std::reference_wrapper<const hw::spi::SpiDevice>> id_to_spi(const _SpiNetName *snn) const = 0;
+    virtual std::optional<std::reference_wrapper<const hw::spi::device>> id_to_spi(const _SpiNetName *snn) const = 0;
 #endif
 
 #ifdef HAL_UART_MODULE_ENABLED

@@ -56,6 +56,5 @@ function(commit_info_library
     commit_info_generate_sources(${BIND_TARGET} ${OUTPUT_PATH})
     get_filename_component(HEADER_DIR "${HEADER_OUTPUT_PATH}" DIRECTORY)
     add_library(${LIB_NAME} INTERFACE)
-    target_sources(${LIB_NAME} INTERFACE ${COMMIT_INFO_SRC})
     target_include_directories("${LIB_NAME}" INTERFACE "${HEADER_DIR}")
 endfunction()

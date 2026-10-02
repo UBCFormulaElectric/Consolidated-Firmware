@@ -8,8 +8,9 @@ use tokio::sync::RwLock;
 use tokio::sync::broadcast;
 use tokio::task::{JoinError, JoinSet};
 
-use crate::config::CONFIG;
-use crate::tasks::{HealthCheckError, Task};
+use crate::config::{CONFIG, SerialType};
+use crate::tasks::telem_message::TelemetryOutgoingMessage;
+use crate::tasks::{HealthCheckError, HealthCheckSenderExt, Task};
 use crate::tasks::can_data::load_can_database;
 use crate::utils::{green};
 
@@ -27,7 +28,6 @@ use tasks::client_api::subtable_clients::Clients;
 use tasks::serial_handler::run_serial_task;
 use tasks::telem_message::CanPayload;
 use utils::red;
-#[allow(unused_imports)]
 use utils::yellow;
 
 #[tokio::main]
@@ -55,10 +55,16 @@ async fn main() {
     // setup task manager
     let mut tasks: JoinSet<(Task, Result<(), JoinError>)> = JoinSet::new();
 
+    // below are channels and objects that are used among the different tasks
+
     // this is equivalent to queue in old backend
     // use broadcast instead of mpsc, probably only one serial source but multiple consumers
     // TODO figure out buffer size
-    let (can_queue_tx, can_queue_rx) = broadcast::channel::<CanPayload>(32);
+    let (can_queue_tx, can_queue_rx) = broadcast::channel::<CanPayload>(4096);
+    // used for the frontend to send messages to DAM
+    let (client_out_msg_tx, client_out_msg_rx) = broadcast::channel::<TelemetryOutgoingMessage>(4096);
+    // channel for diagnostic metrics (e.g. packet error rate)
+    let (diag_tx, diag_rx) = broadcast::channel::<f64>(32);
 
     // track which clients subscribe to which signals
     // maps signal name to client ids
@@ -67,7 +73,8 @@ async fn main() {
     // load CAN database
     let can_db = Arc::new(load_can_database().expect("Could not init Can db"));
 
-    let health_check = HealthCheck::new();
+    // health check
+    let mut health_check = HealthCheck::new();
     
     // start tasks
     spawn_task(
@@ -78,6 +85,7 @@ async fn main() {
             health_check.hc_tx.clone(),
             clients.clone(),
             can_db.clone(),
+            client_out_msg_tx
         )
     );
     spawn_task(
@@ -87,6 +95,7 @@ async fn main() {
             shutdown_rx.resubscribe(),
             health_check.hc_tx.clone(),
             can_queue_rx,
+            diag_rx,
             clients.clone(),
             can_db.clone(),
         )
@@ -99,35 +108,49 @@ async fn main() {
         let base_shutdown_rx = shutdown_rx.resubscribe();
         let base_hc_tx = health_check.hc_tx.clone();
         let base_can_queue_tx = can_queue_tx.clone();
+        let base_diag_tx = diag_tx.clone();
         let base_can_db = can_db.clone();
 
         move |tasks: &mut JoinSet<(Task, Result<(), JoinError>)>| {
             let shutdown_rx_clone = base_shutdown_rx.resubscribe();
             let hc_tx_clone = base_hc_tx.clone();
             let can_queue_tx_clone = base_can_queue_tx.clone();
+            let diag_tx_clone = base_diag_tx.clone();
             let can_db_clone = base_can_db.clone();
+            let client_out_msg_rx_clone = client_out_msg_rx.resubscribe();
 
-            if CONFIG.mock {
-                spawn_task(
-                    tasks,
-                    Task::SerialHandler,
-                    run_mock_task(
-                        shutdown_rx_clone,
-                        hc_tx_clone,
-                        can_queue_tx_clone,
-                        can_db_clone,
-                    ),
-                );
-            } else {
-                spawn_task(
-                    tasks,
-                    Task::SerialHandler,
-                    run_serial_task(
-                        shutdown_rx_clone,
-                        hc_tx_clone,
-                        can_queue_tx_clone,
-                    ),
-                );
+            match CONFIG.serial {
+                SerialType::RADIO => {
+                    spawn_task(
+                        tasks,
+                        Task::SerialHandler,
+                        run_serial_task(
+                            shutdown_rx_clone,
+                            hc_tx_clone,
+                            can_queue_tx_clone,
+                            diag_tx_clone,
+                            client_out_msg_rx_clone,
+                        ),
+                    );
+                },
+                SerialType::MOCK => {
+                    spawn_task(
+                        tasks,
+                        Task::SerialHandler,
+                        run_mock_task(
+                            shutdown_rx_clone,
+                            hc_tx_clone,
+                            can_queue_tx_clone,
+                            diag_tx_clone,
+                            can_db_clone,
+                        ),
+                    );
+                },
+                SerialType::NONE => {
+                    spawn_task(tasks, Task::SerialHandler, async move {
+                        hc_tx_clone.send_health_check(Task::SerialHandler, true).await;
+                    });
+                }
             }
         }
     };
@@ -183,6 +206,9 @@ async fn main() {
                         println!("Restarting {task:?} in {TASK_RESTART_DELAY_MS}ms...");
                         sleep(Duration::from_millis(TASK_RESTART_DELAY_MS)).await;
                         serial_spawner(&mut tasks);
+                        if health_check.wait_for_health_check(Task::SerialHandler).await.is_ok() {
+                            println!("{}", green(format!("{task:?} successfully restarted.")));
+                        }
                     }
                     _ => {}
                 }

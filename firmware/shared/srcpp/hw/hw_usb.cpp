@@ -423,7 +423,7 @@ extern "C"
 
 namespace hw::usb
 {
-std::expected<void, ErrorCode> init()
+result<void> init()
 {
     if (USBD_Init(&USB_DEVICE_HANDLER, &pdesc, DEVICE_ID) != USBD_OK)
         return std::unexpected(ErrorCode::ERROR);
@@ -442,7 +442,7 @@ bool checkConnection()
     return USB_DEVICE_HANDLER.dev_state == USBD_STATE_CONFIGURED;
 }
 
-std::expected<void, ErrorCode> transmit(std::span<uint8_t> msg)
+result<void> transmit(std::span<uint8_t> msg)
 {
     if (USB_DEVICE_HANDLER.pClassData == nullptr)
     {

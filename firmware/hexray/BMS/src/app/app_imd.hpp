@@ -4,20 +4,12 @@
 
 namespace app::imd
 {
-
-enum class Sst
-{
-    GOOD,
-    BAD,
-    INVALID
-};
-
 struct Condition
 {
-    app::can_utils::ImdConditionName name;
-    bool                             valid_duty_cycle;
-    std::optional<uint16_t>          insulation_measurement_dcp_kohms;
-    std::optional<Sst>               speed_start_status;
+    app::can_utils::ImdConditionName           name;
+    bool                                       valid_duty_cycle;
+    std::optional<uint16_t>                    insulation_measurement_dcp_kohms;
+    std::optional<app::can_utils::ImdSstState> speed_start_status;
 };
 
 /**

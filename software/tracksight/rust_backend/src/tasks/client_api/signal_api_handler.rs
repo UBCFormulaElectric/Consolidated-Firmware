@@ -1,12 +1,16 @@
 use std::{collections::HashMap, mem, time::{Duration, SystemTime}};
 
 use axum::{Json, Router, extract::{Path, Query, State}, http::StatusCode, response::IntoResponse, routing::get};
+use chrono::{DateTime, FixedOffset};
+use influxdb2::FromDataPoint;
 use jsoncan_rust::can_database::CanMessage;
 use serde::{Deserialize, Serialize};
 use regex::Regex;
+use serde_json::from_str;
 use tokio::{select, time::sleep};
 
-use crate::{config::CONFIG, dprintln, tasks::client_api::{AppState, signal_tile::{SignalRow, get_signals}}, utils::{rfc3339_to_utc, rfc3339_to_utc_str}};
+use crate::{config::CONFIG, dprintln, error_println, tasks::{can_data::influx_util::InfluxSignalSource, client_api::{AppState, signal_tile::{InfluxSignalRow, get_signals}}}, utils::{rfc3339_to_utc, rfc3339_to_utc_str}, vprintln};
+use crate::tasks::client_api::INFLUX_QUERY_TIMEOUT_MS;
 
 /**
  * Gets the list of all nodes (str) in the current parser.
@@ -19,9 +23,10 @@ async fn nodes(State(state): State<AppState>) -> impl IntoResponse {
     return (StatusCode::OK, Json(nodes));
 }
 
-#[derive(Debug, Deserialize)]
-struct SignalNameParam {
-    name: Option<String>,
+#[derive(Debug, Serialize)]
+struct SignalTilesResponse {
+    resolution_ms: u64,
+    rows: Vec<InfluxSignalRow>,
 }
 
 #[derive(Debug, Serialize)]
@@ -43,13 +48,18 @@ struct SignalMetadataEnumSignal {
     enum_values: HashMap<String, u32>,
 }
 
+#[derive(Debug, Deserialize)]
+struct SignalNameParam {
+    name: Option<String>,
+}
+
 /**
  * Gets metadata of the signal of the current parser.
  * Pass signal names (regex) in `name` parameter.
  * E.g. `/signal/metadata?name=INVFR_bError`
  */
-async fn metadata(Query(mut param): Query<SignalNameParam>, State(state): State<AppState>) -> impl IntoResponse {
-    let regex = match Regex::new(param.name.get_or_insert(".*".to_string())) {
+async fn metadata(Query(SignalNameParam { mut name } ): Query<SignalNameParam>, State(state): State<AppState>) -> impl IntoResponse {
+    let regex = match Regex::new(name.get_or_insert(".*".to_string())) {
         Ok(regex) => regex,
         Err(_) => {
             return (StatusCode::BAD_REQUEST, Json::default());
@@ -104,7 +114,11 @@ async fn metadata(Query(mut param): Query<SignalNameParam>, State(state): State<
  * E.g. `/signal/{start}/{end}/{res}?name=BMS_TractiveSystemVoltage`
  */
 #[deprecated(note = "Use signal_tiles instead")]
- async fn signal_time_range(Path((start, end, res)): Path<(String, String, String)>, Query(param): Query<SignalNameParam>, State(state): State<AppState>) -> impl IntoResponse {
+ async fn signal_time_range(
+    Path((start, end, res)): Path<(String, String, String)>, 
+    Query((name,)): Query<(Option<String>,)>, 
+    State(state): State<AppState>
+) -> impl IntoResponse {
     // check RFC3339 format
     let (start_utc, end_utc) = 
         if let (Some(s), Some(e)) = 
@@ -122,12 +136,13 @@ async fn metadata(Query(mut param): Query<SignalNameParam>, State(state): State<
 
     let mut date_query = format!(r#"
     from(bucket: "{}")
-    |> range(start: {start_utc}, stop: {end_utc})
+    |> range(start: time(v: "{start_utc}"), stop: time(v: "{end_utc}"))
     |> aggregateWindow(every: {res}, fn: mean, createEmpty: false)
     |> filter(fn: (r) => r["_measurement"] == "{}")
+    |> filter(fn: (r) => r["source"] == "radio")
     "#, &CONFIG.influxdb_bucket, &CONFIG.influxdb_measurement);
     
-    if let Some(signal) = param.name {
+    if let Some(signal) = name {
         let _ = match Regex::new(&signal) {
             Ok(_) => {},
             Err(_) => {
@@ -141,10 +156,10 @@ async fn metadata(Query(mut param): Query<SignalNameParam>, State(state): State<
     }
 
     let req: Result<Vec<_>, influxdb2::RequestError> = select! {
-        val = state.influx_client.query::<SignalRow>(
+        val = state.influx_client.query::<InfluxSignalRow>(
             Some(influxdb2::models::Query::new(date_query))
         ) => val,
-        _ = sleep(Duration::from_secs(3)) => {
+        _ = sleep(Duration::from_millis(INFLUX_QUERY_TIMEOUT_MS)) => {
             return (StatusCode::REQUEST_TIMEOUT, "InfluxDB query timed out, try smaller query!".to_string());
         }
     };
@@ -159,14 +174,21 @@ async fn metadata(Query(mut param): Query<SignalNameParam>, State(state): State<
     }
 }
 
+#[derive(Debug, Deserialize)]
+struct SourceQuery {
+    pub source: Option<String>,
+    pub agg: Option<String>,
+}
 
 /**
  * Gets signal values, timestamp, and name.
  * Format date as RFC3339 (i.e. YYYY-MM-DDTHH:mm:ssZ or YYYY-MM-DDTHH:mm:ss[+-]OO:oo)
  * E.g. `/signal/tiles/BMS_TractiveSystemVoltage/2026-04-02T00:00:00Z/2026-04-02T01:00:00Z`
+ * By default, fetches from radio source, but specify source in query parameter (e.g. `?source=sd_card`) to fetch from sd card source or `radio` source explicitly
  */
 async fn signal_tiles(
     Path((signal, start, end)): Path<(String, String, String)>, 
+    Query(SourceQuery{ source, agg }): Query<SourceQuery>,
     State(state): State<AppState>
 ) -> impl IntoResponse {
     // todo optionally check if signal name is valid
@@ -180,15 +202,29 @@ async fn signal_tiles(
             return (StatusCode::BAD_REQUEST, "Bad date format, should be RFC3339 format".to_string());
         };
     
+    let source_enum = match source {
+        Some(s) => {
+            if let Ok(e) = from_str(&s) {
+                e
+            } else {
+                return (StatusCode::BAD_REQUEST, "Bad source!".to_string());
+            }
+        }
+        _ => InfluxSignalSource::Radio,
+    };
     
-    match get_signals(state.influx_client, state.signal_tile_cache.clone(), signal, start_utc, end_utc).await {
-        Ok(res) => {
+    match get_signals(state.influx_client, source_enum, state.signal_tile_cache.clone(), signal, start_utc, end_utc, agg.unwrap_or_else(|| "max".into())).await {
+        Ok((rows, resolution_ms)) => {
             dprintln!("Querying signals took {}ms", start_time.elapsed().unwrap().as_millis());
+            
             let total_size: usize = state.signal_tile_cache.iter().map(|(key, value)| {
                 mem::size_of_val(&key) + mem::size_of_val(&value)
             }).sum();
+
             dprintln!("Current cache size in bytes: {}", total_size);
-            return (StatusCode::OK, serde_json::to_string(&res).unwrap());
+            
+            let response = SignalTilesResponse { resolution_ms, rows };
+            return (StatusCode::OK, serde_json::to_string(&response).unwrap());
         },
         Err(e) => {
             return e;
@@ -202,11 +238,173 @@ async fn signal_csv() -> impl IntoResponse {
     return (StatusCode::OK, Json(()));
 }
 
+#[derive(Debug, FromDataPoint, Default)]
+struct SessionStarts {
+    pub time: DateTime<FixedOffset>,
+}
+
+#[derive(Debug, FromDataPoint, Default)]
+struct MarkerPoint {
+    pub time: DateTime<FixedOffset>,
+}
+
+/**
+ * Returns list of paired times as milliseconds since UNIX time based on when car turns on
+ * Takes start and end time of search range as RFC3339 format
+ * Currently implemented as simple two pair of times between car on signal
+ */
+async fn signal_sessions(
+    Path((start, end)): Path<(String, String)>,
+    Query(SourceQuery { source, .. }): Query<SourceQuery>,
+    State(state): State<AppState>
+) -> impl IntoResponse {
+    vprintln!("[sessions] request start={:?} end={:?} source={:?}", start, end, source);
+
+    let (start_utc, end_utc) =
+        if let (Some(s), Some(e)) =
+        (rfc3339_to_utc_str(&start), rfc3339_to_utc_str(&end)) {
+            (s, e)
+        } else {
+            vprintln!("[sessions] BAD_REQUEST: bad date format start={:?} end={:?}", start, end);
+            return (StatusCode::BAD_REQUEST, "Bad date format, should be RFC3339 format".to_string());
+        };
+
+
+    let source_str = match source {
+        Some(s) => {
+            // `s` arrives JSON-encoded (e.g. `"Radio"` with quotes); deserialize
+            // and use the enum's lowercase Display so the Flux filter matches the
+            // tag value written by build_data_point (e.g. `radio`), not the raw
+            // quoted string.
+            match from_str::<InfluxSignalSource>(&s) {
+                Ok(parsed) => parsed.to_string(),
+                Err(_) => {
+                    error_println!("[sessions] BAD_REQUEST: bad source={:?}", s);
+                    return (StatusCode::BAD_REQUEST, "Bad source!".to_string());
+                }
+            }
+        }
+        _ => InfluxSignalSource::Radio.to_string(),
+    };
+
+    vprintln!(
+        "[sessions] querying bucket={} measurement={} range=[{}, {}] source={}",
+        &CONFIG.influxdb_bucket, &CONFIG.influxdb_measurement, start_utc, end_utc, source_str
+    );
+
+    let car_on_query = format!(r#"
+        from(bucket: "{}")
+        |> range(start: time(v: "{start_utc}"), stop: time(v: "{end_utc}"))
+        |> filter(fn: (r) => r["_measurement"] == "{}")
+        |> filter(fn: (r) => r["signal_name"] == "DAM_Alive")
+        |> filter(fn: (r) => r["source"] == "{source_str}")
+        |> sort(columns: ["_time"])
+        "#, &CONFIG.influxdb_bucket, &CONFIG.influxdb_measurement);
+
+    let req: Result<Vec<_>, influxdb2::RequestError> = select! {
+        val = state.influx_client.query::<SessionStarts>(
+            Some(influxdb2::models::Query::new(car_on_query))
+        ) => val,
+        _ = sleep(Duration::from_millis(INFLUX_QUERY_TIMEOUT_MS)) => {
+            return (StatusCode::REQUEST_TIMEOUT, "InfluxDB query timed out".to_string());
+        }
+    };
+
+    fn to_unix(w: &SessionStarts) -> String {
+        return w.time.timestamp_millis().to_string();
+    }
+
+    let time_bigram: Vec<(String, Option<String>)> = match req {
+        Ok(starts) => {
+            vprintln!("[sessions] influx returned {} DAM_Alive point(s)", starts.len());
+            let mut tb: Vec<(String, Option<String>)> = starts.windows(2)
+            .filter(|w| w[0].time < w[1].time)
+            .map(|w|
+                (
+                    to_unix(&w[0]),
+                    Some(to_unix(&w[1]))
+                )
+            )
+            .collect();
+            if let Some(last) = starts.last() {
+                tb.push((to_unix(last), None));
+            }
+            tb
+        },
+        Err(e) => {
+            error_println!("[sessions] INTERNAL_SERVER_ERROR: influx query failed: {}", e);
+            return (StatusCode::INTERNAL_SERVER_ERROR, format!("Error occurred while fetching session starts: {}", e));
+        },
+    };
+
+    vprintln!("[sessions] returning {} session(s)", time_bigram.len());
+    return (StatusCode::OK, serde_json::to_string(&time_bigram).unwrap());
+}
+
+async fn signal_markers(
+    Path((start, end)): Path<(String, String)>,
+    Query(SourceQuery { source, .. }): Query<SourceQuery>,
+    State(state): State<AppState>
+) -> impl IntoResponse {
+    let (start_utc, end_utc) =
+        if let (Some(s), Some(e)) =
+        (rfc3339_to_utc_str(&start), rfc3339_to_utc_str(&end)) {
+            (s, e)
+        } else {
+            return (StatusCode::BAD_REQUEST, "Bad date format, should be RFC3339 format".to_string());
+        };
+
+    let source_str = match source {
+        Some(s) => {
+            match from_str::<InfluxSignalSource>(&s) {
+                Ok(parsed) => parsed.to_string(),
+                Err(_) => {
+                    return (StatusCode::BAD_REQUEST, "Bad source!".to_string());
+                }
+            }
+        }
+        _ => InfluxSignalSource::Radio.to_string(),
+    };
+
+    let marker_query = format!(r#"
+        from(bucket: "{}")
+        |> range(start: time(v: "{start_utc}"), stop: time(v: "{end_utc}"))
+        |> filter(fn: (r) => r["_measurement"] == "{}")
+        |> filter(fn: (r) => r["source"] == "{source_str}")
+        |> filter(fn: (r) => r["signal_name"] =~ /TelemMarkEvent$/)
+        |> sort(columns: ["_time"])
+        "#, &CONFIG.influxdb_bucket, &CONFIG.influxdb_measurement);
+
+    let req: Result<Vec<_>, influxdb2::RequestError> = select! {
+        val = state.influx_client.query::<MarkerPoint>(
+            Some(influxdb2::models::Query::new(marker_query))
+        ) => val,
+        _ = sleep(Duration::from_millis(INFLUX_QUERY_TIMEOUT_MS)) => {
+            return (StatusCode::REQUEST_TIMEOUT, "InfluxDB query timed out".to_string());
+        }
+    };
+
+    match req {
+        Ok(points) => {
+            let timestamps_ms: Vec<i64> = points
+                .into_iter()
+                .map(|p| p.time.timestamp_millis())
+                .collect();
+            return (StatusCode::OK, serde_json::to_string(&timestamps_ms).unwrap());
+        }
+        Err(e) => {
+            return (StatusCode::INTERNAL_SERVER_ERROR, format!("Error occurred while fetching markers: {}", e));
+        }
+    }
+}
+
 pub fn get_signal_router() -> Router<AppState> {
     return Router::new()
         .route("/signal/nodes", get(nodes))
         .route("/signal/metadata", get(metadata))
         .route("/signal/{start}/{end}/{res}", get(signal_time_range))
         .route("/signal/csv", get(signal_csv))
-        .route("/signal/tiles/{signal}/{start}/{end}", get(signal_tiles));
+        .route("/signal/tiles/{signal}/{start}/{end}", get(signal_tiles))
+        .route("/signal/sessions/{start}/{end}", get(signal_sessions))
+        .route("/signal/markers/{start}/{end}", get(signal_markers));
 }

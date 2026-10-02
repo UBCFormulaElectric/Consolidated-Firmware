@@ -5,7 +5,7 @@
 
 namespace io::imus
 {
-extern Imu imu_front;
+extern imu imu_front;
 
-std::expected<void, ErrorCode> init();
+result<void> init();
 } // namespace io::imus

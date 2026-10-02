@@ -41,10 +41,7 @@ if (NOT EXISTS ${LOG4J_PROPERTIES})
 endif ()
 message("  📝 log4j.properties generated at ${LOG4J_PROPERTIES}")
 
-file(GLOB_RECURSE NEWLIB_SRCS "${THIRD_PARTY_DIR}/newlib_freertos_patch/*.c")
-
 # ==== STM32CubeMX functions ====
-
 message("  🔃 Registered generate_stm32cube_code() function")
 # Adds a custom command which generates new code when the IOC file changes.
 # MD5_LOCATION is included into the GENERATED_SRCS list to ensure that dependent targets
@@ -103,10 +100,10 @@ function(stm32f412rx_cube_library
             "${DRIVERS_DIR}/STM32F4xx_HAL_Driver/Inc/Legacy"
             "${FREERTOS_DIR}/include"
             "${FREERTOS_DIR}/CMSIS_RTOS_V2"
-            "${FREERTOS_DIR}/portable/GCC/ARM_CM4F"
+            "${FREERTOS_DIR}/portable/GCC/ARM_CM4F" # TODO check
             "${DRIVERS_DIR}/CMSIS/Device/ST/STM32F4xx/Include"
             "${DRIVERS_DIR}/CMSIS/Include"
-            "${THIRD_PARTY_DIR}/freertos"
+            "${THIRD_PARTY_DIR}/freertos/config"
 
             # SEGGER SystemView includes.
             "${THIRD_PARTY_DIR}/sysview"
@@ -124,7 +121,6 @@ function(stm32f412rx_cube_library
             "${FREERTOS_DIR}/*.c"
             "${FREERTOS_DIR}/CMSIS_RTOS_V2/cmsis_os2.c"
             "${FREERTOS_DIR}/portable/GCC/ARM_CM4F/port.c"
-            "${FREERTOS_DIR}/portable/MemMang/heap_4.c"
     )
 
     # SEGGER SystemView sources.
@@ -141,7 +137,19 @@ function(stm32f412rx_cube_library
 
     # Startup assembly script.
     set(STARTUP_SRC "${DRIVERS_DIR}/CMSIS/Device/ST/STM32F4xx/Source/Templates/gcc/startup_stm32f412rx.s")
-    set(STM32CUBE_SRCS ${STM32_HAL_SRCS} ${RTOS_SRCS} ${SYSTEMVIEW_SRCS} ${IOC_CHECKSUM} ${STARTUP_SRC} ${CUBEMX_SRCS})
+
+    # lib srcs
+    set(LIB_SRCS
+            "${SHARED_LIB_INCLUDE_DIR_CPP}/lib_assert.cpp"
+            "${SHARED_LIB_INCLUDE_DIR_CPP}/lib_terminate.cpp"
+            "${SHARED_LIB_INCLUDE_DIR_CPP}/lib_freeRtosConfigs.cpp"
+            "${SHARED_LIB_INCLUDE_DIR_CPP}/lib_freertosProfiling.cpp"
+    )
+
+    # ioc generation
+    generate_stm32cube_code("${IOC_PATH}" "${HAL_LIB_NAME}")
+
+    set(STM32CUBE_SRCS ${STM32_HAL_SRCS} ${RTOS_SRCS} ${SYSTEMVIEW_SRCS} ${IOC_CHECKSUM} ${STARTUP_SRC} ${CUBEMX_SRCS} ${LIB_SRCS} ${MD5_LOCATION})
 
     if (USB_ENABLED)
         set(USB_MIDDLEWARE_DIR "${STM32CUBEF4_SOURCE_DIR}/Middlewares/ST/STM32_USB_Device_Library")
@@ -156,11 +164,10 @@ function(stm32f412rx_cube_library
         list(APPEND STM32CUBE_INCLUDE_DIRS
                 "${USB_MIDDLEWARE_DIR}/Core/Inc"
                 "${USB_MIDDLEWARE_DIR}/Class/CDC/Inc"
+                "${THIRD_PARTY_DIR}/STM32_USBD"
         )
     endif ()
 
-    generate_stm32cube_code("${IOC_PATH}" "${HAL_LIB_NAME}")
-    list(APPEND STM32CUBE_SRCS ${MD5_LOCATION})
     embedded_object_library(
             "${HAL_LIB_NAME}"
             "${STM32CUBE_SRCS}"
@@ -188,7 +195,6 @@ function(stm32h733xx_cube_library
         CUBEMX_INCLUDE_DIRS
         USB_ENABLED
         ARM_CORE
-        USE_HEXRAY_FREERTOS_CONFIG
 )
     set(DRIVERS_DIR "${STM32CUBEH7_SOURCE_DIR}/Drivers")
     set(FREERTOS_DIR "${STM32CUBEH7_SOURCE_DIR}/Middlewares/Third_Party/FreeRTOS/Source")
@@ -210,7 +216,7 @@ function(stm32h733xx_cube_library
             "${FREERTOS_DIR}/portable/GCC/ARM_CM7/r0p1"
             "${DRIVERS_DIR}/CMSIS/Device/ST/STM32H7xx/Include"
             "${DRIVERS_DIR}/CMSIS/Include"
-            "${THIRD_PARTY_DIR}/freertos"
+            "${THIRD_PARTY_DIR}/freertos/config"
 
             # SEGGER SystemView includes.
             "${THIRD_PARTY_DIR}/sysview"
@@ -218,12 +224,6 @@ function(stm32h733xx_cube_library
             "${SEGGER_SYSTEMVIEW_SOURCE_DIR}/Config"
             "${SEGGER_SYSTEMVIEW_SOURCE_DIR}/Sample/FreeRTOSV10"
     )
-
-    if (USE_HEXRAY_FREERTOS_CONFIG) # this is temporary during the transition
-        list(APPEND STM32CUBE_INCLUDE_DIRS
-                "${THIRD_PARTY_DIR}/freertos/config"
-        )
-    endif ()
 
     # HAL sources.
     set(STM32_HAL_SRCS ${HAL_SRCS})
@@ -234,7 +234,6 @@ function(stm32h733xx_cube_library
             "${FREERTOS_DIR}/*.c"
             "${FREERTOS_DIR}/CMSIS_RTOS_V2/cmsis_os2.c"
             "${FREERTOS_DIR}/portable/GCC/ARM_CM7/r0p1/port.c"
-            "${FREERTOS_DIR}/portable/MemMang/heap_4.c"
     )
 
     # SEGGER SystemView sources.
@@ -251,7 +250,19 @@ function(stm32h733xx_cube_library
 
     # Startup assembly script.
     set(STARTUP_SRC "${DRIVERS_DIR}/CMSIS/Device/ST/STM32H7xx/Source/Templates/gcc/startup_stm32h733xx.s")
-    set(STM32CUBE_SRCS ${STM32_HAL_SRCS} ${RTOS_SRCS} ${SYSTEMVIEW_SRCS} ${IOC_CHECKSUM} ${STARTUP_SRC} ${CUBEMX_SRCS})
+
+    # lib srcs
+    set(LIB_SRCS
+            "${SHARED_LIB_INCLUDE_DIR_CPP}/lib_assert.cpp"
+            "${SHARED_LIB_INCLUDE_DIR_CPP}/lib_terminate.cpp"
+            "${SHARED_LIB_INCLUDE_DIR_CPP}/lib_freeRtosConfigs.cpp"
+            "${SHARED_LIB_INCLUDE_DIR_CPP}/lib_freertosProfiling.cpp"
+    )
+
+    # ioc generation
+    generate_stm32cube_code("${IOC_PATH}" "${HAL_LIB_NAME}")
+
+    set(STM32CUBE_SRCS ${STM32_HAL_SRCS} ${RTOS_SRCS} ${SYSTEMVIEW_SRCS} ${IOC_CHECKSUM} ${STARTUP_SRC} ${CUBEMX_SRCS} ${LIB_SRCS} ${MD5_LOCATION})
 
     # Handle usb srcs and include directories.
     # Currently, all our USB devices are of the Communications Device Class (CDC).
@@ -268,11 +279,10 @@ function(stm32h733xx_cube_library
         list(APPEND STM32CUBE_INCLUDE_DIRS
                 "${USB_MIDDLEWARE_DIR}/Core/Inc"
                 "${USB_MIDDLEWARE_DIR}/Class/CDC/Inc"
+                "${THIRD_PARTY_DIR}/STM32_USBD"
         )
     endif ()
 
-    generate_stm32cube_code("${IOC_PATH}" "${HAL_LIB_NAME}")
-    list(APPEND STM32CUBE_SRCS ${MD5_LOCATION})
     embedded_object_library(
             "${HAL_LIB_NAME}"
             "${STM32CUBE_SRCS}"
@@ -340,7 +350,6 @@ function(stm32h562xx_cube_library
             "${FREERTOS_DIR}/CMSIS_RTOS_V2/cmsis_os2.c"
             "${FREERTOS_DIR}/portable/GCC/ARM_CM33_NTZ/non_secure/port.c"
             "${FREERTOS_DIR}/portable/GCC/ARM_CM33_NTZ/non_secure/portasm.c"
-            "${FREERTOS_DIR}/portable/MemMang/heap_4.c"
     )
 
     # SEGGER SystemView sources.
@@ -357,7 +366,19 @@ function(stm32h562xx_cube_library
 
     # Startup assembly script.
     set(STARTUP_SRC "${DRIVERS_DIR}/CMSIS/Device/ST/STM32H5xx/Source/Templates/gcc/startup_stm32h562xx.s")
-    set(STM32CUBE_SRCS ${STM32_HAL_SRCS} ${RTOS_SRCS} ${SYSTEMVIEW_SRCS} ${IOC_CHECKSUM} ${STARTUP_SRC} ${CUBEMX_SRCS})
+
+    # lib srcs
+    set(LIB_SRCS
+            "${SHARED_LIB_INCLUDE_DIR_CPP}/lib_assert.cpp"
+            "${SHARED_LIB_INCLUDE_DIR_CPP}/lib_terminate.cpp"
+            "${SHARED_LIB_INCLUDE_DIR_CPP}/lib_freeRtosConfigs.cpp"
+            "${SHARED_LIB_INCLUDE_DIR_CPP}/lib_freertosProfiling.cpp"
+    )
+
+    # ioc regeneration
+    generate_stm32cube_code("${IOC_PATH}" "${HAL_LIB_NAME}")
+
+    set(STM32CUBE_SRCS ${STM32_HAL_SRCS} ${RTOS_SRCS} ${SYSTEMVIEW_SRCS} ${IOC_CHECKSUM} ${STARTUP_SRC} ${CUBEMX_SRCS} ${LIB_SRCS} ${MD5_LOCATION})
 
     # Handle usb srcs and include directories.
     # Currently, all our USB devices are of the Communications Device Class (CDC).
@@ -374,11 +395,10 @@ function(stm32h562xx_cube_library
         list(APPEND STM32CUBE_INCLUDE_DIRS
                 "${USB_MIDDLEWARE_DIR}/Core/Inc"
                 "${USB_MIDDLEWARE_DIR}/Class/CDC/Inc"
+                "${THIRD_PARTY_DIR}/STM32_USBD"
         )
     endif ()
 
-    generate_stm32cube_code("${IOC_PATH}" "${HAL_LIB_NAME}")
-    list(APPEND STM32CUBE_SRCS ${MD5_LOCATION})
     embedded_object_library(
             "${HAL_LIB_NAME}"
             "${STM32CUBE_SRCS}"

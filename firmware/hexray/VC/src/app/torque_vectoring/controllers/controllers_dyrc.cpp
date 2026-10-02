@@ -23,7 +23,7 @@ static PID pid(PID_DYRC_config);
 {
     const float r_ref_rad     = computeRefYawRate(steer_ang_rad, body_velx_mps);
     const float yaw_moment_Nm = pid.compute(r_ref_rad, r_actual_rad, 0.0f);
-    tv_debug_data.yrc = { .r_ref = r_ref_rad, .r_err = r_ref_rad - r_actual_rad, .r_dot_des = yaw_moment_Nm };
+    tv_debug_data.yrc         = { .r_ref = r_ref_rad, .r_err = r_ref_rad - r_actual_rad, .r_dot_des = yaw_moment_Nm };
     return yaw_moment_Nm;
 }
 } // namespace app::tv::controllers::dyrc

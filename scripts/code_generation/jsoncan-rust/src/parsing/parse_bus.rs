@@ -24,7 +24,9 @@ struct BusSchema {
     loggers: Option<Vec<String>>,
 }
 
-pub fn parse_bus_data(can_data_dir: &String) -> (Vec<CanBus>, Vec<BusForwarder>, Vec<String>) {
+pub fn parse_bus_data(
+    can_data_dir: &String,
+) -> (Vec<CanBus>, Vec<BusForwarder>, Vec<String>) {
     let file_path = format!("{}/bus.json", can_data_dir);
     let file_content = std::fs::read_to_string(file_path).expect(&format!(
         "Failed to read bus.json in CAN data directory {}",

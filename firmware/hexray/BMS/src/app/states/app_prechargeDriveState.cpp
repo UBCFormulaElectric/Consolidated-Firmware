@@ -2,9 +2,8 @@
 #include "app_precharge.hpp"
 #include "io_irs.hpp"
 #include "app_stateMachine.hpp"
-#include "states/app_states.hpp"
+#include "app_states.hpp"
 #include "io_log.hpp"
-#include "app_stateMachine.hpp"
 #include "app_canTx.hpp"
 
 namespace app::states
@@ -39,7 +38,10 @@ namespace prechargeDriveState
                 break;
             case app::precharge::State::SUCCESS:
                 io::irs::setPositive(app::can_utils::ContactorState::CONTACTOR_STATE_CLOSED);
-                app::StateMachine::set_next_state(&drive_state);
+                if (io::irs::positiveState() == app::can_utils::ContactorState::CONTACTOR_STATE_CLOSED)
+                {
+                    app::StateMachine::set_next_state(&drive_state);
+                }
                 break;
             default:
                 assert(0);

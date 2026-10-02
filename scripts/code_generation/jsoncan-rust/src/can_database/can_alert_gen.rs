@@ -72,7 +72,7 @@ pub fn generate_node_alert_msgs<'a>(
     let faults_counts_name = format!("{}_FaultsCounts", node_name);
     let info_counts_name = format!("{}_InfoCounts", node_name);
 
-    let mut a = CanMessage {
+    let mut info_msg = CanMessage {
         name: info_name,
         id: alerts_json.infos_id,
         description: Some(format!("Status of info for the {}.", node_name)),
@@ -83,7 +83,7 @@ pub fn generate_node_alert_msgs<'a>(
         tx_node_name: node_name.clone(),
         modes: CanBusModes::All,
     };
-    let mut b = CanMessage {
+    let mut warning_msg = CanMessage {
         name: warnings_name,
         id: alerts_json.warnings_id,
         description: Some(format!("Status of warnings for the {}.", node_name)),
@@ -94,7 +94,7 @@ pub fn generate_node_alert_msgs<'a>(
         tx_node_name: node_name.clone(),
         modes: CanBusModes::All,
     };
-    let mut c = CanMessage {
+    let mut fault_msg = CanMessage {
         name: faults_name,
         id: alerts_json.faults_id,
         description: Some(format!("Status of faults for the {}.", node_name)),
@@ -105,7 +105,7 @@ pub fn generate_node_alert_msgs<'a>(
         tx_node_name: node_name.clone(),
         modes: CanBusModes::All,
     };
-    let mut d = CanMessage {
+    let mut info_count_msg = CanMessage {
         name: info_counts_name,
         id: alerts_json.infos_count_id,
         description: Some(format!(
@@ -119,7 +119,7 @@ pub fn generate_node_alert_msgs<'a>(
         tx_node_name: node_name.clone(),
         modes: CanBusModes::All,
     };
-    let mut e = CanMessage {
+    let mut warning_count_msg = CanMessage {
         name: warnings_counts_name,
         id: alerts_json.warnings_count_id,
         description: Some(format!(
@@ -133,7 +133,7 @@ pub fn generate_node_alert_msgs<'a>(
         tx_node_name: node_name.clone(),
         modes: CanBusModes::All,
     };
-    let mut f = CanMessage {
+    let mut fault_count_msg = CanMessage {
         name: faults_counts_name,
         id: alerts_json.faults_count_id,
         description: Some(format!(
@@ -153,23 +153,23 @@ pub fn generate_node_alert_msgs<'a>(
         node_name,
         &alerts_json.warnings,
         CanAlertType::Warning,
-        &mut a.signals,
-        &mut b.signals,
+        &mut warning_msg.signals,
+        &mut warning_count_msg.signals,
     );
     parse_node_alert_signals_emplace(
         node_name,
         &alerts_json.faults,
         CanAlertType::Fault,
-        &mut c.signals,
-        &mut d.signals,
+        &mut fault_msg.signals,
+        &mut fault_count_msg.signals,
     );
     parse_node_alert_signals_emplace(
         node_name,
         &alerts_json.infos,
         CanAlertType::Info,
-        &mut e.signals,
-        &mut f.signals,
+        &mut info_msg.signals,
+        &mut info_count_msg.signals,
     );
 
-    [a, b, c, d, e, f]
+    [info_msg, warning_msg, fault_msg, info_count_msg, warning_count_msg, fault_count_msg]
 }

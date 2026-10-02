@@ -3,3 +3,5 @@ node_modules/**
 !.prettierrc
 !.prettierignore
 *.tsbuildinfo
+package-lock.json
+yarn.lock

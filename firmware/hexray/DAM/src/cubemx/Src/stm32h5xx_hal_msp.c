@@ -23,6 +23,7 @@
 /* USER CODE BEGIN Includes */
 
 /* USER CODE END Includes */
+extern DMA_HandleTypeDef handle_GPDMA1_Channel0;
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN TD */
@@ -67,6 +68,10 @@ void HAL_MspInit(void)
     /* USER CODE END MspInit 0 */
 
     /* System interrupt init*/
+    /* SVCall_IRQn interrupt configuration */
+    HAL_NVIC_SetPriority(SVCall_IRQn, 15, 0);
+    /* PendSV_IRQn interrupt configuration */
+    HAL_NVIC_SetPriority(PendSV_IRQn, 15, 0);
 
     /* USER CODE BEGIN MspInit 1 */
 
@@ -134,7 +139,17 @@ void HAL_FDCAN_MspInit(FDCAN_HandleTypeDef *hfdcan)
         /** Initializes the peripherals clock
          */
         PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_FDCAN;
-        PeriphClkInitStruct.FdcanClockSelection  = RCC_FDCANCLKSOURCE_HSE;
+        PeriphClkInitStruct.PLL2.PLL2Source      = RCC_PLL2_SOURCE_HSE;
+        PeriphClkInitStruct.PLL2.PLL2M           = 1;
+        PeriphClkInitStruct.PLL2.PLL2N           = 36;
+        PeriphClkInitStruct.PLL2.PLL2P           = 2;
+        PeriphClkInitStruct.PLL2.PLL2Q           = 3;
+        PeriphClkInitStruct.PLL2.PLL2R           = 2;
+        PeriphClkInitStruct.PLL2.PLL2RGE         = RCC_PLL2_VCIRANGE_3;
+        PeriphClkInitStruct.PLL2.PLL2VCOSEL      = RCC_PLL2_VCORANGE_WIDE;
+        PeriphClkInitStruct.PLL2.PLL2FRACN       = 0;
+        PeriphClkInitStruct.PLL2.PLL2ClockOut    = RCC_PLL2_DIVQ;
+        PeriphClkInitStruct.FdcanClockSelection  = RCC_FDCANCLKSOURCE_PLL2Q;
         if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
         {
             Error_Handler();
@@ -156,9 +171,9 @@ void HAL_FDCAN_MspInit(FDCAN_HandleTypeDef *hfdcan)
         HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
         /* FDCAN1 interrupt Init */
-        HAL_NVIC_SetPriority(FDCAN1_IT0_IRQn, 0, 0);
+        HAL_NVIC_SetPriority(FDCAN1_IT0_IRQn, 6, 0);
         HAL_NVIC_EnableIRQ(FDCAN1_IT0_IRQn);
-        HAL_NVIC_SetPriority(FDCAN1_IT1_IRQn, 0, 0);
+        HAL_NVIC_SetPriority(FDCAN1_IT1_IRQn, 6, 0);
         HAL_NVIC_EnableIRQ(FDCAN1_IT1_IRQn);
         /* USER CODE BEGIN FDCAN1_MspInit 1 */
 
@@ -215,7 +230,7 @@ void HAL_RTC_MspInit(RTC_HandleTypeDef *hrtc)
         /** Initializes the peripherals clock
          */
         PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_RTC;
-        PeriphClkInitStruct.RTCClockSelection    = RCC_RTCCLKSOURCE_LSI;
+        PeriphClkInitStruct.RTCClockSelection    = RCC_RTCCLKSOURCE_LSE;
         if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
         {
             Error_Handler();
@@ -293,17 +308,20 @@ void HAL_SD_MspInit(SD_HandleTypeDef *hsd)
         GPIO_InitStruct.Pin       = GPIO_PIN_2;
         GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
         GPIO_InitStruct.Pull      = GPIO_NOPULL;
-        GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_HIGH;
+        GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_VERY_HIGH;
         GPIO_InitStruct.Alternate = GPIO_AF12_SDMMC1;
         HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
         GPIO_InitStruct.Pin       = GPIO_PIN_8 | GPIO_PIN_9 | GPIO_PIN_10 | GPIO_PIN_11 | GPIO_PIN_12;
         GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
         GPIO_InitStruct.Pull      = GPIO_NOPULL;
-        GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_HIGH;
+        GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_VERY_HIGH;
         GPIO_InitStruct.Alternate = GPIO_AF12_SDMMC1;
         HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
+        /* SDMMC1 interrupt Init */
+        HAL_NVIC_SetPriority(SDMMC1_IRQn, 5, 0);
+        HAL_NVIC_EnableIRQ(SDMMC1_IRQn);
         /* USER CODE BEGIN SDMMC1_MspInit 1 */
 
         /* USER CODE END SDMMC1_MspInit 1 */
@@ -338,9 +356,59 @@ void HAL_SD_MspDeInit(SD_HandleTypeDef *hsd)
 
         HAL_GPIO_DeInit(GPIOC, GPIO_PIN_8 | GPIO_PIN_9 | GPIO_PIN_10 | GPIO_PIN_11 | GPIO_PIN_12);
 
+        /* SDMMC1 interrupt DeInit */
+        HAL_NVIC_DisableIRQ(SDMMC1_IRQn);
         /* USER CODE BEGIN SDMMC1_MspDeInit 1 */
 
         /* USER CODE END SDMMC1_MspDeInit 1 */
+    }
+}
+
+/**
+ * @brief TIM_Base MSP Initialization
+ * This function configures the hardware resources used in this example
+ * @param htim_base: TIM_Base handle pointer
+ * @retval None
+ */
+void HAL_TIM_Base_MspInit(TIM_HandleTypeDef *htim_base)
+{
+    if (htim_base->Instance == TIM7)
+    {
+        /* USER CODE BEGIN TIM7_MspInit 0 */
+
+        /* USER CODE END TIM7_MspInit 0 */
+        /* Peripheral clock enable */
+        __HAL_RCC_TIM7_CLK_ENABLE();
+        /* TIM7 interrupt Init */
+        HAL_NVIC_SetPriority(TIM7_IRQn, 5, 0);
+        HAL_NVIC_EnableIRQ(TIM7_IRQn);
+        /* USER CODE BEGIN TIM7_MspInit 1 */
+
+        /* USER CODE END TIM7_MspInit 1 */
+    }
+}
+
+/**
+ * @brief TIM_Base MSP De-Initialization
+ * This function freeze the hardware resources used in this example
+ * @param htim_base: TIM_Base handle pointer
+ * @retval None
+ */
+void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef *htim_base)
+{
+    if (htim_base->Instance == TIM7)
+    {
+        /* USER CODE BEGIN TIM7_MspDeInit 0 */
+
+        /* USER CODE END TIM7_MspDeInit 0 */
+        /* Peripheral clock disable */
+        __HAL_RCC_TIM7_CLK_DISABLE();
+
+        /* TIM7 interrupt DeInit */
+        HAL_NVIC_DisableIRQ(TIM7_IRQn);
+        /* USER CODE BEGIN TIM7_MspDeInit 1 */
+
+        /* USER CODE END TIM7_MspDeInit 1 */
     }
 }
 
@@ -386,8 +454,36 @@ void HAL_UART_MspInit(UART_HandleTypeDef *huart)
         GPIO_InitStruct.Alternate = GPIO_AF7_USART2;
         HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
+        /* USART2 DMA Init */
+        /* GPDMA1_REQUEST_USART2_TX Init */
+        handle_GPDMA1_Channel0.Instance                   = GPDMA1_Channel0;
+        handle_GPDMA1_Channel0.Init.Request               = GPDMA1_REQUEST_USART2_TX;
+        handle_GPDMA1_Channel0.Init.BlkHWRequest          = DMA_BREQ_SINGLE_BURST;
+        handle_GPDMA1_Channel0.Init.Direction             = DMA_MEMORY_TO_PERIPH;
+        handle_GPDMA1_Channel0.Init.SrcInc                = DMA_SINC_INCREMENTED;
+        handle_GPDMA1_Channel0.Init.DestInc               = DMA_DINC_FIXED;
+        handle_GPDMA1_Channel0.Init.SrcDataWidth          = DMA_SRC_DATAWIDTH_BYTE;
+        handle_GPDMA1_Channel0.Init.DestDataWidth         = DMA_DEST_DATAWIDTH_BYTE;
+        handle_GPDMA1_Channel0.Init.Priority              = DMA_LOW_PRIORITY_LOW_WEIGHT;
+        handle_GPDMA1_Channel0.Init.SrcBurstLength        = 1;
+        handle_GPDMA1_Channel0.Init.DestBurstLength       = 1;
+        handle_GPDMA1_Channel0.Init.TransferAllocatedPort = DMA_SRC_ALLOCATED_PORT0 | DMA_DEST_ALLOCATED_PORT0;
+        handle_GPDMA1_Channel0.Init.TransferEventMode     = DMA_TCEM_BLOCK_TRANSFER;
+        handle_GPDMA1_Channel0.Init.Mode                  = DMA_NORMAL;
+        if (HAL_DMA_Init(&handle_GPDMA1_Channel0) != HAL_OK)
+        {
+            Error_Handler();
+        }
+
+        __HAL_LINKDMA(huart, hdmatx, handle_GPDMA1_Channel0);
+
+        if (HAL_DMA_ConfigChannelAttributes(&handle_GPDMA1_Channel0, DMA_CHANNEL_NPRIV) != HAL_OK)
+        {
+            Error_Handler();
+        }
+
         /* USART2 interrupt Init */
-        HAL_NVIC_SetPriority(USART2_IRQn, 0, 0);
+        HAL_NVIC_SetPriority(USART2_IRQn, 5, 0);
         HAL_NVIC_EnableIRQ(USART2_IRQn);
         /* USER CODE BEGIN USART2_MspInit 1 */
 
@@ -418,6 +514,9 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef *huart)
         PA3     ------> USART2_RX
         */
         HAL_GPIO_DeInit(GPIOA, FROM_900M_CTS_Pin | TO_900M_RTS_Pin | TO_900M_TX_Pin | FROM_900M_RX_Pin);
+
+        /* USART2 DMA DeInit */
+        HAL_DMA_DeInit(huart->hdmatx);
 
         /* USART2 interrupt DeInit */
         HAL_NVIC_DisableIRQ(USART2_IRQn);
@@ -456,7 +555,7 @@ void HAL_PCD_MspInit(PCD_HandleTypeDef *hpcd)
         /* Peripheral clock enable */
         __HAL_RCC_USB_CLK_ENABLE();
         /* USB_DRD_FS interrupt Init */
-        HAL_NVIC_SetPriority(USB_DRD_FS_IRQn, 0, 0);
+        HAL_NVIC_SetPriority(USB_DRD_FS_IRQn, 5, 0);
         HAL_NVIC_EnableIRQ(USB_DRD_FS_IRQn);
         /* USER CODE BEGIN USB_DRD_FS_MspInit 1 */
 

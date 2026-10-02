@@ -4,14 +4,15 @@
 
 using app::can_utils::ImdActiveFrequency;
 using app::can_utils::ImdConditionName;
-using app::imd::Sst;
+using app::can_utils::ImdSstState;
 using enum app::can_utils::ImdActiveFrequency;
 using enum app::can_utils::ImdConditionName;
+using enum app::can_utils::ImdSstState;
 
 class ImdTest : public BMSBaseTest
 {
   public:
-    static void SetImdCondition(const app::can_utils::ImdConditionName condition_name)
+    static void SetImdCondition(const ImdConditionName condition_name)
     {
         const std::map<ImdConditionName, float> mapping{
             { IMD_CONDITION_SHORT_CIRCUIT, 0.0f },          { IMD_CONDITION_NORMAL, 10.0f },
@@ -92,13 +93,13 @@ TEST_F(ImdTest, check_good_and_bad_sst_condition_eval)
     auto condition = app::imd::getCondition();
     ASSERT_EQ(true, condition.valid_duty_cycle);
     ASSERT_TRUE(condition.speed_start_status.has_value());
-    ASSERT_EQ(Sst::GOOD, *condition.speed_start_status);
+    ASSERT_EQ(ImdSstState::IMD_SST_GOOD, *condition.speed_start_status);
 
     fakes::imd::setDutyCycle(GOOD_MAX_DUTY_CYCLE);
     condition = app::imd::getCondition();
     ASSERT_EQ(true, condition.valid_duty_cycle);
     ASSERT_TRUE(condition.speed_start_status.has_value());
-    ASSERT_EQ(Sst::GOOD, *condition.speed_start_status);
+    ASSERT_EQ(ImdSstState::IMD_SST_GOOD, *condition.speed_start_status);
 
     fakes::imd::setDutyCycle(GOOD_MAX_DUTY_CYCLE + 0.1f);
     ASSERT_EQ(false, app::imd::getCondition().valid_duty_cycle);
@@ -113,13 +114,13 @@ TEST_F(ImdTest, check_good_and_bad_sst_condition_eval)
     condition = app::imd::getCondition();
     ASSERT_EQ(true, condition.valid_duty_cycle);
     ASSERT_TRUE(condition.speed_start_status.has_value());
-    ASSERT_EQ(Sst::BAD, *condition.speed_start_status);
+    ASSERT_EQ(ImdSstState::IMD_SST_BAD, *condition.speed_start_status);
 
     fakes::imd::setDutyCycle(BAD_MAX_DUTY_CYCLE);
     condition = app::imd::getCondition();
     ASSERT_EQ(true, condition.valid_duty_cycle);
     ASSERT_TRUE(condition.speed_start_status.has_value());
-    ASSERT_EQ(Sst::BAD, *condition.speed_start_status);
+    ASSERT_EQ(ImdSstState::IMD_SST_BAD, *condition.speed_start_status);
 
     fakes::imd::setDutyCycle(BAD_MAX_DUTY_CYCLE + 0.1f);
     ASSERT_EQ(false, app::imd::getCondition().valid_duty_cycle);

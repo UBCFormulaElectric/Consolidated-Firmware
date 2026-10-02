@@ -3,7 +3,7 @@
 #include "main.h"
 #include <cassert>
 
-const hw::Uart _900k_uart(huart2);
+constexpr hw::Uart _900k_uart{ huart2 };
 
 const hw::Uart &hw::getUartFromHandle(const UART_HandleTypeDef *handle)
 {

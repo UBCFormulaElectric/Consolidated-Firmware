@@ -1,12 +1,18 @@
 use askama::Template;
 
 use crate::{
-    can_database::{CanDatabase, CanMessage},
+    can_database::{CanDatabase, CanMessage, CanSignal},
     reroute::CanRxConfig,
 };
 use std::collections::HashMap;
 
 const DBC_DEFAULT_RECEIVER: &str = "DEBUG";
+
+impl CanSignal {
+    pub fn dbc_start_bit(self: &Self) -> u16 {
+        ((self.start_bit / 8) * 8) + (if self.big_endian { 7 - (self.start_bit % 8) } else { self.start_bit % 8 })
+    }
+}
 
 #[derive(Template)]
 #[template(path = "dbc.txt.j2")] // NOTE it is very important that the extension is txt otherwise the templater shits itself
@@ -18,15 +24,18 @@ struct DBCTemplate<'a> {
 }
 impl DBCTemplate<'_> {
     fn receivers(self: &Self, msg: &CanMessage) -> String {
-        self.nodes_list
+        let k = self.nodes_list
             .iter()
             .filter(|n| match self.rx_configs.get(*n) {
                 Some(config) => config.get_busses_for_msg(msg.id).len() > 0,
                 None => false,
             })
             .cloned()
-            .collect::<Vec<String>>()
-            .join(",")
+            .collect::<Vec<String>>();
+        if k.len() == 0 {
+            return DBC_DEFAULT_RECEIVER.to_string();
+        }
+        k.join(",")
     }
 
     fn enumfuckshit(self: &Self, enum_name: &str) -> String {

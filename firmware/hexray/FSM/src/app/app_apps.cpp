@@ -17,11 +17,6 @@ static Signal papps_ocsc_signal(OCSC_TIME_TO_FAULT, OCSC_TIME_TO_CLEAR);
 static Signal sapps_ocsc_signal(OCSC_TIME_TO_FAULT, OCSC_TIME_TO_CLEAR);
 static Signal papps_sapps_disagreement_signal(DISAGREEMENT_TIME_TO_FAULT, DISAGREEMENT_TIME_TO_CLEAR);
 
-void init()
-{
-    io::apps::init();
-}
-
 void broadcast()
 {
     const float papps_pedal_percentage = io::apps::getPrimary();

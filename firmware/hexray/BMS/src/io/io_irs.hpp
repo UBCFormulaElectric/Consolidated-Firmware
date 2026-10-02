@@ -1,6 +1,6 @@
-#include "app_canUtils.hpp"
+#pragma once
 
-using namespace app::can_utils;
+#include "app_canUtils.hpp"
 
 namespace io::irs
 {
@@ -8,27 +8,27 @@ namespace io::irs
  * Check if the IR- is closed
  * @returns the state of the IR- relay.
  */
-ContactorState negativeState(void);
+app::can_utils::ContactorState negativeState(void);
 
 /**
  * Sets the IR- relay to the desired state
  */
-void setPositive(ContactorState state);
+void setPositive(app::can_utils::ContactorState state);
 
 /**
  * Check if the IR+ is closed
  * @returns the state of the IR+ relay.
  */
-ContactorState positiveState(void);
+app::can_utils::ContactorState positiveState(void);
 
 /**
  * Set the precharge relay to the desired state
  */
-void setPrecharge(ContactorState state);
+void setPrecharge(app::can_utils::ContactorState state);
 
 /**
  * Check if the precharge relay is closed
  * @returns the state of the precharge relay.
  */
-ContactorState prechargeState(void);
+app::can_utils::ContactorState prechargeState(void);
 } // namespace io::irs

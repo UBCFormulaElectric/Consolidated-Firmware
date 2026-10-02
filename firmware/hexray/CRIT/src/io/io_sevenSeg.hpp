@@ -10,14 +10,14 @@ inline constexpr size_t DIGITS = 9;
 
 __attribute__((packed)) struct digit
 {
-    bool c : 1   = false;
-    bool dot : 1 = false;
-    bool b : 1   = false;
-    bool a : 1   = false;
-    bool f : 1   = false;
-    bool g : 1   = false;
-    bool e : 1   = false;
     bool d : 1   = false;
+    bool e : 1   = false;
+    bool g : 1   = false;
+    bool f : 1   = false;
+    bool a : 1   = false;
+    bool b : 1   = false;
+    bool dot : 1 = false;
+    bool c : 1   = false;
     constexpr explicit digit(
         const bool _a,
         const bool _b,
@@ -27,7 +27,7 @@ __attribute__((packed)) struct digit
         const bool _f,
         const bool _g,
         const bool _dot)
-      : c(_c), dot(_dot), b(_b), a(_a), f(_f), g(_g), e(_e), d(_d)
+      : d(_d), e(_e), g(_g), f(_f), a(_a), b(_b), dot(_dot), c(_c)
     {
     }
 
@@ -40,13 +40,13 @@ static_assert(sizeof(digit) == 1);
  * @note that the data will be touched, so please consider the buffer invalidated after use
  * @return success of operation
  */
-[[nodiscard]] std::expected<void, ErrorCode> write(std::array<digit, DIGITS> &data);
+[[nodiscard]] result<void> write(std::array<digit, DIGITS> &data);
 /**
  * Set the brightness of the seven segment display.
  * @param brightness brightness value from 0.0 (off) to 1.0 (max brightness)
  * @return success of operation
  */
-[[nodiscard]] std::expected<void, ErrorCode> setBrightness(float brightness);
+[[nodiscard]] result<void> setBrightness(float brightness);
 
 inline constexpr digit zero{ true, true, true, true, true, true, false, false };
 inline constexpr digit one{ false, true, true, false, false, false, false, false };
@@ -78,7 +78,7 @@ inline constexpr digit q{ true, true, true, false, false, true, true, false };
 inline constexpr digit r{ false, false, false, false, true, false, true, false };
 inline constexpr digit s{ true, false, true, true, false, true, true, false };
 inline constexpr digit t{ false, false, false, true, true, true, true, false };
-inline constexpr digit u{ false, false, true, true, true, false, false, false };
+inline constexpr digit u{ false, true, true, true, true, true, false, false };
 inline constexpr digit v{ false, true, false, true, false, true, false, false };
 inline constexpr digit y{ false, true, true, true, false, true, true, false };
 inline constexpr digit dot{ false, false, false, false, false, false, false, true };

@@ -63,6 +63,20 @@ export const NumericalSignalPicker = memo(function NumericalSignalPicker({ query
     }, []); // close the list if user clicks outside of the component
 
     const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+        if (event.key === "ArrowDown") {
+            event.preventDefault();
+            setIsListOpen(true);
+            setHighlightedIndex((prev) => (prev + 1) % visibleSignals.length);
+            return;
+        }
+
+        if (event.key === "ArrowUp") {
+            event.preventDefault();
+            setIsListOpen(true);
+            setHighlightedIndex((prev) => (prev - 1 + visibleSignals.length) % visibleSignals.length);
+            return;
+        }
+
         if (event.key === "Enter" && isListOpen && visibleSignals[highlightedIndex]) {
             event.preventDefault();
             onSelectSignal(visibleSignals[highlightedIndex]);
@@ -75,6 +89,24 @@ export const NumericalSignalPicker = memo(function NumericalSignalPicker({ query
             setIsListOpen(false);
         }
     };
+
+    useEffect(() => {
+        if (isListOpen && containerRef.current) {
+            const listElement = containerRef.current.querySelector(".overflow-y-auto");
+            const highlightedElement = listElement?.children[highlightedIndex] as HTMLElement;
+
+            if (listElement && highlightedElement) {
+                const listRect = listElement.getBoundingClientRect();
+                const highlightedRect = highlightedElement.getBoundingClientRect();
+
+                if (highlightedRect.bottom > listRect.bottom) {
+                    highlightedElement.scrollIntoView({ block: "end" });
+                } else if (highlightedRect.top < listRect.top) {
+                    highlightedElement.scrollIntoView({ block: "start" });
+                }
+            }
+        }
+    }, [highlightedIndex, isListOpen]);
 
     return (
         <div ref={containerRef}>
@@ -99,7 +131,7 @@ export const NumericalSignalPicker = memo(function NumericalSignalPicker({ query
                 {error ? (
                     <p className="px-3 py-3 text-sm text-red-600">Failed to load available signals.</p>
                 ) : isListOpen ? (
-                    <div className="max-h-64 overflow-y-auto py-1">
+                    <div className="max-h-64 overflow-y-auto py-1 scrollbar-hidden">
                         {visibleSignals.length === 0 ? (
                             <p className="px-3 py-3 text-sm text-gray-500">No signals match this search.</p>
                         ) : (

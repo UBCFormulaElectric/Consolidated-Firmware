@@ -61,7 +61,9 @@ extern DMA_QListTypeDef    List_GPDMA1_Channel0;
 extern DMA_HandleTypeDef   handle_GPDMA1_Channel0;
 extern ADC_HandleTypeDef   hadc1;
 extern FDCAN_HandleTypeDef hfdcan1;
+extern SPI_HandleTypeDef   hspi1;
 extern TIM_HandleTypeDef   htim2;
+extern TIM_HandleTypeDef   htim7;
 extern PCD_HandleTypeDef   hpcd_USB_DRD_FS;
 extern TIM_HandleTypeDef   htim6;
 
@@ -168,6 +170,20 @@ void DebugMon_Handler(void)
 /******************************************************************************/
 
 /**
+ * @brief This function handles EXTI Line13 interrupt.
+ */
+void EXTI13_IRQHandler(void)
+{
+    /* USER CODE BEGIN EXTI13_IRQn 0 */
+
+    /* USER CODE END EXTI13_IRQn 0 */
+    HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_13);
+    /* USER CODE BEGIN EXTI13_IRQn 1 */
+
+    /* USER CODE END EXTI13_IRQn 1 */
+}
+
+/**
  * @brief This function handles GPDMA1 Channel 0 global interrupt.
  */
 void GPDMA1_Channel0_IRQHandler(void)
@@ -249,6 +265,34 @@ void TIM6_IRQHandler(void)
     /* USER CODE BEGIN TIM6_IRQn 1 */
 
     /* USER CODE END TIM6_IRQn 1 */
+}
+
+/**
+ * @brief This function handles TIM7 global interrupt.
+ */
+void TIM7_IRQHandler(void)
+{
+    /* USER CODE BEGIN TIM7_IRQn 0 */
+
+    /* USER CODE END TIM7_IRQn 0 */
+    HAL_TIM_IRQHandler(&htim7);
+    /* USER CODE BEGIN TIM7_IRQn 1 */
+
+    /* USER CODE END TIM7_IRQn 1 */
+}
+
+/**
+ * @brief This function handles SPI1 global interrupt.
+ */
+void SPI1_IRQHandler(void)
+{
+    /* USER CODE BEGIN SPI1_IRQn 0 */
+
+    /* USER CODE END SPI1_IRQn 0 */
+    HAL_SPI_IRQHandler(&hspi1);
+    /* USER CODE BEGIN SPI1_IRQn 1 */
+
+    /* USER CODE END SPI1_IRQn 1 */
 }
 
 /**

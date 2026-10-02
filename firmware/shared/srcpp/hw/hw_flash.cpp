@@ -1,18 +1,17 @@
 #include "hw_flash.hpp"
 #include "hw_utils.hpp"
 #include "main.h"
+#include <algorithm>
+
 #include <cassert>
-#include <cstdint>
 #include <cstring>
+
 #include <expected>
 #include <util_errorCodes.hpp>
 
 constexpr uint8_t MAX_RETRIES = 5;
 
-static std::expected<void, ErrorCode>
-    programFlashRetry(const uint32_t address, const std::span<const std::byte> buffer);
-
-static std::expected<void, ErrorCode> eraseSectorRetry(const uint8_t sector);
+static result<void> eraseSectorRetry(const uint8_t sector);
 
 #if defined(STM32H733xx)
 constexpr uint32_t            PROGRAM_TYPE = FLASH_TYPEPROGRAM_FLASHWORD;
@@ -24,7 +23,6 @@ static FLASH_EraseInitTypeDef eraseStruct  = {
      .NbSectors    = 1,
      .VoltageRange = FLASH_VOLTAGE_RANGE_3, // For device operating range 2.7V to 3.6V
 };
-
 #elif defined(STM32H562xx)
 constexpr uint32_t            PROGRAM_TYPE     = FLASH_TYPEPROGRAM_QUADWORD;
 constexpr uint32_t            ERROR_FLAGS      = FLASH_FLAG_ALL_ERRORS;
@@ -37,35 +35,25 @@ static FLASH_EraseInitTypeDef eraseStruct      = {
 };
 #endif
 
-std::expected<void, ErrorCode> hw::flash::eraseSector(uint8_t sector)
+result<void> hw::flash::eraseSector(const uint8_t sector)
 {
     return eraseSectorRetry(sector);
 }
 
-std::expected<void, ErrorCode> hw::flash::programFlash(uint32_t address, std::span<const std::byte> buffer)
-{
-    return programFlashRetry(address, buffer);
-}
-
-static std::expected<void, ErrorCode> eraseSectorRetry(const uint8_t sector)
+static result<void> eraseSectorRetry(const uint8_t sector)
 {
 #if defined(STM32H562xx)
-    assert(sector < (BANK_SECTOR_SIZE * 2));
     eraseStruct.Banks = (sector < BANK_SECTOR_SIZE) ? FLASH_BANK_1 : FLASH_BANK_2; // [0, 127] Bank 1, [128, 255] Bank 2
     eraseStruct.Sector = sector % BANK_SECTOR_SIZE;
 #elif defined(STM32H733xx)
     eraseStruct.Sector = sector;
 #endif
-
-    uint32_t                       sectorError = 0;
-    std::expected<void, ErrorCode> status{ std::unexpected(ErrorCode::ERROR) };
-
+    uint32_t     sectorError = 0;
+    result<void> status{ std::unexpected(ErrorCode::ERROR) };
     HAL_FLASH_Unlock();
-
     for (uint8_t attempt = 0; attempt < MAX_RETRIES; attempt++)
     {
-        status = hw_utils_convertHalStatus(HAL_FLASHEx_Erase(&eraseStruct, &sectorError));
-
+        status = hw::utils::convertHalStatus(HAL_FLASHEx_Erase(&eraseStruct, &sectorError));
         if (status.has_value() && sectorError == 0xFFFFFFFFU)
         {
             break;
@@ -75,10 +63,9 @@ static std::expected<void, ErrorCode> eraseSectorRetry(const uint8_t sector)
     return status;
 }
 
-static std::expected<void, ErrorCode> programFlashRetry(const uint32_t address, const std::span<const std::byte> buffer)
+result<void> hw::flash::programFlashRetry(const uint32_t address, std::span<const std::byte> buffer)
 {
-    std::expected<void, ErrorCode> status{ std::unexpected(ErrorCode::ERROR) };
-
+    result<void> status;
     HAL_FLASH_Unlock();
     for (uint8_t attempt = 0; attempt < MAX_RETRIES; attempt++)
     {
@@ -86,17 +73,26 @@ static std::expected<void, ErrorCode> programFlashRetry(const uint32_t address, 
         {
             __HAL_FLASH_CLEAR_FLAG(ERROR_FLAGS);
         }
+        // check that the memory has been cleared, namely check if the 16 byte span we're trying to program is all 0xFFs
+        // (erased flash bytes read as 0xFF)
+        // if (std::span<uint8_t, 16> buf{ reinterpret_cast<uint8_t *>(address), 16 };
+        //     std::ranges::any_of(buf.begin(), buf.end(), [](const uint8_t byte) { return byte != 0xFF; }))
+        // {
+        //     LOG_ERROR("expected all ffs, got");
+        //     for (const uint8_t byte : buf)
+        //     {
+        //         LOG_ERROR("0x%02X ", byte);
+        //     }
+        //     return std::unexpected(ErrorCode::CHECKSUM_FAIL);
+        // }
 
-        status = hw_utils_convertHalStatus(HAL_FLASH_Program(
-            PROGRAM_TYPE, address, static_cast<uint32_t>(reinterpret_cast<uintptr_t>(buffer.data()))));
-
-        if (status.has_value() &&
-            (std::memcmp(reinterpret_cast<const void *>(address), buffer.data(), buffer.size()) == 0))
+        if (status = utils::convertHalStatus(
+                HAL_FLASH_Program(PROGRAM_TYPE, address, reinterpret_cast<uint32_t>(buffer.data())));
+            status and std::memcmp(reinterpret_cast<const void *>(address), buffer.data(), buffer.size()) == 0)
         {
             break;
         }
     }
     HAL_FLASH_Lock();
-
     return status;
 }

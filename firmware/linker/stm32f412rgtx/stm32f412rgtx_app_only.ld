@@ -51,6 +51,12 @@ MEMORY
 /* Sections */
 SECTIONS
 {
+  /* DEDICATED SPOT FOR RTT */
+  .rtt (NOLOAD) :
+  {
+    KEEP(*(.rtt))
+  } >RAM
+
   /* The startup code into "FLASH" Rom type memory */
   .isr_vector :
   {

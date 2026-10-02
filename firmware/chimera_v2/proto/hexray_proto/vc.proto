@@ -58,7 +58,8 @@ enum AdcNetName {
 enum I2cNetName {
   I2C_NET_NAME_UNSPECIFIED = 0;
   I2C_BAT_MON = 1;
-  I2C_PWR_PUMP = 2;
+  I2C_PWR_MON = 2;
+  I2C_PUMP = 3;
 }
 
 enum SpiNetName{

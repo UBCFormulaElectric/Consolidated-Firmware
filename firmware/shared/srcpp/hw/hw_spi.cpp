@@ -9,12 +9,12 @@ using namespace hw::spi;
 constexpr size_t MAX_SPI_BUFFER = 256;
 
 /* ------------------------------- SpiBus ------------------------------- */
-void SpiBus::deinit() const
+void bus::deinit() const
 {
     HAL_SPI_DeInit(&handle);
 }
 
-void SpiBus::onTransactionCompleteFromISR() const
+void bus::onTransactionCompleteFromISR() const
 {
     assert(taskInProgress != nullptr);
 
@@ -24,7 +24,7 @@ void SpiBus::onTransactionCompleteFromISR() const
 }
 
 /* ------------------------------ SpiDevice ----------------------------- */
-void SpiDevice::enableNss() const
+void device::enableNss() const
 {
     if (nss.has_value())
     {
@@ -32,7 +32,7 @@ void SpiDevice::enableNss() const
     }
 }
 
-void SpiDevice::disableNss() const
+void device::disableNss() const
 {
     if (nss.has_value())
     {
@@ -40,50 +40,57 @@ void SpiDevice::disableNss() const
     }
 }
 
-std::expected<void, ErrorCode> SpiDevice::waitForNotification() const
+result<void> device::waitForNotification() const
 {
+    // Block the calling task until the SPI ISR wakes it (success or error), or until timeoutMs expires.
     const uint32_t num_notifications = ulTaskNotifyTake(pdTRUE, timeoutMs);
-    bus.taskInProgress               = nullptr;
+    parent_bus.taskInProgress        = nullptr;
 
     if (const bool transaction_timed_out = num_notifications; transaction_timed_out == 0)
     {
-        // If the transaction didn't complete within the timeout, manually abort it.
-        (void)HAL_SPI_Abort_IT(&bus.handle);
+        // No notification arrived within the timeout: tear down the in-flight transfer.
+        (void)HAL_SPI_Abort_IT(&parent_bus.handle);
         LOG_WARN("SPI transaction timed out");
         return std::unexpected(ErrorCode::TIMEOUT);
+    }
+    // We were woken, but check whether HAL flagged an error mid-transfer (e.g. overrun, mode fault).
+    // The error callback also calls onTransactionCompleteFromISR, so we land here on errors too.
+    if (parent_bus.handle.ErrorCode != HAL_SPI_ERROR_NONE)
+    {
+        return std::unexpected(ErrorCode::ERROR);
     }
     return {};
 }
 
-std::expected<void, ErrorCode> SpiDevice::transmit(std::span<const uint8_t> tx) const
+result<void> device::transmit(std::span<const uint8_t> tx) const
 {
     if (osKernelGetState() != taskSCHEDULER_RUNNING || xPortIsInsideInterrupt())
     {
         // If kernel hasn't started, there's no current task to block, so just do a non-async polling transaction.
         enableNss();
-        const std::expected<void, ErrorCode> st = hw_utils_convertHalStatus(HAL_SPI_Transmit(
-            &bus.handle, const_cast<uint8_t *>(tx.data()), static_cast<uint16_t>(tx.size()), timeoutMs));
+        const result<void> st = utils::convertHalStatus(
+            HAL_SPI_Transmit(&parent_bus.handle, tx.data(), static_cast<uint16_t>(tx.size()), timeoutMs));
         disableNss();
         return st;
     }
 
-    if (bus.taskInProgress != nullptr)
+    if (parent_bus.taskInProgress != nullptr)
     {
         // There is a task currently in progress!
         return std::unexpected(ErrorCode::BUSY);
     }
 
     // Save current task before starting a SPI transaction.
-    bus.taskInProgress = xTaskGetCurrentTaskHandle();
+    parent_bus.taskInProgress = xTaskGetCurrentTaskHandle();
 
     enableNss();
 
-    auto exit = hw_utils_convertHalStatus(
-        HAL_SPI_Transmit_IT(&bus.handle, const_cast<uint8_t *>(tx.data()), static_cast<uint16_t>(tx.size())));
+    auto exit =
+        utils::convertHalStatus(HAL_SPI_Transmit_IT(&parent_bus.handle, tx.data(), static_cast<uint16_t>(tx.size())));
     if (not exit.has_value())
     {
         // Mark this transaction as no longer in progress.
-        bus.taskInProgress = nullptr;
+        parent_bus.taskInProgress = nullptr;
         disableNss();
         return exit;
     }
@@ -93,9 +100,9 @@ std::expected<void, ErrorCode> SpiDevice::transmit(std::span<const uint8_t> tx) 
     return exit;
 }
 
-std::expected<void, ErrorCode> SpiDevice::receive(std::span<uint8_t> rx) const
+result<void> device::receive(std::span<uint8_t> rx) const
 {
-    if (bus.taskInProgress != nullptr || xPortIsInsideInterrupt())
+    if (parent_bus.taskInProgress != nullptr || xPortIsInsideInterrupt())
     {
         // There is a task currently in progress!
         return std::unexpected(ErrorCode::BUSY);
@@ -105,22 +112,22 @@ std::expected<void, ErrorCode> SpiDevice::receive(std::span<uint8_t> rx) const
     {
         // If kernel hasn't started, there's no current task to block, so just do a non-async polling transaction.
         enableNss();
-        const std::expected<void, ErrorCode> exit = hw_utils_convertHalStatus(
-            HAL_SPI_Receive(&bus.handle, rx.data(), static_cast<uint16_t>(rx.size()), timeoutMs));
+        const result<void> exit = hw::utils::convertHalStatus(
+            HAL_SPI_Receive(&parent_bus.handle, rx.data(), static_cast<uint16_t>(rx.size()), timeoutMs));
         disableNss();
         return exit;
     }
 
-    bus.taskInProgress = xTaskGetCurrentTaskHandle();
+    parent_bus.taskInProgress = xTaskGetCurrentTaskHandle();
 
     enableNss();
 
-    std::expected<void, ErrorCode> exit =
-        hw_utils_convertHalStatus(HAL_SPI_Receive_IT(&bus.handle, rx.data(), static_cast<uint16_t>(rx.size())));
+    result<void> exit = hw::utils::convertHalStatus(
+        HAL_SPI_Receive_IT(&parent_bus.handle, rx.data(), static_cast<uint16_t>(rx.size())));
     if (not exit.has_value())
     {
         // Mark this transaction as no longer in progress.
-        bus.taskInProgress = nullptr;
+        parent_bus.taskInProgress = nullptr;
         disableNss();
         return exit;
     }
@@ -130,8 +137,7 @@ std::expected<void, ErrorCode> SpiDevice::receive(std::span<uint8_t> rx) const
     return exit;
 }
 
-[[nodiscard]] std::expected<void, ErrorCode>
-    SpiDevice::transmitThenReceive(const std::span<const uint8_t> tx, std::span<uint8_t> rx) const
+[[nodiscard]] result<void> device::transmitThenReceive(const std::span<const uint8_t> tx, std::span<uint8_t> rx) const
 {
     const auto combined = static_cast<uint16_t>(tx.size() + rx.size());
     if (combined > MAX_SPI_BUFFER)
@@ -153,8 +159,8 @@ std::expected<void, ErrorCode> SpiDevice::receive(std::span<uint8_t> rx) const
     {
         // If kernel hasn't started, there's no current task to block, so just do a non-async polling transaction.
         enableNss();
-        const std::expected<void, ErrorCode> exit =
-            hw_utils_convertHalStatus(HAL_SPI_TransmitReceive(&bus.handle, paddedTx, paddedRx, combined, timeoutMs));
+        const result<void> exit = hw::utils::convertHalStatus(
+            HAL_SPI_TransmitReceive(&parent_bus.handle, paddedTx, paddedRx, combined, timeoutMs));
         disableNss();
 
         // Data will not be returned over SPI until command has finished, so data in first tx_buffer_size bytes not
@@ -164,28 +170,28 @@ std::expected<void, ErrorCode> SpiDevice::receive(std::span<uint8_t> rx) const
         return exit;
     }
 
-    if (bus.taskInProgress != nullptr)
+    if (parent_bus.taskInProgress != nullptr)
     {
         // There is a task currently in progress!
         return std::unexpected(ErrorCode::BUSY);
     }
 
     // Save current task before starting a SPI transaction.
-    bus.taskInProgress = xTaskGetCurrentTaskHandle();
+    parent_bus.taskInProgress = xTaskGetCurrentTaskHandle();
     enableNss();
 
-    std::expected<void, ErrorCode> exit =
-        hw_utils_convertHalStatus(HAL_SPI_TransmitReceive_IT(&bus.handle, paddedTx, paddedRx, combined));
+    result<void> exit =
+        hw::utils::convertHalStatus(HAL_SPI_TransmitReceive_IT(&parent_bus.handle, paddedTx, paddedRx, combined));
     if (not exit.has_value())
     {
-        bus.taskInProgress = nullptr;
+        parent_bus.taskInProgress = nullptr;
         disableNss();
         return exit;
     }
 
     exit = waitForNotification();
     disableNss();
-    if (not exit.has_value())
+    if (not exit)
     {
         return exit;
     }
@@ -197,7 +203,159 @@ std::expected<void, ErrorCode> SpiDevice::receive(std::span<uint8_t> rx) const
     return {};
 }
 
+/* ------------------------------ DMA methods ----------------------------- */
+// These mirror transmit/receive/transmitThenReceive but use HAL_SPI_*_DMA under the hood. The TX path
+// stages caller data through dma_tx_buf, RX path copies out of dma_rx_buf after completion. The bus's
+// taskInProgress handle still serializes all transfers across all DMA/IT methods on the same bus.
+
+result<void> device::transmitDma(const std::span<const uint8_t> tx) const
+{
+    if (tx.size() > sizeof(dma_tx_buf))
+    {
+        return std::unexpected(ErrorCode::INVALID_ARGS);
+    }
+
+    if (osKernelGetState() != taskSCHEDULER_RUNNING || xPortIsInsideInterrupt())
+    {
+        // No scheduler / inside ISR: can't block on a notification, fall back to polled HAL.
+        enableNss();
+        const auto st = hw::utils::convertHalStatus(HAL_SPI_Transmit(
+            &parent_bus.handle, const_cast<uint8_t *>(tx.data()), static_cast<uint16_t>(tx.size()), timeoutMs));
+        disableNss();
+        return st;
+    }
+
+    if (parent_bus.taskInProgress != nullptr)
+    {
+        // Another task already owns the bus.
+        return std::unexpected(ErrorCode::BUSY);
+    }
+
+    // Claim the bus before any HAL call so the completion ISR knows who to wake.
+    parent_bus.taskInProgress = xTaskGetCurrentTaskHandle();
+
+    // Stage TX into the device-owned buffer so DMA reads from a known location.
+    std::memcpy(dma_tx_buf, tx.data(), tx.size());
+
+    enableNss();
+    auto exit = hw::utils::convertHalStatus(
+        HAL_SPI_Transmit_DMA(&parent_bus.handle, dma_tx_buf, static_cast<uint16_t>(tx.size())));
+    if (not exit.has_value())
+    {
+        // DMA kickoff failed: release the bus and bail.
+        parent_bus.taskInProgress = nullptr;
+        disableNss();
+        return exit;
+    }
+
+    exit = waitForNotification();
+    disableNss();
+    return exit;
+}
+
+result<void> device::receiveDma(const std::span<uint8_t> rx) const
+{
+    if (rx.size() > sizeof(dma_rx_buf))
+    {
+        return std::unexpected(ErrorCode::INVALID_ARGS);
+    }
+
+    if (osKernelGetState() != taskSCHEDULER_RUNNING || xPortIsInsideInterrupt())
+    {
+        // No scheduler / inside ISR: can't block on a notification, fall back to polled HAL.
+        enableNss();
+        const auto exit = hw::utils::convertHalStatus(
+            HAL_SPI_Receive(&parent_bus.handle, rx.data(), static_cast<uint16_t>(rx.size()), timeoutMs));
+        disableNss();
+        return exit;
+    }
+
+    if (parent_bus.taskInProgress != nullptr)
+    {
+        return std::unexpected(ErrorCode::BUSY);
+    }
+    parent_bus.taskInProgress = xTaskGetCurrentTaskHandle();
+
+    enableNss();
+    auto exit = hw::utils::convertHalStatus(
+        HAL_SPI_Receive_DMA(&parent_bus.handle, dma_rx_buf, static_cast<uint16_t>(rx.size())));
+    if (not exit.has_value())
+    {
+        parent_bus.taskInProgress = nullptr;
+        disableNss();
+        return exit;
+    }
+
+    exit = waitForNotification();
+    disableNss();
+    if (exit)
+    {
+        // DMA wrote into dma_rx_buf; surface it to the caller's span.
+        std::memcpy(rx.data(), dma_rx_buf, rx.size());
+    }
+    return exit;
+}
+
+[[nodiscard]] result<void>
+    device::transmitThenReceiveDma(const std::span<const uint8_t> tx, const std::span<uint8_t> rx) const
+{
+    // SPI is full-duplex: to clock in rx.size() bytes we must clock out the same number. Build a single
+    // TX frame = [cmd bytes][zero-padded dummy bytes for the read phase].
+    const auto combined = static_cast<uint16_t>(tx.size() + rx.size());
+    if (combined > MAX_SPI_BUFFER)
+    {
+        return std::unexpected(ErrorCode::INVALID_ARGS);
+    }
+
+    std::memset(dma_tx_buf, 0, combined);
+    std::memcpy(dma_tx_buf, tx.data(), tx.size());
+
+    if (osKernelGetState() != taskSCHEDULER_RUNNING || xPortIsInsideInterrupt())
+    {
+        // No scheduler / inside ISR: can't block on a notification, fall back to polled HAL.
+        enableNss();
+        const auto exit = hw::utils::convertHalStatus(
+            HAL_SPI_TransmitReceive(&parent_bus.handle, dma_tx_buf, dma_rx_buf, combined, timeoutMs));
+        disableNss();
+
+        // The first tx.size() RX bytes are clocked in during the command phase (garbage from the slave's
+        // perspective). The real response lives at offset tx.size().
+        std::memcpy(rx.data(), dma_rx_buf + tx.size(), rx.size());
+        return exit;
+    }
+
+    if (parent_bus.taskInProgress != nullptr)
+    {
+        return std::unexpected(ErrorCode::BUSY);
+    }
+    parent_bus.taskInProgress = xTaskGetCurrentTaskHandle();
+
+    enableNss();
+    auto exit =
+        hw::utils::convertHalStatus(HAL_SPI_TransmitReceive_DMA(&parent_bus.handle, dma_tx_buf, dma_rx_buf, combined));
+    if (not exit.has_value())
+    {
+        parent_bus.taskInProgress = nullptr;
+        disableNss();
+        return exit;
+    }
+
+    exit = waitForNotification();
+    disableNss();
+    if (not exit)
+    {
+        return exit;
+    }
+
+    // Slice out the response, discarding the leading command-phase bytes.
+    std::memcpy(rx.data(), dma_rx_buf + tx.size(), rx.size());
+    return {};
+}
+
 /* ---------------------------- HAL callbacks --------------------------- */
+// HAL fires the same TxCplt/RxCplt/TxRxCplt callbacks for both IT and DMA modes, so a single set of
+// callbacks handles both. Each wakes the task currently blocked in waitForNotification.
+
 extern "C" void HAL_SPI_TxCpltCallback(SPI_HandleTypeDef *hspi)
 {
     const auto &bus = getBusFromHandle(hspi);
@@ -219,4 +377,8 @@ extern "C" void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef *hspi)
 extern "C" void HAL_SPI_ErrorCallback(SPI_HandleTypeDef *hspi)
 {
     LOG_ERROR("SPI error: 0x%X", hspi->ErrorCode);
+    // Wake the waiting task immediately instead of letting it block for the full timeout.
+    // waitForNotification inspects hspi->ErrorCode and converts the wake into ErrorCode::ERROR.
+    const auto &bus = getBusFromHandle(hspi);
+    bus.onTransactionCompleteFromISR();
 }

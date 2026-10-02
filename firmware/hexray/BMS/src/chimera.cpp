@@ -5,7 +5,8 @@
 #include "hw_hardFaultHandler.hpp"
 #include "hw_spis.hpp"
 #include "hw_usb.hpp"
-#include "hw_i2cs.hpp"
+#include "hw_pwms.hpp"
+// #include "hw_i2cs.hpp"
 #include <bms.pb.h>
 #include "hw_rtosTaskHandler.hpp"
 
@@ -15,7 +16,7 @@
 
 class BMSChimeraConfig final : public chimera_v2::config
 {
-    std::optional<std::reference_wrapper<const hw::Gpio>> id_to_gpio(const _GpioNetName *gnn) const override
+    std::optional<std::reference_wrapper<const hw::gpio>> id_to_gpio(const _GpioNetName *gnn) const override
     {
         if (gnn->which_name != gpio_net_name_tag)
         {
@@ -35,7 +36,7 @@ class BMSChimeraConfig final : public chimera_v2::config
             case bms_GpioNetName_GPIO_nHIGH_CURRENT_BSPD:
                 return std::cref(n_high_current_bspd);
             case bms_GpioNetName_GPIO_MSD_SHDN_SNS:
-                return std::cref(msd_shdn_sns);
+                return std::cref(shdn_term_sns);
             case bms_GpioNetName_GPIO_HV_P_INTLCK_SNS:
                 return std::cref(hv_p_intlck_sns);
             case bms_GpioNetName_GPIO_HV_N_INTLCK_SNS:
@@ -98,7 +99,7 @@ class BMSChimeraConfig final : public chimera_v2::config
                 return std::nullopt;
         }
     }
-    std::optional<std::reference_wrapper<const hw::Adc>> id_to_adc(const _AdcNetName *ann) const override
+    std::optional<std::reference_wrapper<const hw::adc>> id_to_adc(const _AdcNetName *ann) const override
     {
         if (ann->which_name != adc_net_name_tag)
         {
@@ -108,19 +109,19 @@ class BMSChimeraConfig final : public chimera_v2::config
         switch (ann->name.bms_net_name)
         {
             case bms_AdcNetName_ADC_FAN_ISNS:
-                return std::cref(hw::adc::fan_isns);
+                return std::cref(fan_isns);
             case bms_AdcNetName_ADC_TS_VSENSE_P:
-                return std::cref(hw::adc::ts_vsense_p);
+                return std::cref(ts_vsense_p);
             case bms_AdcNetName_ADC_TS_VSENSE_N:
-                return std::cref(hw::adc::ts_vsense_n);
+                return std::cref(ts_vsense_n);
             case bms_AdcNetName_ADC_SHDN_SNS:
-                return std::cref(hw::adc::shdn_sns);
+                return std::cref(shdn_sns);
             case bms_AdcNetName_ADC_EMETER_THERM_SNS:
-                return std::cref(hw::adc::emeter_tsns);
+                return std::cref(emeter_tsns);
             case bms_AdcNetName_ADC_TS_ISENSE_400A:
-                return std::cref(hw::adc::ts_isense_400a);
+                return std::cref(ts_isense_400a);
             case bms_AdcNetName_ADC_TS_ISENSE_50A:
-                return std::cref(hw::adc::ts_isense_50a);
+                return std::cref(ts_isense_50a);
             default:
             case bms_AdcNetName_ADC_NET_NAME_UNSPECIFIED:
                 LOG_INFO("Chimera: Unspecified ADC net name");
@@ -128,7 +129,7 @@ class BMSChimeraConfig final : public chimera_v2::config
         }
     }
 
-    std::optional<std::reference_wrapper<const hw::spi::SpiDevice>> id_to_spi(const _SpiNetName *snn) const override
+    std::optional<std::reference_wrapper<const hw::spi::device>> id_to_spi(const _SpiNetName *snn) const override
     {
         if (snn->which_name != spi_net_name_tag)
         {
@@ -148,12 +149,6 @@ class BMSChimeraConfig final : public chimera_v2::config
         }
     }
 
-    std::optional<std::reference_wrapper<const hw::i2c::I2CDevice>> id_to_i2c(const _I2cNetName *inn) const override
-    {
-        UNUSED(inn);
-        return std::nullopt;
-    }
-
     std::optional<std::reference_wrapper<const hw::PwmOutput>> id_to_pwm(const _PwmNetName *pnn) const override
     {
         UNUSED(pnn);
@@ -171,8 +166,12 @@ class BMSChimeraConfig final : public chimera_v2::config
     }
 } bms_config;
 
-static hw::rtos::StaticTask<8096>
-    TaskChimera(osPriorityRealtime, "TaskChimera", [](void *) { chimera_v2::task(bms_config); });
+static hw::rtos::StaticTask::StaticTaskStack<8096> chimeraStack;
+static hw::rtos::StaticTask                        TaskChimera(
+    osPriorityRealtime,
+    "TaskChimera",
+    [](void *) { chimera_v2::task(bms_config); },
+    chimeraStack);
 
 void tasks_preInit()
 {
@@ -184,10 +183,22 @@ char USBD_PRODUCT_STRING_FS[] = "bms";
 {
     SEGGER_SYSVIEW_Conf();
     assert(hw::usb::init());
-
+    adcChipsInit();
     LOG_INFO("BMS Reset!");
     osKernelInitialize();
     TaskChimera.start();
     osKernelStart();
     forever {}
+}
+
+void tasks_handle_arr_rollover_callback(TIM_HandleTypeDef *htim)
+{
+    if (htim == &imd_pwm_input.get_timer_handle())
+    {
+        imd_pwm_input.increment_arrRolloverCount();
+    }
+    else if (htim == &evse_pwm_input.get_timer_handle())
+    {
+        evse_pwm_input.increment_arrRolloverCount();
+    }
 }

@@ -7,10 +7,10 @@
 namespace hw::spi
 {
 
-static SpiBus   spi3(hspi3);
-const SpiDevice imu_sd(spi3, gpio::imu_cs, 10);
+static bus   spi3(hspi3);
+const device imu_sd(spi3, imu_cs, 10);
 
-[[nodiscard]] const SpiBus &getBusFromHandle(const SPI_HandleTypeDef *handle)
+[[nodiscard]] const bus &getBusFromHandle(const SPI_HandleTypeDef *handle)
 {
     assert(handle == &hspi3);
     return spi3;

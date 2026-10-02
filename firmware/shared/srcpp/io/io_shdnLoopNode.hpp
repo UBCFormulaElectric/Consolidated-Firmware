@@ -11,21 +11,19 @@ class node
     void (*const can_broadcast)(bool);
 #ifdef TARGET_EMBEDDED
   private:
-    const hw::Gpio &pin;
+    const hw::gpio &pin;
 
   public:
-    explicit node(const hw::Gpio &in_pin_in, void (*in_can_broadcast)(bool))
+    explicit node(const hw::gpio &in_pin_in, void (*in_can_broadcast)(bool))
       : can_broadcast(in_can_broadcast), pin(in_pin_in)
     {
     }
 #elif TARGET_TEST
   private:
-    bool status;
+    bool status = true;
 
   public:
-    explicit node(bool in_status, void (*in_can_broadcast)(bool)) : can_broadcast(in_can_broadcast), status(in_status)
-    {
-    }
+    explicit node(void (*in_can_broadcast)(bool)) : can_broadcast(in_can_broadcast) {}
     void set_status(bool in_status);
 #endif
 

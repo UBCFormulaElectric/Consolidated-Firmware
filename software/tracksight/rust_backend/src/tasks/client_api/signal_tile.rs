@@ -13,15 +13,14 @@ use moka::future::Cache;
 use serde::Serialize;
 use tokio::{select, time::sleep};
 
-use crate::{config::CONFIG, dprintln};
-
-const INFLUX_QUERY_TIMEOUT_S: u64 = 5;
+use crate::{config::CONFIG, dprintln, tasks::can_data::influx_util::InfluxSignalSource};
+use crate::tasks::client_api::INFLUX_QUERY_TIMEOUT_MS;
 
 /**
  * The row for each signal value returned from InfluxDB
  */
 #[derive(Debug, Serialize, FromDataPoint, Default)]
-pub struct SignalRow {
+pub struct InfluxSignalRow {
     // rename influx field names to match with frontend names
     #[serde(rename = "timestamp")]
     time: DateTime<FixedOffset>,
@@ -29,6 +28,7 @@ pub struct SignalRow {
     measurement: String,
     #[serde(rename = "name")]
     signal_name: String,
+    source: String, // source of data, see `InfluxSignalSource`
 }
 
 // time interval [a, b] -> bucket sizes/resolution based on max points, round to finer resolution (round down)
@@ -39,10 +39,12 @@ pub struct SignalRow {
  * This determines the minimum number of points to fetch given time window
  * This also dictates API latency for fresh data, i.e. cache misses
  */
-const WINDOW_SIZE: u64 = 2096;
+const WINDOW_SIZE: u64 = 256;
 /**
  * Number of points per tile, each point being 16 bytes 
  * This dictates size of cache, as well as performance of fetching missed tiles
+ * 
+ * NOTE(evan): This is mirrored in the frontend in the lodLevels.ts fiel, so if you change this, change that too!
  */
 const TILE_SIZE: u64 = 512; 
 /**
@@ -56,7 +58,7 @@ pub type SignalTileCache = Cache<SignalTileKey, Vec<SignalTilePoint>>;
 /**
  * Used to clump results from cache hits and misses
  */
-type SignalFuture = Pin<Box<dyn Future<Output = Result<Vec<SignalRow>, RequestError>> + Send>>;
+type SignalFuture = Pin<Box<dyn Future<Output = Result<Vec<InfluxSignalRow>, RequestError>> + Send>>;
 
 /**
  * Used to group tile data so that strings and resolutions aren't repeated
@@ -66,6 +68,7 @@ pub struct SignalTileKey {
     signal: String,
     tile_start: DateTime<FixedOffset>,
     resolution_ms: u64,
+    source: InfluxSignalSource
 }
 
 /**
@@ -75,6 +78,7 @@ pub struct SignalTileKey {
 pub struct SignalTilePoint {
     time_utc_ms: i64,
     value: f64,
+    signal_name: String,
 }
 
 /**
@@ -82,7 +86,7 @@ pub struct SignalTilePoint {
  * For resolutions too small or too large, round to smallest or largest resolution respectively
  * Otherwise, always round down to nearest resolution
  */
-const RESOLUTIONS_MS: [u64; 8] = [10, 100, 500, 1000, 10000, 60000, 600000, 3600000];
+const RESOLUTIONS_MS: [u64; 10] = [10, 20, 50, 100, 500, 1000, 10000, 60000, 600000, 3600000];
 fn round_resolution_ms(res_ms: f64) -> u64 {
     if res_ms < RESOLUTIONS_MS[0] as f64 {
         return RESOLUTIONS_MS[0];
@@ -99,21 +103,24 @@ fn round_resolution_ms(res_ms: f64) -> u64 {
 
 /**
  * Retrieves data signals from tiles that contains start and end
+ * Checks cache for each tile, and if not found, fetches from InfluxDB and inserts into cache
  * Returns superset of requested time range
  */
 pub async fn get_signals(
     influx_client: Arc<influxdb2::Client>, 
+    source: InfluxSignalSource,
     signal_tile_cache: SignalTileCache, 
-    signal: String, 
-    start: DateTime<Utc>, 
-    end: DateTime<Utc>
-) -> Result<Vec<SignalRow>, (StatusCode, String)> {
+    signal: String,
+    start: DateTime<Utc>,
+    end: DateTime<Utc>,
+    agg: String
+) -> Result<(Vec<InfluxSignalRow>, u64), (StatusCode, String)> {
     // resolution in seconds
     let resolution_ms = round_resolution_ms((end - start).as_seconds_f64() * 1000.0 / (WINDOW_SIZE as f64));
     let tile_duration_ms = TILE_SIZE * resolution_ms;
     
     // get tiles
-    let mut tiles_str: Vec<DateTime<Utc>> = Vec::new();
+    let mut tile_starts: Vec<DateTime<Utc>> = Vec::new();
     // floor start time to nearest tile duration
     let mut tile_start_utc = 
         match DateTime::from_timestamp_millis(
@@ -125,30 +132,57 @@ pub async fn get_signals(
             }
         };
     while tile_start_utc < end {
-        tiles_str.push(tile_start_utc);
+        tile_starts.push(tile_start_utc);
         tile_start_utc = tile_start_utc + Duration::from_millis(tile_duration_ms);
     }
-
+    let source_str = source.to_string();
+    
     let get_tile_query = |tile_start: &DateTime<Utc>| -> String {
         let tile_start_str = tile_start.to_rfc3339_opts(chrono::SecondsFormat::Millis, true);
-        format!(r#"
-        import "date"
-        from(bucket: "{}")
-        |> range(start: {tile_start_str}, stop: date.add(d: {tile_duration_ms}ms, to: {tile_start_str}))
-        |> aggregateWindow(every: {resolution_ms}ms, fn: mean, createEmpty: false)
-        |> filter(fn: (r) => r["_measurement"] == "{}")
-        |> filter(fn: (r) => r["signal_name"] == "{signal}")"#
-        , &CONFIG.influxdb_bucket, &CONFIG.influxdb_measurement)
+
+        // NOTE(evan): Just return all alerts in the tile if requested so we don't
+        //             have to spam 100 requests to fetch all alerts in a window.
+        // 
+        //             This behaviour mimicks what we do for live data, where we also
+        //             return all alerts always.
+        if signal == "alert" {
+            format!(r#"
+                import "date"
+                from(bucket: "{}")
+                |> range(start: {tile_start_str}, stop: date.add(d: {tile_duration_ms}ms, to: {tile_start_str}))
+                |> filter(fn: (r) => r["_measurement"] == "{}")
+                |> filter(fn: (r) => r["source"] == "{source_str}")
+                |> filter(fn: (r) => r["signal_type"] == "alert")
+                |> toFloat()
+                |> aggregateWindow(every: {resolution_ms}ms, fn: max, createEmpty: false)"#,
+                &CONFIG.influxdb_bucket,
+                &CONFIG.influxdb_measurement
+            )
+        } else {
+            format!(r#"
+                import "date"
+                from(bucket: "{}")
+                |> range(start: {tile_start_str}, stop: date.add(d: {tile_duration_ms}ms, to: {tile_start_str}))
+                |> filter(fn: (r) => r["_measurement"] == "{}")
+                |> filter(fn: (r) => r["signal_name"] == "{signal}")
+                |> filter(fn: (r) => r["source"] == "{source_str}")
+                |> toFloat()
+                |> aggregateWindow(every: {resolution_ms}ms, fn: {agg}, createEmpty: false)"#, 
+                &CONFIG.influxdb_bucket, 
+                &CONFIG.influxdb_measurement
+            )
+        }
     };
     
     // track current time in ms to prevent caching currently written tiles
     let curr_time_ms = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_millis() as i64;
     let mut tile_queries: Vec<SignalFuture> = Vec::new();
-    for tile_start in &tiles_str {
+    for tile_start in &tile_starts {
         let tile_key = SignalTileKey {
             signal: signal.clone(),
             tile_start: (*tile_start).into(),
-            resolution_ms
+            resolution_ms,
+            source: source.clone()
         };
 
         let cache_fetch = signal_tile_cache.get(&tile_key).await;
@@ -169,13 +203,14 @@ pub async fn get_signals(
                             point.time_utc_ms
                         );
                     }
-                    Some(SignalRow {
+                    Some(InfluxSignalRow {
                         time: time_utc?.into(),
                         value: point.value,
                         measurement: CONFIG.influxdb_measurement.clone(),
-                        signal_name: signal.clone(),
+                        signal_name: point.signal_name,
+                        source: source.to_string()
                     })
-                }).collect::<Vec<SignalRow>>();
+                }).collect::<Vec<InfluxSignalRow>>();
                 tile_queries.push(Box::pin(ready(Ok(signal_rows))));
             }
             None => {
@@ -189,7 +224,7 @@ pub async fn get_signals(
                 // make sure tile isn't currently being changed by checking it's end time
                 let tile_end_ms = tile_start.timestamp_millis() + tile_duration_ms as i64;
                 let query_block = async move {
-                    let signal_rows = influx_clone.query::<SignalRow>(
+                    let signal_rows = influx_clone.query::<InfluxSignalRow>(
                         Some(Query::new(tile_query_str))
                     ).await?;
 
@@ -201,6 +236,7 @@ pub async fn get_signals(
                             signal_rows.iter().map(|row| SignalTilePoint {
                                 time_utc_ms: row.time.timestamp_millis(),
                                 value: row.value,
+                                signal_name: row.signal_name.clone(),
                             }).collect::<Vec<SignalTilePoint>>()
                         ).await;
                     }
@@ -215,15 +251,16 @@ pub async fn get_signals(
     let result = select! {
         val = try_join_all(tile_queries) => {
             match val {
-                Ok(res) => res.into_iter().flatten().collect::<Vec<SignalRow>>(),
+                Ok(res) => res.into_iter().flatten().collect::<Vec<InfluxSignalRow>>(),
                 Err(e) => {
                     return Err((StatusCode::INTERNAL_SERVER_ERROR, format!("InfluxDB query error: {e}")));
                 }
             }
         },
-        _ = sleep(Duration::from_secs(INFLUX_QUERY_TIMEOUT_S)) => {
+        _ = sleep(Duration::from_millis(INFLUX_QUERY_TIMEOUT_MS)) => {
             return Err((StatusCode::REQUEST_TIMEOUT, "InfluxDB query timed out!".to_string()));
         }
     };
-    return Ok(result);
+
+    return Ok((result, resolution_ms));
 }

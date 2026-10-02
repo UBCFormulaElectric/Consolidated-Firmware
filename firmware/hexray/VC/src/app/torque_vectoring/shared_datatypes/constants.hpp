@@ -1,5 +1,6 @@
 #pragma once
 
+#include "torque_limits.hpp"
 #include "util_units.hpp"
 #include <cmath>
 
@@ -9,20 +10,20 @@ namespace app::tv::shared_datatypes::vd_constants
 // PHYSICAL CONSTANTS
 // =============================================================================
 
-inline constexpr float GRAVITY           = 9.81f;     // m/s^2
-inline constexpr float SMALL_EPSILON     = 0.000001f; // Numerical stability for division
+inline constexpr float GRAVITY       = 9.81f;     // m/s^2
+inline constexpr float SMALL_EPSILON = 0.000001f; // Numerical stability for division
 // Floor on the longitudinal speed used as the denominator of slip ratio / slip angle. Below this, tiny lateral
 // velocities would otherwise produce huge slip angles (atan2(v_y, ~0) -> +-90 deg) and poison the allocator.
 inline constexpr float SLIP_REGULARIZATION_SPEED_MPS = 1.0f;
 // Braking (negative APPS) requests fade out linearly below this speed so the motors stop the car instead of
 // driving it backwards once v_x reaches zero.
 inline constexpr float BRAKE_FADE_SPEED_MPS = 2.0f;
-inline constexpr float FRONTAL_AREA_M2   = 0.94f;     // m^2 from aero team
-inline constexpr float AIR_DENSITY_KGPM3 = 1.2205f;   // kg/m^3
-inline constexpr float LIFT_COEFF        = 1.7f;      // from aero team
-inline constexpr float DRAG_COEFF        = 0.92f;
-inline constexpr float COP_REAR          = 0.68f; // fraction of aero load acting behind the CG
-inline constexpr float COP_RIGHT         = 0.5f;  // fraction of aero load acting on the right side
+inline constexpr float FRONTAL_AREA_M2      = 0.94f;   // m^2 from aero team
+inline constexpr float AIR_DENSITY_KGPM3    = 1.2205f; // kg/m^3
+inline constexpr float LIFT_COEFF           = 1.7f;    // from aero team
+inline constexpr float DRAG_COEFF           = 0.92f;
+inline constexpr float COP_REAR             = 0.68f; // fraction of aero load acting behind the CG
+inline constexpr float COP_RIGHT            = 0.5f;  // fraction of aero load acting on the right side
 
 // =============================================================================
 // VEHICLE DIMENSIONS
@@ -41,8 +42,9 @@ inline constexpr float WHEEL_RADIUS_M = WHEEL_DIAMETER_IN * IN_TO_M / 2.0f;
 // =============================================================================
 
 inline constexpr double CAR_MASS_CG_NO_DRIVER_KG = 186.0f; // Mass with driver (verified with suspension team)
-inline constexpr double DRIVER_MASS_KG = 70.0f; // Mass with driver (verified with suspension team)
-inline constexpr double CAR_MASS_AT_CG_KG = CAR_MASS_CG_NO_DRIVER_KG + DRIVER_MASS_KG; // Mass with driver (verified with suspension team)
+inline constexpr double DRIVER_MASS_KG           = 70.0f;  // Mass with driver (verified with suspension team)
+inline constexpr double CAR_MASS_AT_CG_KG =
+    CAR_MASS_CG_NO_DRIVER_KG + DRIVER_MASS_KG; // Mass with driver (verified with suspension team)
 // Estimated yaw moment of inertia about CG (TODO: Update with suspension team)
 inline constexpr float CAR_YAW_MOMENT_INERTIA_KGM2 = 400.0f;
 
@@ -56,16 +58,6 @@ inline constexpr float CAR_WEIGHT                = CAR_MASS_AT_CG_KG * GRAVITY;
 inline constexpr float WEIGHT_ACROSS_BODY        = CAR_MASS_AT_CG_KG * GRAVITY / WHEELBASE_m;
 inline constexpr float REAR_WEIGHT_DISTRIBUTION  = WEIGHT_ACROSS_BODY * DIST_REAR_AXLE_CG_m;
 inline constexpr float FRONT_WEIGHT_DISTRIBUTION = WEIGHT_ACROSS_BODY * DIST_FRONT_AXLE_CG_m;
-
-// =============================================================================
-// MOTOR & POWERTRAIN SPECIFICATIONS
-// =============================================================================
-
-// AMK DD5-14-10-POW Motor Specifications
-inline constexpr float MAX_TORQUE_REQUEST_NM     = 20.5f;  // Safety limit (actual max is 21 Nm)
-inline constexpr float NOMINAL_TORQUE_REQUEST_NM = 9.8f;   // Nominal continuous torque
-inline constexpr float MAX_REGEN_Nm              = -15.0f; // Maximum regenerative braking torque
-inline constexpr uint16_t POWER_TO_TORQUE_CONVERSION_FACTOR = 9550; // 60/(2*pi)*1000 for T = P/ω
 
 // =============================================================================
 // POWER & THERMAL LIMITS
@@ -85,21 +77,11 @@ inline constexpr float MOTOR_TEMP_POWER_DECREMENTING_RATIO =
 inline constexpr float MAX_BATTERY_TEMP = 45.0f; // TODO: Verify this is current
 
 // =============================================================================
-// CONTROL SYSTEM PARAMETERS
-// =============================================================================
-
-// TODO: these probably are legacy and not needed
-// PID Control Parameters
-inline constexpr float PID_TIMEOUT_ms       = 1000.0f; // PID timeout period
-inline constexpr float PID_POWER_FACTOR_MIN = -0.9f;   // TODO: May need adjustment
-inline constexpr float PID_POWER_FACTOR_MAX = 0.1f;    // TODO: May need adjustment
-
-// =============================================================================
 // WHEEL AND STEERING PARAMETERS
 // =============================================================================
 
-inline constexpr float SLIP_RATIO_IDEAL = 0.05f; // Ideal slip ratio for maximum traction
-inline constexpr float MAX_AX_MPS2      = 9.81f * 1.8f;    // TODO idk this number bruh
+inline constexpr float SLIP_RATIO_IDEAL = 0.05f;        // Ideal slip ratio for maximum traction
+inline constexpr float MAX_AX_MPS2      = 9.81f * 1.8f; // TODO idk this number bruh
 
 inline constexpr float STEER_WHEEL_RANGE_rad = 1.48632f;
 inline constexpr float STEER_WHEEL_RANGE_deg = RAD_TO_DEG(1.48632f);
@@ -110,40 +92,6 @@ inline constexpr float FRONT_BUMP_CAMBER_deg_mm = 0.02f;
 
 inline constexpr float STATIC_CAMBER_REAR_deg  = -0.75f;
 inline constexpr float REAR_BUMP_CAMBER_deg_mm = 0.06f;
-
-// =============================================================================
-// UTILITY FUNCTIONS & CONVERSION HELPERS
-// =============================================================================
-
-/**
- * Motor Torque Command Conversion
- *
- * DD5-14-10-POW motors accept percentage of nominal torque (not absolute torque).
- * 100% = 9.8 Nm (nominal), but motors can output up to 21 Nm (not sustained).
- * Input: torque in Nm
- * Output: int16_t representing (torque/nominal) * 1000
- */
-[[nodiscard]] constexpr int16_t MOTOR_TORQUE_REQUEST(const float torque)
-{
-    return static_cast<int16_t>(torque / NOMINAL_TORQUE_REQUEST_NM * 1000.0f);
-}
-
-/**
- * Convert torque and RPM to power (kW)
- */
-[[nodiscard]] constexpr float TORQUE_TO_POWER(const float torque, const float rpm)
-{
-    return torque * (rpm / GEAR_RATIO) / static_cast<float>(POWER_TO_TORQUE_CONVERSION_FACTOR);
-}
-
-/**
- * Convert power (kW) and RPM to torque (Nm)
- * Includes safety guard against division by zero
- */
-[[nodiscard]] inline float POWER_TO_TORQUE(const float power, const float rpm)
-{
-    return (power * static_cast<float>(POWER_TO_TORQUE_CONVERSION_FACTOR)) / (std::fmax(rpm, 0.00001f) / GEAR_RATIO);
-}
 
 // =============================================================================
 // EXTERNAL CONFIGURATION (Commented Out)

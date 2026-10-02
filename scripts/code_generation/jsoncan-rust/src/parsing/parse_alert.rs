@@ -1,5 +1,5 @@
 use crate::can_database::{CanAlert, CanAlertType};
-use std::collections::HashMap;
+use indexmap::IndexMap;
 
 #[derive(serde::Deserialize)]
 struct AlertEntrySchema {
@@ -18,11 +18,11 @@ struct AlertsSchema {
     info_id: u32,
     info_counts_id: u32,
     #[serde(default)]
-    warnings: HashMap<String, AlertEntrySchema>,
+    warnings: IndexMap<String, AlertEntrySchema>,
     #[serde(default)]
-    faults: HashMap<String, AlertEntrySchema>,
+    faults: IndexMap<String, AlertEntrySchema>,
     #[serde(default)]
-    info: HashMap<String, AlertEntrySchema>,
+    info: IndexMap<String, AlertEntrySchema>,
 }
 
 #[derive(Clone)]

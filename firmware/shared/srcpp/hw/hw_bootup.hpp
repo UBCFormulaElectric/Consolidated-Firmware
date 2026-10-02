@@ -17,15 +17,15 @@ namespace hw::bootup
 
 enum class BootTarget : uint8_t
 {
-    BOOT_TARGET_APP,
-    BOOT_TARGET_BOOTLOADER,
+    APP,
+    BOOTLOADER,
 };
 
 enum class BootContext : uint8_t
 {
-    BOOT_CONTEXT_NONE,
-    BOOT_CONTEXT_STACK_OVERFLOW,
-    BOOT_CONTEXT_WATCHDOG_TIMEOUT,
+    NONE,
+    OVERFLOW,
+    WATCHDOG_TIMEOUT,
 };
 
 // Note the ordering matters as given the system is 4-byte aligned
@@ -44,7 +44,7 @@ struct BootRequestData
     BootRequest request;
 };
 static_assert(sizeof(BootRequestData) == 12, "BootRequestData struct size must be 12 bytes");
-static_assert(_Alignof(BootRequestData) == 4, "");
+static_assert(alignof(BootRequestData) == 4, "");
 
 // Boot flag from RAM
 extern volatile __attribute__((section(".boot_request"))) BootRequestData boot_request;

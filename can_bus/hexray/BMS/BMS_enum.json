@@ -44,6 +44,11 @@
     "IMD_40Hz": 4,
     "IMD_50Hz": 5
   },
+  "ImdSstState": {
+    "IMD_SST_GOOD": 0,
+    "IMD_SST_BAD": 1,
+    "IMD_SST_INVALID": 2
+  },
   "BalancingState": {
     "BALANCING_DISABLED": 0,
     "BALANCING_SETTLE": 1,

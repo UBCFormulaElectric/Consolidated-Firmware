@@ -1,6 +1,9 @@
 services:
   influx:
     image: influxdb:2-alpine
+    volumes:
+      - influxdb:/var/lib/influxdb2
+    container_name: influxdb
     ports:
       # InfluxDB port is always 8086 internally
       - "${INFLUXDB_PORT}:8086"
@@ -15,23 +18,31 @@ services:
       start_period: 10s
       start_interval: 1s
   backend:
+    container_name: backend
     build:
       context: ../../../
       dockerfile: software/tracksight/rust_backend/Dockerfile
-    # Expose port from container
-    ports:
-      - "${BACKEND_PORT}:${BACKEND_PORT}"
-    # Pass common envs into container
+      # Used to build backend with different verbosity levels
+      args: 
+        DOCKER_VERBOSITY: ${DOCKER_VERBOSITY}
+    # Let backend know it's running in docker
     environment:
-      BACKEND_PORT: ${BACKEND_PORT}
-      INFLUXDB_PORT: ${INFLUXDB_PORT}
+      DOCKER: "true"
+    # Expose port from container
+    network_mode: host
+    extra_hosts:
+      - "influx:127.0.0.1"
+    # ports:
+    #  - "${BACKEND_PORT}:${BACKEND_PORT}"
     env_file: envs/backend.env
     # Privileged provides access to all serial ports, not need to pass serial port through
     privileged: true
     volumes:
       - /dev:/dev
-      # - ../rust_backend:/backend
-      # TODO with live health check
+      - /sys:/sys:ro
+    depends_on:
+      influx:
+        condition: service_healthy
     # healthcheck:
     #   # Ping server every 30s in case something breaks.
     #   test: [ "CMD", "curl", "-f", "http://localhost:${BACKEND_PORT}/api/health" ]
@@ -41,10 +52,8 @@ services:
       # Ping at higher frequency at startup since dependant containers don't start until this one passes health check.
       # start_period: 10s
       # start_interval: 1s
-    depends_on:
-      influx:
-        condition: service_healthy
   frontend:
+    container_name: frontend
     build: 
       context: ../../../
       dockerfile: software/tracksight/frontend/Dockerfile
@@ -62,3 +71,4 @@ services:
   #   restart: unless-stopped
   #   ports:
   #     - '3000:3000'
+  

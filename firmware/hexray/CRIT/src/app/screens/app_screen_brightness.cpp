@@ -17,6 +17,6 @@ void static update()
 }
 
 constexpr app::screens::Screen app::screens::brightness_screen = {
-    [] { app::brightness = static_cast<uint8_t>(std::clamp(app::brightness - 1, 0, 100)); },
-    [] { app::brightness                                       = static_cast<uint8_t>(std::clamp(app::brightness + 1, 0, 100)); }, update
+    [] { app::brightness = static_cast<uint8_t>(std::clamp(app::brightness - 5, 0, 100)); },
+    [] { app::brightness                                       = static_cast<uint8_t>(std::clamp(app::brightness + 5, 0, 100)); }, update
 };

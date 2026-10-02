@@ -1,6 +1,8 @@
 #include "app_timer.hpp"
 #include "io_time.hpp"
 
+#include <algorithm>
+
 namespace app
 {
 void Timer::restart()
@@ -48,7 +50,7 @@ uint32_t Timer::getElapsedTime() const
         {
             // Get elapsed time, but clamp to duration
             uint32_t total_elapsed_time = io::time::getCurrentMs() - start_time_ms;
-            elapsed_time                = (total_elapsed_time > duration_ms) ? duration_ms : total_elapsed_time;
+            elapsed_time                = std::min(duration_ms, total_elapsed_time);
             break;
         }
         case TimerState::EXPIRED:
@@ -68,5 +70,10 @@ uint32_t Timer::getElapsedTime() const
         }
     }
     return elapsed_time;
+}
+
+void Timer::update_duration(const uint32_t duration)
+{
+    duration_ms = duration;
 }
 } // namespace app

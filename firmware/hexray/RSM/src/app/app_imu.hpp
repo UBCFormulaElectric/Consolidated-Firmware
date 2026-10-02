@@ -7,12 +7,12 @@ namespace app::imu
 {
 struct RSMImuResults
 {
-    std::expected<float, ErrorCode> accel_x_res;
-    std::expected<float, ErrorCode> accel_y_res;
-    std::expected<float, ErrorCode> accel_z_res;
-    std::expected<float, ErrorCode> gyro_x_res;
-    std::expected<float, ErrorCode> gyro_y_res;
-    std::expected<float, ErrorCode> gyro_z_res;
+    result<float> accel_x_res;
+    result<float> accel_y_res;
+    result<float> accel_z_res;
+    result<float> gyro_x_res;
+    result<float> gyro_y_res;
+    result<float> gyro_z_res;
 
     inline constexpr bool hasFault()
     {
