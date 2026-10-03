@@ -117,6 +117,7 @@ async fn main() {
             let can_queue_tx_clone = base_can_queue_tx.clone();
             let diag_tx_clone = base_diag_tx.clone();
             let can_db_clone = base_can_db.clone();
+            let clients_clone = clients.clone();
             let client_out_msg_rx_clone = client_out_msg_rx.resubscribe();
 
             match CONFIG.serial {
@@ -143,6 +144,7 @@ async fn main() {
                             can_queue_tx_clone,
                             diag_tx_clone,
                             can_db_clone,
+                            clients_clone,
                         ),
                     );
                 },

@@ -9,8 +9,9 @@ use regex::Regex;
 use serde_json::from_str;
 use tokio::{select, time::sleep};
 
-use crate::{config::CONFIG, dprintln, error_println, tasks::{can_data::influx_util::InfluxSignalSource, client_api::{AppState, signal_tile::{InfluxSignalRow, get_signals}}}, utils::{rfc3339_to_utc, rfc3339_to_utc_str}, vprintln};
+use crate::{config::CONFIG, dprintln, error_println, tasks::{can_data::{influx_util::InfluxSignalSource, signal_metadata::get_all_signal_metadatas}, client_api::{AppState, signal_tile::{InfluxSignalRow, get_signals}}}, utils::{rfc3339_to_utc, rfc3339_to_utc_str}, vprintln};
 use crate::tasks::client_api::INFLUX_QUERY_TIMEOUT_MS;
+use crate::tasks::can_data::signal_metadata::{SignalMetadata, SignalMetadataEnumSignal};
 
 /**
  * Gets the list of all nodes (str) in the current parser.
@@ -27,25 +28,6 @@ async fn nodes(State(state): State<AppState>) -> impl IntoResponse {
 struct SignalTilesResponse {
     resolution_ms: u64,
     rows: Vec<InfluxSignalRow>,
-}
-
-#[derive(Debug, Serialize)]
-struct SignalMetadata {
-    name: String,
-    min_val: f64,
-    max_val: f64,
-    unit: Option<String>,
-    enum_signal: Option<SignalMetadataEnumSignal>,
-    tx_node: String,
-    cycle_time_ms: Option<u32>,
-    id: u32,
-    msg_name: String,
-}
-
-#[derive(Debug, Serialize)]
-struct SignalMetadataEnumSignal {
-    enum_name: String,
-    enum_values: HashMap<String, u32>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -66,42 +48,7 @@ async fn metadata(Query(SignalNameParam { mut name } ): Query<SignalNameParam>, 
         }
     };
 
-    let flat_map = | msg: &CanMessage | {
-        return msg.signals.iter().map(
-            | signal | {
-                let can_enum: Option<SignalMetadataEnumSignal> = 
-                    if let Some(enum_name) = &signal.enum_name && 
-                    let Some(can_enum) = 
-                    state.can_db.get_enum(enum_name) {
-                        Some(SignalMetadataEnumSignal {
-                            enum_name: can_enum.name.clone(),
-                            enum_values: can_enum.values.clone()
-                        })
-                    } else {
-                        None
-                    };
-                (signal.name.clone(),
-                SignalMetadata {
-                    name: signal.name.clone(),
-                    min_val: signal.min,
-                    max_val: signal.max,
-                    unit: signal.unit.clone(),
-                    enum_signal: can_enum,
-                    tx_node: msg.tx_node_name.clone(),
-                    cycle_time_ms: msg.cycle_time.clone(),
-                    id: msg.id,
-                    msg_name: msg.name.clone(),
-                })
-            }
-        ).collect::<Vec<_>>()
-    };
-
-    let metadatas: HashMap<String, SignalMetadata> = state.can_db.get_all_msgs()
-        .unwrap_or_default()
-        .iter()
-        .filter(|msg| regex.is_match(&msg.name))
-        .flat_map(flat_map)
-        .collect();
+    let metadatas: HashMap<String, SignalMetadata> = get_all_signal_metadatas(&state.can_db, Some(regex));
 
     return (StatusCode::OK, Json(metadatas));
 }
