@@ -4,10 +4,15 @@ import 'dart:typed_data';
 
 import 'package:ffi/ffi.dart';
 
+// Dart bindings for libdimos_jsoncan (native/jsoncan_bridge), which wraps the
+// Rust jsoncan generated code for the DIMOS node.
 class JsonCanFfi {
   JsonCanFfi._();
 
   static final JsonCanFfi instance = JsonCanFfi._();
+
+  // CAN FD payloads are at most 64 bytes.
+  static const int maxPayloadBytes = 64;
 
   bool _initialized = false;
   late final ffi.DynamicLibrary _lib;
@@ -15,16 +20,20 @@ class JsonCanFfi {
   late final void Function() _init;
   late final void Function(int stdId, int dlc, ffi.Pointer<ffi.Uint8> data)
       _processFrame;
-  late final int Function() _getDemoU32;
-  late final int Function() _getPumpFailureU8;
+  late final int Function(int stdId, int timeMs) _needsLog;
+  late final int Function(int stdId, int timeMs) _needsTelem;
+  late final int Function() _getVcCanLoggingRemainingErrors;
 
-  void ensureLoaded() {
+  static String get _defaultLibraryPath {
+    if (Platform.isLinux) return 'libdimos_jsoncan.so';
+    if (Platform.isMacOS) return 'libdimos_jsoncan.dylib';
+    throw UnsupportedError('JsonCanFfi is only supported on Linux and macOS.');
+  }
+
+  void ensureLoaded({String? libraryPath}) {
     if (_initialized) return;
-    if (!Platform.isLinux) {
-      throw StateError('JsonCanFfi is only supported on Linux.');
-    }
 
-    _lib = ffi.DynamicLibrary.open('libdimos_jsoncan.so');
+    _lib = ffi.DynamicLibrary.open(libraryPath ?? _defaultLibraryPath);
 
     _init = _lib.lookupFunction<ffi.Void Function(), void Function()>(
       'dimos_jsoncan_init',
@@ -34,11 +43,17 @@ class JsonCanFfi {
         void Function(int, int, ffi.Pointer<ffi.Uint8>)>(
       'dimos_jsoncan_process_frame',
     );
-    _getDemoU32 = _lib.lookupFunction<ffi.Uint32 Function(), int Function()>(
-      'dimos_jsoncan_get_demo_u32',
+    _needsLog = _lib.lookupFunction<ffi.Uint8 Function(ffi.Uint32, ffi.Uint32),
+        int Function(int, int)>(
+      'dimos_jsoncan_needs_log',
     );
-    _getPumpFailureU8 = _lib.lookupFunction<ffi.Uint8 Function(), int Function()>(
-      'dimos_jsoncan_get_vc_pump_failure_u8',
+    _needsTelem = _lib.lookupFunction<ffi.Uint8 Function(ffi.Uint32, ffi.Uint32),
+        int Function(int, int)>(
+      'dimos_jsoncan_needs_telem',
+    );
+    _getVcCanLoggingRemainingErrors =
+        _lib.lookupFunction<ffi.Uint8 Function(), int Function()>(
+      'dimos_jsoncan_get_vc_can_logging_remaining_errors',
     );
 
     _init();
@@ -48,26 +63,29 @@ class JsonCanFfi {
   void processFrame(int stdId, Uint8List data) {
     ensureLoaded();
 
-    // jsoncan expects at most 8 bytes.
-    final dlc = data.length > 8 ? 8 : data.length;
-    final ptr = calloc<ffi.Uint8>(8);
+    final dlc = data.length > maxPayloadBytes ? maxPayloadBytes : data.length;
+    final ptr = calloc<ffi.Uint8>(maxPayloadBytes);
     try {
-      for (var i = 0; i < dlc; i++) {
-        ptr[i] = data[i];
-      }
+      ptr.asTypedList(dlc).setRange(0, dlc, data);
       _processFrame(stdId, dlc, ptr);
     } finally {
       calloc.free(ptr);
     }
   }
 
-  int getDemoU32() {
+  // Data capture for the DIMOS logger node; `timeMs` must be monotonic.
+  bool needsLog(int stdId, int timeMs) {
     ensureLoaded();
-    return _getDemoU32();
+    return _needsLog(stdId, timeMs) != 0;
   }
 
-  bool getPumpFailure() {
+  bool needsTelem(int stdId, int timeMs) {
     ensureLoaded();
-    return _getPumpFailureU8() != 0;
+    return _needsTelem(stdId, timeMs) != 0;
+  }
+
+  int getVcCanLoggingRemainingErrors() {
+    ensureLoaded();
+    return _getVcCanLoggingRemainingErrors();
   }
 }

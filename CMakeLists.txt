@@ -114,6 +114,9 @@ IF ("${PLATFORM}" STREQUAL "firmware")
         add_subdirectory(scripts/code_generation/jsoncan-rust/integration)
     ENDIF ()
 ELSEIF ("${PLATFORM}" STREQUAL "dimos")
+    # LEGACY: builds the old Qt dashboard (software/dimos_qt) for Quadruna, a retired car.
+    # The dashboard is now the Flutter app in software/dimos, which is built with `flutter build`.
+    message(WARNING "⚠️ PLATFORM=dimos builds the legacy Qt dashboard for Quadruna. Use the Flutter app in software/dimos instead.")
     project("UBC Formula Electric Software" VERSION 0.1 LANGUAGES C CXX)
     add_subdirectory(software/dimos_qt)
 ELSE ()

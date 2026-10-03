@@ -6,17 +6,21 @@
 extern "C" {
 #endif
 
-// Initialize jsoncan RX table to startup values.
+// Reset jsoncan data capture (log/telem) timers.
 void dimos_jsoncan_init(void);
 
-// Feed one received CAN frame into jsoncan. `dlc` is clamped to 8 bytes.
+// Feed one received CAN frame into the jsoncan RX table. `dlc` is the payload
+// length in bytes and is clamped to 64 (CAN FD).
 void dimos_jsoncan_process_frame(uint32_t std_id, uint32_t dlc, const uint8_t* data);
 
-// Proof-of-integration getter: returns a stable demo u32 from the RX table.
-uint32_t dimos_jsoncan_get_demo_u32(void);
+// Data capture, generated from each message's `data_capture` config because DIMOS
+// is listed in bus.json `loggers`. `time_ms` is a monotonic timestamp. Returns 1
+// if the frame should be logged / sent over telem now, else 0.
+uint8_t dimos_jsoncan_needs_log(uint32_t std_id, uint32_t time_ms);
+uint8_t dimos_jsoncan_needs_telem(uint32_t std_id, uint32_t time_ms);
 
-// Proof-of-integration warning signal: 1 if pump failure is active, else 0.
-uint8_t dimos_jsoncan_get_vc_pump_failure_u8(void);
+// Proof-of-integration getter: VC_CanLoggingRemainingErrors from VC_Vitals.
+uint8_t dimos_jsoncan_get_vc_can_logging_remaining_errors(void);
 
 #ifdef __cplusplus
 }  // extern "C"

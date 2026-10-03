@@ -93,22 +93,8 @@ include(flutter/generated_plugins.cmake)
 
 # === jsoncan (native) ===
 # Built as a shared library so Dart can load it via FFI at runtime.
-set(DIMOS_JSONCAN_GEN_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../native/jsoncan_gen/hexray/DAMLogger")
-if(EXISTS "${DIMOS_JSONCAN_GEN_DIR}/app/app_canRx.c")
-  add_library(dimos_jsoncan SHARED
-    "${CMAKE_CURRENT_SOURCE_DIR}/../native/jsoncan_bridge/jsoncan_bridge.c"
-    "${DIMOS_JSONCAN_GEN_DIR}/app/app_canUtils.c"
-    "${DIMOS_JSONCAN_GEN_DIR}/app/app_canRx.c"
-    "${DIMOS_JSONCAN_GEN_DIR}/io/io_canRx.c"
-  )
-  set_target_properties(dimos_jsoncan PROPERTIES OUTPUT_NAME "dimos_jsoncan")
-  target_include_directories(dimos_jsoncan PRIVATE
-    "${CMAKE_CURRENT_SOURCE_DIR}/../native/jsoncan_bridge"
-    "${DIMOS_JSONCAN_GEN_DIR}"
-    "${DIMOS_JSONCAN_GEN_DIR}/app"
-    "${DIMOS_JSONCAN_GEN_DIR}/io"
-  )
-endif()
+# Generates the DIMOS node's code with the Rust jsoncan; see ../native/CMakeLists.txt.
+add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/../native" "${CMAKE_CURRENT_BINARY_DIR}/native")
 
 
 # === Installation ===
@@ -130,10 +116,8 @@ set(INSTALL_BUNDLE_LIB_DIR "${CMAKE_INSTALL_PREFIX}/lib")
 install(TARGETS ${BINARY_NAME} RUNTIME DESTINATION "${CMAKE_INSTALL_PREFIX}"
   COMPONENT Runtime)
 
-if(TARGET dimos_jsoncan)
-  install(TARGETS dimos_jsoncan LIBRARY DESTINATION "${INSTALL_BUNDLE_LIB_DIR}"
-    COMPONENT Runtime)
-endif()
+install(TARGETS dimos_jsoncan LIBRARY DESTINATION "${INSTALL_BUNDLE_LIB_DIR}"
+  COMPONENT Runtime)
 
 install(FILES "${FLUTTER_ICU_DATA_FILE}" DESTINATION "${INSTALL_BUNDLE_DATA_DIR}"
   COMPONENT Runtime)

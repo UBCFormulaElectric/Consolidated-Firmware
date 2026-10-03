@@ -70,10 +70,9 @@ class _AppState extends State<App> {
       _canWorker = CanApiWorker();
       _canWorker.start((stdId, frameData) {
         jsoncan.processFrame(stdId, frameData);
-        final demoU32 = jsoncan.getDemoU32();
-        _warningsList.setWarning('PUMP_FAILURE', jsoncan.getPumpFailure());
-        _warningsList.setWarning('CAN_LOG_ERRORS', demoU32 > 0);
-        _speedInteger.updateVarCan(demoU32);
+        final remainingErrors = jsoncan.getVcCanLoggingRemainingErrors();
+        _warningsList.setWarning('CAN_LOG_ERRORS', remainingErrors > 0);
+        _speedInteger.updateVarCan(remainingErrors);
         _stateOfCharge.updateVarCan();
         _shutdownLoopNodes.updateVarCan();
         _skidVector.updateVarCan();

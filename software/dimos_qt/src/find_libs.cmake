@@ -14,6 +14,8 @@ IF ("${TARGET}" STREQUAL "deploy")
 ENDIF ()
 
 # jsoncan
+# LEGACY: targets Quadruna, a retired car (can_bus/quadruna no longer exists). The
+# dashboard is now the Flutter app in software/dimos.
 jsoncan_sources(dimos "${CMAKE_CURRENT_BINARY_DIR}/jsoncan" TRUE "quadruna")
 add_library(dimos_can STATIC ${CAN_SRCS})
 target_include_directories(dimos_can PUBLIC ${CAN_INCLUDE_DIRS})
