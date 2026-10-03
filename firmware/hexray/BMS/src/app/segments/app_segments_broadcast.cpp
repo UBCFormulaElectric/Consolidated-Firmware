@@ -87,6 +87,8 @@ BroadcastBuffer<bool, MAX_NUM_SEGMENTS * CELLS_PER_SEGMENT, io::can_tx::BMS_Ther
     therm_owc_ok_buffer(app::can_tx::BMS_ThermistorOpenWireCheckOk_getData());
 BroadcastBuffer<bool, MAX_NUM_SEGMENTS * CELLS_PER_SEGMENT, io::can_tx::BMS_CellDischargeEnabled_sendAperiodic>
     cell_discharge_enabled_buffer(app::can_tx::BMS_CellDischargeEnabled_getData());
+BroadcastBuffer<uint32_t, MAX_NUM_SEGMENTS, io::can_tx::BMS_CommandCountMismatches_sendAperiodic>
+    command_count_mismatches_buffer(app::can_tx::BMS_CommandCountMismatches_getData());
 
 CellBroadcaster<
     uint8_t,
@@ -439,21 +441,18 @@ namespace debug
     }
 } // namespace debug
 
-// void cmdCountMismatch(const Segments<uint8_t> &mismatches)
-// {
-//     for (size_t seg = 0U; seg < NUM_SEGMENTS; seg++)
-//     {
-//         segment_cmdcnt_buffer[seg] = mismatches[seg];
-//     }
-//     segment_cmdcnt_buffer.send();
-// }
-
-// void spiLinkStats(const io::adbms::SpiBusReach &reach)
-// {
-// can_tx::BMS_LowSideSegmentReach_set(reach.ls_reach);
-// can_tx::BMS_HighSideSegmentReach_set(reach.hs_reach);
-// io::can_tx::BMS_SpiLinkStatus_sendAperiodic();
-// }
+void commandCount(const Segments<uint32_t> &mismatches)
+    {
+        for (size_t seg = 0U; seg < NUM_SEGMENTS; seg++)
+        {
+            command_count_mismatches_buffer[seg] = mismatches[seg];
+        }
+        for (size_t seg = NUM_SEGMENTS; seg < MAX_NUM_SEGMENTS; seg++)
+        {
+            command_count_mismatches_buffer[seg] = 0U;
+        }
+        command_count_mismatches_buffer.send();
+    }
 
 void segmentHealthError(const health::Snapshot &health)
 {
@@ -466,6 +465,29 @@ void segmentHealthError(const health::Snapshot &health)
         }
     }
     segment_health_errors_buffer.send();
+}
+
+// Reversible-isoSPI chain health. The per-segment flags are packed as bitmasks (bit N = segment N)
+// so the whole picture fits in one frame:
+//   recovered   = reachable only via the reverse (high-side) port, i.e. behind a link break
+//   unrecovered = unreachable from both ports, i.e. a genuine device fault
+void chainHealth(const io::adbms::ChainHealth &chain_health)
+{
+    uint16_t recovered_mask   = 0U;
+    uint16_t unrecovered_mask = 0U;
+    for (size_t seg = 0U; seg < NUM_SEGMENTS; seg++)
+    {
+        if (chain_health.recovered[seg])
+            recovered_mask = static_cast<uint16_t>(recovered_mask | (1U << seg));
+        if (chain_health.unrecovered[seg])
+            unrecovered_mask = static_cast<uint16_t>(unrecovered_mask | (1U << seg));
+    }
+
+    can_tx::BMS_IsoSpiLinkBreakPresent_set(chain_health.link_break_present);
+    can_tx::BMS_IsoSpiBreakIndex_set(static_cast<int8_t>(chain_health.break_index));
+    can_tx::BMS_IsoSpiRecoveredMask_set(recovered_mask);
+    can_tx::BMS_IsoSpiUnrecoveredMask_set(unrecovered_mask);
+    io::can_tx::BMS_IsoSpiChainHealth_sendAperiodic();
 }
 
 // These messages are aperiodic (cycle_time: null in the DBC): each setter only stages a signal into

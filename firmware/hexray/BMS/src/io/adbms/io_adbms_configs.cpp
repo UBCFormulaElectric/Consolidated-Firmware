@@ -24,8 +24,8 @@ result<void> write::configReg(const Segments<SegmentConfig> &config)
 
 Segments<result<SegmentConfig>> read::configReg()
 {
-    const Segments<result<RegBuffer>> a_regs = readRegGroup(RDCFGA);
-    const Segments<result<RegBuffer>> b_regs = readRegGroup(RDCFGB);
+    const Segments<result<RegBuffer>> a_regs = readRegGroupRedundant(RDCFGA);
+    const Segments<result<RegBuffer>> b_regs = readRegGroupRedundant(RDCFGB);
 
     Segments<result<SegmentConfig>> out;
     for (size_t seg = 0U; seg < NUM_SEGMENTS; ++seg)
@@ -68,8 +68,8 @@ Segments<result<PWMConfig>> read::pwmReg()
 {
     Segments<result<PWMConfig>> pwm_configs;
 
-    const Segments<result<RegBuffer>> regs_a = readRegGroup(RDPWMA);
-    const Segments<result<RegBuffer>> regs_b = readRegGroup(RDPWMB);
+    const Segments<result<RegBuffer>> regs_a = readRegGroupRedundant(RDPWMA);
+    const Segments<result<RegBuffer>> regs_b = readRegGroupRedundant(RDPWMB);
 
     for (size_t seg = 0U; seg < NUM_SEGMENTS; ++seg)
     {

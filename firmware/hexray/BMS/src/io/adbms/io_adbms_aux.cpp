@@ -64,7 +64,7 @@ ThermGpios<result<int16_t>> read::thermGpioVoltage()
 
     for (size_t group = 0U; group < NUM_THERM_REG_GROUPS; group++)
     {
-        const Segments<result<RegBuffer>> temp_reg_groups = readRegGroup(reg_groups[group]);
+        const Segments<result<RegBuffer>> temp_reg_groups = readRegGroupRedundant(reg_groups[group]);
 
         for (size_t seg = 0U; seg < NUM_SEGMENTS; seg++)
         {
@@ -100,7 +100,7 @@ Segments<result<int16_t>> read::segVoltage()
 {
     Segments<result<int16_t>> segment_voltage_regs{};
 
-    const Segments<result<RegBuffer>> raw_seg_voltage = readRegGroup(RDAUXD);
+    const Segments<result<RegBuffer>> raw_seg_voltage = readRegGroupRedundant(RDAUXD);
     for (size_t seg = 0U; seg < NUM_SEGMENTS; seg++)
     {
         if (!raw_seg_voltage[seg])
@@ -132,7 +132,7 @@ Segments<StatusGroupsRes> read::status()
 
     for (size_t group = 0U; group < NUM_STAT_REG_GROUPS; group++)
     {
-        const Segments<result<RegBuffer>> status_reg_buf = readRegGroup(reg_groups[group]);
+        const Segments<result<RegBuffer>> status_reg_buf = readRegGroupRedundant(reg_groups[group]);
         for (size_t seg = 0U; seg < NUM_SEGMENTS; seg++)
         {
             switch (group)
