@@ -31,6 +31,12 @@
       },
       "WatchdogTimeoutTask": {
         "bits": 32
+      },
+      "LogQueueCount": {
+        "bits": 10
+      },
+      "LogQueueOverflowCount": {
+        "bits": 16
       }
     },
     "data_capture": {
