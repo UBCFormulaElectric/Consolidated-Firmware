@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use jsoncan_rust::can_database::{CanDatabase, CanMessage};
+use jsoncan_rust::can_database::{CanDatabase, CanMessage, CanSignalType};
 use regex::Regex;
 use serde::{Deserialize, Serialize};
 
@@ -15,6 +15,8 @@ pub struct SignalMetadata {
     pub cycle_time_ms: Option<u32>,
     pub id: u32,
     pub msg_name: String,
+    #[serde(skip)]
+    pub signal_type: CanSignalType,
 }
 
 #[derive(Debug, Serialize)]
@@ -49,6 +51,7 @@ pub fn get_all_signal_metadatas(can_db: &CanDatabase, filter: Option<Regex>) -> 
                     cycle_time_ms: msg.cycle_time.clone(),
                     id: msg.id,
                     msg_name: msg.name.clone(),
+                    signal_type: signal.signal_type.clone(),
                 })
             }
         ).collect::<Vec<_>>()

@@ -1,15 +1,55 @@
-use std::{collections::HashMap, f64::consts::TAU, sync::Arc, time::{SystemTime, UNIX_EPOCH}};
+use std::{collections::{HashMap, HashSet}, f64::consts::TAU, sync::Arc, time::{Duration, Instant, SystemTime, UNIX_EPOCH}};
 
 use jsoncan_rust::can_database::{CanDatabase, CanSignalType, DecodedSignal};
 use tokio::{select, sync::broadcast, sync::RwLock};
 
-use crate::{tasks::can_data::signal_metadata::get_all_signal_metadatas, utils::yellow};
+use crate::{tasks::can_data::signal_metadata::{get_all_signal_metadatas, SignalMetadata}, utils::yellow};
 use crate::{tasks::{HealthCheckSender, HealthCheckSenderExt, Task}, tasks::telem_message::CanPayload, vprintln};
 use crate::Clients;
 
 /*
     Debugging/dev mock file, not used functionally
 */
+
+const MAX_ACTIVE_ALERTS: usize = 10;
+
+const ALERT_RAISE_PROBABILITY: f64 = 0.02;
+const ALERT_MIN_DURATION: Duration = Duration::from_secs(1);
+const ALERT_MAX_DURATION: Duration = Duration::from_secs(30);
+
+fn update_mock_alerts(
+    alert_signals: &[&SignalMetadata],
+    active_alerts: &mut HashMap<String, Instant>,
+) -> HashSet<String> {
+    let now = Instant::now();
+    let mut changed_msgs = HashSet::new();
+
+    active_alerts.retain(|alert_name, expiry| {
+        let still_active = *expiry > now;
+        if !still_active {
+            changed_msgs.insert(alert_signals.iter().find(|a| &a.name == alert_name).unwrap().msg_name.clone());
+        }
+        still_active
+    });
+
+    if alert_signals.is_empty()
+        || active_alerts.len() >= MAX_ACTIVE_ALERTS
+        || !rand::random_bool(ALERT_RAISE_PROBABILITY)
+    {
+        return changed_msgs;
+    }
+
+    let alert = alert_signals[rand::random_range(0..alert_signals.len())];
+    if active_alerts.contains_key(&alert.name) {
+        return changed_msgs;
+    }
+
+    let duration = rand::random_range(ALERT_MIN_DURATION..ALERT_MAX_DURATION);
+    active_alerts.insert(alert.name.clone(), now + duration);
+    changed_msgs.insert(alert.msg_name.clone());
+
+    changed_msgs
+}
 
 /**
  * Mocks serial handler
@@ -29,6 +69,16 @@ pub async fn run_mock_task(
     
     let mut diag_interval = tokio::time::interval(tokio::time::Duration::from_secs(1));
     let can_signals = get_all_signal_metadatas(&can_db, None);
+
+    let alert_signals: Vec<&SignalMetadata> = can_signals
+        .values()
+        .filter(|s| s.signal_type == CanSignalType::Alert)
+        .collect();
+    let mut alerts_by_msg: HashMap<String, Vec<&SignalMetadata>> = HashMap::new();
+    for alert in alert_signals.iter() {
+        alerts_by_msg.entry(alert.msg_name.clone()).or_default().push(alert);
+    }
+    let mut active_alerts: HashMap<String, Instant> = HashMap::new();
 
     loop {
         select! {
@@ -68,9 +118,10 @@ pub async fn run_mock_task(
                     }
                 }
 
-                if base_value >= 0.5 {
-                
-                }
+                let mut alert_msgs = update_mock_alerts(&alert_signals, &mut active_alerts);
+                alert_msgs.extend(
+                    active_alerts.keys().map(|name| can_signals[name].msg_name.clone())
+                );
 
                 let subscribed_signals = clients.read().await.get_subscribed_signals();
                 let mut signals_by_msg: HashMap<String, Vec<DecodedSignal>> = HashMap::new();
@@ -79,6 +130,10 @@ pub async fn run_mock_task(
                     let Some(signal_metadata) = can_signals.get(&signal_name) else {
                         continue;
                     };
+                    
+                    if signal_metadata.signal_type == CanSignalType::Alert {
+                        continue;
+                    }
                     
                     let value = base_value * (signal_metadata.max_val - signal_metadata.min_val) + signal_metadata.min_val;
                     let is_discrete = signal_metadata.enum_signal.is_some() || (signal_metadata.min_val == 0.0 && signal_metadata.max_val == 1.0);
@@ -102,6 +157,25 @@ pub async fn run_mock_task(
                                 CanSignalType::Numerical
                             }
                         });
+                }
+
+                for msg_name in alert_msgs {
+                    signals_by_msg.entry(msg_name).or_default();
+                }
+
+                for (msg_name, signals) in signals_by_msg.iter_mut() {
+                    let Some(alerts) = alerts_by_msg.get(msg_name) else {
+                        continue;
+                    };
+
+                    signals.extend(alerts.iter().map(|alert| DecodedSignal {
+                        name: alert.name.clone(),
+                        value: if active_alerts.contains_key(&alert.name) { 1.0 } else { 0.0 },
+                        timestamp: None,
+                        label: None,
+                        unit: None,
+                        signal_type: CanSignalType::Alert,
+                    }));
                 }
 
                 for (msg_name, signals) in signals_by_msg {
