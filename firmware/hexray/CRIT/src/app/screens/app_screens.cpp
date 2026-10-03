@@ -7,16 +7,35 @@
 namespace app::screens
 {
 /************************* Global Variables ***************************/
-inline constexpr size_t NUM_DEVICE_SCREENS = 3u;
+inline constexpr size_t NUM_DEVICE_SCREENS = 4u;
 inline constexpr size_t LV_MAX             = 3u;
 inline constexpr size_t HV_MAX             = 3u;
 static size_t           current_screen     = 0;
 
-static std::array<const Screen *, NUM_DEVICE_SCREENS> drive_screens = { {
-    &shdn_screen,
-    &brightness_screen,
-    &drive_modes_screen,
-} };
+static std::array<const Screen *, NUM_DEVICE_SCREENS> drive_screens = { { &shdn_screen, &brightness_screen,
+                                                                          &drive_modes_screen, &inv_error_screen } };
+
+static size_t screen_count()
+{
+    switch (can_rx::VC_State_get())
+    {
+        case can_utils::VCState::VC_DRIVE_WARNING_STATE:
+        case can_utils::VCState::VC_FAULT_STATE:
+        case can_utils::VCState::VC_INVERTER_FAULT_HANDELER:
+            // disable rotary
+            return 0;
+        case can_utils::VCState::VC_PCM_ON_STATE:
+        case can_utils::VCState::VC_HV_INIT_STATE:
+        case can_utils::VCState::VC_INVERTER_ON_STATE:
+        case can_utils::VCState::VC_BMS_ON_STATE:
+        case can_utils::VCState::VC_INIT_STATE:
+        default:
+            return LV_MAX;
+        case can_utils::VCState::VC_HV_ON_STATE:
+        case can_utils::VCState::VC_DRIVE_STATE:
+            return HV_MAX;
+    }
+}
 
 /*********************** Function Definitions ***************************/
 void init()
@@ -28,26 +47,10 @@ void init()
         []
         {
             // transition to next
-            size_t max_screens;
-            switch (can_rx::VC_State_get())
+            const size_t max_screens = screen_count();
+            if (max_screens == 0)
             {
-                case can_utils::VCState::VC_DRIVE_WARNING_STATE:
-                case can_utils::VCState::VC_FAULT_STATE:
-                case can_utils::VCState::VC_INVERTER_FAULT_HANDELER:
-                    // disable rotary
-                    return;
-                case can_utils::VCState::VC_PCM_ON_STATE:
-                case can_utils::VCState::VC_HV_INIT_STATE:
-                case can_utils::VCState::VC_INVERTER_ON_STATE:
-                case can_utils::VCState::VC_BMS_ON_STATE:
-                case can_utils::VCState::VC_INIT_STATE:
-                default:
-                    max_screens = LV_MAX;
-                    break;
-                case can_utils::VCState::VC_HV_ON_STATE:
-                case can_utils::VCState::VC_DRIVE_STATE:
-                    max_screens = HV_MAX;
-                    break;
+                return;
             }
             current_screen = (current_screen + 1) % max_screens;
         });
@@ -63,8 +66,10 @@ void tick()
     {
         case can_utils::VCState::VC_DRIVE_WARNING_STATE:
         case can_utils::VCState::VC_FAULT_STATE:
-        case can_utils::VCState::VC_INVERTER_FAULT_HANDELER:
             alerts_screen.update();
+            return;
+        case can_utils::VCState::VC_INVERTER_FAULT_HANDELER:
+            inv_error_screen.update();
             return;
         case can_utils::VCState::VC_INIT_STATE:
         case can_utils::VCState::VC_INVERTER_ON_STATE:
@@ -76,6 +81,7 @@ void tick()
         default:
             break;
     }
+    current_screen %= screen_count();
     drive_screens[current_screen]->update();
 }
 } // namespace app::screens

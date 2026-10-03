@@ -50,6 +50,14 @@ result<void> setBrightness(const float brightness)
 } // namespace io::leds
 
 #include "io_sevenSeg.hpp"
+static std::array<char, io::seven_seg::DIGITS> seven_seg_data{};
+namespace fakes::seven_seg
+{
+std::array<char, io::seven_seg::DIGITS> getData()
+{
+    return seven_seg_data;
+}
+} // namespace fakes::seven_seg
 namespace io::seven_seg
 {
 result<void> setBrightness(const float brightness)
@@ -57,11 +65,10 @@ result<void> setBrightness(const float brightness)
     UNUSED(brightness);
     return {};
 }
-static std::array<digit, DIGITS> display;
 // ReSharper disable once CppParameterMayBeConstPtrOrRef
-result<void> write(std::array<digit, DIGITS> &data)
+result<void> write(std::span<char, DIGITS> data)
 {
-    display = data;
+    std::copy(data.begin(), data.end(), seven_seg_data.begin());
     return {};
 }
 } // namespace io::seven_seg
