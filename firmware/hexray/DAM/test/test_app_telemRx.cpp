@@ -278,6 +278,8 @@ TEST_F(TelemRxTest, IngestOverflowDropsIncomingBytes)
     EXPECT_EQ(app::telemRx::ringSize(), 0u);
 }
 
+// TODO JADEN: write the handshake test
+
 TEST_F(TelemRxTest, TryBeginAndCaptureT0ReentryReturnsFalse)
 {
     setRtcEpoch(kAnchor);
