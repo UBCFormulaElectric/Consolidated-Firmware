@@ -2,6 +2,7 @@
 
 #include <array>
 #include <cassert>
+#include "io_canTx.hpp"
 
 #include "app_ntp.hpp"
 #include "app_crc32.hpp"
@@ -22,16 +23,18 @@ namespace
     constexpr std::size_t ringCapacity         = maxIncomingFrameSize * 22; // 528 bytes
     constexpr std::size_t maxBodySize          = 100;
 
-    constexpr uint8_t     magic0            = 0xCC;
-    constexpr uint8_t     magic1            = 0x33;
-    constexpr std::size_t headerSize        = 7;  // magic(2) + size(1) + crc(4)
-    constexpr std::size_t ntpBodySize       = 17; // id(1) + t1(8) + t2(8)
-    constexpr std::size_t remoteNtpBodySize = 1;  // id(1)
+    constexpr uint8_t     magic0                   = 0xCC;
+    constexpr uint8_t     magic1                   = 0x33;
+    constexpr std::size_t headerSize               = 7;  // magic(2) + size(1) + crc(4)
+    constexpr std::size_t ntpBodySize              = 17; // id(1) + t1(8) + t2(8)
+    constexpr std::size_t remoteNtpBodySize        = 1;  // id(1)
+    constexpr std::size_t backendHandshakeBodySize = 1;  // id(1)
 
     enum class MessageId : uint8_t
     {
-        NTP        = 1,
-        Remote_NTP = 2,
+        NTP               = 1,
+        Remote_NTP        = 2,
+        Backend_Handshake = 3,
     };
 
     struct NtpReply
@@ -113,6 +116,20 @@ namespace
                     return;
                 }
                 LOG_INFO("telemRx: Remote NTP enqueued");
+                break;
+            }
+            case MessageId::Backend_Handshake:
+            {
+                assert(body.size() == backendHandshakeBodySize);
+                if (body.size() != backendHandshakeBodySize)
+                {
+                    LOG_WARN("telemRx: invalid Backend_Handshake body size %u", static_cast<unsigned>(body.size()));
+                    return;
+                }
+
+                // do the thing
+
+                LOG_INFO("telemRx: DAM Bootup Sent");
                 break;
             }
             default:
