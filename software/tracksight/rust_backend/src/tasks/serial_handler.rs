@@ -1,6 +1,6 @@
 use tokio::select;
 use tokio::io::{AsyncReadExt, AsyncWriteExt, ReadHalf, WriteHalf};
-use tokio::sync::{broadcast, mpsc};
+use tokio::sync::{broadcast, mpsc, watch};
 use tokio_serial::{SerialPortBuilderExt, SerialStream};
 use std::collections::VecDeque;
 use std::io::{Error, ErrorKind};
@@ -9,6 +9,7 @@ use std::time::{Duration, SystemTime, UNIX_EPOCH};
 const ERROR_RATE_WINDOW_SECS: usize = 60;
 
 use crate::config::CONFIG;
+use crate::tasks::can_data::influx_util::BootState;
 use crate::tasks::{HealthCheckSender, HealthCheckSenderExt, ResultExt, Task};
 use crate::tasks::telem_message::{CRC32_CALC, TelemetryOutgoingMessage};
 use crate::utils::yellow;
@@ -32,6 +33,7 @@ pub async fn run_serial_task(
     can_queue_tx: broadcast::Sender<CanPayload>,
     diag_tx: broadcast::Sender<f64>,
     client_out_msg_rx: broadcast::Receiver<TelemetryOutgoingMessage>,
+    bootstate_tx: watch::Sender<Option<BootState>>,
 ) {
     vprintln!("{}", yellow("Serial handler task started."));
 
@@ -68,6 +70,11 @@ pub async fn run_serial_task(
     let mut error_rate_history: VecDeque<(u64, u64)> =
         VecDeque::with_capacity(ERROR_RATE_WINDOW_SECS);
     let mut diag_interval = tokio::time::interval(Duration::from_secs(1));
+
+    out_msg_tx.send(TelemetryOutgoingMessage::BootInfoRequest)
+        .await
+        .unwrap_or_fail_health_check(&health_check_tx, Task::SerialHandler)
+        .await;
 
     // no set up involved with packet sender and reader thread, send health check
     health_check_tx.send_health_check(Task::SerialHandler, true).await;
@@ -132,6 +139,10 @@ pub async fn run_serial_task(
                                     eprintln!("Channel has closed");
                                     break;
                                 };
+                            },
+                            TelemetryIncomingMessage::BootInfo { boot_hash } => {
+                                vprintln!("Backend ingested boot info: hash={:02x?}", boot_hash);
+                                bootstate_tx.send(Some(BootState { boot_hash: format!("{:02x?}", boot_hash) })).ok();
                             }
                         }
                     }
@@ -213,6 +224,10 @@ fn parse_incoming_telem_message(payload: &Vec<u8>) -> Result<TelemetryIncomingMe
             }
         },
         TelemetryIncomingMessage::NTP_BYTE => TelemetryIncomingMessage::NTP,
+        TelemetryIncomingMessage::BOOT_INFO_BYTE => {
+            let boot_hash: u32 = u32::from_le_bytes([payload[1], payload[2], payload[3], payload[4]]);
+            TelemetryIncomingMessage::BootInfo { boot_hash }
+        }
         invalid => {
             eprintln!("Invalid message type: {invalid}");
             return Err(());
@@ -339,6 +354,9 @@ fn generate_packet(message: TelemetryOutgoingMessage) -> Vec<u8> {
                 .as_millis() as u64)
                 .to_le_bytes();
             payload.extend_from_slice(&t2_millis);
+        },
+        TelemetryOutgoingMessage::BootInfoRequest => {
+            payload.push(TelemetryOutgoingMessage::BOOT_INFO_REQUEST_BYTE);
         }
     }
 
