@@ -1,7 +1,7 @@
 "use client";
 
 import { DRAGGABLE_TYPES } from "@/lib/constants";
-import { canWidgetAcceptSignal, SignalDragItem, WidgetData, WidgetDragItem } from "@/lib/types/Widget";
+import { canWidgetAcceptSignal, SignalDragItem, SignalDropResult, WidgetData, WidgetDragItem } from "@/lib/types/Widget";
 import { RefObject, useEffect, useLayoutEffect, useRef } from "react";
 import { useDragLayer, useDrop, XYCoord } from "react-dnd";
 import { Widget } from "./widgets/Widget";
@@ -54,8 +54,10 @@ function DashboardWidgetSlot(props: { widget: WidgetData; stackOrder: number; is
     const [, drop] = useDrop(
         () => ({
             accept: DRAGGABLE_TYPES.SIGNAL,
-            canDrop: (item: SignalDragItem) => canWidgetAcceptSignal(widget, item.signal),
+            canDrop: (item: SignalDragItem) => item.currentWidgetId === widget.id || canWidgetAcceptSignal(widget, item.signal),
+            drop: (): SignalDropResult => ({ isAccepted: true }),
             hover: (item: SignalDragItem, monitor) => {
+                if (item.currentWidgetId === widget.id) return;
                 if (!monitor.canDrop()) return;
 
                 moveSignal(item.signal.name, item.currentWidgetId, widget.id);

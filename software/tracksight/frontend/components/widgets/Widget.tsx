@@ -2,13 +2,13 @@
 
 import chroma, { Color } from "chroma-js";
 import { memo, ReactNode, RefObject, useCallback, useState } from "react";
-import { ConnectDragSource, useDrag } from "react-dnd";
+import { ConnectDragSource, useDrag, useDragLayer } from "react-dnd";
 
 import { PlusButton } from "@/components/icons/PlusButton";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { DRAGGABLE_TYPES } from "@/lib/constants";
 import { BooleanSignalMetadata, EnumSignalMetadata, isEnumSignalMetadata, NumericalSignalMetadata, SignalMetadata } from "@/lib/types/Signal";
-import { EnumTimelineWidgetData, NumericalGraphWidgetData, SignalDragItem, WidgetData, WidgetDragItem } from "@/lib/types/Widget";
+import { EnumTimelineWidgetData, NumericalGraphWidgetData, SignalDragItem, SignalDropResult, WidgetData, WidgetDragItem } from "@/lib/types/Widget";
 import { GripVertical } from "lucide-react";
 import EnumCanvasChart from "./EnumCanvasChart";
 import { EnumSignalPicker } from "./EnumSignalPicker";
@@ -38,8 +38,20 @@ function removeColorPaletteEntry<T>(palette: Record<string, T>, signalName: stri
     return nextPalette;
 }
 
-function SignalButton(props: { signal: SignalMetadata; widgetId: string; handleRemoveSignal: (signalName: string) => void; hoverSignalName: RefObject<string | null>; color: Color }) {
-    const { signal, widgetId, handleRemoveSignal, hoverSignalName, color } = props;
+function useDraggedAwaySignal(widgetId: string): SignalMetadata | null {
+    return useDragLayer((monitor) => {
+        if (monitor.getItemType() !== DRAGGABLE_TYPES.SIGNAL) return null;
+
+        const item = monitor.getItem<SignalDragItem>();
+        const isDraggedAwayFromWidget = item.originalWidgetId === widgetId && item.currentWidgetId !== widgetId;
+
+        return isDraggedAwayFromWidget ? item.signal : null;
+    });
+}
+
+function SignalButton(props: { signal: SignalMetadata; signalIndex: number; widgetId: string; isHidden: boolean; handleRemoveSignal: (signalName: string) => void; hoverSignalName: RefObject<string | null>; color: Color }) {
+    const { signal, signalIndex, widgetId, isHidden, handleRemoveSignal, hoverSignalName, color } = props;
+    const { moveSignal } = useWidgetManager();
 
     const [{ isDragging }, drag] = useDrag(
         () => ({
@@ -47,7 +59,12 @@ function SignalButton(props: { signal: SignalMetadata; widgetId: string; handleR
             item: (): SignalDragItem => {
                 hoverSignalName.current = null;
 
-                return { signal, currentWidgetId: widgetId };
+                return { signal, originalWidgetId: widgetId, originalIndex: signalIndex, currentWidgetId: widgetId };
+            },
+            end: (item, monitor) => {
+                if (monitor.getDropResult<SignalDropResult>()?.isAccepted) return;
+
+                moveSignal(item.signal.name, item.currentWidgetId, item.originalWidgetId, item.originalIndex);
             },
             isDragging: (monitor) => {
                 const item = monitor.getItem<SignalDragItem>();
@@ -58,7 +75,7 @@ function SignalButton(props: { signal: SignalMetadata; widgetId: string; handleR
                 isDragging: monitor.isDragging(),
             }),
         }),
-        [signal, widgetId, hoverSignalName]
+        [signal, signalIndex, widgetId, hoverSignalName, moveSignal]
     );
 
     return (
@@ -66,7 +83,7 @@ function SignalButton(props: { signal: SignalMetadata; widgetId: string; handleR
             ref={(node) => {
                 drag(node);
             }}
-            className={`select-none flex items-center gap-2 px-3 py-1.5 rounded-full border-2 transition-opacity cursor-grab ${isDragging ? "opacity-50" : "hover:opacity-80"}`}
+            className={`select-none flex items-center gap-2 px-3 py-1.5 rounded-full border-2 transition-opacity cursor-grab ${isDragging ? "opacity-50" : "hover:opacity-80"} ${isHidden ? "hidden" : ""}`}
             style={{ backgroundColor: color.brighten(1).hex(), borderColor: color.darken(1).hex() }}
             onMouseEnter={() => {
                 hoverSignalName.current = signal.name;
@@ -283,14 +300,20 @@ function EnumWidgetAddSignalModal(props: { widget: EnumTimelineWidgetData }) {
 
 export const Widget = memo(function Widget(props: WidgetData & { hoveredSignal: RefObject<string | null> }) {
     const { hoveredSignal, id } = props;
-    const { updateWidget } = useWidgetManager();
+    const { widgets, updateWidget, moveWidgetToIndex } = useWidgetManager();
+    const draggedAwaySignal = useDraggedAwaySignal(id);
 
     const [, drag] = useDrag(
         () => ({
             type: DRAGGABLE_TYPES.WIDGET,
-            item: (): WidgetDragItem => ({ id }),
+            item: (): WidgetDragItem => ({ id, originalIndex: widgets.findIndex((widget) => widget.id === id) }),
+            end: (item, monitor) => {
+                if (monitor.didDrop()) return;
+
+                moveWidgetToIndex(item.id, item.originalIndex);
+            },
         }),
-        [id]
+        [id, widgets, moveWidgetToIndex]
     );
 
     switch (props.type) {
@@ -310,8 +333,8 @@ export const Widget = memo(function Widget(props: WidgetData & { hoveredSignal: 
             return (
                 <>
                     <WidgetConfiguration id={widget.id} dragHandle={drag}>
-                        {widget.signals.map((signal) => (
-                            <SignalButton key={signal.name} signal={signal} widgetId={widget.id} handleRemoveSignal={handleRemoveSignal} hoverSignalName={hoveredSignal} color={widget.options.colorPalette[signal.name] ?? chroma("#ffffff")} />
+                        {(draggedAwaySignal ? [...widget.signals, draggedAwaySignal] : widget.signals).map((signal, signalIndex) => (
+                            <SignalButton key={signal.name} signal={signal} signalIndex={signalIndex} widgetId={widget.id} isHidden={signal.name === draggedAwaySignal?.name} handleRemoveSignal={handleRemoveSignal} hoverSignalName={hoveredSignal} color={widget.options.colorPalette[signal.name] ?? chroma("#ffffff")} />
                         ))}
                         <NumericalWidgetAddSignalModal widget={widget} />
                     </WidgetConfiguration>
@@ -335,8 +358,8 @@ export const Widget = memo(function Widget(props: WidgetData & { hoveredSignal: 
             return (
                 <>
                     <WidgetConfiguration id={widget.id} dragHandle={drag}>
-                        {widget.signals.map((signal) => (
-                            <SignalButton key={signal.name} signal={signal} widgetId={widget.id} handleRemoveSignal={handleRemoveSignal} hoverSignalName={hoveredSignal} color={widget.options.colorPalette[signal.name]?.color ?? chroma("#ffffff")} />
+                        {(draggedAwaySignal ? [...widget.signals, draggedAwaySignal] : widget.signals).map((signal, signalIndex) => (
+                            <SignalButton key={signal.name} signal={signal} signalIndex={signalIndex} widgetId={widget.id} isHidden={signal.name === draggedAwaySignal?.name} handleRemoveSignal={handleRemoveSignal} hoverSignalName={hoveredSignal} color={widget.options.colorPalette[signal.name]?.color ?? chroma("#ffffff")} />
                         ))}
                         <EnumWidgetAddSignalModal widget={widget} />
                     </WidgetConfiguration>
