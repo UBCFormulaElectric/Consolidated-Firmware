@@ -38,7 +38,7 @@
 [[noreturn]] static void tasks_sbgEllipse(void *arg);
 
 // Define the task with StaticTask Class
-constexpr size_t                                   TASK_COUNT = 7; // IMU, Batt Mon, Power Mon ADD
+constexpr size_t                                   TASK_COUNT = 9; // every task VC_StartAllTasks() starts
 static hw::rtos::StaticTask::StaticTaskStack<8096> Task100HzStack;
 static hw::rtos::StaticTask::StaticTaskStack<512>  Task1kHzStack;
 static hw::rtos::StaticTask::StaticTaskStack<512>  Task1HzStack;
@@ -80,8 +80,13 @@ static hw::runtimeStat::monitor<TASK_COUNT> runtimeMonitor{
             app::can_tx::VC_TaskRunCan2TxStackUsage_set },
           { TaskPowerMonitoring, app::can_tx::VC_TaskRunPowerMonitoringCpuUsage_set,
             app::can_tx::VC_TaskRunPowerMonitoringCpuUsageMax_set,
-            app::can_tx::VC_TaskRunPowerMonitoringStackUsage_set } },
-        // Battery Monitoring and IMU...
+            app::can_tx::VC_TaskRunPowerMonitoringStackUsage_set },
+          { TaskImu, app::can_tx::VC_TaskRunImuCpuUsage_set, app::can_tx::VC_TaskRunImuCpuUsageMax_set,
+            app::can_tx::VC_TaskRunImuStackUsage_set },
+          { TaskSbgEllipse, app::can_tx::VC_TaskRunSbgEllipseCpuUsage_set,
+            app::can_tx::VC_TaskRunSbgEllipseCpuUsageMax_set,
+            app::can_tx::VC_TaskRunSbgEllipseStackUsage_set } },
+        // TaskBatteryMonitoring is declared but not started, so it is deliberately not registered here.
     },
 };
 
@@ -101,7 +106,7 @@ void tasks_run1Hz(void *arg)
     {
         jobs_run1Hz_tick();
         watchdog1hz.checkIn();
-        // runtimeMonitor.checkin();
+        runtimeMonitor.checkin();
         start_ticks += period_ms;
         io::time::delayUntil(start_ticks);
         osDelayUntil(start_ticks);
@@ -308,18 +313,6 @@ void tasks_init()
         hw::bootup::setBootRequest(boot_request);
     }
 
-    // TODO this should surely be managed by the power manager??
-    // dam_en.writePin(true);
-    // rsm_en.writePin(true);
-    // front_en.writePin(true);
-    // bms_en.writePin(true);
-    // rl_pump_en.writePin(true);
-    // rr_pump_en.writePin(true);
-    // f_inv_en.writePin(true);
-    // r_inv_en.writePin(true);
-    // r_rad_fan_en.writePin(true);
-    // l_rad_fan_en.writePin(true);
-    // misc_fuse_en.writePin(true);
     ResetReason reason = hw::resetReason::get();
     app::can_tx::VC_ResetReason_set(static_cast<app::can_utils::CanResetReason>(reason));
     if (reason == RESET_REASON_WATCHDOG)
@@ -331,6 +324,11 @@ void tasks_init()
     jobs_init();
     adcChipsInit();
     VC_StartAllTasks();
+    if (static_cast<size_t>(uxTaskGetNumberOfTasks()) != TASK_COUNT)
+    {
+        LOG_ERROR("Amount of tasks OS is handling does not match TASK_COUNT");
+        assert(false);
+    }
     osKernelStart();
     forever {}
 }

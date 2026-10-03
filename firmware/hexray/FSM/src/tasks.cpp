@@ -19,7 +19,7 @@
 #include "hw_adcs.hpp"
 #include "hw_runTimeStat.hpp"
 
-constexpr size_t         TASK_COUNT = 5;
+constexpr size_t         TASK_COUNT = 6;
 [[noreturn]] static void tasks_run1Hz(void *arg);
 [[noreturn]] static void tasks_run100Hz(void *arg);
 [[noreturn]] static void tasks_run1kHz(void *arg);
@@ -42,7 +42,7 @@ static hw::rtos::StaticTask TaskImu(osPriorityHigh, "TaskImu", tasks_runImu, Tas
 static hw::rtos::StaticTask TaskCanTx(osPriorityNormal, "TaskCanTx", tasks_runCanTx, TaskCanTxStack);
 static hw::rtos::StaticTask TaskCanRx(osPriorityNormal, "TaskCanRx", tasks_runCanRx, TaskCanRxStack);
 
-static hw::runtimeStat::monitor<5> runtimeMonitor{
+static hw::runtimeStat::monitor<TASK_COUNT> runtimeMonitor{
     { app::can_tx::FSM_CoreCpuUsage_set, app::can_tx::FSM_CoreCpuUsageMax_set },
     { { {
             Task1kHz,
@@ -73,6 +73,12 @@ static hw::runtimeStat::monitor<5> runtimeMonitor{
             app::can_tx::FSM_TaskRunCanRxCpuUsage_set,
             app::can_tx::FSM_TaskRunCanRxCpuUsageMax_set,
             app::can_tx::FSM_TaskRunCanRxStackUsage_set,
+        },
+        {
+            TaskImu,
+            app::can_tx::FSM_TaskRunImuCpuUsage_set,
+            app::can_tx::FSM_TaskRunImuCpuUsageMax_set,
+            app::can_tx::FSM_TaskRunImuStackUsage_set,
         } } },
 };
 
@@ -248,6 +254,10 @@ void tasks_preInit()
 
     jobs_init();
     FSM_StartAllTasks();
+    if (static_cast<size_t>(uxTaskGetNumberOfTasks()) != TASK_COUNT)
+    {
+        LOG_ERROR("Amount of tasks OS is handling does not match TASK_COUNT");
+    }
     osKernelStart();
     forever {}
 }
