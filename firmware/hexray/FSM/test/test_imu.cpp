@@ -4,6 +4,7 @@
 #include "app_canTx.hpp"
 #include "io_imus.hpp"
 #include "fsmMocks.hpp"
+#include "app_imu.hpp"
 
 class FSMImuTest : public FSMBaseTest
 {
@@ -18,7 +19,7 @@ TEST_F(FSMImuTest, Accel_Gyro_Test)
     io::imus::imu_front.set_GyroPitch(10.0f);
     io::imus::imu_front.set_GyroYaw(10.0f);
 
-    LetTimePass(100);
+    app::imu::broadcast();
 
     ASSERT_FLOAT_EQ(4.0f, app::can_tx::FSM_AccelX_get());
     ASSERT_FLOAT_EQ(4.0f, app::can_tx::FSM_AccelY_get());

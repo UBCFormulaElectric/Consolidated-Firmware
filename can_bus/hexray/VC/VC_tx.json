@@ -334,24 +334,27 @@
       "Imu1GyroX": {
         "resolution": 0.01,
         "signed": true,
-        "min": -20,
-        "max": 20,
+        "min": -250,
+        "max": 250,
         "unit": "deg/s"
       },
       "Imu1GyroY": {
         "resolution": 0.01,
         "signed": true,
-        "min": -20,
-        "max": 20,
+        "min": -250,
+        "max": 250,
         "unit": "deg/s"
       },
       "Imu1GyroZ": {
         "resolution": 0.01,
         "signed": true,
-        "min": -20,
-        "max": 20,
+        "min": -250,
+        "max": 250,
         "unit": "deg/s"
       }
+    },
+    "data_capture": {
+      "log_cycle_time": 10
     }
   },
   "EllipseEkfNavVelocity": {
