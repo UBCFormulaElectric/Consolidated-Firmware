@@ -1,9 +1,8 @@
 /* Main App */
 
 import 'dart:io';
-import 'package:dimos/data/services/can_api.dart';
+import 'package:dimos/data/services/can_service.dart';
 import 'package:dimos/data/services/can_variables.dart';
-import 'package:dimos/data/services/jsoncan_ffi.dart';
 import 'package:dimos/routing/dev_router.dart';
 import 'package:dimos/ui/core/themes/themes.dart';
 import 'package:dimos/ui/notificationbar/notification_bar.dart';
@@ -32,7 +31,7 @@ class App extends StatefulWidget {
 
 class _AppState extends State<App> {
   late DevApiWorker _devWorker;
-  late CanApiWorker _canWorker;
+  CanService? _can;
   late SpeedInteger _speedInteger;
   late WarningsList _warningsList;
   late StateOfCharge _stateOfCharge;
@@ -52,8 +51,8 @@ class _AppState extends State<App> {
     _breakBias = BreakBias();
     _debugVars = DebugVars();
 
-    if (Platform.isWindows || Platform.isMacOS) {
-      // have some basic dev api setup to introduce can
+    if (Platform.isWindows) {
+      // libdimos_jsoncan isn't built for Windows; fall back to the old fake data.
       _devWorker = DevApiWorker();
       _devWorker.start((data) {
         _warningsList.updateListDev(data);
@@ -64,22 +63,37 @@ class _AppState extends State<App> {
         _breakBias.updateVarDev(data);
         _debugVars.updateVarDev(data);
       });
-    } else if (Platform.isLinux) {
-      final jsoncan = JsonCanFfi.instance;
-      jsoncan.ensureLoaded();
-      _canWorker = CanApiWorker();
-      _canWorker.start((stdId, frameData) {
-        jsoncan.processFrame(stdId, frameData);
-        final remainingErrors = jsoncan.getVcCanLoggingRemainingErrors();
-        _warningsList.setWarning('CAN_LOG_ERRORS', remainingErrors > 0);
-        _speedInteger.updateVarCan(remainingErrors);
-        _stateOfCharge.updateVarCan();
-        _shutdownLoopNodes.updateVarCan();
-        _skidVector.updateVarCan();
-        _breakBias.updateVarCan();
-        _debugVars.updateVarCan();
+    } else {
+      final can = CanService();
+      can.errors.addListener(() {
+        for (final error in can.errors.value) {
+          _warningsList.setWarning('CAN: $error', true);
+        }
       });
+      can.addListener(_onCanUpdate);
+      can.start();
+      _can = can;
     }
+  }
+
+  // Maps decoded CAN values onto the screens' state; called at most every
+  // CanService.refreshPeriod, and only when new frames were decoded.
+  void _onCanUpdate() {
+    final jsoncan = _can!.jsoncan;
+    final remainingErrors = jsoncan.getVcCanLoggingRemainingErrors();
+    _warningsList.setWarning('CAN_LOG_ERRORS', remainingErrors > 0);
+    _speedInteger.updateVarCan(remainingErrors);
+    _stateOfCharge.updateVarCan();
+    _shutdownLoopNodes.updateVarCan();
+    _skidVector.updateVarCan();
+    _breakBias.updateVarCan();
+    _debugVars.updateVarCan();
+  }
+
+  @override
+  void dispose() {
+    _can?.dispose();
+    super.dispose();
   }
 
   @override

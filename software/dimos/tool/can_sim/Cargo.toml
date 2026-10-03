@@ -1,0 +1,12 @@
+[package]
+name = "dimos_can_sim"
+version = "0.1.0"
+edition = "2024"
+description = "Dummy CAN traffic for the dimos dashboard, packed by jsoncan_rust from the car's CAN JSON"
+
+[dependencies]
+jsoncan_rust = { path = "../../../../scripts/code_generation/jsoncan-rust" }
+clap = { version = "4.5.53", features = ["derive"] }
+
+[target.'cfg(target_os = "linux")'.dependencies]
+socketcan = "3.5"

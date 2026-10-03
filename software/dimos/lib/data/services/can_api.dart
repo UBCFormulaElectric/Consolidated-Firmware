@@ -1,143 +1,155 @@
-
-import 'package:linux_can/linux_can.dart';
-import 'dart:async';
+import 'dart:ffi' as ffi;
+import 'dart:io';
 import 'dart:isolate';
 import 'dart:typed_data';
 
-// WE MIGHT NEED FFI AT THIS POINT
-// lowkey I remember how this works
-// we have this worker which listens for CAN messages on the socket
-// and triggers every single CAN function associated with this worker
-// AFTER parsing the message with JSON can -> our own dart struct
-// and then every can function reads the id of the message and chooses whether or not to update
-// and notify listeners
-// lowkey goated setup
-// worker parses (universal parse)
-// but callbacks all decide whether or not to trigger listeners
+import 'package:ffi/ffi.dart';
 
-class CanApiWorker {
-  late SendPort _sendPort;
+import 'package:dimos/data/services/can_frames.dart';
+import 'package:dimos/data/services/jsoncan_ffi.dart';
 
-  Future<void> start(Function(int stdId, Uint8List data) onFrameReceived) async {
-    // very basic socket behaviour
-    // our recieve port on main thread
+typedef CanBatchCallback = void Function(Uint8List batch);
+typedef CanErrorCallback = void Function(String error);
+
+/// Where CAN frames come from. Both sources deliver batches in the
+/// `can_frames.dart` layout, so the rest of the app doesn't care which is used.
+abstract class CanSource {
+  Future<void> start(CanBatchCallback onBatch, CanErrorCallback onError);
+}
+
+/// Reads classic and CAN FD frames from a SocketCAN interface (Linux only) using
+/// the native reader in libdimos_jsoncan, on a separate isolate since reads block.
+class SocketCanSource implements CanSource {
+  SocketCanSource(this.interfaceName);
+
+  final String interfaceName;
+
+  static const int _maxFramesPerBatch = 256;
+  static const int _maxBatchAgeMs = 10;
+
+  @override
+  Future<void> start(CanBatchCallback onBatch, CanErrorCallback onError) async {
+    if (!Platform.isLinux) {
+      onError('SocketCAN is Linux only; use DIMOS_CAN_SOURCE=udp with tool/can_sim');
+      return;
+    }
     final receivePort = ReceivePort();
-
-    // spawn separate thread with can_socket which listens and sends back to recieve port
-    await Isolate.spawn(_worker, receivePort.sendPort);
-
-    // infinitely listen for messages
-    // V 2.0 -> send back messages
     receivePort.listen((message) {
-      if (message is SendPort) {
-        _sendPort = message;
-      } else if (message is List && message.length == 2) {
-        final id = message[0];
-        final data = message[1];
-        if (id is int && data is Uint8List) {
-          onFrameReceived(id, data);
-        }
+      if (message is Uint8List) {
+        onBatch(message);
+      } else if (message is String) {
+        onError(message);
       }
     });
+    await Isolate.spawn(_worker, (receivePort.sendPort, interfaceName));
   }
 
-  // separate thread worker
-  static void _worker(SendPort mainSendPort) async {
-    final workerPort = ReceivePort();
-    mainSendPort.send(workerPort.sendPort);
+  static void _worker((SendPort, String) args) {
+    final (mainSendPort, interfaceName) = args;
 
-    final linuxcan = LinuxCan.instance;
-
-    // Find the CAN interface with name `can0`
-    // make sure to rename can_socket to can0
-    final device = linuxcan.devices.singleWhere((device) => device.networkInterface.name == 'can0');
-
-    // We need the interface to be up and running for most purposes.
-    // If it is not up, you can bring it up using: (replace 125000 with the bitrate of the bus)
-    //   sudo ip link set can0 type can bitrate 125000
-    //   sudo ip link set can0 up
-    if (!device.isUp) {
-      throw StateError('CAN interface is not up.');
+    final _NativeCanSocket socket;
+    try {
+      socket = _NativeCanSocket(openDimosNativeLibrary());
+    } catch (e) {
+      mainSendPort.send('CAN reader unavailable: $e');
+      return;
     }
 
-    // Query the attributes of this interface.
-    final attributes = device.queryAttributes();
+    final fd = socket.open(interfaceName);
+    if (fd < 0) {
+      mainSendPort.send('$interfaceName: ${_describeErrno(-fd)}');
+      return;
+    }
 
-    // print('CAN device attributes: $attributes');
-    // print('CAN device hardware name: ${device.hardwareName}');
+    final canId = calloc<ffi.Uint32>();
+    final length = calloc<ffi.Uint8>();
+    final data = calloc<ffi.Uint8>(JsonCanFfi.maxPayloadBytes);
+    final batch = CanFrameBatchBuilder();
+    final batchAge = Stopwatch();
 
-    // Actually open the device, so we can send/receive frames.
-    final socket = device.open();
-
-    // Listen on a Stream of CAN frames
-    await for (final frame in socket.receive()) {
-      switch (frame) {
-        case CanDataFrame(:final id, :final data):
-          mainSendPort.send([id, Uint8List.fromList(data)]);
-          break;
-        default:
-          break;
+    while (true) {
+      // Block for the first frame of a batch, then drain what's already queued.
+      final result = socket.read(fd, batch.isEmpty ? 100 : 0, canId, length, data);
+      if (result < 0) {
+        mainSendPort.send('$interfaceName: ${_describeErrno(-result)}');
+        break;
+      }
+      if (result == 1) {
+        if (batch.isEmpty) batchAge.reset();
+        batchAge.start();
+        batch.add(canId.value, data.asTypedList(length.value));
+      }
+      if (!batch.isEmpty &&
+          (result == 0 ||
+              batch.count >= _maxFramesPerBatch ||
+              batchAge.elapsedMilliseconds >= _maxBatchAgeMs)) {
+        mainSendPort.send(batch.take());
       }
     }
 
-    await socket.close();
+    socket.close(fd);
+    calloc.free(canId);
+    calloc.free(length);
+    calloc.free(data);
+  }
+
+  // Linux errno values returned by native/can_socket.
+  static String _describeErrno(int errno) => switch (errno) {
+        1 || 13 => 'permission denied',
+        19 => 'interface not found',
+        97 => 'kernel has no SocketCAN support (sudo modprobe can_raw)',
+        100 => 'interface is down (sudo ip link set <iface> up)',
+        _ => 'socket error (errno $errno)',
+      };
+}
+
+/// Receives frame batches over UDP on localhost, sent by tool/can_sim. Used for
+/// development on machines without SocketCAN (e.g. macOS).
+class UdpCanSource implements CanSource {
+  UdpCanSource(this.port);
+
+  final int port;
+
+  @override
+  Future<void> start(CanBatchCallback onBatch, CanErrorCallback onError) async {
+    final RawDatagramSocket socket;
+    try {
+      socket = await RawDatagramSocket.bind(InternetAddress.loopbackIPv4, port);
+    } catch (e) {
+      onError('UDP port $port: $e');
+      return;
+    }
+    socket.listen((event) {
+      if (event != RawSocketEvent.read) return;
+      final datagram = socket.receive();
+      if (datagram != null) onBatch(datagram.data);
+    });
   }
 }
 
-// Future<void> main() async {
-//   final linuxcan = LinuxCan.instance;
+class _NativeCanSocket {
+  _NativeCanSocket(ffi.DynamicLibrary lib)
+      : _open = lib.lookupFunction<ffi.Int32 Function(ffi.Pointer<Utf8>),
+            int Function(ffi.Pointer<Utf8>)>('dimos_can_open'),
+        read = lib.lookupFunction<
+            ffi.Int32 Function(ffi.Int32, ffi.Int32, ffi.Pointer<ffi.Uint32>,
+                ffi.Pointer<ffi.Uint8>, ffi.Pointer<ffi.Uint8>),
+            int Function(int, int, ffi.Pointer<ffi.Uint32>,
+                ffi.Pointer<ffi.Uint8>, ffi.Pointer<ffi.Uint8>)>('dimos_can_read'),
+        close = lib.lookupFunction<ffi.Void Function(ffi.Int32),
+            void Function(int)>('dimos_can_close');
 
-//   // Find the CAN interface with name `can0`.
-//   final device = linuxcan.devices.singleWhere((device) => device.networkInterface.name == 'can0');
+  final int Function(ffi.Pointer<Utf8>) _open;
+  final int Function(int fd, int timeoutMs, ffi.Pointer<ffi.Uint32> canId,
+      ffi.Pointer<ffi.Uint8> length, ffi.Pointer<ffi.Uint8> data) read;
+  final void Function(int fd) close;
 
-//   // We need the interface to be up and running for most purposes.
-//   // If it is not up, you can bring it up using: (replace 125000 with the bitrate of the bus)
-//   //   sudo ip link set can0 type can bitrate 125000
-//   //   sudo ip link set can0 up
-//   if (!device.isUp) {
-//     throw StateError('CAN interface is not up.');
-//   }
-
-//   // Query the attributes of this interface.
-//   final attributes = device.queryAttributes();
-
-//   print('CAN device attributes: $attributes');
-//   print('CAN device hardware name: ${device.hardwareName}');
-
-//   // Actually open the device, so we can send/receive frames.
-//   final socket = device.open();
-
-//   // if (socket.isFlexibleDataRate) {
-//   //   socket.send(CanFrame.standardFd(
-//   //       id: 0x123,
-//   //       data: [0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x10, 0x11, 0x12],
-//   //       switchBitRate: true));
-//   // } else {
-//   //   // Send some example CAN frame.
-//   //   socket.send(CanFrame.standard(id: 0x123, data: [0x01, 0x02, 0x03, 0x04]));
-//   // }
-
-//   // Read a CAN frame. This is blocking, i.e. it will wait for a frame to arrive.
-//   //
-//   // There's no internal queueing. receiveSingle() will only actually start listening
-//   // for a new frame inside this method.
-//   // If a frame arrived on the socket before we get to receiveSingle(), we won't receive it.
-//   final frame = await socket.receiveSingle();
-
-//   // We received a frame.
-//   switch (frame) {
-//     case CanDataFrame(:final id, :final data):
-//       print('received data frame with id $id and data $data');
-//     case CanRemoteFrame _:
-//       print('received remote frame $frame');
-//   }
-
-//   // Listen on a Stream of CAN frames
-//   await for (final frame in socket.receive()) {
-//     print('received frame $frame');
-//     break;
-//   }
-
-//   // Close the socket to release all resources.
-//   await socket.close();
-// }
+  int open(String interfaceName) {
+    final name = interfaceName.toNativeUtf8(allocator: calloc);
+    try {
+      return _open(name);
+    } finally {
+      calloc.free(name);
+    }
+  }
+}

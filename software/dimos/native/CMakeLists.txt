@@ -1,5 +1,7 @@
-# Builds libdimos_jsoncan: the Rust jsoncan (cppcodegen) RX/data-capture code for
-# the DIMOS node, wrapped in a C API (jsoncan_bridge) that Dart loads via FFI.
+# Builds libdimos_jsoncan, which Dart loads via FFI:
+#  - the Rust jsoncan (cppcodegen) RX/data-capture code for the DIMOS node, wrapped
+#    in a C API (jsoncan_bridge)
+#  - a SocketCAN reader with CAN FD support (can_socket, Linux only)
 #
 # Code is generated at build time from can_bus/${DIMOS_CAR}. By default the
 # cppcodegen binary is built with cargo; pass -DJSONCAN_BINARY_GENERATE=OFF to
@@ -31,11 +33,13 @@ list(FILTER CAN_SRCS INCLUDE REGEX "/(app_canUtils|app_canRx|app_canDataCapture|
 
 add_library(dimos_jsoncan SHARED
         "${CMAKE_CURRENT_SOURCE_DIR}/jsoncan_bridge/jsoncan_bridge.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/can_socket/can_socket.cpp"
         ${CAN_SRCS}
 )
 set_target_properties(dimos_jsoncan PROPERTIES OUTPUT_NAME "dimos_jsoncan")
 target_compile_features(dimos_jsoncan PRIVATE cxx_std_20)
 target_include_directories(dimos_jsoncan PRIVATE
         "${CMAKE_CURRENT_SOURCE_DIR}/jsoncan_bridge"
+        "${CMAKE_CURRENT_SOURCE_DIR}/can_socket"
         ${CAN_INCLUDE_DIRS}
 )

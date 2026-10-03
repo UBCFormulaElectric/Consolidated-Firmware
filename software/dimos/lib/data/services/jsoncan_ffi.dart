@@ -4,6 +4,18 @@ import 'dart:typed_data';
 
 import 'package:ffi/ffi.dart';
 
+// Opens libdimos_jsoncan (native/). On Linux it sits in the bundle's lib/ (on the
+// runner's rpath); on macOS the Xcode build copies it into the app's Frameworks/.
+ffi.DynamicLibrary openDimosNativeLibrary({String? libraryPath}) {
+  if (libraryPath != null) return ffi.DynamicLibrary.open(libraryPath);
+  if (Platform.isLinux) return ffi.DynamicLibrary.open('libdimos_jsoncan.so');
+  if (Platform.isMacOS) {
+    final contents = File(Platform.resolvedExecutable).parent.parent.path;
+    return ffi.DynamicLibrary.open('$contents/Frameworks/libdimos_jsoncan.dylib');
+  }
+  throw UnsupportedError('libdimos_jsoncan is only built for Linux and macOS.');
+}
+
 // Dart bindings for libdimos_jsoncan (native/jsoncan_bridge), which wraps the
 // Rust jsoncan generated code for the DIMOS node.
 class JsonCanFfi {
@@ -24,16 +36,13 @@ class JsonCanFfi {
   late final int Function(int stdId, int timeMs) _needsTelem;
   late final int Function() _getVcCanLoggingRemainingErrors;
 
-  static String get _defaultLibraryPath {
-    if (Platform.isLinux) return 'libdimos_jsoncan.so';
-    if (Platform.isMacOS) return 'libdimos_jsoncan.dylib';
-    throw UnsupportedError('JsonCanFfi is only supported on Linux and macOS.');
-  }
+  // Reused for every frame; only touched from the main isolate.
+  final ffi.Pointer<ffi.Uint8> _frameBuffer = calloc<ffi.Uint8>(maxPayloadBytes);
 
   void ensureLoaded({String? libraryPath}) {
     if (_initialized) return;
 
-    _lib = ffi.DynamicLibrary.open(libraryPath ?? _defaultLibraryPath);
+    _lib = openDimosNativeLibrary(libraryPath: libraryPath);
 
     _init = _lib.lookupFunction<ffi.Void Function(), void Function()>(
       'dimos_jsoncan_init',
@@ -64,13 +73,8 @@ class JsonCanFfi {
     ensureLoaded();
 
     final dlc = data.length > maxPayloadBytes ? maxPayloadBytes : data.length;
-    final ptr = calloc<ffi.Uint8>(maxPayloadBytes);
-    try {
-      ptr.asTypedList(dlc).setRange(0, dlc, data);
-      _processFrame(stdId, dlc, ptr);
-    } finally {
-      calloc.free(ptr);
-    }
+    _frameBuffer.asTypedList(dlc).setRange(0, dlc, data);
+    _processFrame(stdId, dlc, _frameBuffer);
   }
 
   // Data capture for the DIMOS logger node; `timeMs` must be monotonic.
