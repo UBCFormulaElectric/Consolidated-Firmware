@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use jsoncan_rust::can_database::{CanDatabase, CanMessage, CanSignalType};
 use regex::Regex;
-use serde::{Deserialize, Serialize};
+use serde::{Serialize};
 
 #[derive(Debug, Serialize)]
 pub struct SignalMetadata {

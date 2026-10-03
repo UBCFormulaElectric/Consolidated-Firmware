@@ -3,7 +3,7 @@ use std::{collections::{HashMap, HashSet}, f64::consts::TAU, sync::Arc, time::{D
 use jsoncan_rust::can_database::{CanDatabase, CanSignalType, DecodedSignal};
 use tokio::{select, sync::broadcast, sync::RwLock};
 
-use crate::{tasks::can_data::signal_metadata::{get_all_signal_metadatas, SignalMetadata}, utils::yellow};
+use crate::{tasks::client_api::signal_metadata::{get_all_signal_metadatas, SignalMetadata}, utils::yellow};
 use crate::{tasks::{HealthCheckSender, HealthCheckSenderExt, Task}, tasks::telem_message::CanPayload, vprintln};
 use crate::Clients;
 

@@ -3,15 +3,14 @@ use std::{collections::HashMap, mem, time::{Duration, SystemTime}};
 use axum::{Json, Router, extract::{Path, Query, State}, http::StatusCode, response::IntoResponse, routing::get};
 use chrono::{DateTime, FixedOffset};
 use influxdb2::FromDataPoint;
-use jsoncan_rust::can_database::CanMessage;
 use serde::{Deserialize, Serialize};
 use regex::Regex;
 use serde_json::from_str;
 use tokio::{select, time::sleep};
 
-use crate::{config::CONFIG, dprintln, error_println, tasks::{can_data::{influx_util::InfluxSignalSource, signal_metadata::get_all_signal_metadatas}, client_api::{AppState, signal_tile::{InfluxSignalRow, get_signals}}}, utils::{rfc3339_to_utc, rfc3339_to_utc_str}, vprintln};
+use crate::{config::CONFIG, dprintln, error_println, tasks::{can_data::{influx_util::InfluxSignalSource}, client_api::{AppState, signal_tile::{InfluxSignalRow, get_signals}}}, utils::{rfc3339_to_utc, rfc3339_to_utc_str}, vprintln};
 use crate::tasks::client_api::INFLUX_QUERY_TIMEOUT_MS;
-use crate::tasks::can_data::signal_metadata::{SignalMetadata, SignalMetadataEnumSignal};
+use crate::tasks::client_api::signal_metadata::{SignalMetadata, get_all_signal_metadatas};
 
 /**
  * Gets the list of all nodes (str) in the current parser.
