@@ -61,11 +61,18 @@ export const WIDGET_ACCEPTED_SIGNAL_TYPES: Record<WidgetType, SignalType[]> = {
 
 export type WidgetDragItem = {
     id: string;
+    originalIndex: number;
 };
 
 export type SignalDragItem = {
     signal: SignalMetadata;
+    originalWidgetId: string;
+    originalIndex: number;
     currentWidgetId: string;
+};
+
+export type SignalDropResult = {
+    isAccepted: boolean;
 };
 
 export const canWidgetAcceptSignal = (widget: WidgetData, signal: SignalMetadata): boolean => {

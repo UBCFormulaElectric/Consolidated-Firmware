@@ -16,9 +16,10 @@ interface WidgetManagerContext {
     appendWidget: (newWidget: WidgetData) => void;
     removeWidget: (widgetToRemove: string) => void;
     moveWidget: (widgetToMove: string, insertionIndex: number) => void;
+    moveWidgetToIndex: (widgetToMove: string, targetIndex: number) => void;
     appendSignal: <T extends WidgetType, Widget extends Extract<WidgetData, { type: T }>>(widget: Widget, newSignal: any) => void;
     removeSignal: (widget: WidgetData, nameOfSignalToRemove: string) => void;
-    moveSignal: (signalName: string, fromWidgetId: string, toWidgetId: string) => void;
+    moveSignal: (signalName: string, fromWidgetId: string, toWidgetId: string, atIndex?: number) => void;
     updateWidget: <T extends WidgetType, Widget extends Extract<WidgetData, { type: T }>>(widget: Widget, updater: (prevWidget: Widget) => Widget) => void;
 }
 
@@ -146,17 +147,33 @@ function removeSignalFromWidget(widget: WidgetData, signalName: string): WidgetD
     };
 }
 
+function moveArrayItem<T>(items: T[], fromIndex: number, toIndex: number): T[] {
+    const nextItems = [...items];
+    const direction = toIndex > fromIndex ? 1 : -1;
+
+    for (let index = fromIndex; index !== toIndex; index += direction) {
+        nextItems[index] = items[index + direction];
+    }
+    nextItems[toIndex] = items[fromIndex];
+
+    return nextItems;
+}
+
+function insertAt<T>(items: T[], item: T, index: number = items.length): T[] {
+    return [...items.slice(0, index), item, ...items.slice(index)];
+}
+
 function withPaletteEntry<T>(palette: Record<string, T>, signalName: string, entry: T | undefined): Record<string, T> {
     if (entry === undefined) return palette;
 
     return { ...palette, [signalName]: entry };
 }
 
-function addSignalFromWidget(targetWidget: WidgetData, sourceWidget: WidgetData, signal: SignalMetadata): WidgetData | null {
+function addSignalFromWidget(targetWidget: WidgetData, sourceWidget: WidgetData, signal: SignalMetadata, atIndex?: number): WidgetData | null {
     if (targetWidget.type === "numericalGraph" && sourceWidget.type === "numericalGraph" && isNumericalSignalMetadata(signal)) {
         return {
             ...targetWidget,
-            signals: [...targetWidget.signals, signal],
+            signals: insertAt(targetWidget.signals, signal, atIndex),
             options: {
                 ...targetWidget.options,
                 colorPalette: withPaletteEntry(targetWidget.options.colorPalette, signal.name, sourceWidget.options.colorPalette[signal.name]),
@@ -167,7 +184,7 @@ function addSignalFromWidget(targetWidget: WidgetData, sourceWidget: WidgetData,
     if (targetWidget.type === "enumTimeline" && sourceWidget.type === "enumTimeline" && (isEnumSignalMetadata(signal) || isBooleanSignalMetadata(signal))) {
         return {
             ...targetWidget,
-            signals: [...targetWidget.signals, signal],
+            signals: insertAt(targetWidget.signals, signal, atIndex),
             options: {
                 ...targetWidget.options,
                 colorPalette: withPaletteEntry(targetWidget.options.colorPalette, signal.name, sourceWidget.options.colorPalette[signal.name]),
@@ -219,13 +236,29 @@ export function WidgetManager({ children, storageKey = LOCAL_STORAGE_KEY }: { ch
                     return prev;
                 }
 
-                const nextWidgets = [...prev];
-                const direction = toIndex > fromIndex ? 1 : -1;
-                for (let index = fromIndex; index !== toIndex; index += direction) {
-                    nextWidgets[index] = prev[index + direction];
+                return moveArrayItem(prev, fromIndex, toIndex);
+            });
+        },
+        [setWidgets]
+    );
+
+    const moveWidgetToIndex = useCallback(
+        (widgetToMove: string, targetIndex: number) => {
+            setWidgets((prev) => {
+                const fromIndex = prev.findIndex((widget) => widget.id === widgetToMove);
+                if (fromIndex === -1) {
+                    IS_DEBUG && console.warn("Widget to move not found");
+                    return prev;
                 }
-                nextWidgets[toIndex] = prev[fromIndex];
-                return nextWidgets;
+
+                if (targetIndex < 0 || targetIndex >= prev.length) {
+                    IS_DEBUG && console.warn(`Widget target index ${targetIndex} is out of range for ${prev.length} widgets`);
+                    return prev;
+                }
+
+                if (targetIndex === fromIndex) return prev;
+
+                return moveArrayItem(prev, fromIndex, targetIndex);
             });
         },
         [setWidgets]
@@ -285,7 +318,7 @@ export function WidgetManager({ children, storageKey = LOCAL_STORAGE_KEY }: { ch
     );
 
     const moveSignal = useCallback(
-        (signalName: string, fromWidgetId: string, toWidgetId: string) => {
+        (signalName: string, fromWidgetId: string, toWidgetId: string, atIndex?: number) => {
             setWidgets((prev) => {
                 const fromIndex = prev.findIndex((widget) => widget.id === fromWidgetId);
                 const toIndex = prev.findIndex((widget) => widget.id === toWidgetId);
@@ -295,7 +328,6 @@ export function WidgetManager({ children, storageKey = LOCAL_STORAGE_KEY }: { ch
                 }
 
                 const sourceWidget = prev[fromIndex];
-                const targetWidget = prev[toIndex];
 
                 const signal = sourceWidget.signals.find((candidate) => candidate.name === signalName);
                 if (!signal) {
@@ -303,19 +335,22 @@ export function WidgetManager({ children, storageKey = LOCAL_STORAGE_KEY }: { ch
                     return prev;
                 }
 
+                const nextSourceWidget = removeSignalFromWidget(sourceWidget, signalName);
+                const targetWidget = fromIndex === toIndex ? nextSourceWidget : prev[toIndex];
+
                 if (!canWidgetAcceptSignal(targetWidget, signal)) {
                     IS_DEBUG && console.warn(`Target widget cannot accept signal: ${signalName}`);
                     return prev;
                 }
 
-                const nextTargetWidget = addSignalFromWidget(targetWidget, sourceWidget, signal);
+                const nextTargetWidget = addSignalFromWidget(targetWidget, sourceWidget, signal, atIndex);
                 if (!nextTargetWidget) {
                     IS_DEBUG && console.warn(`Signal palette cannot be moved between these widget types: ${signalName}`);
                     return prev;
                 }
 
                 const nextWidgets = [...prev];
-                nextWidgets[fromIndex] = removeSignalFromWidget(sourceWidget, signalName);
+                nextWidgets[fromIndex] = nextSourceWidget;
                 nextWidgets[toIndex] = nextTargetWidget;
                 return nextWidgets;
             });
@@ -346,13 +381,14 @@ export function WidgetManager({ children, storageKey = LOCAL_STORAGE_KEY }: { ch
             appendWidget,
             removeWidget,
             moveWidget,
+            moveWidgetToIndex,
             appendSignal,
             removeSignal,
             moveSignal,
             updateWidget,
             initializedFromLocalStorage: isInitialized,
         }),
-        [widgets, appendWidget, removeWidget, moveWidget, appendSignal, removeSignal, moveSignal, updateWidget, isInitialized]
+        [widgets, appendWidget, removeWidget, moveWidget, moveWidgetToIndex, appendSignal, removeSignal, moveSignal, updateWidget, isInitialized]
     );
 
     return <WidgetManagerContext value={contextValue}>{children}</WidgetManagerContext>;
