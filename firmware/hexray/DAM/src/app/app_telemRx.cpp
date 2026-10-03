@@ -127,9 +127,15 @@ namespace
                     return;
                 }
 
-                // do the thing
+                uint32_t   boot_hash; // get boot hash somehow
+                const auto push_result = telem_tx_queue.push(io::telemMessage::BootInfo{ boot_hash });
+                if (!push_result)
+                {
+                    LOG_ERROR("telemRx: Failed to enqueue Boot Info: %d", static_cast<int>(push_result.error()));
+                    return;
+                }
 
-                LOG_INFO("telemRx: DAM Bootup Sent");
+                LOG_INFO("telemRx: Boot Info enqueued");
                 break;
             }
             default:
