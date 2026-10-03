@@ -40,6 +40,13 @@ TelemCanMsg::TelemCanMsg(const io::CanMsg &rx_msg, uint64_t time_offset) : Telem
     header = Header(reinterpret_cast<const uint8_t *>(&identifier), payload_size);
 }
 
+BootInfo::BootInfo(uint32_t boot_hash) : TelemMessage(TelemMessageIds::BOOTINFO)
+{
+    hash = boot_hash;
+    header =
+        Header(reinterpret_cast<const uint8_t *>(&identifier), static_cast<uint8_t>(sizeof(identifier) + sizeof(hash)));
+}
+
 NTPMsg::NTPMsg() : TelemMessage(TelemMessageIds::NTP)
 {
     header = Header(reinterpret_cast<const uint8_t *>(&identifier), static_cast<uint8_t>(sizeof(identifier)));
