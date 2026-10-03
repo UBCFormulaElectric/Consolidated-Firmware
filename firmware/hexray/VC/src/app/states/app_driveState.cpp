@@ -7,7 +7,8 @@
 #include "app_states.hpp"
 #include "app_bspdwarning.hpp"
 
-#include "torque_vectoring/datatypes/torque_limits.hpp"
+#include "torque_vectoring/shared_datatypes/torque_limits.hpp"
+#include "torque_vectoring/torque_vectoring.hpp"
 
 #include "io_log.hpp"
 #include "io_pcm.hpp"
