@@ -105,14 +105,14 @@ function(embedded_object_library
                 PUBLIC
                 ${LIB_INCLUDE_DIRS}
         )
-        target_compile_options(${LIB_NAME} PRIVATE ${SHARED_GNU_COMPILER_CHECKS} -O0)
+        target_compile_options(${LIB_NAME} PRIVATE ${SHARED_GNU_COMPILER_CHECKS} -Os)
     ELSE ()
         target_include_directories(${LIB_NAME} PUBLIC ${LIB_INCLUDE_DIRS})
         target_compile_options(${LIB_NAME} PRIVATE ${SHARED_GNU_COMPILER_CHECKS_STRICT})
         if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
-            target_compile_options(${ELF_NAME} PRIVATE -O0)
+            target_compile_options(${LIB_NAME} PRIVATE -O0)
         else ()
-            target_compile_options(${ELF_NAME} PRIVATE -Os)
+            target_compile_options(${LIB_NAME} PRIVATE -Os)
         endif ()
     ENDIF ()
 
