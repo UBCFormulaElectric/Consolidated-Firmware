@@ -127,8 +127,7 @@ namespace
                     return;
                 }
 
-                uint32_t   boot_hash; // get boot hash somehow
-                const auto push_result = telem_tx_queue.push(io::telemMessage::BootInfo{ boot_hash });
+                const auto push_result = telem_tx_queue.push(io::telemMessage::BootInfo{ app::sd::getBootHash() });
                 if (!push_result)
                 {
                     LOG_ERROR("telemRx: Failed to enqueue Boot Info: %d", static_cast<int>(push_result.error()));
