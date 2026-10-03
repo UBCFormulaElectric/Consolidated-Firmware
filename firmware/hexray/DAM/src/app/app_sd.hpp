@@ -36,6 +36,11 @@ void service();
 uint32_t getLogFd();
 
 /**
+ * Returns the current boot hash.
+ */
+uint32_t getBootHash();
+
+/**
  * Returns true if the log file is currently open.
  */
 bool isLogOpen();
