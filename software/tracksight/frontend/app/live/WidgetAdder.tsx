@@ -47,7 +47,7 @@ export function WidgetAdder() {
         <Popover open={isOpen} onOpenChange={setIsOpen}>
             <div className="w-full flex justify-center">
                 <PopoverTrigger asChild>
-                    <PlusButton className="cursor-pointer" />
+                    <PlusButton title="Add widget" />
                 </PopoverTrigger>
             </div>
             <PopoverContent>

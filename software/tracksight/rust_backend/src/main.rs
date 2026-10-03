@@ -10,7 +10,7 @@ use tokio::task::{JoinError, JoinSet};
 
 use crate::config::{CONFIG, SerialType};
 use crate::tasks::telem_message::TelemetryOutgoingMessage;
-use crate::tasks::{HealthCheckError, HealthCheckSenderExt, Task};
+use crate::tasks::{HealthCheckError, HealthCheckSenderExt, MAX_CHANNEL_BUFFER_SIZE, Task};
 use crate::tasks::can_data::load_can_database;
 use crate::utils::{green};
 
@@ -60,9 +60,9 @@ async fn main() {
     // this is equivalent to queue in old backend
     // use broadcast instead of mpsc, probably only one serial source but multiple consumers
     // TODO figure out buffer size
-    let (can_queue_tx, can_queue_rx) = broadcast::channel::<CanPayload>(4096);
+    let (can_queue_tx, can_queue_rx) = broadcast::channel::<CanPayload>(MAX_CHANNEL_BUFFER_SIZE);
     // used for the frontend to send messages to DAM
-    let (client_out_msg_tx, client_out_msg_rx) = broadcast::channel::<TelemetryOutgoingMessage>(4096);
+    let (client_out_msg_tx, client_out_msg_rx) = broadcast::channel::<TelemetryOutgoingMessage>(MAX_CHANNEL_BUFFER_SIZE);
     // channel for diagnostic metrics (e.g. packet error rate)
     let (diag_tx, diag_rx) = broadcast::channel::<f64>(32);
 
