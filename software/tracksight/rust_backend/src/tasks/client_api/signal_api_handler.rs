@@ -238,6 +238,9 @@ async fn signal_csv() -> impl IntoResponse {
     return (StatusCode::OK, Json(()));
 }
 
+// Must exceed the DAM's DAM_Bootup re-send burst (10s, see jobs_run1Hz_tick).
+const SESSION_MERGE_WINDOW_MS: i64 = 30_000;
+
 #[derive(Debug, FromDataPoint, Default)]
 struct SessionStarts {
     pub time: DateTime<FixedOffset>,
@@ -315,8 +318,11 @@ async fn signal_sessions(
     }
 
     let time_bigram: Vec<(String, Option<String>)> = match req {
-        Ok(starts) => {
+        Ok(mut starts) => {
             vprintln!("[sessions] influx returned {} DAM_Alive point(s)", starts.len());
+            // The DAM re-sends DAM_Alive for its first few seconds after boot; fold every point
+            // within SESSION_MERGE_WINDOW_MS of a session's first point into that session.
+            starts.dedup_by(|cur, first| (cur.time - first.time).num_milliseconds() < SESSION_MERGE_WINDOW_MS);
             let mut tb: Vec<(String, Option<String>)> = starts.windows(2)
             .filter(|w| w[0].time < w[1].time)
             .map(|w|
