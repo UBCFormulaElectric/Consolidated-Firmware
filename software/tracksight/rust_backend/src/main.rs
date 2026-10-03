@@ -1,14 +1,15 @@
 use ctrlc;
 use tokio::time::sleep;
-use std::sync::Arc;
+use std::sync::{Arc, OnceLock};
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::time::Duration;
 use tokio::select;
-use tokio::sync::RwLock;
+use tokio::sync::{RwLock, watch};
 use tokio::sync::broadcast;
 use tokio::task::{JoinError, JoinSet};
 
 use crate::config::{CONFIG, SerialType};
+use crate::tasks::can_data::influx_util::BootState;
 use crate::tasks::telem_message::TelemetryOutgoingMessage;
 use crate::tasks::{HealthCheckError, HealthCheckSenderExt, MAX_CHANNEL_BUFFER_SIZE, Task};
 use crate::tasks::can_data::load_can_database;
@@ -29,6 +30,8 @@ use tasks::serial_handler::run_serial_task;
 use tasks::telem_message::CanPayload;
 use utils::red;
 use utils::yellow;
+
+static BOOT_STATE: OnceLock<watch::Receiver<Option<BootState>>> = OnceLock::new();
 
 #[tokio::main]
 async fn main() {
@@ -57,6 +60,9 @@ async fn main() {
 
     // below are channels and objects that are used among the different tasks
 
+    let (bootstate_tx, bootstate_rx) = watch::channel::<Option<BootState>>(None);
+    BOOT_STATE.set(bootstate_rx).unwrap();
+    
     // this is equivalent to queue in old backend
     // use broadcast instead of mpsc, probably only one serial source but multiple consumers
     // TODO figure out buffer size
@@ -119,6 +125,7 @@ async fn main() {
             let can_db_clone = base_can_db.clone();
             let clients_clone = clients.clone();
             let client_out_msg_rx_clone = client_out_msg_rx.resubscribe();
+            let bootstate_tx_clone = bootstate_tx.clone();
 
             match CONFIG.serial {
                 SerialType::RADIO => {
@@ -131,6 +138,7 @@ async fn main() {
                             can_queue_tx_clone,
                             diag_tx_clone,
                             client_out_msg_rx_clone,
+                            bootstate_tx_clone,
                         ),
                     );
                 },
