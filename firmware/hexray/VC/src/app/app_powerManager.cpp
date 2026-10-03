@@ -39,6 +39,19 @@ namespace
         .rl_pump_efuse   = can_tx::VC_RearLeftPumpStatus_set,
     };
 
+    constexpr Efuses efuse_ok_setters = {
+        .front_efuse     = can_tx::VC_FrontOK_set,
+        .rsm_efuse       = can_tx::VC_RSMOK_set,
+        .bms_efuse       = can_tx::VC_BMSOK_set,
+        .dam_efuse       = can_tx::VC_DAMOK_set,
+        .f_inv_efuse     = can_tx::VC_FrontInvertersOK_set,
+        .r_inv_efuse     = can_tx::VC_RearInvertersOK_set,
+        .r_rad_fan_efuse = can_tx::VC_RightRadiatorFanOK_set,
+        .l_rad_fan_efuse = can_tx::VC_LeftRadiatorFanOK_set,
+        .rr_pump_efuse   = can_tx::VC_RearRightPumpOK_set,
+        .rl_pump_efuse   = can_tx::VC_RearLeftPumpOK_set,
+    };
+
     constexpr Efuses efuse_current_setters = {
         .front_efuse     = can_tx::VC_FrontCurrent_set,
         .rsm_efuse       = can_tx::VC_RSMCurrent_set,
@@ -156,8 +169,26 @@ void efuseProtocolTick_100Hz()
     {
         const io::Efuse *efuse = efuses[ch];
         assert(efuse != nullptr);
-        efuse_status_setters[ch](efuse->isChannelEnabled());
-        efuse_current_setters[ch](efuse->getChannelCurrent());
+
+        const bool  channelEnabled = efuse->isChannelEnabled();
+        const bool  efuseOk        = efuse->ok();
+        const float channelCurrent = efuse->getChannelCurrent();
+#ifdef TARGET_EMBEDDED // readFaults() is only declared for the embedded build
+        if (!efuseOk)
+        {
+            if (ch != static_cast<uint8_t>(Efuse_E::R_RAD_FAN) && ch != static_cast<uint8_t>(Efuse_E::L_RAD_FAN) &&
+                ch != static_cast<uint8_t>(Efuse_E::RR_PUMP) && ch != static_cast<uint8_t>(Efuse_E::RL_PUMP))
+            {
+                const auto faults = static_cast<const io::TI_TPS28_Efuse *>(efuse)->readFaults();
+                LOG_INFO(
+                    "EFUSE FAULT: T_SHDN or OVC - %d, OL - %d", faults.flags.overcurrent_or_thermal_shdn,
+                    faults.flags.open_load);
+            }
+        }
+#endif
+        efuse_status_setters[ch](channelEnabled);
+        efuse_ok_setters[ch](efuseOk);
+        efuse_current_setters[ch](channelCurrent);
     }
 }
 #ifdef TARGET_TEST

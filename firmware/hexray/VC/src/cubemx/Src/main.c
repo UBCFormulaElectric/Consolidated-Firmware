@@ -284,7 +284,7 @@ static void MX_ADC1_Init(void)
     hadc1.Init.ExternalTrigConv         = ADC_EXTERNALTRIG_T3_TRGO;
     hadc1.Init.ExternalTrigConvEdge     = ADC_EXTERNALTRIGCONVEDGE_RISING;
     hadc1.Init.ConversionDataManagement = ADC_CONVERSIONDATA_DMA_CIRCULAR;
-    hadc1.Init.Overrun                  = ADC_OVR_DATA_PRESERVED;
+    hadc1.Init.Overrun                  = ADC_OVR_DATA_OVERWRITTEN;
     hadc1.Init.LeftBitShift             = ADC_LEFTBITSHIFT_NONE;
     hadc1.Init.OversamplingMode         = DISABLE;
     hadc1.Init.Oversampling.Ratio       = 1;
@@ -305,7 +305,7 @@ static void MX_ADC1_Init(void)
      */
     sConfig.Channel                = ADC_CHANNEL_8;
     sConfig.Rank                   = ADC_REGULAR_RANK_1;
-    sConfig.SamplingTime           = ADC_SAMPLETIME_1CYCLE_5;
+    sConfig.SamplingTime           = ADC_SAMPLETIME_32CYCLES_5;
     sConfig.SingleDiff             = ADC_SINGLE_ENDED;
     sConfig.OffsetNumber           = ADC_OFFSET_NONE;
     sConfig.Offset                 = 0;
@@ -395,7 +395,7 @@ static void MX_ADC2_Init(void)
     hadc2.Init.ExternalTrigConv         = ADC_EXTERNALTRIG_T3_TRGO;
     hadc2.Init.ExternalTrigConvEdge     = ADC_EXTERNALTRIGCONVEDGE_RISING;
     hadc2.Init.ConversionDataManagement = ADC_CONVERSIONDATA_DMA_CIRCULAR;
-    hadc2.Init.Overrun                  = ADC_OVR_DATA_PRESERVED;
+    hadc2.Init.Overrun                  = ADC_OVR_DATA_OVERWRITTEN;
     hadc2.Init.LeftBitShift             = ADC_LEFTBITSHIFT_NONE;
     hadc2.Init.OversamplingMode         = DISABLE;
     hadc2.Init.Oversampling.Ratio       = 1;
@@ -408,7 +408,7 @@ static void MX_ADC2_Init(void)
      */
     sConfig.Channel                = ADC_CHANNEL_4;
     sConfig.Rank                   = ADC_REGULAR_RANK_1;
-    sConfig.SamplingTime           = ADC_SAMPLETIME_1CYCLE_5;
+    sConfig.SamplingTime           = ADC_SAMPLETIME_32CYCLES_5;
     sConfig.SingleDiff             = ADC_SINGLE_ENDED;
     sConfig.OffsetNumber           = ADC_OFFSET_NONE;
     sConfig.Offset                 = 0;
@@ -812,16 +812,16 @@ static void MX_TIM3_Init(void)
 
     /* USER CODE END TIM3_Init 1 */
     htim3.Instance               = TIM3;
-    htim3.Init.Prescaler         = 0;
+    htim3.Init.Prescaler         = TIM3_PRESCALER - 1;
     htim3.Init.CounterMode       = TIM_COUNTERMODE_UP;
-    htim3.Init.Period            = 65535;
+    htim3.Init.Period            = (TIMx_FREQUENCY / TIM3_PRESCALER / ADC_FREQUENCY) - 1;
     htim3.Init.ClockDivision     = TIM_CLOCKDIVISION_DIV1;
     htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
     if (HAL_TIM_OC_Init(&htim3) != HAL_OK)
     {
         Error_Handler();
     }
-    sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+    sMasterConfig.MasterOutputTrigger = TIM_TRGO_UPDATE;
     sMasterConfig.MasterSlaveMode     = TIM_MASTERSLAVEMODE_DISABLE;
     if (HAL_TIMEx_MasterConfigSynchronization(&htim3, &sMasterConfig) != HAL_OK)
     {

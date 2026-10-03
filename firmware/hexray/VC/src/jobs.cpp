@@ -38,7 +38,8 @@ static void fdcan_tx(const JsonCanMsg &tx_msg)
 static void invcan_tx(const JsonCanMsg &tx_msg)
 {
     const io::CanMsg msg = app::jsoncan::copyToCanMsg(tx_msg);
-    LOG_IF_ERR(invcan_tx_queue.push(msg));
+    // LOG_IF_ERR(invcan_tx_queue.push(msg));
+    invcan_tx_queue.push(msg);
 }
 
 static constexpr uint32_t AIR_MINUS_OPEN_DEBOUNCE_MS = 100U;

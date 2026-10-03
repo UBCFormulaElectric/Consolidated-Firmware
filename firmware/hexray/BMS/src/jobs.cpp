@@ -68,7 +68,7 @@ void jobs_init()
 {
     io::can_tx::init(vehicle_transmit_func, charger_transmit_func);
     io::can_tx::enableMode_FDCAN(app::can_utils::FDCANMode::FDCAN_MODE_DEFAULT, true);
-    io::can_tx::enableMode_charger(app::can_utils::chargerMode::CHARGER_MODE_DEFAULT, true);
+    io::can_tx::enableMode_charger(app::can_utils::chargerMode::CHARGER_MODE_DEFAULT, false);
 
     can_rx_queue.init();
     vehicle_can_tx_queue.init();
@@ -140,7 +140,7 @@ void jobs_run100Hz_tick()
     app::latches::broadcast();
 
     io::bspdtest::enable(app::can_rx::Debug_EnableTestCurrent_get());
-    app::can_tx::BMS_BSPDBrakePressureThresholdExceeded_set(io::bspdtest::isBrakePressureThresholdExceeded());
+    app::can_tx::BMS_BS t(io::bspdtest::isBrakePressureThresholdExceeded());
     app::can_tx::BMS_BSPDAccelBrakeOk_set(io::bspdtest::isAccelBrakeOk());
     app::can_tx::BMS_BSPDCurrentThresholdExceeded_set(io::bspdtest::isCurrentThresholdExceeded());
 
