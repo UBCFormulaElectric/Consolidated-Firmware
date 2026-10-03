@@ -203,11 +203,6 @@ result<void> device::receive(std::span<uint8_t> rx) const
     return {};
 }
 
-/* ------------------------------ DMA methods ----------------------------- */
-// These mirror transmit/receive/transmitThenReceive but use HAL_SPI_*_DMA under the hood. The TX path
-// stages caller data through dma_tx_buf, RX path copies out of dma_rx_buf after completion. The bus's
-// taskInProgress handle still serializes all transfers across all DMA/IT methods on the same bus.
-
 result<void> device::transmitDma(const std::span<const uint8_t> tx) const
 {
     if (tx.size() > sizeof(dma_tx_buf))

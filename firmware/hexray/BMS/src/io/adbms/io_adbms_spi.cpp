@@ -14,11 +14,8 @@ namespace {
         for (uint16_t i = 0; i < 256; i++) {
             uint16_t r = static_cast<uint16_t>(i << (size - 8));
             for (int b = 7; b >= 0; --b)    {
-                // Capture MSB
                 bool msb = (r & MSB_SIZE) != 0; 
-                // Shift
                 r = static_cast<uint16_t>(r << 1); 
-                // XOR
                 if (msb) r ^= poly; 
         }
         out[i] = r & MASK_SIZE;
@@ -59,35 +56,70 @@ namespace {
     class __attribute__((packed)) DataPayload {
         private:
             static constexpr uint16_t           PEC10_POLY = 0x008F;
-            static constexpr uint16_t           PEC10_POLY = 10;
+            static constexpr uint16_t           PEC10_SIZE = 10;
             static constexpr std::array<uint16_t, 256> pec10Table = generatePecTable(PEC10_POLY, PEC10_SIZE);
 
-            uint8_t
+            RegGroup data;
+            uint16_t pec10;
 
+            [[nodiscard]] uint16_t calculatePec10() const {
+                uint16_t remainder = 16U;
+                for (const uint8_t i : data) {
+                    const uint16_t address = ((remainder >> 2) ^ i) & 0xFFU;
+                    remainder = static_cast<uint16_t>(((remainder << 8) ^ pec10Table[address]) & 0x3FF);
+                }
+                return remainder;
+            }
 
         public:
+            explicit DataPayload(const RegGroup _data) {
+                data = _data;
+                pec10 = std::byteswap(calculatePec10());
+            }
 
+            [[nodiscard]] span<const uint8_t> into_span() const {
+                return {static_cast<const uint8_t *> (this), sizeof(DataPayload)};
+            }
 
     }
+
+    class __attribute__((packed)) TxDataPayload: DataPayload {
+            
+    }
+
+    class __attribute__((packed)) RxDataPayload: DataPayload {
+
+    }
+
+
 }
 
 namespace io::adbms::spi {
     result<void> sendCmd(const hw::spi::device &port, const uint16_t cmd) {
-        const Cmd tx_cmd {cmd};
-        return port.transmitDma(tx_cmd.into)
+        const CmdPayload tx_cmd {cmd};
+        return port.transmitDma(tx_cmd.into_span());
     }
 
-    result<void> poll(const hw::spi::device &port, const uint16_t cmd) {
+    result<void> poll(const hw::spi::device &port, const size_t num_segments, const uint16_t cmd) {
+        const CmdPayload tx_cmd {cmd};
+        uint
+
+        return port.transmitThenReceiveDma(tx_cmd.into_span(), )
 
     } 
 
-    //prob need to template
-    Segments<result<void>> readRegGroup(const hw::spi::device &port, const uint16_t cmd, std::span<RegGroupPayload> rx) {
-
+    template <typename T>
+    std::array<result<void>, T> readRegGroup(const hw::spi::device &port, const size_t num_segments, const uint16_t cmd) {
+        const CmdPayload tx_cmd {cmd};
+        const DataPayload rx_data {}
     }
 
-    Segments<result<void>> writeRegGroup(const hw::spi::device &port, const uint16_t, std::span<Reg) {
-
+    template <typename T>
+    std::array<result<void>, T> writeRegGroup(const hw::spi::device &port, const size_t num_segments, const uint16_t cmd, const RegGroup tx) {
+        const CmdPayload tx_cmd {cmd};
+        const DataPayload tx_data {tx}
+        return port.transmitDma(tx_data.into)
+        
     } 
 
 }
