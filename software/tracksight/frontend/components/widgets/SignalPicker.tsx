@@ -1,11 +1,9 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
 import { KeyboardEvent, ReactNode, useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 
 import { alertNodeColor } from "@/lib/alerts";
-import { fetchSignalMetadata } from "@/lib/api/signals";
-import { API_BASE_URL } from "@/lib/constants";
+import { useAvailableSignals } from "@/lib/hooks/useAvailableSignals";
 import { findMatchRanges, prepareSignalSearch, searchSignals } from "@/lib/signalSearch";
 import { BooleanSignalMetadata, EnumSignalMetadata, isBooleanSignalMetadata, isEnumSignalMetadata, isNumericalSignalMetadata, NumericalSignalMetadata, SignalMetadata } from "@/lib/types/Signal";
 import { cn } from "@/lib/utils";
@@ -17,16 +15,6 @@ export type ChartableSignalMetadata = NumericalSignalMetadata | EnumSignalMetada
 // keep these at module level: the picker memoises its search index on `accept`
 export const isChartableSignal = (signal: SignalMetadata): signal is ChartableSignalMetadata => isNumericalSignalMetadata(signal) || isEnumSignalMetadata(signal) || isBooleanSignalMetadata(signal);
 export const isStateSignal = (signal: SignalMetadata): signal is EnumSignalMetadata | BooleanSignalMetadata => isEnumSignalMetadata(signal) || isBooleanSignalMetadata(signal);
-
-export function useAvailableSignals() {
-    return useQuery({
-        queryKey: ["available-signals"],
-        queryFn: () => fetchSignalMetadata(API_BASE_URL),
-        staleTime: 5 * 60 * 1000,
-        gcTime: 30 * 60 * 1000,
-        retry: (failureCount) => failureCount < 2,
-    });
-}
 
 function describeSignal(signal: SignalMetadata): string {
     if (isNumericalSignalMetadata(signal)) return signal.unit || "Graph";
