@@ -2,7 +2,7 @@ import React, { memo, useEffect, useMemo, useRef, useState } from "react";
 
 import { useSyncedGraph } from "@/components/SyncedGraphContainer";
 import { useWidgetManager } from "@/components/widgets/WidgetManagerContext";
-import { fetchHistoricalSignal, HistoricalSignalResult, HistoricalSignalSource } from "@/lib/api/historicalSignals";
+import { fetchHistoricalSignal, HistoricalSignalPoint, HistoricalSignalResult, HistoricalSignalSource } from "@/lib/api/historicalSignals";
 import { useHistoricalSelection } from "@/lib/contexts/HistoricalSelectionContext";
 import { SignalDataStoreProvider } from "@/lib/contexts/signalStores/SignalStoreContext";
 import HistoricalSignalStore from "@/lib/signals/HistoricalSignalStore";
@@ -18,6 +18,10 @@ type HistoricalSignalStoreProviderProps = {
         max: number;
     };
 };
+
+const filterPointsInRange = (points: HistoricalSignalPoint[], min: number, max: number): HistoricalSignalPoint[] => {
+    return points.filter((point) => point.timestampMs >= min && point.timestampMs <= max);
+}
 
 export const HistoricalSignalStoreProvider = memo(function HistoricalSignalStoreProvider(props: HistoricalSignalStoreProviderProps) {
     const { children, startUtcMs, endUtcMs, source, selectedRange } = props;
@@ -76,7 +80,9 @@ export const HistoricalSignalStoreProvider = memo(function HistoricalSignalStore
                     source,
                 });
 
-                signalStoreRef.current.mergeAlerts(alertResult.resolutionMs, startUtcMs, endUtcMs, alertResult.points);
+                const filteredPoints = filterPointsInRange(alertResult.points, selectedRange.min, selectedRange.max);
+
+                signalStoreRef.current.mergeAlerts(alertResult.resolutionMs, startUtcMs, endUtcMs, filteredPoints);
             }
 
             if (isCancelled) {
@@ -88,7 +94,10 @@ export const HistoricalSignalStoreProvider = memo(function HistoricalSignalStore
 
             successes.forEach((result) => {
                 const { signal, result: signalResult } = result.value;
-                signalStoreRef.current.mergeSignal(signal, signalResult.resolutionMs, startUtcMs, endUtcMs, signalResult.points);
+
+                const filteredPoints = filterPointsInRange(signalResult.points, selectedRange.min, selectedRange.max);
+
+                signalStoreRef.current.mergeSignal(signal, signalResult.resolutionMs, startUtcMs, endUtcMs, filteredPoints);
             });
 
             const shouldFitViewport = initializedSelectedRangeKeyRef.current !== selectedRangeKey;

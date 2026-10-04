@@ -1,13 +1,6 @@
-name: tracksight-docker
+name: tracksight-backend-frontend
 services:
-  influx:
-    extends:
-      file: ../common.yml
-      service: influx
   backend:
-    depends_on:
-      influx:
-        condition: service_healthy
     extends:
       file: ../common.yml
       service: backend
@@ -20,6 +13,3 @@ services:
         "npm",
         "start"
      ]
-
-volumes:
-  influxdb:
