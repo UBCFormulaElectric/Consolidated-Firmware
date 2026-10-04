@@ -15,6 +15,7 @@ const { buildMockHistoricalPayload: payload, buildMockHistoricalMarkers } = jiti
 const { getMockSignalCatalog, getMockAlertNames } = jiti("./catalog.ts");
 const { fetchHistoricalSignal } = jiti("../api/historicalSignals.ts");
 const { fetchHistoricalMarkers } = jiti("../api/historicalMarkers.ts");
+const { fetchHistoricalSessionsForRange } = jiti("../api/historicalSessions.ts");
 const catalog = getMockSignalCatalog();
 const numerical = catalog.find((signal) => signal.type === "numerical");
 const state = catalog.find((signal) => signal.type === "enum");
@@ -79,6 +80,15 @@ test("historical APIs parse mocks without network and preserve existing shapes",
     assert.deepEqual(await fetchHistoricalMarkers(1, 180000, "Radio"), [{ timestampMs: 60000 }, { timestampMs: 120000 }]);
     assert.deepEqual(buildMockHistoricalMarkers(100, 100), []);
 
+    const day = 24 * 60 * 60 * 1000;
+    const sessions = await fetchHistoricalSessionsForRange(day, day * 2, "Radio", "UTC");
+    assert.deepEqual(
+        sessions.map((session) => session.endUtcMs - session.startUtcMs),
+        [600000, 10800000, 7200000]
+    );
+    assert.ok(sessions[2].endUtcMs > day * 2);
+    assert.deepEqual(sessions, await fetchHistoricalSessionsForRange(day, day * 2, "Radio", "UTC"));
+    assert.deepEqual(await fetchHistoricalSessionsForRange(0, day, "Radio", "UTC"), []);
 });
 
 test("delay and failure controls exercise the real async signal API", async () => {
