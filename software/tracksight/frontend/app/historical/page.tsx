@@ -7,11 +7,15 @@ import HistoricalSelectionModal from "@/components/historical/HistoricalSelectio
 import { DisplayControlProvider } from "@/components/PausePlayControl";
 import SyncedGraphContainer, { TimeRange } from "@/components/SyncedGraphContainer";
 import AlertTimeline from "@/components/widgets/AlertTimeline";
-import { WidgetManager } from "@/components/widgets/WidgetManagerContext";
+import { useWidgetManager, WidgetManager } from "@/components/widgets/WidgetManagerContext";
 import { fetchHistoricalMarkers } from "@/lib/api/historicalMarkers";
 import { HistoricalSignalSource } from "@/lib/api/historicalSignals";
+import { IS_MOCK } from "@/lib/constants";
 import { useHistoricalSelection } from "@/lib/contexts/HistoricalSelectionContext";
 import { HistoricalSignalStoreProvider } from "@/lib/contexts/signalStores/HistoricalSignalStoreContext";
+import { getMockSignalCatalog } from "@/lib/mock/catalog";
+import { createMockCharts } from "@/lib/mock/charts";
+import { readMockParam } from "@/lib/mock/config";
 import { clearRemoteTelemetryMarkers, setRemoteTelemetryMarkers } from "@/lib/telemetryMarkers";
 
 const HISTORIC_WIDGET_STORAGE_KEY = "tracksight_historic_widgets_config_v1";
@@ -29,7 +33,18 @@ const expandViewportFetchRange = (range: TimeRange, bounds: TimeRange): TimeRang
 
 function HistoricContent(props: { selectedRange: { min: number; max: number }; selectedSource: HistoricalSignalSource }) {
     const { selectedRange, selectedSource } = props;
+    const { initializedFromLocalStorage, replaceWidgets } = useWidgetManager();
     const [fetchRange, setFetchRange] = useState<TimeRange>(selectedRange);
+
+    useEffect(() => {
+        if (!IS_MOCK || !initializedFromLocalStorage) return;
+        const count = readMockParam("mockCharts");
+        if (!count) return;
+        replaceWidgets(createMockCharts(count, getMockSignalCatalog()));
+        const url = new URL(window.location.href);
+        url.searchParams.delete("mockCharts");
+        window.history.replaceState(null, "", url);
+    }, [initializedFromLocalStorage, replaceWidgets]);
 
     useEffect(() => {
         setFetchRange(selectedRange);
