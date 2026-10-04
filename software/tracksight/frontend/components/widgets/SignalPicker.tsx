@@ -9,6 +9,8 @@ import { BooleanSignalMetadata, EnumSignalMetadata, isBooleanSignalMetadata, isE
 import { cn } from "@/lib/utils";
 
 const MAX_RENDERED_SIGNALS = 100;
+// same cap as #2157's select all, so one search can't flood a chart
+const ADD_ALL_LIMIT = 25;
 
 export type ChartableSignalMetadata = NumericalSignalMetadata | EnumSignalMetadata | BooleanSignalMetadata;
 
@@ -54,11 +56,16 @@ function HighlightedName(props: { name: string; query: string }) {
 export function SignalPicker<T extends SignalMetadata>(props: {
     /** which signals can be picked */
     accept: (signal: SignalMetadata) => signal is T;
-    onPick: (signal: T) => void;
+    /** keepOpen is true when shift was held, so several signals can be picked in one go */
+    onPick: (signal: T, keepOpen: boolean) => void;
+    /** shift-picking an added signal takes it off again; without this, added signals can't be picked */
+    onRemove?: (signal: T) => void;
+    /** adds every match that isn't added yet; offered when there are at most ADD_ALL_LIMIT */
+    onPickAll?: (signals: T[]) => void;
     /** already on the chart: listed, but not pickable */
     addedSignalNames?: string[];
 }) {
-    const { accept, onPick, addedSignalNames = [] } = props;
+    const { accept, onPick, onRemove, onPickAll, addedSignalNames = [] } = props;
     const [query, setQuery] = useState("");
     const [highlightedIndex, setHighlightedIndex] = useState(0);
     const listRef = useRef<HTMLDivElement>(null);
@@ -75,9 +82,13 @@ export function SignalPicker<T extends SignalMetadata>(props: {
         listRef.current?.querySelector(`[data-index="${highlightedIndex}"]`)?.scrollIntoView({ block: "nearest" });
     }, [highlightedIndex]);
 
-    const pick = (signal: T | undefined) => {
-        if (signal && !addedSignalNames.includes(signal.name)) onPick(signal);
+    const pick = (signal: T | undefined, keepOpen: boolean) => {
+        if (!signal) return;
+        if (!addedSignalNames.includes(signal.name)) onPick(signal, keepOpen);
+        else if (keepOpen) onRemove?.(signal);
     };
+    const notYetAdded = matches.filter((signal) => !addedSignalNames.includes(signal.name));
+    const canAddAll = onPickAll !== undefined && deferredQuery.trim() !== "" && notYetAdded.length > 1 && notYetAdded.length <= ADD_ALL_LIMIT;
 
     const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
         if (visible.length === 0) return;
@@ -87,7 +98,7 @@ export function SignalPicker<T extends SignalMetadata>(props: {
             setHighlightedIndex((index) => (index + step + visible.length) % visible.length);
         } else if (event.key === "Enter") {
             event.preventDefault();
-            pick(visible[highlightedIndex]);
+            pick(visible[highlightedIndex], event.shiftKey);
         }
     };
 
@@ -96,8 +107,13 @@ export function SignalPicker<T extends SignalMetadata>(props: {
             <input type="search" aria-label="Search signals" aria-controls="signal-picker-results" aria-activedescendant={visible[highlightedIndex] ? `signal-option-${highlightedIndex}` : undefined} role="combobox" aria-expanded value={query} onChange={(event) => setQuery(event.target.value)} onKeyDown={handleKeyDown} autoFocus autoComplete="off" spellCheck={false} placeholder="Search by signal, message, node, or unit" className="h-14 w-full rounded-lg border-2 border-gray-400 bg-white px-4 text-lg text-gray-900 placeholder:text-gray-500 focus:border-blue-600 focus:outline-none" />
             <p className="text-sm text-gray-700" aria-live="polite">
                 {isPending ? "Loading signals…" : isError ? "" : matches.length > MAX_RENDERED_SIGNALS ? `Best ${MAX_RENDERED_SIGNALS} of ${matches.length} matches. Keep typing to narrow.` : `${matches.length} ${matches.length === 1 ? "signal" : "signals"}`}
-                <span className="float-right hidden text-gray-600 sm:inline">↑ ↓ to move · Enter to add</span>
+                <span className="float-right hidden text-gray-600 sm:inline">↑ ↓ to move · Enter to add · hold Shift to pick several</span>
             </p>
+            {canAddAll && (
+                <button type="button" onClick={() => onPickAll(notYetAdded)} className="self-start rounded border border-blue-600 px-3 py-1.5 text-sm font-medium text-blue-700 hover:bg-blue-50 focus-visible:outline-2 focus-visible:outline-blue-600">
+                    Add all {notYetAdded.length} matches
+                </button>
+            )}
             <div ref={listRef} id="signal-picker-results" role="listbox" aria-label="Matching signals" className="max-h-[min(60vh,36rem)] min-h-40 overflow-y-auto overscroll-contain rounded-lg border-2 border-gray-300 bg-white">
                 {isPending ? null : isError ? (
                     <p className="flex items-center gap-3 p-4 text-base text-red-700">
@@ -113,7 +129,7 @@ export function SignalPicker<T extends SignalMetadata>(props: {
                         const isHighlighted = index === highlightedIndex;
                         const isAdded = addedSignalNames.includes(signal.name);
                         return (
-                            <div key={signal.name} id={`signal-option-${index}`} data-index={index} role="option" aria-selected={isHighlighted} aria-disabled={isAdded} onMouseMove={() => setHighlightedIndex(index)} onMouseDown={(event) => event.preventDefault()} onClick={() => pick(signal)} className={cn("flex items-center gap-3 border-b border-gray-200 px-4 py-3 last:border-0", isAdded ? "cursor-not-allowed opacity-50" : "cursor-pointer", isHighlighted && !isAdded ? "bg-blue-700 text-white" : isHighlighted ? "bg-gray-100" : "text-gray-900")}>
+                            <div key={signal.name} id={`signal-option-${index}`} data-index={index} role="option" aria-selected={isHighlighted} aria-disabled={isAdded && !onRemove} onMouseMove={() => setHighlightedIndex(index)} onMouseDown={(event) => event.preventDefault()} onClick={(event) => pick(signal, event.shiftKey)} className={cn("flex items-center gap-3 border-b border-gray-200 px-4 py-3 last:border-0", isAdded && !onRemove ? "cursor-not-allowed opacity-50" : isAdded ? "cursor-pointer opacity-50" : "cursor-pointer", isHighlighted && !isAdded ? "bg-blue-700 text-white" : isHighlighted ? "bg-gray-100" : "text-gray-900")}>
                                 <span className="w-14 shrink-0 rounded px-1.5 py-1 text-center text-xs font-bold tracking-wide text-white" style={{ backgroundColor: alertNodeColor(signal.tx_node) }}>
                                     {signal.tx_node}
                                 </span>
