@@ -149,7 +149,8 @@ export function WidgetManager({ children, storageKey = LOCAL_STORAGE_KEY }: { ch
 
     const appendWidget = useCallback(
         (newWidget: WidgetData) => {
-            setWidgets((prev) => [...prev, { ...newWidget, id: uuidv4() }]);
+            // callers may choose the id to keep editing the widget they just added
+            setWidgets((prev) => [...prev, { ...newWidget, id: newWidget.id || uuidv4() }]);
         },
         [setWidgets]
     );
