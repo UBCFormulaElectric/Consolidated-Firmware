@@ -85,6 +85,15 @@ void jobs_init()
 void jobs_initLogFs()
 {
     app::sd::initLogFs();
+
+    const auto push_result = telem_tx_queue.push(io::telemMessage::BootInfo{ app::sd::getBootHash() });
+    if (!push_result)
+    {
+        LOG_ERROR("jobs_initLogFs: Failed to enqueue Boot Info: %d", static_cast<int>(push_result.error()));
+        return;
+    }
+
+    LOG_INFO("jobs_initLogFs: Boot Info enqueued");
 }
 
 void jobs_run1Hz_tick()
