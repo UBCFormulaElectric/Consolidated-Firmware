@@ -84,8 +84,8 @@ function EmptyWidgetState(props: { message: string }) {
     return <div className="mx-6 mt-4 rounded-lg border border-dashed border-gray-300 bg-gray-50 px-6 py-12 text-center text-sm text-gray-500">{props.message}</div>;
 }
 
-function AddSignalModal<T extends SignalMetadata>(props: { title: string; description: string; accept: (signal: SignalMetadata) => signal is T; addedSignalNames: string[]; onAdd: (signal: T) => void }) {
-    const { title, description, accept, addedSignalNames, onAdd } = props;
+function AddSignalModal<T extends SignalMetadata>(props: { title: string; description: string; accept: (signal: SignalMetadata) => signal is T; addedSignalNames: string[]; onAdd: (signal: T) => void; onRemove: (signal: T) => void }) {
+    const { title, description, accept, addedSignalNames, onAdd, onRemove } = props;
     const [modalOpen, setModalOpen] = useState(false);
 
     return (
@@ -103,8 +103,13 @@ function AddSignalModal<T extends SignalMetadata>(props: { title: string; descri
                 <SignalPicker
                     accept={accept}
                     addedSignalNames={addedSignalNames}
-                    onPick={(signal) => {
+                    onPick={(signal, keepOpen) => {
                         onAdd(signal);
+                        if (!keepOpen) setModalOpen(false);
+                    }}
+                    onRemove={onRemove}
+                    onPickAll={(signals) => {
+                        signals.forEach(onAdd);
                         setModalOpen(false);
                     }}
                 />
@@ -139,9 +144,10 @@ export function Widget(props: WidgetData & { hoveredSignal: RefObject<string | n
                         ))}
                         <AddSignalModal
                             title="Add numerical signal"
-                            description="Plot another live numerical signal on this graph."
+                            description="Plot another numerical signal on this graph. Hold Shift to pick several."
                             accept={isNumericalSignalMetadata}
                             addedSignalNames={widget.signals.map((signal) => signal.name)}
+                            onRemove={(signal) => handleRemoveSignal(signal.name)}
                             onAdd={(signal) =>
                                 updateWidget(widget, (previousWidget) => ({
                                     ...previousWidget,
@@ -176,9 +182,10 @@ export function Widget(props: WidgetData & { hoveredSignal: RefObject<string | n
                         ))}
                         <AddSignalModal
                             title="Add state signal"
-                            description="Show another live enum or on/off signal on this timeline."
+                            description="Show another enum or on/off signal on this timeline. Hold Shift to pick several."
                             accept={isStateSignal}
                             addedSignalNames={widget.signals.map((signal) => signal.name)}
+                            onRemove={(signal) => handleRemoveSignal(signal.name)}
                             onAdd={(signal) =>
                                 updateWidget(widget, (previousWidget) => ({
                                     ...previousWidget,
