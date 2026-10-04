@@ -221,6 +221,7 @@ abstract class SignalStore {
         const entry = this.storage[signalName];
         if (!entry || resolutionMs <= 0) return;
 
+        perfStats.samplesIngested += points.length;
         const lod = this.getOrCreateLevel(entry, resolutionMs);
         markTilesCovered(lod.coveredTiles!, resolutionMs, requestStartMs, requestEndMs);
 
