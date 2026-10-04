@@ -21,7 +21,7 @@ type HistoricalSignalStoreProviderProps = {
 
 const filterPointsInRange = (points: HistoricalSignalPoint[], min: number, max: number): HistoricalSignalPoint[] => {
     return points.filter((point) => point.timestampMs >= min && point.timestampMs <= max);
-}
+};
 
 export const HistoricalSignalStoreProvider = memo(function HistoricalSignalStoreProvider(props: HistoricalSignalStoreProviderProps) {
     const { children, startUtcMs, endUtcMs, source, selectedRange } = props;
@@ -71,25 +71,27 @@ export const HistoricalSignalStoreProvider = memo(function HistoricalSignalStore
                 }))
             );
 
-            {
-                const alertResult = await fetchHistoricalSignal({
+            const [alertResult] = await Promise.allSettled([
+                fetchHistoricalSignal({
                     signalName: "alert",
                     signalType: SignalType.ALERT,
                     startUtcMs,
                     endUtcMs,
                     source,
-                });
-
-                const filteredPoints = filterPointsInRange(alertResult.points, selectedRange.min, selectedRange.max);
-
-                signalStoreRef.current.mergeAlerts(alertResult.resolutionMs, startUtcMs, endUtcMs, filteredPoints);
-            }
+                }),
+            ]);
 
             if (isCancelled) {
                 return;
             }
 
             const failures = results.filter((result) => result.status === "rejected");
+            if (alertResult.status === "fulfilled") {
+                const { resolutionMs, points } = alertResult.value;
+                signalStoreRef.current.mergeAlerts(resolutionMs, startUtcMs, endUtcMs, filterPointsInRange(points, selectedRange.min, selectedRange.max));
+            } else {
+                failures.push(alertResult);
+            }
             const successes = results.filter((result): result is PromiseFulfilledResult<{ signal: SignalMetadata; result: HistoricalSignalResult }> => result.status === "fulfilled");
 
             successes.forEach((result) => {
