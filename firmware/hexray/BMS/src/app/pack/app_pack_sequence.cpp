@@ -129,7 +129,7 @@ namespace {
         LOG_IF_ERR(io::adbms::read::flags(local.adbms6830_diag));
         app::pack::broadcast::adbmsFlags(local.adbms6830_diag);
         app::pack::diag_channel.publish(local.adbms6830_diag);
-        LOG_IF_ERR(io::adbms::command::clearFlags());
+        LOG_IF_ERR(io::adbms::write::clearFlags());
         LOG_IF_ERR(io::adbms::command::unsnap());
 
         if (sadc_done && xadc_done) {
