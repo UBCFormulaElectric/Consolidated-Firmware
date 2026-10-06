@@ -6,8 +6,14 @@ use dotenv::{dotenv, from_filename};
 use crate::utils::{red};
 use crate::vprintln;
 
+pub enum SerialType {
+    RADIO,
+    MOCK,
+    NONE
+}
+
 pub struct Config {
-    pub mock: bool,
+    pub serial: SerialType,
     pub serial_port: String,
     pub serial_baud_rate: u32,
     pub influxdb_url: String,
@@ -38,7 +44,11 @@ fn load_env_file() -> Config {
             .expect(&format!("{} file not found, could not load env file!", DEFAULT_BACKEND_ENV_FILE));
     }
 
-    let mock: bool = get_var::<bool>("MOCK").unwrap_or(false);
+    let serial: SerialType = match get_var::<String>("SERIAL").unwrap_or("NONE".to_string()).as_str() {
+        "RADIO" => SerialType::RADIO,
+        "MOCK" => SerialType::MOCK,
+        _ => SerialType::NONE,
+    };
 
     let serial_port: String = get_var::<String>("SERIAL_PORT").unwrap();
 
@@ -91,7 +101,7 @@ fn load_env_file() -> Config {
     };
 
     return Config {
-        mock: mock,
+        serial: serial,
         serial_port: serial_port,
         serial_baud_rate: serial_baud_rate,
         influxdb_url: influxdb_url,

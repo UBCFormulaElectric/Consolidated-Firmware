@@ -1,5 +1,5 @@
-import { API_BASE_URL, IS_MOCK } from "@/lib/constants";
 import { HistoricalSignalSource } from "@/lib/api/historicalSignals";
+import { API_BASE_URL, IS_MOCK } from "@/lib/constants";
 
 import { TelemetryMarker } from "@/lib/telemetryMarkers";
 
@@ -14,9 +14,7 @@ function parseMarkerPayload(payloadText: string): number[] {
         return [];
     }
 
-    return parsed
-        .filter((entry): entry is number => typeof entry === "number")
-        .sort((left, right) => left - right);
+    return parsed.filter((entry): entry is number => typeof entry === "number").sort((left, right) => left - right);
 }
 
 export async function fetchHistoricalMarkers(startUtcMs: number, endUtcMs: number, source: HistoricalSignalSource): Promise<TelemetryMarker[]> {
