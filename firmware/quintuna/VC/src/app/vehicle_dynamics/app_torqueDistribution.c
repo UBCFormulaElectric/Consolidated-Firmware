@@ -11,20 +11,29 @@
 
 static PowerLimitingInputs powerLimitingInputs;
 
-void app_wheelVerticalForces_broadcast(const ImuData *imu_data)
+void app_wheelVerticalForces_broadcast(const ImuData *imu_data, TractionControl_Inputs *inputs)
 {
+    float drag_lt_per_wheel = DRAG_PITCH_TERM_VERTICAL_FORCE(inputs->vehicle_velocity_kmh) / 2.0f;
     app_canTx_VC_FrontLeftWheelVerticalForce_set(
-        (uint32_t)(((REAR_WEIGHT_DISTRIBUTION - LONG_ACCEL_TERM_VERTICAL_FORCE(imu_data->long_accel)) / 4.0f) -
-                   LAT_ACCEL_TERM_VERTICAL_FORCE(imu_data->lat_accel)));
+        (uint32_t)(((FRONT_AXLE_WEIGHT_DISTRIBUTION - LONG_ACCEL_TERM_VERTICAL_FORCE(imu_data->long_accel)) / 2.0f) -
+                   (DOWNFORCE_TERM_VERTICAL_FORCE(inputs->vehicle_velocity_kmh) *
+                    STATIC_COP_FRONT(imu_data->long_accel) * STATIC_COP_LEFT(imu_data->lat_accel)) -
+                   LAT_ACCEL_TERM_VERTICAL_FORCE(imu_data->lat_accel) - drag_lt_per_wheel));
     app_canTx_VC_FrontRightWheelVerticalForce_set(
-        (uint32_t)(((REAR_WEIGHT_DISTRIBUTION - LONG_ACCEL_TERM_VERTICAL_FORCE(imu_data->long_accel)) / 4.0f) +
-                   LAT_ACCEL_TERM_VERTICAL_FORCE(imu_data->lat_accel)));
+        (uint32_t)(((FRONT_AXLE_WEIGHT_DISTRIBUTION - LONG_ACCEL_TERM_VERTICAL_FORCE(imu_data->long_accel)) / 2.0f) +
+                   (DOWNFORCE_TERM_VERTICAL_FORCE(inputs->vehicle_velocity_kmh) *
+                    STATIC_COP_FRONT(imu_data->long_accel) * STATIC_COP_RIGHT(imu_data->lat_accel)) +
+                   LAT_ACCEL_TERM_VERTICAL_FORCE(imu_data->lat_accel) - drag_lt_per_wheel));
     app_canTx_VC_RearLeftWheelVerticalForce_set(
-        (uint32_t)(((REAR_WEIGHT_DISTRIBUTION + LONG_ACCEL_TERM_VERTICAL_FORCE(imu_data->long_accel)) / 4.0f) -
-                   LAT_ACCEL_TERM_VERTICAL_FORCE(imu_data->lat_accel)));
+        (uint32_t)(((REAR_AXLE_WEIGHT_DISTRIBUTION + LONG_ACCEL_TERM_VERTICAL_FORCE(imu_data->long_accel)) / 2.0f) -
+                   (DOWNFORCE_TERM_VERTICAL_FORCE(inputs->vehicle_velocity_kmh) *
+                    STATIC_COP_REAR(imu_data->long_accel) * STATIC_COP_LEFT(imu_data->lat_accel)) -
+                   LAT_ACCEL_TERM_VERTICAL_FORCE(imu_data->lat_accel) + drag_lt_per_wheel));
     app_canTx_VC_RearRightWheelVerticalForce_set(
-        (uint32_t)(((REAR_WEIGHT_DISTRIBUTION + LONG_ACCEL_TERM_VERTICAL_FORCE(imu_data->long_accel)) / 4.0f) +
-                   LAT_ACCEL_TERM_VERTICAL_FORCE(imu_data->lat_accel)));
+        (uint32_t)(((REAR_AXLE_WEIGHT_DISTRIBUTION + LONG_ACCEL_TERM_VERTICAL_FORCE(imu_data->long_accel)) / 2.0f) +
+                   (DOWNFORCE_TERM_VERTICAL_FORCE(inputs->vehicle_velocity_kmh) *
+                    STATIC_COP_REAR(imu_data->long_accel) * STATIC_COP_RIGHT(imu_data->lat_accel)) +
+                   LAT_ACCEL_TERM_VERTICAL_FORCE(imu_data->lat_accel) + drag_lt_per_wheel));
 }
 
 float app_loadTransferConstant(const float long_accel)
@@ -50,14 +59,18 @@ void app_torqueAllocation(TorqueAllocationInputs *inputs, TorqueAllocationOutput
     // percentage of max torque of motor not of the car
 
     // potential divisino by 0 if load_transfer_const = -1, not sure what values are expected here but should add safety
+
+    float drag_comp = DRAG_COMPENSATION_TORQUE_NM(inputs->vehicle_velocity_kmh);
+
     torqueToMotors->front_left_torque =
         (inputs->total_torque_request * inputs->load_transfer_const) / (2 * (inputs->load_transfer_const + 1)) -
-        (inputs->front_yaw_moment / (2 * F));
+        (inputs->front_yaw_moment / (2 * F)) + drag_comp;
     torqueToMotors->front_right_torque = (torqueToMotors->front_left_torque + (inputs->front_yaw_moment / F));
 
     torqueToMotors->rear_left_torque =
-        (inputs->total_torque_request / 2) -
-        (inputs->total_torque_request * inputs->load_transfer_const) / (2 * (inputs->load_transfer_const + 1));
+        ((inputs->total_torque_request / 2) -
+         (inputs->total_torque_request * inputs->load_transfer_const) / (2 * (inputs->load_transfer_const + 1))) +
+        drag_comp;
     torqueToMotors->rear_right_torque = (torqueToMotors->rear_left_torque + (inputs->rear_yaw_moment / F));
 
     powerLimitingInputs.total_requestedPower = app_totalPower(torqueToMotors);
