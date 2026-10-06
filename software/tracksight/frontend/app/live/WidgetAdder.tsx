@@ -86,7 +86,7 @@ export function WidgetAdder() {
             <DialogContent className="max-w-2xl">
                 <DialogHeader>
                     <DialogTitle className="text-xl">Add chart</DialogTitle>
-                    <DialogDescription className="text-base text-gray-700">Pick a signal; the chart type is chosen automatically. Hold Shift to put several on one chart.</DialogDescription>
+                    <DialogDescription className="text-base text-gray-700">Pick a signal. Hold Shift to put several on one chart.</DialogDescription>
                 </DialogHeader>
                 <SignalPicker
                     accept={isChartableSignal}
