@@ -7,6 +7,7 @@
 #include <array>
 #include <cstdint>
 #include <span>
+#include <bit>
 
 namespace io::adbms {
 
@@ -14,6 +15,14 @@ namespace io::adbms {
     inline constexpr uint16_t WRCFGB = 0x0024U;
     inline constexpr uint16_t WRPWMA = 0x0020U;
     inline constexpr uint16_t WRPWMB = 0x0021U;
+
+    // Read
+    inline constexpr uint16_t RDCVA   = 0x0004U;
+    inline constexpr uint16_t RDCVB   = 0x0006U;
+    inline constexpr uint16_t RDCVC   = 0x0008U;
+    inline constexpr uint16_t RDCVD   = 0x000AU;
+    inline constexpr uint16_t RDCVE   = 0x0009U;
+    inline constexpr uint16_t RDSTATC = 0x0032U;
 
     // Clear
     inline constexpr uint16_t CLOVUV  = 0x0715U;
@@ -41,6 +50,8 @@ namespace io::adbms {
     // Discharge
     inline constexpr uint16_t MUTE   = 0x0028U;
     inline constexpr uint16_t UNMUTE = 0x0029U;
+
+    inline constexpr uint32_t POLL_STATUS_READY = std::byteswap(0xFFFFFFFFU >> (2 * NUM_SEGMENTS));
 
     using RegGroup = std::array<uint8_t, REG_GROUP_SIZE>;
 

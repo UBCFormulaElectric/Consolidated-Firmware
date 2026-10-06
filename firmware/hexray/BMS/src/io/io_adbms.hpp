@@ -82,11 +82,6 @@ namespace io::adbms {
     };
     static_assert(sizeof(CFGB) == REG_GROUP_SIZE);
 
-    struct SegmentConfig {
-        CFGA reg_a;
-        CFGB reg_b;
-    };
-
     struct __attribute__((packed)) PWMA {
         uint8_t pwm1 : 4;
         uint8_t pwm2 : 4;
@@ -100,7 +95,6 @@ namespace io::adbms {
         uint8_t pwm10 : 4;
         uint8_t pwm11 : 4;
         uint8_t pwm12 : 4;
-        bool    operator==(const PWMA &other) const { return std::memcmp(this, &other, sizeof(PWMA)) == 0; }
     };
     static_assert(sizeof(PWMA) == REG_GROUP_SIZE);
 
@@ -110,15 +104,64 @@ namespace io::adbms {
         uint8_t  pwm15 : 4;
         uint8_t  pwm16 : 4;
         uint32_t res : 32;
-        bool     operator==(const PWMB &other) const { return std::memcmp(this, &other, sizeof(PWMB)) == 0; }
     };
     static_assert(sizeof(PWMB) == REG_GROUP_SIZE);
 
-    struct PWMConfig {
-        PWMA reg_a;
-        PWMB reg_b;
-        bool operator==(const PWMConfig &) const = default;
+    struct __attribute__((packed)) STATA {
+        int16_t  vref2;
+        int16_t  itmp;
+        uint16_t reserved;
     };
+    static_assert(sizeof(STATA) == REG_GROUP_SIZE);
+
+    struct __attribute__((packed)) STATB {
+        int16_t vd;
+        int16_t va;
+        int16_t vres;
+    };
+    static_assert(sizeof(STATB) == REG_GROUP_SIZE);
+
+    struct __attribute__((packed)) STATC {
+        uint16_t csflt;
+
+        uint8_t : 3;
+        uint16_t ct : 11;
+        uint8_t  cts : 2;
+
+        uint8_t va_ov : 1;
+        uint8_t va_uv : 1;
+        uint8_t vd_ov : 1;
+        uint8_t vd_uv : 1;
+        uint8_t ced : 1;
+        uint8_t cmed : 1;
+        uint8_t sed : 1;
+        uint8_t smed : 1;
+
+        uint8_t vdel : 1;
+        uint8_t vde : 1;
+        uint8_t comp : 1;
+        uint8_t spiflt : 1;
+        uint8_t sleep : 1;
+        uint8_t thsd : 1;
+        uint8_t tmodchk : 1;
+        uint8_t oscchk : 1;
+    };
+    static_assert(sizeof(STATC) == REG_GROUP_SIZE);
+
+    struct __attribute__((packed)) STATD {
+        uint32_t covuv;
+        uint8_t : 8;
+        uint8_t oc_cntr;
+    };
+    static_assert(sizeof(STATD) == REG_GROUP_SIZE);
+
+    struct __attribute__((packed)) STATE {
+        uint32_t : 32;
+        uint16_t gpi : 10;
+        uint8_t : 2;
+        uint8_t rev : 4;
+    };
+    static_assert(sizeof(STATE) == REG_GROUP_SIZE);
 
     namespace write {
         [[nodiscard]] result<void> configReg(const Segments<CFGA> &config_a, const Segments<CFGB> &config_b);
