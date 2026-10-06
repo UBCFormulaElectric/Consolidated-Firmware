@@ -34,7 +34,7 @@ export const HistoricalSignalStoreProvider = memo(function HistoricalSignalStore
     const [error, setError] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const isLoadingRef = useRef(false);
-    const [progress, setProgress] = useState({ done: 0, total: 0 });
+    const [progress, setProgress] = useState({ done: 0, total: 0, points: 0 });
 
     if (!signalStoreRef.current) {
         signalStoreRef.current = new HistoricalSignalStore(updateWithTimestamp);
@@ -57,15 +57,21 @@ export const HistoricalSignalStoreProvider = memo(function HistoricalSignalStore
     useEffect(() => {
         let isCancelled = false;
 
-        const track = <T,>(promise: Promise<T>) =>
-            promise.finally(() => {
-                if (!isCancelled) setProgress((prev) => ({ ...prev, done: prev.done + 1 }));
-            });
+        const track = async (promise: Promise<HistoricalSignalResult>) => {
+            let points = 0;
+            try {
+                const result = await promise;
+                points = result.points.length;
+                return result;
+            } finally {
+                if (!isCancelled) setProgress((prev) => ({ ...prev, done: prev.done + 1, points: prev.points + points }));
+            }
+        };
 
         const load = async () => {
             setError(null);
             setIsLoading(true);
-            setProgress({ done: 0, total: selectedSignals.length + 1 }); // +1 for alerts
+            setProgress({ done: 0, total: selectedSignals.length + 1, points: 0 }); // +1 for alerts
 
             const results = await Promise.allSettled(
                 selectedSignals.map(async (signal) => ({
@@ -153,7 +159,7 @@ export const HistoricalSignalStoreProvider = memo(function HistoricalSignalStore
                 <div className="mx-4 mb-3 overflow-hidden rounded border border-black/20 text-base">
                     <div className="flex items-center gap-3 px-4 py-3">
                         <Loader2 className="size-6 animate-spin text-blue-500" />
-                        Loading session data · {progress.done} / {progress.total} signals
+                        Loading session data · {progress.done} / {progress.total} signals · {progress.points.toLocaleString()} points
                     </div>
                     <div className="h-1 bg-blue-500 transition-[width] duration-200" style={{ width: `${progress.total ? (progress.done / progress.total) * 100 : 0}%` }} />
                 </div>
