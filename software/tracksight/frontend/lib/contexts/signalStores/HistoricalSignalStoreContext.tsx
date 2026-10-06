@@ -34,7 +34,7 @@ export const HistoricalSignalStoreProvider = memo(function HistoricalSignalStore
     const [error, setError] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const isLoadingRef = useRef(false);
-    const [progress, setProgress] = useState({ done: 0, total: 0, points: 0 });
+    const [progress, setProgress] = useState({ done: 0, total: 0, points: 0, alertsDone: false });
 
     if (!signalStoreRef.current) {
         signalStoreRef.current = new HistoricalSignalStore(updateWithTimestamp);
@@ -57,21 +57,35 @@ export const HistoricalSignalStoreProvider = memo(function HistoricalSignalStore
     useEffect(() => {
         let isCancelled = false;
 
-        const track = async (promise: Promise<HistoricalSignalResult>) => {
+        const track = async (promise: Promise<HistoricalSignalResult>, isAlert = false) => {
             let points = 0;
             try {
                 const result = await promise;
                 points = result.points.length;
                 return result;
             } finally {
-                if (!isCancelled) setProgress((prev) => ({ ...prev, done: prev.done + 1, points: prev.points + points }));
+                if (!isCancelled) setProgress((prev) => (isAlert ? { ...prev, alertsDone: true, points: prev.points + points } : { ...prev, done: prev.done + 1, points: prev.points + points }));
             }
         };
 
         const load = async () => {
             setError(null);
             setIsLoading(true);
-            setProgress({ done: 0, total: selectedSignals.length + 1, points: 0 }); // +1 for alerts
+            setProgress({ done: 0, total: selectedSignals.length, points: 0, alertsDone: false });
+
+            // Alerts are by far the slowest request, so start them alongside the signals rather than after.
+            const alertPromise = Promise.allSettled([
+                track(
+                    fetchHistoricalSignal({
+                        signalName: "alert",
+                        signalType: SignalType.ALERT,
+                        startUtcMs,
+                        endUtcMs,
+                        source,
+                    }),
+                    true
+                ),
+            ]);
 
             const results = await Promise.allSettled(
                 selectedSignals.map(async (signal) => ({
@@ -88,29 +102,11 @@ export const HistoricalSignalStoreProvider = memo(function HistoricalSignalStore
                 }))
             );
 
-            const [alertResult] = await Promise.allSettled([
-                track(
-                    fetchHistoricalSignal({
-                        signalName: "alert",
-                        signalType: SignalType.ALERT,
-                        startUtcMs,
-                        endUtcMs,
-                        source,
-                    })
-                ),
-            ]);
-
             if (isCancelled) {
                 return;
             }
 
             const failures = results.filter((result) => result.status === "rejected");
-            if (alertResult.status === "fulfilled") {
-                const { resolutionMs, points } = alertResult.value;
-                signalStoreRef.current.mergeAlerts(resolutionMs, startUtcMs, endUtcMs, filterPointsInRange(points, selectedRange.min, selectedRange.max));
-            } else {
-                failures.push(alertResult);
-            }
             const successes = results.filter((result): result is PromiseFulfilledResult<{ signal: SignalMetadata; result: HistoricalSignalResult }> => result.status === "fulfilled");
 
             successes.forEach((result) => {
@@ -125,6 +121,19 @@ export const HistoricalSignalStoreProvider = memo(function HistoricalSignalStore
             if (shouldFitViewport) {
                 setTimeRange(selectedRange, true);
                 initializedSelectedRangeKeyRef.current = selectedRangeKey;
+            }
+
+            // Draw signals now; alerts can take much longer.
+            const [alertResult] = await alertPromise;
+            if (isCancelled) {
+                return;
+            }
+
+            if (alertResult.status === "fulfilled") {
+                const { resolutionMs, points } = alertResult.value;
+                signalStoreRef.current.mergeAlerts(resolutionMs, startUtcMs, endUtcMs, filterPointsInRange(points, selectedRange.min, selectedRange.max));
+            } else {
+                failures.push(alertResult);
             }
 
             if (failures.length > 0) {
@@ -159,9 +168,14 @@ export const HistoricalSignalStoreProvider = memo(function HistoricalSignalStore
                 <div className="mx-4 mb-3 overflow-hidden rounded border border-black/20 text-base">
                     <div className="flex items-center gap-3 px-4 py-3">
                         <Loader2 className="size-6 animate-spin text-blue-500" />
-                        Loading session data · {progress.done} / {progress.total} signals · {progress.points.toLocaleString()} points
+                        <div>
+                            <div>
+                                Loading session data · {progress.done} / {progress.total} signals · {progress.points.toLocaleString()} points
+                            </div>
+                            <div className="text-sm opacity-70">{progress.alertsDone ? "Alerts loaded" : "Loading alerts… (usually the slowest part)"}</div>
+                        </div>
                     </div>
-                    <div className="h-1 bg-blue-500 transition-[width] duration-200" style={{ width: `${progress.total ? (progress.done / progress.total) * 100 : 0}%` }} />
+                    <div className="h-1 bg-blue-500 transition-[width] duration-200" style={{ width: `${((progress.done + Number(progress.alertsDone)) / (progress.total + 1)) * 100}%` }} />
                 </div>
             ) : null}
             {error ? <div className="mx-4 mb-3 rounded border border-red-500 bg-red-100 px-3 py-2 text-sm whitespace-pre-line text-red-600">{error}</div> : null}
