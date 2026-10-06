@@ -89,13 +89,13 @@ void jobs_initLogFs()
 
 void jobs_run1Hz_tick()
 {
-    // DEBUG: re-send the bootup frame once, ~5s after boot, to test whether a delayed
-    // copy survives the telem path when the boot-time copy (sent in jobs_init) doesn't.
+    // Re-send the bootup frame once a second for the first 10s: the boot-time copy (sent in
+    // jobs_init, before the radio link is up) is often lost. The backend merges the burst into
+    // one session start.
     // After hexray, pls use the boot hash/bootid message as a true identifier
     static uint32_t seconds_since_boot = 0;
-    if (++seconds_since_boot == 5U)
+    if (++seconds_since_boot <= 10U)
     {
-        LOG_INFO("debug: re-sending DAM_Bootup at t=%lus", static_cast<unsigned long>(seconds_since_boot));
         io::can_tx::DAM_Bootup_sendAperiodic();
     }
 
