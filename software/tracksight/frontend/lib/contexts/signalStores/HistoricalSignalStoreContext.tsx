@@ -32,6 +32,7 @@ export const HistoricalSignalStoreProvider = memo(function HistoricalSignalStore
     const initializedSelectedRangeKeyRef = useRef<string | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
+    const isLoadingRef = useRef(false);
 
     if (!signalStoreRef.current) {
         signalStoreRef.current = new HistoricalSignalStore(updateWithTimestamp);
@@ -128,13 +129,14 @@ export const HistoricalSignalStoreProvider = memo(function HistoricalSignalStore
     }, [endUtcMs, selectedRange, selectedRangeKey, selectedSignals, setTimeRange, source, startUtcMs]);
 
     useEffect(() => {
+        isLoadingRef.current = isLoading;
         setSyncing(isLoading);
     }, [isLoading, setSyncing]);
 
     useEffect(() => () => setSyncing(false), [setSyncing]);
 
     return (
-        <SignalDataStoreProvider signalStore={signalStoreRef}>
+        <SignalDataStoreProvider signalStore={signalStoreRef} isLoadingRef={isLoadingRef}>
             {error ? <div className="mx-4 mb-3 rounded border border-red-500 bg-red-100 px-3 py-2 text-sm whitespace-pre-line text-red-600">{error}</div> : null}
             {children}
         </SignalDataStoreProvider>

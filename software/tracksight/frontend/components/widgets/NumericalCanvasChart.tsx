@@ -2,8 +2,8 @@
 
 import { useSyncedGraph } from "@/components/SyncedGraphContainer";
 import { ChartLayout } from "@/components/widgets/CanvasChartTypes";
-import render, { CHART_PADDING, render_empty } from "@/components/widgets/render";
-import { useSignalDataStores } from "@/lib/contexts/signalStores/SignalStoreContext";
+import render, { CHART_PADDING, render_empty, render_loading } from "@/components/widgets/render";
+import { useSignalDataStores, useSignalStoreLoading } from "@/lib/contexts/signalStores/SignalStoreContext";
 import { useTimezone } from "@/lib/contexts/TimezoneContext";
 import { useCanvasHover } from "@/lib/hooks/useCanvasHover";
 import { useCanvasRenderLoop } from "@/lib/hooks/useCanvasRenderLoop";
@@ -20,10 +20,11 @@ export default function NumericalCanvasChart({ id, options, signals, hoveredSign
     const { height, timeTickCount } = options;
 
     const chartData = useSignalDataStores(signals);
+    const isLoadingRef = useSignalStoreLoading();
 
     useCanvasRenderLoop(canvasRef, height, (context, cssWidth) => {
         if (!globalTimeRangeRef.current || chartData.current.every((series) => series.lods.every((lod) => lod.timestamps.length === 0))) {
-            render_empty(context, cssWidth, height);
+            (isLoadingRef?.current ? render_loading : render_empty)(context, cssWidth, height);
             return;
         }
 

@@ -583,3 +583,15 @@ export function render_empty(context: CanvasRenderingContext2D, width: number, h
     context.textBaseline = "middle";
     context.fillText("No samples to display.", width / 2, height / 2);
 }
+
+export function render_loading(context: CanvasRenderingContext2D, width: number, height: number) {
+    context.clearRect(0, 0, width, height);
+
+    context.globalAlpha = 0.7 + 0.3 * Math.sin(performance.now() / 300);
+    context.fillStyle = "#3b82f6";
+    context.font = "14px sans-serif";
+    context.textAlign = "center";
+    context.textBaseline = "middle";
+    context.fillText("Loading samples…", width / 2, height / 2);
+    context.globalAlpha = 1;
+}

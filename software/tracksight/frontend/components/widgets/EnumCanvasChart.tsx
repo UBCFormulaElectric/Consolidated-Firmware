@@ -2,8 +2,8 @@
 
 import { useSyncedGraph } from "@/components/SyncedGraphContainer";
 import { ChartLayout, LODAwareEnumSeries } from "@/components/widgets/CanvasChartTypes";
-import render, { CHART_PADDING, render_empty } from "@/components/widgets/render";
-import { useSignalDataStores } from "@/lib/contexts/signalStores/SignalStoreContext";
+import render, { CHART_PADDING, render_empty, render_loading } from "@/components/widgets/render";
+import { useSignalDataStores, useSignalStoreLoading } from "@/lib/contexts/signalStores/SignalStoreContext";
 import { useTimezone } from "@/lib/contexts/TimezoneContext";
 import { useCanvasHover } from "@/lib/hooks/useCanvasHover";
 import { useCanvasRenderLoop } from "@/lib/hooks/useCanvasRenderLoop";
@@ -22,10 +22,11 @@ export default function EnumCanvasChart({ id, options, signals, hoveredSignal, o
     const canvasHeight = Math.max(height, CHART_PADDING.top + 30 + signals.length * 40 + Math.max(0, signals.length - 1) * 40 + CHART_PADDING.bottom);
 
     const chartData = useSignalDataStores(signals);
+    const isLoadingRef = useSignalStoreLoading();
 
     useCanvasRenderLoop(canvasRef, canvasHeight, (context, cssWidth) => {
         if (!globalTimeRangeRef.current || (chartData.current as LODAwareEnumSeries[]).every((series) => series.lods.every((lod) => lod.timestamps.length === 0))) {
-            render_empty(context, cssWidth, canvasHeight);
+            (isLoadingRef?.current ? render_loading : render_empty)(context, cssWidth, canvasHeight);
             return;
         }
 
