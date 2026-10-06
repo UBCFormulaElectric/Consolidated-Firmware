@@ -16,6 +16,10 @@
       "id": 448,
       "description": "Cell is overtemp"
     },
+    "CellUnderTemp": {
+      "id": 466,
+      "description": "Cell is undertemp"
+    },
     "TsOvercurrent": {
       "id": 451,
       "description": "Tractive system overcurrent detected"
@@ -34,6 +38,10 @@
       "id": 454,
       "description": "Cell is critically overtemp"
     },
+    "CellUndertemp": {
+      "id": 465,
+      "description": "Cell is critically undertemp, charging below freezing plates lithium"
+    },
     "CellOpenWire": {
       "id": 455,
       "description": "Open wire detected on cell voltage sense line"
@@ -45,6 +53,14 @@
     "TESTFAULT": {
       "id": 460,
       "description": "FOR UNIT TESTING ONLY DO NOT EVER EVER THROW"
+    },
+    "CellVoltageInvalid": {
+      "id": 456,
+      "description": "One or more cell voltage measurements are missing or failed to read"
+    },
+    "CellTemperatureInvalid": {
+      "id": 457,
+      "description": "One or more thermistor measurements are missing or failed to read"
     }
   },
   "info_id": 405,
@@ -69,6 +85,18 @@
     "ThermOpenWire": {
       "id": 957,
       "description": "Open wire detected on a thermistor sense line"
+    },
+    "CellUnderVoltage": {
+      "id": 467,
+      "description": "A cell briefly dipped below the undervoltage tripwire"
+    },
+    "CellOverVoltage": {
+      "id": 468,
+      "description": "A cell briefly rose above the overvoltage tripwire"
+    },
+    "CellOverTemp": {
+      "id": 469,
+      "description": "A cell briefly rose above the overtemp tripwire"
     }
   }
 }
