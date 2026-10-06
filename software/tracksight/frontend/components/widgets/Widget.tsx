@@ -1,13 +1,16 @@
 "use client";
 
 import chroma, { Color } from "chroma-js";
-import { ReactNode, RefObject, useCallback, useState } from "react";
+import { memo, ReactNode, RefObject, useCallback, useState } from "react";
+import { ConnectDragSource, useDrag, useDragLayer } from "react-dnd";
 
 import { EditButton } from "@/components/icons/EditButton";
 import { PlusButton } from "@/components/icons/PlusButton";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { DRAGGABLE_TYPES } from "@/lib/constants";
 import { BooleanSignalMetadata, EnumSignalMetadata, isEnumSignalMetadata, NumericalSignalMetadata, SignalMetadata } from "@/lib/types/Signal";
-import { EnumTimelineWidgetData, NumericalGraphWidgetData, WidgetData } from "@/lib/types/Widget";
+import { EnumTimelineWidgetData, NumericalGraphWidgetData, SignalDragItem, SignalDropResult, WidgetData, WidgetDragItem } from "@/lib/types/Widget";
+import { GripVertical } from "lucide-react";
 import EnumCanvasChart from "./EnumCanvasChart";
 import { EnumSignalPicker } from "./EnumSignalPicker";
 import NumericalCanvasChart from "./NumericalCanvasChart";
@@ -30,12 +33,58 @@ function buildEnumPalette(signal: EnumSignalMetadata | BooleanSignalMetadata): {
     };
 }
 
-function SignalButton(props: { signal: SignalMetadata; handleRemoveSignal: (signalName: string) => void; hoverSignalName: RefObject<string | null>; color: Color }) {
-    const { signal, handleRemoveSignal, hoverSignalName, color } = props;
+function removeColorPaletteEntry<T>(palette: Record<string, T>, signalName: string): Record<string, T> {
+    const nextPalette = { ...palette };
+    delete nextPalette[signalName];
+    return nextPalette;
+}
+
+function useDraggedAwaySignal(widgetId: string): SignalMetadata | null {
+    return useDragLayer((monitor) => {
+        if (monitor.getItemType() !== DRAGGABLE_TYPES.SIGNAL) return null;
+
+        const item = monitor.getItem<SignalDragItem>();
+        const isDraggedAwayFromWidget = item.originalWidgetId === widgetId && item.currentWidgetId !== widgetId;
+
+        return isDraggedAwayFromWidget ? item.signal : null;
+    });
+}
+
+function SignalButton(props: { signal: SignalMetadata; signalIndex: number; widgetId: string; isHidden: boolean; handleRemoveSignal: (signalName: string) => void; hoverSignalName: RefObject<string | null>; color: Color }) {
+    const { signal, signalIndex, widgetId, isHidden, handleRemoveSignal, hoverSignalName, color } = props;
+    const { moveSignal } = useWidgetManager();
+
+    const [{ isDragging }, drag] = useDrag(
+        () => ({
+            type: DRAGGABLE_TYPES.SIGNAL,
+            item: (): SignalDragItem => {
+                hoverSignalName.current = null;
+
+                return { signal, originalWidgetId: widgetId, originalIndex: signalIndex, currentWidgetId: widgetId };
+            },
+            end: (item, monitor) => {
+                if (monitor.getDropResult<SignalDropResult>()?.isAccepted) return;
+
+                moveSignal(item.signal.name, item.currentWidgetId, item.originalWidgetId, item.originalIndex);
+            },
+            isDragging: (monitor) => {
+                const item = monitor.getItem<SignalDragItem>();
+
+                return item.signal.name === signal.name && item.currentWidgetId === widgetId;
+            },
+            collect: (monitor) => ({
+                isDragging: monitor.isDragging(),
+            }),
+        }),
+        [signal, signalIndex, widgetId, hoverSignalName, moveSignal]
+    );
 
     return (
         <div
-            className="select-none flex items-center gap-2 px-3 py-1.5 rounded-full border-2 hover:opacity-80 transition-opacity cursor-crosshair"
+            ref={(node) => {
+                drag(node);
+            }}
+            className={`select-none flex items-center gap-2 px-3 py-1.5 rounded-full border-2 transition-opacity cursor-grab ${isDragging ? "opacity-50" : "hover:opacity-80"} ${isHidden ? "hidden" : ""}`}
             style={{ backgroundColor: color.brighten(1).hex(), borderColor: color.darken(1).hex() }}
             onMouseEnter={() => {
                 hoverSignalName.current = signal.name;
@@ -54,8 +103,8 @@ function SignalButton(props: { signal: SignalMetadata; handleRemoveSignal: (sign
     );
 }
 
-function WidgetConfiguration(props: { id: string; children?: ReactNode }) {
-    const { id, children } = props;
+function WidgetConfiguration(props: { id: string; children?: ReactNode; dragHandle: ConnectDragSource }) {
+    const { id, children, dragHandle } = props;
     const { removeWidget } = useWidgetManager();
 
     const deleteSelfWidget = useCallback(() => {
@@ -65,6 +114,13 @@ function WidgetConfiguration(props: { id: string; children?: ReactNode }) {
     return (
         <div className="px-6">
             <div className="flex items-center gap-2 mb-4">
+                <div
+                    ref={(node) => {
+                        dragHandle(node);
+                    }}
+                >
+                    <GripVertical className="w-6 h-6 cursor-grab" />
+                </div>
                 <h3 className="font-semibold">Widget {id}</h3>
                 <button type="button" onClick={deleteSelfWidget} title="Remove graph" className="w-6 h-6 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center text-sm font-bold transition-colors cursor-pointer">
                     ×
@@ -157,18 +213,43 @@ function EnumWidgetEditSignalsModal(props: { widget: EnumTimelineWidgetData }) {
     );
 }
 
-export function Widget(props: WidgetData & { hoveredSignal: RefObject<string | null> }) {
-    const { hoveredSignal } = props;
-    const { removeSignal } = useWidgetManager();
+export const Widget = memo(function Widget(props: WidgetData & { hoveredSignal: RefObject<string | null> }) {
+    const { hoveredSignal, id } = props;
+    const { widgets, updateWidget, moveWidgetToIndex } = useWidgetManager();
+    const draggedAwaySignal = useDraggedAwaySignal(id);
+
+    const [, drag] = useDrag(
+        () => ({
+            type: DRAGGABLE_TYPES.WIDGET,
+            item: (): WidgetDragItem => ({ id, originalIndex: widgets.findIndex((widget) => widget.id === id) }),
+            end: (item, monitor) => {
+                if (monitor.didDrop()) return;
+
+                moveWidgetToIndex(item.id, item.originalIndex);
+            },
+        }),
+        [id, widgets, moveWidgetToIndex]
+    );
 
     switch (props.type) {
         case "numericalGraph": {
             const widget = props as NumericalGraphWidgetData;
+            const handleRemoveSignal = (signalName: string) => {
+                updateWidget(widget, (previousWidget) => ({
+                    ...previousWidget,
+                    signals: previousWidget.signals.filter((signal) => signal.name !== signalName),
+                    options: {
+                        ...previousWidget.options,
+                        colorPalette: removeColorPaletteEntry(previousWidget.options.colorPalette, signalName),
+                    },
+                }));
+            };
+
             return (
                 <>
-                    <WidgetConfiguration id={widget.id}>
-                        {widget.signals.map((signal) => (
-                            <SignalButton key={signal.name} signal={signal} handleRemoveSignal={(signalName) => removeSignal(widget, signalName)} hoverSignalName={hoveredSignal} color={widget.options.colorPalette[signal.name] ?? chroma("#ffffff")} />
+                    <WidgetConfiguration id={widget.id} dragHandle={drag}>
+                        {(draggedAwaySignal ? [...widget.signals, draggedAwaySignal] : widget.signals).map((signal, signalIndex) => (
+                            <SignalButton key={signal.name} signal={signal} signalIndex={signalIndex} widgetId={widget.id} isHidden={signal.name === draggedAwaySignal?.name} handleRemoveSignal={handleRemoveSignal} hoverSignalName={hoveredSignal} color={widget.options.colorPalette[signal.name] ?? chroma("#ffffff")} />
                         ))}
                         <NumericalWidgetEditSignalsModal widget={widget} />
                     </WidgetConfiguration>
@@ -178,11 +259,22 @@ export function Widget(props: WidgetData & { hoveredSignal: RefObject<string | n
         }
         case "enumTimeline": {
             const widget = props as EnumTimelineWidgetData;
+            const handleRemoveSignal = (signalName: string) => {
+                updateWidget(widget, (previousWidget) => ({
+                    ...previousWidget,
+                    signals: previousWidget.signals.filter((signal) => signal.name !== signalName),
+                    options: {
+                        ...previousWidget.options,
+                        colorPalette: removeColorPaletteEntry(previousWidget.options.colorPalette, signalName),
+                    },
+                }));
+            };
+
             return (
                 <>
-                    <WidgetConfiguration id={widget.id}>
-                        {widget.signals.map((signal) => (
-                            <SignalButton key={signal.name} signal={signal} handleRemoveSignal={(signalName) => removeSignal(widget, signalName)} hoverSignalName={hoveredSignal} color={widget.options.colorPalette[signal.name]?.color ?? chroma("#ffffff")} />
+                    <WidgetConfiguration id={widget.id} dragHandle={drag}>
+                        {(draggedAwaySignal ? [...widget.signals, draggedAwaySignal] : widget.signals).map((signal, signalIndex) => (
+                            <SignalButton key={signal.name} signal={signal} signalIndex={signalIndex} widgetId={widget.id} isHidden={signal.name === draggedAwaySignal?.name} handleRemoveSignal={handleRemoveSignal} hoverSignalName={hoveredSignal} color={widget.options.colorPalette[signal.name]?.color ?? chroma("#ffffff")} />
                         ))}
                         <EnumWidgetEditSignalsModal widget={widget} />
                     </WidgetConfiguration>
@@ -191,4 +283,4 @@ export function Widget(props: WidgetData & { hoveredSignal: RefObject<string | n
             );
         }
     }
-}
+});

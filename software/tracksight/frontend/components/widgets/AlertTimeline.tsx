@@ -1,5 +1,6 @@
 "use client";
 
+import { ALERT_COLOR } from "@/lib/constants";
 import { useAlertStore } from "@/lib/contexts/signalStores/SignalStoreContext";
 import { getVisibleTelemetryMarkers, TelemetryMarker } from "@/lib/telemetryMarkers";
 import { useEffect, useRef } from "react";
@@ -14,8 +15,6 @@ const SLIP_STREAM_GAP = 5;
 const SLIP_STREAM_LANE_HEIGHT = 32;
 const SLIP_STREAM_ROUNDING_RADIUS = 8;
 const SLIP_STREAM_ROUNDING_SPEED = 0.5;
-
-const ALERT_COLOR = "#0a5efa";
 
 const LABEL_FONT = "11px sans-serif";
 const LABEL_PADDING = 8;
