@@ -33,6 +33,7 @@ export const HistoricalSignalStoreProvider = memo(function HistoricalSignalStore
     const [error, setError] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const isLoadingRef = useRef(false);
+    const [progress, setProgress] = useState({ done: 0, total: 0 });
 
     if (!signalStoreRef.current) {
         signalStoreRef.current = new HistoricalSignalStore(updateWithTimestamp);
@@ -55,31 +56,41 @@ export const HistoricalSignalStoreProvider = memo(function HistoricalSignalStore
     useEffect(() => {
         let isCancelled = false;
 
+        const track = <T,>(promise: Promise<T>) =>
+            promise.finally(() => {
+                if (!isCancelled) setProgress((prev) => ({ ...prev, done: prev.done + 1 }));
+            });
+
         const load = async () => {
             setError(null);
             setIsLoading(true);
+            setProgress({ done: 0, total: selectedSignals.length + 1 }); // +1 for alerts
 
             const results = await Promise.allSettled(
                 selectedSignals.map(async (signal) => ({
                     signal,
-                    result: await fetchHistoricalSignal({
-                        signalName: signal.name,
-                        startUtcMs,
-                        endUtcMs,
-                        source,
-                        signalType: signal.type,
-                    }),
+                    result: await track(
+                        fetchHistoricalSignal({
+                            signalName: signal.name,
+                            startUtcMs,
+                            endUtcMs,
+                            source,
+                            signalType: signal.type,
+                        })
+                    ),
                 }))
             );
 
             const [alertResult] = await Promise.allSettled([
-                fetchHistoricalSignal({
-                    signalName: "alert",
-                    signalType: SignalType.ALERT,
-                    startUtcMs,
-                    endUtcMs,
-                    source,
-                }),
+                track(
+                    fetchHistoricalSignal({
+                        signalName: "alert",
+                        signalType: SignalType.ALERT,
+                        startUtcMs,
+                        endUtcMs,
+                        source,
+                    })
+                ),
             ]);
 
             if (isCancelled) {
@@ -137,6 +148,14 @@ export const HistoricalSignalStoreProvider = memo(function HistoricalSignalStore
 
     return (
         <SignalDataStoreProvider signalStore={signalStoreRef} isLoadingRef={isLoadingRef}>
+            {isLoading ? (
+                <div className="mx-4 mb-3 overflow-hidden rounded border border-blue-300 bg-blue-50 text-sm text-blue-700">
+                    <div className="px-3 py-2">
+                        Loading session data · {progress.done} / {progress.total} signals
+                    </div>
+                    <div className="h-1 bg-blue-500 transition-[width] duration-200" style={{ width: `${progress.total ? (progress.done / progress.total) * 100 : 0}%` }} />
+                </div>
+            ) : null}
             {error ? <div className="mx-4 mb-3 rounded border border-red-500 bg-red-100 px-3 py-2 text-sm whitespace-pre-line text-red-600">{error}</div> : null}
             {children}
         </SignalDataStoreProvider>
