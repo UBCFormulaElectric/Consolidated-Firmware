@@ -25,87 +25,99 @@ class LiveSignalStore extends SignalStore {
         this.subscribeToSignal = subscribeToSignal;
         this.unsubscribeFromSignal = unsubscribeFromSignal;
         this.lodBuffers = new Map();
+    }
 
-        socket.on("data", (payload) => {
-            const {
-                name: signalName,
-                timestamp,
-                value,
-                signal_type,
-            } = payload as {
-                name: string;
-                timestamp: number;
-                value: number;
-                signal_type: "Numerical" | "Alert" | "Enum" | "Boolean" | "Marker";
-            };
+    /**
+     * Starts handling the shared socket's data. Paired with detach() on unmount: the socket outlives the page, so a
+     * store that never detached kept receiving every sample after the live page was left and opened again.
+     */
+    attach() {
+        socket.on("data", this.handleData);
+        socket.on("connect", this.handleConnect);
+    }
 
-            const ts = new Date(timestamp).getTime();
+    detach() {
+        socket.off("data", this.handleData);
+        socket.off("connect", this.handleConnect);
+    }
 
-            if (signal_type === "Marker") {
-                if (!signalName.endsWith("TelemMarkEvent")) return;
+    private handleData = (payload: unknown) => {
+        const {
+            name: signalName,
+            timestamp,
+            value,
+            signal_type,
+        } = payload as {
+            name: string;
+            timestamp: number;
+            value: number;
+            signal_type: "Numerical" | "Alert" | "Enum" | "Boolean" | "Marker";
+        };
 
-                addTelemetryMarker({
-                    timestampMs: ts,
+        const ts = new Date(timestamp).getTime();
+
+        if (signal_type === "Marker") {
+            if (!signalName.endsWith("TelemMarkEvent")) return;
+
+            addTelemetryMarker({
+                timestampMs: ts,
+            });
+
+            this.updateWithTimestamp(ts);
+            return;
+        }
+
+        if (!this.storage[signalName] && signal_type !== "Alert") return;
+
+        if (signal_type === "Alert") {
+            if (!this.storage[signalName]) {
+                this.getOrCreateSignalData({
+                    name: signalName,
+                    type: SignalType.ALERT,
+                    tx_node: "",
+                    msg_name: "",
+                    id: -1,
+                    min_val: 0,
+                    max_val: 1,
+                    cycle_time_ms: null,
                 });
-
-                this.updateWithTimestamp(ts);
-                return;
-            }
-
-            if (!this.storage[signalName] && signal_type !== "Alert") return;
-
-            if (signal_type === "Alert") {
-                if (!this.storage[signalName]) {
-                    this.getOrCreateSignalData({
-                        name: signalName,
-                        type: SignalType.ALERT,
-                        tx_node: "",
-                        msg_name: "",
-                        id: -1,
-                        min_val: 0,
-                        max_val: 1,
-                        cycle_time_ms: null,
-                    });
-                }
-
-                this.addDataPoint(signalName, ts, value);
-
-                return;
             }
 
             this.addDataPoint(signalName, ts, value);
 
-            if (signal_type !== "Numerical" && signal_type !== "Enum" && signal_type !== "Boolean") return;
+            return;
+        }
 
-            const lodBuffer = this.lodBuffers.get(signalName);
+        this.addDataPoint(signalName, ts, value);
 
-            if (!lodBuffer) {
-                throw new Error(`Received data for signal ${signalName} which is not initialized in lodBuffers`);
-            }
+        if (signal_type !== "Numerical" && signal_type !== "Enum" && signal_type !== "Boolean") return;
 
-            const onLodSample = (level: number, _intervalMs: number, timestamp: number, value: number) => {
-                this.addDataPointAtLOD(signalName, level, timestamp, value);
-            };
+        // samples already in flight when a chart unsubscribed; nothing is charting this signal any more
+        const lodBuffer = this.lodBuffers.get(signalName);
+        if (!lodBuffer) return;
 
-            if (signal_type === "Numerical") {
-                propagateHaar(lodBuffer as HaarLodBuffer[], 0, ts, value, onLodSample, NUM_LOD_LEVELS);
-            } else {
-                propagateMode(lodBuffer as ModeLodBuffer[], 0, ts, { [value]: 1 }, onLodSample, NUM_LOD_LEVELS);
-            }
-        });
+        const onLodSample = (level: number, _intervalMs: number, timestamp: number, value: number) => {
+            this.addDataPointAtLOD(signalName, level, timestamp, value);
+        };
 
-        socket.on("connect", () => {
-            Object.entries(this.subscriberCounts).forEach(([signalName, subscriberCount]) => {
-                if (subscriberCount <= 0) return;
+        if (signal_type === "Numerical") {
+            propagateHaar(lodBuffer as HaarLodBuffer[], 0, ts, value, onLodSample, NUM_LOD_LEVELS);
+        } else {
+            propagateMode(lodBuffer as ModeLodBuffer[], 0, ts, { [value]: 1 }, onLodSample, NUM_LOD_LEVELS);
+        }
+    };
 
-                this.subscribeToSignal(signalName, {
-                    onError: (error) => {
-                        this.setError(signalName, error);
-                    },
-                });
+    private handleConnect = () => {
+        Object.entries(this.subscriberCounts).forEach(([signalName, subscriberCount]) => {
+            if (subscriberCount <= 0) return;
+
+            this.subscribeToSignal(signalName, {
+                onError: (error) => {
+                    this.setError(signalName, error);
+                },
             });
         });
-    }
+    };
 
     getReferenceToSignal<T extends SignalMetadata>(signal: T) {
         const signalData = this.getOrCreateSignalData(signal);
