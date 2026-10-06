@@ -1,3 +1,4 @@
+import { Loader2 } from "lucide-react";
 import React, { memo, useEffect, useMemo, useRef, useState } from "react";
 
 import { useSyncedGraph } from "@/components/SyncedGraphContainer";
@@ -149,8 +150,9 @@ export const HistoricalSignalStoreProvider = memo(function HistoricalSignalStore
     return (
         <SignalDataStoreProvider signalStore={signalStoreRef} isLoadingRef={isLoadingRef}>
             {isLoading ? (
-                <div className="mx-4 mb-3 overflow-hidden rounded border border-blue-300 bg-blue-50 text-sm text-blue-700">
-                    <div className="px-3 py-2">
+                <div className="mx-4 mb-3 overflow-hidden rounded border border-black/20 text-base">
+                    <div className="flex items-center gap-3 px-4 py-3">
+                        <Loader2 className="size-6 animate-spin text-blue-500" />
                         Loading session data · {progress.done} / {progress.total} signals
                     </div>
                     <div className="h-1 bg-blue-500 transition-[width] duration-200" style={{ width: `${progress.total ? (progress.done / progress.total) * 100 : 0}%` }} />
