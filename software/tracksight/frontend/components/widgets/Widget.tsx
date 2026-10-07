@@ -1,11 +1,14 @@
 "use client";
 
 import chroma, { Color } from "chroma-js";
-import { ReactNode, RefObject, useCallback, useState } from "react";
+import { GripVertical } from "lucide-react";
+import { memo, ReactNode, RefObject, useCallback, useState } from "react";
+import { ConnectDragSource, useDrag, useDragLayer } from "react-dnd";
 
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { DRAGGABLE_TYPES } from "@/lib/constants";
 import { BooleanSignalMetadata, EnumSignalMetadata, isEnumSignalMetadata, isNumericalSignalMetadata, SignalMetadata } from "@/lib/types/Signal";
-import { EnumTimelineWidgetData, NumericalGraphWidgetData, WidgetData } from "@/lib/types/Widget";
+import { EnumTimelineWidgetData, NumericalGraphWidgetData, SignalDragItem, SignalDropResult, WidgetData, WidgetDragItem } from "@/lib/types/Widget";
 import EnumCanvasChart from "./EnumCanvasChart";
 import NumericalCanvasChart from "./NumericalCanvasChart";
 import { isStateSignal, SignalPicker } from "./SignalPicker";
@@ -33,12 +36,52 @@ function removeColorPaletteEntry<T>(palette: Record<string, T>, signalName: stri
     return nextPalette;
 }
 
-function SignalButton(props: { signal: SignalMetadata; handleRemoveSignal: (signalName: string) => void; hoverSignalName: RefObject<string | null>; color: Color }) {
-    const { signal, handleRemoveSignal, hoverSignalName, color } = props;
+function useDraggedAwaySignal(widgetId: string): SignalMetadata | null {
+    return useDragLayer((monitor) => {
+        if (monitor.getItemType() !== DRAGGABLE_TYPES.SIGNAL) return null;
+
+        const item = monitor.getItem<SignalDragItem>();
+        const isDraggedAwayFromWidget = item.originalWidgetId === widgetId && item.currentWidgetId !== widgetId;
+
+        return isDraggedAwayFromWidget ? item.signal : null;
+    });
+}
+
+function SignalButton(props: { signal: SignalMetadata; signalIndex: number; widgetId: string; isHidden: boolean; handleRemoveSignal: (signalName: string) => void; hoverSignalName: RefObject<string | null>; color: Color }) {
+    const { signal, signalIndex, widgetId, isHidden, handleRemoveSignal, hoverSignalName, color } = props;
+    const { moveSignal } = useWidgetManager();
+
+    const [{ isDragging }, drag] = useDrag(
+        () => ({
+            type: DRAGGABLE_TYPES.SIGNAL,
+            item: (): SignalDragItem => {
+                hoverSignalName.current = null;
+
+                return { signal, originalWidgetId: widgetId, originalIndex: signalIndex, currentWidgetId: widgetId };
+            },
+            end: (item, monitor) => {
+                if (monitor.getDropResult<SignalDropResult>()?.isAccepted) return;
+
+                moveSignal(item.signal.name, item.currentWidgetId, item.originalWidgetId, item.originalIndex);
+            },
+            isDragging: (monitor) => {
+                const item = monitor.getItem<SignalDragItem>();
+
+                return item.signal.name === signal.name && item.currentWidgetId === widgetId;
+            },
+            collect: (monitor) => ({
+                isDragging: monitor.isDragging(),
+            }),
+        }),
+        [signal, signalIndex, widgetId, hoverSignalName, moveSignal]
+    );
 
     return (
         <div
-            className="select-none flex items-center gap-2 px-3 py-1.5 rounded-full border-2 hover:opacity-80 transition-opacity cursor-crosshair"
+            ref={(node) => {
+                drag(node);
+            }}
+            className={`select-none flex items-center gap-2 px-3 py-1.5 rounded-full border-2 transition-opacity cursor-grab ${isDragging ? "opacity-50" : "hover:opacity-80"} ${isHidden ? "hidden" : ""}`}
             style={{ backgroundColor: color.brighten(1).hex(), borderColor: color.darken(1).hex() }}
             onMouseEnter={() => {
                 hoverSignalName.current = signal.name;
@@ -57,8 +100,8 @@ function SignalButton(props: { signal: SignalMetadata; handleRemoveSignal: (sign
     );
 }
 
-function WidgetConfiguration(props: { id: string; title: string; children?: ReactNode }) {
-    const { id, title, children } = props;
+function WidgetConfiguration(props: { id: string; title: string; children?: ReactNode; dragHandle: ConnectDragSource }) {
+    const { id, title, children, dragHandle } = props;
     const { removeWidget } = useWidgetManager();
 
     const deleteSelfWidget = useCallback(() => {
@@ -68,6 +111,14 @@ function WidgetConfiguration(props: { id: string; title: string; children?: Reac
     return (
         <div className="px-6">
             <div className="flex items-center gap-2 mb-4">
+                <div
+                    ref={(node) => {
+                        dragHandle(node);
+                    }}
+                    title="Drag to reorder"
+                >
+                    <GripVertical className="w-5 h-5 cursor-grab text-gray-500" />
+                </div>
                 <h3 className="truncate text-sm font-semibold" title={title}>
                     {title}
                 </h3>
@@ -118,9 +169,23 @@ function AddSignalModal<T extends SignalMetadata>(props: { title: string; descri
     );
 }
 
-export function Widget(props: WidgetData & { hoveredSignal: RefObject<string | null> }) {
-    const { hoveredSignal } = props;
-    const { updateWidget } = useWidgetManager();
+export const Widget = memo(function Widget(props: WidgetData & { hoveredSignal: RefObject<string | null> }) {
+    const { hoveredSignal, id } = props;
+    const { widgets, updateWidget, moveWidgetToIndex } = useWidgetManager();
+    const draggedAwaySignal = useDraggedAwaySignal(id);
+
+    const [, drag] = useDrag(
+        () => ({
+            type: DRAGGABLE_TYPES.WIDGET,
+            item: (): WidgetDragItem => ({ id, originalIndex: widgets.findIndex((widget) => widget.id === id) }),
+            end: (item, monitor) => {
+                if (monitor.didDrop()) return;
+
+                moveWidgetToIndex(item.id, item.originalIndex);
+            },
+        }),
+        [id, widgets, moveWidgetToIndex]
+    );
 
     switch (props.type) {
         case "numericalGraph": {
@@ -138,9 +203,9 @@ export function Widget(props: WidgetData & { hoveredSignal: RefObject<string | n
 
             return (
                 <>
-                    <WidgetConfiguration id={widget.id} title={widget.signals.map((signal) => signal.name).join(" · ") || "Numerical chart"}>
-                        {widget.signals.map((signal) => (
-                            <SignalButton key={signal.name} signal={signal} handleRemoveSignal={handleRemoveSignal} hoverSignalName={hoveredSignal} color={widget.options.colorPalette[signal.name] ?? chroma("#ffffff")} />
+                    <WidgetConfiguration id={widget.id} dragHandle={drag} title={widget.signals.map((signal) => signal.name).join(" · ") || "Numerical chart"}>
+                        {(draggedAwaySignal ? [...widget.signals, draggedAwaySignal] : widget.signals).map((signal, signalIndex) => (
+                            <SignalButton key={signal.name} signal={signal} signalIndex={signalIndex} widgetId={widget.id} isHidden={signal.name === draggedAwaySignal?.name} handleRemoveSignal={handleRemoveSignal} hoverSignalName={hoveredSignal} color={widget.options.colorPalette[signal.name] ?? chroma("#ffffff")} />
                         ))}
                         <AddSignalModal
                             title="Add numerical signal"
@@ -176,9 +241,9 @@ export function Widget(props: WidgetData & { hoveredSignal: RefObject<string | n
 
             return (
                 <>
-                    <WidgetConfiguration id={widget.id} title={widget.signals.map((signal) => signal.name).join(" · ") || "State timeline"}>
-                        {widget.signals.map((signal) => (
-                            <SignalButton key={signal.name} signal={signal} handleRemoveSignal={handleRemoveSignal} hoverSignalName={hoveredSignal} color={widget.options.colorPalette[signal.name]?.color ?? chroma("#ffffff")} />
+                    <WidgetConfiguration id={widget.id} dragHandle={drag} title={widget.signals.map((signal) => signal.name).join(" · ") || "State timeline"}>
+                        {(draggedAwaySignal ? [...widget.signals, draggedAwaySignal] : widget.signals).map((signal, signalIndex) => (
+                            <SignalButton key={signal.name} signal={signal} signalIndex={signalIndex} widgetId={widget.id} isHidden={signal.name === draggedAwaySignal?.name} handleRemoveSignal={handleRemoveSignal} hoverSignalName={hoveredSignal} color={widget.options.colorPalette[signal.name]?.color ?? chroma("#ffffff")} />
                         ))}
                         <AddSignalModal
                             title="Add state signal"
@@ -200,4 +265,4 @@ export function Widget(props: WidgetData & { hoveredSignal: RefObject<string | n
             );
         }
     }
-}
+});

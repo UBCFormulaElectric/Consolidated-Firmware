@@ -11,6 +11,8 @@ import { getMockSignalCatalog } from "@/lib/mock/catalog";
 import { createMockCharts } from "@/lib/mock/charts";
 import { readMockParam } from "@/lib/mock/config";
 import { useEffect } from "react";
+import { DndProvider } from "react-dnd";
+import { HTML5Backend } from "react-dnd-html5-backend";
 
 const USE_MOCK_DATA = process.env.NEXT_PUBLIC_USE_MOCK_DATA === "true";
 
@@ -48,15 +50,17 @@ function Content() {
 export default function LiveDataPage() {
     return (
         <div id="live-page" className="h-screen w-screen pt-16 flex flex-col overflow-hidden">
-            <DisplayControlProvider>
-                <div className="flex-1 min-h-0 w-full relative">
-                    <SyncedGraphContainer>
-                        <WidgetManager>
-                            <Content />
-                        </WidgetManager>
-                    </SyncedGraphContainer>
-                </div>
-            </DisplayControlProvider>
+            <DndProvider backend={HTML5Backend}>
+                <DisplayControlProvider>
+                    <div className="flex-1 min-h-0 w-full relative">
+                        <SyncedGraphContainer>
+                            <WidgetManager>
+                                <Content />
+                            </WidgetManager>
+                        </SyncedGraphContainer>
+                    </div>
+                </DisplayControlProvider>
+            </DndProvider>
         </div>
     );
 }
