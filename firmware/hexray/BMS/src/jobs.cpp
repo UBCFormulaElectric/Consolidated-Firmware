@@ -140,7 +140,7 @@ void jobs_run100Hz_tick()
     app::latches::broadcast();
 
     io::bspdtest::enable(app::can_rx::Debug_EnableTestCurrent_get());
-    app::can_tx::BMS_BS t(io::bspdtest::isBrakePressureThresholdExceeded());
+    app::can_tx::BMS_BSPDBrakePressureThresholdExceeded_set(io::bspdtest::isBrakePressureThresholdExceeded());
     app::can_tx::BMS_BSPDAccelBrakeOk_set(io::bspdtest::isAccelBrakeOk());
     app::can_tx::BMS_BSPDCurrentThresholdExceeded_set(io::bspdtest::isCurrentThresholdExceeded());
 

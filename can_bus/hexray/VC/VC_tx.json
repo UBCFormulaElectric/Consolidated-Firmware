@@ -703,16 +703,16 @@
       "FrontInvertersOK": {
         "bits": 1
       },
-      "RSMOK": {
+      "RsmOK": {
         "bits": 1
       },
-      "BMSOK": {
+      "BmsOK": {
         "bits": 1
       },
       "RearInvertersOK": {
         "bits": 1
       },
-      "DAMOK": {
+      "DamOK": {
         "bits": 1
       },
       "FrontOK": {

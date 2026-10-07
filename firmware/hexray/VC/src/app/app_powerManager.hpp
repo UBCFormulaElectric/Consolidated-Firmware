@@ -15,21 +15,6 @@ struct EfuseConfig
     uint8_t  max_retry{ 0 };
 };
 
-// Order matches the efuses struct below
-enum class Efuse_E : uint8_t
-{
-    FRONT,
-    RSM,
-    BMS,
-    DAM,
-    F_INV,
-    R_INV,
-    R_RAD_FAN,
-    L_RAD_FAN,
-    RR_PUMP,
-    RL_PUMP,
-};
-
 template <typename T> struct Efuses
 {
     T front_efuse;

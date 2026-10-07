@@ -170,25 +170,9 @@ void efuseProtocolTick_100Hz()
         const io::Efuse *efuse = efuses[ch];
         assert(efuse != nullptr);
 
-        const bool  channelEnabled = efuse->isChannelEnabled();
-        const bool  efuseOk        = efuse->ok();
-        const float channelCurrent = efuse->getChannelCurrent();
-#ifdef TARGET_EMBEDDED // readFaults() is only declared for the embedded build
-        if (!efuseOk)
-        {
-            if (ch != static_cast<uint8_t>(Efuse_E::R_RAD_FAN) && ch != static_cast<uint8_t>(Efuse_E::L_RAD_FAN) &&
-                ch != static_cast<uint8_t>(Efuse_E::RR_PUMP) && ch != static_cast<uint8_t>(Efuse_E::RL_PUMP))
-            {
-                const auto faults = static_cast<const io::TI_TPS28_Efuse *>(efuse)->readFaults();
-                LOG_INFO(
-                    "EFUSE FAULT: T_SHDN or OVC - %d, OL - %d", faults.flags.overcurrent_or_thermal_shdn,
-                    faults.flags.open_load);
-            }
-        }
-#endif
-        efuse_status_setters[ch](channelEnabled);
-        efuse_ok_setters[ch](efuseOk);
-        efuse_current_setters[ch](channelCurrent);
+        efuse_status_setters[ch](efuse->isChannelEnabled());
+        efuse_ok_setters[ch](efuse->ok());
+        efuse_current_setters[ch](efuse->getChannelCurrent());
     }
 }
 #ifdef TARGET_TEST
