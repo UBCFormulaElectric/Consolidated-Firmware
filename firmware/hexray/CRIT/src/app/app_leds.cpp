@@ -79,16 +79,19 @@ void setLeds()
         board_status(
             can_alerts::BoardHasFault(can_utils::CanNode::DAM_NODE),
             can_alerts::BoardHasWarning(can_utils::CanNode::DAM_NODE), dam_heartbeat_node.status),
-        switches::launch_control_get() ? io::leds::color::GREEN : io::leds::color::OFF,
+        // switches::launch_control_get() ? io::leds::color::GREEN : io::leds::color::OFF,
+        io::leds::color::OFF,
         app::can_rx::VC_State_get() == can_utils::VCState::VC_DRIVE_STATE ? io::leds::color::GREEN
                                                                           : io::leds::color::OFF,
         can_rx::VC_FirstFaultNode_get() == can_utils::ShutdownNode::OK ? io::leds::color::OFF : io::leds::color::RED,
-        switches::regen_get(),
-        switches::torque_vectoring_get(),
+        // switches::regen_get(),
+        false,
+        // switches::torque_vectoring_get(),
+        false,
         !can_rx::BMS_ImdCurrentlyOk_get(),
         !can_rx::BMS_BmsCurrentlyOk_get(),
         !can_rx::BMS_BspdCurrentlyOk_get(),
     }));
-    LOG_IF_ERR(io::leds::setBrightness(app::brightness));
+    // LOG_IF_ERR(io::leds::setBrightness(app::brightness));
 }
 } // namespace app::leds
