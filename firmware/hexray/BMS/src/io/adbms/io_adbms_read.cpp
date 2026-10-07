@@ -51,7 +51,8 @@ namespace io::adbms::read {
             for (size_t cell = 0; cell < CELLS_PER_SEGMENT; cell++) {
                 const RegGroup &reg  = cell_regs[cell / CELLS_PER_GROUP][seg];
 
-                const size_t lsb = reg
+                const size_t lsb = reg[cell % CELLS_PER_GROUP] * sizeof(int16_t);
+                
                
 
                 //if (code == ADC_CLEARED_CODE || (cs_flt >> cell & 1) != 0) continue;
