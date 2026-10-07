@@ -6,18 +6,6 @@ namespace app::tv::estimation
 class TireModel
 {
   public:
-    enum class WheelSide
-    {
-        Left,
-        Right
-    };
-
-    enum class WheelAxle
-    {
-        Front,
-        Rear
-    };
-
     // note that these only exist for float, double, dual
     template <DecimalOrDual T> [[nodiscard]] T computeCombinedFx_N(float fz_N, float alpha_rad, const T &kappa) const;
     template <DecimalOrDual T> [[nodiscard]] T computeCombinedFy_N(float fz_N, float alpha_rad, const T &kappa) const;

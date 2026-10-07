@@ -7,6 +7,8 @@
 #include "torque_vectoring/controllers/torque_allocator.hpp"
 #include "torque_vectoring/shared_datatypes/constants.hpp"
 
+#include "torque_vectoring/estimation/steering_model.hpp"
+
 using namespace app::tv::shared_datatypes;
 using namespace vd_constants;
 
@@ -63,8 +65,7 @@ extern "C" void update_matlab(
     const double a_y,
     const double apps,
     const double brake,
-    const double delta_fl,
-    const double delta_fr,
+    const double steer,
     double       kappas[4],
     double       torque_max[4],
     double       torque_min[4],
@@ -76,19 +77,16 @@ extern "C" void update_matlab(
     // controller's left/right is mirrored relative to the real wheels: the yaw-rate loop becomes positive feedback
     // and torque vectoring acts backwards in corners.
     // Simulink works in double; the controller runs in tv_real (float unless TV_DOUBLE_PRECISION is defined).
-    const VehicleState<tv_real> state = { .v_x_mps        = static_cast<tv_real>(v_x),
-                                          .v_y_mps        = static_cast<tv_real>(-v_y),
-                                          .yaw_rate_radps = static_cast<tv_real>(-yaw_rate),
-                                          .a_x_mps2       = static_cast<tv_real>(a_x),
-                                          .a_y_mps2       = static_cast<tv_real>(-a_y),
-                                          .apps           = static_cast<tv_real>(apps),
-                                          .brake          = static_cast<tv_real>(brake),
-                                          .delta          = {
-                                                       .fl = static_cast<tv_real>(-delta_fl),
-                                                       .fr = static_cast<tv_real>(-delta_fr),
-                                                       .rl = 0,
-                                                       .rr = 0,
-                                          } };
+    const VehicleState<tv_real> state = {
+        .v_x_mps        = static_cast<tv_real>(v_x),
+        .v_y_mps        = static_cast<tv_real>(-v_y),
+        .yaw_rate_radps = static_cast<tv_real>(-yaw_rate),
+        .a_x_mps2       = static_cast<tv_real>(a_x),
+        .a_y_mps2       = static_cast<tv_real>(-a_y),
+        .apps           = static_cast<tv_real>(apps),
+        .brake          = static_cast<tv_real>(brake),
+        .delta          = app::tv::estimators::steering::wheel_steer_angles(static_cast<tv_real>(steer)),
+    };
     // bring it in
     const auto [k_kappas, k_torque_max, k_torque_min] = update(state);
     // update

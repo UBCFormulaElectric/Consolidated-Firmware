@@ -100,6 +100,9 @@ constexpr const char *filename_only(const char *path)
     }
 #elif TARGET_TEST
 #if defined(_WIN32)
+#ifndef NOMINMAX
+#define NOMINMAX // stop windows.h from defining min/max macros, which break std::min/std::max
+#endif
 #include <windows.h>
 #include <intrin.h>
 #ifdef NO_ERROR

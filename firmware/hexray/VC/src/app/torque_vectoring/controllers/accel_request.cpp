@@ -86,4 +86,4 @@ template <Decimal T> T compute_accel_request(T apps, T brakes, T v_x_mps, bool r
     return accel_request_percent * MAX_AX_MPS2;
 }
 template tv_real compute_accel_request(tv_real apps, tv_real brakes, tv_real v_x_mps, bool regen_enabled);
-} // namespace accel_request
+} // namespace app::tv::controllers::accel_request

@@ -17,4 +17,4 @@ namespace app::tv::controllers::accel_request
  * @return Acceleration request in mps^2
  */
 template <Decimal T> T compute_accel_request(T apps, T brakes, T v_x_mps, bool regen_enabled);
-} // namespace accel_request
+} // namespace app::tv::controllers::accel_request
