@@ -27,7 +27,7 @@ template <Decimal T> inline T outer_wheel_ang_rad(const T steer_ang_rad)
 
 using namespace app::tv::shared_datatypes;
 
-namespace app::tv::estimators::steering
+namespace app::tv::estimation::steering
 {
 template <Decimal T> [[nodiscard]] wheel_set<T> wheel_steer_angles(const T steer_ang_rad)
 {

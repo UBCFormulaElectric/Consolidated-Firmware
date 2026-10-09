@@ -6,6 +6,18 @@
 extern "C"
 {
 #endif
+    void estimate_matlab(
+        double    yaw_rate,
+        double    a_x,
+        double    a_y,
+        double    omegas[4],
+        double    steer,
+        double    gps_v_x,
+        double    gps_v_y,
+        double   *est_v_x,
+        double   *est_v_y,
+        tv_debug *debug);
+
     /**
      * Matlab Wrapper for update
      */

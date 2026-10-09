@@ -2,16 +2,42 @@
 #include "decimal_dual.hpp"
 #include "pair.hpp"
 #include <cmath>
+#include <cstdint>
 
 namespace app::tv::shared_datatypes
 {
+enum class Wheel : uint8_t
+{
+    FL,
+    FR,
+    RL,
+    RR
+};
+
 template <typename T> struct wheel_set
 {
     T fl;
     T fr;
     T rl;
     T rr;
+
+    [[nodiscard]] constexpr T operator[](const Wheel wheel) const
+    {
+        switch (wheel)
+        {
+            case Wheel::FL:
+                return fl;
+            case Wheel::FR:
+                return fr;
+            case Wheel::RL:
+                return rl;
+            case Wheel::RR:
+                return rr;
+        }
+        return T(0);
+    }
 };
+
 template <DecimalOrDual T> struct wheel_set<Pair<T>>
 {
     Pair<T> fl;

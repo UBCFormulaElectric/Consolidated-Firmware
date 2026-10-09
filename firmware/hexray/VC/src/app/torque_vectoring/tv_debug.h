@@ -29,6 +29,17 @@ typedef struct
     double fz_N[4];      // estimated normal loads
 } veh_state_info;
 
+// typedef struct
+// {
+//     // We apply gain scheduling to the covariance matrices of each step to adapt for changing conditions
+//     // that may affect the accuracy of each step. for example, when the gps is not in its optimal mode
+//     // increase its gain on the covariance which will naturally deprioritize its impact in the EKF.
+//     double predict_gain;
+//     double wheelspeed_gain;
+//     double gps_gain;
+//     double
+// } veh_state_estimator_info;
+
 typedef struct
 {
     optimizer_info optimizer;

@@ -2,6 +2,7 @@
 #include "torque_vectoring_matlab.h" // this is just for matlab interface syncing
 
 #include "shared_datatypes/vehicle_state_estimator.hpp"
+#include "torque_vectoring/estimation/vehicle_state_estimator.hpp"
 #include "torque_vectoring/controllers/controllers_dyrc.hpp"
 #include "torque_vectoring/controllers/accel_request.hpp"
 #include "torque_vectoring/controllers/torque_allocator.hpp"
@@ -85,7 +86,7 @@ extern "C" void update_matlab(
         .a_y_mps2       = static_cast<tv_real>(-a_y),
         .apps           = static_cast<tv_real>(apps),
         .brake          = static_cast<tv_real>(brake),
-        .delta          = app::tv::estimators::steering::wheel_steer_angles(static_cast<tv_real>(steer)),
+        .delta          = app::tv::estimation::steering::wheel_steer_angles(static_cast<tv_real>(steer)),
     };
     // bring it in
     const auto [k_kappas, k_torque_max, k_torque_min] = update(state);
@@ -117,5 +118,36 @@ void kappa_update_matlab(double kappas[4], const double v_x, double oemgas[4])
     oemgas[1] = static_cast<double>(fr);
     oemgas[2] = static_cast<double>(rl);
     oemgas[3] = static_cast<double>(rr);
+}
+
+void estimate_matlab(
+    double    yaw_rate,
+    double    a_x,
+    double    a_y,
+    double    omegas[4],
+    double    steer,
+    double    gps_v_x,
+    double    gps_v_y,
+    double    *est_v_x,
+    double    *est_v_y,
+    tv_debug *debug)
+{
+    const app::tv::estimation::Measurements meas = {
+        .ax = static_cast<tv_real>(a_x),
+        .ay = static_cast<tv_real>(a_y),
+        .yaw_rate = static_cast<tv_real>(yaw_rate),
+        .omegas = {
+            .fl = static_cast<tv_real>(omegas[0]),
+            .fr = static_cast<tv_real>(omegas[1]),
+            .rl = static_cast<tv_real>(omegas[2]),
+            .rr = static_cast<tv_real>(omegas[3]),
+        },
+        .delta = static_cast<tv_real>(steer),
+    };
+
+    app::tv::shared_datatypes::VehicleState<float> state = app::tv::estimation::VehicleStateEstimator::estimate(meas);
+
+    *est_v_x = state.v_x_mps;
+    *est_v_y = state.v_y_mps;
 }
 #endif // TARGET_EMBEDDED

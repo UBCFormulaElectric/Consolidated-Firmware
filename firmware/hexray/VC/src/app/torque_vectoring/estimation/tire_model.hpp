@@ -82,16 +82,13 @@ class TireModel
         float LKX;
         float LHX;
         float LVX;
-        float LGAX;
         float LXAL;
         float LCY;
         float LMUY;
         float LEY;
         float LKY;
-        float LKYG;
         float LHY;
         float LVY;
-        float LGAY;
         float LYKA;
         float LVYKA;
     };
@@ -372,16 +369,13 @@ class HoosierTireModel : public TireModel
         .LKX   = 1.0f,
         .LHX   = 1.0f,
         .LVX   = 1.0f,
-        .LGAX  = 1.0f,
         .LXAL  = 1.0f,
         .LCY   = 1.0f,
         .LMUY  = 0.65f,
         .LEY   = 1.0f,
         .LKY   = 1.0f,
-        .LKYG  = 1.0f,
         .LHY   = 1.0f,
         .LVY   = 1.0f,
-        .LGAY  = 1.0f,
         .LYKA  = 1.0f,
         .LVYKA = 1.0f,
     };

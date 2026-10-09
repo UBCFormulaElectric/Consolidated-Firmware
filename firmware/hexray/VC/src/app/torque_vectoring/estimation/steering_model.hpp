@@ -2,7 +2,7 @@
 
 #include "torque_vectoring/shared_datatypes/wheel_set.hpp"
 
-namespace app::tv::estimators::steering
+namespace app::tv::estimation::steering
 {
 /**
  * @brief Line fit mapping steering wheel angles to wheel angles
