@@ -166,7 +166,7 @@ void jobs_runLogging_tick()
 
     if (const auto err = fs.write(app::sd::getLogFd(), { buf.data(), n }, n); !err)
     {
-        LOG_ERROR("Log write failed: %d", static_cast<int>(err.error()));
+        LOG_ERROR("Log write wfailed: %d", static_cast<int>(err.error()));
     }
 }
 
