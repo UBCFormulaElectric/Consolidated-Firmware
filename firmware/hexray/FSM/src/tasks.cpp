@@ -202,7 +202,6 @@ void tasks_preInit()
 
 [[noreturn]] void tasks_init()
 {
-
 #ifndef WATCHDOG_DISABLED
     __HAL_DBGMCU_FREEZE_IWDG();
 #endif
