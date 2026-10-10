@@ -44,13 +44,13 @@ void broadcast()
     can_tx::VC_VelocityEastAccuracy_set(VelData.east_std_dev);
     can_tx::VC_VelocityDownAccuracy_set(VelData.down_std_dev);
 
-    can_tx::VC_VelocityX_set(VelData.north);
-    can_tx::VC_VelocityY_set(VelData.east);
-    can_tx::VC_VelocityZ_set(VelData.down);
+    can_tx::VC_VelocityX_set(VelData.vel_x);
+    can_tx::VC_VelocityY_set(VelData.vel_y);
+    can_tx::VC_VelocityZ_set(VelData.vel_z);
 
-    can_tx::VC_VelocityXAccuracy_set(VelData.north_std_dev);
-    can_tx::VC_VelocityYAccuracy_set(VelData.east_std_dev);
-    can_tx::VC_VelocityZAccuracy_set(VelData.down_std_dev);
+    can_tx::VC_VelocityXAccuracy_set(VelData.vel_x_std_dev);
+    can_tx::VC_VelocityYAccuracy_set(VelData.vel_y_std_dev);
+    can_tx::VC_VelocityZAccuracy_set(VelData.vel_z_std_dev);
 
     // Velocity
     ekf_solution_mode = (can_utils::VcEkfStatus)io::sbgEllipse::getEkfSolutionMode();
