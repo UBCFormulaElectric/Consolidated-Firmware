@@ -284,7 +284,7 @@ static void MX_ADC1_Init(void)
     hadc1.Init.ExternalTrigConv         = ADC_EXTERNALTRIG_T3_TRGO;
     hadc1.Init.ExternalTrigConvEdge     = ADC_EXTERNALTRIGCONVEDGE_RISING;
     hadc1.Init.ConversionDataManagement = ADC_CONVERSIONDATA_DMA_CIRCULAR;
-    hadc1.Init.Overrun                  = ADC_OVR_DATA_OVERWRITTEN;
+    hadc1.Init.Overrun                  = ADC_OVR_DATA_PRESERVED;
     hadc1.Init.LeftBitShift             = ADC_LEFTBITSHIFT_NONE;
     hadc1.Init.OversamplingMode         = DISABLE;
     hadc1.Init.Oversampling.Ratio       = 1;
@@ -395,7 +395,7 @@ static void MX_ADC2_Init(void)
     hadc2.Init.ExternalTrigConv         = ADC_EXTERNALTRIG_T3_TRGO;
     hadc2.Init.ExternalTrigConvEdge     = ADC_EXTERNALTRIGCONVEDGE_RISING;
     hadc2.Init.ConversionDataManagement = ADC_CONVERSIONDATA_DMA_CIRCULAR;
-    hadc2.Init.Overrun                  = ADC_OVR_DATA_OVERWRITTEN;
+    hadc2.Init.Overrun                  = ADC_OVR_DATA_PRESERVED;
     hadc2.Init.LeftBitShift             = ADC_LEFTBITSHIFT_NONE;
     hadc2.Init.OversamplingMode         = DISABLE;
     hadc2.Init.Oversampling.Ratio       = 1;

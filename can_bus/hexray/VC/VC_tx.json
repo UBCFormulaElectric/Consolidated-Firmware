@@ -661,7 +661,7 @@
         "max": 20,
         "unit": "A"
       },
-      "RSMStatus": {
+      "RsmStatus": {
         "bits": 1
       },
       "BMSCurrent": {
@@ -670,7 +670,7 @@
         "max": 5,
         "unit": "A"
       },
-      "BMSStatus": {
+      "BmsStatus": {
         "bits": 1
       },
       "RearInvertersCurrent": {
@@ -688,7 +688,7 @@
         "max": 5,
         "unit": "A"
       },
-      "DAMStatus": {
+      "DamStatus": {
         "bits": 1
       },
       "FrontCurrent": {

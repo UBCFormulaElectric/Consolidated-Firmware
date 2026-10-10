@@ -28,9 +28,9 @@ namespace
 
     constexpr Efuses efuse_status_setters = {
         .front_efuse     = can_tx::VC_FrontStatus_set,
-        .rsm_efuse       = can_tx::VC_RSMStatus_set,
-        .bms_efuse       = can_tx::VC_BMSStatus_set,
-        .dam_efuse       = can_tx::VC_DAMStatus_set,
+        .rsm_efuse       = can_tx::VC_RsmStatus_set,
+        .bms_efuse       = can_tx::VC_BmsStatus_set,
+        .dam_efuse       = can_tx::VC_DamStatus_set,
         .f_inv_efuse     = can_tx::VC_FrontInvertersStatus_set,
         .r_inv_efuse     = can_tx::VC_RearInvertersStatus_set,
         .r_rad_fan_efuse = can_tx::VC_RightRadiatorFanStatus_set,
@@ -41,9 +41,9 @@ namespace
 
     constexpr Efuses efuse_ok_setters = {
         .front_efuse     = can_tx::VC_FrontOK_set,
-        .rsm_efuse       = can_tx::VC_RSMOK_set,
-        .bms_efuse       = can_tx::VC_BMSOK_set,
-        .dam_efuse       = can_tx::VC_DAMOK_set,
+        .rsm_efuse       = can_tx::VC_RsmOK_set,
+        .bms_efuse       = can_tx::VC_BmsOK_set,
+        .dam_efuse       = can_tx::VC_DamOK_set,
         .f_inv_efuse     = can_tx::VC_FrontInvertersOK_set,
         .r_inv_efuse     = can_tx::VC_RearInvertersOK_set,
         .r_rad_fan_efuse = can_tx::VC_RightRadiatorFanOK_set,

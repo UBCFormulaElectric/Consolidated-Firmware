@@ -4,8 +4,6 @@
 constexpr hw::adcchip<6> Adc_Chip1{ hadc1, htim3 };
 constexpr hw::adcchip<5> Adc_Chip2{ hadc2, htim3 };
 
-// The channel index is the DMA buffer slot, which is the CubeMX regular rank minus one. Keep these
-// in rank order and matched to the pin each rank's ADC channel is wired to in VC.ioc.
 constexpr hw::adc adc_rr_pump   = Adc_Chip1.getChannel(0); // rank 1, ADC1_INP8,  PC5, RR_PUMP_I_SNS
 constexpr hw::adc adc_rl_pump   = Adc_Chip1.getChannel(1); // rank 2, ADC1_INP9,  PB0, RL_PUMP_I_SNS
 constexpr hw::adc adc_l_rad_fan = Adc_Chip1.getChannel(2); // rank 3, ADC1_INP10, PC0, L_RAD_FAN_I_SNS
