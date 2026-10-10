@@ -9,6 +9,7 @@
 #include "io_semaphore.hpp"
 
 inline constexpr uint8_t MAX_NUM_SEGMENTS = 10U;
+static_assert(NUM_SEGMENTS <= MAX_NUM_SEGMENTS);
 
 inline constexpr uint8_t CELL_CONV_TIME_MS           = 2U;
 inline constexpr uint8_t SECONDARY_CELL_CONV_TIME_MS = 8U;

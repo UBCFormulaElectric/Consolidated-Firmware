@@ -354,46 +354,43 @@
     "signals": {
       "Imu1AccelX": {
         "resolution": 0.01,
-        "signed": true,
         "min": -5,
         "max": 5,
         "unit": "g"
       },
       "Imu1AccelY": {
         "resolution": 0.01,
-        "signed": true,
         "min": -5,
         "max": 5,
         "unit": "g"
       },
       "Imu1AccelZ": {
         "resolution": 0.01,
-        "signed": true,
         "min": -5,
         "max": 5,
         "unit": "g"
       },
       "Imu1GyroX": {
         "resolution": 0.01,
-        "signed": true,
-        "min": -20,
-        "max": 20,
+        "min": -250,
+        "max": 250,
         "unit": "deg/s"
       },
       "Imu1GyroY": {
         "resolution": 0.01,
-        "signed": true,
-        "min": -20,
-        "max": 20,
+        "min": -250,
+        "max": 250,
         "unit": "deg/s"
       },
       "Imu1GyroZ": {
         "resolution": 0.01,
-        "signed": true,
-        "min": -20,
-        "max": 20,
+        "min": -250,
+        "max": 250,
         "unit": "deg/s"
       }
+    },
+    "data_capture": {
+      "log_cycle_time": 10
     }
   },
   "EllipseEkfNavVelocity": {
@@ -410,7 +407,7 @@
       },
       "VelocityNorthAccuracy": {
         "resolution": 0.1,
-        "min": 0,
+        "min": -35,
         "max": 35,
         "unit": "m/s"
       },
@@ -423,7 +420,7 @@
       },
       "VelocityEastAccuracy": {
         "resolution": 0.1,
-        "min": 0,
+        "min": -35,
         "max": 35,
         "unit": "m/s"
       },
@@ -436,7 +433,46 @@
       },
       "VelocityDownAccuracy": {
         "resolution": 0.1,
-        "min": 0,
+        "min": -35,
+        "max": 35,
+        "unit": "m/s"
+      },
+      "VelocityX": {
+        "resolution": 0.05,
+        "signed": true,
+        "min": -35,
+        "max": 35,
+        "unit": "m/s"
+      },
+      "VelocityXAccuracy": {
+        "resolution": 0.1,
+        "min": -35,
+        "max": 35,
+        "unit": "m/s"
+      },
+      "VelocityY": {
+        "resolution": 0.05,
+        "signed": true,
+        "min": -35,
+        "max": 35,
+        "unit": "m/s"
+      },
+      "VelocityYAccuracy": {
+        "resolution": 0.1,
+        "min": -35,
+        "max": 35,
+        "unit": "m/s"
+      },
+      "VelocityZ": {
+        "resolution": 0.05,
+        "signed": true,
+        "min": -35,
+        "max": 35,
+        "unit": "m/s"
+      },
+      "VelocityZAccuracy": {
+        "resolution": 0.1,
+        "min": -35,
         "max": 35,
         "unit": "m/s"
       }
@@ -525,6 +561,18 @@
         "unit": "A"
       },
       "RightRadiatorFanStatus": {
+        "bits": 1
+      },
+      "RearLeftPumpOK": {
+        "bits": 1
+      },
+      "RearRightPumpOK": {
+        "bits": 1
+      },
+      "LeftRadiatorFanOK": {
+        "bits": 1
+      },
+      "RightRadiatorFanOK": {
         "bits": 1
       },
       "RearRightPumpRetry": {
@@ -691,7 +739,7 @@
         "max": 20,
         "unit": "A"
       },
-      "RSMStatus": {
+      "RsmStatus": {
         "bits": 1
       },
       "BMSCurrent": {
@@ -700,7 +748,7 @@
         "max": 5,
         "unit": "A"
       },
-      "BMSStatus": {
+      "BmsStatus": {
         "bits": 1
       },
       "RearInvertersCurrent": {
@@ -718,7 +766,7 @@
         "max": 5,
         "unit": "A"
       },
-      "DAMStatus": {
+      "DamStatus": {
         "bits": 1
       },
       "FrontCurrent": {
@@ -728,6 +776,24 @@
         "unit": "A"
       },
       "FrontStatus": {
+        "bits": 1
+      },
+      "FrontInvertersOK": {
+        "bits": 1
+      },
+      "RsmOK": {
+        "bits": 1
+      },
+      "BmsOK": {
+        "bits": 1
+      },
+      "RearInvertersOK": {
+        "bits": 1
+      },
+      "DamOK": {
+        "bits": 1
+      },
+      "FrontOK": {
         "bits": 1
       },
       "RSMRetry": {
