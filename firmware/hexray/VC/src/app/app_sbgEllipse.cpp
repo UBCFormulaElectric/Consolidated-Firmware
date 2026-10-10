@@ -68,9 +68,34 @@ void broadcast()
     can_tx::VC_EulerAnglesYaw_set(euler_yaw);
 }
 
-float getVehicleVelocity(io::sbgEllipse::VelocityData &VelData)
+float bodyVelX()
 {
-    return sqrtf(SQUARE(VelData.north) + SQUARE(VelData.east) + SQUARE(VelData.down));
+    return io::sbgEllipse::getEkfNavVelocityData().vel_x;
+}
+
+float bodyVelY()
+{
+    return io::sbgEllipse::getEkfNavVelocityData().vel_y;
+}
+
+float bodyVelZ()
+{
+    return io::sbgEllipse::getEkfNavVelocityData().vel_z;
+}
+
+float globalVelN()
+{
+    return io::sbgEllipse::getEkfNavVelocityData().north;
+}
+
+float globalVelE()
+{
+    return io::sbgEllipse::getEkfNavVelocityData().east;
+}
+
+float globalVelD()
+{
+    return io::sbgEllipse::getEkfNavVelocityData().down;
 }
 
 bool sbgInitOk()
