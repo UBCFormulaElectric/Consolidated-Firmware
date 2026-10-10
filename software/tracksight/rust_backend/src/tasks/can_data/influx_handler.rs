@@ -1,5 +1,5 @@
 use influxdb2::{Client, models::DataPoint};
-use tokio::{select, sync::broadcast::{self, Receiver, error::RecvError}};
+use tokio::{select, sync::broadcast::{Receiver, error::RecvError}};
 
 use crate::{error_println, tasks::can_data::influx_util::{InfluxSignalSource, MAX_BATCH_CAPACITY, build_data_point, build_marker_data_point, flush_buffer}, utils::yellow};
 use crate::tasks::can_data::decoded_item::DecodedItem;
