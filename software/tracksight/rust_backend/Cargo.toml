@@ -11,6 +11,7 @@ debug = ["verbose"]
 [dependencies]
 jsoncan_rust = { git = "https://github.com/UBCFormulaElectric/Consolidated-Firmware.git", branch = "master" }
 logfs = { git = "https://github.com/UBCFormulaElectric/Consolidated-Firmware.git", branch = "master" }
+logfs_export = { git = "https://github.com/UBCFormulaElectric/Consolidated-Firmware.git", branch = "master" }
 
 serialport = "4.0"
 ctrlc = "3.5"
