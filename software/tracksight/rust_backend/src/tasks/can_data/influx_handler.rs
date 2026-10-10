@@ -1,7 +1,7 @@
 use influxdb2::{Client, models::DataPoint};
 use tokio::{select, sync::broadcast::{Receiver, error::RecvError}};
 
-use crate::{BOOT_STATE, error_println, tasks::can_data::influx_util::{InfluxSignalSource, MAX_BATCH_CAPACITY, build_boot_state_data_point, build_data_point, build_marker_data_point, flush_buffer}, utils::yellow};
+use crate::{BOOT_STATE, error_println, tasks::can_data::influx_util::{BootState, InfluxSignalSource, MAX_BATCH_CAPACITY, build_boot_state_data_point, build_data_point, build_marker_data_point, flush_buffer}, utils::yellow};
 use crate::tasks::can_data::decoded_item::DecodedItem;
 use crate::{config::CONFIG, tasks::{HealthCheckSender, HealthCheckSenderExt, ResultExt, Task}, vprintln};
 
@@ -33,7 +33,7 @@ pub async fn run_influx_handler(
     let mut shutdown_rx = crate::SHUTDOWN_SIGNAL.get().unwrap().resubscribe();
 
     let mut boot_state_watcher = BOOT_STATE.get().unwrap().clone();
-
+    let mut current_boot_state: Option<BootState> = None;
     'main: loop {
         select! {
             _ = shutdown_rx.recv() => {
@@ -42,6 +42,7 @@ pub async fn run_influx_handler(
             }
             _ = boot_state_watcher.changed() => {
                 boot_state_watcher.borrow().as_ref().map(|boot_state| {
+                    current_boot_state = Some(boot_state.clone());
                     match build_boot_state_data_point(boot_state, InfluxSignalSource::Radio) {
                         Ok(data_point) => {
                             vprintln!("Boot state changed, pushing to InfluxDB: {}", boot_state.boot_hash);
@@ -57,14 +58,14 @@ pub async fn run_influx_handler(
                 match ds {
                     Ok(decoded_item) => {
                         let data = match decoded_item {
-                            DecodedItem::Signal(decoded_signal) => match build_data_point(decoded_signal, InfluxSignalSource::Radio) {
+                            DecodedItem::Signal(decoded_signal) => match build_data_point(&current_boot_state, decoded_signal, InfluxSignalSource::Radio) {
                                 Ok(data) => data,
                                 Err(e) => {
                                     eprintln!("{e}");
                                     continue;
                                 } 
                             },
-                            DecodedItem::Marker(decoded_marker) => match build_marker_data_point(decoded_marker, InfluxSignalSource::Radio) {
+                            DecodedItem::Marker(decoded_marker) => match build_marker_data_point(&current_boot_state, decoded_marker, InfluxSignalSource::Radio) {
                                 Ok(data) => data,
                                 Err(e) => {
                                     eprintln!("{e}");
