@@ -7,6 +7,9 @@ use strum::Display;
 use crate::{BOOT_STATE, config::CONFIG, dprintln};
 use crate::tasks::can_data::decoded_item::DecodedMarker;
 
+pub const INFLUXDB_SD_DUMPS_MEASUREMENT: &str = "sd_dumps";
+pub const INFLUXDB_BOOT_STATE_MEASUREMENT: &str = "boot_state";
+
 #[derive(Debug, Display, Serialize, Deserialize, PartialEq, Eq, Hash, Clone)]
 #[strum(serialize_all = "lowercase")]
 pub enum InfluxSignalSource {
@@ -57,5 +60,14 @@ pub fn build_marker_data_point(decoded_marker: DecodedMarker, source: InfluxSign
         .tag("source", source.to_string())
         .tag("boot_hash", boot_state.as_ref().map_or_else(|| "", |s| &s.boot_hash))
         .timestamp(decoded_marker.timestamp as i64)
+        .build()
+}
+
+pub fn build_boot_state_data_point(boot_state: &BootState, source: InfluxSignalSource) -> Result<DataPoint, DataPointError> {
+    DataPoint::builder(INFLUXDB_BOOT_STATE_MEASUREMENT)
+        .field("_value", 1.0)
+        .tag("source", source.to_string())
+        .tag("boot_hash", &boot_state.boot_hash)
+        .timestamp(chrono::Utc::now().timestamp_millis())
         .build()
 }

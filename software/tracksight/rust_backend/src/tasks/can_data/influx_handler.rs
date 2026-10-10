@@ -1,7 +1,7 @@
 use influxdb2::{Client, models::DataPoint};
 use tokio::{select, sync::broadcast::{Receiver, error::RecvError}};
 
-use crate::{error_println, tasks::can_data::influx_util::{InfluxSignalSource, MAX_BATCH_CAPACITY, build_data_point, build_marker_data_point, flush_buffer}, utils::yellow};
+use crate::{BOOT_STATE, error_println, tasks::can_data::influx_util::{InfluxSignalSource, MAX_BATCH_CAPACITY, build_boot_state_data_point, build_data_point, build_marker_data_point, flush_buffer}, utils::yellow};
 use crate::tasks::can_data::decoded_item::DecodedItem;
 use crate::{config::CONFIG, tasks::{HealthCheckSender, HealthCheckSenderExt, ResultExt, Task}, vprintln};
 
@@ -32,11 +32,26 @@ pub async fn run_influx_handler(
 
     let mut shutdown_rx = crate::SHUTDOWN_SIGNAL.get().unwrap().resubscribe();
 
+    let mut boot_state_watcher = BOOT_STATE.get().unwrap().clone();
+
     'main: loop {
         select! {
             _ = shutdown_rx.recv() => {
                 vprintln!("Influx handler task shutting down.");
                 break;
+            }
+            _ = boot_state_watcher.changed() => {
+                boot_state_watcher.borrow().as_ref().map(|boot_state| {
+                    match build_boot_state_data_point(boot_state, InfluxSignalSource::Radio) {
+                        Ok(data_point) => {
+                            vprintln!("Boot state changed, pushing to InfluxDB: {}", boot_state.boot_hash);
+                            batch_buffer.push(data_point);
+                        }
+                        Err(e) => {
+                            eprintln!("Error building boot state data point: {e}");
+                        }
+                    }
+                });
             }
             ds = decoded_signal_rx.recv() => {
                 match ds {
