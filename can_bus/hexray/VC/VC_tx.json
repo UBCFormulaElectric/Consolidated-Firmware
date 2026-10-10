@@ -485,6 +485,18 @@
       "RightRadiatorFanStatus": {
         "bits": 1
       },
+      "RearLeftPumpOK": {
+        "bits": 1
+      },
+      "RearRightPumpOK": {
+        "bits": 1
+      },
+      "LeftRadiatorFanOK": {
+        "bits": 1
+      },
+      "RightRadiatorFanOK": {
+        "bits": 1
+      },
       "RearRightPumpRetry": {
         "bits": 8
       },
@@ -649,7 +661,7 @@
         "max": 20,
         "unit": "A"
       },
-      "RSMStatus": {
+      "RsmStatus": {
         "bits": 1
       },
       "BMSCurrent": {
@@ -658,7 +670,7 @@
         "max": 5,
         "unit": "A"
       },
-      "BMSStatus": {
+      "BmsStatus": {
         "bits": 1
       },
       "RearInvertersCurrent": {
@@ -676,7 +688,7 @@
         "max": 5,
         "unit": "A"
       },
-      "DAMStatus": {
+      "DamStatus": {
         "bits": 1
       },
       "FrontCurrent": {
@@ -686,6 +698,24 @@
         "unit": "A"
       },
       "FrontStatus": {
+        "bits": 1
+      },
+      "FrontInvertersOK": {
+        "bits": 1
+      },
+      "RsmOK": {
+        "bits": 1
+      },
+      "BmsOK": {
+        "bits": 1
+      },
+      "RearInvertersOK": {
+        "bits": 1
+      },
+      "DamOK": {
+        "bits": 1
+      },
+      "FrontOK": {
         "bits": 1
       },
       "RSMRetry": {
