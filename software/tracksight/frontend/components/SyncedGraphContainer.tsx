@@ -1,4 +1,5 @@
 import { createContext, ReactNode, RefObject, UIEvent, useCallback, useContext, useEffect, useMemo, useRef } from "react";
+
 import { useDisplayControlContext } from "./PausePlayControl";
 import { CHART_PADDING } from "./widgets/render";
 
@@ -51,10 +52,7 @@ function useSuppressScrollWhileLocked(containerRef: RefObject<HTMLDivElement | n
         if (!container) return;
 
         const suppressScroll = (e: WheelEvent) => {
-            if (
-                !isViewportLocked 
-                || Math.abs(e.deltaX) <= Math.abs(e.deltaY)
-            ) return;
+            if (!isViewportLocked || Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return;
 
             e.preventDefault();
         };
