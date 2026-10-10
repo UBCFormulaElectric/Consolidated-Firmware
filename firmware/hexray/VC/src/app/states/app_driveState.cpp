@@ -113,9 +113,9 @@ static void driveStateRunOnTick100Hz()
                 .rr = MOTOR_RPM_TO_WHEEL_RADPS(static_cast<float>(app::can_rx::INVRR_ActualVelocity_get())),
             },
             .delta        = DEG_TO_RAD(app::can_rx::FSM_SteeringAngle_get()),
-            .gps_vx_mps   = 0.0f,
-            .gps_vy_mps   = 0.0f,
-            .sbg_ekf_mode = app::can_utils::VcEkfStatus::UNINITIALIZED,
+            .gps_vx_mps   = app::sbgEllipse::bodyVelX(),
+            .gps_vy_mps   = app::sbgEllipse::bodyVelY(),
+            .sbg_ekf_mode = app::sbgEllipse::getEkfSolutionMode(),
         };
 
         const app::tv::shared_datatypes::VehicleState<float> vehicle_state =

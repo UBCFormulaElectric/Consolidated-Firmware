@@ -263,7 +263,7 @@
   },
   "VehicleStateEstimator": {
     "msg_id": 510,
-    "cycle_time": 100,
+    "cycle_time": 20,
     "description": "Vehicle State Estimator runtime information",
     "signals": {
       "EkfEstVx": {
@@ -343,8 +343,8 @@
       }
     },
     "data_capture": {
-      "telem_cycle_time": 1000,
-      "log_cycle_time": 1000
+      "telem_cycle_time": 50,
+      "log_cycle_time": 50
     }
   },
   "IMU1": {
