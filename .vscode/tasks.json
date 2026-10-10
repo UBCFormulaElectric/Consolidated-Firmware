@@ -55,10 +55,12 @@
       "type": "cmake",
       "command": "build",
       "targets": [
-        "hexray_CRIT_app.hex",
-        "hexray_DAM_app.hex",
-        "hexray_FSM_app.hex",
-        "hexray_RSM_app.hex",
+        "hexray_CRIT.hex",
+        "hexray_DAM.hex",
+        "hexray_FSM.hex",
+        "hexray_RSM.hex",
+        "hexray_VC.hex",
+        "hexray_BMS.hex"
       ]
     },
     {
