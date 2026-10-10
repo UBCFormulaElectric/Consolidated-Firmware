@@ -31,6 +31,7 @@ use tasks::telem_message::CanPayload;
 use utils::red;
 use utils::yellow;
 
+static SHUTDOWN_SIGNAL: OnceLock<broadcast::Receiver<()>> = OnceLock::new();
 static BOOT_STATE: OnceLock<watch::Receiver<Option<BootState>>> = OnceLock::new();
 
 #[tokio::main]
@@ -39,7 +40,9 @@ async fn main() {
     dprintln!("Debug print enabled");
 
     // shutdown signal for threads
-    let (shutdown_tx, mut shutdown_rx) = broadcast::channel(1);
+    let (shutdown_tx, shutdown_rx) = broadcast::channel(1);
+
+    SHUTDOWN_SIGNAL.set(shutdown_rx).unwrap();
 
     // handle termination signal
     let interrupt_count = Arc::new(AtomicUsize::new(0));
@@ -87,7 +90,6 @@ async fn main() {
         &mut tasks,
         Task::ApiHandler,
         run_api_handler(
-            shutdown_rx.resubscribe(),
             health_check.hc_tx.clone(),
             clients.clone(),
             can_db.clone(),
@@ -98,7 +100,6 @@ async fn main() {
         &mut tasks, 
         Task::CanDataHandler,
         run_can_data_handler(
-            shutdown_rx.resubscribe(),
             health_check.hc_tx.clone(),
             can_queue_rx,
             diag_rx,
@@ -111,14 +112,12 @@ async fn main() {
     // to reuse code below when restarting tasks
     let serial_spawner = {
         // clone twice to not move ownership of variables
-        let base_shutdown_rx = shutdown_rx.resubscribe();
         let base_hc_tx = health_check.hc_tx.clone();
         let base_can_queue_tx = can_queue_tx.clone();
         let base_diag_tx = diag_tx.clone();
         let base_can_db = can_db.clone();
 
         move |tasks: &mut JoinSet<(Task, Result<(), JoinError>)>| {
-            let shutdown_rx_clone = base_shutdown_rx.resubscribe();
             let hc_tx_clone = base_hc_tx.clone();
             let can_queue_tx_clone = base_can_queue_tx.clone();
             let diag_tx_clone = base_diag_tx.clone();
@@ -132,7 +131,6 @@ async fn main() {
                         tasks,
                         Task::SerialHandler,
                         run_serial_task(
-                            shutdown_rx_clone,
                             hc_tx_clone,
                             can_queue_tx_clone,
                             diag_tx_clone,
@@ -146,7 +144,6 @@ async fn main() {
                         tasks,
                         Task::SerialHandler,
                         run_mock_task(
-                            shutdown_rx_clone,
                             hc_tx_clone,
                             can_queue_tx_clone,
                             diag_tx_clone,
@@ -164,6 +161,7 @@ async fn main() {
     };
     serial_spawner(&mut tasks);
 
+    let mut shutdown_rx = SHUTDOWN_SIGNAL.get().unwrap().resubscribe();
     select! {
         hc_res = health_check.wait_for_health_checks() => {
             match hc_res {

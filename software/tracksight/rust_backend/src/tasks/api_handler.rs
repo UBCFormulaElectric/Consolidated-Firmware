@@ -15,16 +15,15 @@ use crate::tasks::client_api::transmit_api_handler::get_transmit_router;
 use crate::tasks::telem_message::TelemetryOutgoingMessage;
 use crate::utils::yellow;
 use crate::config::CONFIG;
-use crate::tasks::{HealthCheckSender, HealthCheckSenderExt, ResultExt, ShutdownReceiver, Task};
+use crate::tasks::{HealthCheckSender, HealthCheckSenderExt, ResultExt, Task};
 use crate::tasks::client_api::AppState;
 use crate::tasks::client_api::subtable_clients::Clients;
 use crate::tasks::client_api::signal_api_handler::get_signal_router;
 use crate::tasks::client_api::subtable_api_handler::get_subtable_router;
 use crate::tasks::client_api::sd_api_handler::{get_sd_router};
-use crate::vprintln;
+use crate::{SHUTDOWN_SIGNAL, vprintln};
 
 pub async fn run_api_handler(
-    mut shutdown_rx: ShutdownReceiver, 
     health_check_tx: HealthCheckSender, 
     clients: Arc<RwLock<Clients>>, 
     can_db: Arc<CanDatabase>,
@@ -112,6 +111,7 @@ pub async fn run_api_handler(
     // this is so quirky it's amazing
     // the select macro waits for one of these to finish
     // if shutdown finishes first, leave select block
+    let mut shutdown_rx = SHUTDOWN_SIGNAL.get().unwrap().resubscribe();
     select! {
         _ = shutdown_rx.recv() => {
             vprintln!("API handler task shutting down.");

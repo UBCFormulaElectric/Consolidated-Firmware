@@ -3,7 +3,7 @@ use std::{f64::consts::{TAU}, sync::Arc, time::{SystemTime, UNIX_EPOCH}};
 use jsoncan_rust::can_database::{CanDatabase, CanSignalType, DecodedSignal};
 use tokio::{select, sync::broadcast};
 
-use crate::utils::yellow;
+use crate::{SHUTDOWN_SIGNAL, utils::yellow};
 use crate::{tasks::{HealthCheckSender, HealthCheckSenderExt, Task}, tasks::telem_message::CanPayload, vprintln};
 
 /*
@@ -14,7 +14,6 @@ use crate::{tasks::{HealthCheckSender, HealthCheckSenderExt, Task}, tasks::telem
  * Mocks serial handler
  */
 pub async fn run_mock_task(
-    mut shutdown_rx: broadcast::Receiver<()>, 
     health_check_tx: HealthCheckSender, 
     can_queue_tx: broadcast::Sender<CanPayload>, 
     _diag_tx: broadcast::Sender<f64>,
@@ -26,6 +25,8 @@ pub async fn run_mock_task(
     health_check_tx.send_health_check(Task::SerialHandler, true).await;
     
     let mut diag_interval = tokio::time::interval(tokio::time::Duration::from_secs(1));
+    
+    let mut shutdown_rx = SHUTDOWN_SIGNAL.get().unwrap().resubscribe();
     
     loop {
         select! {

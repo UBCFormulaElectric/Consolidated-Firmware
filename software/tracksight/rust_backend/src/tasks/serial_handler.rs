@@ -13,7 +13,7 @@ use crate::tasks::can_data::influx_util::BootState;
 use crate::tasks::{HealthCheckSender, HealthCheckSenderExt, ResultExt, Task};
 use crate::tasks::telem_message::{CRC32_CALC, TelemetryOutgoingMessage};
 use crate::utils::yellow;
-use crate::{dprintln, vprintln};
+use crate::{SHUTDOWN_SIGNAL, dprintln, vprintln};
 use super::telem_message::{TelemetryIncomingMessage, CanPayload};
 
 /**
@@ -28,7 +28,6 @@ enum SerialReaderOutput {
  * Handling serial signals from radio. Main task
  */
 pub async fn run_serial_task(
-    mut shutdown_rx: broadcast::Receiver<()>,
     health_check_tx: HealthCheckSender,
     can_queue_tx: broadcast::Sender<CanPayload>,
     diag_tx: broadcast::Sender<f64>,
@@ -56,12 +55,10 @@ pub async fn run_serial_task(
     // spawn blocking packet reader
     // the reader thread will allow the handler thread to be async
     let mut packet_reader = {
-        let shutdown_rx = shutdown_rx.resubscribe();
-        tokio::spawn(packet_reader_handler(shutdown_rx, serial_read, in_msg_tx))
+        tokio::spawn(packet_reader_handler(serial_read, in_msg_tx))
     };
     let packet_sender = {
-        let shutdown_rx = shutdown_rx.resubscribe();
-        tokio::spawn(packet_sender_handler(shutdown_rx, serial_write, out_msg_rx, client_out_msg_rx))
+        tokio::spawn(packet_sender_handler(serial_write, out_msg_rx, client_out_msg_rx))
     };
 
     // metrics: per-second counts rolled into a 60s window for error rate
@@ -81,6 +78,7 @@ pub async fn run_serial_task(
 
     // loop select check for shutdown signal
     // if shutdown signal, select block breaks loop early
+    let mut shutdown_rx = SHUTDOWN_SIGNAL.get().unwrap().resubscribe();
     loop {
         select! {
             _ = shutdown_rx.recv() => {
@@ -163,13 +161,13 @@ pub async fn run_serial_task(
  * Subhandler that manages packet reading, sends packet bytes to main task
  */
 async fn packet_reader_handler(
-    mut shutdown_flag: broadcast::Receiver<()>, 
     mut serial_read: ReadHalf<SerialStream>, 
     in_msg_tx: mpsc::Sender<SerialReaderOutput>
 ) {   
+    let mut shutdown_rx = SHUTDOWN_SIGNAL.get().unwrap().resubscribe();
     loop {
         select! {
-            _ = shutdown_flag.recv() => break,
+            _ = shutdown_rx.recv() => break,
             result = read_packet(&mut serial_read) => {
                 match result {
                     Ok(packet_bytes) =>  {
@@ -303,7 +301,6 @@ async fn read_packet(serial_read: &mut ReadHalf<SerialStream>) -> Result<Vec<u8>
  * Subhandler that manages packet sending, handles outgoing telemetry messages from main task
  */
 async fn packet_sender_handler(
-    mut shutdown_flag: broadcast::Receiver<()>, 
     mut serial_write: WriteHalf<SerialStream>, 
     mut out_msg_rx: mpsc::Receiver<TelemetryOutgoingMessage>,
     mut client_out_msg_rx: broadcast::Receiver<TelemetryOutgoingMessage>
@@ -317,10 +314,11 @@ async fn packet_sender_handler(
             }
         }
     };
+    let mut shutdown_rx = SHUTDOWN_SIGNAL.get().unwrap().resubscribe();
     loop {
         select! {
             // TODO select! is pseudo random, so in absolute saturated worst case, one may be starved over another
-            _ = shutdown_flag.recv() => break,
+            _ = shutdown_rx.recv() => break,
             Ok(client_outgoing) = client_out_msg_rx.recv() => {
                 write_msg_to_serial(client_outgoing).await;
             },

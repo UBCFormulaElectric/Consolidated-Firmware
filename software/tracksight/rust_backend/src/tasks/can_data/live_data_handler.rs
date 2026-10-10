@@ -2,10 +2,9 @@ use std::sync::Arc;
 
 use socketioxide::extract::SocketRef;
 use tokio::select;
-use tokio::sync::broadcast;
 use tokio::sync::{RwLock, broadcast::Receiver, broadcast::error::RecvError};
 
-use crate::dprintln;
+use crate::{SHUTDOWN_SIGNAL, dprintln};
 use crate::utils::yellow;
 use crate::{error_println, tasks::{HealthCheckSender, HealthCheckSenderExt, Task, client_api::subtable_clients::Clients}, vprintln};
 use crate::tasks::can_data::decoded_item::DecodedItem;
@@ -17,7 +16,6 @@ use jsoncan_rust::can_database::CanSignalType;
  * this task will handle "forwarding" live data to clients via sockets
  */
 pub async fn run_live_data_handler(
-    mut shutdown_rx: broadcast::Receiver<()>, 
     health_check_tx: HealthCheckSender,
     mut can_signals_rx: Receiver<DecodedItem>,
     mut diag_rx: Receiver<f64>,
@@ -27,6 +25,7 @@ pub async fn run_live_data_handler(
 
     health_check_tx.send_health_check(Task::LiveDataHandler, true).await;
 
+    let mut shutdown_rx = SHUTDOWN_SIGNAL.get().unwrap().resubscribe();
     loop {
         select! {
             _ = shutdown_rx.recv() => {
