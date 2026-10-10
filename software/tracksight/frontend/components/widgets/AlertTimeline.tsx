@@ -1,284 +1,122 @@
 "use client";
 
-import { ALERT_COLOR } from "@/lib/constants";
+import { AlertIntervals, alertNodeColor, parseAlertName, ParsedAlertName } from "@/lib/alerts";
 import { useAlertStore } from "@/lib/contexts/signalStores/SignalStoreContext";
-import { getVisibleTelemetryMarkers, TelemetryMarker } from "@/lib/telemetryMarkers";
-import { useEffect, useRef } from "react";
+import { useTimezone } from "@/lib/contexts/TimezoneContext";
+import SignalStore from "@/lib/signals/SignalStore";
+import { getVisibleTelemetryMarkers } from "@/lib/telemetryMarkers";
+import { formatTimeSpan } from "@/lib/utils/formatTimeSpan";
+import { useEffect, useRef, useState } from "react";
 import { useSyncedGraph } from "../SyncedGraphContainer";
-import { LODAwareAlertSeries } from "./CanvasChartTypes";
-import { render_hover_line, selectLOD } from "./render";
+import { CHART_PADDING, getFormatters, render_hover_line, selectLOD } from "./render";
 
-const MAX_SLIP_STREAM_LANES = 5;
-const SLIP_STREAM_TOP_PADDING_LANES = 1;
+// One fixed row per alert: names stay still at the left and only the unlabelled bars move with time,
+// so the section stays readable while data scrolls quickly.
+const ROW_HEIGHT = 20;
+const BAR_HEIGHT = 10;
+const ROWS_PADDING_Y = 6;
+const MAX_VISIBLE_ROWS = 12;
 
-const SLIP_STREAM_GAP = 5;
-const SLIP_STREAM_LANE_HEIGHT = 32;
-const SLIP_STREAM_ROUNDING_RADIUS = 8;
-const SLIP_STREAM_ROUNDING_SPEED = 0.5;
+// Bars share the charts' time axis from CHART_PADDING.left, so names are drawn over the left of each row on a
+// backdrop (in live view that is the oldest data in view) rather than in a gutter that would push every chart right.
+const NAME_COLUMN_WIDTH = 200;
+const NAME_FADE_WIDTH = 24;
+const NAME_DOT_X = 29; // lines up with the 24px (px-6) inset of the section and chart headers
+const NAME_X = 40;
+const NAME_FONT = "12px sans-serif";
+const COUNT_RIGHT_X = NAME_COLUMN_WIDTH - 10;
+const NAME_MAX_WIDTH = COUNT_RIGHT_X - NAME_X - 22; // leaves room for the count
+const NAME_BACKDROP_RGB = "249, 250, 251"; // the section's gray-50
+const NAME_BACKDROP_ALPHA = 0.92;
+const EDGE_MARKER_WIDTH = 6;
+const EDGE_TOLERANCE_PX = 4;
+const BAR_HIT_SLOP_PX = 3;
+const OFFSCREEN_STATUS_INTERVAL_MS = 250;
 
-const LABEL_FONT = "11px sans-serif";
-const LABEL_PADDING = 8;
+const ROW_STRIPE_COLOR = "rgba(15, 23, 42, 0.03)";
+const ROW_HOVER_COLOR = "rgba(37, 99, 235, 0.08)";
+const INACTIVE_DOT_COLOR = "#cbd5e1";
+const COUNT_TEXT_COLOR = "#9ca3af";
+const ACTIVE_TEXT_COLOR = "#111827";
+const INACTIVE_TEXT_COLOR = "#6b7280";
+const COUNT_FONT = "11px sans-serif";
+const MARKER_COLOR = "rgba(220, 38, 38, 0.85)";
 
-const TOOLTIP_FONT = "11px sans-serif";
+const heightForRows = (rows: number) => ROWS_PADDING_Y * 2 + rows * ROW_HEIGHT;
 
-const TOOLTIP_PADDING_X = 8;
-const TOOLTIP_PADDING_Y = 4;
+const fittedNameCache = new Map<string, string>();
 
-const TOOLTIP_TRIANGLE_SIZE = 5;
+/** truncates `text` with an ellipsis to fit `maxWidth` in the context's current font; cached since names rarely change */
+function fitText(context: CanvasRenderingContext2D, text: string, maxWidth: number): string {
+    const key = `${context.font}|${maxWidth}|${text}`;
+    const cached = fittedNameCache.get(key);
+    if (cached !== undefined) return cached;
 
-const TOOLTIP_GAP = 2;
-
-const TOOLTIP_COLOR = "#000000ac";
-const TOOLTIP_TEXT_COLOR = "white";
-const TOOLTIP_BORDER_COLOR = "black";
-
-const containerHeightForLanes = (lanes: number) => (lanes + SLIP_STREAM_TOP_PADDING_LANES) * SLIP_STREAM_LANE_HEIGHT + (lanes + SLIP_STREAM_TOP_PADDING_LANES - 1) * SLIP_STREAM_GAP;
-
-type HoverInfo = {
-    alertIndex: number;
-} | null;
-
-type MousePosition = {
-    x: number;
-    y: number;
-} | null;
-
-type AlertBar = {
-    signal: string;
-    lane: number;
-    startTime: number;
-    endTime: number;
-};
-
-type AlertModel = {
-    bars: AlertBar[];
-    laneCount: number;
-};
-
-const computeAlertModel = (alertSeries: { [signalName: string]: LODAwareAlertSeries }, leftEdge: number, rightEdge: number, width: number): AlertModel => {
-    const bars: AlertBar[] = [];
-
-    Object.keys(alertSeries).forEach((name) => {
-        const series = alertSeries[name];
-        if (series.lods.length === 0) return;
-
-        const lod = series.lods[selectLOD(series, leftEdge, rightEdge, width)];
-        const { data, timestamps } = lod;
-
-        let openStart: number | null = null;
-        let lastActiveTime = 0;
-
-        for (let i = 0; i < timestamps.length; i++) {
-            const isActive = data[i] >= 0.5;
-            const timestamp = timestamps[i];
-
-            if (isActive) {
-                if (openStart === null) openStart = timestamp;
-                lastActiveTime = timestamp;
-            } else if (openStart !== null) {
-                bars.push({ signal: name, lane: 0, startTime: openStart, endTime: timestamp });
-                openStart = null;
-            }
-        }
-
-        if (openStart === null) return;
-
-        bars.push({ signal: name, lane: 0, startTime: openStart, endTime: lastActiveTime });
-    });
-
-    bars.sort((a, b) => a.startTime - b.startTime);
-
-    const laneEndTimes: number[] = [];
-    bars.forEach((bar) => {
-        let lane = laneEndTimes.findIndex((endTime) => endTime <= bar.startTime);
-        if (lane === -1) {
-            lane = laneEndTimes.length;
-            laneEndTimes.push(bar.endTime);
-        } else {
-            laneEndTimes[lane] = bar.endTime;
-        }
-        bar.lane = lane;
-    });
-
-    return { bars, laneCount: laneEndTimes.length };
-};
-
-const modelSignature = (alertSeries: { [signalName: string]: LODAwareAlertSeries }, leftEdge: number, rightEdge: number, width: number): string => {
-    const parts: string[] = [];
-    Object.keys(alertSeries)
-        .sort()
-        .forEach((name) => {
-            const series = alertSeries[name];
-            if (series.lods.length === 0) return;
-            const lodIndex = selectLOD(series, leftEdge, rightEdge, width);
-            parts.push(`${name}:${lodIndex}:${series.lods[lodIndex].timestamps.length}`);
-        });
-    return parts.join("|");
-};
-
-function render_markers(ctx: CanvasRenderingContext2D, width: number, height: number, markers: TelemetryMarker[], timeToX: (t: number) => number) {
-    if (markers.length === 0) return;
-
-    markers.forEach((marker) => {
-        const xPos = timeToX(marker.timestampMs);
-
-        ctx.save();
-        ctx.strokeStyle = "rgba(220, 38, 38, 0.85)";
-        ctx.lineWidth = 1.5;
-        ctx.beginPath();
-        ctx.moveTo(xPos, 0);
-        ctx.lineTo(xPos, height);
-        ctx.stroke();
-        ctx.restore();
-    });
+    let fitted = text;
+    if (context.measureText(text).width > maxWidth) {
+        let end = text.length;
+        while (end > 0 && context.measureText(`${text.slice(0, end)}…`).width > maxWidth) end--;
+        fitted = `${text.slice(0, end)}…`;
+    }
+    fittedNameCache.set(key, fitted);
+    return fitted;
 }
 
-const hitTestAlerts = (mousePos: MousePosition, bars: AlertBar[], width: number, leftEdge: number, rightEdge: number, ctx: CanvasRenderingContext2D): HoverInfo => {
-    if (!mousePos) return null;
-
-    const { x: mouseX, y: mouseY } = mousePos;
-    const laneGap = SLIP_STREAM_GAP;
-    const heightPerLane = SLIP_STREAM_LANE_HEIGHT;
-    const pixelsPerMs = width / (rightEdge - leftEdge);
-
-    for (let i = bars.length - 1; i >= 0; i--) {
-        const bar = bars[i];
-        if (bar.endTime < leftEdge || bar.startTime > rightEdge) continue;
-
-        const laneY = (bar.lane + SLIP_STREAM_TOP_PADDING_LANES) * (heightPerLane + laneGap);
-        if (mouseY < laneY || mouseY > laneY + heightPerLane) continue;
-
-        const barStartX = bar.startTime < leftEdge ? 0 : (bar.startTime - leftEdge) * pixelsPerMs;
-        const barEndX = (bar.endTime - leftEdge) * pixelsPerMs;
-        if (mouseX < barStartX || mouseX > barEndX) continue;
-
-        const visibleStartX = Math.max(barStartX, 0);
-        const visibleEndX = Math.min(barEndX, width);
-        const visibleWidth = visibleEndX - visibleStartX;
-
-        ctx.font = LABEL_FONT;
-        const textWidth = ctx.measureText(bar.signal).width;
-
-        if (visibleWidth < textWidth + LABEL_PADDING * 2) return { alertIndex: i };
-        return null;
-    }
-
-    return null;
+type AlertRow = ParsedAlertName & {
+    name: string;
+    color: string;
+    firstSeen: number;
+    tracker: AlertIntervals;
 };
 
-const renderAlertTimeline = (ctx: CanvasRenderingContext2D, bars: AlertBar[], width: number, height: number, leftEdge: number, rightEdge: number, bottom: number, hover: HoverInfo) => {
-    ctx.clearRect(0, 0, width, height);
+type OffscreenActive = number | null;
 
-    const laneGap = SLIP_STREAM_GAP;
-    const heightPerLane = SLIP_STREAM_LANE_HEIGHT;
+type MousePosition = { x: number; y: number; clientX: number; clientY: number } | null;
 
-    const pixelsPerMillisecond = width / (rightEdge - leftEdge);
+// grouped by node so colours cluster, then by when each alert first fired
+const compareRows = (left: AlertRow, right: AlertRow) => (left.node ?? "").localeCompare(right.node ?? "") || left.firstSeen - right.firstSeen || left.name.localeCompare(right.name);
 
-    bars.forEach((bar) => {
-        if (bar.endTime < leftEdge || bar.startTime > rightEdge) return;
+function formatTimestamp(timestampMs: number, timeZone: string) {
+    const date = new Date(timestampMs);
+    return `${getFormatters(timeZone).time.format(date)}.${date.getUTCMilliseconds().toString().padStart(3, "0")}`;
+}
 
-        const laneY = (bar.lane + SLIP_STREAM_TOP_PADDING_LANES) * (heightPerLane + laneGap);
+function OffscreenHint({ direction, active }: { direction: "above" | "below"; active: OffscreenActive }) {
+    if (!active) return null;
 
-        const isStartBeforeView = bar.startTime < leftEdge;
-
-        const barStartX = isStartBeforeView ? 0 : (bar.startTime - leftEdge) * pixelsPerMillisecond;
-        const barEndX = (bar.endTime - leftEdge) * pixelsPerMillisecond;
-
-        ctx.fillStyle = ALERT_COLOR;
-
-        // NOTE(evan): The rounding instantly going away jumps out at ur eyes so
-        //             smoothe it it doesn't look good if u stare at it but because it
-        //             doesn't jump out you shouldn't see it most of the time.
-        const distanceFromRightEdgePx = (rightEdge - bar.endTime) * pixelsPerMillisecond;
-        const rightRadius = Math.min(Math.max(distanceFromRightEdgePx * SLIP_STREAM_ROUNDING_SPEED, 0), SLIP_STREAM_ROUNDING_RADIUS);
-
-        ctx.beginPath();
-        ctx.roundRect(barStartX, laneY, barEndX - barStartX, heightPerLane, [isStartBeforeView ? 0 : SLIP_STREAM_ROUNDING_RADIUS, rightRadius, rightRadius, isStartBeforeView ? 0 : SLIP_STREAM_ROUNDING_RADIUS]);
-        ctx.fill();
-
-        const visibleStartX = Math.max(barStartX, 0);
-        const visibleEndX = Math.min(barEndX, width);
-        const visibleWidth = visibleEndX - visibleStartX;
-
-        ctx.font = LABEL_FONT;
-        const textWidth = ctx.measureText(bar.signal).width;
-
-        if (visibleWidth < textWidth + LABEL_PADDING * 2) return;
-
-        ctx.save();
-        ctx.beginPath();
-        ctx.rect(visibleStartX, laneY, visibleWidth, heightPerLane);
-        ctx.clip();
-
-        ctx.fillStyle = "#ffffff";
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        ctx.fillText(bar.signal, visibleStartX + visibleWidth / 2, laneY + heightPerLane / 2);
-        ctx.restore();
-    });
-
-    if (!hover || hover.alertIndex >= bars.length) return;
-    const bar = bars[hover.alertIndex];
-
-    const laneY = (bar.lane + SLIP_STREAM_TOP_PADDING_LANES) * (heightPerLane + laneGap);
-    const barStartX = bar.startTime < leftEdge ? 0 : (bar.startTime - leftEdge) * pixelsPerMillisecond;
-    const barEndX = (bar.endTime - leftEdge) * pixelsPerMillisecond;
-    const visibleStartX = Math.max(barStartX, 0);
-    const visibleEndX = Math.min(barEndX, width);
-    const visibleWidth = visibleEndX - visibleStartX;
-    const centerX = visibleStartX + visibleWidth / 2;
-    const barBottom = laneY + heightPerLane;
-
-    ctx.font = TOOLTIP_FONT;
-    const textWidth = ctx.measureText(bar.signal).width;
-    const tooltipWidth = textWidth + TOOLTIP_PADDING_X * 2;
-    const tooltipHeight = 14 + TOOLTIP_PADDING_Y * 2;
-
-    const isAboveTooltip = laneY + heightPerLane + tooltipHeight + TOOLTIP_TRIANGLE_SIZE + TOOLTIP_GAP > bottom;
-
-    const triangleTop = isAboveTooltip ? laneY - TOOLTIP_GAP : barBottom + TOOLTIP_GAP;
-    const tooltipTop = isAboveTooltip ? triangleTop - TOOLTIP_TRIANGLE_SIZE : triangleTop + TOOLTIP_TRIANGLE_SIZE;
-
-    ctx.strokeStyle = TOOLTIP_BORDER_COLOR;
-    ctx.lineWidth = 1;
-    ctx.fillStyle = TOOLTIP_COLOR;
-    ctx.beginPath();
-    ctx.moveTo(centerX - TOOLTIP_TRIANGLE_SIZE, isAboveTooltip ? triangleTop - TOOLTIP_TRIANGLE_SIZE : triangleTop + TOOLTIP_TRIANGLE_SIZE);
-    ctx.lineTo(centerX, triangleTop);
-    ctx.lineTo(centerX + TOOLTIP_TRIANGLE_SIZE, isAboveTooltip ? triangleTop - TOOLTIP_TRIANGLE_SIZE : triangleTop + TOOLTIP_TRIANGLE_SIZE);
-    ctx.stroke();
-    ctx.closePath();
-    ctx.fill();
-
-    const tooltipX = Math.max(0, Math.min(centerX - tooltipWidth / 2, width - tooltipWidth));
-    ctx.beginPath();
-    ctx.roundRect(tooltipX, tooltipTop + (isAboveTooltip ? -tooltipHeight : 0), tooltipWidth, tooltipHeight, 4);
-    ctx.fill();
-    ctx.stroke();
-
-    ctx.fillStyle = TOOLTIP_TEXT_COLOR;
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.fillText(bar.signal, tooltipX + tooltipWidth / 2, tooltipTop + (isAboveTooltip ? -tooltipHeight : tooltipHeight) / 2);
-};
+    return (
+        <span className="text-xs font-medium text-gray-600">
+            {direction === "above" ? "▲" : "▼"} {active} active {direction}
+        </span>
+    );
+}
 
 function AlertTimeline() {
     const canvasRef = useRef<HTMLCanvasElement>(null);
-    const scrollableRef = useRef<HTMLDivElement>(null);
     const wrapperRef = useRef<HTMLDivElement>(null);
+    const sectionRef = useRef<HTMLElement>(null);
+    const tooltipRef = useRef<HTMLDivElement>(null);
     const animationFrame = useRef<number | null>(null);
+    const mousePos = useRef<MousePosition>(null);
 
-    const { globalTimeRangeRef, XToTime, timeToX, hoverXRef } = useSyncedGraph();
+    const [rowCount, setRowCount] = useState(0);
+    const [activeAbove, setActiveAbove] = useState<OffscreenActive>(null);
+    const [activeBelow, setActiveBelow] = useState<OffscreenActive>(null);
 
+    const { globalTimeRangeRef, XToTime, timeToX, hoverXRef, isLive, reportAlertStatus, highlightedAlertRef } = useSyncedGraph();
+    const { timezone } = useTimezone();
+
+    // the render loop is started once, so it reads everything that can change through refs
     const XToTimeRef = useRef(XToTime);
     XToTimeRef.current = XToTime;
     const timeToXRef = useRef(timeToX);
     timeToXRef.current = timeToX;
-
-    const alertModel = useRef<AlertModel>({ bars: [], laneCount: 0 });
-    const lastSignature = useRef<string | null>(null);
-    const hoverInfo = useRef<HoverInfo>(null);
-    const mousePos = useRef<MousePosition>(null);
+    const isLiveRef = useRef(isLive);
+    isLiveRef.current = isLive;
+    const timezoneRef = useRef(timezone);
+    timezoneRef.current = timezone;
+    const reportAlertStatusRef = useRef(reportAlertStatus);
+    reportAlertStatusRef.current = reportAlertStatus;
 
     const storeRef = useAlertStore();
 
@@ -290,125 +128,330 @@ function AlertTimeline() {
 
         const dpr = window.devicePixelRatio || 1;
 
-        const renderSlipStream = () => {
-            const store = storeRef.current;
-            if (!globalTimeRangeRef.current || !store) {
-                animationFrame.current = requestAnimationFrame(renderSlipStream);
+        let trackedStore: SignalStore | null = null;
+        const trackers = new Map<string, AlertIntervals>();
+        let rows: AlertRow[] = [];
+        let offscreenKey = "";
+        let tooltipKey = "";
+        let reportedActiveCount: number | null = null;
+
+        const setTooltip = (lines: string[] | null, clientX = 0, clientY = 0) => {
+            const tooltip = tooltipRef.current;
+            const section = sectionRef.current;
+            if (!tooltip || !section) return;
+
+            const key = lines ? `${lines.join("\n")}@${clientX},${clientY}` : "";
+            if (key === tooltipKey) return;
+            tooltipKey = key;
+
+            if (!lines) {
+                tooltip.hidden = true;
                 return;
             }
 
-            const rect = canvas.getBoundingClientRect();
-            const targetWidth = Math.max(1, Math.floor(rect.width * dpr));
-            const targetHeight = Math.max(1, Math.floor(rect.height * dpr));
+            tooltip.textContent = lines.join("\n");
+            tooltip.hidden = false;
+            const sectionRect = section.getBoundingClientRect();
+            const left = Math.min(clientX - sectionRect.left + 12, sectionRect.width - tooltip.offsetWidth - 8);
+            tooltip.style.transform = `translate(${Math.max(left, 8)}px, ${clientY - sectionRect.top + 14}px)`;
+        };
 
+        const syncRows = (store: SignalStore, leftEdge: number, rightEdge: number, plotWidth: number) => {
+            if (store !== trackedStore) {
+                trackedStore = store;
+                trackers.clear();
+                rows = [];
+            }
+
+            let rowsChanged = false;
+            Object.entries(store.getAlertSeries()).forEach(([name, series]) => {
+                if (series.lods.length === 0) return;
+
+                let tracker = trackers.get(name);
+                if (!tracker) {
+                    tracker = new AlertIntervals();
+                    trackers.set(name, tracker);
+                }
+
+                const lod = series.lods[selectLOD(series, leftEdge, rightEdge, plotWidth)];
+                tracker.update(lod.timestamps, lod.data);
+
+                // an alert gets a row the first time it fires and keeps it, so rows never shuffle under the reader
+                if (tracker.intervals.length > 0 && !rows.some((row) => row.name === name)) {
+                    const parsed = parseAlertName(name);
+                    rows.push({ name, ...parsed, color: alertNodeColor(parsed.node), firstSeen: tracker.intervals[0].start, tracker });
+                    rowsChanged = true;
+                }
+            });
+
+            if (rowsChanged) {
+                rows.sort(compareRows);
+                setRowCount(rows.length);
+            }
+        };
+
+        const syncOffscreenHints = (activeRows: boolean[]) => {
+            const wrapper = wrapperRef.current;
+            if (!wrapper) return;
+
+            // derive the viewport from the row count rather than the DOM: a new row is drawn a frame before React grows the canvas
+            const viewportHeight = Math.min(heightForRows(rows.length), heightForRows(MAX_VISIBLE_ROWS));
+            const firstVisible = Math.ceil((wrapper.scrollTop - ROWS_PADDING_Y) / ROW_HEIGHT);
+            const lastVisible = Math.floor((wrapper.scrollTop + viewportHeight - ROWS_PADDING_Y) / ROW_HEIGHT) - 1;
+
+            const summarize = (from: number, to: number): OffscreenActive => {
+                let count = 0;
+                for (let i = Math.max(from, 0); i <= Math.min(to, rows.length - 1); i++) {
+                    if (activeRows[i]) count++;
+                }
+                return count > 0 ? count : null;
+            };
+
+            const above = summarize(0, firstVisible - 1);
+            const below = summarize(lastVisible + 1, rows.length - 1);
+            const key = JSON.stringify([above, below]);
+            if (key === offscreenKey) return;
+            offscreenKey = key;
+            setActiveAbove(above);
+            setActiveBelow(below);
+        };
+
+        const syncStatus = (activeRows: boolean[]) => {
+            const activeCount = activeRows.filter(Boolean).length;
+            if (activeCount === reportedActiveCount) return;
+            reportedActiveCount = activeCount;
+            reportAlertStatusRef.current(activeCount);
+        };
+
+        // live dots answer "what is wrong right now"; historical dots follow the cursor, else the right edge of the view
+        const getReferenceTime = (latest: number, rightEdge: number) => {
+            const hoverX = hoverXRef.current;
+            return isLiveRef.current ? latest : hoverX !== null ? XToTimeRef.current(hoverX) : rightEdge;
+        };
+
+        // while scrolled offscreen nothing is drawn, but the toolbar chip still needs current status
+        const updateStatusOnly = () => {
+            const store = storeRef.current;
+            const range = globalTimeRangeRef.current;
+            if (!store || !range) return;
+
+            const width = canvas.getBoundingClientRect().width;
+            const leftEdge = XToTimeRef.current(CHART_PADDING.left);
+            const rightEdge = XToTimeRef.current(width);
+            syncRows(store, leftEdge, rightEdge, width - CHART_PADDING.left);
+
+            const referenceTime = getReferenceTime(range.max, rightEdge);
+            syncStatus(rows.map((row) => row.tracker.isActiveAt(referenceTime)));
+        };
+
+        const renderRows = () => {
+            animationFrame.current = requestAnimationFrame(renderRows);
+
+            const store = storeRef.current;
+            const range = globalTimeRangeRef.current;
+            if (!store || !range) return;
+
+            const toTime = XToTimeRef.current;
+            const toX = timeToXRef.current;
+
+            const rect = canvas.getBoundingClientRect();
+            const width = rect.width;
+            const height = rect.height;
+            const targetWidth = Math.max(1, Math.floor(width * dpr));
+            const targetHeight = Math.max(1, Math.floor(height * dpr));
             if (canvas.width !== targetWidth || canvas.height !== targetHeight) {
                 canvas.width = targetWidth;
                 canvas.height = targetHeight;
             }
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            ctx.clearRect(0, 0, width, height);
 
-            ctx.setTransform(1, 0, 0, 1, 0, 0);
-            ctx.scale(dpr, dpr);
+            const plotLeft = CHART_PADDING.left;
+            const leftEdge = toTime(plotLeft);
+            const rightEdge = toTime(width);
+            syncRows(store, leftEdge, rightEdge, width - plotLeft);
 
-            const leftEdge = XToTimeRef.current(0);
-            const rightEdge = XToTimeRef.current(rect.width);
+            const hoverX = hoverXRef.current;
+            const referenceTime = getReferenceTime(range.max, rightEdge);
+            const edgeTime = toTime(width + EDGE_TOLERANCE_PX);
 
-            const alertSeries = store.getAlertSeries();
-            const signature = modelSignature(alertSeries, leftEdge, rightEdge, rect.width);
-            if (signature !== lastSignature.current) {
-                alertModel.current = computeAlertModel(alertSeries, leftEdge, rightEdge, rect.width);
-                lastSignature.current = signature;
+            const mouse = mousePos.current;
+            const hoveredRowIndex = mouse ? Math.floor((mouse.y - ROWS_PADDING_Y) / ROW_HEIGHT) : -1;
+            let tooltipLines: string[] | null = null;
 
-                if (scrollableRef.current) {
-                    scrollableRef.current.style.height = `${containerHeightForLanes(Math.max(alertModel.current.laneCount, 1))}px`;
+            const hoveredRow = rows[hoveredRowIndex];
+            highlightedAlertRef.current = hoveredRow ? { tracker: hoveredRow.tracker, color: hoveredRow.color, latestTime: range.max } : null;
+
+            const nameBackdrop = ctx.createLinearGradient(NAME_COLUMN_WIDTH, 0, NAME_COLUMN_WIDTH + NAME_FADE_WIDTH, 0);
+            nameBackdrop.addColorStop(0, `rgba(${NAME_BACKDROP_RGB}, ${NAME_BACKDROP_ALPHA})`);
+            nameBackdrop.addColorStop(1, `rgba(${NAME_BACKDROP_RGB}, 0)`);
+
+            const activeRows = rows.map((row, rowIndex) => {
+                const top = ROWS_PADDING_Y + rowIndex * ROW_HEIGHT;
+                const centerY = top + ROW_HEIGHT / 2;
+                const { color } = row;
+                const { intervals, open } = row.tracker;
+                const isActive = row.tracker.isActiveAt(referenceTime);
+
+                // bars first so the name backdrop can sit over them
+                ctx.save();
+                ctx.beginPath();
+                ctx.rect(plotLeft, top, width - plotLeft, ROW_HEIGHT);
+                ctx.clip();
+                ctx.fillStyle = color;
+
+                let countInView = 0;
+                let continuesPastRightEdge = false;
+                let hoveredInterval: { start: number; end: number; ongoing: boolean } | null = null;
+                for (let i = row.tracker.firstEndingAfter(leftEdge); i < intervals.length; i++) {
+                    const interval = intervals[i];
+                    if (interval.start > rightEdge) break;
+
+                    // an alert still active at its latest sample stays drawn up to the newest data
+                    const ongoing = open && i === intervals.length - 1;
+                    const end = ongoing ? Math.max(interval.end, range.max) : interval.end;
+                    const startX = toX(interval.start);
+                    const endX = Math.max(toX(end), startX + 2);
+
+                    countInView++;
+                    if (end > edgeTime) continuesPastRightEdge = true;
+                    if (rowIndex === hoveredRowIndex && mouse && mouse.x >= NAME_COLUMN_WIDTH && mouse.x >= startX - BAR_HIT_SLOP_PX && mouse.x <= endX + BAR_HIT_SLOP_PX) {
+                        hoveredInterval = { start: interval.start, end, ongoing };
+                    }
+
+                    ctx.beginPath();
+                    ctx.roundRect(startX, centerY - BAR_HEIGHT / 2, endX - startX, BAR_HEIGHT, 3);
+                    ctx.fill();
                 }
+                ctx.restore();
+
+                ctx.fillStyle = `rgba(${NAME_BACKDROP_RGB}, ${NAME_BACKDROP_ALPHA})`;
+                ctx.fillRect(0, top, NAME_COLUMN_WIDTH, ROW_HEIGHT);
+                ctx.fillStyle = nameBackdrop;
+                ctx.fillRect(NAME_COLUMN_WIDTH, top, NAME_FADE_WIDTH, ROW_HEIGHT);
+
+                if (rowIndex === hoveredRowIndex) {
+                    ctx.fillStyle = ROW_HOVER_COLOR;
+                    ctx.fillRect(0, top, width, ROW_HEIGHT);
+                } else if (rowIndex % 2 === 1) {
+                    ctx.fillStyle = ROW_STRIPE_COLOR;
+                    ctx.fillRect(0, top, width, ROW_HEIGHT);
+                }
+
+                ctx.beginPath();
+                ctx.arc(NAME_DOT_X, centerY, 4, 0, Math.PI * 2);
+                if (isActive) {
+                    ctx.fillStyle = color;
+                    ctx.fill();
+                } else {
+                    ctx.strokeStyle = INACTIVE_DOT_COLOR;
+                    ctx.lineWidth = 1.5;
+                    ctx.stroke();
+                }
+
+                ctx.font = NAME_FONT;
+                ctx.textAlign = "left";
+                ctx.textBaseline = "middle";
+                let nameX = NAME_X;
+                if (row.node) {
+                    const nodeText = `${row.node} `;
+                    ctx.fillStyle = color; // the node prefix doubles as the legend for the row's colour
+                    ctx.fillText(nodeText, nameX, centerY);
+                    nameX += ctx.measureText(nodeText).width;
+                }
+                ctx.fillStyle = isActive ? ACTIVE_TEXT_COLOR : INACTIVE_TEXT_COLOR;
+                ctx.fillText(fitText(ctx, row.label, NAME_MAX_WIDTH - (nameX - NAME_X)), nameX, centerY);
+
+                if (countInView > 0) {
+                    ctx.font = COUNT_FONT;
+                    ctx.textAlign = "right";
+                    ctx.fillStyle = COUNT_TEXT_COLOR;
+                    ctx.fillText(`${countInView}`, COUNT_RIGHT_X, centerY);
+                }
+
+                if (continuesPastRightEdge) {
+                    // the bar runs on into time that is out of view
+                    ctx.beginPath();
+                    ctx.moveTo(width - EDGE_MARKER_WIDTH - 2, centerY - 5);
+                    ctx.lineTo(width - 2, centerY);
+                    ctx.lineTo(width - EDGE_MARKER_WIDTH - 2, centerY + 5);
+                    ctx.closePath();
+                    ctx.strokeStyle = "#ffffff";
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+                    ctx.fillStyle = color;
+                    ctx.fill();
+                }
+
+                if (rowIndex === hoveredRowIndex && mouse) {
+                    const timeZone = timezoneRef.current;
+                    if (mouse.x < NAME_COLUMN_WIDTH) {
+                        tooltipLines = [row.name, `${isActive ? "Active" : "Inactive"} · ${countInView} ${countInView === 1 ? "occurrence" : "occurrences"} in view`];
+                    } else if (hoveredInterval) {
+                        const { start, end, ongoing } = hoveredInterval;
+                        tooltipLines = [row.name, ongoing ? `Since ${formatTimestamp(start, timeZone)} · active for ${formatTimeSpan(end - start)}` : `${formatTimestamp(start, timeZone)} → ${formatTimestamp(end, timeZone)} · ${formatTimeSpan(end - start)}`];
+                    }
+                }
+
+                return isActive;
+            });
+
+            ctx.save();
+            ctx.beginPath();
+            // vertical lines stay off the names so they remain readable
+            ctx.rect(NAME_COLUMN_WIDTH, 0, width - NAME_COLUMN_WIDTH, height);
+            ctx.clip();
+            ctx.strokeStyle = MARKER_COLOR;
+            ctx.lineWidth = 1.5;
+            getVisibleTelemetryMarkers(leftEdge, rightEdge).forEach((marker) => {
+                const x = toX(marker.timestampMs);
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, height);
+                ctx.stroke();
+            });
+
+            if (hoverX !== null) {
+                render_hover_line(ctx, width, height, toTime(hoverX), toX, false);
             }
+            ctx.restore();
 
-            const bars = alertModel.current.bars;
-
-            hoverInfo.current = hitTestAlerts(mousePos.current, bars, rect.width, leftEdge, rightEdge, ctx);
-
-            const wrapperClientRect = wrapperRef.current?.getBoundingClientRect();
-            const top = wrapperRef.current?.scrollTop ?? 0;
-            const bottom = top + (wrapperClientRect?.height ?? 0);
-
-            renderAlertTimeline(ctx, bars, rect.width, rect.height, leftEdge, rightEdge, bottom, hoverInfo.current);
-            render_markers(ctx, rect.width, rect.height, getVisibleTelemetryMarkers(leftEdge, rightEdge), timeToXRef.current);
-
-            if (hoverXRef.current !== null) {
-                render_hover_line(ctx, rect.width, rect.height, XToTimeRef.current(hoverXRef.current), timeToXRef.current, false);
-            }
-
-            animationFrame.current = requestAnimationFrame(renderSlipStream);
+            setTooltip(tooltipLines, mouse?.clientX, mouse?.clientY);
+            syncOffscreenHints(activeRows);
+            syncStatus(activeRows);
         };
 
-        animationFrame.current = requestAnimationFrame(renderSlipStream);
+        let statusInterval: number | null = null;
+        const observer = new IntersectionObserver((entries) => {
+            const entry = entries[entries.length - 1];
+            if (entry.isIntersecting) {
+                if (statusInterval !== null) window.clearInterval(statusInterval);
+                statusInterval = null;
+                if (animationFrame.current === null) animationFrame.current = requestAnimationFrame(renderRows);
+                return;
+            }
+
+            if (animationFrame.current !== null) cancelAnimationFrame(animationFrame.current);
+            animationFrame.current = null;
+            statusInterval ??= window.setInterval(updateStatusOnly, OFFSCREEN_STATUS_INTERVAL_MS);
+        });
+        observer.observe(canvas);
 
         return () => {
-            if (animationFrame.current) {
-                cancelAnimationFrame(animationFrame.current);
-            }
-        };
-    }, [canvasRef.current]);
-
-    useEffect(() => {
-        const wrapper = wrapperRef.current;
-        if (!wrapper) return;
-
-        const findScrollableAncestor = (el: HTMLElement | null): HTMLElement | Window => {
-            let node = el?.parentElement ?? null;
-
-            while (node) {
-                if (node === document.body) break;
-
-                const style = getComputedStyle(node);
-                const overflowY = style.overflowY;
-
-                const canScroll = (overflowY === "auto" || overflowY === "scroll" || overflowY === "overlay") && node.scrollHeight > node.clientHeight;
-
-                if (canScroll) return node;
-
-                node = node.parentElement;
-            }
-            return window;
-        };
-
-        const handleWheel = (e: WheelEvent) => {
-            const deltaY = e.deltaY;
-            if (deltaY === 0) return;
-
-            const atTop = wrapper.scrollTop <= 0;
-            const atBottom = wrapper.scrollTop + wrapper.clientHeight >= wrapper.scrollHeight - 1;
-
-            const wouldChain = (deltaY < 0 && atTop) || (deltaY > 0 && atBottom);
-            if (!wouldChain) return;
-
-            e.preventDefault();
-
-            const ancestor = findScrollableAncestor(wrapper);
-            ancestor.scrollBy({ top: deltaY });
-        };
-
-        wrapper.addEventListener("wheel", handleWheel, { passive: false });
-
-        return () => {
-            wrapper.removeEventListener("wheel", handleWheel);
+            reportAlertStatusRef.current(null);
+            highlightedAlertRef.current = null;
+            observer.disconnect();
+            if (statusInterval !== null) window.clearInterval(statusInterval);
+            if (animationFrame.current !== null) cancelAnimationFrame(animationFrame.current);
+            animationFrame.current = null;
         };
     }, []);
 
-    const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
-        const canvas = canvasRef.current;
-        if (!canvas) {
-            mousePos.current = null;
-            return;
-        }
-
-        const rect = canvas.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        mousePos.current = {
-            x,
-            y: e.clientY - rect.top,
-        };
-        hoverXRef.current = x;
+    const handleMouseMove = (event: React.MouseEvent<HTMLCanvasElement>) => {
+        const rect = event.currentTarget.getBoundingClientRect();
+        const x = event.clientX - rect.left;
+        mousePos.current = { x, y: event.clientY - rect.top, clientX: event.clientX, clientY: event.clientY };
+        hoverXRef.current = x >= NAME_COLUMN_WIDTH ? x : null; // hovering names shouldn't move the charts' hover line
     };
 
     const handleMouseLeave = () => {
@@ -417,25 +460,29 @@ function AlertTimeline() {
     };
 
     return (
-        <div className="flex flex-col gap-5">
-            <div
-                className="overflow-y-scroll scrollbar-hidden overscroll-none"
-                ref={wrapperRef}
-                style={{
-                    maxHeight: `${containerHeightForLanes(MAX_SLIP_STREAM_LANES)}px`,
-                }}
-            >
-                <div
-                    className="relative flex w-full"
-                    ref={scrollableRef}
-                    style={{
-                        height: `${containerHeightForLanes(MAX_SLIP_STREAM_LANES)}px`,
-                    }}
-                >
-                    <canvas className="w-full h-full" ref={canvasRef} onMouseMove={handleMouseMove} onMouseLeave={handleMouseLeave}></canvas>
+        <section ref={sectionRef} aria-labelledby="alerts-heading" className="relative z-50 flex flex-col gap-1 border-b-2 border-gray-300 bg-gray-50">
+            <div className="flex items-baseline justify-between gap-4 px-6 pt-3">
+                <div className="flex items-baseline gap-2">
+                    <h2 id="alerts-heading" className="text-xs font-semibold tracking-wide text-gray-600 uppercase">
+                        Alerts
+                    </h2>
+                    {rowCount > 0 && <span className="text-xs text-gray-500">{rowCount}</span>}
+                </div>
+                <div className="flex items-baseline gap-3">
+                    <OffscreenHint direction="above" active={activeAbove} />
+                    <OffscreenHint direction="below" active={activeBelow} />
                 </div>
             </div>
-        </div>
+            <div ref={wrapperRef} className="relative overflow-y-auto" tabIndex={0} aria-label="Alert rows" style={{ maxHeight: heightForRows(MAX_VISIBLE_ROWS) }}>
+                {rowCount === 0 && (
+                    <p className="pointer-events-none absolute inset-y-0 flex items-center text-xs text-gray-500" style={{ left: NAME_X }}>
+                        {isLive ? "No alerts have fired yet." : "No alerts in the loaded data."}
+                    </p>
+                )}
+                <canvas className="block w-full" ref={canvasRef} style={{ height: heightForRows(Math.max(rowCount, 1)) }} onMouseMove={handleMouseMove} onMouseLeave={handleMouseLeave} />
+            </div>
+            <div ref={tooltipRef} hidden className="pointer-events-none absolute top-0 left-0 max-w-md rounded bg-gray-900/90 px-2 py-1 text-xs whitespace-pre text-white shadow" />
+        </section>
     );
 }
 

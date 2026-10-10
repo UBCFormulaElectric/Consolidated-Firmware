@@ -1,4 +1,5 @@
 import { LODAwareAlertSeries, LODAwareEnumSeries, LODAwareNumericalSeries } from "@/components/widgets/CanvasChartTypes";
+import { perfStats } from "../perfStats";
 import { SeriesData } from "../seriesData";
 import { SignalMetadata, SignalType } from "../types/Signal";
 import { LevelPoint, markTilesCovered, mergeSortedPoints } from "./lodLevels";
@@ -220,6 +221,7 @@ abstract class SignalStore {
         const entry = this.storage[signalName];
         if (!entry || resolutionMs <= 0) return;
 
+        perfStats.samplesIngested += points.length;
         const lod = this.getOrCreateLevel(entry, resolutionMs);
         markTilesCovered(lod.coveredTiles!, resolutionMs, requestStartMs, requestEndMs);
 
@@ -241,7 +243,7 @@ abstract class SignalStore {
         points.forEach((point) => this.updateWithTimestamp(point.timestampMs));
     }
 
-    addDataPointAtLOD(signalName: string, lod: number, sampleIntervalMs: number, timestamp: number, value: number): void {
+    addDataPointAtLOD(signalName: string, lod: number, timestamp: number, value: number): void {
         const entry = this.storage[signalName];
 
         if (!entry || entry.storeType === SignalType.ALERT) return;
@@ -254,12 +256,18 @@ abstract class SignalStore {
             }
         }
 
-        entry.data.lods[lod].sampleIntervalMs = sampleIntervalMs;
-        entry.data.lods[lod].data.push(value);
-        entry.data.lods[lod].timestamps.push(timestamp);
+        const level = entry.data.lods[lod];
+        level.data.push(value);
+        level.timestamps.push(timestamp);
+        // selectLOD compares this with time per pixel, so it has to be the level's real spacing in ms. The propagators only
+        // know level n averages 2^n samples, which is 10x too fine for a 10 Hz signal. Until a level has two points it
+        // has no spacing, and Infinity keeps it from being picked.
+        const count = level.timestamps.length;
+        level.sampleIntervalMs = count > 1 ? (timestamp - level.timestamps[0]) / (count - 1) : Infinity;
     }
 
     addDataPoint(signalName: string, timestamp: number, value: number): void {
+        perfStats.samplesIngested++;
         this.updateWithTimestamp(timestamp);
         const entry = this.storage[signalName];
 

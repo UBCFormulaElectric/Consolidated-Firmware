@@ -19,8 +19,18 @@
 }
 
 @layer base {
-    :root {
-        @apply text-xs;
+    body {
+        @apply text-sm;
+    }
+
+    /* Tailwind v4 preflight resets buttons to the default arrow; restore the pointer for anything clickable */
+    button:not(:disabled),
+    [role="button"]:not([aria-disabled="true"]),
+    a[href],
+    summary,
+    select,
+    label[for] {
+        cursor: pointer;
     }
 }
 

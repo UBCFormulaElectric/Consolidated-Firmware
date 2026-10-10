@@ -1,31 +1,44 @@
 "use client";
 
-import { WidgetAdder } from "@/app/live/WidgetAdder";
 import DataDashboard from "@/components/DataDashboard";
-import { DisplayControlProvider, ViewportLockButton } from "@/components/PausePlayControl";
+import { DisplayControlProvider } from "@/components/PausePlayControl";
 import SyncedGraphContainer from "@/components/SyncedGraphContainer";
 import AlertTimeline from "@/components/widgets/AlertTimeline";
 import { useWidgetManager, WidgetManager } from "@/components/widgets/WidgetManagerContext";
 import { LiveSignalStoreProvider } from "@/lib/contexts/signalStores/LiveSignalStoreContext";
 import { MockSignalStoreProvider } from "@/lib/contexts/signalStores/MockSignalStoreContext";
+import { getMockSignalCatalog } from "@/lib/mock/catalog";
+import { createMockCharts } from "@/lib/mock/charts";
+import { readMockParam } from "@/lib/mock/config";
+import { useEffect } from "react";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 
 const USE_MOCK_DATA = process.env.NEXT_PUBLIC_USE_MOCK_DATA === "true";
 
 function Content() {
-    const { initializedFromLocalStorage } = useWidgetManager();
+    const { initializedFromLocalStorage, replaceWidgets } = useWidgetManager();
     const DataSourceProvider = USE_MOCK_DATA ? MockSignalStoreProvider : LiveSignalStoreProvider;
+
+    useEffect(() => {
+        // ?mockCharts=N swaps in N random charts for stress testing, then drops the param so a reload keeps them
+        if (!USE_MOCK_DATA || !initializedFromLocalStorage) return;
+
+        const count = readMockParam("mockCharts");
+        if (!count) return;
+
+        replaceWidgets(createMockCharts(count, getMockSignalCatalog()));
+        const url = new URL(window.location.href);
+        url.searchParams.delete("mockCharts");
+        window.history.replaceState(null, "", url);
+    }, [initializedFromLocalStorage, replaceWidgets]);
 
     return (
         <DataSourceProvider>
             {initializedFromLocalStorage ? (
                 <>
                     <AlertTimeline />
-                    <DataDashboard />
-                    <div className="flex flex-col py-8 items-center gap-4">
-                        <WidgetAdder />
-                    </div>
+                    <DataDashboard emptyMessage="Choose a signal to create your first chart." />
                 </>
             ) : (
                 <div className="grid h-full place-items-center text-gray-500">Loading Widgets</div>
@@ -36,14 +49,9 @@ function Content() {
 
 export default function LiveDataPage() {
     return (
-        <div id="live-page" className="pt-14 h-[calc(100vh-3.5rem)] w-screen flex flex-col overflow-hidden">
+        <div id="live-page" className="h-screen w-screen pt-16 flex flex-col overflow-hidden">
             <DndProvider backend={HTML5Backend}>
                 <DisplayControlProvider>
-                    <div className="fixed top-14 left-0 z-60 flex w-screen -translate-y-1/2 justify-center pointer-events-none">
-                        <div className="pointer-events-auto relative rounded-full bg-white p-2 before:pointer-events-none before:absolute before:inset-0 before:rounded-full before:border before:border-gray-200 before:[clip-path:inset(47%_-2px_-2px_-2px)] before:content-['']">
-                            <ViewportLockButton />
-                        </div>
-                    </div>
                     <div className="flex-1 min-h-0 w-full relative">
                         <SyncedGraphContainer>
                             <WidgetManager>

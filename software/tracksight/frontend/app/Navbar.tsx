@@ -4,9 +4,11 @@ import { ChevronDown, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+import { DevPerfMeter } from "@/components/DevPerfMeter";
 import { ErrorRateIndicator } from "@/components/ErrorRateIndicator";
 import { TimezoneSelector } from "@/components/common/TimezoneSelector";
 import { formatSessionLabel } from "@/lib/api/historicalSessions";
+import { API_BASE_URL, IS_DEBUG, IS_MOCK } from "@/lib/constants";
 import { useHistoricalSelection } from "@/lib/contexts/HistoricalSelectionContext";
 import { useTimezone } from "@/lib/contexts/TimezoneContext";
 
@@ -21,7 +23,7 @@ function HistoricalNavButton({ label, value, onClick }: { label: string; value: 
 }
 
 function HistoricalNavControls() {
-    const { sourceLabel, selectedSession, openModal, isSyncing } = useHistoricalSelection();
+    const { source, sourceLabel, selectedSession, openModal, isSyncing } = useHistoricalSelection();
     const { timezone } = useTimezone();
 
     const dtLabel = selectedSession ? formatSessionLabel(selectedSession.startUtcMs, selectedSession.endUtcMs, timezone) : "Select";
@@ -31,6 +33,14 @@ function HistoricalNavControls() {
             {isSyncing ? <Loader2 className="size-4 animate-spin text-blue-500" strokeWidth={2.4} /> : null}
             <HistoricalNavButton label="Source" value={sourceLabel} onClick={() => openModal(1)} />
             <HistoricalNavButton label="Session" value={dtLabel} onClick={() => openModal(3)} />
+            <form action={`${API_BASE_URL}/api/v1/signal/csv`} target="_blank" rel="noopener noreferrer">
+                <input type="hidden" name="start" value={selectedSession ? new Date(selectedSession.startUtcMs).toISOString() : ""} />
+                <input type="hidden" name="end" value={selectedSession ? new Date(selectedSession.endUtcMs).toISOString() : ""} />
+                <input type="hidden" name="source" value={source} />
+                <button type="submit" disabled={!selectedSession || IS_MOCK} className="rounded border border-black bg-white px-3 py-1.5 text-sm font-semibold hover:cursor-pointer hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-40">
+                    Export CSV
+                </button>
+            </form>
         </div>
     );
 }
@@ -38,18 +48,25 @@ function HistoricalNavControls() {
 function Navbar() {
     const pathname = usePathname();
     const isHistorical = pathname === "/historical";
+    const links = [
+        { href: "/live", label: "Live Data" },
+        { href: "/historical", label: "Historical Data" },
+        { href: "/sd/dump", label: "SD Card Dump" },
+    ];
 
     return (
-        <nav className="fixed top-0 left-0 z-50 h-min w-screen bg-white border-b border-b-gray-200">
-            <div className="flex flex-row items-center justify-between px-8 py-4 select-none">
+        <nav aria-label="Main navigation" className="fixed top-0 left-0 z-50 h-16 w-screen bg-white border-b border-b-gray-200">
+            <div className="flex h-full flex-row items-center justify-between px-8 select-none">
                 <div className="flex flex-row items-center gap-6">
-                    <Link href="/">Home</Link>
-                    <Link href="/live">Live Data</Link>
-                    <Link href="/historical">Historical Data</Link>
-                    <Link href="/sd/dump">SD Card Dump</Link>
+                    {links.map(({ href, label }) => (
+                        <Link key={href} href={href} aria-current={pathname === href ? "page" : undefined} className={`rounded px-1 py-0.5 text-sm font-medium focus-visible:outline-2 focus-visible:outline-blue-600 ${pathname === href ? "text-blue-700 underline underline-offset-8" : "text-gray-700 hover:text-blue-700"}`}>
+                            {label}
+                        </Link>
+                    ))}
                 </div>
                 <div className="flex items-center gap-4">
                     {isHistorical ? <HistoricalNavControls /> : null}
+                    {IS_MOCK || IS_DEBUG ? <DevPerfMeter /> : null}
                     <TimezoneSelector />
                     <ErrorRateIndicator />
                 </div>

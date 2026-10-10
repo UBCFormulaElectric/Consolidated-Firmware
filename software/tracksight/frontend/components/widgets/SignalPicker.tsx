@@ -1,212 +1,153 @@
 "use client";
 
-import { Check } from "lucide-react";
-import { FC, KeyboardEvent, useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
+import { KeyboardEvent, ReactNode, useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 
+import { alertNodeColor } from "@/lib/alerts";
 import { useAvailableSignals } from "@/lib/hooks/useAvailableSignals";
-import { SignalMetadata } from "@/lib/types/Signal";
+import { findMatchRanges, prepareSignalSearch, searchSignals } from "@/lib/signalSearch";
+import { BooleanSignalMetadata, EnumSignalMetadata, isBooleanSignalMetadata, isEnumSignalMetadata, isNumericalSignalMetadata, NumericalSignalMetadata, SignalMetadata } from "@/lib/types/Signal";
+import { cn } from "@/lib/utils";
 
 const MAX_RENDERED_SIGNALS = 100;
-const SELECT_ALL_SIGNAL_LIMIT = 25;
+// same cap as #2157's select all, so one search can't flood a chart
+const ADD_ALL_LIMIT = 25;
 
-type SignalItemRenderer<T extends SignalMetadata> = FC<{
-    data: T;
-}>;
+export type ChartableSignalMetadata = NumericalSignalMetadata | EnumSignalMetadata | BooleanSignalMetadata;
 
-type SignalPickerProps<T extends SignalMetadata> = {
-    filter: (signal: SignalMetadata) => signal is T;
-    getSearchableText: (signal: T) => string;
-    ItemRenderer: SignalItemRenderer<T>;
-    placeholder: string;
+// keep these at module level: the picker memoises its search index on `accept`
+export const isChartableSignal = (signal: SignalMetadata): signal is ChartableSignalMetadata => isNumericalSignalMetadata(signal) || isEnumSignalMetadata(signal) || isBooleanSignalMetadata(signal);
+export const isStateSignal = (signal: SignalMetadata): signal is EnumSignalMetadata | BooleanSignalMetadata => isEnumSignalMetadata(signal) || isBooleanSignalMetadata(signal);
 
-    initialSignals: T[];
-    onConfirm: (signals: T[]) => void;
-    onCancel: () => void;
-};
-
-function normalizeSearchText(value: string): string {
-    return value.trim().toLowerCase().replace(/[_-]+/g, " ");
+function describeSignal(signal: SignalMetadata): string {
+    if (isNumericalSignalMetadata(signal)) return signal.unit || "Graph";
+    if (isEnumSignalMetadata(signal)) return signal.enum_signal.enum_name;
+    if (isBooleanSignalMetadata(signal)) return "On / off";
+    return signal.type;
 }
 
-function haveSameSignalNames(left: SignalMetadata[], right: SignalMetadata[]): boolean {
-    const leftNames = new Set(left.map((signal) => signal.name));
-
-    return left.length === right.length && right.every((signal) => leftNames.has(signal.name));
+// bolds the typed words and lets long names wrap after each underscore instead of being cut off
+function HighlightedName(props: { name: string; query: string }) {
+    const { name, query } = props;
+    const parts: ReactNode[] = [];
+    let cursor = 0;
+    const pushText = (text: string, bold: boolean) => {
+        text.split(/(?<=_)/).forEach((piece, index) => {
+            if (index > 0) parts.push(<wbr key={`w${parts.length}`} />);
+            parts.push(
+                bold ? (
+                    <mark key={parts.length} className="rounded-sm bg-yellow-200 text-gray-900">
+                        {piece}
+                    </mark>
+                ) : (
+                    piece
+                )
+            );
+        });
+    };
+    for (const [start, end] of findMatchRanges(name, query)) {
+        if (start > cursor) pushText(name.slice(cursor, start), false);
+        pushText(name.slice(start, end), true);
+        cursor = end;
+    }
+    if (cursor < name.length) pushText(name.slice(cursor), false);
+    return <>{parts}</>;
 }
 
-function getStatusText(isLoading: boolean, visibleCount: number, matchingCount: number, hasQuery: boolean): string {
-    if (isLoading) return "Loading available signals...";
-    if (matchingCount > MAX_RENDERED_SIGNALS) return `Showing first ${visibleCount} of ${matchingCount} matching signals`;
-    if (!hasQuery) return `Showing ${visibleCount} signals`;
-
-    return `${visibleCount} matching signals`;
-}
-
-function SignalPicker<T extends SignalMetadata>(props: SignalPickerProps<T>) {
-    const { filter, getSearchableText, ItemRenderer, placeholder, initialSignals, onConfirm, onCancel } = props;
-
-    const listRef = useRef<HTMLDivElement | null>(null);
+export function SignalPicker<T extends SignalMetadata>(props: {
+    /** which signals can be picked */
+    accept: (signal: SignalMetadata) => signal is T;
+    /** keepOpen is true when shift was held, so several signals can be picked in one go */
+    onPick: (signal: T, keepOpen: boolean) => void;
+    /** shift-picking an added signal takes it off again; without this, added signals can't be picked */
+    onRemove?: (signal: T) => void;
+    /** adds every match that isn't added yet; offered when there are at most ADD_ALL_LIMIT */
+    onPickAll?: (signals: T[]) => void;
+    /** already on the chart: listed, but not pickable */
+    addedSignalNames?: string[];
+}) {
+    const { accept, onPick, onRemove, onPickAll, addedSignalNames = [] } = props;
     const [query, setQuery] = useState("");
-    const [selectedSignals, setSelectedSignals] = useState(initialSignals);
     const [highlightedIndex, setHighlightedIndex] = useState(0);
-    const { data: allSignals = [], isLoading, error } = useAvailableSignals();
-    const previousMousePositionRef = useRef<{ x: number; y: number } | null>(null);
-
+    const listRef = useRef<HTMLDivElement>(null);
+    const { data: allSignals, isPending, isError, refetch } = useAvailableSignals();
     const deferredQuery = useDeferredValue(query);
-    const normalizedQuery = normalizeSearchText(deferredQuery);
 
-    const searchableSignals = useMemo(() => {
-        return allSignals.filter(filter).map((signal) => ({
-            signal,
-            searchableText: normalizeSearchText(getSearchableText(signal)),
-        }));
-    }, [allSignals, filter, getSearchableText]);
+    const searchable = useMemo(() => prepareSignalSearch((allSignals ?? []).filter(accept)), [allSignals, accept]);
+    const matches = useMemo(() => searchSignals(searchable, deferredQuery), [searchable, deferredQuery]);
+    const visible = matches.slice(0, MAX_RENDERED_SIGNALS);
 
-    const matchingSignals = useMemo(() => {
-        return searchableSignals.filter((entry) => entry.searchableText.includes(normalizedQuery)).map((entry) => entry.signal);
-    }, [searchableSignals, normalizedQuery]);
-
-    const visibleSignals = useMemo(() => matchingSignals.slice(0, MAX_RENDERED_SIGNALS), [matchingSignals]);
-
-    const selectedSignalNames = useMemo(() => new Set(selectedSignals.map((signal) => signal.name)), [selectedSignals]);
-    const areAllMatchingSelected = matchingSignals.length > 0 && matchingSignals.every((signal) => selectedSignalNames.has(signal.name));
-    const hasChanges = !haveSameSignalNames(initialSignals, selectedSignals);
+    useEffect(() => setHighlightedIndex(0), [deferredQuery]);
 
     useEffect(() => {
-        setHighlightedIndex(0);
-    }, [normalizedQuery]);
-
-    useEffect(() => {
-        const highlightedElement = listRef.current?.children[highlightedIndex];
-
-        highlightedElement?.scrollIntoView({ block: "nearest" });
+        listRef.current?.querySelector(`[data-index="${highlightedIndex}"]`)?.scrollIntoView({ block: "nearest" });
     }, [highlightedIndex]);
 
-    const toggleSignal = (signal: T, shouldConfirm = false) => {
-        const nextSignals = selectedSignalNames.has(signal.name) ? selectedSignals.filter((selected) => selected.name !== signal.name) : [...selectedSignals, signal];
-
-        setSelectedSignals(nextSignals);
-
-        if (!shouldConfirm) return;
-
-        onConfirm(nextSignals);
+    const pick = (signal: T | undefined, keepOpen: boolean) => {
+        if (!signal) return;
+        if (!addedSignalNames.includes(signal.name)) onPick(signal, keepOpen);
+        else if (keepOpen) onRemove?.(signal);
     };
+    const notYetAdded = matches.filter((signal) => !addedSignalNames.includes(signal.name));
+    const canAddAll = onPickAll !== undefined && deferredQuery.trim() !== "" && notYetAdded.length > 1 && notYetAdded.length <= ADD_ALL_LIMIT;
 
-    const toggleAllMatching = () => {
-        const matchingSignalNames = new Set(matchingSignals.map((signal) => signal.name));
-        const signalsOutsideMatch = selectedSignals.filter((signal) => !matchingSignalNames.has(signal.name));
-
-        if (areAllMatchingSelected) {
-            setSelectedSignals(signalsOutsideMatch);
-
-            return;
-        }
-
-        setSelectedSignals([...signalsOutsideMatch, ...matchingSignals]);
-    };
-
-    const moveHighlight = (offset: number) => {
-        if (visibleSignals.length === 0) return;
-
-        setHighlightedIndex((previous) => (previous + offset + visibleSignals.length) % visibleSignals.length);
-    };
-
-    const handleInputKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
-        if (event.key === "ArrowDown") {
+    const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+        if (visible.length === 0) return;
+        if (event.key === "ArrowDown" || event.key === "ArrowUp") {
             event.preventDefault();
-            moveHighlight(1);
-            return;
-        }
-
-        if (event.key === "ArrowUp") {
+            const step = event.key === "ArrowDown" ? 1 : -1;
+            setHighlightedIndex((index) => (index + step + visible.length) % visible.length);
+        } else if (event.key === "Enter") {
             event.preventDefault();
-            moveHighlight(-1);
-            return;
-        }
-
-        if (event.key === "Enter" && visibleSignals[highlightedIndex]) {
-            event.preventDefault();
-            toggleSignal(visibleSignals[highlightedIndex], !event.shiftKey);
+            pick(visible[highlightedIndex], event.shiftKey);
         }
     };
 
     return (
-        <div className="w-full">
-            <label className="mb-1 block text-sm font-medium text-gray-700">Signal Name</label>
-            {selectedSignals.length > 0 && (
-                <div className="mb-2 flex flex-wrap gap-1.5">
-                    {selectedSignals.map((signal) => (
-                        <span key={signal.name} className="flex max-w-full items-center gap-1 rounded-full border border-blue-200 bg-blue-100 py-0.5 pl-2.5 pr-1.5 text-xs font-medium text-gray-900">
-                            <span className="truncate">{signal.name}</span>
-                            <button type="button" onClick={() => toggleSignal(signal)} className="shrink-0 cursor-pointer font-bold text-gray-500 transition-colors hover:text-red-500" title={`Remove ${signal.name}`}>
-                                ×
-                            </button>
-                        </span>
-                    ))}
-                </div>
+        <div className="flex min-h-0 flex-col gap-3">
+            <input type="search" aria-label="Search signals" aria-controls="signal-picker-results" aria-activedescendant={visible[highlightedIndex] ? `signal-option-${highlightedIndex}` : undefined} role="combobox" aria-expanded value={query} onChange={(event) => setQuery(event.target.value)} onKeyDown={handleKeyDown} autoFocus autoComplete="off" spellCheck={false} placeholder="Search by signal, message, node, or unit" className="h-14 w-full rounded-lg border-2 border-gray-400 bg-white px-4 text-lg text-gray-900 placeholder:text-gray-500 focus:border-blue-600 focus:outline-none" />
+            <p className="text-sm text-gray-700" aria-live="polite">
+                {isPending ? "Loading signals…" : isError ? "" : matches.length > MAX_RENDERED_SIGNALS ? `Best ${MAX_RENDERED_SIGNALS} of ${matches.length} matches. Keep typing to narrow.` : `${matches.length} ${matches.length === 1 ? "signal" : "signals"}`}
+                <span className="float-right hidden text-gray-600 sm:inline">↑ ↓ to move · Enter to add · hold Shift to pick several</span>
+            </p>
+            {canAddAll && (
+                <button type="button" onClick={() => onPickAll(notYetAdded)} className="self-start rounded border border-blue-600 px-3 py-1.5 text-sm font-medium text-blue-700 hover:bg-blue-50 focus-visible:outline-2 focus-visible:outline-blue-600">
+                    Add all {notYetAdded.length} matches
+                </button>
             )}
-            <input type="text" value={query} onChange={(event) => setQuery(event.target.value)} onKeyDown={handleInputKeyDown} className="w-full rounded border bg-white px-3 py-2 text-gray-900" placeholder={placeholder} autoFocus autoComplete="off" spellCheck={false} />
-            <div className="mt-2 rounded-md border border-gray-200 bg-white">
-                <div className="flex items-center justify-between gap-3 border-b border-gray-100 px-3 py-2 text-xs text-gray-500">
-                    <span>{getStatusText(isLoading, visibleSignals.length, matchingSignals.length, normalizedQuery.length > 0)}</span>
-                    {normalizedQuery.length > 0 && matchingSignals.length > 0 && matchingSignals.length < SELECT_ALL_SIGNAL_LIMIT && (
-                        <button type="button" onClick={toggleAllMatching} className="cursor-pointer font-medium text-blue-600 hover:text-blue-700">
-                            {areAllMatchingSelected ? "Deselect all matching" : `Select all ${matchingSignals.length} matching`}
+            <div ref={listRef} id="signal-picker-results" role="listbox" aria-label="Matching signals" className="max-h-[min(60vh,36rem)] min-h-40 overflow-y-auto overscroll-contain rounded-lg border-2 border-gray-300 bg-white">
+                {isPending ? null : isError ? (
+                    <p className="flex items-center gap-3 p-4 text-base text-red-700">
+                        Could not load signals.
+                        <button type="button" onClick={() => refetch()} className="font-semibold underline">
+                            Retry
                         </button>
-                    )}
-                </div>
-                {error ? (
-                    <p className="px-3 py-3 text-sm text-red-600">Failed to load available signals: {error.message}</p>
-                ) : isLoading ? null : visibleSignals.length === 0 ? (
-                    <p className="px-3 py-3 text-sm text-gray-500">No signals match this search.</p>
+                    </p>
+                ) : visible.length === 0 ? (
+                    <p className="p-4 text-base text-gray-700">No signals match “{query.trim()}”.</p>
                 ) : (
-                    <div ref={listRef} className="scrollbar-hidden max-h-64 overflow-y-auto py-1">
-                        {visibleSignals.map((signal, index) => {
-                            const isHighlighted = index === highlightedIndex;
-                            const isChecked = selectedSignalNames.has(signal.name);
-
-                            return (
-                                <button
-                                    key={signal.name}
-                                    type="button"
-                                    onMouseDown={(event) => event.preventDefault()}
-                                    onClick={(event) => toggleSignal(signal, !event.shiftKey)}
-                                    onMouseOver={(e) => {
-                                        if (previousMousePositionRef.current) {
-                                            const { x: prevX, y: prevY } = previousMousePositionRef.current;
-                                            const { clientX: currX, clientY: currY } = e;
-
-                                            if (Math.abs(currX - prevX) < 1 && Math.abs(currY - prevY) < 1) return;
-                                        }
-
-                                        previousMousePositionRef.current = { x: e.clientX, y: e.clientY };
-                                        setHighlightedIndex(index);
-                                    }}
-                                    className={`flex w-full items-start gap-3 px-3 py-2 text-left transition-colors ${isHighlighted ? "bg-blue-200" : isChecked ? "bg-blue-100" : ""}`}
-                                    style={{ contentVisibility: "auto", containIntrinsicSize: "48px" }}
-                                >
-                                    <span className={`mt-0.5 flex size-4 shrink-0 items-center justify-center rounded border ${isChecked ? "border-blue-600 bg-blue-600 text-white" : "border-gray-300 bg-white"}`}>{isChecked && <Check className="size-3" strokeWidth={3} />}</span>
-                                    <div className="min-w-0 flex-1">
-                                        <ItemRenderer data={signal} />
-                                    </div>
-                                </button>
-                            );
-                        })}
-                    </div>
+                    visible.map((signal, index) => {
+                        const isHighlighted = index === highlightedIndex;
+                        const isAdded = addedSignalNames.includes(signal.name);
+                        return (
+                            <div key={signal.name} id={`signal-option-${index}`} data-index={index} role="option" aria-selected={isHighlighted} aria-disabled={isAdded && !onRemove} onMouseMove={() => setHighlightedIndex(index)} onMouseDown={(event) => event.preventDefault()} onClick={(event) => pick(signal, event.shiftKey)} className={cn("flex items-center gap-3 border-b border-gray-200 px-4 py-3 last:border-0", isAdded && !onRemove ? "cursor-not-allowed opacity-50" : isAdded ? "cursor-pointer opacity-50" : "cursor-pointer", isHighlighted && !isAdded ? "bg-blue-700 text-white" : isHighlighted ? "bg-gray-100" : "text-gray-900")}>
+                                <span className="w-14 shrink-0 rounded px-1.5 py-1 text-center text-xs font-bold tracking-wide text-white" style={{ backgroundColor: alertNodeColor(signal.tx_node) }}>
+                                    {signal.tx_node}
+                                </span>
+                                <span className="min-w-0 flex-1">
+                                    <span className="block text-base leading-snug font-semibold break-words">
+                                        <HighlightedName name={signal.name} query={deferredQuery} />
+                                    </span>
+                                    <span className={cn("block truncate text-sm", isHighlighted && !isAdded ? "text-blue-100" : "text-gray-700")}>
+                                        {signal.msg_name}
+                                        {signal.cycle_time_ms !== null && ` · ${signal.cycle_time_ms} ms`}
+                                    </span>
+                                </span>
+                                <span className={cn("max-w-40 shrink-0 truncate text-sm font-medium", isHighlighted && !isAdded ? "text-white" : "text-gray-700")}>{isAdded ? "Added" : describeSignal(signal)}</span>
+                            </div>
+                        );
+                    })
                 )}
-            </div>
-            <div className="flex justify-end gap-2 pt-6">
-                <button type="button" onClick={onCancel} className="cursor-pointer rounded px-4 py-2 text-gray-600 hover:bg-gray-100">
-                    Cancel
-                </button>
-                <button type="button" onClick={() => onConfirm(selectedSignals)} disabled={!hasChanges} className="cursor-pointer rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60">
-                    Save
-                </button>
             </div>
         </div>
     );
 }
-
-export type { SignalItemRenderer };
-
-export default SignalPicker;
