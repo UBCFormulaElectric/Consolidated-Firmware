@@ -341,6 +341,13 @@ async fn signal_sessions(
     return (StatusCode::OK, serde_json::to_string(&time_bigram).unwrap());
 }
 
+async fn signal_sessions_hash(
+    Path((start, end)): Path<(String, String)>, 
+    State(state): State<AppState>
+) -> impl IntoResponse {
+    return (StatusCode::OK, Json(()));
+}
+
 async fn signal_markers(
     Path((start, end)): Path<(String, String)>,
     Query(SourceQuery { source, .. }): Query<SourceQuery>,
@@ -398,7 +405,7 @@ async fn signal_markers(
     }
 }
 
-pub fn get_signal_router() -> Router<AppState> {
+pub fn get_signal_router_v1() -> Router<AppState> {
     return Router::new()
         .route("/signal/nodes", get(nodes))
         .route("/signal/metadata", get(metadata))
@@ -407,4 +414,9 @@ pub fn get_signal_router() -> Router<AppState> {
         .route("/signal/tiles/{signal}/{start}/{end}", get(signal_tiles))
         .route("/signal/sessions/{start}/{end}", get(signal_sessions))
         .route("/signal/markers/{start}/{end}", get(signal_markers));
+}
+
+pub fn get_signal_router_v2() -> Router<AppState> {
+    return Router::new()
+        .route("/signal/sessions/{start}/{end}", get(signal_sessions_hash));
 }

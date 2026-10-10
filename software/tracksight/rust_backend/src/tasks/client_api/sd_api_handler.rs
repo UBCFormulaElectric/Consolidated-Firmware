@@ -3,7 +3,7 @@ use futures::stream;
 use influxdb2::{FromDataPoint, models::DataPoint};
 use serde::Deserialize;
 
-use crate::{config::CONFIG, tasks::client_api::{AppState, sd_utils::{dump_sd_file, find_detachable_drives, format_drive, get_logfs, ls_deep, SdFormatError}}};
+use crate::{config::CONFIG, tasks::{can_data::influx_util::INFLUXDB_SD_DUMPS_MEASUREMENT, client_api::{AppState, sd_utils::{SdFormatError, dump_sd_file, find_detachable_drives, format_drive, get_logfs, ls_deep}}}};
 
 /**
  * Mainly supported for Ubuntu, not guaranteed on anything else
@@ -85,7 +85,7 @@ async fn sd_dump(State(state): State<AppState>, Json(SdDumpPayload{drive, file, 
     ).await {
         Ok(_) => {
             // TODO this is not a good way to define it ngl but itll do
-            let dump_record = DataPoint::builder("sd_dumps")
+            let dump_record = DataPoint::builder(INFLUXDB_SD_DUMPS_MEASUREMENT)
                 .tag("car", &CONFIG.influxdb_measurement)
                 .tag("file_name", &file)
                 .field("dumped", true)

@@ -18,7 +18,7 @@ use crate::config::CONFIG;
 use crate::tasks::{HealthCheckSender, HealthCheckSenderExt, ResultExt, Task};
 use crate::tasks::client_api::AppState;
 use crate::tasks::client_api::subtable_clients::Clients;
-use crate::tasks::client_api::signal_api_handler::get_signal_router;
+use crate::tasks::client_api::signal_api_handler::{get_signal_router_v1, get_signal_router_v2};
 use crate::tasks::client_api::subtable_api_handler::get_subtable_router;
 use crate::tasks::client_api::sd_api_handler::{get_sd_router};
 use crate::{SHUTDOWN_SIGNAL, vprintln};
@@ -98,7 +98,8 @@ pub async fn run_api_handler(
     let app = Router::new()
         .layer(socket_layer)
         .nest("/api/v1/", get_subtable_router())
-        .nest("/api/v1/", get_signal_router())
+        .nest("/api/v1/", get_signal_router_v1())
+        .nest("/api/v2/", get_signal_router_v2())
         .nest("/api/v1/", get_sd_router())
         .nest("/api/v1/", get_transmit_router())
         .with_state(app_state)
