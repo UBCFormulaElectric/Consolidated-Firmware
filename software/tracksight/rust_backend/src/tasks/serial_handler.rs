@@ -294,7 +294,7 @@ async fn read_packet(serial_read: &mut ReadHalf<SerialStream>) -> Result<Vec<u8>
         ));
     }
 
-    return Ok(payload_buffer);
+    return Ok(payload_buffer.into());
 }
 
 /**
