@@ -1,24 +1,30 @@
 #pragma once
 
 #include <cassert>
-#include <cstring>
-#include <cmsis_os.h>
 #include <algorithm>
+#include <array>
+#include <cmsis_os.h>
 
+// added the below cuz imma force profiling at runtime for now (may change)
 #if configUSE_TRACE_FACILITY != 1
 #error "configUSE_TRACE_FACILITY must be set to 1 in FreeRTOSConfig.h to use runTimeStat"
 #endif
 
-#include "hw_hal.hpp"
-#ifdef STM32F412Rx
-#include "stm32f4xx_hal_tim.h"
-#elifdef STM32H562xx
-#include "stm32h5xx_hal_tim.h"
-#elifdef STM32H733xx
+#if configGENERATE_RUN_TIME_STATS != 1
+#error "configGENERATE_RUN_TIME_STATS must be set to 1 in FreeRTOSConfig.h to use runTimeStat"
 #endif
 
+#include "hw_hal.hpp"
 #include "hw_rtosTaskHandler.hpp"
 #include "io_log.hpp"
+
+#if defined(STM32F412Rx)
+#include "stm32f4xx_hal_tim.h"
+#elif defined(STM32H562xx)
+#include "stm32h5xx_hal_tim.h"
+#elif defined(STM32H733xx)
+#include "stm32h7xx_hal_tim.h"
+#endif
 
 namespace hw::runtimeStat
 {
@@ -45,38 +51,29 @@ template <size_t TaskCount> class monitor
   private:
     struct TaskInfoInternal
     {
-        const rtos::StaticTask *t = nullptr; // ugh
-        void (*cpu_usage_setter)(float);
-        void (*cpu_usage_max_setter)(float);
-        void (*stack_usage_max_setter)(float);
+        const rtos::StaticTask *t             = nullptr; //goood boyy
+        void (*cpu_usage_setter)(float)       = nullptr;
+        void (*cpu_usage_max_setter)(float)   = nullptr;
+        void (*stack_usage_max_setter)(float) = nullptr;
     };
-    static constexpr size_t NUM_FT_TASKS    = 2U;
-    static constexpr size_t NUM_TOTAL_TASKS = NUM_FT_TASKS + TaskCount;
-    static constexpr size_t IDLE_TASK_INDEX = NUM_TOTAL_TASKS - 2;
-    static constexpr size_t TMR_SVC_INDEX   = NUM_TOTAL_TASKS - 1;
 
-    std::array<TaskInfoInternal, NUM_TOTAL_TASKS> _tasks_info;
-    CpuInfoBroadcasters                           _cpu_info;
+    std::array<TaskInfoInternal, TaskCount> _tasks_info{};
+    CpuInfoBroadcasters                     _cpu_info{};
 
-    struct TaskData
-    {
-        float max_cpu_usage = 0.0f;
-    };
-    mutable std::array<TaskData, NUM_TOTAL_TASKS> _tasks_data{};
-    mutable float                                 max_cpu_usage = 0.0f;
+    mutable std::array<uint32_t, TaskCount> _prev_task_runtime{};
+    mutable std::array<float, TaskCount>    _max_task_cpu_usage{};
+    mutable std::array<float, TaskCount>    _max_stack_usage{};
+
+    mutable uint32_t _prev_total_runtime = 0;
+    mutable uint32_t _prev_idle_runtime  = 0;
+    mutable float    _max_cpu_usage      = 0.0f;
+    mutable bool     _initialized        = false;
 
   public:
     monitor(const CpuInfoBroadcasters c, const std::array<TaskInfo, TaskCount> tasks) : _cpu_info(c)
     {
-        assert(c.cpu_usage_max_setter != nullptr);
-        assert(c.cpu_usage_setter != nullptr);
-
-        // set the tasks properly
         for (size_t i = 0; i < TaskCount; ++i)
         {
-            assert(tasks[i].cpu_usage_max_setter != nullptr);
-            assert(tasks[i].cpu_usage_setter != nullptr);
-            assert(tasks[i].stack_usage_max_setter != nullptr);
             _tasks_info[i] = {
                 .t                      = &tasks[i].t,
                 .cpu_usage_setter       = tasks[i].cpu_usage_setter,
@@ -84,84 +81,129 @@ template <size_t TaskCount> class monitor
                 .stack_usage_max_setter = tasks[i].stack_usage_max_setter,
             };
         }
-        std::sort(
-            _tasks_info.begin(), _tasks_info.begin() + TaskCount,
-            [](const TaskInfoInternal &a, const TaskInfoInternal &b) { return a.t->id() < b.t->id(); });
-
-        // mi bombo
-        _tasks_info[IDLE_TASK_INDEX] = {
-            .cpu_usage_setter       = nullptr,
-            .cpu_usage_max_setter   = nullptr,
-            .stack_usage_max_setter = nullptr,
-        };
-        _tasks_info[TMR_SVC_INDEX] = {
-            .cpu_usage_setter       = nullptr,
-            .cpu_usage_max_setter   = nullptr,
-            .stack_usage_max_setter = nullptr,
-        };
     }
 
     /**
-     * use this function to update the runtime statistics
+     * updates CPU and stack usage metrics over the last window
+     * does not suspend scheduler dis time
      */
     void checkin() const
     {
-        /* Get the task IDLE handle for processing the time spend outside of idle task*/
-        std::array<TaskStatus_t, NUM_TOTAL_TASKS> runTimeStats{};
-        uint32_t                                  ulTotalRunTime;
-        const uint32_t                            arraySize =
-            uxTaskGetSystemState(runTimeStats.data(), static_cast<UBaseType_t>(NUM_TOTAL_TASKS), &ulTotalRunTime);
-        if (arraySize == 0)
+        const uint32_t current_total_time = getRunTimeCounterValue();
+
+        // get IDLE task runtime via O(1) TCB read (no memory scan)
+        TaskHandle_t idle_handle       = xTaskGetIdleTaskHandle();
+        uint32_t     current_idle_time = 0;
+        if (idle_handle != nullptr)
         {
-            LOG_ERROR("TaskGetSystemState failed");
-            return;
-        }
-        if (arraySize != NUM_TOTAL_TASKS)
-        {
-            LOG_ERROR("TaskGetSystemState returned unexpected number of tasks: %lu", arraySize);
-            return;
+            TaskStatus_t idle_status;
+            vTaskGetInfo(idle_handle, &idle_status, pdFALSE, eRunning);
+            current_idle_time = idle_status.ulRunTimeCounter;
         }
 
-        std::sort(
-            runTimeStats.begin(), runTimeStats.end(),
-            [](const TaskStatus_t &a, const TaskStatus_t &b) { return a.xTaskNumber < b.xTaskNumber; });
-
-        /*
-         * Given each task that we get from the following getsystemstate call we are gonna calculate the
-         * cpu usage and stack usage
-         */
-        const TaskStatus_t &idleTaskStatus = runTimeStats[IDLE_TASK_INDEX];
-        assert(idleTaskStatus.xTaskNumber == IDLE_TASK_INDEX + 1);
-        assert(strcmp(idleTaskStatus.pcTaskName, "IDLE") == 0);
-        uint32_t idle_counter = idleTaskStatus.ulRunTimeCounter;
-        // Calculate total current cpu usage and max cpu usage
-        const float cpu_usage = (1.0f - static_cast<float>(idle_counter) / static_cast<float>(ulTotalRunTime)) * 100;
-        _cpu_info.cpu_usage_setter(cpu_usage);
-        max_cpu_usage = std::max(max_cpu_usage, cpu_usage);
-        _cpu_info.cpu_usage_max_setter(max_cpu_usage);
-
-        for (uint32_t task = 0; task < NUM_TOTAL_TASKS - NUM_FT_TASKS; task++)
+        // on first invocation, establish the baseline to avoid initial distortion
+        if (!_initialized)
         {
-            // get the idle time that we need to calculate the cpu usage associated
-            if (idle_counter + runTimeStats[task].ulRunTimeCounter != 0)
+            _prev_total_runtime = current_total_time;
+            _prev_idle_runtime  = current_idle_time;
+            for (size_t i = 0; i < TaskCount; ++i)
             {
-                assert(_tasks_info[task].t->id() == runTimeStats[task].xHandle);
-                // Calculate current cpu usage
-                const float task_cpu_usage = static_cast<float>(runTimeStats[task].ulRunTimeCounter) /
-                                             static_cast<float>(idle_counter + runTimeStats[task].ulRunTimeCounter) *
-                                             100;
-                _tasks_info[task].cpu_usage_setter(task_cpu_usage);
+                if (_tasks_info[i].t == nullptr)
+                {
+                    continue;
+                }
+                const auto handle = static_cast<TaskHandle_t>(_tasks_info[i].t->id());
+                if (handle != nullptr)
+                {
+                    TaskStatus_t status;
+                    vTaskGetInfo(handle, &status, pdFALSE, eRunning);
+                    _prev_task_runtime[i] = status.ulRunTimeCounter;
+                }
+            }
+            _initialized = true;
+            return;
+        }
 
-                // Calculate the max cpu usage
-                _tasks_data[task].max_cpu_usage = std::max(_tasks_data[task].max_cpu_usage, task_cpu_usage);
-                _tasks_info[task].cpu_usage_max_setter(_tasks_data[task].max_cpu_usage);
+        // compute elapsed deltas using unsigned modular arithmetic (rollover safe)
+        const uint32_t delta_total = current_total_time - _prev_total_runtime;
+        const uint32_t delta_idle  = current_idle_time - _prev_idle_runtime;
+        _prev_total_runtime        = current_total_time;
+        _prev_idle_runtime         = current_idle_time;
+
+        // calculate Core CPU usage over the window
+        if (delta_total > 0)
+        {
+            const uint32_t clamped_idle = std::min(delta_idle, delta_total);
+            const float    cpu_usage =
+                (1.0f - static_cast<float>(clamped_idle) / static_cast<float>(delta_total)) * 100.0f;
+            const float clamped_cpu_usage = std::clamp(cpu_usage, 0.0f, 100.0f);
+
+            if (_cpu_info.cpu_usage_setter != nullptr)
+            {
+                _cpu_info.cpu_usage_setter(clamped_cpu_usage);
+            }
+            _max_cpu_usage = std::max(_max_cpu_usage, clamped_cpu_usage);
+            if (_cpu_info.cpu_usage_max_setter != nullptr)
+            {
+                _cpu_info.cpu_usage_max_setter(_max_cpu_usage);
+            }
+        }
+
+        // check each registered task individually (preemptible O(1) runtime, preemptible stack check)
+        for (size_t i = 0; i < TaskCount; ++i)
+        {
+            if (_tasks_info[i].t == nullptr)
+            {
+                continue;
             }
 
-            // Calculate max stack usage
-            const float max_stack_usage = (1 - static_cast<float>(runTimeStats[task].usStackHighWaterMark) /
-                                                   static_cast<float>(_tasks_info[task].t->stackSize())) *
-                                          100;
-            _tasks_info[task].stack_usage_max_setter(max_stack_usage);
+            const auto handle = static_cast<TaskHandle_t>(_tasks_info[i].t->id());
+            if (handle == nullptr)
+            {
+                continue;
+            }
+
+            // task cpu usage delta
+            TaskStatus_t status;
+            vTaskGetInfo(handle, &status, pdFALSE, eRunning);
+
+            const uint32_t delta_task = status.ulRunTimeCounter - _prev_task_runtime[i];
+            _prev_task_runtime[i]     = status.ulRunTimeCounter;
+
+            if (delta_total > 0)
+            {
+                const float task_cpu = (static_cast<float>(delta_task) / static_cast<float>(delta_total)) * 100.0f;
+                const float clamped_task_cpu = std::clamp(task_cpu, 0.0f, 100.0f);
+
+                if (_tasks_info[i].cpu_usage_setter != nullptr)
+                {
+                    _tasks_info[i].cpu_usage_setter(clamped_task_cpu);
+                }
+                _max_task_cpu_usage[i] = std::max(_max_task_cpu_usage[i], clamped_task_cpu);
+                if (_tasks_info[i].cpu_usage_max_setter != nullptr)
+                {
+                    _tasks_info[i].cpu_usage_max_setter(_max_task_cpu_usage[i]);
+                }
+            }
+
+            // used preemptible high-water mark query
+            const UBaseType_t free_words  = uxTaskGetStackHighWaterMark(handle);
+            const size_t      total_words = _tasks_info[i].t->stackSize();
+            if (total_words > 0)
+            {
+                float stack_usage = 0.0f;
+                if (free_words < total_words)
+                {
+                    stack_usage = (1.0f - static_cast<float>(free_words) / static_cast<float>(total_words)) * 100.0f;
+                }
+                const float clamped_stack_usage = std::clamp(stack_usage, 0.0f, 100.0f);
+                _max_stack_usage[i]             = std::max(_max_stack_usage[i], clamped_stack_usage);
+
+                if (_tasks_info[i].stack_usage_max_setter != nullptr)
+                {
+                    _tasks_info[i].stack_usage_max_setter(_max_stack_usage[i]);
+                }
+            }
         }
     }
 };

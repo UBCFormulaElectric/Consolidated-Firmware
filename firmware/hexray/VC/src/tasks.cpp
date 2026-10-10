@@ -101,7 +101,7 @@ void tasks_run1Hz(void *arg)
     {
         jobs_run1Hz_tick();
         watchdog1hz.checkIn();
-        // runtimeMonitor.checkin();
+        runtimeMonitor.checkin();
         start_ticks += period_ms;
         io::time::delayUntil(start_ticks);
         osDelayUntil(start_ticks);
