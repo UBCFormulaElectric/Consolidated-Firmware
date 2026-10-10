@@ -68,7 +68,7 @@ void jobs_init()
 {
     io::can_tx::init(vehicle_transmit_func, charger_transmit_func);
     io::can_tx::enableMode_FDCAN(app::can_utils::FDCANMode::FDCAN_MODE_DEFAULT, true);
-    io::can_tx::enableMode_charger(app::can_utils::chargerMode::CHARGER_MODE_DEFAULT, false);
+    io::can_tx::enableMode_charger(app::can_utils::chargerMode::CHARGER_MODE_DEFAULT, true);
 
     can_rx_queue.init();
     vehicle_can_tx_queue.init();
