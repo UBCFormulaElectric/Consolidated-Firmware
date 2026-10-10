@@ -33,6 +33,8 @@ template <typename T> struct wheel_set
                 return rl;
             case Wheel::RR:
                 return rr;
+            default:
+                break;
         }
         return T(0);
     }

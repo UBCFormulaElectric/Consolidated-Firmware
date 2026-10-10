@@ -1,9 +1,11 @@
 #pragma once
 #include <cassert>
+#include <bitset>
 #include <Eigen/Dense>
 #include <dual.hpp>
 #include <gradient.hpp>
 
+#include "util_decimal_dual.hpp"
 #include "util_utils.hpp"
 
 constexpr Eigen::Index idx(auto i)
@@ -219,7 +221,7 @@ template <typename T, std::size_t STATES, std::size_t MEASUREMENTS, std::size_t 
  * - f[i]: computes x_dot[i] = f[i](x) where x is the full state vector
  * - h[i]: computes z_predicted[i] = h[i](x) where x is the full state vector
  */
-template <typename T, std::size_t STATES, std::size_t INPUTS, std::size_t... MEASUREMENT_DIMS> class ekf
+template <Decimal T, std::size_t STATES, std::size_t INPUTS, std::size_t... MEASUREMENT_DIMS> class ekf
 {
   public:
     using N_N = Eigen::Matrix<T, STATES, STATES>;
@@ -237,22 +239,48 @@ template <typename T, std::size_t STATES, std::size_t INPUTS, std::size_t... MEA
     from autodiff cpp. For this we assume that the vector of the user provided function is of the size N + U...
     Knowing this we can split the output jacobian based on the index
     */
-    using state_mtx           = Eigen::Matrix<autodiff::dual, STATES, 1>;
-    using state_inp_mtx       = Eigen::Matrix<autodiff::dual, STATES + INPUTS, 1>;
-    using StateFunction       = autodiff::dual (*)(const state_inp_mtx &);
-    using MeasurementFunction = autodiff::dual (*)(const state_mtx &);
+    // Dual number in the filter's own precision (autodiff::dual is always double).
+    using dual_t              = DecimalDual<T>;
+    using state_mtx           = Eigen::Matrix<dual_t, STATES, 1>;
+    using state_inp_mtx       = Eigen::Matrix<dual_t, STATES + INPUTS, 1>;
+    using StateFunction       = dual_t (*)(const state_inp_mtx &);
+    using MeasurementFunction = dual_t (*)(const state_mtx &);
 
     using PredictStep = std::array<StateFunction, STATES>;
 
-    template <std::size_t MEASUREMENTS> struct UpdateStep
+    template <std::size_t M> struct UpdateStep
     {
-        static constexpr std::size_t                  dim = MEASUREMENTS;
-        std::array<MeasurementFunction, MEASUREMENTS> h; // measurement functions for this update step
-        M_M<MEASUREMENTS>                             R; // measurement noise covariance
+        static constexpr std::size_t       dim = M;
+        std::array<MeasurementFunction, M> h; // measurement functions for this update step
+        M_M<M>                             R; // measurement noise covariance
+        T                                  innovation_gate_thres = 0;
+    };
+
+    template <std::size_t M> struct Measurement
+    {
+        M_1<M>         z     = M_1<M>::Zero();
+        std::bitset<M> valid = std::bitset<M>{}.set();
+
+        Measurement() = default;
+
+        template <std::convertible_to<T>... Vals>
+            requires(sizeof...(Vals) == M)
+        Measurement(const Vals... vals)
+        {
+            Eigen::Index i = 0;
+            ((z(i++) = static_cast<T>(vals)), ...);
+        }
+
+        static Measurement none()
+        {
+            Measurement m;
+            m.valid.reset();
+            return m;
+        }
     };
 
     using UpdateSteps  = std::tuple<UpdateStep<MEASUREMENT_DIMS>...>;
-    using Measurements = std::tuple<std::optional<M_1<MEASUREMENT_DIMS>>...>;
+    using Measurements = std::tuple<Measurement<MEASUREMENT_DIMS>...>;
 
     /**
      * @brief Constructor for EKF
@@ -309,10 +337,10 @@ template <typename T, std::size_t STATES, std::size_t INPUTS, std::size_t... MEA
     {
         state_inp_mtx base;
         for (std::size_t j = 0; j < STATES; ++j)
-            base(static_cast<Eigen::Index>(j)) = autodiff::dual(x_(static_cast<Eigen::Index>(j)));
+            base(static_cast<Eigen::Index>(j)) = dual_t(x_(static_cast<Eigen::Index>(j)));
 
         for (std::size_t k = 0; k < INPUTS; ++k)
-            base(static_cast<Eigen::Index>(STATES + k)) = autodiff::dual(u(static_cast<Eigen::Index>(k)));
+            base(static_cast<Eigen::Index>(STATES + k)) = dual_t(u(static_cast<Eigen::Index>(k)));
 
         /*
         lambda function developed to wrap a single function call around the array of functions in f_. This creates a
@@ -342,12 +370,12 @@ template <typename T, std::size_t STATES, std::size_t INPUTS, std::size_t... MEA
     std::pair<Eigen::Matrix<T, MEASUREMENTS, STATES>, Eigen::Matrix<T, MEASUREMENTS, 1>>
         compute_H_eval_y(const Eigen::Matrix<T, MEASUREMENTS, 1> &z, const UpdateStep<MEASUREMENTS> &update_step)
     {
-        using measurement_arr = Eigen::Matrix<autodiff::dual, MEASUREMENTS, 1>;
+        using measurement_arr = Eigen::Matrix<dual_t, MEASUREMENTS, 1>;
         using M_N             = Eigen::Matrix<T, MEASUREMENTS, STATES>;
 
         state_mtx base;
         for (std::size_t j = 0; j < STATES; ++j)
-            base(static_cast<Eigen::Index>(j)) = autodiff::dual(x_(static_cast<Eigen::Index>(j)));
+            base(static_cast<Eigen::Index>(j)) = dual_t(x_(static_cast<Eigen::Index>(j)));
 
         /*
         lambda function developed to wrap a single function call around the array of functions in h_. This creates a
@@ -411,7 +439,6 @@ template <typename T, std::size_t STATES, std::size_t INPUTS, std::size_t... MEA
         { (update_<I>(z), ...); }(std::make_index_sequence<NUM_UPDATES>());
     }
 
-    // TODO: Add outlier detection (either chi square or update shutoff)
     template <std::size_t I> void update_(const Measurements &z)
     {
         const auto           &step         = std::get<I>(update_steps_);
@@ -419,27 +446,43 @@ template <typename T, std::size_t STATES, std::size_t INPUTS, std::size_t... MEA
 
         using N_M = Eigen::Matrix<T, STATES, MEASUREMENTS>;
 
-        auto measurement_opt = std::get<I>(z);
+        auto measurement_data = std::get<I>(z);
 
         // If measurement is invalid do an early return and do not update the state and covariance
-        if (not measurement_opt.has_value())
+        if (measurement_data.valid.none())
             return;
 
-        M_1<MEASUREMENTS> measurement = measurement_opt.value();
+        M_1<MEASUREMENTS> measurement = measurement_data.z;
 
         // the jacobian function works by providing you the jacobian (partial derrivatives of a function with respect to
         // each variable) and at the same time evaluating
         auto [H, y] = compute_H_eval_y<MEASUREMENTS>(measurement, step);
-        const M_M<MEASUREMENTS> S =
+        M_M<MEASUREMENTS> S =
             H * P_ * H.transpose() + step.R; // find the evolution covariance using linearized measurement
-                                             // evolution functions and measurement noise
+
+        if (step.innovation_gate_thres > T(0))
+        {
+            for (std::size_t r = 0; r < MEASUREMENTS; ++r)
+            {
+                const T nis = y(r) * y(r) / S(r, r); // chi-square innovation gate
+
+                if (nis < step.innovation_gate_thres && measurement_data.valid[r])
+                    continue;
+
+                H.row(r).setZero();
+                y(r) = 0;
+            }
+        }
+
+        S = H * P_ * H.transpose() + step.R; // find the evolution covariance using linearized measurement
+
+        // evolution functions and measurement noise
         const N_M K =
-            P_ * H.transpose() *
-            S.llt().solve(Eigen::Matrix<T, MEASUREMENTS, MEASUREMENTS>::Identity()); // cholesky decomp to avoid
-                                                                                     // inversing computation overhead
+            P_ * H.transpose() * S.llt().solve(M_M<MEASUREMENTS>::Identity()); // cholesky decomp to avoid
+                                                                               // inversing computation overhead
 
         x_ = x_ + K * y;
-        P_ = (N_N::Identity() - K * H) * P_;
+        P_ = ((N_N::Identity() - K * H) * P_ * (N_N::Identity() - K * H).transpose()) + (K * step.R * K.transpose());
     }
 };
 } // namespace app::state_estimation

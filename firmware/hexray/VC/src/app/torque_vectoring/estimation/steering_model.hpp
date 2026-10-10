@@ -12,4 +12,4 @@ namespace app::tv::estimation::steering
  * @return WheelSteerAngles influenced by steering wheel input, rear wheels always 0 here
  */
 template <Decimal T> [[nodiscard]] app::tv::shared_datatypes::wheel_set<T> wheel_steer_angles(const T steer_ang_rad);
-} // namespace app::tv::estimators::steering
+} // namespace app::tv::estimation::steering

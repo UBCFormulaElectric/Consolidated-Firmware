@@ -1,11 +1,6 @@
 #pragma once
 
-#include "dual.hpp"
-
-template <typename T>
-concept Decimal = std::same_as<T, float> || std::same_as<T, double>;
-
-template <Decimal T> using DecimalDual = autodiff::HigherOrderDual<1, T>;
+#include "util_decimal_dual.hpp" // Decimal, DecimalDual
 
 // Precision the torque-vectoring code is compiled for. Every template is instantiated for this one type only, so a
 // build contains either the float or the double version, never both. Firmware uses float; define TV_DOUBLE_PRECISION

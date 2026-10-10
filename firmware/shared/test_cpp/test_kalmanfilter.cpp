@@ -2,7 +2,6 @@
 
 #include <array>
 #include <cmath>
-#include <optional>
 #include <random>
 #include <tuple>
 
@@ -53,31 +52,32 @@ using EkfV2       = Eigen::Matrix<float, 2, 1>;
 using EkfU3       = EkfVelocity::U_1;
 using EkfStateInp = EkfVelocity::state_inp_mtx;
 using EkfState    = EkfVelocity::state_mtx;
+using EkfDual     = EkfVelocity::dual_t;
 
-autodiff::dual velocity_state_x(const EkfStateInp &x)
+EkfDual velocity_state_x(const EkfStateInp &x)
 {
-    const autodiff::dual &vx  = x(0);
-    const autodiff::dual &vy  = x(1);
-    const autodiff::dual &ax  = x(2);
-    const autodiff::dual &yaw = x(4);
+    const EkfDual &vx  = x(0);
+    const EkfDual &vy  = x(1);
+    const EkfDual &ax  = x(2);
+    const EkfDual &yaw = x(4);
     return vx + kTimeStep * (ax + vy * yaw);
 }
 
-autodiff::dual velocity_state_y(const EkfStateInp &x)
+EkfDual velocity_state_y(const EkfStateInp &x)
 {
-    const autodiff::dual &vx  = x(0);
-    const autodiff::dual &vy  = x(1);
-    const autodiff::dual &ay  = x(3);
-    const autodiff::dual &yaw = x(4);
+    const EkfDual &vx  = x(0);
+    const EkfDual &vy  = x(1);
+    const EkfDual &ay  = x(3);
+    const EkfDual &yaw = x(4);
     return vy + kTimeStep * (ay + vx * yaw);
 }
 
-autodiff::dual velocity_meas_x(const EkfState &x)
+EkfDual velocity_meas_x(const EkfState &x)
 {
     return x(0);
 }
 
-autodiff::dual velocity_meas_y(const EkfState &x)
+EkfDual velocity_meas_y(const EkfState &x)
 {
     return x(1);
 }
@@ -357,7 +357,7 @@ TEST(ExtendedKalmanFilterTest, OneStepMatchesLinearizedReference)
 
     EkfVelocity filter(f, Q, update_steps, x0, P0);
 
-    EkfVelocity::Measurements meas = std::make_tuple(std::optional{ z });
+    EkfVelocity::Measurements meas{ EkfVelocity::Measurement<2>{ z(0), z(1) } };
 
     // Manual nonlinear predict and analytic Jacobian linearization.
     const EkfV2 x_pred     = velocity_model_step(x0, u);
@@ -421,7 +421,7 @@ TEST(ExtendedKalmanFilterTest, VeryLowMeasurementNoiseSnapsTowardMeasurement)
 
     EkfVelocity filter(f, Q, update_steps, x0, P0);
 
-    EkfVelocity::Measurements meas = std::make_tuple(std::optional{ z });
+    EkfVelocity::Measurements meas{ EkfVelocity::Measurement<2>{ z(0), z(1) } };
 
     const EkfV2 x_actual = filter.estimated_states(u, meas);
     const EkfN2 P_actual = filter.covariance();
@@ -487,7 +487,7 @@ TEST(ExtendedKalmanFilterTest, SilLoopRemainsStableAndTracksState)
         EkfV2 z;
         z << x_true(0) + meas_noise(rng), x_true(1) + meas_noise(rng);
 
-        EkfVelocity::Measurements meas = std::make_tuple(std::optional{ z });
+        EkfVelocity::Measurements meas{ EkfVelocity::Measurement<2>{ z(0), z(1) } };
 
         const EkfV2 x_est = filter.estimated_states(u, meas);
         const EkfN2 P     = filter.covariance();

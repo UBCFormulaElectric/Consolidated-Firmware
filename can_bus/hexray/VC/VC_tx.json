@@ -261,43 +261,85 @@
       "log_cycle_time": 1000
     }
   },
-  "VehicleDynamics": {
+  "VehicleStateEstimator": {
     "msg_id": 510,
     "cycle_time": 100,
-    "description": "Vehicle dynamics info",
+    "description": "Vehicle State Estimator runtime information",
     "signals": {
-      "RegenEnabled": {
-        "bits": 1
+      "EkfEstVx": {
+        "resolution": 0.01,
+        "signed": true,
+        "min": -10,
+        "max": 60,
+        "unit": "m/s"
       },
-      "TorqueVectoringEnabled": {
-        "bits": 1
+      "EkfEstVy": {
+        "resolution": 0.01,
+        "signed": true,
+        "min": -20,
+        "max": 20,
+        "unit": "m/s"
       },
-      "VehicleVelocity": {
-        "bits": 8
+      "EkfPredVx": {
+        "resolution": 0.01,
+        "signed": true,
+        "min": -10,
+        "max": 60,
+        "unit": "m/s"
       },
-      "ReferenceYawRate": {
+      "EkfPredVy": {
+        "resolution": 0.01,
+        "signed": true,
+        "min": -20,
+        "max": 20,
+        "unit": "m/s"
+      },
+      "EkfPredMotorRpmFL": {
+        "resolution": 0.5,
+        "signed": true,
+        "min": -1000,
+        "max": 25000,
+        "unit": "rpm"
+      },
+      "EkfPredMotorRpmFR": {
+        "resolution": 0.5,
+        "signed": true,
+        "min": -1000,
+        "max": 25000,
+        "unit": "rpm"
+      },
+      "EkfPredMotorRpmRL": {
+        "resolution": 0.5,
+        "signed": true,
+        "min": -1000,
+        "max": 25000,
+        "unit": "rpm"
+      },
+      "EkfPredMotorRpmRR": {
+        "resolution": 0.5,
+        "signed": true,
+        "min": -1000,
+        "max": 25000,
+        "unit": "rpm"
+      },
+      "EkfCovVxVx": {
+        "resolution": 0.001,
+        "min": 0,
+        "max": 100,
+        "unit": "(m/s)^2"
+      },
+      "EkfCovVxVy": {
+        "resolution": 0.001,
+        "signed": true,
         "min": -100,
         "max": 100,
-        "resolution": 0.1,
-        "signed": true
+        "unit": "(m/s)^2"
       },
-      "CorrectionYawRate": {
-        "min": -100,
+      "EkfCovVyVy": {
+        "resolution": 0.001,
+        "min": 0,
         "max": 100,
-        "resolution": 0.1,
-        "signed": true
-      },
-      "FrontYawMoment": {
-        "min": -100,
-        "max": 100,
-        "resolution": 0.1,
-        "signed": true
-      },
-      "RearYawMoment": {
-        "min": -100,
-        "max": 100,
-        "resolution": 0.1,
-        "signed": true
+        "unit": "(m/s)^2"
       }
     },
     "data_capture": {

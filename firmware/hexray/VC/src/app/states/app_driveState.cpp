@@ -6,12 +6,18 @@
 #include "app_startSwitch.hpp"
 #include "app_states.hpp"
 #include "app_bspdwarning.hpp"
+#include "app_imu.hpp"
 
+#include "torque_vectoring/shared_datatypes/constants.hpp"
 #include "torque_vectoring/shared_datatypes/torque_limits.hpp"
 #include "torque_vectoring/torque_vectoring.hpp"
+#include "torque_vectoring/estimation/vehicle_state_estimator.hpp"
+#include "torque_vectoring/tv_debug.h"
+#include "util_units.hpp"
 
 #include "io_log.hpp"
 #include "io_pcm.hpp"
+#include "io_imus.hpp"
 
 using namespace app::can_utils;
 using namespace app::inverter;
@@ -86,6 +92,49 @@ static void driveStateRunOnTick100Hz()
         send_torque(NO_TORQUE_Nm, NO_TORQUE_Nm, NO_TORQUE_Nm, NO_TORQUE_Nm);
         return;
     }
+
+    // state estimator
+    // The estimator works in SI units: the IMU driver gives g and deg/s, the inverters give motor rpm and the FSM
+    // gives the steering wheel angle in deg, so convert here.
+    static std::size_t tick = 0;
+
+    if (tick++ % 5 == 0)
+    {
+        using app::tv::shared_datatypes::vd_constants::GRAVITY;
+
+        const app::tv::estimation::Measurements meas = {
+            .ax_mps2        = app::imu::getAccelX().value_or(0.0f) * GRAVITY,
+            .ay_mps2        = app::imu::getAccelY().value_or(0.0f) * GRAVITY,
+            .yaw_rate_radps = DEG_TO_RAD(app::imu::getGyroZ().value_or(0.0f)),
+            .omegas   = {
+                .fl = MOTOR_RPM_TO_WHEEL_RADPS(static_cast<float>(app::can_rx::INVFL_ActualVelocity_get())),
+                .fr = MOTOR_RPM_TO_WHEEL_RADPS(static_cast<float>(app::can_rx::INVFR_ActualVelocity_get())),
+                .rl = MOTOR_RPM_TO_WHEEL_RADPS(static_cast<float>(app::can_rx::INVRL_ActualVelocity_get())),
+                .rr = MOTOR_RPM_TO_WHEEL_RADPS(static_cast<float>(app::can_rx::INVRR_ActualVelocity_get())),
+            },
+            .delta        = DEG_TO_RAD(app::can_rx::FSM_SteeringAngle_get()),
+            .gps_vx_mps   = 0.0f,
+            .gps_vy_mps   = 0.0f,
+            .sbg_ekf_mode = app::can_utils::VcEkfStatus::UNINITIALIZED,
+        };
+
+        const app::tv::shared_datatypes::VehicleState<float> vehicle_state =
+            app::tv::estimation::VehicleStateEstimator::estimate(meas);
+
+        const veh_ekf_info &ekf = tv_debug_data.ekf_info;
+        can_tx::VC_EkfEstVx_set(vehicle_state.v_x_mps);
+        can_tx::VC_EkfEstVy_set(vehicle_state.v_y_mps);
+        can_tx::VC_EkfPredVx_set(static_cast<float>(ekf.pred_v_x));
+        can_tx::VC_EkfPredVy_set(static_cast<float>(ekf.pred_v_y));
+        can_tx::VC_EkfPredMotorRpmFL_set(WHEEL_RADPS_TO_MOTOR_RPM(static_cast<float>(ekf.pred_omegas[0])));
+        can_tx::VC_EkfPredMotorRpmFR_set(WHEEL_RADPS_TO_MOTOR_RPM(static_cast<float>(ekf.pred_omegas[1])));
+        can_tx::VC_EkfPredMotorRpmRL_set(WHEEL_RADPS_TO_MOTOR_RPM(static_cast<float>(ekf.pred_omegas[2])));
+        can_tx::VC_EkfPredMotorRpmRR_set(WHEEL_RADPS_TO_MOTOR_RPM(static_cast<float>(ekf.pred_omegas[3])));
+        can_tx::VC_EkfCovVxVx_set(static_cast<float>(ekf.covariance[0]));
+        can_tx::VC_EkfCovVxVy_set(static_cast<float>(ekf.covariance[1])); // P is symmetric: covariance[2] == [1]
+        can_tx::VC_EkfCovVyVy_set(static_cast<float>(ekf.covariance[3]));
+    }
+
     // TODO: add driving algorithm handling here
     const float pedal_torque_request = apps_percentage * MAX_TORQUE_REQUEST_Nm / 100.0f;
 

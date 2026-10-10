@@ -87,6 +87,18 @@ inline constexpr float GEAR_RATIO        = 14.3f; // Verified by Noah
     return static_cast<int>(kmh / (WHEEL_DIAMETER_IN * M_PI_F * INCH_TO_KM * MIN_TO_HOUR / GEAR_RATIO));
 }
 
+// Convert motor RPM to wheel angular velocity (rad/s), through the gearbox
+[[nodiscard]] inline constexpr float MOTOR_RPM_TO_WHEEL_RADPS(const float motor_rpm)
+{
+    return RPM_TO_RADS(motor_rpm) / GEAR_RATIO;
+}
+
+// Convert wheel angular velocity (rad/s) to motor RPM, through the gearbox
+[[nodiscard]] inline constexpr float WHEEL_RADPS_TO_MOTOR_RPM(const float wheel_radps)
+{
+    return wheel_radps * GEAR_RATIO * 30.0f / M_PI_F;
+}
+
 // Convert vehicle speed (km/h) to wheel RPM (no gear ratio)
 [[nodiscard]] inline constexpr int WHEEL_KMH_TO_RPM(const float kmh)
 {

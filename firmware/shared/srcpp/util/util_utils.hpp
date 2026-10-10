@@ -3,14 +3,7 @@
 #define NUM_ELEMENTS_IN_ARRAY(array_pointer) sizeof(array_pointer) / sizeof(array_pointer[0])
 
 #ifdef __cplusplus
-#include <algorithm>
 #include <cmath>
-template <typename T, typename... U> [[nodiscard]] inline constexpr T MIN_OF(const T x, const U... y)
-{
-    T result = x;
-    ((result = std::min(result, y)), ...);
-    return result;
-}
 
 template <typename T> [[nodiscard]] inline constexpr T SQUARE(const T x)
 {

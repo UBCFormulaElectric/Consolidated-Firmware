@@ -21,8 +21,8 @@ namespace
 {
     // ---- Optimizer tuning ----
     constexpr float W_FX = 0.5f;
-    constexpr float W_MZ = 0.05f;
-    constexpr float W_R  = 0.01f;
+    constexpr float W_MZ = 5.0f;
+    constexpr float W_R  = 5.0f;
 
     constexpr int MAX_ITER = 20;
     // Static bound on each wheel's slip target. The tire's Fx peak moves with slip angle (~0.09 at alpha = 0,

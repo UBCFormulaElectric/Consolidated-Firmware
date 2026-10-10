@@ -70,8 +70,9 @@ template <Decimal T> T compute_accel_request(T apps, T brakes, T v_x_mps, bool r
              * and then the last 70% would produce a positive torque
              */
 
-            T speed_derate_factor = std::clamp((v_x_mps - MIN_SPEED_REGEN_KMH) / MIN_SPEED_REGEN_KMH, T(0), T(1));
-            accel_request_percent = (apps_remap / REGEN_PEDAL_REGION) * speed_derate_factor;
+            const T v_x_kmh             = static_cast<T>(MPS_TO_KMH(static_cast<float>(v_x_mps)));
+            T       speed_derate_factor = std::clamp((v_x_kmh - MIN_SPEED_REGEN_KMH) / MIN_SPEED_REGEN_KMH, T(0), T(1));
+            accel_request_percent       = (apps_remap / REGEN_PEDAL_REGION) * speed_derate_factor;
         }
         else if (apps_remap < PEDAL_DEADZONE)
         {

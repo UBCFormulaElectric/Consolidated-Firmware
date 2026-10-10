@@ -128,14 +128,14 @@ void estimate_matlab(
     double    steer,
     double    gps_v_x,
     double    gps_v_y,
-    double    *est_v_x,
-    double    *est_v_y,
+    double   *est_v_x,
+    double   *est_v_y,
     tv_debug *debug)
 {
     const app::tv::estimation::Measurements meas = {
-        .ax = static_cast<tv_real>(a_x),
-        .ay = static_cast<tv_real>(a_y),
-        .yaw_rate = static_cast<tv_real>(yaw_rate),
+        .ax_mps2        = static_cast<tv_real>(a_x),
+        .ay_mps2        = static_cast<tv_real>(a_y),
+        .yaw_rate_radps = static_cast<tv_real>(yaw_rate),
         .omegas = {
             .fl = static_cast<tv_real>(omegas[0]),
             .fr = static_cast<tv_real>(omegas[1]),
@@ -149,5 +149,6 @@ void estimate_matlab(
 
     *est_v_x = state.v_x_mps;
     *est_v_y = state.v_y_mps;
+    *debug   = tv_debug_data;
 }
 #endif // TARGET_EMBEDDED

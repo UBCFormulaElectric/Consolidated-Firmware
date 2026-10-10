@@ -18,6 +18,7 @@ template <Decimal T> struct VehicleState
     T            apps           = 0.0f;
     T            brake          = 0.0f; // brake pedal, 0..1
     wheel_set<T> delta{};
+    wheel_set<T> omegas{};
 
     /**
      * @return vector of vy each in the frame of the respective tire
