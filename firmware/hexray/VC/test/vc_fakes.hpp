@@ -30,7 +30,13 @@ namespace sbgEllipse
                 float down,
                 float north_std_dev,
                 float east_std_dev,
-                float down_std_dev);
+                float down_std_dev,
+                float x,
+                float y,
+                float z,
+                float x_std_dev,
+                float y_std_dev,
+                float z_std_dev);
     void setAngularVelocity(float roll_rate, float pitch_rate, float yaw_rate);
     void setLinearAcceleration(float x_accel, float y_accel, float z_accel);
     void setGeneralStatus(uint16_t status);

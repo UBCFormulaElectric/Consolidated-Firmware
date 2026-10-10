@@ -365,7 +365,7 @@
       },
       "VelocityNorthAccuracy": {
         "resolution": 0.1,
-        "min": 0,
+        "min": -35,
         "max": 35,
         "unit": "m/s"
       },
@@ -378,7 +378,7 @@
       },
       "VelocityEastAccuracy": {
         "resolution": 0.1,
-        "min": 0,
+        "min": -35,
         "max": 35,
         "unit": "m/s"
       },
@@ -391,7 +391,46 @@
       },
       "VelocityDownAccuracy": {
         "resolution": 0.1,
-        "min": 0,
+        "min": -35,
+        "max": 35,
+        "unit": "m/s"
+      },
+      "VelocityX": {
+        "resolution": 0.05,
+        "signed": true,
+        "min": -35,
+        "max": 35,
+        "unit": "m/s"
+      },
+      "VelocityXAccuracy": {
+        "resolution": 0.1,
+        "min": -35,
+        "max": 35,
+        "unit": "m/s"
+      },
+      "VelocityY": {
+        "resolution": 0.05,
+        "signed": true,
+        "min": -35,
+        "max": 35,
+        "unit": "m/s"
+      },
+      "VelocityYAccuracy": {
+        "resolution": 0.1,
+        "min": -35,
+        "max": 35,
+        "unit": "m/s"
+      },
+      "VelocityZ": {
+        "resolution": 0.05,
+        "signed": true,
+        "min": -35,
+        "max": 35,
+        "unit": "m/s"
+      },
+      "VelocityZAccuracy": {
+        "resolution": 0.1,
+        "min": -35,
         "max": 35,
         "unit": "m/s"
       }
