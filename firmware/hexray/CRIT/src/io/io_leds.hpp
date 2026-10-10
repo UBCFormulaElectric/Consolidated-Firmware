@@ -77,6 +77,6 @@ result<void> update(const config &c);
  */
 result<void> setBrightness(float brightness);
 
-void boot_set(bool val); 
+void boot_set(bool val);
 void debug_set(bool val);
 } // namespace io::leds
