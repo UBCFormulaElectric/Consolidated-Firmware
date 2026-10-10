@@ -1,10 +1,10 @@
 name: Build DBC Action
-description: Builds the DBC file from the JSON files to ./quintuna.dbc
+description: Builds the DBC file from the JSON files to ./hexray.dbc
 runs:
   using: "composite"
   steps:
-    - name: Generate Quintuna DBC
+    - name: Generate Hexray DBC
       shell: bash
       run: |
-        python3 -m scripts.code_generation.jsoncan.generate_can_from_json \
-          --only_dbc --can_data_dir "can_bus/quintuna" --dbc_output "quintuna.dbc"
+        cargo run --release --manifest-path scripts/code_generation/jsoncan-rust/Cargo.toml --bin cppcodegen -- \
+          --only-dbc --board VC --can-data-dir "can_bus/hexray" --output-dir . --dbc-output "hexray.dbc"
