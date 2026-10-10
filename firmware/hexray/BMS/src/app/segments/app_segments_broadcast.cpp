@@ -19,33 +19,19 @@ BroadcastBuffer<uint8_t, MAX_NUM_SEGMENTS, io::can_tx::BMS_SegmentCMDCNT_sendApe
     segment_cmdcnt_buffer(app::can_tx::BMS_SegmentCMDCNT_getData());
 
 // Debug Messages
-CellBroadcaster<
-    float,
-    io::can_tx::BMS_CellVoltages_Seg0_Seg1_sendAperiodic,
-    io::can_tx::BMS_CellVoltages_Seg2_Seg3_sendAperiodic,
-    io::can_tx::BMS_CellVoltages_Seg4_Seg5_sendAperiodic,
-    io::can_tx::BMS_CellVoltages_Seg6_Seg7_sendAperiodic,
-    io::can_tx::BMS_CellVoltages_Seg8_Seg9_sendAperiodic>
-    cell_voltage_setters(
-        app::can_tx::BMS_CellVoltages_Seg0_Seg1_getData(),
-        app::can_tx::BMS_CellVoltages_Seg2_Seg3_getData(),
-        app::can_tx::BMS_CellVoltages_Seg4_Seg5_getData(),
-        app::can_tx::BMS_CellVoltages_Seg6_Seg7_getData(),
-        app::can_tx::BMS_CellVoltages_Seg8_Seg9_getData());
+CellBroadcaster<float, 5> cell_voltage_setters(
+    app::can_tx::BMS_CellVoltages_Seg0_Seg1_getData(),
+    app::can_tx::BMS_CellVoltages_Seg2_Seg3_getData(),
+    app::can_tx::BMS_CellVoltages_Seg4_Seg5_getData(),
+    app::can_tx::BMS_CellVoltages_Seg6_Seg7_getData(),
+    app::can_tx::BMS_CellVoltages_Seg8_Seg9_getData());
 
-CellBroadcaster<
-    float,
-    io::can_tx::BMS_CellTemps_Seg0_Seg1_sendAperiodic,
-    io::can_tx::BMS_CellTemps_Seg2_Seg3_sendAperiodic,
-    io::can_tx::BMS_CellTemps_Seg4_Seg5_sendAperiodic,
-    io::can_tx::BMS_CellTemps_Seg6_Seg7_sendAperiodic,
-    io::can_tx::BMS_CellTemps_Seg8_Seg9_sendAperiodic>
-    cell_temperature_setters(
-        app::can_tx::BMS_CellTemps_Seg0_Seg1_getData(),
-        app::can_tx::BMS_CellTemps_Seg2_Seg3_getData(),
-        app::can_tx::BMS_CellTemps_Seg4_Seg5_getData(),
-        app::can_tx::BMS_CellTemps_Seg6_Seg7_getData(),
-        app::can_tx::BMS_CellTemps_Seg8_Seg9_getData());
+CellBroadcaster<float, 5> cell_temperature_setters(
+    app::can_tx::BMS_CellTemps_Seg0_Seg1_getData(),
+    app::can_tx::BMS_CellTemps_Seg2_Seg3_getData(),
+    app::can_tx::BMS_CellTemps_Seg4_Seg5_getData(),
+    app::can_tx::BMS_CellTemps_Seg6_Seg7_getData(),
+    app::can_tx::BMS_CellTemps_Seg8_Seg9_getData());
 
 BroadcastBuffer<float, MAX_NUM_SEGMENTS, io::can_tx::BMS_SegmentVoltages_sendAperiodic>
     segment_voltage_buffer(app::can_tx::BMS_SegmentVoltages_getData());
@@ -98,6 +84,7 @@ BroadcastBuffer<bool, MAX_NUM_SEGMENTS * CELLS_PER_SEGMENT, io::can_tx::BMS_Cell
 
 CellBroadcaster<
     uint8_t,
+    3,
     io::can_tx::BMS_CellPwmDuty_Seg0_Seg3_sendAperiodic,
     io::can_tx::BMS_CellPwmDuty_Seg4_Seg7_sendAperiodic,
     io::can_tx::BMS_CellPwmDuty_Seg8_Seg9_sendAperiodic>
@@ -114,6 +101,7 @@ constexpr CanErr toCanErr(const ErrorCode e)
 
 CellBroadcaster<
     CanErr,
+    3,
     io::can_tx::BMS_CellVoltageErrors_Seg0_Seg3_sendAperiodic,
     io::can_tx::BMS_CellVoltageErrors_Seg4_Seg7_sendAperiodic,
     io::can_tx::BMS_CellVoltageErrors_Seg8_Seg9_sendAperiodic>
@@ -124,6 +112,7 @@ CellBroadcaster<
 
 CellBroadcaster<
     CanErr,
+    3,
     io::can_tx::BMS_CellTempErrors_Seg0_Seg3_sendAperiodic,
     io::can_tx::BMS_CellTempErrors_Seg4_Seg7_sendAperiodic,
     io::can_tx::BMS_CellTempErrors_Seg8_Seg9_sendAperiodic>
@@ -134,6 +123,7 @@ CellBroadcaster<
 
 CellBroadcaster<
     CanErr,
+    3,
     io::can_tx::BMS_CellOpenWireCheckErrors_Seg0_Seg3_sendAperiodic,
     io::can_tx::BMS_CellOpenWireCheckErrors_Seg4_Seg7_sendAperiodic,
     io::can_tx::BMS_CellOpenWireCheckErrors_Seg8_Seg9_sendAperiodic>
@@ -144,6 +134,7 @@ CellBroadcaster<
 
 CellBroadcaster<
     CanErr,
+    3,
     io::can_tx::BMS_ThermistorOpenWireCheckErrors_Seg0_Seg3_sendAperiodic,
     io::can_tx::BMS_ThermistorOpenWireCheckErrors_Seg4_Seg7_sendAperiodic,
     io::can_tx::BMS_ThermistorOpenWireCheckErrors_Seg8_Seg9_sendAperiodic>
@@ -177,7 +168,6 @@ namespace debug
         {
             cell_voltage_setters.fill(-0.1f);
             cell_voltage_error_setters.fill(toCanErr(start_ok.error()));
-            cell_voltage_setters.send();
             cell_voltage_error_setters.send();
             return;
         }
@@ -198,7 +188,6 @@ namespace debug
                 cell_voltage_error_setters[seg][cell] = app::can_utils::ErrorCode::NO_SEGMENT_DEFINED;
             }
         }
-        cell_voltage_setters.send();
         cell_voltage_error_setters.send();
     }
 
@@ -261,7 +250,6 @@ namespace debug
         {
             cell_temperature_setters.fill(-0.1f);
             cell_temperature_error_setters.fill(toCanErr(poll_ok.error()));
-            cell_temperature_setters.send();
             cell_temperature_error_setters.send();
             return;
         }
@@ -283,7 +271,6 @@ namespace debug
                 cell_temperature_error_setters[seg][therm] = app::can_utils::ErrorCode::NO_SEGMENT_DEFINED;
             }
         }
-        cell_temperature_setters.send();
         cell_temperature_error_setters.send();
     }
 
