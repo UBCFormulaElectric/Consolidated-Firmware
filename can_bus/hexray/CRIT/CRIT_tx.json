@@ -65,6 +65,9 @@
       "DriveMode": {
         "enum": "DriveMode"
       }
+      ,"TorqueVectoringSwitch": {
+        "enum": "SwitchState"
+      }
     },
     "data_capture": {
       "telem_cycle_time": 1000,

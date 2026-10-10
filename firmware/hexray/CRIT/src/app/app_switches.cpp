@@ -18,7 +18,6 @@ namespace
     }
 } // namespace
 
- 
 bool start_get()
 {
     static Signal start_signal(DEBOUNCE_TIME, DEBOUNCE_TIME);
@@ -31,9 +30,22 @@ bool telem_get()
     return getDebouncedstate(io::switches::telem_mark_get(), telem_signal);
 }
 
+bool regen_get()
+{
+    static Signal regen_signal(DEBOUNCE_TIME, DEBOUNCE_TIME);
+    return getDebouncedstate(io::switches::regen_get(), regen_signal);
+}
+
+bool torque_vectoring_get()
+{
+    static Signal torque_vectoring_signal(DEBOUNCE_TIME, DEBOUNCE_TIME);
+    return getDebouncedstate(io::switches::torque_vectoring_get(), torque_vectoring_signal);
+}
+
 void broadcast()
 {
     // update the state from the switches
     app::can_tx::CRIT_StartButton_set(static_cast<SwitchState>(start_get()));
+    app::can_tx::CRIT_TorqueVectoringSwitch_set(static_cast<SwitchState>(torque_vectoring_get()));
 }
 } // namespace app::switches

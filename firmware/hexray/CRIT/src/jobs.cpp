@@ -43,10 +43,9 @@ void jobs_run1Hz_tick()
 }
 void jobs_run100Hz_tick()
 {
-
-    // ADD YOUR LOGIC HERE 
-
-
+    // ADD YOUR LOGIC HERE
+    io::leds::debug_set(app::switches::torque_vectoring_get());
+    io::leds::boot_set(app::switches::regen_get());
     //
     app::switches::broadcast();
 

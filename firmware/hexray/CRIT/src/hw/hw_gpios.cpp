@@ -3,6 +3,10 @@
 
 const hw::gpio push_drive_sig(PUSH_DRIVE_SIG_GPIO_Port, PUSH_DRIVE_SIG_Pin);
 const hw::gpio telem_sig(TELEM_SIG_GPIO_Port, TELEM_SIG_Pin);
+const hw::gpio regen_sig(REGEN_SIG_GPIO_Port, REGEN_SIG_Pin);
+const hw::gpio torque_vectoring_sig(TORQUE_VECTORING_SIG_GPIO_Port, TORQUE_VECTORING_SIG_Pin);
+const hw::gpio boot_led(BOOT_GPIO_Port, BOOT_Pin);
+const hw::gpio debug_led(LED_GPIO_Port, LED_Pin);
 const hw::gpio rot_s(ROT_S_GPIO_Port, ROT_S_Pin);
 const hw::gpio rot_b(ROT_B_GPIO_Port, ROT_B_Pin);
 const hw::gpio rot_a(ROT_A_GPIO_Port, ROT_A_Pin);
