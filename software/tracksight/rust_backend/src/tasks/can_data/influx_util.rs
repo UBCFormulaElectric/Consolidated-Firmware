@@ -40,8 +40,7 @@ pub async fn flush_buffer(buffer: &mut Vec<DataPoint>, client: &Client) {
 /**
  * helper to build InfluxDB data point
  */
-pub fn build_data_point(decoded_signal: DecodedSignal, source: InfluxSignalSource) -> Result<DataPoint, DataPointError> {
-    let boot_state = BOOT_STATE.get().unwrap().borrow();
+pub fn build_data_point(boot_state: &Option<BootState>, decoded_signal: DecodedSignal, source: InfluxSignalSource) -> Result<DataPoint, DataPointError> {
     DataPoint::builder(&CONFIG.influxdb_measurement)
         .field("_value", decoded_signal.value)
         .tag("signal_name", &decoded_signal.name)
@@ -52,8 +51,7 @@ pub fn build_data_point(decoded_signal: DecodedSignal, source: InfluxSignalSourc
         .build()
 }
 
-pub fn build_marker_data_point(decoded_marker: DecodedMarker, source: InfluxSignalSource) -> Result<DataPoint, DataPointError> {
-    let boot_state = BOOT_STATE.get().unwrap().borrow();
+pub fn build_marker_data_point(boot_state: &Option<BootState>, decoded_marker: DecodedMarker, source: InfluxSignalSource) -> Result<DataPoint, DataPointError> {
     DataPoint::builder(&CONFIG.influxdb_measurement)
         .field("_value", 1.0)
         .tag("signal_name", &decoded_marker.name)
