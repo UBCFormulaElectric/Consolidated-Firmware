@@ -11,7 +11,6 @@ use crate::{config::CONFIG, tasks::{HealthCheckSender, HealthCheckSenderExt, Res
  * this task consumes the messages and writes them to influxdb
  */
 pub async fn run_influx_handler(
-    mut shutdown_rx: broadcast::Receiver<()>, 
     health_check_tx: HealthCheckSender,
     mut decoded_signal_rx: Receiver<DecodedItem>
 ) {
@@ -30,6 +29,8 @@ pub async fn run_influx_handler(
     influx_client.health().await.unwrap_or_fail_health_check(&health_check_tx, Task::InfluxHandler).await;
     
     health_check_tx.send_health_check(Task::InfluxHandler, true).await;
+
+    let mut shutdown_rx = crate::SHUTDOWN_SIGNAL.get().unwrap().resubscribe();
 
     'main: loop {
         select! {

@@ -3,7 +3,7 @@ use std::{collections::{HashMap, HashSet}, f64::consts::TAU, sync::Arc, time::{D
 use jsoncan_rust::can_database::{CanDatabase, CanSignalType, DecodedSignal};
 use tokio::{select, sync::broadcast, sync::RwLock};
 
-use crate::{tasks::client_api::signal_metadata::{get_all_signal_metadatas, SignalMetadata}, utils::yellow};
+use crate::{tasks::client_api::signal_metadata::{get_all_signal_metadatas, SignalMetadata}, utils::yellow, SHUTDOWN_SIGNAL};
 use crate::{tasks::{HealthCheckSender, HealthCheckSenderExt, Task}, tasks::telem_message::CanPayload, vprintln};
 use crate::Clients;
 
@@ -55,7 +55,6 @@ fn update_mock_alerts(
  * Mocks serial handler
  */
 pub async fn run_mock_task(
-    mut shutdown_rx: broadcast::Receiver<()>, 
     health_check_tx: HealthCheckSender, 
     can_queue_tx: broadcast::Sender<CanPayload>, 
     _diag_tx: broadcast::Sender<f64>,
@@ -64,6 +63,7 @@ pub async fn run_mock_task(
 ) {
     vprintln!("{}", yellow("Mock task started."));
     let mut i: u32 = 0;
+    let mut shutdown_rx = SHUTDOWN_SIGNAL.get().unwrap().resubscribe();
 
     health_check_tx.send_health_check(Task::SerialHandler, true).await;
     
@@ -79,7 +79,7 @@ pub async fn run_mock_task(
         alerts_by_msg.entry(alert.msg_name.clone()).or_default().push(alert);
     }
     let mut active_alerts: HashMap<String, Instant> = HashMap::new();
-
+    
     loop {
         select! {
             _ = shutdown_rx.recv() => {
