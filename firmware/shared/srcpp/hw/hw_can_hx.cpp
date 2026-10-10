@@ -227,7 +227,7 @@ CFUNC void HAL_FDCAN_ErrorStatusCallback(FDCAN_HandleTypeDef *hfdcan, const uint
         HAL_FDCAN_GetProtocolStatus(hfdcan, &protocolStatus);
         if (protocolStatus.BusOff)
         {
-            LOG_ERROR("FDCAN is in BUS OFF state!");
+            LOG_ERROR("FDCAN is in BUS OFF state! LEC=%lu", protocolStatus.LastErrorCode);
             CLEAR_BIT(hfdcan->Instance->CCCR, FDCAN_CCCR_INIT);
         }
     }

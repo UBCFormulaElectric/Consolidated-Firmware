@@ -54,13 +54,13 @@ TEST_F(VCLoadSwitchTest, load_switch_broadcast_on)
     bms_efuse.setChannel(true);
     bms_efuse.setChannelCurrent(1.23f);
     app::powerManager::efuseProtocolTick_100Hz();
-    ASSERT_TRUE(app::can_tx::VC_BMSStatus_get());
+    ASSERT_TRUE(app::can_tx::VC_BmsStatus_get());
     ASSERT_FLOAT_EQ(1.23f, app::can_tx::VC_BMSCurrent_get());
 
     dam_efuse.setChannel(true);
     dam_efuse.setChannelCurrent(1.23f);
     app::powerManager::efuseProtocolTick_100Hz();
-    ASSERT_TRUE(app::can_tx::VC_DAMStatus_get());
+    ASSERT_TRUE(app::can_tx::VC_DamStatus_get());
     ASSERT_FLOAT_EQ(1.23f, app::can_tx::VC_DAMCurrent_get());
 
     front_efuse.setChannel(true);
@@ -72,7 +72,7 @@ TEST_F(VCLoadSwitchTest, load_switch_broadcast_on)
     rsm_efuse.setChannel(true);
     rsm_efuse.setChannelCurrent(1.23f);
     app::powerManager::efuseProtocolTick_100Hz();
-    ASSERT_TRUE(app::can_tx::VC_RSMStatus_get());
+    ASSERT_TRUE(app::can_tx::VC_RsmStatus_get());
     ASSERT_FLOAT_EQ(1.23f, app::can_tx::VC_RSMCurrent_get());
 
     rl_pump_efuse.setChannel(true);
