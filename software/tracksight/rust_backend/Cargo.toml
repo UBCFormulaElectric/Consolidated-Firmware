@@ -11,6 +11,7 @@ debug = ["verbose"]
 [dependencies]
 jsoncan_rust = { git = "https://github.com/UBCFormulaElectric/Consolidated-Firmware.git", branch = "master" }
 logfs = { git = "https://github.com/UBCFormulaElectric/Consolidated-Firmware.git", branch = "master" }
+logfs_export = { git = "https://github.com/UBCFormulaElectric/Consolidated-Firmware.git", branch = "master" }
 
 serialport = "4.0"
 ctrlc = "3.5"
@@ -35,4 +36,3 @@ chrono = "0.4.44"
 num-traits = "0.2.19"
 strum = { version = "0.26", features = ["derive"] }
 rand = { version = "0.10.3", features = ["thread_rng"] }
-rust_xlsxwriter = { version = "0.99.1", features = ["chrono", "constant_memory"] }
