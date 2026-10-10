@@ -3,8 +3,8 @@ use std::{fs, path::Path, sync::Arc};
 use influxdb2::models::DataPoint;
 use jsoncan_rust::can_database::{CanDatabase, DecodedSignal};
 use logfs::{LogFsErr, logfs::{LogFs, LogFsUnixDisk}};
-
-use crate::{can_log::parse_can_log_frames, tasks::can_data::influx_util::{InfluxSignalSource, MAX_BATCH_CAPACITY, build_data_point, flush_buffer}, vprintln};
+use logfs_export::can_log::parse_can_log_frames;
+use crate::{tasks::can_data::influx_util::{InfluxSignalSource, MAX_BATCH_CAPACITY, build_data_point, flush_buffer}, vprintln};
 
 
 /**

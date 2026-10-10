@@ -2,13 +2,7 @@ use std::{fs, io::{self, Write}, os::unix::fs::FileTypeExt, path::{Path, PathBuf
 
 use jsoncan_rust::{can_database::CanDatabase, parsing::JsonCanParser};
 use logfs::{LogFsOpenFlags_LOGFS_OPEN_CREATE, LogFsOpenFlags_LOGFS_OPEN_RD_WR, logfs::*};
-
-#[path = "../can_log.rs"]
-mod can_log;
-#[path = "../mf4.rs"]
-mod mf4;
-#[path = "../log_export.rs"]
-mod log_export;
+use logfs_export::log_export;
 
 use log_export::{ExportFormat, decode_log};
 
