@@ -12,6 +12,7 @@ IF ("${TARGET}" STREQUAL "test")
             "${SHARED_TEST_UTILS_INCLUDE_DIRS_CPP}/*.cpp"
             "${SHARED_FAKES_DIR_CPP}/io_time.cpp"
             "${SHARED_FAKES_DIR_CPP}/io_imu.cpp"
+            "${SHARED_FAKES_DIR_CPP}/io_filesystem.cpp"
     )
 
     set(SRCS ${SHARED_TEST_SRCS} ${SHARED_APP_SRCS})

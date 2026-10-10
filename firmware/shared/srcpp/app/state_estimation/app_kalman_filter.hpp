@@ -1,8 +1,18 @@
 #pragma once
 #include <cassert>
+#include <bitset>
 #include <Eigen/Dense>
 #include <dual.hpp>
 #include <gradient.hpp>
+
+#include "util_decimal_dual.hpp"
+#include "util_utils.hpp"
+
+constexpr Eigen::Index idx(auto i)
+{
+    return static_cast<Eigen::Index>(i);
+}
+
 namespace app::state_estimation
 {
 namespace detail
@@ -24,7 +34,7 @@ namespace detail
      */
     template <typename Mat> auto symmetrize(const Mat &matrix) -> Mat
     {
-        return (matrix + matrix.transpose()) * static_cast<typename Mat::Scalar>(0.5);
+        return (matrix + matrix.transpose()) * static_cast<Mat::Scalar>(0.5);
     }
 
     /**
@@ -34,7 +44,7 @@ namespace detail
      * in constructors before the filter is used.
      */
     template <typename Mat>
-    auto is_symmetric(const Mat &matrix, typename Mat::Scalar tol = static_cast<typename Mat::Scalar>(1e-6)) -> bool
+    auto is_symmetric(const Mat &matrix, typename Mat::Scalar tol = static_cast<Mat::Scalar>(1e-6)) -> bool
     {
         return matrix.isApprox(matrix.transpose(), tol);
     }
@@ -47,8 +57,7 @@ namespace detail
      * a small negative tolerance to handle numerical round-off.
      */
     template <typename Mat>
-    auto is_positive_semidefinite(const Mat &matrix, typename Mat::Scalar tol = static_cast<typename Mat::Scalar>(1e-8))
-        -> bool
+    auto is_positive_semidefinite(const Mat &matrix, typename Mat::Scalar tol = static_cast<Mat::Scalar>(1e-8)) -> bool
     {
         const Mat        symmetric = symmetrize(matrix);
         Eigen::LDLT<Mat> ldlt(symmetric);
@@ -80,12 +89,14 @@ namespace detail
      * - Q symmetric and PSD
      * - R symmetric and PD (required by LLT solve in update step)
      */
+    // TODO: can we assert at compile time?
     template <typename StateCov, typename MeasurementCov>
-    void assert_covariance_constraints(const StateCov &P0, const StateCov &Q, const MeasurementCov &R)
+    void assert_covariance_constraints(const StateCov &P, const StateCov &Q, const MeasurementCov &R)
     {
-        assert(is_symmetric(P0) && "Kalman filter constructor: P0 must be symmetric.");
+#ifndef NDEBUG
+        assert(is_symmetric(P) && "Kalman filter constructor: P0 must be symmetric.");
         assert(
-            is_positive_semidefinite(P0) &&
+            is_positive_semidefinite(P) &&
             "Kalman filter constructor: P0 must be positive semidefinite (all eigenvalues must be >= 0).");
         assert(is_symmetric(Q) && "Kalman filter constructor: Q must be symmetric.");
         assert(
@@ -95,6 +106,11 @@ namespace detail
         assert(
             is_positive_definite(R) && "Kalman filter constructor: R must be positive definite because update() uses "
                                        "LLT for solving innovation covariance.");
+#else
+        UNUSED(P);
+        UNUSED(Q);
+        UNUSED(R);
+#endif
     }
 } // namespace detail
 
@@ -152,7 +168,7 @@ template <typename T, std::size_t STATES, std::size_t MEASUREMENTS, std::size_t 
     const N_1 &state() const { return x_; }
     const N_N &covariance() const { return P_; }
 
-    const N_1 estimated_states(const U_1 &inputs, const M_1 &measurements)
+    N_1 estimated_states(const U_1 &inputs, const M_1 &measurements)
     {
         predict(inputs);
         update(measurements);
@@ -196,7 +212,7 @@ template <typename T, std::size_t STATES, std::size_t MEASUREMENTS, std::size_t 
  * Template parameters:
  * - T: scalar type (float or double, must support autodiff dual numbers)
  * - STATES: number of states
- * - MEASUREMENTS: number of measurements
+ * - MEASUREMENT_DIMS: number of measurements per update step
  *
  * State transition function f: R^STATES -> R^STATES (nonlinear)
  * Measurement function h: R^STATES -> R^MEASUREMENTS (nonlinear)
@@ -205,17 +221,16 @@ template <typename T, std::size_t STATES, std::size_t MEASUREMENTS, std::size_t 
  * - f[i]: computes x_dot[i] = f[i](x) where x is the full state vector
  * - h[i]: computes z_predicted[i] = h[i](x) where x is the full state vector
  */
-template <typename T, std::size_t STATES, std::size_t MEASUREMENTS, std::size_t INPUTS> class ekf
+template <Decimal T, std::size_t STATES, std::size_t INPUTS, std::size_t... MEASUREMENT_DIMS> class ekf
 {
   public:
     using N_N = Eigen::Matrix<T, STATES, STATES>;
     using N_1 = Eigen::Matrix<T, STATES, 1>;
-    using M_1 = Eigen::Matrix<T, MEASUREMENTS, 1>;
     using U_1 = Eigen::Matrix<T, INPUTS, 1>;
-    using M_M = Eigen::Matrix<T, MEASUREMENTS, MEASUREMENTS>;
-    using M_N = Eigen::Matrix<T, MEASUREMENTS, STATES>;
-    using N_M = Eigen::Matrix<T, STATES, MEASUREMENTS>;
     using N_U = Eigen::Matrix<T, STATES, INPUTS>;
+    // Update steps can have different sizes, so the measurement types take the step's size M.
+    template <std::size_t M> using M_M = Eigen::Matrix<T, M, M>; // measurement noise covariance
+    template <std::size_t M> using M_1 = Eigen::Matrix<T, M, 1>; // measurement vector
 
     /*
     For EKF
@@ -224,38 +239,81 @@ template <typename T, std::size_t STATES, std::size_t MEASUREMENTS, std::size_t 
     from autodiff cpp. For this we assume that the vector of the user provided function is of the size N + U...
     Knowing this we can split the output jacobian based on the index
     */
-    using state_mtx           = Eigen::Matrix<autodiff::dual, STATES, 1>;
-    using state_inp_mtx       = Eigen::Matrix<autodiff::dual, STATES + INPUTS, 1>;
-    using measurement_arr     = Eigen::Matrix<autodiff::dual, MEASUREMENTS, 1>;
-    using StateFunction       = autodiff::dual (*)(const state_inp_mtx &);
-    using MeasurementFunction = autodiff::dual (*)(const state_mtx &);
+    // Dual number in the filter's own precision (autodiff::dual is always double).
+    using dual_t              = DecimalDual<T>;
+    using state_mtx           = Eigen::Matrix<dual_t, STATES, 1>;
+    using state_inp_mtx       = Eigen::Matrix<dual_t, STATES + INPUTS, 1>;
+    using StateFunction       = dual_t (*)(const state_inp_mtx &);
+    using MeasurementFunction = dual_t (*)(const state_mtx &);
+
+    using PredictStep = std::array<StateFunction, STATES>;
+
+    template <std::size_t M> struct UpdateStep
+    {
+        static constexpr std::size_t       dim = M;
+        std::array<MeasurementFunction, M> h; // measurement functions for this update step
+        M_M<M>                             R; // measurement noise covariance
+        T                                  innovation_gate_thres = 0;
+    };
+
+    template <std::size_t M> struct Measurement
+    {
+        M_1<M>         z     = M_1<M>::Zero();
+        std::bitset<M> valid = std::bitset<M>{}.set();
+
+        Measurement() = default;
+
+        template <std::convertible_to<T>... Vals>
+            requires(sizeof...(Vals) == M)
+        Measurement(const Vals... vals)
+        {
+            Eigen::Index i = 0;
+            ((z(i++) = static_cast<T>(vals)), ...);
+        }
+
+        static Measurement none()
+        {
+            Measurement m;
+            m.valid.reset();
+            return m;
+        }
+    };
+
+    using UpdateSteps  = std::tuple<UpdateStep<MEASUREMENT_DIMS>...>;
+    using Measurements = std::tuple<Measurement<MEASUREMENT_DIMS>...>;
 
     /**
      * @brief Constructor for EKF
      *
      * @param f Array of STATES functions -- for every state we have one function
-     * @param h Array of MEASUREMENTS functions -- for every measurement we have one function
      * @param Q Process noise covariance (NxN) - how much we trust the model
-     * @param R Measurement noise covariance (MxM) - how much we trust measurements
+     * @param update_steps All update steps the EKF must run. Consists of:
+     *      @param h Measurement model
+     *      @param R Measurement noise covariance
+     *      @param enable_outlier_rejection enables outlier rejection
      * @param x0 Initial state estimate (Nx1)
      * @param P0 Initial state covariance estimate (NxN)
      */
-    ekf(const std::array<StateFunction, STATES>             &f,
-        const std::array<MeasurementFunction, MEASUREMENTS> &h,
-        const N_N                                           &Q,
-        const M_M                                           &R,
-        const N_1                                           &x0,
-        const N_N                                           &P0)
-      : f_(f), h_(h), Q_(Q), P_(P0), F_(N_N::Identity()), R_(R), H_(M_N::Zero()), x_(x0), y_(M_1::Zero())
+    explicit ekf(const PredictStep &f, const N_N &Q, const UpdateSteps &update_steps, const N_1 &x0, const N_N &P0)
+      : f_(f), Q_(Q), P_(P0), F_(N_N::Identity()), x_(x0), update_steps_(update_steps)
     {
-        detail::assert_covariance_constraints(P0, Q, R);
+        std::apply(
+            [&](const auto &...step) { (detail::assert_covariance_constraints(P_, Q, step.R), ...); }, update_steps_);
+    }
+
+    // Same constructor but with zero initialized state and covariance
+    explicit ekf(const std::array<StateFunction, STATES> &f, const N_N &Q, const UpdateSteps &update_steps)
+      : f_(f), Q_(Q), P_(N_N::Zero()), F_(N_N::Identity()), x_(N_1::Zero()), update_steps_(update_steps)
+    {
+        std::apply(
+            [&](const auto &...step) { (detail::assert_covariance_constraints(P_, Q, step.R), ...); }, update_steps_);
     }
 
     const N_1 &state() const { return x_; }
     const N_N &covariance() const { return P_; }
 
     // estimate functions
-    const N_1 estimated_states(U_1 &inputs, M_1 &measurements)
+    const N_1 estimated_states(const U_1 &inputs, const Measurements &measurements)
     {
         predict(inputs);
         update(measurements);
@@ -263,13 +321,11 @@ template <typename T, std::size_t STATES, std::size_t MEASUREMENTS, std::size_t 
     }
 
   private:
-    std::array<StateFunction, STATES>             f_;
-    std::array<MeasurementFunction, MEASUREMENTS> h_;
-    N_N                                           Q_, P_, F_;
-    M_M                                           R_;
-    M_N                                           H_;
-    N_1                                           x_;
-    M_1                                           y_;
+    PredictStep                  f_;
+    N_N                          Q_, P_, F_;
+    N_1                          x_;
+    UpdateSteps                  update_steps_;
+    static constexpr std::size_t NUM_UPDATES = sizeof...(MEASUREMENT_DIMS);
 
     /**
      * @brief Compute Jacobian H = dh/dx using automatic differentiation
@@ -277,15 +333,14 @@ template <typename T, std::size_t STATES, std::size_t MEASUREMENTS, std::size_t 
      * For each measurement function h_i, computes the i-th row of the Jacobian matrix.
      * H(i,j) = dh_i/dx_j using autodiff's built-in jacobian function.
      */
-
     void compute_F_eval_states(const U_1 &u)
     {
         state_inp_mtx base;
         for (std::size_t j = 0; j < STATES; ++j)
-            base(static_cast<Eigen::Index>(j)) = autodiff::dual(x_(static_cast<Eigen::Index>(j)));
+            base(static_cast<Eigen::Index>(j)) = dual_t(x_(static_cast<Eigen::Index>(j)));
 
         for (std::size_t k = 0; k < INPUTS; ++k)
-            base(static_cast<Eigen::Index>(STATES + k)) = autodiff::dual(u(static_cast<Eigen::Index>(k)));
+            base(static_cast<Eigen::Index>(STATES + k)) = dual_t(u(static_cast<Eigen::Index>(k)));
 
         /*
         lambda function developed to wrap a single function call around the array of functions in f_. This creates a
@@ -311,11 +366,16 @@ template <typename T, std::size_t STATES, std::size_t MEASUREMENTS, std::size_t 
             x_(static_cast<Eigen::Index>(i)) = static_cast<T>(autodiff::val(x_eval_dual(static_cast<Eigen::Index>(i))));
     }
 
-    void compute_H_eval_y(const M_1 &z)
+    template <std::size_t MEASUREMENTS>
+    std::pair<Eigen::Matrix<T, MEASUREMENTS, STATES>, Eigen::Matrix<T, MEASUREMENTS, 1>>
+        compute_H_eval_y(const Eigen::Matrix<T, MEASUREMENTS, 1> &z, const UpdateStep<MEASUREMENTS> &update_step)
     {
+        using measurement_arr = Eigen::Matrix<dual_t, MEASUREMENTS, 1>;
+        using M_N             = Eigen::Matrix<T, MEASUREMENTS, STATES>;
+
         state_mtx base;
         for (std::size_t j = 0; j < STATES; ++j)
-            base(static_cast<Eigen::Index>(j)) = autodiff::dual(x_(static_cast<Eigen::Index>(j)));
+            base(static_cast<Eigen::Index>(j)) = dual_t(x_(static_cast<Eigen::Index>(j)));
 
         /*
         lambda function developed to wrap a single function call around the array of functions in h_. This creates a
@@ -326,17 +386,23 @@ template <typename T, std::size_t STATES, std::size_t MEASUREMENTS, std::size_t 
         {
             measurement_arr out;
             for (std::size_t i = 0; i < MEASUREMENTS; ++i)
-                out(static_cast<Eigen::Index>(i)) = h_[i](p);
+                out(static_cast<Eigen::Index>(i)) = update_step.h[i](p);
             return out;
         };
 
         state_mtx       p = base;
         measurement_arr z_eval_dual;
-        autodiff::jacobian(h_vec, autodiff::wrt(p), autodiff::at(p), z_eval_dual, H_);
+        M_N             H;
+
+        autodiff::jacobian(h_vec, autodiff::wrt(p), autodiff::at(p), z_eval_dual, H);
+
+        M_1<MEASUREMENTS> y;
 
         for (std::size_t i = 0; i < MEASUREMENTS; ++i)
-            y_(static_cast<Eigen::Index>(i)) = z(static_cast<Eigen::Index>(i)) -
-                                               static_cast<T>(autodiff::val(z_eval_dual(static_cast<Eigen::Index>(i))));
+            y(static_cast<Eigen::Index>(i)) = z(static_cast<Eigen::Index>(i)) -
+                                              static_cast<T>(autodiff::val(z_eval_dual(static_cast<Eigen::Index>(i))));
+
+        return { H, y };
     }
 
     /**
@@ -347,7 +413,7 @@ template <typename T, std::size_t STATES, std::size_t MEASUREMENTS, std::size_t 
      *   x = f(x)
      *   P = F*P*F^T + Q
      */
-    void predict(U_1 &u)
+    void predict(const U_1 &u)
     {
         compute_F_eval_states(u); // already evaluates the state vector at the prev instance... that is part of autodiff
         P_ = F_ * P_ * F_.transpose() + Q_;
@@ -366,19 +432,57 @@ template <typename T, std::size_t STATES, std::size_t MEASUREMENTS, std::size_t 
      *
      * @param z Sensor Measurement vector (Mx1)
      */
-    void update(const M_1 &z)
+    void update(const Measurements &z)
     {
+        // For each update step,compile a seperate update function
+        [&]<std::size_t... I>(std::index_sequence<I...>)
+        { (update_<I>(z), ...); }(std::make_index_sequence<NUM_UPDATES>());
+    }
+
+    template <std::size_t I> void update_(const Measurements &z)
+    {
+        const auto           &step         = std::get<I>(update_steps_);
+        constexpr std::size_t MEASUREMENTS = step.dim;
+
+        using N_M = Eigen::Matrix<T, STATES, MEASUREMENTS>;
+
+        auto measurement_data = std::get<I>(z);
+
+        // If measurement is invalid do an early return and do not update the state and covariance
+        if (measurement_data.valid.none())
+            return;
+
+        M_1<MEASUREMENTS> measurement = measurement_data.z;
+
         // the jacobian function works by providing you the jacobian (partial derrivatives of a function with respect to
         // each variable) and at the same time evaluating
-        compute_H_eval_y(z);
-        const M_M S =
-            H_ * P_ * H_.transpose() +
-            R_; // find the evolution covariance using linearized measurement evolution functions and measurement noise
-        const N_M K = P_ * H_.transpose() *
-                      S.llt().solve(M_M::Identity()); // cholesky decomp to avoid inversing computation overhead
+        auto [H, y] = compute_H_eval_y<MEASUREMENTS>(measurement, step);
+        M_M<MEASUREMENTS> S =
+            H * P_ * H.transpose() + step.R; // find the evolution covariance using linearized measurement
 
-        x_ = x_ + K * y_;
-        P_ = (N_N::Identity() - K * H_) * P_;
+        if (step.innovation_gate_thres > T(0))
+        {
+            for (std::size_t r = 0; r < MEASUREMENTS; ++r)
+            {
+                const T nis = y(r) * y(r) / S(r, r); // chi-square innovation gate
+
+                if (nis < step.innovation_gate_thres && measurement_data.valid[r])
+                    continue;
+
+                H.row(r).setZero();
+                y(r) = 0;
+            }
+        }
+
+        S = H * P_ * H.transpose() + step.R; // find the evolution covariance using linearized measurement
+
+        // evolution functions and measurement noise
+        const N_M K =
+            P_ * H.transpose() * S.llt().solve(M_M<MEASUREMENTS>::Identity()); // cholesky decomp to avoid
+                                                                               // inversing computation overhead
+
+        x_ = x_ + K * y;
+        P_ = ((N_N::Identity() - K * H) * P_ * (N_N::Identity() - K * H).transpose()) + (K * step.R * K.transpose());
     }
 };
 } // namespace app::state_estimation
