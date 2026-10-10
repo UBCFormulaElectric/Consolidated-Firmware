@@ -415,7 +415,7 @@
   },
   "CellVoltages_Seg0_Seg1": {
     "msg_id": 422,
-    "cycle_time": null,
+    "cycle_time": 1000,
     "description": "Cell voltages: Segments 0-1",
     "signals": {
       "Seg0_Cell0_Voltage": {
@@ -593,7 +593,7 @@
   },
   "CellVoltages_Seg2_Seg3": {
     "msg_id": 423,
-    "cycle_time": null,
+    "cycle_time": 1000,
     "description": "Cell voltages: Segments 2-3",
     "signals": {
       "Seg2_Cell0_Voltage": {
@@ -771,7 +771,7 @@
   },
   "CellVoltages_Seg4_Seg5": {
     "msg_id": 424,
-    "cycle_time": null,
+    "cycle_time": 1000,
     "description": "Cell voltages: Segments 4-5",
     "signals": {
       "Seg4_Cell0_Voltage": {
@@ -949,7 +949,7 @@
   },
   "CellVoltages_Seg6_Seg7": {
     "msg_id": 426,
-    "cycle_time": null,
+    "cycle_time": 1000,
     "description": "Cell voltages: Segments 6-7",
     "signals": {
       "Seg6_Cell0_Voltage": {
@@ -1127,7 +1127,7 @@
   },
   "CellVoltages_Seg8_Seg9": {
     "msg_id": 427,
-    "cycle_time": null,
+    "cycle_time": 1000,
     "description": "Cell voltages: Segments 8-9",
     "signals": {
       "Seg8_Cell0_Voltage": {
@@ -1318,7 +1318,7 @@
   },
   "CellTemps_Seg0_Seg1": {
     "msg_id": 428,
-    "cycle_time": null,
+    "cycle_time": 1000,
     "description": "Cell temps: Segments 0-1",
     "signals": {
       "Seg0_Cell0_Temp": {
@@ -1496,7 +1496,7 @@
   },
   "CellTemps_Seg2_Seg3": {
     "msg_id": 429,
-    "cycle_time": null,
+    "cycle_time": 1000,
     "description": "Cell temps: Segments 2-3",
     "signals": {
       "Seg2_Cell0_Temp": {
@@ -1674,7 +1674,7 @@
   },
   "CellTemps_Seg4_Seg5": {
     "msg_id": 430,
-    "cycle_time": null,
+    "cycle_time": 1000,
     "description": "Cell temps: Segments 4-5",
     "signals": {
       "Seg4_Cell0_Temp": {
@@ -1852,7 +1852,7 @@
   },
   "CellTemps_Seg6_Seg7": {
     "msg_id": 483,
-    "cycle_time": null,
+    "cycle_time": 1000,
     "description": "Cell temps: Segments 6-7",
     "signals": {
       "Seg6_Cell0_Temp": {
@@ -2030,7 +2030,7 @@
   },
   "CellTemps_Seg8_Seg9": {
     "msg_id": 484,
-    "cycle_time": null,
+    "cycle_time": 1000,
     "description": "Cell temps: Segments 8-9",
     "signals": {
       "Seg8_Cell0_Temp": {

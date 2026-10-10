@@ -61,17 +61,17 @@ template <typename T, size_t N, void (*Send)()> class BroadcastBuffer
     void send() const { Send(); }
 };
 
-// Per-cell signals split across several CAN messages, each holding a whole number of segments in order.
-template <typename T, void (*...Send)()> class CellBroadcaster
+template <typename T, size_t NumMsgs, void (*...Send)()> class CellBroadcaster
 {
-    std::array<std::span<T>, sizeof...(Send)> _msgs;
+    std::array<std::span<T>, NumMsgs> _msgs;
 
   public:
     template <typename... CanMsgs>
     explicit CellBroadcaster(CanMsgs &...can_msgs)
       : _msgs{ { std::span<T>{ reinterpret_cast<T *>(&can_msgs), sizeof(CanMsgs) / sizeof(T) }... } }
     {
-        static_assert(sizeof...(CanMsgs) == sizeof...(Send));
+        static_assert(sizeof...(CanMsgs) == NumMsgs);
+        static_assert(sizeof...(Send) == 0 || sizeof...(Send) == NumMsgs);
         static_assert(((sizeof(CanMsgs) % (CELLS_PER_SEGMENT * sizeof(T)) == 0) && ...));
         static_assert((sizeof(CanMsgs) + ...) == MAX_NUM_SEGMENTS * CELLS_PER_SEGMENT * sizeof(T));
     }
