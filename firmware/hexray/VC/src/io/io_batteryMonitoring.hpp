@@ -6,7 +6,7 @@
 
 namespace io::batteryMonitoring
 {
-result<void>                    init();
+result<void>                    Init();
 result<float>                   get_voltage_cell(CellReading cell);
 result<float>                   get_voltage_system(SystemReading system);
 result<float>                   get_current();

@@ -17,6 +17,7 @@ enum class ErrorCode
     ERROR_INDETERMINATE,
     POLL_INVALID,
     NUM_EXIT_CODES,
+    INSUFFICENT_DATA
 };
 
 template <typename T> using result = std::expected<T, ErrorCode>;
