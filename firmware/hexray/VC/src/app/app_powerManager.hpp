@@ -3,7 +3,6 @@
 
 #include <cstdint>
 #include <cassert>
-#include "main.h"
 
 namespace app::powerManager
 {
