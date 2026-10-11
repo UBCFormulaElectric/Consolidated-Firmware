@@ -262,7 +262,12 @@ namespace VehicleStateEstimator
         const auto wheelspeed_meas = WheelMeas(meas.omegas.fl, meas.omegas.fr, meas.omegas.rl, meas.omegas.rr);
 
         // const auto gps_meas = Filter::M_1<GPS_DIM>(meas.gps_vx_mps, meas.gps_vy_mps);
-        const auto gps_meas = GpsMeas::none(); // temporarily disabling for testing
+        auto gps_meas = GpsMeas::none(); // temporarily disabling for testing
+
+        if (meas.sbg_ekf_mode == app::can_utils::VcEkfStatus::POSITION)
+        {
+            gps_meas = GpsMeas(meas.gps_vx_mps, meas.gps_vy_mps);
+        }
 
         const auto [vx_zero, vy_zero] = updateZeroSpeed();
         auto zerospeed_meas           = ZspeedMeas(0.0f, 0.0f);
