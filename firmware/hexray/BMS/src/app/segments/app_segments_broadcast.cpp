@@ -13,8 +13,8 @@ using app::segments::BroadcastBuffer;
 using app::segments::CellBroadcaster;
 
 constexpr size_t NUM_HEALTH_BITS = static_cast<size_t>(app::segments::health::ErrorBit::NUM_ERROR_BITS);
-BroadcastBuffer<bool, MAX_NUM_SEGMENTS * NUM_HEALTH_BITS> segment_health_errors_buffer(
-    app::can_tx::BMS_SegmentHealthErrors_getData());
+BroadcastBuffer<bool, MAX_NUM_SEGMENTS * NUM_HEALTH_BITS>
+    segment_health_errors_buffer(app::can_tx::BMS_SegmentHealthErrors_getData());
 BroadcastBuffer<uint8_t, MAX_NUM_SEGMENTS, io::can_tx::BMS_SegmentCMDCNT_sendAperiodic>
     segment_cmdcnt_buffer(app::can_tx::BMS_SegmentCMDCNT_getData());
 
