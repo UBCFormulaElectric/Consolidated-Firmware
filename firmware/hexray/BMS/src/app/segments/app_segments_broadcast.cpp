@@ -13,8 +13,8 @@ using app::segments::BroadcastBuffer;
 using app::segments::CellBroadcaster;
 
 constexpr size_t NUM_HEALTH_BITS = static_cast<size_t>(app::segments::health::ErrorBit::NUM_ERROR_BITS);
-BroadcastBuffer<bool, MAX_NUM_SEGMENTS * NUM_HEALTH_BITS, io::can_tx::BMS_SegmentHealthErrors_sendAperiodic>
-    segment_health_errors_buffer(app::can_tx::BMS_SegmentHealthErrors_getData());
+BroadcastBuffer<bool, MAX_NUM_SEGMENTS * NUM_HEALTH_BITS> segment_health_errors_buffer(
+    app::can_tx::BMS_SegmentHealthErrors_getData());
 BroadcastBuffer<uint8_t, MAX_NUM_SEGMENTS, io::can_tx::BMS_SegmentCMDCNT_sendAperiodic>
     segment_cmdcnt_buffer(app::can_tx::BMS_SegmentCMDCNT_getData());
 
@@ -460,11 +460,8 @@ void segmentHealthError(const health::Snapshot &health)
             segment_health_errors_buffer[idx] = (seg < NUM_SEGMENTS) && health[seg].test(bit);
         }
     }
-    segment_health_errors_buffer.send();
 }
 
-// These messages are aperiodic (cycle_time: null in the DBC): each setter only stages a signal into
-// the message struct, so we set all of a message's signals and then send the complete frame once.
 void cellVoltageStats(const CellParam<float> &min, const CellParam<float> &max)
 {
     can_tx::BMS_MinCellVoltage_set(min.value);
@@ -473,7 +470,6 @@ void cellVoltageStats(const CellParam<float> &min, const CellParam<float> &max)
     can_tx::BMS_MaxCellVoltage_set(max.value);
     can_tx::BMS_MaxCellVoltageSegment_set(max.segment);
     can_tx::BMS_MaxCellVoltageCell_set(max.cell);
-    io::can_tx::BMS_CellVoltageStats_sendAperiodic();
 }
 
 void cellTempStats(const CellParam<float> &min, const CellParam<float> &max)
@@ -484,7 +480,6 @@ void cellTempStats(const CellParam<float> &min, const CellParam<float> &max)
     can_tx::BMS_MaxCellTemp_set(max.value);
     can_tx::BMS_MaxCellTempSegment_set(max.segment);
     can_tx::BMS_MaxCellTempCell_set(max.cell);
-    io::can_tx::BMS_CellTempStats_sendAperiodic();
 }
 
 void segmentVoltageStats(const SegmentParam<float> &min, const SegmentParam<float> &max)
@@ -493,13 +488,11 @@ void segmentVoltageStats(const SegmentParam<float> &min, const SegmentParam<floa
     can_tx::BMS_MinSegmentVoltageSegment_set(min.segment);
     can_tx::BMS_MaxSegmentVoltage_set(max.value);
     can_tx::BMS_MaxSegmentVoltageSegment_set(max.segment);
-    io::can_tx::BMS_SegmentVoltageStats_sendAperiodic();
 }
 
 void packVoltage(const result<float> &pack)
 {
     can_tx::BMS_PackVoltage_set(pack.value_or(-0.1f));
-    io::can_tx::BMS_PackVoltage_sendAperiodic();
 }
 
 } // namespace app::segments::broadcast

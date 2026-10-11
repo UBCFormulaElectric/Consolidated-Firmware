@@ -296,7 +296,7 @@
   },
   "CellVoltageStats": {
     "msg_id": 419,
-    "cycle_time": null,
+    "cycle_time": 1000,
     "description": "Min/max cell voltage with segment + cell index",
     "signals": {
       "MinCellVoltage": {
@@ -339,7 +339,7 @@
   },
   "CellTempStats": {
     "msg_id": 420,
-    "cycle_time": null,
+    "cycle_time": 1000,
     "description": "Min/max cell temperature with segment + thermistor index",
     "signals": {
       "MinCellTemp": {
@@ -382,7 +382,7 @@
   },
   "SegmentVoltageStats": {
     "msg_id": 421,
-    "cycle_time": null,
+    "cycle_time": 1000,
     "description": "Min/max segment voltage with segment index",
     "signals": {
       "MinSegmentVoltage": {
@@ -7087,7 +7087,7 @@
   },
   "SegmentHealthErrors": {
     "msg_id": 475,
-    "cycle_time": null,
+    "cycle_time": 1000,
     "description": "Per-segment health error bits (11 bits per segment, 10 segments). True = error set.",
     "signals": {
       "Seg0_CellAdcStart": {
@@ -8316,7 +8316,7 @@
   },
   "PackVoltage": {
     "msg_id": 481,
-    "cycle_time": null,
+    "cycle_time": 1000,
     "description": "Accumulator pack voltage (sum of segment voltages from the ADBMS stack)",
     "signals": {
       "PackVoltage": {

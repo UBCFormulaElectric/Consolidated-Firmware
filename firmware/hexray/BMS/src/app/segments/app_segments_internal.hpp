@@ -44,7 +44,7 @@ constexpr bool checkThermOwcOk(const uint16_t reg)
     return convertRegToVoltage(reg) > OW_THERM_THRESHOLD;
 }
 
-template <typename T, size_t N, void (*Send)()> class BroadcastBuffer
+template <typename T, size_t N, void (*...Send)()> class BroadcastBuffer
 {
     std::span<T, N> _buf;
 
@@ -52,13 +52,14 @@ template <typename T, size_t N, void (*Send)()> class BroadcastBuffer
     template <typename CanMsg> explicit BroadcastBuffer(CanMsg &can_msg) : _buf{ reinterpret_cast<T *>(&can_msg), N }
     {
         static_assert(sizeof(CanMsg) == N * sizeof(T));
+        static_assert(sizeof...(Send) <= 1);
     }
 
     T &operator[](const size_t i) const { return _buf[i]; }
 
     void fill(const T &value) const { std::fill(_buf.begin(), _buf.end(), value); }
 
-    void send() const { Send(); }
+    void send() const { (Send(), ...); }
 };
 
 template <typename T, size_t NumMsgs, void (*...Send)()> class CellBroadcaster
