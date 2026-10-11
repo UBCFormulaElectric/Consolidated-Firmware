@@ -44,22 +44,22 @@ constexpr bool checkThermOwcOk(const uint16_t reg)
     return convertRegToVoltage(reg) > OW_THERM_THRESHOLD;
 }
 
-template <typename T, size_t N, void (*...Send)()> class BroadcastBuffer
+template <typename T, size_t N, void (*Send)() = nullptr> class BroadcastBuffer
 {
     std::span<T, N> _buf;
 
   public:
-    template <typename CanMsg> explicit BroadcastBuffer(CanMsg &can_msg) : _buf{ reinterpret_cast<T *>(&can_msg), N }
+    template <typename CanMsg> 
+    explicit BroadcastBuffer(CanMsg &can_msg) : _buf{ reinterpret_cast<T *>(&can_msg), N }
     {
         static_assert(sizeof(CanMsg) == N * sizeof(T));
-        static_assert(sizeof...(Send) <= 1);
     }
-
+    
     T &operator[](const size_t i) const { return _buf[i]; }
 
     void fill(const T &value) const { std::fill(_buf.begin(), _buf.end(), value); }
 
-    void send() const { (Send(), ...); }
+    void send() const requires(Send != nullptr) { Send(); }
 };
 
 template <typename T, size_t NumMsgs, void (*...Send)()> class CellBroadcaster
@@ -68,8 +68,7 @@ template <typename T, size_t NumMsgs, void (*...Send)()> class CellBroadcaster
 
   public:
     template <typename... CanMsgs>
-    explicit CellBroadcaster(CanMsgs &...can_msgs)
-      : _msgs{ { std::span<T>{ reinterpret_cast<T *>(&can_msgs), sizeof(CanMsgs) / sizeof(T) }... } }
+    explicit CellBroadcaster(CanMsgs &...can_msgs): _msgs{ { std::span<T>{ reinterpret_cast<T *>(&can_msgs), sizeof(CanMsgs) / sizeof(T) }... } }
     {
         static_assert(sizeof...(CanMsgs) == NumMsgs);
         static_assert(sizeof...(Send) == 0 || sizeof...(Send) == NumMsgs);
@@ -96,6 +95,6 @@ template <typename T, size_t NumMsgs, void (*...Send)()> class CellBroadcaster
         }
     }
 
-    void send() const { (Send(), ...); }
+    void send() const requires(sizeof...(Send) != 0) { (Send(), ...); }
 };
 } // namespace app::segments
