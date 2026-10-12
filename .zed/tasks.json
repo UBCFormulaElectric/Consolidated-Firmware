@@ -1,0 +1,174 @@
+[
+  {
+    "label": "Launch: STM32CubeMX",
+    "command": "cd /usr/local/STM32CubeMX/ && ./STM32CubeMX"
+  },
+  {
+    "label": "Format: Codebase",
+    "command": "python3 scripts/utilities/fix_formatting.py"
+  },
+  {
+    "label": "CMake: Load",
+    "command": "cmake --preset \"FW Dev\""
+  },
+  {
+    "label": "CMake: Clean",
+    "command": "cmake --build build_fw_dev --target clean && cmake --build build_fw_test --target clean"
+  },
+  {
+    "label": "Build Embedded Quintuna",
+    "command": "cmake --build build_fw_dev --target quintuna_BMS.hex quintuna_VC.hex quintuna_CRIT.hex quintuna_RSM.hex quintuna_FSM.hex quintuna_DAM.hex can_bus_load_quintuna"
+  },
+  {
+    "label": "Build Embedded Hexray",
+    "command": "cmake --build build_fw_dev --target hexray_CRIT_app.hex hexray_DAM_app.hex hexray_FSM_app.hex hexray_RSM_app.hex"
+  },
+  {
+    "label": "Build Embedded: VCR (Quintuna)",
+    "command": "cmake --build build_fw_dev --target quintuna_VCR_app.elf"
+  },
+  {
+    "label": "Build Embedded: BMS (Quintuna)",
+    "command": "cmake --build build_fw_dev --target quintuna_BMS.hex"
+  },
+  {
+    "label": "Build Embedded: VC (Quintuna)",
+    "command": "cmake --build build_fw_dev --target quintuna_VC.hex"
+  },
+  {
+    "label": "Build Embedded: CRIT (Quintuna)",
+    "command": "cmake --build build_fw_dev --target quintuna_CRIT.hex"
+  },
+  {
+    "label": "Build Embedded: DAM (Quintuna)",
+    "command": "cmake --build build_fw_dev --target quintuna_DAM.hex"
+  },
+  {
+    "label": "Build Embedded: RSM (Quintuna)",
+    "command": "cmake --build build_fw_dev --target quintuna_RSM.hex"
+  },
+  {
+    "label": "Build Embedded: FSM (Quintuna)",
+    "command": "cmake --build build_fw_dev --target quintuna_FSM.hex"
+  },
+  {
+    "label": "Build Embedded: PCM (Quintuna)",
+    "command": "cmake --build build_fw_dev --target quintuna_PCM_app.elf"
+  },
+  {
+    "label": "Build Embedded: h7dev",
+    "command": "cmake --build build_fw_dev --target h7dev.hex"
+  },
+  {
+    "label": "Build Embedded: h5dev",
+    "command": "cmake --build build_fw_dev --target h5dev.hex"
+  },
+  {
+    "label": "Build Embedded: SSM",
+    "command": "cmake --build build_fw_dev --target ssm.hex"
+  },
+  {
+    "label": "Build Embedded: BMS (Hexray)",
+    "command": "cmake --build build_fw_dev --target hexray_BMS.hex"
+  },
+  {
+    "label": "Build Chimera: BMS (Hexray)",
+    "command": "cmake --build build_fw_dev --target hexray_BMS_chimera.elf"
+  },
+  {
+    "label": "Build Embedded: CRIT (Hexray)",
+    "command": "cmake --build build_fw_dev --target hexray_CRIT.hex"
+  },
+  {
+    "label": "Build Chimera: CRIT (Hexray)",
+    "command": "cmake --build build_fw_dev --target hexray_CRIT_chimera.elf"
+  },
+  {
+    "label": "Build Embedded: DAM (Hexray)",
+    "command": "cmake --build build_fw_dev --target hexray_DAM.hex"
+  },
+  {
+    "label": "Build Chimera: DAM (Hexray)",
+    "command": "cmake --build build_fw_dev --target hexray_DAM_chimera.elf"
+  },
+  {
+    "label": "Build Embedded: FSM (Hexray)",
+    "command": "cmake --build build_fw_dev --target hexray_FSM.hex"
+  },
+  {
+    "label": "Build Chimera: FSM (Hexray)",
+    "command": "cmake --build build_fw_dev --target hexray_FSM_chimera.elf"
+  },
+  {
+    "label": "Build Embedded: RSM (Hexray)",
+    "command": "cmake --build build_fw_dev --target hexray_RSM.hex"
+  },
+  {
+    "label": "Build Chimera: RSM (Hexray)",
+    "command": "cmake --build build_fw_dev --target hexray_RSM_chimera.elf"
+  },
+  {
+    "label": "Build Embedded: VC (Hexray)",
+    "command": "cmake --build build_fw_dev --target hexray_VC.hex"
+  },
+  {
+    "label": "Build Chimera: VC (Hexray)",
+    "command": "cmake --build build_fw_dev --target hexray_VC_chimera.elf"
+  },
+  {
+    "label": "Build Tests: CRIT (Quintuna)",
+    "command": "cmake --build build_fw_test --target quintuna_CRIT_test"
+  },
+  {
+    "label": "Build Tests: VC (Quintuna)",
+    "command": "cmake --build build_fw_test --target quintuna_VC_test"
+  },
+  {
+    "label": "Build Tests: BMS (Quintuna)",
+    "command": "cmake --build build_fw_test --target quintuna_BMS_test"
+  },
+  {
+    "label": "Run Tests: BMS (Quintuna)",
+    "command": "./build_fw_test/firmware/quintuna/BMS/quintuna_BMS_test"
+  },
+  {
+    "label": "Build Tests: BMS (Hexray)",
+    "command": "cmake --build build_fw_test --target hexray_BMS_test"
+  },
+  {
+    "label": "Build Tests: CRIT (Hexray)",
+    "command": "cmake --build build_fw_test --target hexray_CRIT_test"
+  },
+  {
+    "label": "Build Tests: DAM (Hexray)",
+    "command": "cmake --build build_fw_test --target hexray_DAM_test"
+  },
+  {
+    "label": "Build Tests: FSM (Hexray)",
+    "command": "cmake --build build_fw_test --target hexray_FSM_test"
+  },
+  {
+    "label": "Build Tests: RSM (Hexray)",
+    "command": "cmake --build build_fw_test --target hexray_RSM_test"
+  },
+  {
+    "label": "Build Tests: VC (Hexray)",
+    "command": "cmake --build build_fw_test --target hexray_VC_test"
+  },
+  {
+    "label": "Build Tests: Shared",
+    "command": "cmake --build build_fw_test --target shared_test shared_test_cpp"
+  },
+  {
+    "label": "Build Tests: JSON CAN integration",
+    "command": "cmake --build build_fw_test --target jsoncan_test"
+  },
+  {
+    "label": "CAN Bus Load: Quintuna",
+    "command": "cmake --build build_fw_dev --target can_bus_load_quintuna"
+  },
+  {
+    "label": "Run Telem Backend",
+    "command": "python software/tracksight/live_data/app/app.py"
+  }
+]

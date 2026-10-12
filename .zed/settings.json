@@ -1,0 +1,27 @@
+{
+  "lsp": {
+    "clangd": {
+      "binary": {
+        "arguments": [
+          "--compile-commands-dir=build_fw_dev",
+          "--query-driver=/usr/local/bin/arm-none-eabi-gcc"
+        ]
+      },
+      "initialization_options": {
+        "fallbackFlags": ["-std=c++23"]
+      }
+    },
+    "json-language-server": {
+      "settings": {
+        "json": {
+          "schemas": [
+            {
+              "fileMatch": ["/can_bus/json/**/*tx.json"],
+              "url": "./can_bus/json/schema_tx.json"
+            }
+          ]
+        }
+      }
+    }
+  }
+}
