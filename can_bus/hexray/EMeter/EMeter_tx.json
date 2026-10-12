@@ -1,7 +1,7 @@
 {
   "Measurement": {
     "msg_id": 269,
-    "cycle_time": 20,
+    "cycle_time": null,
     "description": "EMeter Current and Voltage",
     "signals": {
       "MeasurementCurrent": {
@@ -16,7 +16,7 @@
   },
   "Status": {
     "msg_id": 1037,
-    "cycle_time": 100,
+    "cycle_time": null,
     "description": "Status EMeter Message",
     "signals": {
       "Violation": {
@@ -40,7 +40,7 @@
   },
   "Temperature": {
     "msg_id": 1549,
-    "cycle_time": 250,
+    "cycle_time": null,
     "description": "Temperature EMeter Message (All temps need scale degC = raw * 0.5)",
     "signals": {
       "Signal0_1_2_3_4_5_6": {

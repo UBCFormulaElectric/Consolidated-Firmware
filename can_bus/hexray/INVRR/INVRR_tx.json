@@ -1,7 +1,7 @@
 {
   "RRInverterInfo1": {
     "msg_id": 648,
-    "cycle_time": 10,
+    "cycle_time": null,
     "signals": {
       "bReserve": {
         "start_bit": 0,
@@ -67,7 +67,7 @@
   },
   "RRInverterInfo2": {
     "msg_id": 656,
-    "cycle_time": 10,
+    "cycle_time": null,
     "signals": {
       "MotorTemperature": {
         "start_bit": 0,
@@ -102,7 +102,7 @@
   },
   "RRInverterInfo3": {
     "msg_id": 664,
-    "cycle_time": 10,
+    "cycle_time": null,
     "signals": {
       "MotorPeakCurrent": {
         "start_bit": 0,

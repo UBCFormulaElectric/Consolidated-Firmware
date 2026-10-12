@@ -1,7 +1,7 @@
 {
   "Vitals": {
     "msg_id": 419385573,
-    "cycle_time": 1000,
+    "cycle_time": null,
     "description": "Elcon charger status flags and parameters",
     "signals": {
       "OutputVoltage": {

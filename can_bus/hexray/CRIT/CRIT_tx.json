@@ -1,7 +1,7 @@
 {
   "Vitals": {
     "msg_id": 900,
-    "cycle_time": 100,
+    "cycle_time": null,
     "description": "CRIT vitals message.",
     "signals": {
       "Heartbeat": {
@@ -11,7 +11,7 @@
   },
   "Debug": {
     "msg_id": 907,
-    "cycle_time": 1000,
+    "cycle_time": null,
     "description": "CRIT Debug Signals",
     "signals": {
       "TxOverflowCount": {
@@ -39,7 +39,7 @@
   },
   "CommitInfo": {
     "msg_id": 909,
-    "cycle_time": 100,
+    "cycle_time": null,
     "description": "CRIT Current Running Git Commit Info",
     "signals": {
       "Hash": {
@@ -56,7 +56,7 @@
   },
   "ButtonsAndSwitches": {
     "msg_id": 911,
-    "cycle_time": 100,
+    "cycle_time": null,
     "description": "State of buttons and switches on the CRIT",
     "signals": {
       "StartButton": {
@@ -88,7 +88,7 @@
   },
   "CPUDataLogInfo": {
     "msg_id": 923,
-    "cycle_time": 100,
+    "cycle_time": null,
     "description": "CRIT cpu and stack information",
     "signals": {
       "CoreCpuUsageMax": {

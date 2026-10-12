@@ -1,7 +1,7 @@
 {
   "Vitals": {
     "msg_id": 800,
-    "cycle_time": 100,
+    "cycle_time": null,
     "description": "DAM Vital signals",
     "signals": {
       "Heartbeat": {
@@ -14,7 +14,7 @@
   },
   "Debug": {
     "msg_id": 807,
-    "cycle_time": 1000,
+    "cycle_time": null,
     "description": "DAM Debug Signals",
     "signals": {
       "TxOverflowCount": {
@@ -53,7 +53,7 @@
   },
   "CommitInfo": {
     "msg_id": 809,
-    "cycle_time": 100,
+    "cycle_time": null,
     "description": "DAM Commit Info",
     "signals": {
       "Hash": {
@@ -66,7 +66,7 @@
   },
   "ShdnNodeStatus": {
     "msg_id": 810,
-    "cycle_time": 10,
+    "cycle_time": null,
     "description": "DAM Shutdown Messages",
     "signals": {
       "REStopOKStatus": {
@@ -79,7 +79,7 @@
   },
   "CPUDataLogInfo": {
     "msg_id": 811,
-    "cycle_time": 100,
+    "cycle_time": null,
     "description": "DAM cpu and stack information",
     "signals": {
       "CoreCpuUsageMax": {

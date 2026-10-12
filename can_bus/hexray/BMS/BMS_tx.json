@@ -1,7 +1,7 @@
 {
   "Vitals": {
     "msg_id": 400,
-    "cycle_time": 10,
+    "cycle_time": null,
     "description": "Vitals message for the BMS.",
     "signals": {
       "Heartbeat": {
@@ -18,7 +18,7 @@
   },
   "Debug": {
     "msg_id": 407,
-    "cycle_time": 1000,
+    "cycle_time": null,
     "description": "BMS Debug Signals",
     "signals": {
       "TxOverflowCount": {
@@ -50,7 +50,7 @@
   },
   "CommitInfo": {
     "msg_id": 409,
-    "cycle_time": 100,
+    "cycle_time": null,
     "description": "BMS Commit Info",
     "signals": {
       "Hash": {
@@ -63,7 +63,7 @@
   },
   "LatchStatus": {
     "msg_id": 410,
-    "cycle_time": 10,
+    "cycle_time": null,
     "description": "Latched faults for the BMS",
     "signals": {
       "BmsCurrentlyOk": {
@@ -92,7 +92,7 @@
   },
   "Contactors": {
     "msg_id": 411,
-    "cycle_time": 10,
+    "cycle_time": null,
     "description": "BMS IR state statuses",
     "signals": {
       "IrPositive": {
@@ -112,7 +112,7 @@
   },
   "Charger": {
     "msg_id": 412,
-    "cycle_time": 100,
+    "cycle_time": null,
     "description": "Charger infomation for the BMS to broadcast to other boards",
     "signals": {
       "ChargerConnectedType": {
@@ -128,7 +128,7 @@
   },
   "TractiveSystem": {
     "msg_id": 413,
-    "cycle_time": 10,
+    "cycle_time": null,
     "description": "BMS Tractive System Data",
     "signals": {
       "TractiveSystemVoltage": {
@@ -171,7 +171,7 @@
   },
   "BSPDStatus": {
     "msg_id": 414,
-    "cycle_time": 10,
+    "cycle_time": null,
     "description": "BSPD Status",
     "signals": {
       "BSPDBrakePressureThresholdExceeded": {
@@ -191,7 +191,7 @@
   },
   "HvBatteryProperties": {
     "msg_id": 415,
-    "cycle_time": 1000,
+    "cycle_time": null,
     "description": "HV Battery Properties",
     "signals": {
       "HvBatterySoc": {
@@ -207,7 +207,7 @@
   },
   "ImdStatus": {
     "msg_id": 416,
-    "cycle_time": 10,
+    "cycle_time": null,
     "description": "BMS IMD Messages",
     "signals": {
       "ImdTimeSincePowerOn": {
@@ -242,7 +242,7 @@
   },
   "ImdData": {
     "msg_id": 417,
-    "cycle_time": 1000,
+    "cycle_time": null,
     "description": "BMS IMD Measurement Data Values",
     "signals": {
       "ImdActiveFrequency": {
@@ -271,7 +271,7 @@
   },
   "PowerLimit": {
     "msg_id": 418,
-    "cycle_time": 10,
+    "cycle_time": null,
     "description": "BMS Power Limit",
     "signals": {
       "ChargePowerLimit": {
@@ -1305,7 +1305,7 @@
   },
   "Fans": {
     "msg_id": 425,
-    "cycle_time": 100,
+    "cycle_time": null,
     "description": "Fan control signals",
     "signals": {
       "FanStatus": {
@@ -3068,7 +3068,7 @@
   },
   "BMSShdnNodeStatus": {
     "msg_id": 433,
-    "cycle_time": 100,
+    "cycle_time": null,
     "description": "BMS Shutdown Nodes Status",
     "signals": {
       "HVPShdnOKStatus": {
@@ -4484,7 +4484,7 @@
   },
   "CPUDataLogInfo": {
     "msg_id": 446,
-    "cycle_time": 100,
+    "cycle_time": null,
     "description": "BMS cpu and stack information",
     "signals": {
       "CoreCpuUsageMax": {
@@ -8332,7 +8332,7 @@
     "allowed_modes":[
       "DEBUG"
     ],
-    "cycle_time": 10,
+    "cycle_time": null,
     "description": "Status of the control pilot signal for J1772 plug",
     "signals":{
       "EvseFrequency":{
@@ -8362,7 +8362,7 @@
   },
   "ElconControls": {
     "msg_id": 403105268,
-    "cycle_time": 1000,
+    "cycle_time": null,
     "description": "Control parameters for Elcon charger communication",
     "signals": {
       "MaxChargingVoltage": {

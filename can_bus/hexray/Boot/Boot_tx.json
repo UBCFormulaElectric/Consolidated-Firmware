@@ -1,7 +1,7 @@
 {
   "BMS_Status": {
     "msg_id": 67108864,
-    "cycle_time": 100,
+    "cycle_time": null,
     "signals": {
       "BMS_Hash": {
         "bits": 32
@@ -99,7 +99,7 @@
   },
   "VC_Status": {
     "msg_id": 134217728,
-    "cycle_time": 100,
+    "cycle_time": null,
     "signals": {
       "VC_Hash": {
         "bits": 32
@@ -197,7 +197,7 @@
   },
   "DAM_Status": {
     "msg_id": 201326592,
-    "cycle_time": 100,
+    "cycle_time": null,
     "signals": {
       "DAM_Hash": {
         "bits": 32
@@ -295,7 +295,7 @@
   },
   "FSM_Status": {
     "msg_id": 268435456,
-    "cycle_time": 100,
+    "cycle_time": null,
     "signals": {
       "FSM_Hash": {
         "bits": 32
@@ -393,7 +393,7 @@
   },
   "RSM_Status": {
     "msg_id": 335544320,
-    "cycle_time": 100,
+    "cycle_time": null,
     "signals": {
       "RSM_Hash": {
         "bits": 32
@@ -491,7 +491,7 @@
   },
   "CRIT_Status": {
     "msg_id": 402653184,
-    "cycle_time": 100,
+    "cycle_time": null,
     "signals": {
       "CRIT_Hash": {
         "bits": 32

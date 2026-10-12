@@ -1,7 +1,7 @@
 {
   "INVFLSetPoints": {
     "msg_id": 388,
-    "cycle_time": 10,
+    "cycle_time": null,
     "signals": {
       "INVFLReserve1": {
         "start_bit": 0,
@@ -50,7 +50,7 @@
   },
   "INVFRSetPoints": {
     "msg_id": 389,
-    "cycle_time": 10,
+    "cycle_time": null,
     "signals": {
       "INVFRReserve1": {
         "start_bit": 0,
@@ -99,7 +99,7 @@
   },
   "INVRLSetPoints": {
     "msg_id": 392,
-    "cycle_time": 10,
+    "cycle_time": null,
     "signals": {
       "INVRLbReserve1": {
         "start_bit": 0,
@@ -148,7 +148,7 @@
   },
   "INVRRSetPoints": {
     "msg_id": 393,
-    "cycle_time": 10,
+    "cycle_time": null,
     "signals": {
       "INVRRbReserve1": {
         "start_bit": 0,
@@ -197,7 +197,7 @@
   },
   "Vitals": {
     "msg_id": 500,
-    "cycle_time": 10,
+    "cycle_time": null,
     "description": "VC Vital signals",
     "signals": {
       "Heartbeat": {
@@ -218,7 +218,7 @@
   },
   "Debug": {
     "msg_id": 507,
-    "cycle_time": 1000,
+    "cycle_time": null,
     "description": "VC Debug Signals",
     "signals": {
       "TxOverflowCount": {
@@ -246,7 +246,7 @@
   },
   "CommitInfo": {
     "msg_id": 509,
-    "cycle_time": 100,
+    "cycle_time": null,
     "description": "VC Commit Info",
     "signals": {
       "Hash": {
@@ -263,7 +263,7 @@
   },
   "VehicleDynamics": {
     "msg_id": 510,
-    "cycle_time": 100,
+    "cycle_time": null,
     "description": "Vehicle dynamics info",
     "signals": {
       "RegenEnabled": {
@@ -307,7 +307,7 @@
   },
   "IMU1": {
     "msg_id": 511,
-    "cycle_time": 10,
+    "cycle_time": null,
     "description": "IMU1 data",
     "signals": {
       "Imu1AccelX": {
@@ -353,7 +353,7 @@
   },
   "EllipseEkfNavVelocity": {
     "msg_id": 518,
-    "cycle_time": 100,
+    "cycle_time": null,
     "description": "Car Velocity info",
     "signals": {
       "VelocityNorth": {
@@ -442,7 +442,7 @@
   },
   "GlobalShdnNodeStatus": {
     "msg_id": 535,
-    "cycle_time": 100,
+    "cycle_time": null,
     "description": "Global Shutdown Node Status. Consistency shows that everything after first faulted node is actually faulted",
     "signals": {
       "FirstFaultNode": {
@@ -459,7 +459,7 @@
   },
   "PumpStatus": {
     "msg_id": 540,
-    "cycle_time": 10,
+    "cycle_time": null,
     "description": "All pump descriptions",
     "signals": {
       "RLPumpSetpoint": {
@@ -482,7 +482,7 @@
   },
   "ConnectorBoardEfuse": {
     "msg_id": 545,
-    "cycle_time": 10,
+    "cycle_time": null,
     "description": "Efuse info for RL Pump/RR Pump/F pump/L Rad/R Rad efuses.",
     "signals": {
       "RearLeftPumpCurrent": {
@@ -553,7 +553,7 @@
   },
   "ShdnNodeStatus": {
     "msg_id": 550,
-    "cycle_time": 10,
+    "cycle_time": null,
     "description": "VC Shutdown Node Status",
     "signals": {
       "RearRightMotorInterlock": {
@@ -576,7 +576,7 @@
   },
   "EllipseTime": {
     "msg_id": 554,
-    "cycle_time": 100,
+    "cycle_time": null,
     "description": "Timestamp from the SBG Ellipse N sensor.",
     "signals": {
       "EllipseTimestamp": {
@@ -591,7 +591,7 @@
   },
   "EllipseStatus": {
     "msg_id": 555,
-    "cycle_time": 100,
+    "cycle_time": null,
     "description": "Status of the SBG Ellipse N sensor.",
     "signals": {
       "EllipseGeneralStatusBitmask": {
@@ -618,7 +618,7 @@
   "EllipseAngularVelocity": {
     "disabled": true,
     "msg_id": 556,
-    "cycle_time": 1000,
+    "cycle_time": null,
     "description": "Angular velocity from the SBG Ellipse N sensor.",
     "signals": {
       "AngularVelocityRoll": {
@@ -647,7 +647,7 @@
   },
   "EllipseEulerAngles": {
     "msg_id": 557,
-    "cycle_time": 100,
+    "cycle_time": null,
     "description": "Euler angles from the SBG Ellipse N sensor.",
     "signals": {
       "EulerAnglesRoll": {
@@ -679,7 +679,7 @@
   },
   "MainBoardEfuse": {
     "msg_id": 559,
-    "cycle_time": 10,
+    "cycle_time": null,
     "description": "Efuse info for shdn/LV/pump/aux/INVR/INVL efuses.",
     "signals": {
       "FrontInvertersCurrent": {
@@ -1075,7 +1075,7 @@
   },
   "CPUDataLogInfo": {
     "msg_id": 563,
-    "cycle_time": 100,
+    "cycle_time": null,
     "description": "VC cpu and stack information",
     "signals": {
       "CoreCpuUsageMax": {
@@ -1224,7 +1224,7 @@
   },
   "PCM": {
     "msg_id": 564,
-    "cycle_time": 10,
+    "cycle_time": null,
     "signals": {
       "PcmRetryCount": {
         "min": 0,

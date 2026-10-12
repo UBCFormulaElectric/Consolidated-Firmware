@@ -1,7 +1,7 @@
 {
   "Vitals": {
     "msg_id": 600,
-    "cycle_time": 100,
+    "cycle_time": null,
     "description": "FSM vitals message.",
     "signals": {
       "Heartbeat": {
@@ -11,7 +11,7 @@
   },
   "Debug": {
     "msg_id": 607,
-    "cycle_time": 1000,
+    "cycle_time": null,
     "description": "FSM Debug Signals",
     "signals": {
       "TxOverflowCount": {
@@ -39,7 +39,7 @@
   },
   "CommitInfo": {
     "msg_id": 609,
-    "cycle_time": 100,
+    "cycle_time": null,
     "description": "FSM Commit Info",
     "signals": {
       "Hash": {
@@ -56,7 +56,7 @@
   },
   "Steering": {
     "msg_id": 610,
-    "cycle_time": 10,
+    "cycle_time": null,
     "description": "Steering angle.",
     "signals": {
       "SteeringAngle": {
@@ -73,7 +73,7 @@
   },
   "Apps": {
     "msg_id": 611,
-    "cycle_time": 10,
+    "cycle_time": null,
     "description": "Primary (P) and secondary (S) accelerator percentages.",
     "signals": {
       "PappsMappedPedalPercentage": {
@@ -108,7 +108,7 @@
   },
   "Brake": {
     "msg_id": 612,
-    "cycle_time": 10,
+    "cycle_time": null,
     "description": "Front and rear brake pressures",
     "signals": {
       "FrontBrakePressure": {
@@ -128,7 +128,7 @@
   },
   "Suspension": {
     "msg_id": 613,
-    "cycle_time": 100,
+    "cycle_time": null,
     "description": "Suspension travel",
     "signals": {
       "LeftSuspensionTravel": {
@@ -151,7 +151,7 @@
   },
   "IMU": {
     "msg_id": 614,
-    "cycle_time": 10,
+    "cycle_time": null,
     "description": "IMU data",
     "signals": {
       "AccelX": {
@@ -204,7 +204,7 @@
   },
   "ShdnNodeStatus": {
     "msg_id": 615,
-    "cycle_time": 10,
+    "cycle_time": null,
     "description": "FSM Shutdown Node Status",
     "signals": {
       "BOTSOKStatus": {
@@ -227,7 +227,7 @@
   },
   "CPUDataLogInfo": {
     "msg_id": 616,
-    "cycle_time": 100,
+    "cycle_time": null,
     "description": "FSM cpu and stack information",
     "signals": {
       "CoreCpuUsageMax": {

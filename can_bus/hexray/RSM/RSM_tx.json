@@ -1,7 +1,7 @@
 {
   "Vitals": {
     "msg_id": 700,
-    "cycle_time": 100,
+    "cycle_time": null,
     "description": "RSM vitals message.",
     "signals": {
       "Heartbeat": {
@@ -11,7 +11,7 @@
   },
   "Debug": {
     "msg_id": 707,
-    "cycle_time": 1000,
+    "cycle_time": null,
     "description": "RSM Debug Signals",
     "signals": {
       "TxOverflowCount": {
@@ -43,7 +43,7 @@
   },
   "CommitInfo": {
     "msg_id": 709,
-    "cycle_time": 1000,
+    "cycle_time": null,
     "description": "RSM Commit Info",
     "signals": {
       "Hash": {
@@ -60,7 +60,7 @@
   },
   "SuspensionTravel": {
     "msg_id": 710,
-    "cycle_time": 1000,
+    "cycle_time": null,
     "description": "Suspension travel",
     "signals": {
       "RearRightSuspensionTravel": {
@@ -83,7 +83,7 @@
   },
   "IMU": {
     "msg_id": 711,
-    "cycle_time": 10,
+    "cycle_time": null,
     "description": "IMU data",
     "signals": {
       "AccelX": {
@@ -130,7 +130,7 @@
   },
   "Brakes": {
     "msg_id": 712,
-    "cycle_time": 100,
+    "cycle_time": null,
     "description": "Front and rear brake pressures",
     "signals": {
       "RearBrakePressure": {
@@ -150,7 +150,7 @@
   },
   "ShdnNodeStatus": {
     "msg_id": 713,
-    "cycle_time": 100,
+    "cycle_time": null,
     "description": "RSM shutdown nodes",
     "signals": {
       "RearLeftMotorInterlock": {
@@ -164,7 +164,7 @@
   },
   "RearLeftPumpPercentage": {
     "msg_id": 714,
-    "cycle_time": 100,
+    "cycle_time": null,
     "description": "Rear pump information",
     "signals": {
       "RearLeftPumpPercentage": {
@@ -181,7 +181,7 @@
   },
   "CPUDataLogInfo": {
     "msg_id": 716,
-    "cycle_time": 100,
+    "cycle_time": null,
     "description": "RSM cpu and stack information",
     "signals": {
       "CoreCpuUsageMax": {
@@ -294,7 +294,7 @@
   },
   "Coolant": {
     "msg_id": 717,
-    "cycle_time": 1000,
+    "cycle_time": null,
     "signals": {
       "CoolantFlowRate": {
         "resolution": 0.1,
@@ -310,7 +310,7 @@
   },
   "TireSensor": {
     "msg_id": 798,
-    "cycle_time": 1000,
+    "cycle_time": null,
     "description": "Tire sensor information",
     "signals": {
       "TireTemperature": {

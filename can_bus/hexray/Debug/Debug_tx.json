@@ -1,7 +1,7 @@
 {
   "CanMode": {
     "msg_id": 1001,
-    "cycle_time": 1000,
+    "cycle_time": null,
     "description": "Signals related to CAN modes.",
     "signals": {
       "EnableDebugMode": {
@@ -11,7 +11,7 @@
   },
   "Charging": {
     "msg_id": 1002,
-    "cycle_time": 100,
+    "cycle_time": null,
     "description": "Value set by user to start charging BMS.",
     "signals": {
       "StartCharging": {
@@ -21,7 +21,7 @@
   },
   "CellBalancing": {
     "msg_id": 1003,
-    "cycle_time": 1000,
+    "cycle_time": null,
     "description": "Signals related to BMS cell balancing.",
     "signals": {
       "CellBalancing_Request": {
@@ -49,7 +49,7 @@
   },
   "ResetSoc": {
     "msg_id": 1004,
-    "cycle_time": 100,
+    "cycle_time": null,
     "description": "Value set by user to set SOC based on min cell voltage.",
     "signals": {
       "ResetSoc_MinCellV": {
@@ -68,7 +68,7 @@
   },
   "SetBSPDTestCurrent": {
     "msg_id": 1006,
-    "cycle_time": 100,
+    "cycle_time": null,
     "description": "Enable BSPD Test Current",
     "signals": {
       "EnableTestCurrent": {
@@ -78,7 +78,7 @@
   },
   "SetTorqueRequest": {
     "msg_id": 1007,
-    "cycle_time": 10,
+    "cycle_time": null,
     "description": "Override torque req",
     "signals": {
       "TorqueRequest_FL": {

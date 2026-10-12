@@ -1,7 +1,7 @@
 {
   "FRInverterInfo1": {
     "msg_id": 644,
-    "cycle_time": 10,
+    "cycle_time": null,
     "signals": {
       "bReserve": {
         "start_bit": 0,
@@ -67,7 +67,7 @@
   },
   "FRInverterInfo2": {
     "msg_id": 646,
-    "cycle_time": 10,
+    "cycle_time": null,
     "signals": {
       "MotorTemperature": {
         "start_bit": 0,
@@ -102,7 +102,7 @@
   },
   "FRInverterInfo3": {
     "msg_id": 661,
-    "cycle_time": 10,
+    "cycle_time": null,
     "signals": {
       "MotorPeakCurrent": {
         "start_bit": 0,
