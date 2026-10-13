@@ -474,15 +474,16 @@ template <Decimal T, std::size_t STATES, std::size_t INPUTS, std::size_t... MEAS
             }
         }
 
-        S = H * P_ * H.transpose() + step.R; // find the evolution covariance using linearized measurement
+        S.noalias() = H * P_ * H.transpose() + step.R; // find the evolution covariance using linearized measurement
 
         // evolution functions and measurement noise
         const N_M K =
             P_ * H.transpose() * S.llt().solve(M_M<MEASUREMENTS>::Identity()); // cholesky decomp to avoid
                                                                                // inversing computation overhead
 
-        x_ = x_ + K * y;
-        P_ = ((N_N::Identity() - K * H) * P_ * (N_N::Identity() - K * H).transpose()) + (K * step.R * K.transpose());
+        x_.noalias() = x_ + K * y;
+        const N_N I_KH = N_N::Identity() - K * H;
+        P_ = (I_KH * P_ * I_KH.transpose()) + (K * step.R * K.transpose());
     }
 };
 } // namespace app::state_estimation

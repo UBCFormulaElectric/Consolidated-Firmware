@@ -43,7 +43,7 @@ namespace
     constexpr std::size_t  U_AY = 2;
 
     constexpr float ESTIMATOR_DT_S        = 0.05f;  // Matches the 100 Hz control task.
-    constexpr float ESTIMATOR_YAW_INERTIA = 110.0f; // TODO: Replace with measured Hexray yaw inertia.
+    constexpr float ESTIMATOR_YAW_INERTIA = CAR_YAW_MOMENT_INERTIA_KGM2; // same yaw inertia as the controller
 
     [[nodiscard]] Filter::N_N processNoise()
     {
@@ -263,12 +263,12 @@ namespace VehicleStateEstimator
 
         // const auto gps_meas = Filter::M_1<GPS_DIM>(meas.gps_vx_mps, meas.gps_vy_mps);
         auto gps_meas = GpsMeas::none(); // temporarily disabling for testing
-
+#ifdef TARGET_EMBEDDED
         if (meas.sbg_ekf_mode == app::can_utils::VcEkfStatus::POSITION)
         {
             gps_meas = GpsMeas(meas.gps_vx_mps, meas.gps_vy_mps);
         }
-
+#endif
         const auto [vx_zero, vy_zero] = updateZeroSpeed();
         auto zerospeed_meas           = ZspeedMeas(0.0f, 0.0f);
         zerospeed_meas.valid[0]       = vx_zero;

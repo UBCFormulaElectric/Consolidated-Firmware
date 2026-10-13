@@ -111,9 +111,6 @@ void jobs_run100Hz_tick()
     app::shdnLoop::broadcast();
     app::shdnLast::broadcast();
 
-    // gps
-    app::sbgEllipse::broadcast();
-
     // state estimator
     // The estimator works in SI units: the IMU driver gives g and deg/s, the inverters give motor rpm and the FSM
     // gives the steering wheel angle in deg, so convert here.
