@@ -457,24 +457,33 @@ template <Decimal T, std::size_t STATES, std::size_t INPUTS, std::size_t... MEAS
         // the jacobian function works by providing you the jacobian (partial derrivatives of a function with respect to
         // each variable) and at the same time evaluating
         auto [H, y] = compute_H_eval_y<MEASUREMENTS>(measurement, step);
-        M_M<MEASUREMENTS> S =
-            H * P_ * H.transpose() + step.R; // find the evolution covariance using linearized measurement
+        // Remove the rows the caller marked invalid. This must not depend on the innovation gate being enabled.
+        for (std::size_t r = 0; r < MEASUREMENTS; ++r)
+        {
+            if (measurement_data.valid[r])
+                continue;
+            H.row(static_cast<Eigen::Index>(r)).setZero();
+            y(static_cast<Eigen::Index>(r)) = T(0);
+        }
+
+        M_M<MEASUREMENTS> S = H * P_ * H.transpose() + step.R; // innovation covariance of the remaining rows
 
         if (step.innovation_gate_thres > T(0))
         {
+            bool gated = false;
             for (std::size_t r = 0; r < MEASUREMENTS; ++r)
             {
-                const T nis = y(r) * y(r) / S(r, r); // chi-square innovation gate
+                const auto i = static_cast<Eigen::Index>(r);
+                if (!measurement_data.valid[r] || y(i) * y(i) / S(i, i) < step.innovation_gate_thres)
+                    continue; // already removed, or passes the chi-square innovation gate
 
-                if (nis < step.innovation_gate_thres && measurement_data.valid[r])
-                    continue;
-
-                H.row(r).setZero();
-                y(r) = 0;
+                H.row(i).setZero();
+                y(i)  = T(0);
+                gated = true;
             }
+            if (gated)
+                S.noalias() = H * P_ * H.transpose() + step.R;
         }
-
-        S.noalias() = H * P_ * H.transpose() + step.R; // find the evolution covariance using linearized measurement
 
         // evolution functions and measurement noise
         const N_M K =

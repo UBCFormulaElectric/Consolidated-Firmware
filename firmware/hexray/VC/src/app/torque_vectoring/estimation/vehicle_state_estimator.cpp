@@ -66,7 +66,7 @@ namespace
     {
         // Variance of each wheel's angular velocity, (rad/s)^2. Large on purpose: the model assumes free rolling, but
         // all four wheels are driven, so under drive/brake torque the measured speed includes slip (~5-10 % near peak).
-        return Filter::M_1<ZSPEED_DIM>(0.01f, 0.01f).asDiagonal();
+        return Filter::M_1<ZSPEED_DIM>(0.001f, 0.001f).asDiagonal();
     }
 
     // Predict Step
@@ -190,9 +190,10 @@ namespace
     //   v_x = 0: wheels stopped AND no longitudinal acceleration. The a_x check rejects a locked-wheel skid, where the
     //            wheels read 0 but the car is still decelerating.
     //   v_y = 0: wheels stopped AND no lateral acceleration AND no yaw rate. Rejects the car sliding sideways.
-    // The acceleration threshold sits above the bias (~0.15 m/s^2) and raw noise (sigma ~0.2 m/s^2).
-    constexpr float    ZERO_SPEED_WHEEL_RADPS = 0.5f; // ~0.1 m/s at the tire, 5 sigma above wheel speed noise
-    constexpr float    ZERO_SPEED_ACCEL_MPS2  = 0.7f;
+    // Thresholds are sized for worst-case sensor noise (wheel speed sigma 0.5 rad/s, acceleration sigma 0.8 m/s^2 with
+    // a 0.6 m/s^2 bias) so the checks still pass at standstill. A locked-wheel skid (a_x ~ -8 m/s^2) is still rejected.
+    constexpr float    ZERO_SPEED_WHEEL_RADPS = 1.5f; // 3 sigma of wheel speed noise, ~0.35 m/s at the tire
+    constexpr float    ZERO_SPEED_ACCEL_MPS2  = 2.0f; // bias + ~1.75 sigma of acceleration noise
     constexpr float    ZERO_SPEED_YAW_RADPS   = 0.1f;
     constexpr uint32_t ZERO_SPEED_CONFIRM     = 4U; // consecutive cycles (200 ms at 20 Hz) before the row is used
 
@@ -213,12 +214,18 @@ namespace
         return cycles >= ZERO_SPEED_CONFIRM;
     }
 
+    [[nodiscard]] bool zSpeedPedalCondition()
+    {
+        return (vehicle_state.apps < 0.02) && (vehicle_state.brake > 0.1);
+    }
+
     // Call once per estimate() cycle. Returns which axes are confirmed at zero velocity: {v_x, v_y}.
     [[nodiscard]] std::array<bool, ZSPEED_DIM> updateZeroSpeed()
     {
         const bool stopped = wheelsStopped();
-        const bool vx_zero = stopped && std::abs(vehicle_state.a_x_mps2) < ZERO_SPEED_ACCEL_MPS2;
-        const bool vy_zero = stopped && std::abs(vehicle_state.a_y_mps2) < ZERO_SPEED_ACCEL_MPS2 &&
+        const bool pedal_cond = zSpeedPedalCondition();
+        const bool vx_zero = stopped && pedal_cond && std::abs(vehicle_state.a_x_mps2) < ZERO_SPEED_ACCEL_MPS2;
+        const bool vy_zero = stopped && pedal_cond && std::abs(vehicle_state.a_y_mps2) < ZERO_SPEED_ACCEL_MPS2 &&
                              std::abs(vehicle_state.yaw_rate_radps) < ZERO_SPEED_YAW_RADPS;
 
         return { { confirm(vx_zero_cycles, vx_zero), confirm(vy_zero_cycles, vy_zero) } };
@@ -255,6 +262,8 @@ namespace VehicleStateEstimator
             .yaw_rate_radps = meas.yaw_rate_radps,
             .a_x_mps2       = meas.ax_mps2,
             .a_y_mps2       = meas.ay_mps2,
+            .apps = meas.apps,
+            .brake = meas.brake,
             .delta          = app::tv::estimation::steering::wheel_steer_angles(meas.delta),
             .omegas         = meas.omegas,
         };
@@ -268,15 +277,24 @@ namespace VehicleStateEstimator
         {
             gps_meas = GpsMeas(meas.gps_vx_mps, meas.gps_vy_mps);
         }
+#else
+        if (meas.enable_gps)
+        {
+            gps_meas = GpsMeas(meas.gps_vx_mps, meas.gps_vy_mps);
+        }
 #endif
         const auto [vx_zero, vy_zero] = updateZeroSpeed();
         auto zerospeed_meas           = ZspeedMeas(0.0f, 0.0f);
         zerospeed_meas.valid[0]       = vx_zero;
         zerospeed_meas.valid[1]       = vy_zero;
+        tv_debug_data.ekf_info.zero_vx_active = vx_zero ? 1.0 : 0.0;
+        tv_debug_data.ekf_info.zero_vy_active = vy_zero ? 1.0 : 0.0;
 
         Filter::Measurements z = { wheelspeed_meas, gps_meas, zerospeed_meas };
 
         const StateVector estimated_state = filter_.estimated_states(u, z);
+        tv_debug_data.ekf_info.est_v_x    = estimated_state(VX);
+        tv_debug_data.ekf_info.est_v_y    = estimated_state(VY);
 
         Covariance P                         = filter_.covariance();
         tv_debug_data.ekf_info.covariance[0] = P(0, 0);

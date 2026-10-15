@@ -1,5 +1,7 @@
 #pragma once
 
+#include <stdbool.h> // Simulink parses this header as C, where bool needs stdbool.h
+
 #include "tv_debug.h" // debug bus types
 
 #ifdef __cplusplus
@@ -7,16 +9,15 @@ extern "C"
 {
 #endif
     void estimate_matlab(
-        double    yaw_rate,
-        double    a_x,
-        double    a_y,
-        double    omegas[4],
-        double    steer,
-        double    gps_v_x,
-        double    gps_v_y,
-        double   *est_v_x,
-        double   *est_v_y,
-        tv_debug *debug);
+        double  yaw_rate,
+        double  a_x,
+        double  a_y,
+        double  omegas[4],
+        double  steer,
+        double  gps_v_x,
+        double  gps_v_y,
+        bool    enable_gps,
+        double *est_v_x, double *est_v_y, tv_debug *debug);
 
     /**
      * Matlab Wrapper for update
@@ -30,6 +31,10 @@ extern "C"
         double    apps,
         double    brake,
         double    steer,
+        double    gps_v_x,
+        double    gps_v_y,
+        bool      enable_gps,
+        const double omegas[4],
         double    kappas[4],
         double    torque_max[4],
         double    torque_min[4],

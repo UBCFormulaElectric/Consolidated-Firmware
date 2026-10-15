@@ -151,6 +151,8 @@ void jobs_run100Hz_tick()
         app::can_tx::VC_EkfCovVxVx_set(static_cast<float>(ekf.covariance[0]));
         app::can_tx::VC_EkfCovVxVy_set(static_cast<float>(ekf.covariance[1])); // P is symmetric: covariance[2] == [1]
         app::can_tx::VC_EkfCovVyVy_set(static_cast<float>(ekf.covariance[3]));
+        app::can_tx::VC_EkfZeroVxActive_set(ekf.zero_vx_active > 0.5);
+        app::can_tx::VC_EkfZeroVyActive_set(ekf.zero_vy_active > 0.5);
     }
 
     // pumps

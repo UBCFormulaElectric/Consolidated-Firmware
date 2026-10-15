@@ -45,17 +45,18 @@ template <Decimal T> [[nodiscard]] wheel_set<T> wheel_steer_angles(const T steer
 
     app::tv::shared_datatypes::wheel_set<T> wheel_ang_rad{};
 
-    // TODO: Verify axis and steering angle sensor values
-    // Positive steer_ang_rad = right turn
+    // ISO 8855 (x forward, y left, z up): positive steer_ang_rad = left turn, and positive wheel angles turn the
+    // wheels left. In a left turn the left wheel is the inner wheel.
+    // TODO: Verify the steering angle sensor sign on the car matches this
     if (steer_ang_clamped_rad >= static_cast<T>(0.0))
     {
-        wheel_ang_rad.fr = inner_wheel_ang_rad(steer_ang_clamped_rad);
-        wheel_ang_rad.fl = outer_wheel_ang_rad(steer_ang_clamped_rad);
+        wheel_ang_rad.fl = inner_wheel_ang_rad(steer_ang_clamped_rad);
+        wheel_ang_rad.fr = outer_wheel_ang_rad(steer_ang_clamped_rad);
     }
     else
     {
-        wheel_ang_rad.fr = outer_wheel_ang_rad(steer_ang_clamped_rad);
-        wheel_ang_rad.fl = inner_wheel_ang_rad(steer_ang_clamped_rad);
+        wheel_ang_rad.fl = outer_wheel_ang_rad(steer_ang_clamped_rad);
+        wheel_ang_rad.fr = inner_wheel_ang_rad(steer_ang_clamped_rad);
     }
 
     return wheel_ang_rad;

@@ -11,6 +11,7 @@
 #include "torque_vectoring/estimation/steering_model.hpp"
 
 using namespace app::tv::shared_datatypes;
+using namespace app::tv::controllers;
 using namespace vd_constants;
 
 tv_debug tv_debug_data{};
@@ -20,12 +21,12 @@ template <Decimal T> ControlOutput<T> update(const VehicleState<T> &state)
     //------------------------------------- HIGH LEVEL CONTROLLER ----------------------------//
 
     // TODO: add regen enabled into state, as an argument into update, or in some other struct
-    const T ax_mps2_setpoint =
-        app::tv::controllers::accel_request::compute_accel_request(state.apps, state.brake, state.v_x_mps, true);
+    const accel_request::AccelRequest<T> ax_request =
+        accel_request::compute(state.apps, state.brake, state.v_x_mps, true);
 
     // Direct yaw rate control: corrective yaw moment
-    const T omegadot_radps2_setpoint = app::tv::controllers::dyrc::computeYawMoment(
-        state.yaw_rate_radps, (state.delta.fl + state.delta.fr) / 2, state.v_x_mps);
+    const T omegadot_radps2_setpoint =
+        dyrc::computeYawMoment(state.yaw_rate_radps, (state.delta.fl + state.delta.fr) / 2, state.v_x_mps);
 
     tv_debug_data.veh_state.beta_rad = state.est_beta_rad();
 
@@ -39,12 +40,18 @@ template <Decimal T> ControlOutput<T> update(const VehicleState<T> &state)
 
     // ReSharper disable once CppUseStructuredBinding
     const wheel_set<T> kappa_opt =
-        app::tv::controllers::allocator::optimize(state, ax_mps2_setpoint, omegadot_radps2_setpoint);
+        allocator::optimize(state, ax_request.percentage * MAX_AX_MPS2, omegadot_radps2_setpoint);
 
     //------------------------------------- POWER LIMITER -----------------------------------//
     // TODO: slip_ratio_opt -> slipRatioToWheelAngularVelocity() -> power limiter -> torque request
 
-    return { { kappa_opt.fl, kappa_opt.fr, kappa_opt.rl, kappa_opt.rr }, { 21, 21, 21, 21 }, { -15, -15, -15, -15 } };
+    T torque_lower_bound = -15 * ax_request.regen_derate_factor;
+    T torque_upper_bound = 21 * ax_request.brake_derate_factor * ax_request.low_pedal_derate_factor;
+    // T torque_upper_bound = 21;
+
+    return { { kappa_opt.fl, kappa_opt.fr, kappa_opt.rl, kappa_opt.rr },
+             { torque_upper_bound, torque_upper_bound, torque_upper_bound, torque_upper_bound },
+             { torque_lower_bound, torque_lower_bound, torque_lower_bound, torque_lower_bound } };
 }
 template ControlOutput<tv_real> update(const VehicleState<tv_real> &state);
 
@@ -67,27 +74,45 @@ extern "C" void update_matlab(
     const double apps,
     const double brake,
     const double steer,
+    const double gps_v_x,
+    const double gps_v_y,
+    const bool enable_gps,
+    const double omegas[4],
     double       kappas[4],
     double       torque_max[4],
     double       torque_min[4],
     tv_debug    *debug)
 {
+    (void)v_x; // the estimator provides v_x / v_y now; the plant's true values are not used
+    (void)v_y;
+
     // The Vehicle Dynamics Blockset plant reports body quantities in SAE J670 axes (x forward, y right, z down:
-    // positive steer / yaw rate / lateral velocity / lateral accel = to the right). The controller uses ISO 8855
-    // (y left, z up, left wheels at +y), so every lateral quantity changes sign at this boundary. Without this the
-    // controller's left/right is mirrored relative to the real wheels: the yaw-rate loop becomes positive feedback
-    // and torque vectoring acts backwards in corners.
-    // Simulink works in double; the controller runs in tv_real (float unless TV_DOUBLE_PRECISION is defined).
-    const VehicleState<tv_real> state = {
-        .v_x_mps        = static_cast<tv_real>(v_x),
-        .v_y_mps        = static_cast<tv_real>(-v_y),
+    // positive steer / yaw rate / lateral velocity / lateral accel = to the right). The estimator and controller use
+    // ISO 8855 (x forward, y left, z up, positive steer / yaw rate = left), so every lateral quantity changes sign here.
+    // Longitudinal quantities and the per-wheel arrays (fl, fr, rl, rr) are the same in both frames. Without this the
+    // left/right is mirrored: the yaw-rate loop becomes positive feedback and torque vectoring acts backwards in corners.
+    const app::tv::estimation::Measurements meas = {
+        .ax_mps2        = static_cast<tv_real>(a_x),
+        .ay_mps2        = static_cast<tv_real>(-a_y),
         .yaw_rate_radps = static_cast<tv_real>(-yaw_rate),
-        .a_x_mps2       = static_cast<tv_real>(a_x),
-        .a_y_mps2       = static_cast<tv_real>(-a_y),
-        .apps           = static_cast<tv_real>(apps),
-        .brake          = static_cast<tv_real>(brake),
-        .delta          = app::tv::estimation::steering::wheel_steer_angles(static_cast<tv_real>(steer)),
+        .omegas         = {
+            .fl = static_cast<tv_real>(omegas[0]),
+            .fr = static_cast<tv_real>(omegas[1]),
+            .rl = static_cast<tv_real>(omegas[2]),
+            .rr = static_cast<tv_real>(omegas[3]),
+        },
+        .delta      = static_cast<tv_real>(-steer),
+        .apps = static_cast<tv_real>(apps),
+        .brake = static_cast<tv_real>(brake),
+        .gps_vx_mps = static_cast<tv_real>(gps_v_x),
+        .gps_vy_mps = static_cast<tv_real>(-gps_v_y),
+        .enable_gps = enable_gps,
     };
+    VehicleState<tv_real> state = app::tv::estimation::VehicleStateEstimator::estimate(meas);
+    // The estimator only fills in the vehicle state; the driver inputs come straight from Simulink.
+    state.apps  = static_cast<tv_real>(apps);
+    state.brake = static_cast<tv_real>(brake);
+
     // bring it in
     const auto [k_kappas, k_torque_max, k_torque_min] = update(state);
     // update
@@ -128,27 +153,36 @@ void estimate_matlab(
     double    steer,
     double    gps_v_x,
     double    gps_v_y,
+    bool    enable_gps,
     double   *est_v_x,
     double   *est_v_y,
     tv_debug *debug)
 {
+    // The Vehicle Dynamics Blockset plant reports body quantities in SAE J670 axes (x forward, y right, z down:
+    // positive steer / yaw rate / lateral velocity / lateral accel = to the right). The estimator and controller use
+    // ISO 8855 (x forward, y left, z up, positive steer / yaw rate = left), so every lateral quantity changes sign here.
+    // Longitudinal quantities and the per-wheel arrays (fl, fr, rl, rr) are the same in both frames. Without this the
+    // left/right is mirrored: the yaw-rate loop becomes positive feedback and torque vectoring acts backwards in corners.
     const app::tv::estimation::Measurements meas = {
         .ax_mps2        = static_cast<tv_real>(a_x),
-        .ay_mps2        = static_cast<tv_real>(a_y),
-        .yaw_rate_radps = static_cast<tv_real>(yaw_rate),
-        .omegas = {
+        .ay_mps2        = static_cast<tv_real>(-a_y),
+        .yaw_rate_radps = static_cast<tv_real>(-yaw_rate),
+        .omegas         = {
             .fl = static_cast<tv_real>(omegas[0]),
             .fr = static_cast<tv_real>(omegas[1]),
             .rl = static_cast<tv_real>(omegas[2]),
             .rr = static_cast<tv_real>(omegas[3]),
         },
-        .delta = static_cast<tv_real>(steer),
+        .delta      = static_cast<tv_real>(-steer),
+        .gps_vx_mps = static_cast<tv_real>(gps_v_x),
+        .gps_vy_mps = static_cast<tv_real>(-gps_v_y),
+        .enable_gps = enable_gps,
     };
+    const VehicleState<tv_real> state = app::tv::estimation::VehicleStateEstimator::estimate(meas);
 
-    app::tv::shared_datatypes::VehicleState<float> state = app::tv::estimation::VehicleStateEstimator::estimate(meas);
-
-    *est_v_x = state.v_x_mps;
-    *est_v_y = state.v_y_mps;
+    // Back to SAE so the outputs compare directly with the plant's BdyFrm.Cg.Vel signals.
+    *est_v_x = static_cast<double>(state.v_x_mps);
+    *est_v_y = -static_cast<double>(state.v_y_mps);
     *debug   = tv_debug_data;
 }
 #endif // TARGET_EMBEDDED

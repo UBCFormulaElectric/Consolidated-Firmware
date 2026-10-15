@@ -340,6 +340,12 @@
         "min": 0,
         "max": 100,
         "unit": "(m/s)^2"
+      },
+      "EkfZeroVxActive": {
+        "bits": 1
+      },
+      "EkfZeroVyActive": {
+        "bits": 1
       }
     },
     "data_capture": {

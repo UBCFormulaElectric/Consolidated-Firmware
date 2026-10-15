@@ -22,10 +22,14 @@ struct Measurements
     // specific to update step
     const shared_datatypes::wheel_set<float> omegas; // wheel speeds
     const float                              delta;
+    const float                              apps;
+    const float                              brake;
     const float                              gps_vx_mps;
     const float                              gps_vy_mps;
 #ifdef TARGET_EMBEDDED
     const app::can_utils::VcEkfStatus sbg_ekf_mode;
+#else
+    bool enable_gps;
 #endif
 };
 

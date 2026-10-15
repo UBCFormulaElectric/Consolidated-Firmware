@@ -31,6 +31,11 @@ typedef struct
 
 typedef struct
 {
+    double accel_request_percent;
+} accel_request_info;
+
+typedef struct
+{
     //     // We apply gain scheduling to the covariance matrices of each step to adapt for changing conditions
     //     // that may affect the accuracy of each step. for example, when the gps is not in its optimal mode
     //     // increase its gain on the covariance which will naturally deprioritize its impact in the EKF.
@@ -39,8 +44,12 @@ typedef struct
     //     double gps_gain;
     double pred_v_x;
     double pred_v_y;
+    double est_v_x;
+    double est_v_y;
     double pred_omegas[4];
     double covariance[4];
+    double zero_vx_active; // 1 when the zero-velocity update is applied to v_x this cycle
+    double zero_vy_active; // 1 when the zero-velocity update is applied to v_y this cycle
 } veh_ekf_info;
 
 typedef struct
@@ -49,6 +58,7 @@ typedef struct
     yrc_info       yrc;
     veh_state_info veh_state;
     veh_ekf_info   ekf_info;
+    accel_request_info accel_req;
 } tv_debug;
 
 #ifdef __cplusplus

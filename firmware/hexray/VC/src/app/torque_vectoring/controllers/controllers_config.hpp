@@ -21,5 +21,5 @@ static constexpr app::PID::Config PID_DYRC_config{
     .sample_time      = 0.01f // 10 ms sample time (100 Hz
 };
 
-static constexpr float DYRC_ku = 5e-4f;
+static constexpr float DYRC_ku = 0.0f;
 } // namespace app::tv::controllers::dyrc

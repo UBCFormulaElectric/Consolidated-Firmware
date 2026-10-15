@@ -1,3 +1,4 @@
+#include "torque_vectoring/tv_debug.h"
 #include "accel_request.hpp"
 #include "../shared_datatypes/constants.hpp"
 
@@ -7,7 +8,7 @@ using namespace app::tv::shared_datatypes::vd_constants;
 
 namespace app::tv::controllers::accel_request
 {
-template <Decimal T> T compute_accel_request(T apps, T brakes, T v_x_mps, bool regen_enabled)
+template <Decimal T> AccelRequest<T> compute(T apps, T brakes, T v_x_mps, bool regen_enabled)
 {
     (void)brakes; // TODO: Implement braking consideration. may require some kind of brake model
     // Net longitudinal request from both pedals (each 0..1). Braking requests fade out at low speed so the motors
@@ -16,7 +17,10 @@ template <Decimal T> T compute_accel_request(T apps, T brakes, T v_x_mps, bool r
     // const T brake_fade = std::clamp(state.v_x_mps / static_cast<T>(BRAKE_FADE_SPEED_MPS), T(0), T(1));
     // const T ax_mps2_setpoint = pedal >= 0 ? MAX_AX_MPS2 * pedal : MAX_AX_MPS2 * pedal * brake_fade;
 
-    T accel_request_percent = apps;
+    T accel_request_percent = (apps - PEDAL_DEADZONE) / (T(1.0) - PEDAL_DEADZONE);
+    T speed_derate_factor   = T(1.0);
+    T brake_derate_factor   = std::clamp(T(5.0) * (T(1.0) - brakes), T(0.0), T(1.0));
+    T low_pedal_derate_factor = std::clamp((apps / PEDAL_DEADZONE), T(0.0), T(1.0));
 
     /**
      * With Regen enabled, we remap the acceleration pedal to enable one pedal driving:
@@ -71,7 +75,7 @@ template <Decimal T> T compute_accel_request(T apps, T brakes, T v_x_mps, bool r
              */
 
             const T v_x_kmh             = static_cast<T>(MPS_TO_KMH(static_cast<float>(v_x_mps)));
-            T       speed_derate_factor = std::clamp((v_x_kmh - MIN_SPEED_REGEN_KMH) / MIN_SPEED_REGEN_KMH, T(0), T(1));
+            speed_derate_factor         = std::clamp((v_x_kmh - MIN_SPEED_REGEN_KMH) / MIN_SPEED_REGEN_KMH, T(0), T(1));
             accel_request_percent       = (apps_remap / REGEN_PEDAL_REGION) * speed_derate_factor;
         }
         else if (apps_remap < PEDAL_DEADZONE)
@@ -84,7 +88,11 @@ template <Decimal T> T compute_accel_request(T apps, T brakes, T v_x_mps, bool r
         }
     }
 
-    return accel_request_percent * MAX_AX_MPS2;
+
+
+    tv_debug_data.accel_req.accel_request_percent = accel_request_percent;
+
+    return { accel_request_percent, speed_derate_factor, brake_derate_factor, low_pedal_derate_factor };
 }
-template tv_real compute_accel_request(tv_real apps, tv_real brakes, tv_real v_x_mps, bool regen_enabled);
+template AccelRequest<tv_real> compute(tv_real apps, tv_real brakes, tv_real v_x_mps, bool regen_enabled);
 } // namespace app::tv::controllers::accel_request

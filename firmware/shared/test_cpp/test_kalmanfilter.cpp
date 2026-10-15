@@ -538,3 +538,40 @@ TEST(ExtendedKalmanFilterTest, ConstructorRejectsNonPdR)
         "R must be positive definite");
 }
 #endif
+
+/**
+ * SCENARIO: One row of an update step is marked invalid, with the innovation gate disabled.
+ *
+ * What this test is checking:
+ * - A row with valid = false has no effect on the state or covariance, even when the step has no innovation gate.
+ *   (Regression: the mask used to be applied only inside the gate, so invalid rows were still fused.)
+ *
+ * Setup: zero inputs, so F = I and v_x / v_y stay uncorrelated. Row 0 (v_x) is valid, row 1 (v_y) is not, and the
+ * v_y measurement is far from the state. v_y must then match a predict-only filter exactly.
+ */
+TEST(ExtendedKalmanFilterTest, InvalidRowIsIgnoredWithoutInnovationGate)
+{
+    EkfV2 x0;
+    x0 << 1.0f, 2.0f;
+
+    const EkfN2 P0 = EkfN2::Identity();
+    const EkfN2 Q  = 0.01f * EkfN2::Identity();
+    const EkfN2 R  = 0.04f * EkfN2::Identity();
+    const EkfU3 u  = EkfU3::Zero();
+
+    const auto f            = create_velocity_state_functions();
+    const auto update_steps = create_velocity_update_steps(R); // innovation_gate_thres defaults to 0 (gate off)
+
+    EkfVelocity masked(f, Q, update_steps, x0, P0);
+    EkfVelocity predict_only(f, Q, update_steps, x0, P0);
+
+    EkfVelocity::Measurement<2> z{ 0.0f, 50.0f }; // v_y row far from the state on purpose
+    z.valid[1] = false;
+
+    const EkfV2 x_masked = masked.estimated_states(u, EkfVelocity::Measurements{ z });
+    const EkfV2 x_pred   = predict_only.estimated_states(u, EkfVelocity::Measurements{ EkfVelocity::Measurement<2>::none() });
+
+    EXPECT_FLOAT_EQ(x_masked(1), x_pred(1));                                        // v_y untouched
+    EXPECT_FLOAT_EQ(masked.covariance()(1, 1), predict_only.covariance()(1, 1));    // and its variance too
+    EXPECT_LT(x_masked(0), x_pred(0));                                              // v_x still pulled toward 0
+}

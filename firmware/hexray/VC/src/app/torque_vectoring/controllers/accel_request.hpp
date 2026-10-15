@@ -4,6 +4,15 @@
 
 namespace app::tv::controllers::accel_request
 {
+
+template <Decimal T> struct AccelRequest
+{
+    T percentage;
+    T regen_derate_factor;
+    T brake_derate_factor;
+    T low_pedal_derate_factor;
+};
+
 /**
  * @brief Compute an acceleration request based on pedals and if regen is enabled.
  *
@@ -16,5 +25,5 @@ namespace app::tv::controllers::accel_request
  *
  * @return Acceleration request in mps^2
  */
-template <Decimal T> T compute_accel_request(T apps, T brakes, T v_x_mps, bool regen_enabled);
+template <Decimal T> AccelRequest<T> compute(T apps, T brakes, T v_x_mps, bool regen_enabled);
 } // namespace app::tv::controllers::accel_request
