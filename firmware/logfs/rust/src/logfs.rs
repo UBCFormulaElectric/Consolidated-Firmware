@@ -1,6 +1,7 @@
 use std::fs::OpenOptions;
 use std::fs::File;
 use std::io::{Read, Seek, SeekFrom, Write};
+#[cfg(unix)]
 use std::os::unix::fs::OpenOptionsExt;
 use std::os::raw::c_void;
 use std::path::Path;
@@ -8,7 +9,31 @@ use std::sync::{Arc, Mutex};
 use crate::bindings;
 use crate::bindings::*;
 
-/// LogFsUnixDisk: Disk abstraction for a logfs image on a Unix machine.
+
+pub trait LogFsDisk
+{
+    fn block_size(&self) -> u32;
+    fn block_count(&self) -> u32;
+
+    fn read_block(
+        &self,
+        block: u32,
+        buf: &mut [u8],
+    ) -> std::io::Result<()>;
+
+    fn write_block(
+        &self,
+        block: u32,
+        data: &[u8],
+    ) -> std::io::Result<()>;
+}
+
+struct DiskContext
+{
+    disk: Arc<dyn LogFsDisk>,
+}
+
+/// File-backed disk for a logfs image on Unix or Windows.
 pub struct LogFsUnixDisk {
     pub block_size: u32,
     pub block_count: u32,
@@ -17,16 +42,73 @@ pub struct LogFsUnixDisk {
 
 impl LogFsUnixDisk {
     pub fn new<P: AsRef<Path>>(block_size: u32, block_count: u32, disk_path: P) -> std::io::Result<Self> {
-        let file = OpenOptions::new()
-        .read(true)
-        .write(true)
-        .custom_flags(libc::O_SYNC)
-        .open(disk_path)?;
+        let mut options = OpenOptions::new();
+        options.read(true).write(true);
+        #[cfg(unix)]
+        options.custom_flags(libc::O_SYNC);
+        let file = options.open(disk_path)?;
         Ok(Self {
             block_size,
             block_count,
             file: Arc::new(Mutex::new(file)),
         })
+    }
+
+}
+
+impl LogFsDisk for LogFsUnixDisk {
+    fn block_size(&self) -> u32 {
+        self.block_size
+    }
+
+    fn block_count(&self) -> u32 {
+        self.block_count
+    }
+
+    fn read_block(
+        &self, 
+        block: u32,
+        buf: &mut [u8],
+    ) -> std::io::Result<()> {
+
+        if block >= self.block_count || buf.len() != self.block_size as usize
+        {
+            return Err(std::io::Error::new(
+                std::io::ErrorKind::InvalidInput,
+                "invalid block number or buffer length"
+            ));
+        }
+
+        let mut file = self.file.lock().map_err(|_| { std::io::Error::other("disk file lock failure")})?;
+
+        let offset = u64::from(block) * u64::from(self.block_size);
+        file.seek(SeekFrom::Start(offset))?;
+        file.read_exact(buf)
+    }
+
+    fn write_block(
+        &self,
+        block: u32,
+        data: &[u8],
+    ) -> std::io::Result<()> {
+
+        if block >= self.block_count || data.len() != self.block_size as usize
+        {
+            return Err(std::io::Error::new(
+                std::io::ErrorKind::InvalidInput,
+                "invalid block number or buffer length",
+            ));
+        }
+
+        let mut file = self.file.lock().map_err(|_| { std::io::Error::other("disk file lock poisoned")})?;
+
+        let offset = u64::from(block) * u64::from(self.block_size);
+        file.seek(SeekFrom::Start(offset))?;
+        file.write_all(data)?;
+        // Unix uses O_SYNC; other platforms explicitly persist each block.
+        #[cfg(not(unix))]
+        file.sync_all()?;
+        Ok(())
     }
 }
 
@@ -37,32 +119,25 @@ impl Drop for LogFsUnixDisk {
 }
 
 unsafe extern "C" fn read_wrapper(cfg: *const LogFsCfg, block: u32, buf: *mut c_void) -> LogFsErr {
-    let disk_ptr = (*cfg).context as *const LogFsUnixDisk;
-    let disk = &*disk_ptr;
-    let mut file = disk.file.lock().unwrap();
-    if file.seek(SeekFrom::Start(disk.block_size as u64 * block as u64)).is_err() {
-        return LogFsErr_LOGFS_ERR_IO;
+    let context = &*((*cfg).context as *const DiskContext);
+
+    let buffer = std::slice::from_raw_parts_mut(buf as *mut u8, context.disk.block_size() as usize,);
+
+    match context.disk.read_block(block, buffer) {
+        Ok(()) => LogFsErr_LOGFS_ERR_OK,
+        Err(_) => LogFsErr_LOGFS_ERR_IO,
     }
-    let mut tmp_buf = vec![0u8; disk.block_size as usize];
-    if let Err(_) = file.read_exact(&mut tmp_buf) {
-        return LogFsErr_LOGFS_ERR_IO;
-    }
-    std::ptr::copy_nonoverlapping(tmp_buf.as_ptr(), buf as *mut u8, disk.block_size as usize);
-    LogFsErr_LOGFS_ERR_OK
 }
 
 unsafe extern "C" fn write_wrapper(cfg: *const LogFsCfg, block: u32, buf: *mut c_void) -> LogFsErr {
-    let disk_ptr = (*cfg).context as *const LogFsUnixDisk;
-    let disk = &*disk_ptr;
-    let mut file = disk.file.lock().unwrap();
-    if file.seek(SeekFrom::Start(disk.block_size as u64 * block as u64)).is_err() {
-        return LogFsErr_LOGFS_ERR_IO;
+    let context = &*((*cfg).context as *const DiskContext);
+
+    let data = std::slice::from_raw_parts(buf as *const u8, context.disk.block_size() as usize);
+
+    match context.disk.write_block(block, data) {
+        Ok(()) => LogFsErr_LOGFS_ERR_OK,
+        Err(_) => LogFsErr_LOGFS_ERR_IO,
     }
-    let src = std::slice::from_raw_parts(buf as *const u8, disk.block_size as usize);
-    if let Err(_) = file.write_all(src) {
-        return LogFsErr_LOGFS_ERR_IO;
-    }
-    LogFsErr_LOGFS_ERR_OK
 }
 
 /// LogFsFile: Thin wrapper around a logfs file for Rust.
@@ -210,17 +285,19 @@ impl LogFsFile {
 pub struct LogFs {
     pub fs: Box<bindings::LogFs>,
     pub cfg: Box<bindings::LogFsCfg>,
-    pub _disk: Arc<LogFsUnixDisk>,
+    _context: Box<DiskContext>,
     pub _cache: Box<[u8]>,
 }
 
 impl LogFs {
-    pub fn new(block_size: u32, block_count: u32, disk: Arc<LogFsUnixDisk>, write_cycles: u32, rd_only: bool) -> Self {
+    pub fn new(block_size: u32, block_count: u32, disk: Arc<dyn LogFsDisk>, write_cycles: u32, rd_only: bool) -> Self {
         // Allocate a block-sized cache buffer for the C library to use
         let mut cache: Box<[u8]> = vec![0u8; block_size as usize].into_boxed_slice();
         let cache_ptr = cache.as_mut_ptr() as *mut c_void;
 
-        let context_ptr = Arc::as_ptr(&disk) as *mut c_void;
+        let context = Box::new(DiskContext{disk});
+        let context_ptr = (&*context as *const DiskContext) as *mut c_void; 
+
         let cfg = Box::new(bindings::LogFsCfg {
             context: context_ptr,
             block_size,
@@ -235,7 +312,7 @@ impl LogFs {
         let mut fs = Box::new(unsafe { std::mem::zeroed::<bindings::LogFs>() });
         fs.cfg = &*cfg as *const _;
 
-        Self { fs, cfg, _disk: disk, _cache: cache }
+        Self { fs, cfg, _context: context, _cache: cache }
     }
 
     pub fn mount(&mut self) -> Result<(), LogFsErr> {
@@ -287,7 +364,7 @@ impl LogFs {
     /// consumer (TrackSight backend) since it requires a CanDatabase, which
     /// this crate has no dependency on.
     pub fn cat(&mut self, path: &str) -> Result<(Vec<u8>, Vec<u8>), LogFsErr> {
-        match self.open(path, LogFsOpenFlags_LOGFS_OPEN_RD_ONLY) {
+        match self.open(path, LogFsOpenFlags_LOGFS_OPEN_RD_ONLY as u32) {
             Ok(mut file) => {
                 let metadata = file.read_metadata(None)?;
                 let data = file.read(None)?;
