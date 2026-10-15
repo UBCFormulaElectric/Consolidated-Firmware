@@ -39,7 +39,7 @@
 
 // Define the task with StaticTask Class
 constexpr size_t                                   TASK_COUNT = 7; // IMU, Batt Mon, Power Mon ADD
-static hw::rtos::StaticTask::StaticTaskStack<8096> Task100HzStack;
+static hw::rtos::StaticTask::StaticTaskStack<16192> Task100HzStack;
 static hw::rtos::StaticTask::StaticTaskStack<512>  Task1kHzStack;
 static hw::rtos::StaticTask::StaticTaskStack<512>  Task1HzStack;
 static hw::rtos::StaticTask::StaticTaskStack<512>  TaskImuStack;

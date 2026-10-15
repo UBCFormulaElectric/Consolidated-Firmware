@@ -3,7 +3,7 @@
 #include "app_canAlerts.hpp"
 #include "app_canTx.hpp"
 
-namespace app::imus
+namespace app::imu
 {
 using namespace app::can_alerts;
 using namespace io::imus;
@@ -71,4 +71,4 @@ bool initSuccess()
 {
     return imu1_init_ok.has_value();
 }
-} // namespace app::imus
+} // namespace app::imu

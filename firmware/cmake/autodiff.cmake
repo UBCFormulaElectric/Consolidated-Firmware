@@ -6,6 +6,7 @@ message("Auto diff lib")
 set(EIGEN_FLAGS
     -DEIGEN_STACK_ALLOCATION_LIMIT=0  # Disable dynamic allocation
     -DEIGEN_MAX_STATIC_ALIGN_BYTES=0  # No static alignment overhead
+    -DEIGEN_NO_MALLOC
 )
 
 set(AUTO_DIFF_INCLUDE_DIRS

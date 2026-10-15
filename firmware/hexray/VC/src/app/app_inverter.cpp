@@ -6,7 +6,7 @@
 #include "app_canTx.hpp"
 #include "app_canRx.hpp"
 #include "app_canAlerts.hpp"
-#include "torque_vectoring/datatypes/torque_limits.hpp"
+#include "torque_vectoring/shared_datatypes/torque_limits.hpp"
 #include "io_log.hpp"
 #include <app_canUtils.hpp>
 
