@@ -68,10 +68,7 @@ pub async fn run_serial_task(
         VecDeque::with_capacity(ERROR_RATE_WINDOW_SECS);
     let mut diag_interval = tokio::time::interval(Duration::from_secs(1));
 
-    out_msg_tx.send(TelemetryOutgoingMessage::BootInfoRequest)
-        .await
-        .unwrap_or_fail_health_check(&health_check_tx, Task::SerialHandler)
-        .await;
+    on_start_dam_init(&out_msg_tx, &health_check_tx).await;
 
     // no set up involved with packet sender and reader thread, send health check
     health_check_tx.send_health_check(Task::SerialHandler, true).await;
@@ -151,6 +148,20 @@ pub async fn run_serial_task(
     packet_reader.await.ok();
     packet_sender.await.ok();
     vprintln!("{}", yellow("Serial handler task ended."));
+}
+
+/**
+ * Some tasks to deal with DAM at startup
+ */
+async fn on_start_dam_init(out_msg_tx: &mpsc::Sender<TelemetryOutgoingMessage>, health_check_tx: &HealthCheckSender) {
+    out_msg_tx.send(TelemetryOutgoingMessage::NtpTrigger)
+        .await
+        .unwrap_or_fail_health_check(health_check_tx, Task::SerialHandler)
+        .await;
+    out_msg_tx.send(TelemetryOutgoingMessage::BootInfoRequest)
+        .await
+        .unwrap_or_fail_health_check(health_check_tx, Task::SerialHandler)
+        .await;
 }
 
 //
