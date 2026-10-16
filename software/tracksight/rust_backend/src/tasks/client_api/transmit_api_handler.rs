@@ -20,7 +20,19 @@ async fn ntp_trigger(State(state): State<AppState>) -> impl IntoResponse {
     }
 }
 
+/**
+ * Manually request for boot info
+ */
+async fn boot_info_trigger(State(state): State<AppState>) -> impl IntoResponse {
+    if state.client_out_msg_tx.send(TelemetryOutgoingMessage::BootInfoRequest).is_ok() {
+        return StatusCode::OK;
+    } else {
+        return StatusCode::INTERNAL_SERVER_ERROR;
+    }
+}
+
 pub fn get_transmit_router() -> Router<AppState> {
     return Router::new()
-        .route("/transmit/ntp", get(ntp_trigger));
+        .route("/transmit/ntp", get(ntp_trigger))
+        .route("/transmit/boot_info", get(boot_info_trigger));
 }
