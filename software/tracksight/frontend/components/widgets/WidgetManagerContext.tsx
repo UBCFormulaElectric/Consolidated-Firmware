@@ -1,11 +1,12 @@
-import { ReactNode, createContext, useCallback, useContext, useMemo } from "react";
+import { createContext, ReactNode, useCallback, useContext, useMemo } from "react";
 
 import chroma from "chroma-js";
 import { v4 as uuidv4 } from "uuid";
 
 import { IS_DEBUG } from "@/lib/constants";
 import { useLocalState } from "@/lib/hooks/useLocalState";
-import { WidgetData, WidgetType } from "@/lib/types/Widget";
+import { isBooleanSignalMetadata, isEnumSignalMetadata, isNumericalSignalMetadata, SignalMetadata } from "@/lib/types/Signal";
+import { canWidgetAcceptSignal, WidgetData, WidgetType } from "@/lib/types/Widget";
 
 const LOCAL_STORAGE_KEY = "tracksight_widgets_config_v1";
 
@@ -14,8 +15,11 @@ interface WidgetManagerContext {
     initializedFromLocalStorage: boolean;
     appendWidget: (newWidget: WidgetData) => void;
     removeWidget: (widgetToRemove: string) => void;
+    moveWidget: (widgetToMove: string, insertionIndex: number) => void;
+    moveWidgetToIndex: (widgetToMove: string, targetIndex: number) => void;
     appendSignal: <T extends WidgetType, Widget extends Extract<WidgetData, { type: T }>>(widget: Widget, newSignal: any) => void;
     removeSignal: (widget: WidgetData, nameOfSignalToRemove: string) => void;
+    moveSignal: (signalName: string, fromWidgetId: string, toWidgetId: string, atIndex?: number) => void;
     updateWidget: <T extends WidgetType, Widget extends Extract<WidgetData, { type: T }>>(widget: Widget, updater: (prevWidget: Widget) => Widget) => void;
 }
 
@@ -143,6 +147,54 @@ function removeSignalFromWidget(widget: WidgetData, signalName: string): WidgetD
     };
 }
 
+function moveArrayItem<T>(items: T[], fromIndex: number, toIndex: number): T[] {
+    const nextItems = [...items];
+    const direction = toIndex > fromIndex ? 1 : -1;
+
+    for (let index = fromIndex; index !== toIndex; index += direction) {
+        nextItems[index] = items[index + direction];
+    }
+    nextItems[toIndex] = items[fromIndex];
+
+    return nextItems;
+}
+
+function insertAt<T>(items: T[], item: T, index: number = items.length): T[] {
+    return [...items.slice(0, index), item, ...items.slice(index)];
+}
+
+function withPaletteEntry<T>(palette: Record<string, T>, signalName: string, entry: T | undefined): Record<string, T> {
+    if (entry === undefined) return palette;
+
+    return { ...palette, [signalName]: entry };
+}
+
+function addSignalFromWidget(targetWidget: WidgetData, sourceWidget: WidgetData, signal: SignalMetadata, atIndex?: number): WidgetData | null {
+    if (targetWidget.type === "numericalGraph" && sourceWidget.type === "numericalGraph" && isNumericalSignalMetadata(signal)) {
+        return {
+            ...targetWidget,
+            signals: insertAt(targetWidget.signals, signal, atIndex),
+            options: {
+                ...targetWidget.options,
+                colorPalette: withPaletteEntry(targetWidget.options.colorPalette, signal.name, sourceWidget.options.colorPalette[signal.name]),
+            },
+        };
+    }
+
+    if (targetWidget.type === "enumTimeline" && sourceWidget.type === "enumTimeline" && (isEnumSignalMetadata(signal) || isBooleanSignalMetadata(signal))) {
+        return {
+            ...targetWidget,
+            signals: insertAt(targetWidget.signals, signal, atIndex),
+            options: {
+                ...targetWidget.options,
+                colorPalette: withPaletteEntry(targetWidget.options.colorPalette, signal.name, sourceWidget.options.colorPalette[signal.name]),
+            },
+        };
+    }
+
+    return null;
+}
+
 export function WidgetManager({ children, storageKey = LOCAL_STORAGE_KEY }: { children: ReactNode; storageKey?: string }) {
     const [widgets, setWidgets, isInitialized] = useLocalState<WidgetData[]>(storageKey, [], WidgetSerialize, WidgetDeserialize);
 
@@ -165,6 +217,48 @@ export function WidgetManager({ children, storageKey = LOCAL_STORAGE_KEY }: { ch
                 const nextWidgets = [...prev];
                 nextWidgets.splice(widgetIndex, 1);
                 return nextWidgets;
+            });
+        },
+        [setWidgets]
+    );
+
+    const moveWidget = useCallback(
+        (widgetToMove: string, insertionIndex: number) => {
+            setWidgets((prev) => {
+                const fromIndex = prev.findIndex((widget) => widget.id === widgetToMove);
+                if (fromIndex === -1) {
+                    IS_DEBUG && console.warn("Widget to move not found");
+                    return prev;
+                }
+
+                const toIndex = insertionIndex > fromIndex ? insertionIndex - 1 : insertionIndex;
+                if (toIndex === fromIndex) {
+                    return prev;
+                }
+
+                return moveArrayItem(prev, fromIndex, toIndex);
+            });
+        },
+        [setWidgets]
+    );
+
+    const moveWidgetToIndex = useCallback(
+        (widgetToMove: string, targetIndex: number) => {
+            setWidgets((prev) => {
+                const fromIndex = prev.findIndex((widget) => widget.id === widgetToMove);
+                if (fromIndex === -1) {
+                    IS_DEBUG && console.warn("Widget to move not found");
+                    return prev;
+                }
+
+                if (targetIndex < 0 || targetIndex >= prev.length) {
+                    IS_DEBUG && console.warn(`Widget target index ${targetIndex} is out of range for ${prev.length} widgets`);
+                    return prev;
+                }
+
+                if (targetIndex === fromIndex) return prev;
+
+                return moveArrayItem(prev, fromIndex, targetIndex);
             });
         },
         [setWidgets]
@@ -223,6 +317,47 @@ export function WidgetManager({ children, storageKey = LOCAL_STORAGE_KEY }: { ch
         [setWidgets]
     );
 
+    const moveSignal = useCallback(
+        (signalName: string, fromWidgetId: string, toWidgetId: string, atIndex?: number) => {
+            setWidgets((prev) => {
+                const fromIndex = prev.findIndex((widget) => widget.id === fromWidgetId);
+                const toIndex = prev.findIndex((widget) => widget.id === toWidgetId);
+                if (fromIndex === -1 || toIndex === -1) {
+                    IS_DEBUG && console.warn("Widget to move signal between not found");
+                    return prev;
+                }
+
+                const sourceWidget = prev[fromIndex];
+
+                const signal = sourceWidget.signals.find((candidate) => candidate.name === signalName);
+                if (!signal) {
+                    IS_DEBUG && console.warn(`Signal to move not found in source widget: ${signalName}`);
+                    return prev;
+                }
+
+                const nextSourceWidget = removeSignalFromWidget(sourceWidget, signalName);
+                const targetWidget = fromIndex === toIndex ? nextSourceWidget : prev[toIndex];
+
+                if (!canWidgetAcceptSignal(targetWidget, signal)) {
+                    IS_DEBUG && console.warn(`Target widget cannot accept signal: ${signalName}`);
+                    return prev;
+                }
+
+                const nextTargetWidget = addSignalFromWidget(targetWidget, sourceWidget, signal, atIndex);
+                if (!nextTargetWidget) {
+                    IS_DEBUG && console.warn(`Signal palette cannot be moved between these widget types: ${signalName}`);
+                    return prev;
+                }
+
+                const nextWidgets = [...prev];
+                nextWidgets[fromIndex] = nextSourceWidget;
+                nextWidgets[toIndex] = nextTargetWidget;
+                return nextWidgets;
+            });
+        },
+        [setWidgets]
+    );
+
     const updateWidget = useCallback(
         <T extends WidgetType, Widget extends Extract<WidgetData, { type: T }>>(widget: Widget, updater: (prevWidget: Widget) => Widget) => {
             setWidgets((prev) => {
@@ -245,12 +380,15 @@ export function WidgetManager({ children, storageKey = LOCAL_STORAGE_KEY }: { ch
             widgets,
             appendWidget,
             removeWidget,
+            moveWidget,
+            moveWidgetToIndex,
             appendSignal,
             removeSignal,
+            moveSignal,
             updateWidget,
             initializedFromLocalStorage: isInitialized,
         }),
-        [widgets, appendWidget, removeWidget, appendSignal, removeSignal, updateWidget, isInitialized]
+        [widgets, appendWidget, removeWidget, moveWidget, moveWidgetToIndex, appendSignal, removeSignal, moveSignal, updateWidget, isInitialized]
     );
 
     return <WidgetManagerContext value={contextValue}>{children}</WidgetManagerContext>;
