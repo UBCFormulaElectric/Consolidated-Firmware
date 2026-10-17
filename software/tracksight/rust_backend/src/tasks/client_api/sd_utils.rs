@@ -133,8 +133,12 @@ pub async fn dump_sd_file(
     let decoded_signals = decode_can_log(&can_db, &metadata, &bytes);
 
     let mut influx_write_queue: Vec<DataPoint> = Vec::new();
+
+    // TODO parse hash and boot info from file name
+    let boot_state = None;
+
     for signal in decoded_signals {
-        match build_data_point(signal, InfluxSignalSource::SdCard) {
+        match build_data_point(&boot_state, signal, InfluxSignalSource::SdCard) {
             Ok(dp) => influx_write_queue.push(dp),
             Err(e) => vprintln!("Error building data point: {}, skipping signal", e),
         }
