@@ -73,7 +73,7 @@ if __name__ == "__main__":
         "--can-json",
         type=str,
         help="Path to JSONCAN source files",
-        default=os.path.join(root_dir, "can_bus", "quintuna"),
+        default=os.path.join(root_dir, "can_bus", "hexray"),
     )
     parser.add_argument(
         "--name",
