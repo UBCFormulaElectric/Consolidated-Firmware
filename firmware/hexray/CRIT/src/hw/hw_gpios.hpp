@@ -9,3 +9,7 @@ extern const hw::gpio rot_b;
 extern const hw::gpio rot_a;
 extern const hw::gpio led_rck;
 extern const hw::gpio seven_seg_rck;
+extern const hw::gpio torque_vectoring;
+extern const hw::gpio regen;
+extern const hw::gpio debug;
+extern const hw::gpio boot;

@@ -15,6 +15,7 @@
 #include "io_canQueues.hpp"
 #include "io_leds.hpp"
 #include "io_sevenSeg.hpp"
+#include "io_switches.hpp"
 
 void jobs_init()
 {
@@ -43,9 +44,12 @@ void jobs_run1Hz_tick()
 }
 void jobs_run100Hz_tick()
 {
+    // ADD YOUR LOGIC HERE
+    const bool regen            = app::switches::regen_get();
+    const bool torque_vectoring = app::switches::torque_vectoring_get();
 
-    // ADD YOUR LOGIC HERE 
-
+    io::leds::boot_set(regen);
+    io::leds::torque_boot_set(torque_vectoring);
 
     //
     app::switches::broadcast();

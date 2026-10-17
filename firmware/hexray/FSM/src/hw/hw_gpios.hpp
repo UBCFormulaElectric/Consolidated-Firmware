@@ -13,3 +13,5 @@ extern const hw::gpio debug_led;
 extern const hw::gpio nstr_angle_ocsc;
 extern const hw::gpio nbps_f_ocsc;
 extern const hw::gpio boot_led;
+extern const hw::gpio torque_vectoring;
+extern const hw::gpio regen;
