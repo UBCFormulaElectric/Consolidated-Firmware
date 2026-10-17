@@ -138,7 +138,7 @@ class MockSignalStore extends SignalStore {
         this.incrementSubscribers(signal.name);
 
         if (this.getSubscriberCount(signal.name) === 1 && signal.type !== SignalType.ALERT) {
-            this.generators.set(signal.name, this.createGenerator(signal, 1000 / SAMPLE_HZ));
+            this.generators.set(signal.name, this.createGenerator(signal, signal.cycle_time_ms ?? 1000 / SAMPLE_HZ) /* TEMP */);
         }
 
         return signalData.data as any;
