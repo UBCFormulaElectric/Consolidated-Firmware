@@ -33,7 +33,6 @@
 #include "io_faultLatch.hpp"
 #include "io_semaphore.hpp"
 #include "io_time.hpp"
-#include "io_notify.hpp"
 #include "io_irs.hpp"
 
 using io::adbms::Cells;
