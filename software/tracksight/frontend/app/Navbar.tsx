@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import { ErrorRateIndicator } from "@/components/ErrorRateIndicator";
+import NTPSyncButton from "@/components/NTPSyncButton";
 import { TimezoneSelector } from "@/components/common/TimezoneSelector";
 import { formatSessionLabel } from "@/lib/api/historicalSessions";
 import { useHistoricalSelection } from "@/lib/contexts/HistoricalSelectionContext";
@@ -49,6 +50,7 @@ function Navbar() {
                     <Link href="/sd/dump">SD Card Dump</Link>
                 </div>
                 <div className="flex items-center gap-4">
+                    <NTPSyncButton />
                     {isHistorical ? <HistoricalNavControls /> : null}
                     <TimezoneSelector />
                     <ErrorRateIndicator />
