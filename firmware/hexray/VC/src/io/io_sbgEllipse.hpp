@@ -42,6 +42,12 @@ struct VelocityData
     float    north_std_dev;
     float    east_std_dev;
     float    down_std_dev;
+    float    vel_x;
+    float    vel_y;
+    float    vel_z;
+    float    vel_x_std_dev;
+    float    vel_y_std_dev;
+    float    vel_z_std_dev;
 };
 
 struct EkfNavPacketData

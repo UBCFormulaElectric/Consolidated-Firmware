@@ -34,21 +34,23 @@ void broadcast()
     can_tx::VC_EllipseTimestamp_set(timestamp_us);
 
     // EKF
-    const io::sbgEllipse::VelocityData VelData            = io::sbgEllipse::getEkfNavVelocityData();
-    float                              ekf_vel_N          = VelData.north;
-    float                              ekf_vel_E          = VelData.east;
-    float                              ekf_vel_D          = VelData.down;
-    const float                        ekf_vel_N_accuracy = VelData.north_std_dev;
-    const float                        ekf_vel_E_accuracy = VelData.east_std_dev;
-    const float                        ekf_vel_D_accuracy = VelData.down_std_dev;
+    const io::sbgEllipse::VelocityData VelData = io::sbgEllipse::getEkfNavVelocityData();
 
-    can_tx::VC_VelocityNorth_set(ekf_vel_N);
-    can_tx::VC_VelocityEast_set(ekf_vel_E);
-    can_tx::VC_VelocityDown_set(ekf_vel_D);
+    can_tx::VC_VelocityNorth_set(VelData.north);
+    can_tx::VC_VelocityEast_set(VelData.east);
+    can_tx::VC_VelocityDown_set(VelData.down);
 
-    can_tx::VC_VelocityNorthAccuracy_set(ekf_vel_N_accuracy);
-    can_tx::VC_VelocityEastAccuracy_set(ekf_vel_E_accuracy);
-    can_tx::VC_VelocityDownAccuracy_set(ekf_vel_D_accuracy);
+    can_tx::VC_VelocityNorthAccuracy_set(VelData.north_std_dev);
+    can_tx::VC_VelocityEastAccuracy_set(VelData.east_std_dev);
+    can_tx::VC_VelocityDownAccuracy_set(VelData.down_std_dev);
+
+    can_tx::VC_VelocityX_set(VelData.vel_x);
+    can_tx::VC_VelocityY_set(VelData.vel_y);
+    can_tx::VC_VelocityZ_set(VelData.vel_z);
+
+    can_tx::VC_VelocityXAccuracy_set(VelData.vel_x_std_dev);
+    can_tx::VC_VelocityYAccuracy_set(VelData.vel_y_std_dev);
+    can_tx::VC_VelocityZAccuracy_set(VelData.vel_z_std_dev);
 
     // Velocity
     ekf_solution_mode = (can_utils::VcEkfStatus)io::sbgEllipse::getEkfSolutionMode();
@@ -68,9 +70,34 @@ void broadcast()
     can_tx::VC_EulerAnglesYaw_set(euler_yaw);
 }
 
-float getVehicleVelocity(io::sbgEllipse::VelocityData &VelData)
+float bodyVelX()
 {
-    return sqrtf(SQUARE(VelData.north) + SQUARE(VelData.east) + SQUARE(VelData.down));
+    return io::sbgEllipse::getEkfNavVelocityData().vel_x;
+}
+
+float bodyVelY()
+{
+    return io::sbgEllipse::getEkfNavVelocityData().vel_y;
+}
+
+float bodyVelZ()
+{
+    return io::sbgEllipse::getEkfNavVelocityData().vel_z;
+}
+
+float globalVelN()
+{
+    return io::sbgEllipse::getEkfNavVelocityData().north;
+}
+
+float globalVelE()
+{
+    return io::sbgEllipse::getEkfNavVelocityData().east;
+}
+
+float globalVelD()
+{
+    return io::sbgEllipse::getEkfNavVelocityData().down;
 }
 
 bool sbgInitOk()

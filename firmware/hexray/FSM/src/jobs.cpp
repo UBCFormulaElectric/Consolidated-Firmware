@@ -48,11 +48,9 @@ void jobs_run100Hz_tick()
 {
     app::apps::broadcast();
     app::brake::broadcast();
-    app::imu::broadcast();
-    // app::shdnLoop::broadcast();
+    app::shdnLoop::broadcast();
     app::steering::broadcast();
     app::suspension::broadcast();
-    fsm_shdnLoop.broadcast();
 
     hb_monitor.checkIn();
     hb_monitor.broadcastFaults();
