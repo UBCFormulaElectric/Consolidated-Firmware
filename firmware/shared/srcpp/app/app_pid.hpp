@@ -57,6 +57,17 @@ class PID
     [[nodiscard]] float getIntegral();
     [[nodiscard]] float getDerivative();
 
+    /**
+     * Update the output limits at runtime, for limits that change every tick (e.g. derated torque limits). These are
+     * also the limits back calculation unwinds the integral against.
+     */
+    void setOutputLimits(const float min, const float max)
+    {
+        assert(max >= min);
+        out_min = min;
+        out_max = max;
+    }
+
   private:
     // Gains and coefficients
     float Kp;

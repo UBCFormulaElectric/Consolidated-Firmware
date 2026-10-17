@@ -1,0 +1,44 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\_deps\googletest-subbuild\CMakeFiles\9770e4e9f77198f96507d8df4473381e\googletest-populate-mkdir.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+    <CustomBuild Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\_deps\googletest-subbuild\CMakeFiles\9770e4e9f77198f96507d8df4473381e\googletest-populate-download.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+    <CustomBuild Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\_deps\googletest-subbuild\CMakeFiles\9770e4e9f77198f96507d8df4473381e\googletest-populate-update.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+    <CustomBuild Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\_deps\googletest-subbuild\CMakeFiles\9770e4e9f77198f96507d8df4473381e\googletest-populate-patch.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+    <CustomBuild Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\_deps\googletest-subbuild\CMakeFiles\9770e4e9f77198f96507d8df4473381e\googletest-populate-configure.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+    <CustomBuild Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\_deps\googletest-subbuild\CMakeFiles\9770e4e9f77198f96507d8df4473381e\googletest-populate-build.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+    <CustomBuild Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\_deps\googletest-subbuild\CMakeFiles\9770e4e9f77198f96507d8df4473381e\googletest-populate-install.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+    <CustomBuild Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\_deps\googletest-subbuild\CMakeFiles\9770e4e9f77198f96507d8df4473381e\googletest-populate-test.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+    <CustomBuild Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\_deps\googletest-subbuild\CMakeFiles\4ea3364077ce741af5a7e88a26c86371\googletest-populate-complete.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+    <CustomBuild Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\_deps\googletest-subbuild\CMakeFiles\540f5157f574eec170cb6f5e8d039cab\googletest-populate.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+    <CustomBuild Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\_deps\googletest-subbuild\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\_deps\googletest-subbuild\CMakeFiles\googletest-populate" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{562CEDB7-FD0C-3F63-9692-E48A0CD2B021}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

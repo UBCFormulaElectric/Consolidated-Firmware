@@ -42,7 +42,7 @@ namespace
     constexpr std::size_t  U_AX = 1;
     constexpr std::size_t  U_AY = 2;
 
-    constexpr float ESTIMATOR_DT_S        = 0.05f;  // Matches the 100 Hz control task.
+    constexpr float ESTIMATOR_DT_S        = 0.05f;                       // Matches the 100 Hz control task.
     constexpr float ESTIMATOR_YAW_INERTIA = CAR_YAW_MOMENT_INERTIA_KGM2; // same yaw inertia as the controller
 
     [[nodiscard]] Filter::N_N processNoise()
@@ -222,10 +222,10 @@ namespace
     // Call once per estimate() cycle. Returns which axes are confirmed at zero velocity: {v_x, v_y}.
     [[nodiscard]] std::array<bool, ZSPEED_DIM> updateZeroSpeed()
     {
-        const bool stopped = wheelsStopped();
+        const bool stopped    = wheelsStopped();
         const bool pedal_cond = zSpeedPedalCondition();
-        const bool vx_zero = stopped && pedal_cond && std::abs(vehicle_state.a_x_mps2) < ZERO_SPEED_ACCEL_MPS2;
-        const bool vy_zero = stopped && pedal_cond && std::abs(vehicle_state.a_y_mps2) < ZERO_SPEED_ACCEL_MPS2 &&
+        const bool vx_zero    = stopped && pedal_cond && std::abs(vehicle_state.a_x_mps2) < ZERO_SPEED_ACCEL_MPS2;
+        const bool vy_zero    = stopped && pedal_cond && std::abs(vehicle_state.a_y_mps2) < ZERO_SPEED_ACCEL_MPS2 &&
                              std::abs(vehicle_state.yaw_rate_radps) < ZERO_SPEED_YAW_RADPS;
 
         return { { confirm(vx_zero_cycles, vx_zero), confirm(vy_zero_cycles, vy_zero) } };
@@ -262,8 +262,8 @@ namespace VehicleStateEstimator
             .yaw_rate_radps = meas.yaw_rate_radps,
             .a_x_mps2       = meas.ax_mps2,
             .a_y_mps2       = meas.ay_mps2,
-            .apps = meas.apps,
-            .brake = meas.brake,
+            .apps           = meas.apps,
+            .brake          = meas.brake,
             .delta          = app::tv::estimation::steering::wheel_steer_angles(meas.delta),
             .omegas         = meas.omegas,
         };
@@ -283,10 +283,10 @@ namespace VehicleStateEstimator
             gps_meas = GpsMeas(meas.gps_vx_mps, meas.gps_vy_mps);
         }
 #endif
-        const auto [vx_zero, vy_zero] = updateZeroSpeed();
-        auto zerospeed_meas           = ZspeedMeas(0.0f, 0.0f);
-        zerospeed_meas.valid[0]       = vx_zero;
-        zerospeed_meas.valid[1]       = vy_zero;
+        const auto [vx_zero, vy_zero]         = updateZeroSpeed();
+        auto zerospeed_meas                   = ZspeedMeas(0.0f, 0.0f);
+        zerospeed_meas.valid[0]               = vx_zero;
+        zerospeed_meas.valid[1]               = vy_zero;
         tv_debug_data.ekf_info.zero_vx_active = vx_zero ? 1.0 : 0.0;
         tv_debug_data.ekf_info.zero_vy_active = vy_zero ? 1.0 : 0.0;
 

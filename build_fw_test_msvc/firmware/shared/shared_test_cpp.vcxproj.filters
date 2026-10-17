@@ -1,0 +1,61 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\shared\srcpp_fake\io_filesystem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\shared\srcpp_fake\io_imu.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\shared\srcpp_fake\io_time.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\shared\test_cpp\test_kalmanfilter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\shared\test_cpp\test_log.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\shared\test_cpp\test_pid_cpp.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\shared\test_cpp\test_sensor_filter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\shared\test_cpp\test_thermistor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\shared\srcpp\app\app_bootcount.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\shared\srcpp\app\app_crc32.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\shared\srcpp\app\app_crc8.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\shared\srcpp\app\app_math.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\shared\srcpp\app\app_pid.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\shared\srcpp\app\app_sensor_filter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\shared\srcpp\app\app_stateMachine.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\shared\srcpp\app\app_timer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\shared\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{5D665A10-17A5-3DE4-930B-C6F77E98E50A}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

@@ -1,0 +1,150 @@
+^C:\USERS\HITAR\ONEDRIVE\DESKTOP\UBC_FE\CONSOLIDATED-FIRMWARE\BUILD_FW_TEST_MSVC\_DEPS\GOOGLETEST-SUBBUILD\CMAKEFILES\9770E4E9F77198F96507D8DF4473381E\GOOGLETEST-POPULATE-MKDIR.RULE
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -Dcfgdir=/Debug -P C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/_deps/googletest-subbuild/googletest-populate-prefix/tmp/googletest-populate-mkdirs.cmake
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E touch C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/_deps/googletest-subbuild/googletest-populate-prefix/src/googletest-populate-stamp/Debug/googletest-populate-mkdir
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+^C:\USERS\HITAR\ONEDRIVE\DESKTOP\UBC_FE\CONSOLIDATED-FIRMWARE\BUILD_FW_TEST_MSVC\_DEPS\GOOGLETEST-SUBBUILD\CMAKEFILES\9770E4E9F77198F96507D8DF4473381E\GOOGLETEST-POPULATE-DOWNLOAD.RULE
+setlocal
+cd C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\_deps
+if %errorlevel% neq 0 goto :cmEnd
+C:
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -DCMAKE_MESSAGE_LOG_LEVEL=VERBOSE -P C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/_deps/googletest-subbuild/googletest-populate-prefix/tmp/googletest-populate-gitclone.cmake
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E touch C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/_deps/googletest-subbuild/googletest-populate-prefix/src/googletest-populate-stamp/Debug/googletest-populate-download
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+^C:\USERS\HITAR\ONEDRIVE\DESKTOP\UBC_FE\CONSOLIDATED-FIRMWARE\BUILD_FW_TEST_MSVC\_DEPS\GOOGLETEST-SUBBUILD\CMAKEFILES\9770E4E9F77198F96507D8DF4473381E\GOOGLETEST-POPULATE-UPDATE.RULE
+setlocal
+cd C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\_deps\googletest-src
+if %errorlevel% neq 0 goto :cmEnd
+C:
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -Dcan_fetch=YES -DCMAKE_MESSAGE_LOG_LEVEL=VERBOSE -P C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/_deps/googletest-subbuild/googletest-populate-prefix/tmp/googletest-populate-gitupdate.cmake
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+^C:\USERS\HITAR\ONEDRIVE\DESKTOP\UBC_FE\CONSOLIDATED-FIRMWARE\BUILD_FW_TEST_MSVC\_DEPS\GOOGLETEST-SUBBUILD\CMAKEFILES\9770E4E9F77198F96507D8DF4473381E\GOOGLETEST-POPULATE-PATCH.RULE
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -E echo_append
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E touch C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/_deps/googletest-subbuild/googletest-populate-prefix/src/googletest-populate-stamp/Debug/googletest-populate-patch
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+^C:\USERS\HITAR\ONEDRIVE\DESKTOP\UBC_FE\CONSOLIDATED-FIRMWARE\BUILD_FW_TEST_MSVC\_DEPS\GOOGLETEST-SUBBUILD\CMAKEFILES\9770E4E9F77198F96507D8DF4473381E\GOOGLETEST-POPULATE-CONFIGURE.RULE
+setlocal
+cd C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\_deps\googletest-build
+if %errorlevel% neq 0 goto :cmEnd
+C:
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E echo_append
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E touch C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/_deps/googletest-subbuild/googletest-populate-prefix/src/googletest-populate-stamp/Debug/googletest-populate-configure
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+^C:\USERS\HITAR\ONEDRIVE\DESKTOP\UBC_FE\CONSOLIDATED-FIRMWARE\BUILD_FW_TEST_MSVC\_DEPS\GOOGLETEST-SUBBUILD\CMAKEFILES\9770E4E9F77198F96507D8DF4473381E\GOOGLETEST-POPULATE-BUILD.RULE
+setlocal
+cd C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\_deps\googletest-build
+if %errorlevel% neq 0 goto :cmEnd
+C:
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E echo_append
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E touch C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/_deps/googletest-subbuild/googletest-populate-prefix/src/googletest-populate-stamp/Debug/googletest-populate-build
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+^C:\USERS\HITAR\ONEDRIVE\DESKTOP\UBC_FE\CONSOLIDATED-FIRMWARE\BUILD_FW_TEST_MSVC\_DEPS\GOOGLETEST-SUBBUILD\CMAKEFILES\9770E4E9F77198F96507D8DF4473381E\GOOGLETEST-POPULATE-INSTALL.RULE
+setlocal
+cd C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\_deps\googletest-build
+if %errorlevel% neq 0 goto :cmEnd
+C:
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E echo_append
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E touch C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/_deps/googletest-subbuild/googletest-populate-prefix/src/googletest-populate-stamp/Debug/googletest-populate-install
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+^C:\USERS\HITAR\ONEDRIVE\DESKTOP\UBC_FE\CONSOLIDATED-FIRMWARE\BUILD_FW_TEST_MSVC\_DEPS\GOOGLETEST-SUBBUILD\CMAKEFILES\9770E4E9F77198F96507D8DF4473381E\GOOGLETEST-POPULATE-TEST.RULE
+setlocal
+cd C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\_deps\googletest-build
+if %errorlevel% neq 0 goto :cmEnd
+C:
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E echo_append
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E touch C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/_deps/googletest-subbuild/googletest-populate-prefix/src/googletest-populate-stamp/Debug/googletest-populate-test
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+^C:\USERS\HITAR\ONEDRIVE\DESKTOP\UBC_FE\CONSOLIDATED-FIRMWARE\BUILD_FW_TEST_MSVC\_DEPS\GOOGLETEST-SUBBUILD\CMAKEFILES\4EA3364077CE741AF5A7E88A26C86371\GOOGLETEST-POPULATE-COMPLETE.RULE
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -E make_directory C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/_deps/googletest-subbuild/CMakeFiles/Debug
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E touch C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/_deps/googletest-subbuild/CMakeFiles/Debug/googletest-populate-complete
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E touch C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/_deps/googletest-subbuild/googletest-populate-prefix/src/googletest-populate-stamp/Debug/googletest-populate-done
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+^C:\USERS\HITAR\ONEDRIVE\DESKTOP\UBC_FE\CONSOLIDATED-FIRMWARE\BUILD_FW_TEST_MSVC\_DEPS\GOOGLETEST-SUBBUILD\CMAKEFILES\540F5157F574EEC170CB6F5E8D039CAB\GOOGLETEST-POPULATE.RULE
+setlocal
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+^C:\USERS\HITAR\ONEDRIVE\DESKTOP\UBC_FE\CONSOLIDATED-FIRMWARE\BUILD_FW_TEST_MSVC\_DEPS\GOOGLETEST-SUBBUILD\CMAKELISTS.TXT
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/_deps/googletest-subbuild -BC:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/_deps/googletest-subbuild --check-stamp-file C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/_deps/googletest-subbuild/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

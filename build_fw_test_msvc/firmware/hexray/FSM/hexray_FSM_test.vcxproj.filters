@@ -1,0 +1,103 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\hexray\FSM\src\app\app_apps.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\hexray\FSM\src\app\app_brake.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\hexray\FSM\src\app\app_fsmShdnLoop.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\hexray\FSM\src\app\app_heartbeatMonitors.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\hexray\FSM\src\app\app_imu.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\hexray\FSM\src\app\app_steering.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\hexray\FSM\src\app\app_suspension.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\shared\src\app\app_shdnLoopNode.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\shared\srcpp\app\app_timer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\hexray\FSM\src\jobs.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\hexray\FSM\test\fsmMocks.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\hexray\FSM\test\test_apps.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\hexray\FSM\test\test_brake.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\hexray\FSM\test\test_imu.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\hexray\FSM\test\test_shdnLoop.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\hexray\FSM\test\test_steering.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\hexray\FSM\test\test_suspension.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\shared\srcpp_fake\io_shdnLoopNode.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\shared\srcpp_fake\io_imu.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\shared\srcpp_fake\io_time.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\hexray\FSM\app\app_canTx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\hexray\FSM\io\io_canTx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\hexray\FSM\app\app_canRx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\hexray\FSM\io\io_canRx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\hexray\FSM\app\app_canUtils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\hexray\FSM\app\app_canAlerts.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\hexray\FSM\app\app_canDataCapture.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\hexray\FSM\io\io_canReroute.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\CMakeFiles\b1d5778c8593665c425bc29d7139221d\app_canTx.cpp.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+    <CustomBuild Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\hexray\FSM\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{A2C374D3-E352-3B11-85F7-6688E6D280F4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{5D665A10-17A5-3DE4-930B-C6F77E98E50A}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

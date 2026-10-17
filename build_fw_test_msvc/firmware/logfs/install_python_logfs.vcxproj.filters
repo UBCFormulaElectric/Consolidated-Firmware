@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\CMakeFiles\2938fff0663755e85a861c183222368c\install_python_logfs.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+    <CustomBuild Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\logfs\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\logfs\CMakeFiles\install_python_logfs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{A2C374D3-E352-3B11-85F7-6688E6D280F4}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

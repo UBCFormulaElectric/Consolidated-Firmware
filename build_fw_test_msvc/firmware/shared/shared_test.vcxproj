@@ -1,0 +1,987 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <PreferredToolArchitecture>x64</PreferredToolArchitecture>
+  </PropertyGroup>
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="MinSizeRel|x64">
+      <Configuration>MinSizeRel</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="RelWithDebInfo|x64">
+      <Configuration>RelWithDebInfo</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{FE5F031C-909F-3F4B-94DE-F8ABC96DA7E8}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <WindowsTargetPlatformVersion>10.0.26100.0</WindowsTargetPlatformVersion>
+    <Platform>x64</Platform>
+    <ProjectName>shared_test</ProjectName>
+    <VCProjectUpgraderObjectName>NoUpgrade</VCProjectUpgraderObjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.20506.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\Debug\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">shared_test.dir\Debug\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">shared_test</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.exe</TargetExt>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</LinkIncremental>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</GenerateManifest>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\Release\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">shared_test.dir\Release\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">shared_test</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.exe</TargetExt>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkIncremental>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</GenerateManifest>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\MinSizeRel\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">shared_test.dir\MinSizeRel\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">shared_test</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">.exe</TargetExt>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">false</LinkIncremental>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">true</GenerateManifest>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\RelWithDebInfo\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">shared_test.dir\RelWithDebInfo\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">shared_test</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">.exe</TargetExt>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">true</LinkIncremental>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">true</GenerateManifest>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\shared\src\app;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\shared\test;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\shared\src\util;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\test;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\app;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\io;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\shared\src\io;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /external:I "C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/_deps/googletest-src/googletest/include" /external:I "C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/_deps/googletest-src/googletest"</AdditionalOptions>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <ExternalWarningLevel>TurnOffAllWarnings</ExternalWarningLevel>
+      <ForceConformanceInForLoopScope></ForceConformanceInForLoopScope>
+      <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <LanguageStandard_C>stdc17</LanguageStandard_C>
+      <MinimalRebuild></MinimalRebuild>
+      <Optimization>Disabled</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RemoveUnreferencedCodeData></RemoveUnreferencedCodeData>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <SupportJustMyCode></SupportJustMyCode>
+      <TreatWChar_tAsBuiltInType></TreatWChar_tAsBuiltInType>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;STM32H733xx;DEBUG=1;TARGET_TEST;_USE_MATH_DEFINES;CMAKE_INTDIR="Debug"</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_DEBUG;_WINDOWS;STM32H733xx;DEBUG=1;TARGET_TEST;_USE_MATH_DEFINES;CMAKE_INTDIR=\"Debug\"</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\shared\src\app;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\shared\test;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\shared\src\util;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\test;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\app;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\io;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\shared\src\io;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\_deps\googletest-src\googletest\include;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\_deps\googletest-src\googletest;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\shared\src\app;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\shared\test;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\shared\src\util;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\test;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\app;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\io;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\shared\src\io;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\_deps\googletest-src\googletest\include;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\_deps\googletest-src\googletest;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Link>
+      <AdditionalDependencies>..\..\lib\Debug\gtest_main.lib;..\..\lib\Debug\gtest.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
+      <DataExecutionPrevention></DataExecutionPrevention>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImageHasSafeExceptionHandlers></ImageHasSafeExceptionHandlers>
+      <ImportLibrary>C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/firmware/shared/Debug/shared_test.lib</ImportLibrary>
+      <LinkErrorReporting></LinkErrorReporting>
+      <ProgramDataBaseFile>C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/firmware/shared/Debug/shared_test.pdb</ProgramDataBaseFile>
+      <RandomizedBaseAddress></RandomizedBaseAddress>
+      <SubSystem>Console</SubSystem>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\shared\src\app;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\shared\test;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\shared\src\util;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\test;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\app;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\io;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\shared\src\io;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /external:I "C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/_deps/googletest-src/googletest/include" /external:I "C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/_deps/googletest-src/googletest"</AdditionalOptions>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <ExternalWarningLevel>TurnOffAllWarnings</ExternalWarningLevel>
+      <ForceConformanceInForLoopScope></ForceConformanceInForLoopScope>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <LanguageStandard_C>stdc17</LanguageStandard_C>
+      <MinimalRebuild></MinimalRebuild>
+      <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RemoveUnreferencedCodeData></RemoveUnreferencedCodeData>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <SupportJustMyCode></SupportJustMyCode>
+      <TreatWChar_tAsBuiltInType></TreatWChar_tAsBuiltInType>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;STM32H733xx;DEBUG=0;TARGET_TEST;_USE_MATH_DEFINES;CMAKE_INTDIR="Release"</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+      <ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;STM32H733xx;DEBUG=0;TARGET_TEST;_USE_MATH_DEFINES;CMAKE_INTDIR=\"Release\"</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\shared\src\app;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\shared\test;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\shared\src\util;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\test;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\app;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\io;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\shared\src\io;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\_deps\googletest-src\googletest\include;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\_deps\googletest-src\googletest;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\shared\src\app;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\shared\test;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\shared\src\util;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\test;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\app;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\io;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\shared\src\io;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\_deps\googletest-src\googletest\include;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\_deps\googletest-src\googletest;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Link>
+      <AdditionalDependencies>..\..\lib\Release\gtest_main.lib;..\..\lib\Release\gtest.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
+      <DataExecutionPrevention></DataExecutionPrevention>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImageHasSafeExceptionHandlers></ImageHasSafeExceptionHandlers>
+      <ImportLibrary>C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/firmware/shared/Release/shared_test.lib</ImportLibrary>
+      <LinkErrorReporting></LinkErrorReporting>
+      <ProgramDataBaseFile>C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/firmware/shared/Release/shared_test.pdb</ProgramDataBaseFile>
+      <RandomizedBaseAddress></RandomizedBaseAddress>
+      <SubSystem>Console</SubSystem>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\shared\src\app;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\shared\test;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\shared\src\util;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\test;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\app;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\io;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\shared\src\io;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /external:I "C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/_deps/googletest-src/googletest/include" /external:I "C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/_deps/googletest-src/googletest"</AdditionalOptions>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <ExternalWarningLevel>TurnOffAllWarnings</ExternalWarningLevel>
+      <ForceConformanceInForLoopScope></ForceConformanceInForLoopScope>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <LanguageStandard_C>stdc17</LanguageStandard_C>
+      <MinimalRebuild></MinimalRebuild>
+      <Optimization>MinSpace</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RemoveUnreferencedCodeData></RemoveUnreferencedCodeData>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <SupportJustMyCode></SupportJustMyCode>
+      <TreatWChar_tAsBuiltInType></TreatWChar_tAsBuiltInType>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;STM32H733xx;DEBUG=0;TARGET_TEST;_USE_MATH_DEFINES;CMAKE_INTDIR="MinSizeRel"</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+      <ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;STM32H733xx;DEBUG=0;TARGET_TEST;_USE_MATH_DEFINES;CMAKE_INTDIR=\"MinSizeRel\"</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\shared\src\app;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\shared\test;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\shared\src\util;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\test;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\app;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\io;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\shared\src\io;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\_deps\googletest-src\googletest\include;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\_deps\googletest-src\googletest;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\shared\src\app;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\shared\test;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\shared\src\util;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\test;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\app;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\io;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\shared\src\io;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\_deps\googletest-src\googletest\include;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\_deps\googletest-src\googletest;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Link>
+      <AdditionalDependencies>..\..\lib\MinSizeRel\gtest_main.lib;..\..\lib\MinSizeRel\gtest.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
+      <DataExecutionPrevention></DataExecutionPrevention>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImageHasSafeExceptionHandlers></ImageHasSafeExceptionHandlers>
+      <ImportLibrary>C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/firmware/shared/MinSizeRel/shared_test.lib</ImportLibrary>
+      <LinkErrorReporting></LinkErrorReporting>
+      <ProgramDataBaseFile>C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/firmware/shared/MinSizeRel/shared_test.pdb</ProgramDataBaseFile>
+      <RandomizedBaseAddress></RandomizedBaseAddress>
+      <SubSystem>Console</SubSystem>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\shared\src\app;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\shared\test;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\shared\src\util;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\test;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\app;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\io;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\shared\src\io;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /external:I "C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/_deps/googletest-src/googletest/include" /external:I "C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/_deps/googletest-src/googletest"</AdditionalOptions>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <ExternalWarningLevel>TurnOffAllWarnings</ExternalWarningLevel>
+      <ForceConformanceInForLoopScope></ForceConformanceInForLoopScope>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <LanguageStandard_C>stdc17</LanguageStandard_C>
+      <MinimalRebuild></MinimalRebuild>
+      <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RemoveUnreferencedCodeData></RemoveUnreferencedCodeData>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <SupportJustMyCode></SupportJustMyCode>
+      <TreatWChar_tAsBuiltInType></TreatWChar_tAsBuiltInType>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;STM32H733xx;DEBUG=0;TARGET_TEST;_USE_MATH_DEFINES;CMAKE_INTDIR="RelWithDebInfo"</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;STM32H733xx;DEBUG=0;TARGET_TEST;_USE_MATH_DEFINES;CMAKE_INTDIR=\"RelWithDebInfo\"</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\shared\src\app;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\shared\test;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\shared\src\util;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\test;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\app;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\io;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\shared\src\io;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\_deps\googletest-src\googletest\include;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\_deps\googletest-src\googletest;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\shared\src\app;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\shared\test;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\shared\src\util;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\test;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\app;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\io;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\shared\src\io;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\_deps\googletest-src\googletest\include;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\_deps\googletest-src\googletest;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Link>
+      <AdditionalDependencies>..\..\lib\RelWithDebInfo\gtest_main.lib;..\..\lib\RelWithDebInfo\gtest.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
+      <DataExecutionPrevention></DataExecutionPrevention>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImageHasSafeExceptionHandlers></ImageHasSafeExceptionHandlers>
+      <ImportLibrary>C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/firmware/shared/RelWithDebInfo/shared_test.lib</ImportLibrary>
+      <LinkErrorReporting></LinkErrorReporting>
+      <ProgramDataBaseFile>C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/firmware/shared/RelWithDebInfo/shared_test.pdb</ProgramDataBaseFile>
+      <RandomizedBaseAddress></RandomizedBaseAddress>
+      <SubSystem>Console</SubSystem>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\CMakeFiles\8bdc69c506bb1f2642f773d1779e458a\app_canTx.c.rule">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Generating app/app_canTx.c, app/app_canTx.h, io/io_canTx.c, io/io_canTx.h, app/app_canRx.c, app/app_canRx.h, io/io_canRx.c, io/io_canRx.h, app/app_canUtils.c, app/app_canUtils.h, app/app_canAlerts.c, app/app_canAlerts.h, app/app_canDataCapture.c, app/app_canDataCapture.h, io/io_canReroute.c, io/io_canReroute.h</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">setlocal
+cd C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation
+if %errorlevel% neq 0 goto :cmEnd
+C:
+if %errorlevel% neq 0 goto :cmEnd
+C:\Users\hitar\AppData\Local\Programs\Python\Python310\python.exe -m jsoncan.generate_can_from_json --board Debug --can_data_dir C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/can_bus/quintuna --output_dir C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/firmware/shared --dbc_output C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/can_bus/dbcs/quintuna.dbc
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\BMS\BMS_alerts.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\BMS\BMS_enum.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\BMS\BMS_rx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\BMS\BMS_tx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\Boot\Boot_alerts.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\Boot\Boot_enum.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\Boot\Boot_rx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\Boot\Boot_tx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\CRIT\CRIT_alerts.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\CRIT\CRIT_enum.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\CRIT\CRIT_rx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\CRIT\CRIT_tx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\DAM\DAM_alerts.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\DAM\DAM_enum.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\DAM\DAM_rx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\DAM\DAM_tx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\DAMLogger\DAMLogger_enum.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\DAMLogger\DAMLogger_rx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\DAMLogger\DAMLogger_tx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\Debug\Debug_enum.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\Debug\Debug_rx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\Debug\Debug_tx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\EMeter\EMeter_alerts.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\EMeter\EMeter_enum.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\EMeter\EMeter_rx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\EMeter\EMeter_tx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\Elcon\Elcon_enum.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\Elcon\Elcon_rx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\Elcon\Elcon_tx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\FSM\FSM_alerts.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\FSM\FSM_enum.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\FSM\FSM_rx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\FSM\FSM_tx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\INVFL\INVFL_alerts.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\INVFL\INVFL_enum.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\INVFL\INVFL_rx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\INVFL\INVFL_tx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\INVFR\INVFR_alerts.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\INVFR\INVFR_enum.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\INVFR\INVFR_rx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\INVFR\INVFR_tx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\INVRL\INVRL_alerts.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\INVRL\INVRL_enum.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\INVRL\INVRL_rx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\INVRL\INVRL_tx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\INVRR\INVRR_alerts.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\INVRR\INVRR_enum.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\INVRR\INVRR_rx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\INVRR\INVRR_tx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\RSM\RSM_alerts.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\RSM\RSM_enum.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\RSM\RSM_rx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\RSM\RSM_tx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\VC\VC_alerts.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\VC\VC_enum.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\VC\VC_rx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\VC\VC_tx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\VCR\VCR_alerts.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\VCR\VCR_enum.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\VCR\VCR_rx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\VCR\VCR_tx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\__init__.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\can_database.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\can_signals.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\__init__.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\c_generation\__init__.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\c_generation\app_can_alerts_module.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\c_generation\app_can_data_capture_module.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\c_generation\app_can_rx_module.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\c_generation\app_can_tx_module.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\c_generation\app_can_utils_module.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\c_generation\cmodule.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\c_generation\io_can_reroute_module.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\c_generation\io_can_rx_module.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\c_generation\io_can_tx_module.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\c_generation\routing.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\c_generation\template\app_canAlerts.c.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\c_generation\template\app_canAlerts.h.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\c_generation\template\app_canDataCapture.c.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\c_generation\template\app_canDataCapture.h.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\c_generation\template\app_canRx.c.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\c_generation\template\app_canRx.h.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\c_generation\template\app_canTx.c.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\c_generation\template\app_canTx.h.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\c_generation\template\app_canUtils.c.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\c_generation\template\app_canUtils.h.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\c_generation\template\io_canReroute.c.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\c_generation\template\io_canReroute.h.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\c_generation\template\io_canRx.c.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\c_generation\template\io_canRx.h.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\c_generation\template\io_canTx.c.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\c_generation\template\io_canTx.h.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\c_generation\utils.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\dbc_generation\__init__.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\dbc_generation\dbc_generation.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\json_parsing\__init__.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\json_parsing\json_can_parsing.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\json_parsing\parse_alert.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\json_parsing\parse_bus.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\json_parsing\parse_enum.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\json_parsing\parse_error.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\json_parsing\parse_rx.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\json_parsing\parse_tx.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\json_parsing\parse_utils.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\utils.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\test\__init__.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\test\codegen\__init__.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\test\codegen\test_codegen.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\test\unit\__init__.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\test\unit\fixture.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\test\unit\test_parser.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\test\unit\test_routing.py;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\app\app_canTx.c;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\app\app_canTx.h;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\io\io_canTx.c;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\io\io_canTx.h;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\app\app_canRx.c;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\app\app_canRx.h;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\io\io_canRx.c;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\io\io_canRx.h;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\app\app_canUtils.c;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\app\app_canUtils.h;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\app\app_canAlerts.c;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\app\app_canAlerts.h;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\app\app_canDataCapture.c;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\app\app_canDataCapture.h;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\io\io_canReroute.c;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\io\io_canReroute.h</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Generating app/app_canTx.c, app/app_canTx.h, io/io_canTx.c, io/io_canTx.h, app/app_canRx.c, app/app_canRx.h, io/io_canRx.c, io/io_canRx.h, app/app_canUtils.c, app/app_canUtils.h, app/app_canAlerts.c, app/app_canAlerts.h, app/app_canDataCapture.c, app/app_canDataCapture.h, io/io_canReroute.c, io/io_canReroute.h</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">setlocal
+cd C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation
+if %errorlevel% neq 0 goto :cmEnd
+C:
+if %errorlevel% neq 0 goto :cmEnd
+C:\Users\hitar\AppData\Local\Programs\Python\Python310\python.exe -m jsoncan.generate_can_from_json --board Debug --can_data_dir C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/can_bus/quintuna --output_dir C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/firmware/shared --dbc_output C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/can_bus/dbcs/quintuna.dbc
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\BMS\BMS_alerts.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\BMS\BMS_enum.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\BMS\BMS_rx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\BMS\BMS_tx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\Boot\Boot_alerts.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\Boot\Boot_enum.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\Boot\Boot_rx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\Boot\Boot_tx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\CRIT\CRIT_alerts.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\CRIT\CRIT_enum.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\CRIT\CRIT_rx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\CRIT\CRIT_tx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\DAM\DAM_alerts.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\DAM\DAM_enum.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\DAM\DAM_rx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\DAM\DAM_tx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\DAMLogger\DAMLogger_enum.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\DAMLogger\DAMLogger_rx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\DAMLogger\DAMLogger_tx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\Debug\Debug_enum.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\Debug\Debug_rx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\Debug\Debug_tx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\EMeter\EMeter_alerts.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\EMeter\EMeter_enum.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\EMeter\EMeter_rx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\EMeter\EMeter_tx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\Elcon\Elcon_enum.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\Elcon\Elcon_rx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\Elcon\Elcon_tx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\FSM\FSM_alerts.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\FSM\FSM_enum.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\FSM\FSM_rx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\FSM\FSM_tx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\INVFL\INVFL_alerts.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\INVFL\INVFL_enum.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\INVFL\INVFL_rx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\INVFL\INVFL_tx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\INVFR\INVFR_alerts.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\INVFR\INVFR_enum.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\INVFR\INVFR_rx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\INVFR\INVFR_tx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\INVRL\INVRL_alerts.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\INVRL\INVRL_enum.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\INVRL\INVRL_rx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\INVRL\INVRL_tx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\INVRR\INVRR_alerts.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\INVRR\INVRR_enum.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\INVRR\INVRR_rx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\INVRR\INVRR_tx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\RSM\RSM_alerts.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\RSM\RSM_enum.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\RSM\RSM_rx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\RSM\RSM_tx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\VC\VC_alerts.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\VC\VC_enum.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\VC\VC_rx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\VC\VC_tx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\VCR\VCR_alerts.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\VCR\VCR_enum.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\VCR\VCR_rx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\VCR\VCR_tx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\__init__.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\can_database.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\can_signals.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\__init__.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\c_generation\__init__.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\c_generation\app_can_alerts_module.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\c_generation\app_can_data_capture_module.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\c_generation\app_can_rx_module.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\c_generation\app_can_tx_module.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\c_generation\app_can_utils_module.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\c_generation\cmodule.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\c_generation\io_can_reroute_module.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\c_generation\io_can_rx_module.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\c_generation\io_can_tx_module.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\c_generation\routing.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\c_generation\template\app_canAlerts.c.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\c_generation\template\app_canAlerts.h.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\c_generation\template\app_canDataCapture.c.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\c_generation\template\app_canDataCapture.h.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\c_generation\template\app_canRx.c.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\c_generation\template\app_canRx.h.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\c_generation\template\app_canTx.c.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\c_generation\template\app_canTx.h.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\c_generation\template\app_canUtils.c.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\c_generation\template\app_canUtils.h.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\c_generation\template\io_canReroute.c.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\c_generation\template\io_canReroute.h.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\c_generation\template\io_canRx.c.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\c_generation\template\io_canRx.h.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\c_generation\template\io_canTx.c.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\c_generation\template\io_canTx.h.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\c_generation\utils.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\dbc_generation\__init__.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\dbc_generation\dbc_generation.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\json_parsing\__init__.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\json_parsing\json_can_parsing.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\json_parsing\parse_alert.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\json_parsing\parse_bus.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\json_parsing\parse_enum.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\json_parsing\parse_error.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\json_parsing\parse_rx.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\json_parsing\parse_tx.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\json_parsing\parse_utils.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\utils.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\test\__init__.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\test\codegen\__init__.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\test\codegen\test_codegen.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\test\unit\__init__.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\test\unit\fixture.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\test\unit\test_parser.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\test\unit\test_routing.py;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\app\app_canTx.c;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\app\app_canTx.h;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\io\io_canTx.c;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\io\io_canTx.h;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\app\app_canRx.c;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\app\app_canRx.h;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\io\io_canRx.c;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\io\io_canRx.h;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\app\app_canUtils.c;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\app\app_canUtils.h;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\app\app_canAlerts.c;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\app\app_canAlerts.h;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\app\app_canDataCapture.c;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\app\app_canDataCapture.h;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\io\io_canReroute.c;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\io\io_canReroute.h</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">Generating app/app_canTx.c, app/app_canTx.h, io/io_canTx.c, io/io_canTx.h, app/app_canRx.c, app/app_canRx.h, io/io_canRx.c, io/io_canRx.h, app/app_canUtils.c, app/app_canUtils.h, app/app_canAlerts.c, app/app_canAlerts.h, app/app_canDataCapture.c, app/app_canDataCapture.h, io/io_canReroute.c, io/io_canReroute.h</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">setlocal
+cd C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation
+if %errorlevel% neq 0 goto :cmEnd
+C:
+if %errorlevel% neq 0 goto :cmEnd
+C:\Users\hitar\AppData\Local\Programs\Python\Python310\python.exe -m jsoncan.generate_can_from_json --board Debug --can_data_dir C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/can_bus/quintuna --output_dir C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/firmware/shared --dbc_output C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/can_bus/dbcs/quintuna.dbc
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\BMS\BMS_alerts.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\BMS\BMS_enum.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\BMS\BMS_rx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\BMS\BMS_tx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\Boot\Boot_alerts.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\Boot\Boot_enum.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\Boot\Boot_rx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\Boot\Boot_tx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\CRIT\CRIT_alerts.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\CRIT\CRIT_enum.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\CRIT\CRIT_rx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\CRIT\CRIT_tx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\DAM\DAM_alerts.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\DAM\DAM_enum.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\DAM\DAM_rx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\DAM\DAM_tx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\DAMLogger\DAMLogger_enum.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\DAMLogger\DAMLogger_rx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\DAMLogger\DAMLogger_tx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\Debug\Debug_enum.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\Debug\Debug_rx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\Debug\Debug_tx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\EMeter\EMeter_alerts.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\EMeter\EMeter_enum.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\EMeter\EMeter_rx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\EMeter\EMeter_tx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\Elcon\Elcon_enum.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\Elcon\Elcon_rx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\Elcon\Elcon_tx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\FSM\FSM_alerts.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\FSM\FSM_enum.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\FSM\FSM_rx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\FSM\FSM_tx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\INVFL\INVFL_alerts.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\INVFL\INVFL_enum.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\INVFL\INVFL_rx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\INVFL\INVFL_tx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\INVFR\INVFR_alerts.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\INVFR\INVFR_enum.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\INVFR\INVFR_rx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\INVFR\INVFR_tx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\INVRL\INVRL_alerts.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\INVRL\INVRL_enum.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\INVRL\INVRL_rx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\INVRL\INVRL_tx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\INVRR\INVRR_alerts.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\INVRR\INVRR_enum.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\INVRR\INVRR_rx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\INVRR\INVRR_tx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\RSM\RSM_alerts.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\RSM\RSM_enum.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\RSM\RSM_rx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\RSM\RSM_tx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\VC\VC_alerts.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\VC\VC_enum.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\VC\VC_rx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\VC\VC_tx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\VCR\VCR_alerts.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\VCR\VCR_enum.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\VCR\VCR_rx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\VCR\VCR_tx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\__init__.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\can_database.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\can_signals.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\__init__.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\c_generation\__init__.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\c_generation\app_can_alerts_module.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\c_generation\app_can_data_capture_module.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\c_generation\app_can_rx_module.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\c_generation\app_can_tx_module.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\c_generation\app_can_utils_module.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\c_generation\cmodule.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\c_generation\io_can_reroute_module.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\c_generation\io_can_rx_module.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\c_generation\io_can_tx_module.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\c_generation\routing.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\c_generation\template\app_canAlerts.c.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\c_generation\template\app_canAlerts.h.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\c_generation\template\app_canDataCapture.c.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\c_generation\template\app_canDataCapture.h.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\c_generation\template\app_canRx.c.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\c_generation\template\app_canRx.h.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\c_generation\template\app_canTx.c.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\c_generation\template\app_canTx.h.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\c_generation\template\app_canUtils.c.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\c_generation\template\app_canUtils.h.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\c_generation\template\io_canReroute.c.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\c_generation\template\io_canReroute.h.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\c_generation\template\io_canRx.c.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\c_generation\template\io_canRx.h.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\c_generation\template\io_canTx.c.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\c_generation\template\io_canTx.h.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\c_generation\utils.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\dbc_generation\__init__.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\dbc_generation\dbc_generation.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\json_parsing\__init__.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\json_parsing\json_can_parsing.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\json_parsing\parse_alert.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\json_parsing\parse_bus.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\json_parsing\parse_enum.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\json_parsing\parse_error.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\json_parsing\parse_rx.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\json_parsing\parse_tx.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\json_parsing\parse_utils.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\utils.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\test\__init__.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\test\codegen\__init__.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\test\codegen\test_codegen.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\test\unit\__init__.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\test\unit\fixture.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\test\unit\test_parser.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\test\unit\test_routing.py;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\app\app_canTx.c;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\app\app_canTx.h;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\io\io_canTx.c;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\io\io_canTx.h;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\app\app_canRx.c;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\app\app_canRx.h;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\io\io_canRx.c;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\io\io_canRx.h;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\app\app_canUtils.c;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\app\app_canUtils.h;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\app\app_canAlerts.c;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\app\app_canAlerts.h;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\app\app_canDataCapture.c;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\app\app_canDataCapture.h;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\io\io_canReroute.c;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\io\io_canReroute.h</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">Generating app/app_canTx.c, app/app_canTx.h, io/io_canTx.c, io/io_canTx.h, app/app_canRx.c, app/app_canRx.h, io/io_canRx.c, io/io_canRx.h, app/app_canUtils.c, app/app_canUtils.h, app/app_canAlerts.c, app/app_canAlerts.h, app/app_canDataCapture.c, app/app_canDataCapture.h, io/io_canReroute.c, io/io_canReroute.h</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">setlocal
+cd C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation
+if %errorlevel% neq 0 goto :cmEnd
+C:
+if %errorlevel% neq 0 goto :cmEnd
+C:\Users\hitar\AppData\Local\Programs\Python\Python310\python.exe -m jsoncan.generate_can_from_json --board Debug --can_data_dir C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/can_bus/quintuna --output_dir C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/firmware/shared --dbc_output C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/can_bus/dbcs/quintuna.dbc
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\BMS\BMS_alerts.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\BMS\BMS_enum.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\BMS\BMS_rx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\BMS\BMS_tx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\Boot\Boot_alerts.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\Boot\Boot_enum.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\Boot\Boot_rx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\Boot\Boot_tx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\CRIT\CRIT_alerts.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\CRIT\CRIT_enum.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\CRIT\CRIT_rx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\CRIT\CRIT_tx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\DAM\DAM_alerts.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\DAM\DAM_enum.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\DAM\DAM_rx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\DAM\DAM_tx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\DAMLogger\DAMLogger_enum.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\DAMLogger\DAMLogger_rx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\DAMLogger\DAMLogger_tx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\Debug\Debug_enum.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\Debug\Debug_rx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\Debug\Debug_tx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\EMeter\EMeter_alerts.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\EMeter\EMeter_enum.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\EMeter\EMeter_rx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\EMeter\EMeter_tx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\Elcon\Elcon_enum.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\Elcon\Elcon_rx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\Elcon\Elcon_tx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\FSM\FSM_alerts.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\FSM\FSM_enum.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\FSM\FSM_rx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\FSM\FSM_tx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\INVFL\INVFL_alerts.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\INVFL\INVFL_enum.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\INVFL\INVFL_rx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\INVFL\INVFL_tx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\INVFR\INVFR_alerts.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\INVFR\INVFR_enum.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\INVFR\INVFR_rx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\INVFR\INVFR_tx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\INVRL\INVRL_alerts.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\INVRL\INVRL_enum.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\INVRL\INVRL_rx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\INVRL\INVRL_tx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\INVRR\INVRR_alerts.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\INVRR\INVRR_enum.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\INVRR\INVRR_rx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\INVRR\INVRR_tx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\RSM\RSM_alerts.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\RSM\RSM_enum.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\RSM\RSM_rx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\RSM\RSM_tx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\VC\VC_alerts.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\VC\VC_enum.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\VC\VC_rx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\VC\VC_tx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\VCR\VCR_alerts.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\VCR\VCR_enum.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\VCR\VCR_rx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\can_bus\quintuna\VCR\VCR_tx.json;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\__init__.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\can_database.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\can_signals.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\__init__.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\c_generation\__init__.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\c_generation\app_can_alerts_module.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\c_generation\app_can_data_capture_module.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\c_generation\app_can_rx_module.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\c_generation\app_can_tx_module.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\c_generation\app_can_utils_module.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\c_generation\cmodule.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\c_generation\io_can_reroute_module.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\c_generation\io_can_rx_module.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\c_generation\io_can_tx_module.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\c_generation\routing.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\c_generation\template\app_canAlerts.c.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\c_generation\template\app_canAlerts.h.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\c_generation\template\app_canDataCapture.c.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\c_generation\template\app_canDataCapture.h.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\c_generation\template\app_canRx.c.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\c_generation\template\app_canRx.h.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\c_generation\template\app_canTx.c.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\c_generation\template\app_canTx.h.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\c_generation\template\app_canUtils.c.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\c_generation\template\app_canUtils.h.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\c_generation\template\io_canReroute.c.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\c_generation\template\io_canReroute.h.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\c_generation\template\io_canRx.c.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\c_generation\template\io_canRx.h.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\c_generation\template\io_canTx.c.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\c_generation\template\io_canTx.h.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\c_generation\utils.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\dbc_generation\__init__.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\codegen\dbc_generation\dbc_generation.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\json_parsing\__init__.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\json_parsing\json_can_parsing.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\json_parsing\parse_alert.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\json_parsing\parse_bus.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\json_parsing\parse_enum.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\json_parsing\parse_error.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\json_parsing\parse_rx.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\json_parsing\parse_tx.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\json_parsing\parse_utils.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\src\utils.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\test\__init__.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\test\codegen\__init__.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\test\codegen\test_codegen.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\test\unit\__init__.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\test\unit\fixture.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\test\unit\test_parser.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\jsoncan\test\unit\test_routing.py;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\app\app_canTx.c;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\app\app_canTx.h;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\io\io_canTx.c;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\io\io_canTx.h;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\app\app_canRx.c;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\app\app_canRx.h;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\io\io_canRx.c;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\io\io_canRx.h;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\app\app_canUtils.c;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\app\app_canUtils.h;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\app\app_canAlerts.c;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\app\app_canAlerts.h;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\app\app_canDataCapture.c;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\app\app_canDataCapture.h;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\io\io_canReroute.c;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\io\io_canReroute.h</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">false</LinkObjects>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\CMakeFiles\7ce4d124a50859da645f68bcfc9ea7bc\fake_io_canTx.cpp.rule">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Generating fake for C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/firmware/shared/io/io_canTx.h</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">setlocal
+cd C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware
+if %errorlevel% neq 0 goto :cmEnd
+C:
+if %errorlevel% neq 0 goto :cmEnd
+C:\Users\hitar\AppData\Local\Programs\Python\Python310\python.exe C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/scripts/code_generation/fakegen/src/generate_fake.py --header C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/firmware/shared/io/io_canTx.h --output-header C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/firmware/shared/fake_io_canTx.hpp --output-source C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/firmware/shared/fake_io_canTx.cpp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\generate_fake.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\fake_template.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\fake_template.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\value_returning_func_no_params.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\value_returning_func_no_params.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\value_returning_func_params.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\value_returning_func_params.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\void_func_no_params.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\void_func_no_params.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\void_func_params.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\void_func_params.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\io\io_canTx.h;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\fake_io_canTx.cpp;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\fake_io_canTx.hpp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Generating fake for C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/firmware/shared/io/io_canTx.h</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">setlocal
+cd C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware
+if %errorlevel% neq 0 goto :cmEnd
+C:
+if %errorlevel% neq 0 goto :cmEnd
+C:\Users\hitar\AppData\Local\Programs\Python\Python310\python.exe C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/scripts/code_generation/fakegen/src/generate_fake.py --header C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/firmware/shared/io/io_canTx.h --output-header C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/firmware/shared/fake_io_canTx.hpp --output-source C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/firmware/shared/fake_io_canTx.cpp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\generate_fake.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\fake_template.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\fake_template.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\value_returning_func_no_params.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\value_returning_func_no_params.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\value_returning_func_params.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\value_returning_func_params.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\void_func_no_params.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\void_func_no_params.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\void_func_params.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\void_func_params.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\io\io_canTx.h;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\fake_io_canTx.cpp;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\fake_io_canTx.hpp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">Generating fake for C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/firmware/shared/io/io_canTx.h</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">setlocal
+cd C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware
+if %errorlevel% neq 0 goto :cmEnd
+C:
+if %errorlevel% neq 0 goto :cmEnd
+C:\Users\hitar\AppData\Local\Programs\Python\Python310\python.exe C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/scripts/code_generation/fakegen/src/generate_fake.py --header C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/firmware/shared/io/io_canTx.h --output-header C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/firmware/shared/fake_io_canTx.hpp --output-source C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/firmware/shared/fake_io_canTx.cpp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\generate_fake.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\fake_template.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\fake_template.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\value_returning_func_no_params.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\value_returning_func_no_params.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\value_returning_func_params.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\value_returning_func_params.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\void_func_no_params.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\void_func_no_params.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\void_func_params.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\void_func_params.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\io\io_canTx.h;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\fake_io_canTx.cpp;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\fake_io_canTx.hpp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">Generating fake for C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/firmware/shared/io/io_canTx.h</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">setlocal
+cd C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware
+if %errorlevel% neq 0 goto :cmEnd
+C:
+if %errorlevel% neq 0 goto :cmEnd
+C:\Users\hitar\AppData\Local\Programs\Python\Python310\python.exe C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/scripts/code_generation/fakegen/src/generate_fake.py --header C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/firmware/shared/io/io_canTx.h --output-header C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/firmware/shared/fake_io_canTx.hpp --output-source C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/firmware/shared/fake_io_canTx.cpp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\generate_fake.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\fake_template.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\fake_template.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\value_returning_func_no_params.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\value_returning_func_no_params.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\value_returning_func_params.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\value_returning_func_params.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\void_func_no_params.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\void_func_no_params.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\void_func_params.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\void_func_params.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\io\io_canTx.h;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\fake_io_canTx.cpp;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\fake_io_canTx.hpp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">false</LinkObjects>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\CMakeFiles\7ce4d124a50859da645f68bcfc9ea7bc\fake_io_canRx.cpp.rule">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Generating fake for C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/firmware/shared/io/io_canRx.h</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">setlocal
+cd C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware
+if %errorlevel% neq 0 goto :cmEnd
+C:
+if %errorlevel% neq 0 goto :cmEnd
+C:\Users\hitar\AppData\Local\Programs\Python\Python310\python.exe C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/scripts/code_generation/fakegen/src/generate_fake.py --header C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/firmware/shared/io/io_canRx.h --output-header C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/firmware/shared/fake_io_canRx.hpp --output-source C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/firmware/shared/fake_io_canRx.cpp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\generate_fake.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\fake_template.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\fake_template.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\value_returning_func_no_params.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\value_returning_func_no_params.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\value_returning_func_params.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\value_returning_func_params.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\void_func_no_params.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\void_func_no_params.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\void_func_params.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\void_func_params.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\io\io_canRx.h;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\fake_io_canRx.cpp;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\fake_io_canRx.hpp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Generating fake for C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/firmware/shared/io/io_canRx.h</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">setlocal
+cd C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware
+if %errorlevel% neq 0 goto :cmEnd
+C:
+if %errorlevel% neq 0 goto :cmEnd
+C:\Users\hitar\AppData\Local\Programs\Python\Python310\python.exe C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/scripts/code_generation/fakegen/src/generate_fake.py --header C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/firmware/shared/io/io_canRx.h --output-header C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/firmware/shared/fake_io_canRx.hpp --output-source C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/firmware/shared/fake_io_canRx.cpp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\generate_fake.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\fake_template.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\fake_template.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\value_returning_func_no_params.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\value_returning_func_no_params.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\value_returning_func_params.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\value_returning_func_params.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\void_func_no_params.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\void_func_no_params.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\void_func_params.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\void_func_params.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\io\io_canRx.h;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\fake_io_canRx.cpp;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\fake_io_canRx.hpp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">Generating fake for C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/firmware/shared/io/io_canRx.h</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">setlocal
+cd C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware
+if %errorlevel% neq 0 goto :cmEnd
+C:
+if %errorlevel% neq 0 goto :cmEnd
+C:\Users\hitar\AppData\Local\Programs\Python\Python310\python.exe C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/scripts/code_generation/fakegen/src/generate_fake.py --header C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/firmware/shared/io/io_canRx.h --output-header C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/firmware/shared/fake_io_canRx.hpp --output-source C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/firmware/shared/fake_io_canRx.cpp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\generate_fake.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\fake_template.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\fake_template.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\value_returning_func_no_params.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\value_returning_func_no_params.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\value_returning_func_params.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\value_returning_func_params.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\void_func_no_params.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\void_func_no_params.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\void_func_params.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\void_func_params.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\io\io_canRx.h;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\fake_io_canRx.cpp;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\fake_io_canRx.hpp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">Generating fake for C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/firmware/shared/io/io_canRx.h</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">setlocal
+cd C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware
+if %errorlevel% neq 0 goto :cmEnd
+C:
+if %errorlevel% neq 0 goto :cmEnd
+C:\Users\hitar\AppData\Local\Programs\Python\Python310\python.exe C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/scripts/code_generation/fakegen/src/generate_fake.py --header C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/firmware/shared/io/io_canRx.h --output-header C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/firmware/shared/fake_io_canRx.hpp --output-source C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/firmware/shared/fake_io_canRx.cpp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\generate_fake.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\fake_template.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\fake_template.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\value_returning_func_no_params.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\value_returning_func_no_params.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\value_returning_func_params.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\value_returning_func_params.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\void_func_no_params.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\void_func_no_params.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\void_func_params.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\void_func_params.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\io\io_canRx.h;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\fake_io_canRx.cpp;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\fake_io_canRx.hpp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">false</LinkObjects>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\CMakeFiles\7ce4d124a50859da645f68bcfc9ea7bc\fake_io_time.cpp.rule">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Generating fake for C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/firmware/shared/src/io/io_time.h</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">setlocal
+cd C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware
+if %errorlevel% neq 0 goto :cmEnd
+C:
+if %errorlevel% neq 0 goto :cmEnd
+C:\Users\hitar\AppData\Local\Programs\Python\Python310\python.exe C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/scripts/code_generation/fakegen/src/generate_fake.py --header C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/firmware/shared/src/io/io_time.h --output-header C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/firmware/shared/fake_io_time.hpp --output-source C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/firmware/shared/fake_io_time.cpp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\generate_fake.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\fake_template.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\fake_template.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\value_returning_func_no_params.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\value_returning_func_no_params.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\value_returning_func_params.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\value_returning_func_params.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\void_func_no_params.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\void_func_no_params.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\void_func_params.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\void_func_params.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\shared\src\io\io_time.h;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\fake_io_time.cpp;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\fake_io_time.hpp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Generating fake for C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/firmware/shared/src/io/io_time.h</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">setlocal
+cd C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware
+if %errorlevel% neq 0 goto :cmEnd
+C:
+if %errorlevel% neq 0 goto :cmEnd
+C:\Users\hitar\AppData\Local\Programs\Python\Python310\python.exe C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/scripts/code_generation/fakegen/src/generate_fake.py --header C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/firmware/shared/src/io/io_time.h --output-header C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/firmware/shared/fake_io_time.hpp --output-source C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/firmware/shared/fake_io_time.cpp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\generate_fake.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\fake_template.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\fake_template.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\value_returning_func_no_params.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\value_returning_func_no_params.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\value_returning_func_params.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\value_returning_func_params.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\void_func_no_params.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\void_func_no_params.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\void_func_params.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\void_func_params.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\shared\src\io\io_time.h;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\fake_io_time.cpp;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\fake_io_time.hpp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">Generating fake for C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/firmware/shared/src/io/io_time.h</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">setlocal
+cd C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware
+if %errorlevel% neq 0 goto :cmEnd
+C:
+if %errorlevel% neq 0 goto :cmEnd
+C:\Users\hitar\AppData\Local\Programs\Python\Python310\python.exe C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/scripts/code_generation/fakegen/src/generate_fake.py --header C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/firmware/shared/src/io/io_time.h --output-header C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/firmware/shared/fake_io_time.hpp --output-source C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/firmware/shared/fake_io_time.cpp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\generate_fake.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\fake_template.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\fake_template.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\value_returning_func_no_params.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\value_returning_func_no_params.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\value_returning_func_params.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\value_returning_func_params.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\void_func_no_params.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\void_func_no_params.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\void_func_params.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\void_func_params.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\shared\src\io\io_time.h;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\fake_io_time.cpp;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\fake_io_time.hpp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">Generating fake for C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/firmware/shared/src/io/io_time.h</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">setlocal
+cd C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware
+if %errorlevel% neq 0 goto :cmEnd
+C:
+if %errorlevel% neq 0 goto :cmEnd
+C:\Users\hitar\AppData\Local\Programs\Python\Python310\python.exe C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/scripts/code_generation/fakegen/src/generate_fake.py --header C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/firmware/shared/src/io/io_time.h --output-header C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/firmware/shared/fake_io_time.hpp --output-source C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/firmware/shared/fake_io_time.cpp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\generate_fake.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\fake_template.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\fake_template.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\value_returning_func_no_params.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\value_returning_func_no_params.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\value_returning_func_params.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\value_returning_func_params.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\void_func_no_params.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\void_func_no_params.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\void_func_params.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\void_func_params.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\shared\src\io\io_time.h;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\fake_io_time.cpp;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\fake_io_time.hpp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">false</LinkObjects>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\CMakeFiles\7ce4d124a50859da645f68bcfc9ea7bc\fake_io_led.cpp.rule">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Generating fake for C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/firmware/shared/src/io/io_led.h</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">setlocal
+cd C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware
+if %errorlevel% neq 0 goto :cmEnd
+C:
+if %errorlevel% neq 0 goto :cmEnd
+C:\Users\hitar\AppData\Local\Programs\Python\Python310\python.exe C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/scripts/code_generation/fakegen/src/generate_fake.py --header C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/firmware/shared/src/io/io_led.h --output-header C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/firmware/shared/fake_io_led.hpp --output-source C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/firmware/shared/fake_io_led.cpp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\generate_fake.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\fake_template.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\fake_template.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\value_returning_func_no_params.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\value_returning_func_no_params.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\value_returning_func_params.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\value_returning_func_params.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\void_func_no_params.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\void_func_no_params.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\void_func_params.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\void_func_params.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\shared\src\io\io_led.h;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\fake_io_led.cpp;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\fake_io_led.hpp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Generating fake for C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/firmware/shared/src/io/io_led.h</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">setlocal
+cd C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware
+if %errorlevel% neq 0 goto :cmEnd
+C:
+if %errorlevel% neq 0 goto :cmEnd
+C:\Users\hitar\AppData\Local\Programs\Python\Python310\python.exe C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/scripts/code_generation/fakegen/src/generate_fake.py --header C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/firmware/shared/src/io/io_led.h --output-header C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/firmware/shared/fake_io_led.hpp --output-source C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/firmware/shared/fake_io_led.cpp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\generate_fake.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\fake_template.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\fake_template.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\value_returning_func_no_params.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\value_returning_func_no_params.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\value_returning_func_params.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\value_returning_func_params.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\void_func_no_params.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\void_func_no_params.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\void_func_params.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\void_func_params.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\shared\src\io\io_led.h;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\fake_io_led.cpp;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\fake_io_led.hpp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">Generating fake for C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/firmware/shared/src/io/io_led.h</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">setlocal
+cd C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware
+if %errorlevel% neq 0 goto :cmEnd
+C:
+if %errorlevel% neq 0 goto :cmEnd
+C:\Users\hitar\AppData\Local\Programs\Python\Python310\python.exe C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/scripts/code_generation/fakegen/src/generate_fake.py --header C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/firmware/shared/src/io/io_led.h --output-header C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/firmware/shared/fake_io_led.hpp --output-source C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/firmware/shared/fake_io_led.cpp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\generate_fake.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\fake_template.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\fake_template.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\value_returning_func_no_params.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\value_returning_func_no_params.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\value_returning_func_params.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\value_returning_func_params.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\void_func_no_params.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\void_func_no_params.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\void_func_params.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\void_func_params.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\shared\src\io\io_led.h;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\fake_io_led.cpp;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\fake_io_led.hpp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">Generating fake for C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/firmware/shared/src/io/io_led.h</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">setlocal
+cd C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware
+if %errorlevel% neq 0 goto :cmEnd
+C:
+if %errorlevel% neq 0 goto :cmEnd
+C:\Users\hitar\AppData\Local\Programs\Python\Python310\python.exe C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/scripts/code_generation/fakegen/src/generate_fake.py --header C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/firmware/shared/src/io/io_led.h --output-header C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/firmware/shared/fake_io_led.hpp --output-source C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/firmware/shared/fake_io_led.cpp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\generate_fake.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\fake_template.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\fake_template.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\value_returning_func_no_params.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\value_returning_func_no_params.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\value_returning_func_params.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\value_returning_func_params.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\void_func_no_params.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\void_func_no_params.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\void_func_params.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\void_func_params.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\shared\src\io\io_led.h;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\fake_io_led.cpp;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\fake_io_led.hpp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">false</LinkObjects>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\CMakeFiles\7ce4d124a50859da645f68bcfc9ea7bc\fake_io_switch.cpp.rule">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Generating fake for C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/firmware/shared/src/io/io_switch.h</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">setlocal
+cd C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware
+if %errorlevel% neq 0 goto :cmEnd
+C:
+if %errorlevel% neq 0 goto :cmEnd
+C:\Users\hitar\AppData\Local\Programs\Python\Python310\python.exe C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/scripts/code_generation/fakegen/src/generate_fake.py --header C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/firmware/shared/src/io/io_switch.h --output-header C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/firmware/shared/fake_io_switch.hpp --output-source C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/firmware/shared/fake_io_switch.cpp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\generate_fake.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\fake_template.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\fake_template.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\value_returning_func_no_params.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\value_returning_func_no_params.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\value_returning_func_params.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\value_returning_func_params.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\void_func_no_params.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\void_func_no_params.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\void_func_params.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\void_func_params.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\shared\src\io\io_switch.h;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\fake_io_switch.cpp;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\fake_io_switch.hpp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Generating fake for C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/firmware/shared/src/io/io_switch.h</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">setlocal
+cd C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware
+if %errorlevel% neq 0 goto :cmEnd
+C:
+if %errorlevel% neq 0 goto :cmEnd
+C:\Users\hitar\AppData\Local\Programs\Python\Python310\python.exe C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/scripts/code_generation/fakegen/src/generate_fake.py --header C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/firmware/shared/src/io/io_switch.h --output-header C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/firmware/shared/fake_io_switch.hpp --output-source C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/firmware/shared/fake_io_switch.cpp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\generate_fake.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\fake_template.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\fake_template.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\value_returning_func_no_params.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\value_returning_func_no_params.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\value_returning_func_params.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\value_returning_func_params.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\void_func_no_params.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\void_func_no_params.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\void_func_params.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\void_func_params.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\shared\src\io\io_switch.h;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\fake_io_switch.cpp;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\fake_io_switch.hpp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">Generating fake for C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/firmware/shared/src/io/io_switch.h</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">setlocal
+cd C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware
+if %errorlevel% neq 0 goto :cmEnd
+C:
+if %errorlevel% neq 0 goto :cmEnd
+C:\Users\hitar\AppData\Local\Programs\Python\Python310\python.exe C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/scripts/code_generation/fakegen/src/generate_fake.py --header C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/firmware/shared/src/io/io_switch.h --output-header C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/firmware/shared/fake_io_switch.hpp --output-source C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/firmware/shared/fake_io_switch.cpp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\generate_fake.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\fake_template.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\fake_template.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\value_returning_func_no_params.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\value_returning_func_no_params.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\value_returning_func_params.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\value_returning_func_params.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\void_func_no_params.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\void_func_no_params.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\void_func_params.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\void_func_params.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\shared\src\io\io_switch.h;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\fake_io_switch.cpp;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\fake_io_switch.hpp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">Generating fake for C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/firmware/shared/src/io/io_switch.h</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">setlocal
+cd C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware
+if %errorlevel% neq 0 goto :cmEnd
+C:
+if %errorlevel% neq 0 goto :cmEnd
+C:\Users\hitar\AppData\Local\Programs\Python\Python310\python.exe C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/scripts/code_generation/fakegen/src/generate_fake.py --header C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/firmware/shared/src/io/io_switch.h --output-header C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/firmware/shared/fake_io_switch.hpp --output-source C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/firmware/shared/fake_io_switch.cpp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\generate_fake.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\fake_template.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\fake_template.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\value_returning_func_no_params.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\value_returning_func_no_params.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\value_returning_func_params.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\value_returning_func_params.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\void_func_no_params.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\void_func_no_params.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\void_func_params.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\void_func_params.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\shared\src\io\io_switch.h;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\fake_io_switch.cpp;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\fake_io_switch.hpp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">false</LinkObjects>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\CMakeFiles\7ce4d124a50859da645f68bcfc9ea7bc\fake_io_mechanicalLoad.cpp.rule">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Generating fake for C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/firmware/shared/src/io/io_mechanicalLoad.h</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">setlocal
+cd C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware
+if %errorlevel% neq 0 goto :cmEnd
+C:
+if %errorlevel% neq 0 goto :cmEnd
+C:\Users\hitar\AppData\Local\Programs\Python\Python310\python.exe C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/scripts/code_generation/fakegen/src/generate_fake.py --header C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/firmware/shared/src/io/io_mechanicalLoad.h --output-header C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/firmware/shared/fake_io_mechanicalLoad.hpp --output-source C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/firmware/shared/fake_io_mechanicalLoad.cpp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\generate_fake.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\fake_template.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\fake_template.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\value_returning_func_no_params.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\value_returning_func_no_params.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\value_returning_func_params.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\value_returning_func_params.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\void_func_no_params.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\void_func_no_params.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\void_func_params.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\void_func_params.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\shared\src\io\io_mechanicalLoad.h;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\fake_io_mechanicalLoad.cpp;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\fake_io_mechanicalLoad.hpp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Generating fake for C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/firmware/shared/src/io/io_mechanicalLoad.h</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">setlocal
+cd C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware
+if %errorlevel% neq 0 goto :cmEnd
+C:
+if %errorlevel% neq 0 goto :cmEnd
+C:\Users\hitar\AppData\Local\Programs\Python\Python310\python.exe C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/scripts/code_generation/fakegen/src/generate_fake.py --header C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/firmware/shared/src/io/io_mechanicalLoad.h --output-header C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/firmware/shared/fake_io_mechanicalLoad.hpp --output-source C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/firmware/shared/fake_io_mechanicalLoad.cpp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\generate_fake.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\fake_template.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\fake_template.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\value_returning_func_no_params.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\value_returning_func_no_params.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\value_returning_func_params.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\value_returning_func_params.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\void_func_no_params.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\void_func_no_params.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\void_func_params.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\void_func_params.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\shared\src\io\io_mechanicalLoad.h;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\fake_io_mechanicalLoad.cpp;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\fake_io_mechanicalLoad.hpp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">Generating fake for C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/firmware/shared/src/io/io_mechanicalLoad.h</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">setlocal
+cd C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware
+if %errorlevel% neq 0 goto :cmEnd
+C:
+if %errorlevel% neq 0 goto :cmEnd
+C:\Users\hitar\AppData\Local\Programs\Python\Python310\python.exe C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/scripts/code_generation/fakegen/src/generate_fake.py --header C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/firmware/shared/src/io/io_mechanicalLoad.h --output-header C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/firmware/shared/fake_io_mechanicalLoad.hpp --output-source C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/firmware/shared/fake_io_mechanicalLoad.cpp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\generate_fake.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\fake_template.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\fake_template.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\value_returning_func_no_params.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\value_returning_func_no_params.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\value_returning_func_params.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\value_returning_func_params.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\void_func_no_params.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\void_func_no_params.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\void_func_params.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\void_func_params.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\shared\src\io\io_mechanicalLoad.h;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\fake_io_mechanicalLoad.cpp;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\fake_io_mechanicalLoad.hpp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">Generating fake for C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/firmware/shared/src/io/io_mechanicalLoad.h</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">setlocal
+cd C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware
+if %errorlevel% neq 0 goto :cmEnd
+C:
+if %errorlevel% neq 0 goto :cmEnd
+C:\Users\hitar\AppData\Local\Programs\Python\Python310\python.exe C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/scripts/code_generation/fakegen/src/generate_fake.py --header C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/firmware/shared/src/io/io_mechanicalLoad.h --output-header C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/firmware/shared/fake_io_mechanicalLoad.hpp --output-source C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/firmware/shared/fake_io_mechanicalLoad.cpp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\generate_fake.py;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\fake_template.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\fake_template.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\value_returning_func_no_params.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\value_returning_func_no_params.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\value_returning_func_params.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\value_returning_func_params.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\void_func_no_params.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\void_func_no_params.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\void_func_params.cpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\scripts\code_generation\fakegen\src\templates\void_func_params.hpp.j2;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\shared\src\io\io_mechanicalLoad.h;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\fake_io_mechanicalLoad.cpp;C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\fake_io_mechanicalLoad.hpp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">false</LinkObjects>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\shared\CMakeLists.txt">
+      <UseUtf8Encoding>Always</UseUtf8Encoding>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Building Custom Rule C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/firmware/shared/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware -BC:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc --check-stamp-file C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/firmware/shared/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\CMakeFiles\cmake.verify_globs;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Building Custom Rule C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/firmware/shared/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware -BC:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc --check-stamp-file C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/firmware/shared/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\CMakeFiles\cmake.verify_globs;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">Building Custom Rule C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/firmware/shared/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware -BC:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc --check-stamp-file C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/firmware/shared/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\CMakeFiles\cmake.verify_globs;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">Building Custom Rule C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/firmware/shared/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware -BC:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc --check-stamp-file C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/firmware/shared/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\CMakeFiles\cmake.verify_globs;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">false</LinkObjects>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\shared\test\test_heartbeatMonitor.cpp" />
+    <ClCompile Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\shared\test\test_led.cpp" />
+    <ClCompile Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\shared\test\test_pid_c.cpp" />
+    <ClCompile Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\shared\test\test_sensor_filter.cpp" />
+    <ClCompile Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\shared\test\test_signal.cpp" />
+    <ClCompile Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\shared\test\test_timer.cpp" />
+    <ClCompile Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\shared\test\test_trapezoidalRule.cpp" />
+    <ClCompile Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\shared\src\app\app_crc32.c" />
+    <ClCompile Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\shared\src\app\app_crc8.c" />
+    <ClCompile Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\shared\src\app\app_heartbeatBoard.c" />
+    <ClCompile Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\shared\src\app\app_heartbeatMonitor.c" />
+    <ClCompile Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\shared\src\app\app_jsoncan.c" />
+    <ClCompile Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\shared\src\app\app_math.c" />
+    <ClCompile Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\shared\src\app\app_pid.c" />
+    <ClCompile Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\shared\src\app\app_rangeCheck.c" />
+    <ClCompile Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\shared\src\app\app_sensor_filter.c" />
+    <ClCompile Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\shared\src\app\app_shdnLoopNode.c" />
+    <ClCompile Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\shared\src\app\app_signal.c" />
+    <ClCompile Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\shared\src\app\app_stateMachine.c" />
+    <ClCompile Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\shared\src\app\app_thermistor.c" />
+    <ClCompile Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\firmware\shared\src\app\app_timer.c" />
+    <ClCompile Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\app\app_canTx.c">
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(AdditionalOptions) -w</AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(AdditionalOptions) -w</AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">%(AdditionalOptions) -w</AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">%(AdditionalOptions) -w</AdditionalOptions>
+    </ClCompile>
+    <ClCompile Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\app\app_canRx.c">
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(AdditionalOptions) -w</AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(AdditionalOptions) -w</AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">%(AdditionalOptions) -w</AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">%(AdditionalOptions) -w</AdditionalOptions>
+    </ClCompile>
+    <ClCompile Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\app\app_canUtils.c">
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(AdditionalOptions) -w</AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(AdditionalOptions) -w</AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">%(AdditionalOptions) -w</AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">%(AdditionalOptions) -w</AdditionalOptions>
+    </ClCompile>
+    <ClCompile Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\app\app_canAlerts.c">
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(AdditionalOptions) -w</AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(AdditionalOptions) -w</AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">%(AdditionalOptions) -w</AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">%(AdditionalOptions) -w</AdditionalOptions>
+    </ClCompile>
+    <ClCompile Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\app\app_canDataCapture.c">
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(AdditionalOptions) -w</AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(AdditionalOptions) -w</AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">%(AdditionalOptions) -w</AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">%(AdditionalOptions) -w</AdditionalOptions>
+    </ClCompile>
+    <ClCompile Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\fake_io_canTx.cpp">
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(AdditionalOptions) -w</AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(AdditionalOptions) -w</AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">%(AdditionalOptions) -w</AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">%(AdditionalOptions) -w</AdditionalOptions>
+    </ClCompile>
+    <ClCompile Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\fake_io_canRx.cpp">
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(AdditionalOptions) -w</AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(AdditionalOptions) -w</AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">%(AdditionalOptions) -w</AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">%(AdditionalOptions) -w</AdditionalOptions>
+    </ClCompile>
+    <ClCompile Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\fake_io_time.cpp">
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(AdditionalOptions) -w</AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(AdditionalOptions) -w</AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">%(AdditionalOptions) -w</AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">%(AdditionalOptions) -w</AdditionalOptions>
+    </ClCompile>
+    <ClCompile Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\fake_io_led.cpp">
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(AdditionalOptions) -w</AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(AdditionalOptions) -w</AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">%(AdditionalOptions) -w</AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">%(AdditionalOptions) -w</AdditionalOptions>
+    </ClCompile>
+    <ClCompile Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\fake_io_switch.cpp">
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(AdditionalOptions) -w</AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(AdditionalOptions) -w</AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">%(AdditionalOptions) -w</AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">%(AdditionalOptions) -w</AdditionalOptions>
+    </ClCompile>
+    <ClCompile Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\firmware\shared\fake_io_mechanicalLoad.cpp">
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(AdditionalOptions) -w</AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(AdditionalOptions) -w</AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">%(AdditionalOptions) -w</AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">%(AdditionalOptions) -w</AdditionalOptions>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\ZERO_CHECK.vcxproj">
+      <Project>{EFD030E8-2B57-35B7-A012-B362179021C3}</Project>
+      <Name>ZERO_CHECK</Name>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\_deps\googletest-build\googletest\gtest.vcxproj">
+      <Project>{E2D35037-A09E-399F-BE4E-4E0CF4AE8C63}</Project>
+      <Name>gtest</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\_deps\googletest-build\googletest\gtest_main.vcxproj">
+      <Project>{F9A14B93-06D0-3428-9426-DB59C6154054}</Project>
+      <Name>gtest_main</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

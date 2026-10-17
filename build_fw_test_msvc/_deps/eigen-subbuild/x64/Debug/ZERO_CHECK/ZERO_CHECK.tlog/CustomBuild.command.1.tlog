@@ -1,0 +1,10 @@
+^C:\USERS\HITAR\ONEDRIVE\DESKTOP\UBC_FE\CONSOLIDATED-FIRMWARE\BUILD_FW_TEST_MSVC\_DEPS\EIGEN-SUBBUILD\CMAKEFILES\DA66FCC96E16705D046B0ECE1888C28E\GENERATE.STAMP.RULE
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/_deps/eigen-subbuild -BC:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/_deps/eigen-subbuild --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/_deps/eigen-subbuild/eigen-populate.sln
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

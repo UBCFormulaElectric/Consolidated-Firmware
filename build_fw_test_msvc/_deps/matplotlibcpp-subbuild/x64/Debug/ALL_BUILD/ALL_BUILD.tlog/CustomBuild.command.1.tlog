@@ -1,0 +1,10 @@
+^C:\USERS\HITAR\ONEDRIVE\DESKTOP\UBC_FE\CONSOLIDATED-FIRMWARE\BUILD_FW_TEST_MSVC\_DEPS\MATPLOTLIBCPP-SUBBUILD\CMAKELISTS.TXT
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/_deps/matplotlibcpp-subbuild -BC:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/_deps/matplotlibcpp-subbuild --check-stamp-file C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/_deps/matplotlibcpp-subbuild/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

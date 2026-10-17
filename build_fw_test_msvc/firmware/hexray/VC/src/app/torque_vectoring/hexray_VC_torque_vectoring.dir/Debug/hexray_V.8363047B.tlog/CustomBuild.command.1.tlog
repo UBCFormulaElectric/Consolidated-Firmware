@@ -1,0 +1,10 @@
+^C:\USERS\HITAR\ONEDRIVE\DESKTOP\UBC_FE\CONSOLIDATED-FIRMWARE\FIRMWARE\HEXRAY\VC\SRC\APP\TORQUE_VECTORING\CMAKELISTS.TXT
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware -BC:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc --check-stamp-file C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/firmware/hexray/VC/src/app/torque_vectoring/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

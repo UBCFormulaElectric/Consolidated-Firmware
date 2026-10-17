@@ -1,0 +1,44 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\_deps\auto_diff-subbuild\CMakeFiles\4957f912a90369beb6d1ece5459ef30f\auto_diff-populate-mkdir.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+    <CustomBuild Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\_deps\auto_diff-subbuild\CMakeFiles\4957f912a90369beb6d1ece5459ef30f\auto_diff-populate-download.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+    <CustomBuild Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\_deps\auto_diff-subbuild\CMakeFiles\4957f912a90369beb6d1ece5459ef30f\auto_diff-populate-update.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+    <CustomBuild Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\_deps\auto_diff-subbuild\CMakeFiles\4957f912a90369beb6d1ece5459ef30f\auto_diff-populate-patch.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+    <CustomBuild Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\_deps\auto_diff-subbuild\CMakeFiles\4957f912a90369beb6d1ece5459ef30f\auto_diff-populate-configure.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+    <CustomBuild Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\_deps\auto_diff-subbuild\CMakeFiles\4957f912a90369beb6d1ece5459ef30f\auto_diff-populate-build.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+    <CustomBuild Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\_deps\auto_diff-subbuild\CMakeFiles\4957f912a90369beb6d1ece5459ef30f\auto_diff-populate-install.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+    <CustomBuild Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\_deps\auto_diff-subbuild\CMakeFiles\4957f912a90369beb6d1ece5459ef30f\auto_diff-populate-test.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+    <CustomBuild Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\_deps\auto_diff-subbuild\CMakeFiles\733b14ade47d6c5b03ba8afd4d14aac0\auto_diff-populate-complete.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+    <CustomBuild Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\_deps\auto_diff-subbuild\CMakeFiles\89a50c67382095456c1f916c94506452\auto_diff-populate.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+    <CustomBuild Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\_deps\auto_diff-subbuild\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="C:\Users\hitar\OneDrive\Desktop\UBC_FE\Consolidated-Firmware\build_fw_test_msvc\_deps\auto_diff-subbuild\CMakeFiles\auto_diff-populate" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{C053846F-A50B-3FF0-BD69-90A6DF285A2F}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

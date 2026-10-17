@@ -1,0 +1,10 @@
+^C:\USERS\HITAR\ONEDRIVE\DESKTOP\UBC_FE\CONSOLIDATED-FIRMWARE\BUILD_FW_TEST_MSVC\_DEPS\AUTO_DIFF-SUBBUILD\CMAKEFILES\89A50C67382095456C1F916C94506452\GENERATE.STAMP.RULE
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/_deps/auto_diff-subbuild -BC:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/_deps/auto_diff-subbuild --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file C:/Users/hitar/OneDrive/Desktop/UBC_FE/Consolidated-Firmware/build_fw_test_msvc/_deps/auto_diff-subbuild/auto_diff-populate.sln
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
