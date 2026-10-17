@@ -490,9 +490,9 @@ template <Decimal T, std::size_t STATES, std::size_t INPUTS, std::size_t... MEAS
             P_ * H.transpose() * S.llt().solve(M_M<MEASUREMENTS>::Identity()); // cholesky decomp to avoid
                                                                                // inversing computation overhead
 
-        x_.noalias() = x_ + K * y;
+        x_.noalias()   = x_ + K * y;
         const N_N I_KH = N_N::Identity() - K * H;
-        P_ = (I_KH * P_ * I_KH.transpose()) + (K * step.R * K.transpose());
+        P_             = (I_KH * P_ * I_KH.transpose()) + (K * step.R * K.transpose());
     }
 };
 } // namespace app::state_estimation

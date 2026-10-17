@@ -76,7 +76,7 @@ extern "C" void update_matlab(
     const double steer,
     const double gps_v_x,
     const double gps_v_y,
-    const bool enable_gps,
+    const bool   enable_gps,
     const double omegas[4],
     double       kappas[4],
     double       torque_max[4],
@@ -88,9 +88,10 @@ extern "C" void update_matlab(
 
     // The Vehicle Dynamics Blockset plant reports body quantities in SAE J670 axes (x forward, y right, z down:
     // positive steer / yaw rate / lateral velocity / lateral accel = to the right). The estimator and controller use
-    // ISO 8855 (x forward, y left, z up, positive steer / yaw rate = left), so every lateral quantity changes sign here.
-    // Longitudinal quantities and the per-wheel arrays (fl, fr, rl, rr) are the same in both frames. Without this the
-    // left/right is mirrored: the yaw-rate loop becomes positive feedback and torque vectoring acts backwards in corners.
+    // ISO 8855 (x forward, y left, z up, positive steer / yaw rate = left), so every lateral quantity changes sign
+    // here. Longitudinal quantities and the per-wheel arrays (fl, fr, rl, rr) are the same in both frames. Without this
+    // the left/right is mirrored: the yaw-rate loop becomes positive feedback and torque vectoring acts backwards in
+    // corners.
     const app::tv::estimation::Measurements meas = {
         .ax_mps2        = static_cast<tv_real>(a_x),
         .ay_mps2        = static_cast<tv_real>(-a_y),
@@ -153,16 +154,17 @@ void estimate_matlab(
     double    steer,
     double    gps_v_x,
     double    gps_v_y,
-    bool    enable_gps,
+    bool      enable_gps,
     double   *est_v_x,
     double   *est_v_y,
     tv_debug *debug)
 {
     // The Vehicle Dynamics Blockset plant reports body quantities in SAE J670 axes (x forward, y right, z down:
     // positive steer / yaw rate / lateral velocity / lateral accel = to the right). The estimator and controller use
-    // ISO 8855 (x forward, y left, z up, positive steer / yaw rate = left), so every lateral quantity changes sign here.
-    // Longitudinal quantities and the per-wheel arrays (fl, fr, rl, rr) are the same in both frames. Without this the
-    // left/right is mirrored: the yaw-rate loop becomes positive feedback and torque vectoring acts backwards in corners.
+    // ISO 8855 (x forward, y left, z up, positive steer / yaw rate = left), so every lateral quantity changes sign
+    // here. Longitudinal quantities and the per-wheel arrays (fl, fr, rl, rr) are the same in both frames. Without this
+    // the left/right is mirrored: the yaw-rate loop becomes positive feedback and torque vectoring acts backwards in
+    // corners.
     const app::tv::estimation::Measurements meas = {
         .ax_mps2        = static_cast<tv_real>(a_x),
         .ay_mps2        = static_cast<tv_real>(-a_y),

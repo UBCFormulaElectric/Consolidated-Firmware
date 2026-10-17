@@ -17,9 +17,9 @@ template <Decimal T> AccelRequest<T> compute(T apps, T brakes, T v_x_mps, bool r
     // const T brake_fade = std::clamp(state.v_x_mps / static_cast<T>(BRAKE_FADE_SPEED_MPS), T(0), T(1));
     // const T ax_mps2_setpoint = pedal >= 0 ? MAX_AX_MPS2 * pedal : MAX_AX_MPS2 * pedal * brake_fade;
 
-    T accel_request_percent = (apps - PEDAL_DEADZONE) / (T(1.0) - PEDAL_DEADZONE);
-    T speed_derate_factor   = T(1.0);
-    T brake_derate_factor   = std::clamp(T(5.0) * (T(1.0) - brakes), T(0.0), T(1.0));
+    T accel_request_percent   = (apps - PEDAL_DEADZONE) / (T(1.0) - PEDAL_DEADZONE);
+    T speed_derate_factor     = T(1.0);
+    T brake_derate_factor     = std::clamp(T(5.0) * (T(1.0) - brakes), T(0.0), T(1.0));
     T low_pedal_derate_factor = std::clamp((apps / PEDAL_DEADZONE), T(0.0), T(1.0));
 
     /**
@@ -74,9 +74,9 @@ template <Decimal T> AccelRequest<T> compute(T apps, T brakes, T v_x_mps, bool r
              * and then the last 70% would produce a positive torque
              */
 
-            const T v_x_kmh             = static_cast<T>(MPS_TO_KMH(static_cast<float>(v_x_mps)));
-            speed_derate_factor         = std::clamp((v_x_kmh - MIN_SPEED_REGEN_KMH) / MIN_SPEED_REGEN_KMH, T(0), T(1));
-            accel_request_percent       = (apps_remap / REGEN_PEDAL_REGION) * speed_derate_factor;
+            const T v_x_kmh       = static_cast<T>(MPS_TO_KMH(static_cast<float>(v_x_mps)));
+            speed_derate_factor   = std::clamp((v_x_kmh - MIN_SPEED_REGEN_KMH) / MIN_SPEED_REGEN_KMH, T(0), T(1));
+            accel_request_percent = (apps_remap / REGEN_PEDAL_REGION) * speed_derate_factor;
         }
         else if (apps_remap < PEDAL_DEADZONE)
         {
@@ -87,8 +87,6 @@ template <Decimal T> AccelRequest<T> compute(T apps, T brakes, T v_x_mps, bool r
             accel_request_percent = (apps_remap - PEDAL_DEADZONE) / (T(1) - PEDAL_DEADZONE - REGEN_PEDAL_REGION);
         }
     }
-
-
 
     tv_debug_data.accel_req.accel_request_percent = accel_request_percent;
 

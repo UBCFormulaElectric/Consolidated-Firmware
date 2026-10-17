@@ -54,10 +54,10 @@ typedef struct
 
 typedef struct
 {
-    optimizer_info optimizer;
-    yrc_info       yrc;
-    veh_state_info veh_state;
-    veh_ekf_info   ekf_info;
+    optimizer_info     optimizer;
+    yrc_info           yrc;
+    veh_state_info     veh_state;
+    veh_ekf_info       ekf_info;
     accel_request_info accel_req;
 } tv_debug;
 
