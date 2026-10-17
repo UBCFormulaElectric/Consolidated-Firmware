@@ -125,6 +125,8 @@ void tasks_runImu(void *arg)
 {
     constexpr uint32_t period_ms = 10U;
 
+    jobs_initImu();
+
     uint32_t start_ticks = osKernelGetTickCount();
     forever
     {

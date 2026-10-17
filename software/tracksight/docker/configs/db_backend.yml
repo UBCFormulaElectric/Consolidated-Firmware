@@ -5,6 +5,9 @@ services:
       file: ../common.yml
       service: influx
   backend:
+    depends_on:
+      influx:
+        condition: service_healthy
     extends:
       file: ../common.yml
       service: backend

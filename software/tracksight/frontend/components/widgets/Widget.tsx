@@ -1,12 +1,16 @@
 "use client";
 
 import chroma, { Color } from "chroma-js";
-import { ReactNode, RefObject, useCallback, useState } from "react";
+import { memo, ReactNode, RefObject, useCallback, useState } from "react";
+import { ConnectDragSource, useDrag, useDragLayer } from "react-dnd";
 
+import { EditButton } from "@/components/icons/EditButton";
 import { PlusButton } from "@/components/icons/PlusButton";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { DRAGGABLE_TYPES } from "@/lib/constants";
 import { BooleanSignalMetadata, EnumSignalMetadata, isEnumSignalMetadata, NumericalSignalMetadata, SignalMetadata } from "@/lib/types/Signal";
-import { EnumTimelineWidgetData, NumericalGraphWidgetData, WidgetData } from "@/lib/types/Widget";
+import { EnumTimelineWidgetData, NumericalGraphWidgetData, SignalDragItem, SignalDropResult, WidgetData, WidgetDragItem } from "@/lib/types/Widget";
+import { GripVertical } from "lucide-react";
 import EnumCanvasChart from "./EnumCanvasChart";
 import { EnumSignalPicker } from "./EnumSignalPicker";
 import NumericalCanvasChart from "./NumericalCanvasChart";
@@ -35,12 +39,52 @@ function removeColorPaletteEntry<T>(palette: Record<string, T>, signalName: stri
     return nextPalette;
 }
 
-function SignalButton(props: { signal: SignalMetadata; handleRemoveSignal: (signalName: string) => void; hoverSignalName: RefObject<string | null>; color: Color }) {
-    const { signal, handleRemoveSignal, hoverSignalName, color } = props;
+function useDraggedAwaySignal(widgetId: string): SignalMetadata | null {
+    return useDragLayer((monitor) => {
+        if (monitor.getItemType() !== DRAGGABLE_TYPES.SIGNAL) return null;
+
+        const item = monitor.getItem<SignalDragItem>();
+        const isDraggedAwayFromWidget = item.originalWidgetId === widgetId && item.currentWidgetId !== widgetId;
+
+        return isDraggedAwayFromWidget ? item.signal : null;
+    });
+}
+
+function SignalButton(props: { signal: SignalMetadata; signalIndex: number; widgetId: string; isHidden: boolean; handleRemoveSignal: (signalName: string) => void; hoverSignalName: RefObject<string | null>; color: Color }) {
+    const { signal, signalIndex, widgetId, isHidden, handleRemoveSignal, hoverSignalName, color } = props;
+    const { moveSignal } = useWidgetManager();
+
+    const [{ isDragging }, drag] = useDrag(
+        () => ({
+            type: DRAGGABLE_TYPES.SIGNAL,
+            item: (): SignalDragItem => {
+                hoverSignalName.current = null;
+
+                return { signal, originalWidgetId: widgetId, originalIndex: signalIndex, currentWidgetId: widgetId };
+            },
+            end: (item, monitor) => {
+                if (monitor.getDropResult<SignalDropResult>()?.isAccepted) return;
+
+                moveSignal(item.signal.name, item.currentWidgetId, item.originalWidgetId, item.originalIndex);
+            },
+            isDragging: (monitor) => {
+                const item = monitor.getItem<SignalDragItem>();
+
+                return item.signal.name === signal.name && item.currentWidgetId === widgetId;
+            },
+            collect: (monitor) => ({
+                isDragging: monitor.isDragging(),
+            }),
+        }),
+        [signal, signalIndex, widgetId, hoverSignalName, moveSignal]
+    );
 
     return (
         <div
-            className="select-none flex items-center gap-2 px-3 py-1.5 rounded-full border-2 hover:opacity-80 transition-opacity cursor-crosshair"
+            ref={(node) => {
+                drag(node);
+            }}
+            className={`select-none flex items-center gap-2 px-3 py-1.5 rounded-full border-2 transition-opacity cursor-grab ${isDragging ? "opacity-50" : "hover:opacity-80"} ${isHidden ? "hidden" : ""}`}
             style={{ backgroundColor: color.brighten(1).hex(), borderColor: color.darken(1).hex() }}
             onMouseEnter={() => {
                 hoverSignalName.current = signal.name;
@@ -59,8 +103,8 @@ function SignalButton(props: { signal: SignalMetadata; handleRemoveSignal: (sign
     );
 }
 
-function WidgetConfiguration(props: { id: string; children?: ReactNode }) {
-    const { id, children } = props;
+function WidgetConfiguration(props: { id: string; children?: ReactNode; dragHandle: ConnectDragSource }) {
+    const { id, children, dragHandle } = props;
     const { removeWidget } = useWidgetManager();
 
     const deleteSelfWidget = useCallback(() => {
@@ -70,6 +114,13 @@ function WidgetConfiguration(props: { id: string; children?: ReactNode }) {
     return (
         <div className="px-6">
             <div className="flex items-center gap-2 mb-4">
+                <div
+                    ref={(node) => {
+                        dragHandle(node);
+                    }}
+                >
+                    <GripVertical className="w-6 h-6 cursor-grab" />
+                </div>
                 <h3 className="font-semibold">Widget {id}</h3>
                 <button type="button" onClick={deleteSelfWidget} title="Remove graph" className="w-6 h-6 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center text-sm font-bold transition-colors cursor-pointer">
                     ×
@@ -84,173 +135,101 @@ function EmptyWidgetState(props: { message: string }) {
     return <div className="mx-6 mt-4 rounded-lg border border-dashed border-gray-300 bg-gray-50 px-6 py-12 text-center text-sm text-gray-500">{props.message}</div>;
 }
 
-function NumericalWidgetAddSignalModal(props: { widget: NumericalGraphWidgetData }) {
+function buildNextColorPalette<S extends SignalMetadata, T>(previousPalette: Record<string, T>, signals: S[], createEntry: (signal: S) => T): Record<string, T> {
+    return Object.fromEntries(signals.map((signal) => [signal.name, previousPalette[signal.name] ?? createEntry(signal)]));
+}
+
+function NumericalWidgetEditSignalsModal(props: { widget: NumericalGraphWidgetData }) {
     const { widget } = props;
     const [modalOpen, setModalOpen] = useState(false);
-    const [signalQuery, setSignalQuery] = useState("");
-    const [selectedSignal, setSelectedSignal] = useState<NumericalSignalMetadata | null>(null);
-    const [error, setError] = useState<string | null>(null);
     const { updateWidget } = useWidgetManager();
 
-    const handleClose = () => {
-        setModalOpen(false);
-        setSignalQuery("");
-        setSelectedSignal(null);
-        setError(null);
-    };
+    const hasNoSignals = widget.signals.length === 0;
 
-    const handleAddSignal = useCallback(() => {
-        if (!selectedSignal) {
-            setError("Choose a signal from the list.");
-            return;
-        }
-
-        if (widget.signals.some((signal) => signal.name === selectedSignal.name)) {
-            setError("Already listening to this signal on this widget.");
-            return;
-        }
+    const handleSave = (signals: NumericalSignalMetadata[]) => {
+        const nextColorPalette = buildNextColorPalette(widget.options.colorPalette, signals, () => chroma.random());
 
         updateWidget(widget, (previousWidget) => ({
             ...previousWidget,
-            signals: [...previousWidget.signals, selectedSignal],
+            signals,
             options: {
                 ...previousWidget.options,
-                colorPalette: {
-                    ...previousWidget.options.colorPalette,
-                    [selectedSignal.name]: chroma.random(),
-                },
+                colorPalette: nextColorPalette,
             },
         }));
-        handleClose();
-    }, [selectedSignal, updateWidget, widget]);
+        setModalOpen(false);
+    };
 
     return (
         <Dialog open={modalOpen} onOpenChange={setModalOpen}>
-            <DialogTrigger asChild>
-                <button type="button" className="cursor-pointer" title="Add numerical signal">
-                    <PlusButton />
-                </button>
-            </DialogTrigger>
+            <DialogTrigger asChild>{hasNoSignals ? <PlusButton title="Add numerical signals" /> : <EditButton title="Edit numerical signals" />}</DialogTrigger>
             <DialogContent>
                 <DialogHeader>
-                    <DialogTitle className="text-lg font-bold mb-4">Add Numerical Signal</DialogTitle>
-                    <DialogDescription>Add a live numerical signal to this graph.</DialogDescription>
+                    <DialogTitle className="text-lg font-bold mb-4">Edit Numerical Signals</DialogTitle>
+                    <DialogDescription>Choose which live numerical signals this graph shows.</DialogDescription>
                 </DialogHeader>
-                <div className="space-y-4">
-                    <NumericalSignalPicker
-                        query={signalQuery}
-                        selectedSignalName={selectedSignal?.name ?? null}
-                        onQueryChange={(value) => {
-                            setSignalQuery(value);
-                            setSelectedSignal((currentSignal) => (currentSignal?.name === value.trim() ? currentSignal : null));
-                            setError(null);
-                        }}
-                        onSelectSignal={(signal) => {
-                            setSignalQuery(signal.name);
-                            setSelectedSignal(signal);
-                            setError(null);
-                        }}
-                    />
-                    {error && <p className="text-sm text-red-600">{error}</p>}
-                    <div className="flex justify-end gap-2 pt-2">
-                        <button type="button" onClick={handleClose} className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded cursor-pointer">
-                            Cancel
-                        </button>
-                        <button type="button" onClick={handleAddSignal} disabled={selectedSignal === null} className="px-4 py-2 bg-blue-600 text-white hover:bg-blue-700 rounded cursor-pointer disabled:cursor-not-allowed disabled:opacity-60">
-                            Add
-                        </button>
-                    </div>
+                <div className="min-w-0">
+                    <NumericalSignalPicker initialSignals={widget.signals} onConfirm={handleSave} onCancel={() => setModalOpen(false)} />
                 </div>
             </DialogContent>
         </Dialog>
     );
 }
 
-function EnumWidgetAddSignalModal(props: { widget: EnumTimelineWidgetData }) {
+function EnumWidgetEditSignalsModal(props: { widget: EnumTimelineWidgetData }) {
     const { widget } = props;
     const [modalOpen, setModalOpen] = useState(false);
-    const [signalQuery, setSignalQuery] = useState("");
-    const [selectedSignal, setSelectedSignal] = useState<EnumSignalMetadata | BooleanSignalMetadata | null>(null);
-    const [error, setError] = useState<string | null>(null);
     const { updateWidget } = useWidgetManager();
 
-    const handleClose = () => {
-        setModalOpen(false);
-        setSignalQuery("");
-        setSelectedSignal(null);
-        setError(null);
-    };
+    const hasNoSignals = widget.signals.length === 0;
 
-    const handleAddSignal = useCallback(() => {
-        if (!selectedSignal) {
-            setError("Choose a signal from the list.");
-            return;
-        }
-
-        if (widget.signals.some((signal) => signal.name === selectedSignal.name)) {
-            setError("Already listening to this signal on this widget.");
-            return;
-        }
+    const handleSave = (signals: (EnumSignalMetadata | BooleanSignalMetadata)[]) => {
+        const nextColorPalette = buildNextColorPalette(widget.options.colorPalette, signals, buildEnumPalette);
 
         updateWidget(widget, (previousWidget) => ({
             ...previousWidget,
-            signals: [...previousWidget.signals, selectedSignal],
+            signals,
             options: {
                 ...previousWidget.options,
-                colorPalette: {
-                    ...previousWidget.options.colorPalette,
-                    [selectedSignal.name]: buildEnumPalette(selectedSignal),
-                },
+                colorPalette: nextColorPalette,
             },
         }));
-        handleClose();
-    }, [selectedSignal, updateWidget, widget]);
+        setModalOpen(false);
+    };
 
     return (
         <Dialog open={modalOpen} onOpenChange={setModalOpen}>
-            <DialogTrigger asChild>
-                <button type="button" className="cursor-pointer" title="Add enum signal">
-                    <PlusButton />
-                </button>
-            </DialogTrigger>
+            <DialogTrigger asChild>{hasNoSignals ? <PlusButton title="Add enum signals" /> : <EditButton title="Edit enum signals" />}</DialogTrigger>
             <DialogContent>
                 <DialogHeader>
-                    <DialogTitle className="text-lg font-bold mb-4">Add Enum Signal</DialogTitle>
-                    <DialogDescription>Add a live enum signal to this timeline.</DialogDescription>
+                    <DialogTitle className="text-lg font-bold mb-4">Edit Enum Signals</DialogTitle>
+                    <DialogDescription>Choose which live enum signals this timeline shows.</DialogDescription>
                 </DialogHeader>
-                <div className="space-y-4">
-                    <EnumSignalPicker
-                        query={signalQuery}
-                        selectedSignalName={selectedSignal?.name ?? null}
-                        onQueryChange={(value) => {
-                            setSignalQuery(value);
-                            setSelectedSignal((currentSignal) => (currentSignal?.name === value.trim() ? currentSignal : null));
-                            setError(null);
-                        }}
-                        onSelectSignal={(signal) => {
-                            setSignalQuery(signal.name);
-                            setSelectedSignal(signal);
-                            setError(null);
-                        }}
-                    />
-                    {error && <p className="text-sm text-red-600">{error}</p>}
-                    <div className="flex justify-end gap-2 pt-2">
-                        <button type="button" onClick={handleClose} className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded cursor-pointer">
-                            Cancel
-                        </button>
-                        <button type="button" onClick={handleAddSignal} disabled={selectedSignal === null} className="px-4 py-2 bg-blue-600 text-white hover:bg-blue-700 rounded cursor-pointer disabled:cursor-not-allowed disabled:opacity-60">
-                            Add
-                        </button>
-                    </div>
+                <div className="min-w-0">
+                    <EnumSignalPicker initialSignals={widget.signals} onConfirm={handleSave} onCancel={() => setModalOpen(false)} />
                 </div>
             </DialogContent>
         </Dialog>
     );
 }
 
-export function Widget(props: WidgetData & { hoveredSignal: RefObject<string | null> }) {
-    const { hoveredSignal } = props;
-    const { updateWidget } = useWidgetManager();
+export const Widget = memo(function Widget(props: WidgetData & { hoveredSignal: RefObject<string | null> }) {
+    const { hoveredSignal, id } = props;
+    const { widgets, updateWidget, moveWidgetToIndex } = useWidgetManager();
+    const draggedAwaySignal = useDraggedAwaySignal(id);
+
+    const [, drag] = useDrag(
+        () => ({
+            type: DRAGGABLE_TYPES.WIDGET,
+            item: (): WidgetDragItem => ({ id, originalIndex: widgets.findIndex((widget) => widget.id === id) }),
+            end: (item, monitor) => {
+                if (monitor.didDrop()) return;
+
+                moveWidgetToIndex(item.id, item.originalIndex);
+            },
+        }),
+        [id, widgets, moveWidgetToIndex]
+    );
 
     switch (props.type) {
         case "numericalGraph": {
@@ -268,11 +247,11 @@ export function Widget(props: WidgetData & { hoveredSignal: RefObject<string | n
 
             return (
                 <>
-                    <WidgetConfiguration id={widget.id}>
-                        {widget.signals.map((signal) => (
-                            <SignalButton key={signal.name} signal={signal} handleRemoveSignal={handleRemoveSignal} hoverSignalName={hoveredSignal} color={widget.options.colorPalette[signal.name] ?? chroma("#ffffff")} />
+                    <WidgetConfiguration id={widget.id} dragHandle={drag}>
+                        {(draggedAwaySignal ? [...widget.signals, draggedAwaySignal] : widget.signals).map((signal, signalIndex) => (
+                            <SignalButton key={signal.name} signal={signal} signalIndex={signalIndex} widgetId={widget.id} isHidden={signal.name === draggedAwaySignal?.name} handleRemoveSignal={handleRemoveSignal} hoverSignalName={hoveredSignal} color={widget.options.colorPalette[signal.name] ?? chroma("#ffffff")} />
                         ))}
-                        <NumericalWidgetAddSignalModal widget={widget} />
+                        <NumericalWidgetEditSignalsModal widget={widget} />
                     </WidgetConfiguration>
                     {widget.signals.length === 0 ? <EmptyWidgetState message="Add a numerical signal to start graphing live data." /> : <NumericalCanvasChart {...widget} hoveredSignal={hoveredSignal} />}
                 </>
@@ -293,15 +272,15 @@ export function Widget(props: WidgetData & { hoveredSignal: RefObject<string | n
 
             return (
                 <>
-                    <WidgetConfiguration id={widget.id}>
-                        {widget.signals.map((signal) => (
-                            <SignalButton key={signal.name} signal={signal} handleRemoveSignal={handleRemoveSignal} hoverSignalName={hoveredSignal} color={widget.options.colorPalette[signal.name]?.color ?? chroma("#ffffff")} />
+                    <WidgetConfiguration id={widget.id} dragHandle={drag}>
+                        {(draggedAwaySignal ? [...widget.signals, draggedAwaySignal] : widget.signals).map((signal, signalIndex) => (
+                            <SignalButton key={signal.name} signal={signal} signalIndex={signalIndex} widgetId={widget.id} isHidden={signal.name === draggedAwaySignal?.name} handleRemoveSignal={handleRemoveSignal} hoverSignalName={hoveredSignal} color={widget.options.colorPalette[signal.name]?.color ?? chroma("#ffffff")} />
                         ))}
-                        <EnumWidgetAddSignalModal widget={widget} />
+                        <EnumWidgetEditSignalsModal widget={widget} />
                     </WidgetConfiguration>
                     {widget.signals.length === 0 ? <EmptyWidgetState message="Add an enum signal to start the timeline." /> : <EnumCanvasChart {...widget} hoveredSignal={hoveredSignal} />}
                 </>
             );
         }
     }
-}
+});
