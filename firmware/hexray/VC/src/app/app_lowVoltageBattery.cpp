@@ -268,7 +268,6 @@ result<void> update()
         const bool charge_enable = should_charge(pack_voltage.value(), max_cell, min_cell);
         can_tx::VC_Charging_set(charge_enable);
         charge_enable ? io::batteryCharging::charger_enable() : io::batteryCharging::charger_disable();
-        const bool charger_gpio_status = io::batteryCharging::check_status();
     }
     else
     {

@@ -40,6 +40,12 @@ struct ProtectionStatus
     bool undervoltage = false;
 };
 
+enum class Action : uint16_t
+{
+    COMMAND, 
+    SUBCOMMAND
+};
+
 // Internal regulator adresses
 inline constexpr uint16_t REG0_CONFIG = 0x9237;
 inline constexpr uint16_t REG1_CONFIG = 0x9236;
