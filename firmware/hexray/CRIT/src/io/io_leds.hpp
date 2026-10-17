@@ -64,6 +64,10 @@ struct config
     }
 };
 
+void boot_set(bool val);
+
+void torque_boot_set(bool val);
+
 /**
  * @brief Update the LED states based on the provided config.
  * @param c config

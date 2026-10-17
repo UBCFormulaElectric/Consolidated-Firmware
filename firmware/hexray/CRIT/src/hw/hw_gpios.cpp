@@ -8,6 +8,10 @@ const hw::gpio rot_b(ROT_B_GPIO_Port, ROT_B_Pin);
 const hw::gpio rot_a(ROT_A_GPIO_Port, ROT_A_Pin);
 const hw::gpio led_rck(LED_RCK_GPIO_Port, LED_RCK_Pin);
 const hw::gpio seven_seg_rck(_7SEG_RCK_GPIO_Port, _7SEG_RCK_Pin);
+const hw::gpio torque_vectoring(TORQUE_VECTORING_SIG_GPIO_Port, TORQUE_VECTORING_SIG_Pin);
+const hw::gpio regen(REGEN_SIG_GPIO_Port, REGEN_SIG_Pin);
+const hw::gpio debug(DEBUG_GPIO_Port, DEBUG_Pin);
+const hw::gpio boot(BOOT_LED_GPIO_Port, BOOT_LED_Pin);
 
 #ifndef USE_CHIMERA
 #include "io_rotary.hpp"
