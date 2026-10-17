@@ -26,7 +26,19 @@ namespace io::adbms {
     inline constexpr uint16_t RDCVC   = 0x0008U;
     inline constexpr uint16_t RDCVD   = 0x000AU;
     inline constexpr uint16_t RDCVE   = 0x0009U;
+    inline constexpr uint16_t RDSVA   = 0x0003U;
+    inline constexpr uint16_t RDSVB   = 0x0005U;
+    inline constexpr uint16_t RDSVC   = 0x0007U;
+    inline constexpr uint16_t RDSVD   = 0x000DU;
+    inline constexpr uint16_t RDSVE   = 0x000EU;
+    inline constexpr uint16_t RDAUXA  = 0x0019U;
+    inline constexpr uint16_t RDAUXB  = 0x001AU;
+    inline constexpr uint16_t RDAUXC  = 0x001BU;
+    inline constexpr uint16_t RDAUXD  = 0x001FU;
+    inline constexpr uint16_t RDSTATA = 0x0030U;
+    inline constexpr uint16_t RDSTATB = 0x0031U;
     inline constexpr uint16_t RDSTATC = 0x0032U;
+    inline constexpr uint16_t RDSTATD = 0x0033U;
 
     // Clear
     inline constexpr uint16_t CLOVUV  = 0x0715U;
