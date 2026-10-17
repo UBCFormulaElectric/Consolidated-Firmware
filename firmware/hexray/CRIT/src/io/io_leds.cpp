@@ -19,6 +19,16 @@ static void clock_rck()
     led_rck.writePin(false);
 }
 
+void boot_led_set(bool val) 
+{
+    boot_led.writePin(val);
+}
+
+void debug_led_set(bool val) 
+{
+    debug_led.writePin(val);
+}
+
 result<void> update(const config &c)
 {
     const uint8_t dam   = color_bits(c.dam);
@@ -49,5 +59,7 @@ result<void> setBrightness(const float brightness)
     RETURN_IF_ERR_SILENT(led_dimming.setDutyCycle(100 - brightness));
     return {};
 }
+
+
 
 } // namespace io::leds

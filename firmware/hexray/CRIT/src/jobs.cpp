@@ -15,6 +15,7 @@
 #include "io_canQueues.hpp"
 #include "io_leds.hpp"
 #include "io_sevenSeg.hpp"
+#include "io_switches.hpp"
 
 void jobs_init()
 {
@@ -43,11 +44,10 @@ void jobs_run1Hz_tick()
 }
 void jobs_run100Hz_tick()
 {
+    // ADD YOUR LOGIC HERE
+    io::leds::boot_led_set(app::switches::regen_get());
+    io::leds::debug_led_set(app::switches::torque_vectoring_get());
 
-    // ADD YOUR LOGIC HERE 
-
-
-    //
     app::switches::broadcast();
 
     static bool prev_telem_mark = false;
