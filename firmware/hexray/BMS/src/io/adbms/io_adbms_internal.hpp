@@ -17,6 +17,10 @@ namespace io::adbms {
     inline constexpr uint16_t WRPWMB = 0x0021U;
 
     // Read
+    inline constexpr uint16_t RDCFGA  = 0x0002U;
+    inline constexpr uint16_t RDCFGB  = 0x0026U;
+    inline constexpr uint16_t RDPWMA  = 0x0022U;
+    inline constexpr uint16_t RDPWMB  = 0x0023U;
     inline constexpr uint16_t RDCVA   = 0x0004U;
     inline constexpr uint16_t RDCVB   = 0x0006U;
     inline constexpr uint16_t RDCVC   = 0x0008U;

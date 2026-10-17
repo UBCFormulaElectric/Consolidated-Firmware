@@ -61,7 +61,7 @@ namespace {
     void measureOnTick() {
         LOG_IF_ERR(io::adbms::command::snap());
         local.voltage_stats.updated_ms = io::time::getCurrentMs();
-        LOG_IF_ERR(io::adbms::read::Cadc(true, local.voltage_stats)); // RD on
+        LOG_IF_ERR(io::adbms::read::cAdc(true, local.voltage_stats)); // RD on
         app::pack::broadcast::cellVoltages(local.voltage_stats);
         app::pack::voltage_channel.publish(local.voltage_stats);
         LOG_IF_ERR(io::adbms::command::unsnap());
@@ -81,7 +81,7 @@ namespace {
     void balanceOnTick() {
         LOG_IF_ERR(io::adbms::command::snap());
         local.voltage_stats.updated_ms = io::time::getCurrentMs();
-        LOG_IF_ERR(io::adbms::read::Cadc(false, local.voltage_stats)); // RD off
+        LOG_IF_ERR(io::adbms::read::cAdc(false, local.voltage_stats)); // RD off
         app::pack::broadcast::cellVoltages(local.voltage_stats);
         app::pack::voltage_channel.publish(local.voltage_stats);
         LOG_IF_ERR(io::adbms::command::unsnap());
@@ -106,12 +106,12 @@ namespace {
         LOG_IF_ERR(io::adbms::command::snap());
         const auto time = io::time::getCurrentMs();
         local.voltage_stats.updated_ms = time;
-        LOG_IF_ERR(io::adbms::read::Cadc(false, local.voltage_stats)); // RD off
+        LOG_IF_ERR(io::adbms::read::cAdc(false, local.voltage_stats)); // RD off
         app::pack::broadcast::cellVoltages(local.voltage_stats);
 
         if (sadc_ready && !sadc_done) {
             local.owc_stats.updated_ms = time;
-            LOG_IF_ERR(io::adbms::read::Sadc(sadc_ow_parity, local.owc_stats));
+            LOG_IF_ERR(io::adbms::read::sAdc(sadc_ow_parity, local.owc_stats));
             app::pack::broadcast::cellOpenWire(local.owc_stats);
             app::pack::owc_channel.publish(local.owc_stats);
             sadc_done = true;
@@ -119,7 +119,7 @@ namespace {
 
         if (xadc_ready && !xadc_done) {
             local.temperature_stats.updated_ms = time;
-            LOG_IF_ERR(io::adbms::read::Xadc(xadc_therm_mux, local.temperature_stats));
+            LOG_IF_ERR(io::adbms::read::xAdc(xadc_therm_mux, local.temperature_stats));
             app::pack::broadcast::cellTemps(local.temperature_stats);
             app::pack::temperature_channel.publish(local.temperature_stats);
             xadc_done = true;

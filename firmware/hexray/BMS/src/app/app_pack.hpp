@@ -40,20 +40,18 @@ struct ADBMS2950Diag
 
 struct VoltStats
 {
-    uint32_t                updated_ms = 0U;
-    LocatedValue            max{};
-    LocatedValue            min{};
-    io::adbms::Cells<float> voltages{};
-    CellFlags               valid{};
+    uint32_t                        updated_ms = 0U;
+    LocatedValue                    max{};
+    LocatedValue                    min{};
+    result<io::adbms::PackCells<float>> voltages{};
 };
 
 struct TempStats
 {
-    uint32_t                 updated_ms = 0U;
-    LocatedValue             max{};
-    LocatedValue             min{};
-    io::adbms::Therms<float> temperatures{};
-    ThermFlags               valid{};
+    uint32_t                         updated_ms = 0U;
+    LocatedValue                     max{};
+    LocatedValue                     min{};
+    result<io::adbms::PackTherms<float>> temperatures{};
 };
 
 struct OwcStats

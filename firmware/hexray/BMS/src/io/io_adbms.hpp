@@ -170,11 +170,11 @@ namespace io::adbms {
     }
 
     namespace read {
-        [[nodiscard]] Segments<result<SegmentConfig>> configReg();
-        [[nodiscard]] Segments<result<PWMConfig>> pwmReg();
-        [[nodiscard]] result<void> Cadc(bool redundant, app::pack::VoltStats &stats);
-        [[nodiscard]] result<void> Sadc(OpenWireParity parity, app::pack::OwcStats &stats);
-        [[nodiscard]] result<void> Xadc(ThermistorMux mux, app::pack::TempStats &stats);
+        [[nodiscard]] result<void> configReg(Segments<CFGA> &config_a, Segments<CFGB> &config_b);
+        [[nodiscard]] result<void> pwmReg(Segments<PWMA> &pwm_a, Segments<PWMB> &pwm_b);
+        [[nodiscard]] result<void> cAdc(bool redundant, app::pack::VoltStats &stats);
+        [[nodiscard]] result<void> sAdc(OpenWireParity parity, app::pack::OwcStats &stats);
+        [[nodiscard]] result<void> xAdc(ThermistorMux mux, app::pack::TempStats &stats);
         [[nodiscard]] result<void> flags(app::pack::ADBMS6830Diag &diag);
     }
 
