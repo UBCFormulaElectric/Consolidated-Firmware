@@ -27,21 +27,9 @@
       "CellBalancing_Request": {
         "bits": 1
       },
-      "CellBalancing_OverrideValue": {
-        "bits": 1
-      },
-      "CellBalancing_TargetValue": {
+      "CellBalancing_DutyCycle": {
         "resolution": 0.1,
-        "min": 2.5,
-        "max": 4.2,
-        "unit": "V"
-      },
-      "CellBalancing_OverrideDutyCycle": {
-        "bits": 1
-      },
-      "CellBalancing_TargetDutyCycle": {
-        "resolution": 0.1,
-        "min": 6.6,
+        "min": 0,
         "max": 100,
         "unit": "%"
       }

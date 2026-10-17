@@ -97,6 +97,10 @@ template <typename T, size_t QUEUE_SIZE> class queue
         return msg;
 #elif TARGET_TEST
         UNUSED(timeout);
+        if (q.empty())
+        {
+            return std::unexpected(ErrorCode::ERROR);
+        }
         const auto out = q.front();
         q.pop();
         return out;
