@@ -66,7 +66,7 @@ function Navbar() {
                 </div>
                 <div className="flex items-center gap-4">
                     {isHistorical ? <HistoricalNavControls /> : null}
-                    {IS_MOCK || IS_DEBUG ? <DevPerfMeter /> : null}
+                    {IS_DEBUG ? <DevPerfMeter /> : null}
                     <TimezoneSelector />
                     <ErrorRateIndicator />
                 </div>

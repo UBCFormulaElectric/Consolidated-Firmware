@@ -15,7 +15,8 @@ day is empty. Markers appear each minute. Existing API types remain unchanged.
 
 For comparable timings, run `NEXT_PUBLIC_USE_MOCK_DATA=true yarn build` and
 `yarn start`, reuse the saved chart layout and session, then repeat zoom, pan,
-hover, and source switching. Watch the navbar's FPS/worst-frame readout and record
+hover, and source switching. Add `NEXT_PUBLIC_IS_DEBUG=true` to show the navbar's
+FPS/worst-frame readout, and record
 browser Performance/Memory traces. The mock measures frontend work, not database
 or network throughput; its short repeating pattern avoids generating hours of
 raw data. The samples/s counter includes points processed by historical merges,
