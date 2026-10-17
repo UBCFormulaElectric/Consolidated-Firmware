@@ -76,6 +76,10 @@ extern "C"
 #define IWDG_RESET_FREQUENCY 5
 #define IWDG_PRESCALER 4
 #define LSI_FREQUENCY 32000
+#define LED_Boot_Pin GPIO_PIN_13
+#define LED_Boot_GPIO_Port GPIOC
+#define LED_Pin GPIO_PIN_14
+#define LED_GPIO_Port GPIOC
 #define LED_DATA_Pin GPIO_PIN_1
 #define LED_DATA_GPIO_Port GPIOC
 #define LED_DIMMING_Pin GPIO_PIN_2
@@ -100,6 +104,10 @@ extern "C"
 #define TELEM_SIG_GPIO_Port GPIOB
 #define _7SEG_DIMMING_Pin GPIO_PIN_6
 #define _7SEG_DIMMING_GPIO_Port GPIOC
+#define Regen_Switch_Pin GPIO_PIN_7
+#define Regen_Switch_GPIO_Port GPIOC
+#define PC8_Switch_Pin GPIO_PIN_8
+#define PC8_Switch_GPIO_Port GPIOC
 #define ROT_S_Pin GPIO_PIN_8
 #define ROT_S_GPIO_Port GPIOA
 #define ROT_S_EXTI_IRQn EXTI8_IRQn

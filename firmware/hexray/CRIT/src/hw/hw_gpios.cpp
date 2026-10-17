@@ -9,6 +9,9 @@ const hw::gpio rot_a(ROT_A_GPIO_Port, ROT_A_Pin);
 const hw::gpio led_rck(LED_RCK_GPIO_Port, LED_RCK_Pin);
 const hw::gpio seven_seg_rck(_7SEG_RCK_GPIO_Port, _7SEG_RCK_Pin);
 
+const hw::gpio debug_led(LED_GPIO_Port, LED_Pin);
+const hw::gpio boot_led(LED_Boot_GPIO_Port, LED_Boot_Pin);
+const hw::gpio reg_sig(Regen_Switch_GPIO_Port, Regen_Switch_Pin);
 #ifndef USE_CHIMERA
 #include "io_rotary.hpp"
 void handler(const uint16_t GPIO_Pin)

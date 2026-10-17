@@ -7,8 +7,13 @@ bool start_get()
 {
     return not push_drive_sig.readPin();
 }
+bool regen_mark_get()
+{
+    return not reg_sig.readPin();
+}
 bool telem_mark_get()
 {
     return not telem_sig.readPin();
 }
+
 } // namespace io::switches

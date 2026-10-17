@@ -15,6 +15,7 @@
 #include "io_canQueues.hpp"
 #include "io_leds.hpp"
 #include "io_sevenSeg.hpp"
+#include "hw_gpios.hpp"
 
 void jobs_init()
 {
@@ -43,9 +44,15 @@ void jobs_run1Hz_tick()
 }
 void jobs_run100Hz_tick()
 {
+    if (app::switches::telem_get())
+    {
+        debug_led.writePin(true);
+    }
 
-    // ADD YOUR LOGIC HERE 
-
+    if (app::switches::regen_switch_get())
+    {
+        boot_led.writePin(true);
+    }
 
     //
     app::switches::broadcast();

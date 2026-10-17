@@ -18,7 +18,11 @@ namespace
     }
 } // namespace
 
- 
+bool regen_switch_get()
+{
+    static Signal regen_signal(DEBOUNCE_TIME, DEBOUNCE_TIME);
+    return getDebouncedstate(io::switches::regen_mark_get(), regen_signal);
+}
 bool start_get()
 {
     static Signal start_signal(DEBOUNCE_TIME, DEBOUNCE_TIME);
@@ -26,6 +30,12 @@ bool start_get()
 }
 
 bool telem_get()
+{
+    static Signal telem_signal(DEBOUNCE_TIME, DEBOUNCE_TIME);
+    return getDebouncedstate(io::switches::telem_mark_get(), telem_signal);
+}
+
+bool PC8_Switch_get()
 {
     static Signal telem_signal(DEBOUNCE_TIME, DEBOUNCE_TIME);
     return getDebouncedstate(io::switches::telem_mark_get(), telem_signal);
