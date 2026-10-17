@@ -28,6 +28,8 @@
 #include "io_sbgEllipse.hpp"
 #include "io_pcm.hpp"
 
+#include "hw_gpios.hpp"
+
 #include <util_errorCodes.hpp>
 
 static void fdcan_tx(const JsonCanMsg &tx_msg)

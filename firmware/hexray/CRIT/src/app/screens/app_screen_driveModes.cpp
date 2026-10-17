@@ -43,12 +43,12 @@ static void drive_mode_update()
             data_buffer[1] = io::seven_seg::a;
             data_buffer[2] = io::seven_seg::n;
             break;
-        case app::can_utils::DriveMode::LAUNCH:
+        case app::can_utils::DriveMode::TRACK:
             data_buffer[0] = io::seven_seg::l;
             data_buffer[1] = io::seven_seg::a;
             data_buffer[2] = io::seven_seg::u;
             break;
-        case app::can_utils::DriveMode::TV:
+        case app::can_utils::DriveMode::ACCELERATION:
             data_buffer[0] = io::seven_seg::t;
             data_buffer[1] = io::seven_seg::v;
             break;
