@@ -18,7 +18,7 @@ static float wheelTorque(
     const float torque_min)
 {
     pid.setOutputLimits(torque_min, torque_max); // Update output limits based on torque limits
-    return std::clamp(pid.compute(request, omega, tire_ffb), torque_min, torque_max);
+    return pid.compute(request, omega, tire_ffb);
 }
 
 shared_datatypes::wheel_set<float> computeTorque(
