@@ -77,19 +77,7 @@ namespace {
             [[nodiscard]] std::span<const uint8_t> into_span() const {
                 return {reinterpret_cast<const uint8_t *>(this), sizeof(DataPayload)};
             }
-
     };
-
-    //idk
-    class __attribute__((packed)) TxDataPayload: DataPayload {
-            
-    };
-
-    class __attribute__((packed)) RxDataPayload: DataPayload {
-
-    };
-
-
 }
 
 namespace io::adbms::spi {
