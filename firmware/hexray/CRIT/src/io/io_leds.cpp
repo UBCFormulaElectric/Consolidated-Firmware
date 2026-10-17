@@ -50,4 +50,12 @@ result<void> setBrightness(const float brightness)
     return {};
 }
 
+void boot_LED_write(bool value){
+    boot_LED.writePin(value);
+}
+
+void debug_LED_write(bool value){
+    debug_LED.writePin(value);
+}
+
 } // namespace io::leds
