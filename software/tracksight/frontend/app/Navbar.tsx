@@ -5,11 +5,14 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import { ErrorRateIndicator } from "@/components/ErrorRateIndicator";
-import NTPSyncButton from "@/components/NTPSyncButton";
 import { TimezoneSelector } from "@/components/common/TimezoneSelector";
 import { formatSessionLabel } from "@/lib/api/historicalSessions";
 import { useHistoricalSelection } from "@/lib/contexts/HistoricalSelectionContext";
 import { useTimezone } from "@/lib/contexts/TimezoneContext";
+
+function NavBarDivider() {
+    return <div className="h-6 w-px bg-gray-300" />;
+}
 
 function HistoricalNavButton({ label, value, onClick }: { label: string; value: string; onClick: () => void }) {
     return (
@@ -45,12 +48,13 @@ function Navbar() {
             <div className="flex flex-row items-center justify-between px-8 py-4 select-none">
                 <div className="flex flex-row items-center gap-6">
                     <Link href="/">Home</Link>
+                    <NavBarDivider />
                     <Link href="/live">Live Data</Link>
                     <Link href="/historical">Historical Data</Link>
-                    <Link href="/sd/dump">SD Card Dump</Link>
+                    <NavBarDivider />
+                    <Link href="/tools">Tools</Link>
                 </div>
                 <div className="flex items-center gap-4">
-                    <NTPSyncButton />
                     {isHistorical ? <HistoricalNavControls /> : null}
                     <TimezoneSelector />
                     <ErrorRateIndicator />

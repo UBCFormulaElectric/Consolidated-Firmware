@@ -1,44 +1,44 @@
 import { useState } from "react";
 
 import { API_BASE_URL } from "@/lib/constants";
-import { Clock } from "lucide-react";
+import ToolCard from "./ToolCard";
 import AlertModal from "./common/AlertModal";
 
-function NTPSyncButton() {
-    const [isSyncing, setIsSyncing] = useState(false);
+type EndpointToolCardProps = {
+    title: string;
+    description: string;
+    endpoint: string;
+    icon: React.ReactNode;
+};
 
+function EndpointToolCard({ title, description, endpoint, icon }: EndpointToolCardProps) {
     const [showAlert, setShowAlert] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
 
     const handleSyncClick = async () => {
-        setIsSyncing(true);
         setErrorMessage("");
 
         try {
-            const response = await fetch(`${API_BASE_URL}/api/v1/transmit/ntp`);
+            const response = await fetch(`${API_BASE_URL}/${endpoint}`);
 
             if (!response.ok) {
-                throw new Error(`NTP sync failed with status ${response.status}`);
+                throw new Error(`${title} failed with status ${response.status}`);
             }
         } catch (error) {
-            setErrorMessage(`NTP sync failed: ${error instanceof Error ? error.message : "Unknown error"}`);
+            setErrorMessage(`${title} failed: ${error instanceof Error ? error.message : "Unknown error"}`);
         } finally {
             setShowAlert(true);
-            setIsSyncing(false);
         }
     };
 
     return (
         <>
-            <button onClick={handleSyncClick} type="button" className="flex items-center gap-2 rounded border border-black bg-white py-1.5 pl-3 pr-2 text-left transition-colors hover:cursor-pointer hover:border-black/75">
-                <Clock className="flex items-center gap-1.5 text-[0.6rem] font-semibold uppercase tracking-wide text-gray-500 size-3" />
-                <span className="fmax-w-44 truncate text-sm font-semibold text-gray-900">NTP Sync</span>
-            </button>
+            <ToolCard title={title} description={description} type="button" onClick={handleSyncClick} icon={icon} />
 
             {showAlert && (
                 <AlertModal
-                    title="NTP Sync Error"
-                    errorMessage={errorMessage || "Successfully synced with NTP server."}
+                    title={errorMessage ? `${title} Error` : `${title} Success`}
+                    errorMessage={errorMessage || `Successfully completed ${title}.`}
                     options={
                         errorMessage
                             ? [
@@ -81,4 +81,4 @@ function NTPSyncButton() {
     );
 }
 
-export default NTPSyncButton;
+export default EndpointToolCard;
