@@ -1,4 +1,15 @@
 {
+  "debugger": {
+    "dock": "bottom",
+    "save_breakpoints": true,
+    "button": true
+  },
+  "dap": {
+    "GDB": {
+      "binary": "gdb",
+      "args": ["-i", "dap"]
+    }
+  },
   "lsp": {
     "clangd": {
       "binary": {
