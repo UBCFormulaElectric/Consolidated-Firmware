@@ -4,6 +4,10 @@
 
 extern const hw::gpio push_drive_sig;
 extern const hw::gpio telem_sig;
+extern const hw::gpio regen_sig;
+extern const hw::gpio torque_vectoring_sig;
+extern const hw::gpio boot_led;
+extern const hw::gpio debug_led;
 extern const hw::gpio rot_s;
 extern const hw::gpio rot_b;
 extern const hw::gpio rot_a;

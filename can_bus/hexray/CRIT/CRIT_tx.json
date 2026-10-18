@@ -64,6 +64,9 @@
       },
       "DriveMode": {
         "enum": "DriveMode"
+      },
+      "TorqueVectoringSwitch": {
+        "enum": "SwitchState"
       }
     },
     "data_capture": {

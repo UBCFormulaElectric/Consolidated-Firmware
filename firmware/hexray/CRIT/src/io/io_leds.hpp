@@ -76,4 +76,8 @@ result<void> update(const config &c);
  * @param brightness Value from 0.0 (off) to 1.0 (max brightness).
  */
 result<void> setBrightness(float brightness);
+
+void boot_set(bool state);
+void debug_set(bool state);
+
 } // namespace io::leds
