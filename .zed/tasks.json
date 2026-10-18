@@ -164,11 +164,35 @@
     "command": "cmake --build build_fw_test --target jsoncan_test"
   },
   {
+    "label": "Build Tests: JSON CAN intergation",
+    "command": "cmake --build build_fw_test --target jsoncan_test"
+  },
+  {
     "label": "CAN Bus Load: Quintuna",
     "command": "cmake --build build_fw_dev --target can_bus_load_quintuna"
   },
   {
     "label": "Run Telem Backend",
     "command": "python software/tracksight/live_data/app/app.py"
+  },
+  {
+    "label": "Start J-Link Server: STM32H733VG",
+    "command": "bash scripts/debugging/start_jlink.sh --device STM32H733VG"
+  },
+  {
+    "label": "Start J-Link Server: STM32H562RI",
+    "command": "bash scripts/debugging/start_jlink.sh --device STM32H562RI"
+  },
+  {
+    "label": "Start J-Link Server: STM32F412RG",
+    "command": "bash scripts/debugging/start_jlink.sh --device STM32F412RG"
+  },
+  {
+    "label": "Stop J-Link Server",
+    "command": "bash scripts/debugging/stop_jlink.sh"
+  },
+  {
+    "label": "J-Link RTT Client",
+    "command": "JLinkRTTClient"
   }
 ]
