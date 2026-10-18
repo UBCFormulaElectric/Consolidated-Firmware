@@ -43,9 +43,17 @@ extern "C"
         tv_debug    *debug);
 
     /**
-     * Matlab wrapper for kappa_update
+     * Matlab wrapper for kappa_update (motor speed setpoints + speed controller)
+     * omegas are the plant's wheel speeds in rad/s (converted to motor speeds inside); torque_request is in Nm
      */
-    void kappa_update_matlab(double kappas[4], double v_x, double oemgas[4]);
+    void kappa_update_matlab(
+        double       kappas[4],
+        double       v_x,
+        const double omegas[4],
+        const double tire_ffb[4],
+        const double torque_max[4],
+        const double torque_min[4],
+        double       torque_request[4]);
 #ifdef __cplusplus
 }
 #endif

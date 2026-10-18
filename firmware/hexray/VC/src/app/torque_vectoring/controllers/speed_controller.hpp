@@ -16,12 +16,13 @@ namespace app::tv::controllers::speed_controller
  * @return per wheel torque request in Nm
  *
  * */
-[[nodiscard]] shared_datatypes::wheel_set<float> computeTorque(
-    const shared_datatypes::wheel_set<float> &speed_request_radps,
-    const shared_datatypes::wheel_set<float> &omega_radps,
-    const shared_datatypes::wheel_set<float> &tire_ffb_Nm,
-    const shared_datatypes::wheel_set<float> &torque_max_Nm,
-    const shared_datatypes::wheel_set<float> &torque_min_Nm);
+template <Decimal T>
+[[nodiscard]] shared_datatypes::wheel_set<T> computeTorque(
+    const shared_datatypes::wheel_set<T> &speed_request_radps,
+    const shared_datatypes::wheel_set<T> &omega_radps,
+    const shared_datatypes::wheel_set<T> &tire_ffb_Nm,
+    const shared_datatypes::wheel_set<T> &torque_max_Nm,
+    const shared_datatypes::wheel_set<T> &torque_min_Nm);
 
 void reset();
 } // namespace app::tv::controllers::speed_controller

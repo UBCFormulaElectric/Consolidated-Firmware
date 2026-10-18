@@ -132,18 +132,40 @@ extern "C" void update_matlab(
     *debug        = tv_debug_data;
 }
 
-void kappa_update_matlab(double kappas[4], const double v_x, double oemgas[4])
+void kappa_update_matlab(
+    double       kappas[4],
+    const double v_x,
+    const double omegas[4],
+    const double tire_ffb[4],
+    const double torque_max[4],
+    const double torque_min[4],
+    double       torque_request[4])
 {
+    const auto to_wheel_set = [](const double w[4]) -> wheel_set<tv_real>
+    {
+        return { .fl = static_cast<tv_real>(w[0]),
+                 .fr = static_cast<tv_real>(w[1]),
+                 .rl = static_cast<tv_real>(w[2]),
+                 .rr = static_cast<tv_real>(w[3]) };
+    };
+
+    // The plant gives wheel speeds, but kappa_update works in motor speeds (what the inverters report on the car).
+    const wheel_set<tv_real> wheel_omegas = to_wheel_set(omegas);
+    const auto               gear_ratio   = static_cast<tv_real>(GEAR_RATIO);
+    const wheel_set<tv_real> motor_omegas = {
+        .fl = wheel_omegas.fl * gear_ratio,
+        .fr = wheel_omegas.fr * gear_ratio,
+        .rl = wheel_omegas.rl * gear_ratio,
+        .rr = wheel_omegas.rr * gear_ratio,
+    };
+
     const auto [fl, fr, rl, rr] = kappa_update<tv_real>(
-        { .fl = static_cast<tv_real>(kappas[0]),
-          .fr = static_cast<tv_real>(kappas[1]),
-          .rl = static_cast<tv_real>(kappas[2]),
-          .rr = static_cast<tv_real>(kappas[3]) },
-        static_cast<tv_real>(v_x));
-    oemgas[0] = static_cast<double>(fl);
-    oemgas[1] = static_cast<double>(fr);
-    oemgas[2] = static_cast<double>(rl);
-    oemgas[3] = static_cast<double>(rr);
+        to_wheel_set(kappas), static_cast<tv_real>(v_x), motor_omegas, to_wheel_set(tire_ffb), to_wheel_set(torque_max),
+        to_wheel_set(torque_min));
+    torque_request[0] = static_cast<double>(fl);
+    torque_request[1] = static_cast<double>(fr);
+    torque_request[2] = static_cast<double>(rl);
+    torque_request[3] = static_cast<double>(rr);
 }
 
 void estimate_matlab(

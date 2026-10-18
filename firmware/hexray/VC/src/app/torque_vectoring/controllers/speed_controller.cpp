@@ -21,12 +21,13 @@ static float wheelTorque(
     return pid.compute(request, omega, tire_ffb);
 }
 
-shared_datatypes::wheel_set<float> computeTorque(
-    const shared_datatypes::wheel_set<float> &speed_request_radps,
-    const shared_datatypes::wheel_set<float> &omega_radps,
-    const shared_datatypes::wheel_set<float> &tire_ffb_Nm,
-    const shared_datatypes::wheel_set<float> &torque_max_Nm,
-    const shared_datatypes::wheel_set<float> &torque_min_Nm)
+template <Decimal T>
+shared_datatypes::wheel_set<T> computeTorque(
+    const shared_datatypes::wheel_set<T> &speed_request_radps,
+    const shared_datatypes::wheel_set<T> &omega_radps,
+    const shared_datatypes::wheel_set<T> &tire_ffb_Nm,
+    const shared_datatypes::wheel_set<T> &torque_max_Nm,
+    const shared_datatypes::wheel_set<T> &torque_min_Nm)
 {
     return { .fl = wheelTorque(
                  pid_fl, speed_request_radps.fl, omega_radps.fl, tire_ffb_Nm.fl, torque_max_Nm.fl, torque_min_Nm.fl),
@@ -37,6 +38,12 @@ shared_datatypes::wheel_set<float> computeTorque(
              .rr = wheelTorque(
                  pid_rr, speed_request_radps.rr, omega_radps.rr, tire_ffb_Nm.rr, torque_max_Nm.rr, torque_min_Nm.rr) };
 }
+template shared_datatypes::wheel_set<tv_real> computeTorque(
+    const shared_datatypes::wheel_set<tv_real> &speed_request_radps,
+    const shared_datatypes::wheel_set<tv_real> &omega_radps,
+    const shared_datatypes::wheel_set<tv_real> &tire_ffb_Nm,
+    const shared_datatypes::wheel_set<tv_real> &torque_max_Nm,
+    const shared_datatypes::wheel_set<tv_real> &torque_min_Nm);
 
 void reset()
 {
