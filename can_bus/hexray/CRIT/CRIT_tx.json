@@ -62,15 +62,6 @@
       "StartButton": {
         "enum": "SwitchState"
       },
-      "RegenSwitch": {
-        "enum": "SwitchState"
-      },
-      "LaunchControlSwitch": {
-        "enum": "SwitchState"
-      },
-      "TorqueVectoringSwitch": {
-        "enum": "SwitchState"
-      },
       "DriveMode": {
         "enum": "DriveMode"
       }

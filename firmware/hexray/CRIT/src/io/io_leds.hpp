@@ -64,6 +64,9 @@ struct config
     }
 };
 
+void boot_led_set(bool val);
+void debug_led_set(bool val);
+
 /**
  * @brief Update the LED states based on the provided config.
  * @param c config
