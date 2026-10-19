@@ -1,8 +1,6 @@
 #pragma once
 
-#include "io_adbms.hpp"
 #include "hw_spi.hpp"
-#include "util_errorCodes.hpp"
 
 #include <array>
 #include <cstdint>
@@ -74,14 +72,14 @@ namespace io::adbms {
     namespace spi {
         result<void>     sendCmd(const hw::spi::device &port, uint16_t cmd);
         result<uint32_t> poll(const hw::spi::device &port, uint16_t cmd);
-        result<void>     readRegGroup(const hw::spi::device &port, uint16_t cmd, std::span<RegGroup> rx);
+        result<void>     readRegGroup(const hw::spi::device &port, uint16_t cmd, std::span<result<RegGroup>> rx);
         result<void>     writeRegGroup(const hw::spi::device &port, uint16_t cmd, std::span<const RegGroup> tx);
     }
 
     namespace reversible {
         result<void> sendCmd(uint16_t cmd);
         result<void> poll(uint16_t cmd);
-        result<void> readRegGroup(uint16_t cmd, Segments<RegGroup> &rx);
+        result<void> readRegGroup(uint16_t cmd, Segments<result<RegGroup>> &rx);
         result<void> writeRegGroup(uint16_t cmd, const Segments<RegGroup> &tx);
     }
 

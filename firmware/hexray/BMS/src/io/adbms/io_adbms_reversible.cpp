@@ -1,4 +1,5 @@
 #include "io_adbms_internal.hpp"
+#include "io_adbms.hpp"
 #include "hw_spis.hpp"
 
 //implement reversible isoSPI here
@@ -15,7 +16,7 @@ namespace io::adbms::reversible {
         return std::unexpected(ErrorCode::POLL_INVALID);
     }
     
-    result<void> readRegGroup(const uint16_t cmd, Segments<RegGroup> &rx) {
+    result<void> readRegGroup(const uint16_t cmd, Segments<result<RegGroup>> &rx) {
         return spi::readRegGroup(adbms_spi_ls, cmd, rx);
     }
 

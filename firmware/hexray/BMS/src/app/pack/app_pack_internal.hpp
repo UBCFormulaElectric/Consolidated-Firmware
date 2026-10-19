@@ -13,7 +13,7 @@ struct SequenceState {
 namespace app::pack::config
 {
 [[nodiscard]] result<void> setSegmentConfig(io::adbms::ThermistorMux mux);
-[[nodiscard]] result<void> setPWMConfig(const io::adbms::Cells<uint8_t> &duty);
+[[nodiscard]] result<void> setPWMConfig(const io::adbms::PackCells<uint8_t> &duty);
 [[nodiscard]] result<void> checkSegmentConfig();
 [[nodiscard]] result<void> checkPWMConfig();
 } // namespace app::pack::config

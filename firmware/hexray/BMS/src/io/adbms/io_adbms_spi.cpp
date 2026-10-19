@@ -1,5 +1,7 @@
 #include "io_adbms.hpp"
-#include "io_adbms_internal.hpp"
+#include "hw_spi.hpp"
+#include "util_errorCodes.hpp"
+
 
 namespace {
 
@@ -49,6 +51,8 @@ namespace {
                 return {reinterpret_cast<const uint8_t *>(this), sizeof(CmdPayload)};
             }
     };
+    static_assert(sizeof(CmdPayload) == io::adbms::CMD_SIZE + io::adbms::PEC_SIZE);
+
 
     class __attribute__((packed)) DataPayload {
         private:
@@ -69,16 +73,19 @@ namespace {
             }
 
         public:
+            DataPayload() = default;
+
             explicit DataPayload(const io::adbms::RegGroup _data) {
                 data = _data;
                 pec10 = std::byteswap(calculatePec10());
             }
-
-            [[nodiscard]] std::span<const uint8_t> into_span() const {
-                return {reinterpret_cast<const uint8_t *>(this), sizeof(DataPayload)};
+            
+            [[nodiscard]] const io::adbms::RegGroup &getData() const { 
+                return data; 
             }
     };
 }
+static_assert(sizeof(DataPayload) == io::adbms::DATA_SIZE + io::adbms::PEC_SIZE);
 
 namespace io::adbms::spi {
     result<void> sendCmd(const hw::spi::device &port, const uint16_t cmd) {
@@ -86,24 +93,49 @@ namespace io::adbms::spi {
         return port.transmitDma(tx_cmd.into_span());
     }
 
-    //idk bit size of return 
+    
     result<uint32_t> poll(const hw::spi::device &port, const uint16_t cmd) {
         const CmdPayload tx_cmd {cmd};
-        uint32_t poll_buf;
+        uint32_t poll_buf; // Polling data is only valid after 2 * NUM_SEGMENT bits 
         const result<void> status = port.transmitThenReceiveDma(tx_cmd.into_span(), { reinterpret_cast<uint8_t *>(&poll_buf), sizeof(poll_buf) });
         return status ? result<uint32_t>{ poll_buf } : std::unexpected(status.error());
     } 
 
-    result<void> readRegGroup(const hw::spi::device &port, const uint16_t cmd, const std::span<RegGroup> rx) {
+    result<void> readRegGroup(const hw::spi::device &port, const uint16_t cmd, const std::span<result<RegGroup>> rx) {
+        // Span size may change according to isoSPI breaks but must be at most NUM_SEGMENTS
+        if (rx.size() > NUM_SEGMENTS) return std::unexpected(ErrorCode::INVALID_ARGS); 
+
         const CmdPayload tx_cmd {cmd};
-        const DataPayload rx_data {}
+        Segments<DataPayload> rx_buf;
+
+        RETURN_IF_ERR_SILENT(port.transmitThenReceiveDma(tx_cmd.into_span(), { reinterpret_cast<uint8_t *>(rx_buf.data()), rx.size() * sizeof(DataPayload) }));
+
+        // Only need to check upto span size, rest of data is ignored
+        for (size_t segment = 0U; segment < rx.size(); ++segment) { 
+            
+            // Checksum error indicates break in chain or invalid data; needs to be reported on RegGroup/segment level
+            rx[segment] = rx_buf[segment].checksum() ? result<RegGroup>{ rx_buf[segment].getData() } : std::unexpected(ErrorCode::CHECKSUM_FAIL);
+        }
+        return {};
     }
 
+
     result<void> writeRegGroup(const hw::spi::device &port, const uint16_t cmd, const std::span<const RegGroup> tx) {
-        const CmdPayload tx_cmd {cmd};
-        const DataPayload tx_data {tx}
-        return port.transmitDma(tx_data.into_span())
+        // Span size may change according to isoSPI breaks but must be at most NUM_SEGMENTS
+        if (tx.size() > NUM_SEGMENTS) return std::unexpected(ErrorCode::INVALID_ARGS);
+
+        struct {
+            CmdPayload            cmd;
+            Segments<DataPayload> data;
+        } tx_buf { CmdPayload{cmd}, {} };
         
-    } 
+        // First payload is sent to farthest device so send in reverse order
+        for (size_t segment = 0U; segment < tx.size(); ++segment) {
+            tx_buf.data[segment] = DataPayload{ tx[tx.size() - 1U - segment] };
+        }
+
+        return port.transmitDma({ reinterpret_cast<const uint8_t *>(&tx_buf), sizeof(CmdPayload) + tx.size() * sizeof(DataPayload) });
+    }
+
 
 }

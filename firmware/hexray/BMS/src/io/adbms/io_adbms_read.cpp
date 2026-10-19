@@ -2,6 +2,7 @@
 #include "app_pack.hpp"
 #include "io_time.hpp"
 
+#include <algorithm>
 #include <cmath>
 #include <cstring>
 #include <limits>
@@ -95,7 +96,7 @@ namespace io::adbms::read {
                         stats.voltages[seg][cell] = ErrorCode::MISMATCH;
                         continue;
                     } 
-                }   
+                }
 
                 const float voltage = static_cast<float>(raw) * ADC_LSB_V + ADC_OFFSET_V;
                 stats.voltages[seg][cell] = voltage;
@@ -135,27 +136,7 @@ namespace io::adbms::read {
         RETURN_IF_ERR_SILENT(reversible::readRegGroup(RDSTATA, stat_regs));
         const Segments<STATA> stat_a = std::bit_cast<Segments<STATA>>(stat_regs);
 
-        RETURN_IF_ERR_SILENT(reversible::readRegGroup(RDSTATB, stat_regs));
-        const Segments<STATB> stat_b = std::bit_cast<Segments<STATB>>(stat_regs);
-
-        for (size_t seg = 0; seg < NUM_SEGMENTS; seg++) {
-            for (size_t gpio = 0; gpio < GPIOS_PER_SEGMENT; gpio++) {
-                // const RegGroup &reg  = gpio_regs[cell / CELLS_PER_GROUP][seg];
-                // const size_t lsb = (cell % CELLS_PER_GROUP) * sizeof(int16_t);
-                // const int16_t raw = static_cast<int16_t>(reg[lsb] | reg[lsb + 1] << 8);
-
-                // if (raw == ADC_DEFAULT) {
-                //     stats.temperatures[seg][___] = ErrorCode::INVALID_READING;
-                //     continue;
-                // } 
-
-                // const float voltage = static_cast<float>(raw) * ADC_LSB_V + ADC_OFFSET_V;
-                // stats.voltages[seg][cell] = voltage;
-                // if (voltage > max.value) max = { voltage, static_cast<uint8_t>(seg), static_cast<uint8_t>(cell) };
-                // if (voltage < min.value) min = { voltage, static_cast<uint8_t>(seg), static_cast<uint8_t>(cell) };
-            }
-        }
-
+        stats.updated_ms = io::time::getCurrentMs();
         return {};
     }
 

@@ -11,9 +11,9 @@
 namespace app::pack
 {
 
-using CellFlags    = std::array<std::bitset<CELLS_PER_SEGMENT>, NUM_SEGMENTS>;
-using ThermFlags   = std::array<std::bitset<THERMISTORS_PER_SEGMENT>, NUM_SEGMENTS>;
-using SegmentFlags = std::bitset<NUM_SEGMENTS>;
+using CellFlags    = std::array<std::bitset<io::adbms::CELLS_PER_SEGMENT>, io::adbms::NUM_SEGMENTS>;
+using ThermFlags   = std::array<std::bitset<io::adbms::THERMISTORS_PER_SEGMENT>, io::adbms::NUM_SEGMENTS>;
+using SegmentFlags = std::bitset<io::adbms::NUM_SEGMENTS>;
 
 struct LocatedValue
 {
@@ -40,18 +40,18 @@ struct ADBMS2950Diag
 
 struct VoltStats
 {
-    uint32_t                        updated_ms = 0U;
-    LocatedValue                    max{};
-    LocatedValue                    min{};
-    result<io::adbms::PackCells<float>> voltages{};
+    uint32_t                            updated_ms = 0U;
+    LocatedValue                        max{};
+    LocatedValue                        min{};
+    io::adbms::PackCells<result<float>> voltages{};
 };
 
 struct TempStats
 {
-    uint32_t                         updated_ms = 0U;
-    LocatedValue                     max{};
-    LocatedValue                     min{};
-    result<io::adbms::PackTherms<float>> temperatures{};
+    uint32_t                             updated_ms = 0U;
+    LocatedValue                         max{};
+    LocatedValue                         min{};
+    io::adbms::PackTherms<result<float>> temperatures{};
 };
 
 struct OwcStats
@@ -85,7 +85,7 @@ struct Snapshot
 struct Request
 {
     bool start_balance = false;
-    io::adbms::Cells<uint8_t> duty{};
+    io::adbms::PackCells<uint8_t> duty{};
 };
 
 inline constexpr size_t CHANNEL_DEPTH       = 2;
@@ -125,7 +125,7 @@ void cellVoltages(const VoltStats &stats);
 void cellTemps(const TempStats &stats);
 void cellOpenWire(const OwcStats &stats);
 void adbmsFlags(const ADBMS6830Diag &diag);
-void balancing(const io::adbms::Cells<uint8_t> &duty);
+void balancing(const io::adbms::PackCells<uint8_t> &duty);
 } // namespace broadcast
 
 

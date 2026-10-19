@@ -19,6 +19,8 @@ namespace io::adbms {
     inline constexpr size_t NUM_SEGMENTS = 10;
     inline constexpr size_t CELLS_PER_SEGMENT = 14;
     inline constexpr size_t THERMISTORS_PER_SEGMENT = 14;
+    inline constexpr size_t THERM_GPIOS_PER_SEGMENT = 8;
+
     inline constexpr size_t REG_GROUP_SIZE = 6;
 
     template <typename T> using Segments      = std::array<T, NUM_SEGMENTS>;
