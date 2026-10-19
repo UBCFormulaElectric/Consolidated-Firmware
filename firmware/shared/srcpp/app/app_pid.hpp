@@ -52,21 +52,10 @@ class PID
         assert(sample_time > 0.0f);
     }
 
-    [[nodiscard]] float compute(float setpoint, float input, float disturbance = 0.0f);
+    [[nodiscard]] float compute(const float setpoint, const float input, const float disturbance = 0.0f);
     void                reset();
     [[nodiscard]] float getIntegral();
     [[nodiscard]] float getDerivative();
-
-    /**
-     * Update the output limits at runtime, for limits that change every tick (e.g. derated torque limits). These are
-     * also the limits back calculation unwinds the integral against.
-     */
-    void setOutputLimits(const float min, const float max)
-    {
-        assert(max >= min);
-        out_min = min;
-        out_max = max;
-    }
 
   private:
     // Gains and coefficients

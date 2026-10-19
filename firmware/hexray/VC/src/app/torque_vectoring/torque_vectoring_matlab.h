@@ -44,7 +44,8 @@ extern "C"
 
     /**
      * Matlab wrapper for kappa_update (motor speed setpoints + speed controller)
-     * omegas are the plant's wheel speeds in rad/s (converted to motor speeds inside); torque_request is in Nm
+     * omegas are the plant's wheel speeds in rad/s (converted to motor speeds inside); torque_request is in Nm;
+     * speed_request is the motor speed setpoint in rad/s (for the Simulink power limiter)
      */
     void kappa_update_matlab(
         double       kappas[4],
@@ -53,7 +54,8 @@ extern "C"
         const double tire_ffb[4],
         const double torque_max[4],
         const double torque_min[4],
-        double       torque_request[4]);
+        double       torque_request[4],
+        double       speed_request[4]);
 #ifdef __cplusplus
 }
 #endif

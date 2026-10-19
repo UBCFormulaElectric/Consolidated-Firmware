@@ -17,8 +17,9 @@ static float wheelTorque(
     const float torque_max,
     const float torque_min)
 {
-    pid.setOutputLimits(torque_min, torque_max); // Update output limits based on torque limits
-    return pid.compute(request, omega, tire_ffb);
+    // The tire feedforward goes in as the PID's disturbance input, and the result is limited to this wheel's torque
+    // limits.
+    return std::clamp(pid.compute(request, omega, tire_ffb), torque_min, torque_max);
 }
 
 template <Decimal T>

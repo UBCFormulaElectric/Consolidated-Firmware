@@ -38,6 +38,42 @@ template <Decimal T>
 ControlOutputAutonomous<T> update_autonomous(const app::tv::shared_datatypes::VehicleState<T> &state);
 
 /**
+ * Given a slip ratio setpoint, gives motor angular velocity setpoints to achieve that slip ratio at the current
+ * vehicle speed
+ * @param kappas slip ratio setpoints for each wheel, where kappa = (wheel_speed - vehicle_speed) / vehicle_speed
+ * @param v_x_mps current longitudinal vehicle speed in meters per second
+ * @return motor speed setpoints in rad/s
+ */
+template <Decimal T>
+app::tv::shared_datatypes::wheel_set<T>
+    motor_speed_request(const app::tv::shared_datatypes::wheel_set<T> &kappas, const T v_x_mps)
+{
+    const T v_regularized = std::max(
+        std::abs(v_x_mps), static_cast<T>(app::tv::shared_datatypes::vd_constants::SLIP_REGULARIZATION_SPEED_MPS));
+
+    // Slip is defined against the effective rolling radius, not the unloaded radius. Only v_x is available at this
+    // rate, so the loads come from static weight + aero (no load transfer, which moves Re by ~0.4% at 1.5 g).
+    const auto [fz_fl, fz_fr, fz_rl, fz_rr] =
+        app::tv::shared_datatypes::VehicleState<T>{ .v_x_mps = v_x_mps }.est_Fz_N();
+
+    const auto wheel_speed_request = [&](const T kappa, const T fz_N)
+    {
+        // Reverse is not a supported mode: never request backwards wheel rotation.
+        const T wheel_surface_speed_request = std::max(v_x_mps + kappa * v_regularized, T(0));
+        const T rolling_radius_m =
+            app::tv::estimation::tire_model.effectiveRollingRadius_m(static_cast<float>(fz_N), std::abs(v_x_mps));
+        return static_cast<T>(GEAR_RATIO) * wheel_surface_speed_request / rolling_radius_m;
+    };
+
+    return {
+        .fl = wheel_speed_request(kappas.fl, fz_fl),
+        .fr = wheel_speed_request(kappas.fr, fz_fr),
+        .rl = wheel_speed_request(kappas.rl, fz_rl),
+        .rr = wheel_speed_request(kappas.rr, fz_rr),
+    };
+}
+
+/**
  * Given a slip ratio setpoint, computes the motor speed setpoints that achieve that slip ratio at the current
  * vehicle speed and runs the per-wheel speed controller to track them
  * @param kappas slip ratio setpoints for each wheel, where kappa = (wheel_speed - vehicle_speed) / vehicle_speed
@@ -56,32 +92,8 @@ app::tv::shared_datatypes::wheel_set<T> kappa_update(
     const app::tv::shared_datatypes::wheel_set<T> &torque_max,
     const app::tv::shared_datatypes::wheel_set<T> &torque_min)
 {
-    const T v_regularized = std::max(
-        std::abs(v_x_mps), static_cast<T>(app::tv::shared_datatypes::vd_constants::SLIP_REGULARIZATION_SPEED_MPS));
-
-    // Slip is defined against the effective rolling radius, not the unloaded radius. Only v_x is available at this
-    // rate, so the loads come from static weight + aero (no load transfer, which moves Re by ~0.4% at 1.5 g).
-    const auto [fz_fl, fz_fr, fz_rl, fz_rr] =
-        app::tv::shared_datatypes::VehicleState<T>{ .v_x_mps = v_x_mps }.est_Fz_N();
-
-    const auto motor_speed_request = [&](const T kappa, const T fz_N)
-    {
-        // Reverse is not a supported mode: never request backwards wheel rotation.
-        const T wheel_surface_speed_request = std::max(v_x_mps + kappa * v_regularized, T(0));
-        const T rolling_radius_m =
-            app::tv::estimation::tire_model.effectiveRollingRadius_m(static_cast<float>(fz_N), std::abs(v_x_mps));
-        return static_cast<T>(GEAR_RATIO) * wheel_surface_speed_request / rolling_radius_m;
-    };
-
     // The speed controller is a PID that takes the wheel speed request and actual wheel speed and
     // outputs a torque request. The torque request is then limited by the max and min torque limits.
-    const app::tv::shared_datatypes::wheel_set<T> speed_request_radps = {
-        .fl = motor_speed_request(kappas.fl, fz_fl),
-        .fr = motor_speed_request(kappas.fr, fz_fr),
-        .rl = motor_speed_request(kappas.rl, fz_rl),
-        .rr = motor_speed_request(kappas.rr, fz_rr),
-    };
-
     return app::tv::controllers::speed_controller::computeTorque(
-        speed_request_radps, omega_radps, tire_ffb_Nm, torque_max, torque_min);
+        motor_speed_request(kappas, v_x_mps), omega_radps, tire_ffb_Nm, torque_max, torque_min);
 }
