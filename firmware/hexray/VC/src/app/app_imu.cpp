@@ -27,7 +27,7 @@ void init()
 }
 
 // Hard coded values taken from manually sampling
-// In future, sample during boot
+// These are dummy values for now. In future, sample during boot
 constexpr float mean_x_reading = 0.2f; 
 constexpr float mean_y_reading = 0.1f; 
 constexpr float mean_z_reading = 0.97468f; 
@@ -39,49 +39,54 @@ const float alpha = atan2(mean_y_reading, mean_z_reading); // angle to rotate by
 const float beta = -atan2(mean_x_reading, hypot(mean_y_reading, mean_z_reading)); // angle to rotate by about y axis 
 const float gamma =     -atan(xy_ratio);
 
-const float ca = cos(alpha); 
-const float cb = cos(beta); 
-const float cc = cos(gamma); 
-const float sa = sin(alpha); 
-const float sb = sin(beta); 
-const float sc = sin(gamma); 
+const float cos_alpha = cos(alpha);
+const float cos_beta  = cos(beta);
+const float cos_gamma = cos(gamma);
+const float sin_alpha = sin(alpha);
+const float sin_beta  = sin(beta);
+const float sin_gamma = sin(gamma);
 
-void reorient_IMU(result<float> accelX, result<float> accelY, result<float> accelZ, 
+static const float R[3][3] = {
+    { cos_beta * cos_gamma, sin_alpha * sin_beta * cos_gamma - cos_alpha * sin_gamma, cos_alpha * sin_beta * cos_gamma + sin_alpha * sin_gamma },
+    { cos_beta * sin_gamma, sin_alpha * sin_beta * sin_gamma + cos_alpha * cos_gamma, cos_alpha * sin_beta * sin_gamma - sin_alpha * cos_gamma },
+    { -sin_beta,            sin_alpha * cos_beta,                                     cos_alpha * cos_beta}
+}; // rotation matrix R = Rz(gamma) * Ry(beta) * Rx(alpha)
+
+void reorient_imu(result<float> accelX, result<float> accelY, result<float> accelZ, 
 result<float> gyroX, result<float> gyroY, result<float> gyroZ) {
-    float x = accelX.value_or(0.0f);
-    float y = accelY.value_or(0.0f);
-    float z = accelZ.value_or(1.0f);
+    if(accelX.has_value() && accelY.has_value() && accelZ.has_value()) { 
+        float x = accelX.value();
+        float y = accelY.value();
+        float z = accelZ.value();
+        imu_results.accel_x_res = R[0][0] * x + R[0][1] * y + R[0][2] * z;
+        imu_results.accel_y_res = R[1][0] * x + R[1][1] * y + R[1][2] * z;
+        imu_results.accel_z_res = R[2][0] * x + R[2][1] * y + R[2][2] * z;
+    }
+    else { 
+        imu_results.accel_x_res = std::unexpected(ErrorCode::ERROR);
+        imu_results.accel_y_res = std::unexpected(ErrorCode::ERROR);
+        imu_results.accel_z_res = std::unexpected(ErrorCode::ERROR);
+    }
 
-    float new_accelx; 
-    float new_accely; 
-    float new_accelz; 
-
-
-    new_accelx = (cb * cc) * x
-           + (sa * sb * cc - ca * sc) * y
-           + (ca * sb * cc + sa * sc) * z;
-
-    new_accely = (cb * sc) * x
-           + (sa * sb * sc + ca * cc) * y
-           + (ca * sb * sc - sa * cc) * z;
-
-    new_accelz = (-sb) * x
-           + (sa * cb) * y
-           + (ca * cb) * z;
-
-    // after transformation, check value and see if it is not error, update vc imu results
-    imu_results =  { 
-        accelX.has_value() ? new_accelx : accelX, 
-        accelY.has_value() ? new_accely : accelY, 
-        accelZ.has_value() ? new_accelz : accelZ, 
-        gyroX, gyroY, gyroZ
-    };
+    if(gyroX.has_value() && gyroY.has_value() && gyroZ.has_value()) { 
+        float x = gyroX.value();
+        float y = gyroY.value();
+        float z = gyroZ.value();  
+        imu_results.gyro_x_res = R[0][0] * x + R[0][1] * y + R[0][2] * z;
+        imu_results.gyro_y_res = R[1][0] * x + R[1][1] * y + R[1][2] * z;
+        imu_results.gyro_z_res = R[2][0] * x + R[2][1] * y + R[2][2] * z;      
+    }
+    else { 
+        imu_results.gyro_x_res = std::unexpected(ErrorCode::ERROR);
+        imu_results.gyro_y_res = std::unexpected(ErrorCode::ERROR);
+        imu_results.gyro_z_res = std::unexpected(ErrorCode::ERROR);
+    }
 }
 
 void broadcast()
 {
 
-    reorient_IMU(IMU1.getAccelX(), IMU1.getAccelY(), IMU1.getAccelZ(),
+    reorient_imu(IMU1.getAccelX(), IMU1.getAccelY(), IMU1.getAccelZ(),
                     IMU1.getGyroX(),  IMU1.getGyroY(),  IMU1.getGyroZ());
 
     can_tx::VC_Imu1AccelX_set(imu_results.accel_x_res.value_or(0.0f));
