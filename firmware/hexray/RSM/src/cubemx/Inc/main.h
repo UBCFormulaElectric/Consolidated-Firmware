@@ -22,6 +22,7 @@
 #ifndef __MAIN_H
 #define __MAIN_H
 
+#include <stm32h5xx_hal_spi.h>
 #ifdef __cplusplus
 extern "C"
 {

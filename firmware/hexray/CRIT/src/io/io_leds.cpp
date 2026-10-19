@@ -49,5 +49,14 @@ result<void> setBrightness(const float brightness)
     RETURN_IF_ERR_SILENT(led_dimming.setDutyCycle(100 - brightness));
     return {};
 }
+// state will be written to LED when passed in jobs.cpp
+void boot_set(bool state)
+{
+    boot_led.writePin(state);
+}
+void debug_set(bool state)
+{
+    debug_led.writePin(state);
+}
 
 } // namespace io::leds

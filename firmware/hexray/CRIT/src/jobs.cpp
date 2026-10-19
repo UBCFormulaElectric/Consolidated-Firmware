@@ -43,6 +43,12 @@ void jobs_run1Hz_tick()
 }
 void jobs_run100Hz_tick()
 {
+    // ADD YOUR LOGIC HERE
+
+    io::leds::boot_set(app::switches::regen_get());             // set boot led state based on regen switch
+    io::leds::debug_set(app::switches::torque_vectoring_get()); // set debug led state based on tv switch
+
+    //
     app::switches::broadcast();
 
     static bool prev_telem_mark = false;
