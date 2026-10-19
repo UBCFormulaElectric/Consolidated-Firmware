@@ -1,3 +1,5 @@
+#pragma once
+
 #include <cmath>
 #include <array>
 
@@ -32,20 +34,19 @@ inline constexpr float M_PI_F_INV     = 1.0f / M_PI_F;
 
 inline int32_t convertAngleToFixedPoint(float angle)
 {
-    constexpr float M_PI_INV = 1.0f / M_PI_F;
+    constexpr float TURNS_PER_RAD = 1.0f / M_2PI_F;
+    constexpr float Q31_PER_TURN  = 2.0f * CONVERSION; // q1.31 spans [-pi, pi), so one turn is 2^32
 
-    // TODO: can we optimize fmodf?
-    float mod = std::fmodf(angle, M_2PI_F);
-    if (mod > M_PI_F)
-    {
-        mod -= M_2PI_F;
-    }
-    else if (mod < -M_PI_F)
-    {
-        mod += M_2PI_F;
-    }
+    const float turns   = angle * TURNS_PER_RAD;
+    const float wrapped = turns - std::nearbyint(turns);
 
-    return static_cast<int32_t>(mod * M_PI_INV * CONVERSION);
+    // +0.5 turn (+pi) does not fit in q1.31, but it is the same angle as -pi, which does.
+    float fixed = wrapped * Q31_PER_TURN;
+    if (fixed >= CONVERSION)
+    {
+        fixed -= Q31_PER_TURN;
+    }
+    return static_cast<int32_t>(fixed);
 }
 
 inline float convertToFloat(int32_t fixed_point)
@@ -101,7 +102,7 @@ inline uint32_t cordicScale(uint32_t scale)
 
 namespace io::math
 {
-result<float> csin(float angle)
+inline result<float> csin(float angle)
 {
 #ifdef TARGET_EMBEDDED
     std::array<const int32_t, 1> args{ convertAngleToFixedPoint(angle) };
@@ -116,7 +117,7 @@ result<float> csin(float angle)
 #endif
 }
 
-result<float> ccos(float angle)
+inline result<float> ccos(float angle)
 {
 #ifdef TARGET_EMBEDDED
     std::array<const int32_t, 1> args{ convertAngleToFixedPoint(angle) };
@@ -131,7 +132,7 @@ result<float> ccos(float angle)
 #endif
 }
 
-result<float> atan(float x)
+inline result<float> atan(float x)
 {
 #ifdef TARGET_EMBEDDED
     if (not std::isfinite(x))
