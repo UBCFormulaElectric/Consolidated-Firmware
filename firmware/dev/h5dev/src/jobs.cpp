@@ -72,7 +72,7 @@ void jobs_run100Hz_tick()
 
     io::can_tx::enqueue100HzMsgs();
 }
-
+}
 void jobs_run1kHz_tick()
 {
     io::can_tx::enqueueOtherPeriodicMsgs(io::time::getCurrentMs());
