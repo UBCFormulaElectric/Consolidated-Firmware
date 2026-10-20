@@ -34,9 +34,12 @@ namespace
     constexpr float mean_z_reading = 0.97468f;
 
     // TODO Find biases by laying IMU flat
-    constexpr float x_bias = 0.0f;
-    constexpr float y_bias = 0.0f;
-    constexpr float z_bias = 0.0f;
+    constexpr float x_bias     = 0.0f;
+    constexpr float y_bias     = 0.0f;
+    constexpr float z_bias     = 0.0f;
+    constexpr float roll_bias  = 0.0f;
+    constexpr float pitch_bias = 0.0f;
+    constexpr float yaw_bias   = 0.0f;
 
     // Bias corrected values
     constexpr float corrected_x = mean_x_reading - x_bias;
@@ -57,7 +60,7 @@ namespace
     const float sin_beta  = sin(beta);
     const float sin_gamma = sin(gamma);
 
-    static const array<array<float, 3>, 3> R = {
+    static const array<array<const float, 3>, 3> R = {
         { { { cos_beta * cos_gamma, sin_alpha *sin_beta *cos_gamma - cos_alpha *sin_gamma,
               cos_alpha *sin_beta *cos_gamma + sin_alpha *sin_gamma } },
           { { cos_beta * sin_gamma, sin_alpha *sin_beta *sin_gamma + cos_alpha *cos_gamma,
@@ -75,9 +78,9 @@ namespace
     {
         if (accelX.has_value() && accelY.has_value() && accelZ.has_value())
         {
-            float x                 = accelX.value();
-            float y                 = accelY.value();
-            float z                 = accelZ.value();
+            const float x           = accelX.value() - x_bias;
+            const float y           = accelY.value() - y_bias;
+            const float z           = accelZ.value() - z_bias;
             imu_results.accel_x_res = R[0][0] * x + R[0][1] * y + R[0][2] * z;
             imu_results.accel_y_res = R[1][0] * x + R[1][1] * y + R[1][2] * z;
             imu_results.accel_z_res = R[2][0] * x + R[2][1] * y + R[2][2] * z;
@@ -91,9 +94,9 @@ namespace
 
         if (gyroX.has_value() && gyroY.has_value() && gyroZ.has_value())
         {
-            float x                = gyroX.value();
-            float y                = gyroY.value();
-            float z                = gyroZ.value();
+            const float x          = gyroX.value() - roll_bias;
+            const float y          = gyroY.value() - pitch_bias;
+            const float z          = gyroZ.value() - yaw_bias;
             imu_results.gyro_x_res = R[0][0] * x + R[0][1] * y + R[0][2] * z;
             imu_results.gyro_y_res = R[1][0] * x + R[1][1] * y + R[1][2] * z;
             imu_results.gyro_z_res = R[2][0] * x + R[2][1] * y + R[2][2] * z;
