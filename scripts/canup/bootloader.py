@@ -11,6 +11,7 @@ import can
 import time
 import intelhex
 import threading
+from enum import Enum
 
 import boards
 
@@ -42,6 +43,10 @@ BOOT_STATUS_NO_APP = 2
 # The minimum amount of data the microcontroller can program at a time.
 MIN_PROG_SIZE_BYTES = 32
 
+class Status(Enum):
+    OK = 1
+    NO_RESPONSE = 2
+    FAILED = 3
 
 class Bootloader:
     bus: can.Bus
@@ -134,16 +139,6 @@ class Bootloader:
             false otherwise.
 
         """
-
-        def _validator(msg: can.Message) -> bool:
-            """Validate that we've received the "update ack" msg."""
-            return (
-                True
-                if msg.arbitration_id
-                == (self.board.boot_id_range_start | UPDATE_ACK_ID_LOWBITS)
-                else None
-            )
-
         start_addr = self.ih.minaddr()
         end_addr = self.ih.minaddr() + self.size_bytes()
         CAN_FRAME_SIZE_BYTES = 64 if self.is_fd else 8
@@ -159,7 +154,7 @@ class Bootloader:
                     is_fd=self.is_fd,
                 )
             )
-            if self._await_can_msg(validator=_validator, timeout=self.timeout) is not None:
+            if self._await_can_msg(validator=lambda msg: msg.arbitration_id == (self.board.boot_id_range_start | UPDATE_ACK_ID_LOWBITS), timeout=self.timeout) is not None:
                 return True
             if not retry:
                 return False
@@ -175,16 +170,6 @@ class Bootloader:
             false otherwise.
 
         """
-
-        def _validator(msg: can.Message):
-            """Validate that we've received the "erase complete" msg."""
-            return (
-                True
-                if msg.arbitration_id
-                == (self.board.boot_id_range_start | ERASE_SECTOR_COMPLETE_CAN_ID_LOWBITS)
-                else None
-            )
-
         erase_size = sum([sector.size for sector in sectors])
         erase_progress = 0
 
@@ -205,15 +190,24 @@ class Bootloader:
                         is_fd=self.is_fd,
                     )
                 )
-                if self._await_can_msg(validator=_validator, timeout=self.timeout):
-                    break
+                response_msg = self._await_can_msg(
+                    validator=lambda msg: msg.arbitration_id == (self.board.boot_id_range_start | ERASE_SECTOR_COMPLETE_CAN_ID_LOWBITS) or msg.arbitration_id == (self.board.boot_id_range_start | ERASE_SECTOR_FAILED_ID_LOWBITS),
+                    timeout=self.timeout)      
+                if response_msg:
+                    if response_msg.arbitration == (self.board.boot_id_range_start | ERASE_SECTOR_COMPLETE_CAN_ID_LOWBITS):
+                        break
+                    else:
+                        return Status.FAILED
+                else:
+                    return Status.NO_RESPONSE
 
+                
             erase_progress += sector.size
 
         if self.ui_callback:
             self.ui_callback("Erasing FLASH sectors", erase_size, erase_size)
 
-        return True
+        return Status.OK
 
     def program(self) -> None:
         """
@@ -245,7 +239,6 @@ class Bootloader:
                 elif can_msg.arbitration_id == (self.board.boot_id_range_start | PROGRAM_ID_FAILED_LOWBITS):
                     k = can_msg.data
                     assert can_msg.dlc == 4, f"Expected 4 bytes in PROGRAM_ID_FAILED message, got {can_msg.dlc}"
-                    # TODO maybe better struct unpacking :sob:
                     jump_back_block = (k[3] << 24) | (k[2] << 16) | (k[1] << 8) | k[0]
                     print(f"jumpback received to {jump_back_block}")
                 else:
@@ -407,10 +400,16 @@ class Bootloader:
             if not sector.write_protect
         ]
         erase_size = sum([sector.size for sector in writeable_sectors])
+        
+        status_resp = self.erase_sectors(writeable_sectors)
 
-        if not self.erase_sectors(writeable_sectors):
+        if status_resp == Status.NO_RESPONSE:
             raise RuntimeError(
                 f"Bootloader for {self.board.name} did not respond to command to erase flash memory."
+            )
+        elif status_resp == Status.FAILED:
+            raise RuntimeError(
+                f"Erase sector for {self.board.name} failed after retry"
             )
         time.sleep(0.5)
 
