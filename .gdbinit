@@ -1,7 +1,7 @@
 # GDB Initialization for Consolidated-Firmware
 set architecture auto
 
-# Helper commands for J-Link / Cortex-M debugging
+# helper commands for J-Link / Cortex-M debugging
 define rst
   monitor reset
 end
