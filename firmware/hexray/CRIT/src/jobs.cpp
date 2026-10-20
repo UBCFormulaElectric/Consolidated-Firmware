@@ -45,16 +45,7 @@ void jobs_run1Hz_tick()
 void jobs_run100Hz_tick()
 {
     app::switches::broadcast();
-
-    const bool telem_mark = app::switches::telem_get();
-    if (telem_mark == true)
-    {
-        app::can_alerts::infos::TelemMarkEvent_set(true);
-    }
-    else
-    {
-        app::can_alerts::infos::TelemMarkEvent_set(false);
-    }
+    app::can_alerts::infos::TelemMarkEvent_set(app::switches::telem_get());
 
     hb_monitor.checkIn();
     hb_monitor.broadcastFaults();
