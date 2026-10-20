@@ -15,6 +15,7 @@
 #include "io_canQueues.hpp"
 #include "io_leds.hpp"
 #include "io_sevenSeg.hpp"
+#include <app_canAlerts.hpp>
 
 void jobs_init()
 {
@@ -45,13 +46,15 @@ void jobs_run100Hz_tick()
 {
     app::switches::broadcast();
 
-    static bool prev_telem_mark = false;
-    const bool  telem_mark      = app::switches::telem_get();
-    if (telem_mark && !prev_telem_mark)
+    const bool telem_mark = app::switches::telem_get();
+    if (telem_mark == true)
     {
-        io::can_tx::CRIT_TelemMarkEvent_sendAperiodic();
+        app::can_alerts::infos::TelemMarkEvent_set(true);
     }
-    prev_telem_mark = telem_mark;
+    else
+    {
+        app::can_alerts::infos::TelemMarkEvent_set(false);
+    }
 
     hb_monitor.checkIn();
     hb_monitor.broadcastFaults();

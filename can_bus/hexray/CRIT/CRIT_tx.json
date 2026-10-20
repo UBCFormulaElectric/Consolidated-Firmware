@@ -80,12 +80,6 @@
       "log_cycle_time": 1000
     }
   },
-  "TelemMarkEvent": {
-    "msg_id": 912,
-    "cycle_time": null,
-    "description": "Marks an event in the telemetry data. Can be used to mark the start of a run, or any other significant event.",
-    "signals": {}
-  },
   "CPUDataLogInfo": {
     "msg_id": 923,
     "cycle_time": 100,
