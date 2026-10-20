@@ -27,8 +27,6 @@ struct VCImuResults
     }
 };
 
-void          reorient_imu(result<float> accelX, result<float> accelY, result<float> accelZ, 
-result<float> gyroX, result<float> gyroY, result<float> gyroZ); 
 void          init();
 void          broadcast();
 result<float> getAccelX();
