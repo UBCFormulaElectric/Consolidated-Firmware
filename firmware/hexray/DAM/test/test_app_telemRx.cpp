@@ -10,6 +10,7 @@
 #include "app_crc32.hpp"
 #include "app_ntp.hpp"
 #include "app_epochClock.hpp"
+#include "app_sd.hpp"
 #include "io_rtc.hpp"
 #include "io_telemMessage.hpp"
 #include "io_telemQueue.hpp"
@@ -278,7 +279,19 @@ TEST_F(TelemRxTest, IngestOverflowDropsIncomingBytes)
     EXPECT_EQ(app::telemRx::ringSize(), 0u);
 }
 
-// TODO JADEN: write the handshake test
+TEST_F(TelemRxTest, BackendHandshakeEnqueuesBootInfo)
+{
+    setRtcEpoch(kAnchor);
+    auto frame = buildSingleByteFrame(0x03); // MessageId::Backend_Handshake
+
+    feed(frame);
+    auto entry = telem_tx_queue.pop();
+    ASSERT_TRUE(entry.has_value());
+    ASSERT_TRUE(std::holds_alternative<io::telemMessage::BootInfo>(*entry));
+    EXPECT_EQ(std::get<io::telemMessage::BootInfo>(*entry).hash, app::sd::getBootHash());
+    EXPECT_FALSE(fakes::rtc::wasSetCalled()); // handshake doesn't touch the RTC
+    EXPECT_EQ(app::telemRx::ringSize(), 0u);
+}
 
 TEST_F(TelemRxTest, TryBeginAndCaptureT0ReentryReturnsFalse)
 {
