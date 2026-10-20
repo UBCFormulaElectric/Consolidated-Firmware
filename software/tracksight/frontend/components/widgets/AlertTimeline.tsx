@@ -32,6 +32,9 @@ const TOOLTIP_COLOR = "#000000ac";
 const TOOLTIP_TEXT_COLOR = "white";
 const TOOLTIP_BORDER_COLOR = "black";
 
+// drawn as a marker line instead of an alert bar
+const TELEM_MARK_SIGNAL = "CRIT_Info_TelemMarkEvent";
+
 const containerHeightForLanes = (lanes: number) => (lanes + SLIP_STREAM_TOP_PADDING_LANES) * SLIP_STREAM_LANE_HEIGHT + (lanes + SLIP_STREAM_TOP_PADDING_LANES - 1) * SLIP_STREAM_GAP;
 
 type HoverInfo = {
@@ -59,6 +62,8 @@ const computeAlertModel = (alertSeries: { [signalName: string]: LODAwareAlertSer
     const bars: AlertBar[] = [];
 
     Object.keys(alertSeries).forEach((name) => {
+        if (name === TELEM_MARK_SIGNAL) return;
+
         const series = alertSeries[name];
         if (series.lods.length === 0) return;
 
