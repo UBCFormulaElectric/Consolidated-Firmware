@@ -1,7 +1,5 @@
 [
-  // ==========================================
   // Python Debug Configurations (Debugpy)
-  // ==========================================
   {
     "label": "Debug Pytest",
     "adapter": "Debugpy",
@@ -36,9 +34,7 @@
     "cwd": "$ZED_WORKTREE_ROOT"
   },
 
-  // ==========================================
   // Embedded Chimera Targets (J-Link / Cortex)
-  // ==========================================
   {
     "label": "Debug Chimera: VC (Hexray)",
     "adapter": "GDB",
@@ -148,9 +144,7 @@
     }
   },
 
-  // ==========================================
   // Embedded Hexray Targets (J-Link / Cortex)
-  // ==========================================
   {
     "label": "Debug Embedded: CRIT (Hexray)",
     "adapter": "GDB",
@@ -260,9 +254,7 @@
     }
   },
 
-  // ==========================================
   // Embedded Quintuna Targets (J-Link / Cortex)
-  // ==========================================
   {
     "label": "Debug Embedded: VC (Quintuna)",
     "adapter": "GDB",
@@ -408,9 +400,7 @@
     }
   },
 
-  // ==========================================
   // Embedded Dev Boards (J-Link / Cortex)
-  // ==========================================
   {
     "label": "Debug Embedded: SSM",
     "adapter": "GDB",
@@ -466,9 +456,7 @@
     }
   },
 
-  // ==========================================
   // Native C++ Tests (Host GDB)
-  // ==========================================
   {
     "label": "Debug Tests: VC (Quintuna)",
     "adapter": "GDB",
