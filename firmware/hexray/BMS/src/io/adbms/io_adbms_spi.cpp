@@ -1,4 +1,5 @@
 #include "io_adbms.hpp"
+#include "io_adbms_internal.hpp"
 #include "hw_spi.hpp"
 #include "util_errorCodes.hpp"
 
@@ -42,20 +43,16 @@ namespace {
             }
 
         public: 
+            // MCU is little endian but ADBMS expects most significant byte first, so swap before sending
             explicit CmdPayload(const uint16_t _cmd) {
                 cmd = std::byteswap(_cmd);
                 pec15 = std::byteswap(calculatePec15());
             }
-
-            [[nodiscard]] std::span<const uint8_t> into_span() const {
-                return {reinterpret_cast<const uint8_t *>(this), sizeof(CmdPayload)};
-            }
     };
-    static_assert(sizeof(CmdPayload) == io::adbms::CMD_SIZE + io::adbms::PEC_SIZE);
-
+    static_assert(sizeof(CmdPayload) == 4);
 
     class __attribute__((packed)) DataPayload {
-        private:
+        protected:
             static constexpr uint16_t           PEC10_POLY = 0x008F;
             static constexpr uint16_t           PEC10_SIZE = 10;
             static constexpr std::array<uint16_t, 256> pec10Table = generatePecTable(PEC10_POLY, PEC10_SIZE);
@@ -63,6 +60,7 @@ namespace {
             io::adbms::RegGroup data;
             uint16_t pec10;
 
+            // Calculates PEC10 based of 6 data bytes
             [[nodiscard]] uint16_t calculatePec10() const {
                 uint16_t remainder = 16U;
                 for (const uint8_t i : data) {
@@ -71,26 +69,46 @@ namespace {
                 }
                 return remainder;
             }
+    };
 
+    class TxDataPayload : public DataPayload {
         public:
-            DataPayload() = default;
-
-            explicit DataPayload(const io::adbms::RegGroup _data) {
+            TxDataPayload() = default;
+            // MCU is little endian but ADBMS expects most significant byte first, so swap before sending
+            explicit TxDataPayload(const io::adbms::RegGroup _data) {
                 data = _data;
                 pec10 = std::byteswap(calculatePec10());
             }
-            
-            [[nodiscard]] const io::adbms::RegGroup &getData() const { 
-                return data; 
+    };
+    static_assert(sizeof(TxDataPayload) == 8);
+    
+
+    class RxDataPayload : public DataPayload {
+        public:
+            [[nodiscard]] bool checksum() const {
+                const uint16_t rx_pec = std::byteswap(pec10);
+
+                uint16_t remainder = static_cast<uint16_t>(calculatePec10() ^ ((rx_pec >> 10) << 4));
+                for (int b = 0; b < 6; ++b) {
+                    const bool msb = (remainder & 0x200) != 0;
+                    remainder = static_cast<uint16_t>((remainder << 1) & 0x3FF);
+                    if (msb) remainder ^= PEC10_POLY;
+                }
+                return remainder == (rx_pec & 0x3FF);
+            }
+
+            [[nodiscard]] const io::adbms::RegGroup &getData() const {
+                return data;
             }
     };
+    static_assert(sizeof(RxDataPayload) == 8);
 }
-static_assert(sizeof(DataPayload) == io::adbms::DATA_SIZE + io::adbms::PEC_SIZE);
+
 
 namespace io::adbms::spi {
     result<void> sendCmd(const hw::spi::device &port, const uint16_t cmd) {
         const CmdPayload tx_cmd {cmd};
-        return port.transmitDma(tx_cmd.into_span());
+        return port.transmitDma({reinterpret_cast<const uint8_t *>(this), sizeof(CmdPayload)});
     }
 
     
@@ -106,9 +124,9 @@ namespace io::adbms::spi {
         if (rx.size() > NUM_SEGMENTS) return std::unexpected(ErrorCode::INVALID_ARGS); 
 
         const CmdPayload tx_cmd {cmd};
-        Segments<DataPayload> rx_buf;
+        Segments<RxDataPayload> rx_buf;
 
-        RETURN_IF_ERR_SILENT(port.transmitThenReceiveDma(tx_cmd.into_span(), { reinterpret_cast<uint8_t *>(rx_buf.data()), rx.size() * sizeof(DataPayload) }));
+        RETURN_IF_ERR_SILENT(port.transmitThenReceiveDma({reinterpret_cast<const uint8_t *>(this), sizeof(CmdPayload)}, { reinterpret_cast<uint8_t *>(rx_buf.data()), rx.size() * sizeof(RxDataPayload) }));
 
         // Only need to check upto span size, rest of data is ignored
         for (size_t segment = 0U; segment < rx.size(); ++segment) { 
@@ -126,15 +144,15 @@ namespace io::adbms::spi {
 
         struct {
             CmdPayload            cmd;
-            Segments<DataPayload> data;
+            Segments<TxDataPayload> data;
         } tx_buf { CmdPayload{cmd}, {} };
-        
+
         // First payload is sent to farthest device so send in reverse order
         for (size_t segment = 0U; segment < tx.size(); ++segment) {
-            tx_buf.data[segment] = DataPayload{ tx[tx.size() - 1U - segment] };
+            tx_buf.data[segment] = TxDataPayload{ tx[tx.size() - 1U - segment] };
         }
 
-        return port.transmitDma({ reinterpret_cast<const uint8_t *>(&tx_buf), sizeof(CmdPayload) + tx.size() * sizeof(DataPayload) });
+        return port.transmitDma({ reinterpret_cast<const uint8_t *>(&tx_buf), sizeof(CmdPayload) + tx.size() * sizeof(TxDataPayload) });
     }
 
 
