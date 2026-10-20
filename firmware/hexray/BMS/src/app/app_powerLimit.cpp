@@ -96,9 +96,8 @@ float getChargePowerLimit()
 
     if (power_limit < MAX_CHARGE_POWER_LIMIT_W)
     {
-        p_lim_condition = volt_power_limit < temp_power_limit
-                              ? ChargePowerLimitCondition::HIGH_VOLT_CHARGE_POWER_LIMIT
-                              : ChargePowerLimitCondition::HIGH_TEMP_CHARGE_POWER_LIMIT;
+        p_lim_condition = volt_power_limit < temp_power_limit ? ChargePowerLimitCondition::HIGH_VOLT_CHARGE_POWER_LIMIT
+                                                              : ChargePowerLimitCondition::HIGH_TEMP_CHARGE_POWER_LIMIT;
     }
 
     // Broadcast limit condition over CAN
