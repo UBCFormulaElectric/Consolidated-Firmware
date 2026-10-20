@@ -43,6 +43,23 @@ void jobs_run1Hz_tick()
 }
 void jobs_run100Hz_tick()
 {
+    // ADD YOUR LOGIC HERE
+    // regen on, boot on
+    // torque off, debug on
+
+    if(app::switches::regen_get())
+        io::leds::boot_LED_write(true);
+    else
+        io::leds::boot_LED_write(false);
+
+    if(!app::switches::torque_vectoring_get())
+        io::leds::debug_LED_write(true);
+    else
+        io::leds::debug_LED_write(false);
+
+
+
+    //
     app::switches::broadcast();
 
     static bool prev_telem_mark = false;
@@ -65,6 +82,8 @@ void jobs_run10Hz_tick()
     app::screens::tick();
     LOG_IF_ERR(io::seven_seg::setBrightness(std::max(static_cast<uint8_t>(5u), app::brightness)));
     app::power_gauge::update();
+
+
 }
 void jobs_run1kHz_tick()
 {

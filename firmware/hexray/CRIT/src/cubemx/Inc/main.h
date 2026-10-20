@@ -78,8 +78,8 @@ extern "C"
 #define LSI_FREQUENCY 32000
 #define BOOT_Pin GPIO_PIN_13
 #define BOOT_GPIO_Port GPIOC
-#define LED_Pin GPIO_PIN_14
-#define LED_GPIO_Port GPIOC
+#define DEBUG_Pin GPIO_PIN_14
+#define DEBUG_GPIO_Port GPIOC
 #define LED_DATA_Pin GPIO_PIN_1
 #define LED_DATA_GPIO_Port GPIOC
 #define LED_DIMMING_Pin GPIO_PIN_2
