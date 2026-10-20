@@ -1,6 +1,8 @@
 #pragma once
 
+#include "io_adbms.hpp"
 #include "hw_spi.hpp"
+#include "util_errorCodes.hpp"
 
 #include <array>
 #include <cstdint>
@@ -9,6 +11,7 @@
 
 namespace io::adbms {
 
+    // Write
     inline constexpr uint16_t WRCFGA = 0x0001U;
     inline constexpr uint16_t WRCFGB = 0x0024U;
     inline constexpr uint16_t WRPWMA = 0x0020U;
@@ -64,6 +67,9 @@ namespace io::adbms {
     // Discharge
     inline constexpr uint16_t MUTE   = 0x0028U;
     inline constexpr uint16_t UNMUTE = 0x0029U;
+
+    // Reset command counter
+    inline constexpr uint16_t RSTCC = 0x002EU;
 
     inline constexpr uint32_t POLL_STATUS_READY = std::byteswap(0xFFFFFFFFU >> (2 * NUM_SEGMENTS));
 
