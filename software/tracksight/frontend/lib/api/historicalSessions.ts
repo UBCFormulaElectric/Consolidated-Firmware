@@ -122,7 +122,7 @@ export async function fetchHistoricalSessionsForRange(startUtcMs: number, endUtc
 
     const start = toIsoUtcSeconds(startUtcMs);
     const end = toIsoUtcSeconds(endUtcMs);
-    const url = `${API_BASE_URL}/api/v1/signal/sessions/${start}/${end}?source=${encodeURIComponent(JSON.stringify(source))}`;
+    const url = `${API_BASE_URL}/api/v2/signal/sessions/${start}/${end}?source=${encodeURIComponent(JSON.stringify(source))}`;
 
     const response = await fetch(url, {
         cache: "no-store",

@@ -3,6 +3,7 @@ use std::{collections::HashMap, mem, time::{Duration, SystemTime}};
 use axum::{Json, Router, extract::{Path, Query, State}, http::StatusCode, response::IntoResponse, routing::get};
 use chrono::{DateTime, FixedOffset};
 use influxdb2::FromDataPoint;
+use influxdb2_structmap::value::Value;
 use serde::{Deserialize, Serialize};
 use regex::Regex;
 use serde_json::from_str;
@@ -288,13 +289,6 @@ async fn signal_sessions(
     return (StatusCode::OK, serde_json::to_string(&time_bigram).unwrap());
 }
 
-#[derive(Debug, FromDataPoint, Default, Serialize)]
-struct SessionTimestamps {
-    pub boot_hash: String,
-    pub start: DateTime<FixedOffset>,
-    pub end: DateTime<FixedOffset>,
-}
-
 async fn signal_sessions_hash(
     Path((start, end)): Path<(String, String)>,
     Query(SourceQuery { source, .. }): Query<SourceQuery>,
@@ -339,6 +333,7 @@ async fn signal_sessions_hash(
             data = from(bucket: "{}")
                 |> range(start: time(v: "{start_utc}"), stop: time(v: "{end_utc}"))
                 |> filter(fn: (r) => r["_measurement"] == "{}")
+                |> filter(fn: (r) => r["signal_name"] == "DAM_Alive")
                 |> filter(fn: (r) => r["source"] == "{source_str}")
                 |> filter(fn: (r) => exists r["boot_hash"])
                 |> group(columns: ["boot_hash"])
@@ -365,7 +360,8 @@ async fn signal_sessions_hash(
     );
 
     let req: Result<Vec<_>, influxdb2::RequestError> = select! {
-        val = state.influx_client.query::<SessionTimestamps>(
+        // query_raw: the typed query() requires _field/_value columns, which the join drops
+        val = state.influx_client.query_raw(
             Some(influxdb2::models::Query::new(query))
         ) => val,
         _ = sleep(Duration::from_millis(INFLUX_QUERY_TIMEOUT_MS)) => {
@@ -373,15 +369,21 @@ async fn signal_sessions_hash(
         }
     };
 
-    fn to_unix(w: &DateTime<FixedOffset>) -> String {
-        return w.timestamp_millis().to_string();
+    fn to_unix(v: Option<&Value>) -> Option<String> {
+        match v {
+            Some(Value::TimeRFC(t)) => Some(t.timestamp_millis().to_string()),
+            _ => None,
+        }
     }
 
     match req {
-        Ok(sessions) => {
-            let session_times: Vec<(String, String, String)> = sessions
+        Ok(records) => {
+            let session_times: Vec<(String, String, String)> = records
                 .into_iter()
-                .map(|s| (s.boot_hash, to_unix(&s.start), to_unix(&s.end)))
+                .filter_map(|r| {
+                    let Some(Value::String(hash)) = r.values.get("boot_hash") else { return None; };
+                    Some((hash.clone(), to_unix(r.values.get("start"))?, to_unix(r.values.get("end"))?))
+                })
                 .collect();
             vprintln!("[sessions] returning {} session(s)", session_times.len());
             return (StatusCode::OK, serde_json::to_string(&session_times).unwrap());
