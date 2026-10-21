@@ -56,7 +56,10 @@ struct instance
     // ID to identify the task this watchdog monitors (for debugging only).
     TaskHandle_t task_id = xTaskGetCurrentTaskHandle();
 
-    explicit instance(const uint32_t period_in_ticks) : period(period_in_ticks), deadline(period_in_ticks) {}
+    explicit instance(const uint32_t period_in_ticks)
+      : period(period_in_ticks), deadline(period_in_ticks + osKernelGetTickCount())
+    {
+    }
 
     /**
      * Every periodic task monitored by a software watchdog must call this at the
