@@ -151,4 +151,3 @@ pub fn decode_can_log(can_db: &CanDatabase, metadata: &[u8], data: &[u8]) -> Vec
         .flat_map(|frame| can_db.unpack(frame.id, frame.payload, Some(frame.timestamp_ms as u64)))
         .collect()
 }
-
