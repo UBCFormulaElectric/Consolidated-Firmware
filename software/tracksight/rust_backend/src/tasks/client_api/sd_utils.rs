@@ -4,7 +4,8 @@ use influxdb2::models::DataPoint;
 use jsoncan_rust::can_database::{CanDatabase, DecodedSignal};
 use logfs::{LogFsErr, logfs::{LogFs, LogFsUnixDisk}};
 use logfs_export::can_log::parse_can_log_frames;
-use crate::{tasks::can_data::influx_util::{InfluxSignalSource, MAX_BATCH_CAPACITY, build_data_point, flush_buffer}, vprintln};
+use regex::Regex;
+use crate::{dprintln, tasks::can_data::influx_util::{BootState, InfluxSignalSource, MAX_BATCH_CAPACITY, build_data_point, flush_buffer}, vprintln};
 
 
 /**
@@ -90,6 +91,7 @@ pub enum SdCardDumpError {
     LogFsError,
     FileNotFound,
     FileReadError,
+    FileNameParseError,
 }
 
 pub async fn dump_sd_file(
@@ -124,9 +126,31 @@ pub async fn dump_sd_file(
 
     let mut influx_write_queue: Vec<DataPoint> = Vec::new();
 
-    // TODO parse hash and boot info from file name
-    let boot_state = None;
+    // assume read was successful, and filename is in format
+    // `/boot_<num>_<hash>`
+    let boot_filename_regex = Regex::new(r"^\/(?:\/(.*)\/)?boot_(\d+)_(.+)\.bin$").unwrap();
 
+    let _dir: &str;
+    let _n: u64;
+    let hash: String;
+
+    if let Some(caps) = boot_filename_regex.captures(path) {
+        // dir can be empty, use map_or
+        _dir = caps.get(1).map_or("", |m| m.as_str());
+        _n = caps[2].parse().map_err(|_| {
+            vprintln!("Failed to parse boot number from filename: {}", path);
+            SdCardDumpError::FileNameParseError
+        })?;
+        hash = caps[3].to_string();
+    } else {
+        vprintln!("Filename does not match expected pattern: {}", path);
+        return Err(SdCardDumpError::FileNameParseError);
+    }
+
+    let boot_state: Option<BootState> = Some(BootState { boot_hash: hash });
+
+    dprintln!("Decoded bootstate: {:?}", boot_state);
+        
     for signal in decoded_signals {
         match build_data_point(&boot_state, signal, InfluxSignalSource::SdCard) {
             Ok(dp) => influx_write_queue.push(dp),
