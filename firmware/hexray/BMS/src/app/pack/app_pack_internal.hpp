@@ -5,11 +5,6 @@
 extern const float V_FAULT_UV;
 extern const float V_FAULT_OV;
 
-struct SequenceState {
-    result<void> (*run_on_entry)();
-    void (*run_on_tick)();
-};
-
 namespace app::pack::config
 {
 [[nodiscard]] result<void> setSegmentConfig(io::adbms::ThermistorMux mux);

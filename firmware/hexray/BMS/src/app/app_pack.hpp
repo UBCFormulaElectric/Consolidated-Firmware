@@ -57,11 +57,13 @@ struct TempStats
 struct OwcStats
 {
     uint32_t   updated_ms = 0U;
+    CellFlags  even_bad{}; // out of range on the last EVEN parity check
+    CellFlags  odd_bad{};  // out of range on the last ODD parity check
     CellFlags  cells_ok{};
     ThermFlags therms_ok{};
 };
 
-//idk what to store here
+// idk what to store here
 struct ADBMS6830Diag
 {
     uint32_t     updated_ms = 0U;
@@ -74,23 +76,23 @@ struct ADBMS6830Diag
 
 struct Snapshot
 {
-    TractiveStats  tractive_stats;
-    VoltStats      voltage_stats;
-    TempStats      temperature_stats;
-    OwcStats       owc_stats;
+    TractiveStats tractive_stats;
+    VoltStats     voltage_stats;
+    TempStats     temperature_stats;
+    OwcStats      owc_stats;
     ADBMS6830Diag adbms6830_diag;
     ADBMS2950Diag adbms2950_diag;
 };
 
 struct Request
 {
-    bool start_balance = false;
+    bool                          start_balance = false;
     io::adbms::PackCells<uint8_t> duty{};
 };
 
 inline constexpr size_t CHANNEL_DEPTH       = 2;
 inline constexpr size_t CHANNEL_SUBSCRIBERS = 2;
-template <typename T> using PackChannel = Channel<T, CHANNEL_DEPTH, CHANNEL_SUBSCRIBERS>;
+template <typename T> using PackChannel     = Channel<T, CHANNEL_DEPTH, CHANNEL_SUBSCRIBERS>;
 
 inline PackChannel<VoltStats>     voltage_channel{};
 inline PackChannel<TempStats>     temperature_channel{};
@@ -99,34 +101,33 @@ inline PackChannel<ADBMS6830Diag> diag_channel{};
 
 namespace alerts
 {
-void init();
-bool tick();
+    void init();
+    bool tick();
 } // namespace alerts
 
 namespace balancing
 {
-void init();
-void tick();
-void stop();
+    void init();
+    void tick();
+    void stop();
 
-[[nodiscard]] Request getRequest();
-void                  setRequest(const Request &r);
-}
+    [[nodiscard]] Request getRequest();
+    void                  setRequest(const Request &r);
+} // namespace balancing
 
-namespace sequence 
+namespace sequence
 {
-void init();
-void tick();
-}
+    void init();
+    void tick();
+} // namespace sequence
 
 namespace broadcast
 {
-void cellVoltages(const VoltStats &stats);
-void cellTemps(const TempStats &stats);
-void cellOpenWire(const OwcStats &stats);
-void adbmsFlags(const ADBMS6830Diag &diag);
-void balancing(const io::adbms::PackCells<uint8_t> &duty);
+    void cellVoltages(const VoltStats &stats);
+    void cellTemps(const TempStats &stats);
+    void cellOpenWire(const OwcStats &stats);
+    void adbmsFlags(const ADBMS6830Diag &diag);
+    void balancing(const io::adbms::PackCells<uint8_t> &duty);
 } // namespace broadcast
-
 
 } // namespace app::pack

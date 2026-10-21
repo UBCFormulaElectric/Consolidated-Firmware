@@ -28,8 +28,8 @@ constexpr uint32_t FAULT_T_DEBOUNCE_MS   = 3000;
 constexpr uint32_t FAULT_OWC_DEBOUNCE_MS = 5000;
 constexpr float    T_FAULT_OT            = 55.0f;
 constexpr float    T_CHARGE_FAULT_OT     = 45.0f;
-constexpr float    T_FAULT_UT            = -20.0f; 
-constexpr float    T_CHARGE_FAULT_UT     = 0.0f; 
+constexpr float    T_FAULT_UT            = -20.0f;
+constexpr float    T_CHARGE_FAULT_UT     = 0.0f;
 
 // Warning thresholds
 constexpr uint32_t WARN_DEBOUNCE_MS = 1000;
@@ -44,7 +44,7 @@ constexpr float    T_CHARGE_WARN_UT = 5.0f;
 constexpr uint32_t INFO_DEBOUNCE_MS     = 100;
 constexpr uint32_t INFO_OWC_DEBOUNCE_MS = 5000;
 constexpr float    V_INFO_UV            = 2.8f;
-constexpr float    V_INFO_OV            = 4.2f; 
+constexpr float    V_INFO_OV            = 4.2f;
 constexpr float    T_INFO_OT            = 45.0f;
 constexpr float    T_CHARGE_INFO_OT     = 40.0f;
 
@@ -74,12 +74,14 @@ bool isTempInvalidFault(const TempStats &stats)
 bool isOverTempFault(const TempStats &stats)
 {
     const bool charging = app::StateMachine::get_current_state() == &app::states::charge_state;
-    return stats.updated_ms != 0U && stats.max.value > (charging ? std::min(T_FAULT_OT, T_CHARGE_FAULT_OT) : T_FAULT_OT);
+    return stats.updated_ms != 0U &&
+           stats.max.value > (charging ? std::min(T_FAULT_OT, T_CHARGE_FAULT_OT) : T_FAULT_OT);
 }
 bool isUnderTempFault(const TempStats &stats)
 {
     const bool charging = app::StateMachine::get_current_state() == &app::states::charge_state;
-    return stats.updated_ms != 0U && stats.min.value < (charging ? std::max(T_FAULT_UT, T_CHARGE_FAULT_UT) : T_FAULT_UT);
+    return stats.updated_ms != 0U &&
+           stats.min.value < (charging ? std::max(T_FAULT_UT, T_CHARGE_FAULT_UT) : T_FAULT_UT);
 }
 bool isCellOpenWireFault(const OwcStats &stats)
 {
@@ -260,7 +262,7 @@ bool tick()
         temp_fault_active = tempFault(*stats);
     while (const auto stats = owc_sub.pop(0))
         owc_fault_active = owcFault(*stats);
-    //need to add diag/flag faults
+    // need to add diag/flag faults
 
     return volt_fault_active || temp_fault_active || owc_fault_active;
 }
