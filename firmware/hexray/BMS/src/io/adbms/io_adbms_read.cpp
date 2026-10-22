@@ -215,7 +215,6 @@ result<void> xAdc(const ThermistorMux mux, app::pack::TempStats &stats, PackTher
             const float voltage  = static_cast<float>(raw) * ADC_LSB_V + ADC_OFFSET_V;
             voltages[seg][therm] = voltage;
 
-            // Outside the LUT the thermistor is open or shorted, so there is no temperature to give
             const long lut_index = std::lround(voltage / THERM_LUT_STEP_V) - 1;
             if (lut_index < 0 || lut_index >= static_cast<long>(THERM_LUT_SIZE))
                 stats.temperatures[seg][therm] = std::unexpected(ErrorCode::INVALID_READING);
@@ -224,7 +223,6 @@ result<void> xAdc(const ThermistorMux mux, app::pack::TempStats &stats, PackTher
         }
     }
 
-    // Over all thermistors, the other mux's half still holds its last reading
     app::pack::Reading max{ .value = std::numeric_limits<float>::lowest() };
     app::pack::Reading min{ .value = std::numeric_limits<float>::max() };
 

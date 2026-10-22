@@ -7,13 +7,6 @@
 #include <cstdint>
 #include <cstring>
 
-namespace app::pack
-{
-struct VoltStats;
-struct TempStats;
-struct ADBMS6830Diag;
-} // namespace app::pack
-
 namespace io::adbms
 {
 
