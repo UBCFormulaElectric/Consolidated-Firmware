@@ -34,4 +34,17 @@ class Semaphore
     bool created_;
 #endif
 };
+
+class unique_semaphore
+{
+    const Semaphore &_sem;
+
+  public:
+    explicit unique_semaphore(const Semaphore &sem, const uint32_t timeout = std::numeric_limits<uint32_t>::max())
+      : _sem(sem)
+    {
+        _sem.take(timeout);
+    }
+    ~unique_semaphore() { _sem.give(); }
+};
 } // namespace io
