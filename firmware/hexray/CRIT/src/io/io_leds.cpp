@@ -50,4 +50,14 @@ result<void> setBrightness(const float brightness)
     return {};
 }
 
+void boot_set(bool val)
+{
+    debug.writePin(val);
+}
+
+void torque_boot_set(bool val)
+{
+    boot.writePin(val);
+}
+
 } // namespace io::leds
