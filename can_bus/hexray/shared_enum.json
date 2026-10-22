@@ -10,9 +10,10 @@
     "CHECKSUM_FAIL": 7,
     "INVALID_READING": 8,
     "ERROR_INDETERMINATE": 9,
-    "POLL_INVALID": 10, 
-    "NO_SEGMENT_DEFINED" : 11,
-    "NO_ERROR" : 12
+    "POLL_INVALID": 10,
+    "CMD_COUNT_MISMATCH": 11,
+    "NO_SEGMENT_DEFINED" : 12,
+    "NO_ERROR" : 13
   },
   "SwitchState": {
     "OFF": 0,
