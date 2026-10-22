@@ -569,9 +569,10 @@ TEST(ExtendedKalmanFilterTest, InvalidRowIsIgnoredWithoutInnovationGate)
     z.valid[1] = false;
 
     const EkfV2 x_masked = masked.estimated_states(u, EkfVelocity::Measurements{ z });
-    const EkfV2 x_pred   = predict_only.estimated_states(u, EkfVelocity::Measurements{ EkfVelocity::Measurement<2>::none() });
+    const EkfV2 x_pred =
+        predict_only.estimated_states(u, EkfVelocity::Measurements{ EkfVelocity::Measurement<2>::none() });
 
-    EXPECT_FLOAT_EQ(x_masked(1), x_pred(1));                                        // v_y untouched
-    EXPECT_FLOAT_EQ(masked.covariance()(1, 1), predict_only.covariance()(1, 1));    // and its variance too
-    EXPECT_LT(x_masked(0), x_pred(0));                                              // v_x still pulled toward 0
+    EXPECT_FLOAT_EQ(x_masked(1), x_pred(1));                                     // v_y untouched
+    EXPECT_FLOAT_EQ(masked.covariance()(1, 1), predict_only.covariance()(1, 1)); // and its variance too
+    EXPECT_LT(x_masked(0), x_pred(0));                                           // v_x still pulled toward 0
 }

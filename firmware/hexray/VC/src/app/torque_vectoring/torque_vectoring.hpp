@@ -2,6 +2,7 @@
 #include "shared_datatypes/constants.hpp"
 #include "shared_datatypes/vehicle_state_estimator.hpp"
 #include "shared_datatypes/wheel_set.hpp"
+#include "controllers/speed_controller.hpp"
 #include "estimation/tire_model.hpp"
 #include <algorithm>
 #include <cmath>
@@ -37,15 +38,15 @@ template <Decimal T>
 ControlOutputAutonomous<T> update_autonomous(const app::tv::shared_datatypes::VehicleState<T> &state);
 
 /**
- * Given a slip ratio setpopint, gives wheel angular velocity setpoints to achieve that slip ratio at the current
+ * Given a slip ratio setpoint, gives motor angular velocity setpoints to achieve that slip ratio at the current
  * vehicle speed
  * @param kappas slip ratio setpoints for each wheel, where kappa = (wheel_speed - vehicle_speed) / vehicle_speed
  * @param v_x_mps current longitudinal vehicle speed in meters per second
- * @return wheel velocity setpoints
+ * @return motor speed setpoints in rad/s
  */
 template <Decimal T>
 app::tv::shared_datatypes::wheel_set<T>
-    kappa_update(const app::tv::shared_datatypes::wheel_set<T> &kappas, const T v_x_mps)
+    motor_speed_request(const app::tv::shared_datatypes::wheel_set<T> &kappas, const T v_x_mps)
 {
     const T v_regularized = std::max(
         std::abs(v_x_mps), static_cast<T>(app::tv::shared_datatypes::vd_constants::SLIP_REGULARIZATION_SPEED_MPS));
@@ -55,7 +56,7 @@ app::tv::shared_datatypes::wheel_set<T>
     const auto [fz_fl, fz_fr, fz_rl, fz_rr] =
         app::tv::shared_datatypes::VehicleState<T>{ .v_x_mps = v_x_mps }.est_Fz_N();
 
-    const auto motor_speed_request = [&](const T kappa, const T fz_N)
+    const auto wheel_speed_request = [&](const T kappa, const T fz_N)
     {
         // Reverse is not a supported mode: never request backwards wheel rotation.
         const T wheel_surface_speed_request = std::max(v_x_mps + kappa * v_regularized, T(0));
@@ -65,9 +66,34 @@ app::tv::shared_datatypes::wheel_set<T>
     };
 
     return {
-        .fl = motor_speed_request(kappas.fl, fz_fl),
-        .fr = motor_speed_request(kappas.fr, fz_fr),
-        .rl = motor_speed_request(kappas.rl, fz_rl),
-        .rr = motor_speed_request(kappas.rr, fz_rr),
+        .fl = wheel_speed_request(kappas.fl, fz_fl),
+        .fr = wheel_speed_request(kappas.fr, fz_fr),
+        .rl = wheel_speed_request(kappas.rl, fz_rl),
+        .rr = wheel_speed_request(kappas.rr, fz_rr),
     };
+}
+
+/**
+ * Given a slip ratio setpoint, computes the motor speed setpoints that achieve that slip ratio at the current
+ * vehicle speed and runs the per-wheel speed controller to track them
+ * @param kappas slip ratio setpoints for each wheel, where kappa = (wheel_speed - vehicle_speed) / vehicle_speed
+ * @param v_x_mps current longitudinal vehicle speed in meters per second
+ * @param omega_radps measured motor speeds in rad/s
+ * @param tire_ffb_Nm feedforward torque from the tire model in Nm
+ * @param torque_max / torque_min per-wheel torque limits in Nm
+ * @return per-wheel torque requests in Nm
+ */
+template <Decimal T>
+app::tv::shared_datatypes::wheel_set<T> kappa_update(
+    const app::tv::shared_datatypes::wheel_set<T> &kappas,
+    const T                                        v_x_mps,
+    const app::tv::shared_datatypes::wheel_set<T> &omega_radps,
+    const app::tv::shared_datatypes::wheel_set<T> &tire_ffb_Nm,
+    const app::tv::shared_datatypes::wheel_set<T> &torque_max,
+    const app::tv::shared_datatypes::wheel_set<T> &torque_min)
+{
+    // The speed controller is a PID that takes the wheel speed request and actual wheel speed and
+    // outputs a torque request. The torque request is then limited by the max and min torque limits.
+    return app::tv::controllers::speed_controller::computeTorque(
+        motor_speed_request(kappas, v_x_mps), omega_radps, tire_ffb_Nm, torque_max, torque_min);
 }
