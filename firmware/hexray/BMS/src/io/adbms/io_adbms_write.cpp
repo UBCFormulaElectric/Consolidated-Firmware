@@ -20,6 +20,7 @@ result<void> pwmReg(const Segments<PWMA> &pwm_a, const Segments<PWMB> &pwm_b)
 
 result<void> clearFlags()
 {
+    // Need to write 1s to clear flags/uvov
     Segments<RegGroup> clr_regs;
     for (RegGroup &reg : clr_regs)
     {

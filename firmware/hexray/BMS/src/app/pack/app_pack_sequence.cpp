@@ -8,10 +8,10 @@ namespace
 constexpr uint32_t DIAG_PERIOD_MS  = 1000;
 constexpr uint32_t DIAG_TIMEOUT_MS = 200;
 
-app::Timer          diag_timer{ DIAG_PERIOD_MS };
-app::Timer          diag_timeout_timer{ DIAG_TIMEOUT_MS };
-bool                sadc_done = false;
-bool                xadc_done = false;
+app::Timer diag_timer{ DIAG_PERIOD_MS };
+app::Timer diag_timeout_timer{ DIAG_TIMEOUT_MS };
+bool       sadc_done = false;
+bool       xadc_done = false;
 
 app::pack::VoltageBuffer             voltages{};
 app::pack::TempBuffer                temps{};
@@ -29,14 +29,20 @@ template <io::adbms::ThermistorMux MUX> result<void> diagnosticOnEntry();
 template <io::adbms::ThermistorMux MUX> void         diagnosticOnTick();
 result<void>                                         diagnosticOnExit();
 
-const app::Fsm::State measure_state{ "CONTINUOUS REDUNDANT PRIMARY VOLTAGE MEASUREMENTS; CONTINUOUS SECONDARY VOLTAGE MEASUREMENTS", 
-                                     measureOnEntry, measureOnTick, nullptr};
-const app::Fsm::State balance_state { "CONTINUOUS PRIMARY VOLTAGE MEASUREMENTS; BALANCE", 
-                                      balanceOnEntry, balanceOnTick, balanceOnExit };
-const app::Fsm::State diagnostic_odd_state{ "CONTINUOUS PRIMARY VOLTAGE MEASUREMENTS; ODD TEMP MEASUREMENTS; ODD CELL OPEN WIRE CHECK; ODD THERM OPEN WIRE CHECK; DIAGNOSTICS",
-                                            diagnosticOnEntry<io::adbms::ThermistorMux::ODD>, diagnosticOnTick<io::adbms::ThermistorMux::ODD>, nullptr };
-const app::Fsm::State diagnostic_even_state{ "CONTINUOUS PRIMARY VOLTAGE MEASUREMENTS; EVEN TEMP MEASUREMENTS; EVEN CELL OPEN WIRE CHECK; EVEN THERM OPEN WIRE CHECK; DIAGNOSTICS",
-                                             diagnosticOnEntry<io::adbms::ThermistorMux::EVEN>, diagnosticOnTick<io::adbms::ThermistorMux::EVEN>, diagnosticOnExit };
+const app::Fsm::State measure_state{
+    "CONTINUOUS REDUNDANT PRIMARY VOLTAGE MEASUREMENTS; CONTINUOUS SECONDARY VOLTAGE MEASUREMENTS", measureOnEntry,
+    measureOnTick, nullptr
+};
+const app::Fsm::State balance_state{ "CONTINUOUS PRIMARY VOLTAGE MEASUREMENTS; BALANCE", balanceOnEntry, balanceOnTick,
+                                     balanceOnExit };
+const app::Fsm::State diagnostic_odd_state{ "CONTINUOUS PRIMARY VOLTAGE MEASUREMENTS; ODD TEMP MEASUREMENTS; ODD CELL "
+                                            "OPEN WIRE CHECK; ODD THERM OPEN WIRE CHECK; DIAGNOSTICS",
+                                            diagnosticOnEntry<io::adbms::ThermistorMux::ODD>,
+                                            diagnosticOnTick<io::adbms::ThermistorMux::ODD>, nullptr };
+const app::Fsm::State diagnostic_even_state{ "CONTINUOUS PRIMARY VOLTAGE MEASUREMENTS; EVEN TEMP MEASUREMENTS; EVEN "
+                                             "CELL OPEN WIRE CHECK; EVEN THERM OPEN WIRE CHECK; DIAGNOSTICS",
+                                             diagnosticOnEntry<io::adbms::ThermistorMux::EVEN>,
+                                             diagnosticOnTick<io::adbms::ThermistorMux::EVEN>, diagnosticOnExit };
 
 app::Fsm fsm;
 
@@ -102,8 +108,8 @@ result<void> balanceOnExit()
 
 template <io::adbms::ThermistorMux MUX> result<void> diagnosticOnEntry()
 {
-    constexpr auto PARITY = MUX == io::adbms::ThermistorMux::ODD ? io::adbms::OpenWireParity::ODD
-                                                                 : io::adbms::OpenWireParity::EVEN;
+    constexpr auto PARITY =
+        MUX == io::adbms::ThermistorMux::ODD ? io::adbms::OpenWireParity::ODD : io::adbms::OpenWireParity::EVEN;
     RETURN_IF_ERR(app::pack::config::setSegmentConfig(MUX));
     RETURN_IF_ERR(app::pack::config::checkSegmentConfig());
     RETURN_IF_ERR(io::adbms::command::startCadc(false));         // RD off
@@ -117,8 +123,8 @@ template <io::adbms::ThermistorMux MUX> result<void> diagnosticOnEntry()
 
 template <io::adbms::ThermistorMux MUX> void diagnosticOnTick()
 {
-    constexpr auto PARITY = MUX == io::adbms::ThermistorMux::ODD ? io::adbms::OpenWireParity::ODD
-                                                                 : io::adbms::OpenWireParity::EVEN;
+    constexpr auto PARITY =
+        MUX == io::adbms::ThermistorMux::ODD ? io::adbms::OpenWireParity::ODD : io::adbms::OpenWireParity::EVEN;
     auto &owc_voltages = PARITY == io::adbms::OpenWireParity::ODD ? owc_odd_voltages : owc_even_voltages;
 
     const bool sadc_ready = io::adbms::command::pollSadc().has_value();

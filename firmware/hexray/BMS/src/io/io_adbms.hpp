@@ -182,7 +182,8 @@ namespace read
     [[nodiscard]] result<void> pwmReg(Segments<PWMA> &pwm_a, Segments<PWMB> &pwm_b);
     [[nodiscard]] result<void> cAdc(bool redundant, app::pack::VoltStats &stats);
     [[nodiscard]] result<void> sAdc(PackCells<result<float>> &voltages);
-    [[nodiscard]] result<void> xAdc(ThermistorMux mux, app::pack::TempStats &stats, PackTherms<result<float>> &voltages);
+    [[nodiscard]] result<void>
+        xAdc(ThermistorMux mux, app::pack::TempStats &stats, PackTherms<result<float>> &voltages);
     [[nodiscard]] result<void> flags(app::pack::ADBMS6830Diag &diag);
 } // namespace read
 

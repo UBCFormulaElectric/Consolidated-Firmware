@@ -3,7 +3,6 @@
 #include "hw_spis.hpp"
 
 // implement reversible isoSPI here
-
 namespace io::adbms::reversible
 {
 result<void> sendCmd(const uint16_t cmd)
@@ -16,6 +15,8 @@ result<void> poll(const uint16_t cmd)
     const result<uint32_t> rx_res = spi::poll(adbms_spi_ls, cmd);
     if (!rx_res)
         return std::unexpected(rx_res.error());
+
+    // Poll value changes depending on number of segments connected
     if (*rx_res == POLL_STATUS_READY)
         return {};
     return std::unexpected(ErrorCode::POLL_INVALID);

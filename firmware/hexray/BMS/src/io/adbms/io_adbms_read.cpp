@@ -102,9 +102,9 @@ result<void> cAdc(const bool redundant, app::pack::VoltStats &stats)
                 voltages[seg][cell] = std::unexpected(reg.error());
                 continue;
             }
-            
-            const size_t    lsb = (cell % CELLS_PER_GROUP) * sizeof(int16_t);
-            const int16_t   raw = static_cast<int16_t>(reg[lsb] | reg[lsb + 1] << 8);
+
+            const size_t  lsb = (cell % CELLS_PER_GROUP) * sizeof(int16_t);
+            const int16_t raw = static_cast<int16_t>(reg[lsb] | reg[lsb + 1] << 8);
 
             if (raw == ADC_DEFAULT)
             {

@@ -24,17 +24,17 @@ struct Reading
 
 struct VoltageBuffer
 {
-    uint32_t updated_ms = 0U;
-    Reading max{};
-    Reading min{};
+    uint32_t                            updated_ms = 0U;
+    Reading                             max{};
+    Reading                             min{};
     io::adbms::PackCells<result<float>> voltages{};
 };
 
 struct TemperatureBuffer
 {
     uint32_t                             updated_ms = 0U;
-    Reading                         max{};
-    Reading                         min{};
+    Reading                              max{};
+    Reading                              min{};
     io::adbms::PackTherms<result<float>> temperatures{};
 };
 
