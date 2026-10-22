@@ -35,12 +35,11 @@ inline constexpr uint32_t PRECISION = CORDIC_PRECISION_6CYCLES;
 // CSR fields that are the same for every calculation: q1.31 (32-bit) in and out, one result.
 inline constexpr uint32_t CSR_FIXED_FIELDS = PRECISION | CORDIC_INSIZE_32BITS | CORDIC_OUTSIZE_32BITS | CORDIC_NBREAD_1;
 
-namespace
-{
-    // CSR value last written by calculate(), only rewritten when the function changes. 0 is never a value
-    // This is necessary to support multiple operations and not just be restricted to sin or cosine for example.
-    inline uint32_t current_csr = 0U;
-} // namespace
+// CSR value last written by calculate() and only rewritten when the function changes 0 is never a value calculate()
+// writes so it forces the next write. This allows multiple operations and not just be restricted to sin or cosine
+// for example. It must be one variable for the whole program so every file that calls calculate() sees the CSR value
+// the others wrote.
+inline uint32_t current_csr = 0U;
 
 /**
  * Configures the CORDIC (precision, data sizes) through the HAL
