@@ -11,15 +11,15 @@ static PID pid_rr(PID_SPEED_config);
 
 static float wheelTorque(
     PID        &pid,
-    const float request,
-    const float omega,
-    const float tire_ffb,
-    const float torque_max,
-    const float torque_min)
+    const float speed_request_radps,
+    const float omega_radps,
+    const float tire_ffb_Nm,
+    const float torque_max_Nm,
+    const float torque_min_Nm)
 {
     // The tire feedforward goes in as the PID's disturbance input, and the result is limited to this wheel's torque
     // limits.
-    return std::clamp(pid.compute(request, omega, tire_ffb), torque_min, torque_max);
+    return std::clamp(pid.compute(speed_request_radps, omega_radps, tire_ffb_Nm), torque_min_Nm, torque_max_Nm);
 }
 
 template <Decimal T>
