@@ -1,5 +1,6 @@
 #pragma once
 
+#include "app_pack.hpp"
 #include "io_adbms.hpp"
 
 extern const float V_FAULT_UV;
@@ -12,3 +13,10 @@ namespace app::pack::config
 [[nodiscard]] result<void> checkSegmentConfig();
 [[nodiscard]] result<void> checkPWMConfig();
 } // namespace app::pack::config
+
+namespace app::pack::owc
+{
+[[nodiscard]] OpenWireCheckBuffer check(const io::adbms::PackCells<result<float>>  &odd_voltages,
+                                        const io::adbms::PackCells<result<float>>  &even_voltages,
+                                        const io::adbms::PackTherms<result<float>> &therm_voltages);
+} // namespace app::pack::owc

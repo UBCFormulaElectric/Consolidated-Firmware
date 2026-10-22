@@ -14,14 +14,11 @@ constexpr float   ADC_LSB_V    = 150e-6f;
 constexpr float   ADC_OFFSET_V = 1.5f;
 constexpr int16_t ADC_DEFAULT  = INT16_MIN;
 
-constexpr float OWC_V_LOW  = 1.0f;
-constexpr float OWC_V_HIGH = 4.6f;
-
 constexpr std::array<uint16_t, 5> RDCV{ io::adbms::RDCVA, io::adbms::RDCVB, io::adbms::RDCVC, io::adbms::RDCVD,
                                         io::adbms::RDCVE };
 constexpr std::array<uint16_t, 5> RDSV{ io::adbms::RDSVA, io::adbms::RDSVB, io::adbms::RDSVC, io::adbms::RDSVD,
                                         io::adbms::RDSVE };
-constexpr std::array<uint16_t, 4> RDAUX{ io::adbms::RDAUXA, io::adbms::RDAUXB, io::adbms::RDAUXC, io::adbms::RDAUXD };
+constexpr std::array<uint16_t, 3> RDAUX{ io::adbms::RDAUXA, io::adbms::RDAUXB, io::adbms::RDAUXC };
 
 constexpr size_t CELLS_PER_GROUP = io::adbms::REG_GROUP_SIZE / sizeof(int16_t);
 constexpr size_t GPIOS_PER_GROUP = io::adbms::REG_GROUP_SIZE / sizeof(int16_t);
@@ -99,6 +96,13 @@ result<void> cAdc(const bool redundant, app::pack::VoltStats &stats)
         for (size_t cell = 0; cell < CELLS_PER_SEGMENT; cell++)
         {
             const RegGroup &reg = cell_regs[cell / CELLS_PER_GROUP][seg];
+
+            if (!reg)
+            {
+                voltages[seg][cell] = std::unexpected(reg.error());
+                continue;
+            }
+            
             const size_t    lsb = (cell % CELLS_PER_GROUP) * sizeof(int16_t);
             const int16_t   raw = static_cast<int16_t>(reg[lsb] | reg[lsb + 1] << 8);
 
@@ -136,21 +140,14 @@ result<void> cAdc(const bool redundant, app::pack::VoltStats &stats)
     return {};
 }
 
-result<void> sAdc(const OpenWireParity parity, app::pack::OwcStats &stats)
+result<void> sAdc(PackCells<result<float>> &voltages)
 {
-    if (parity == OpenWireParity::NONE)
-        return std::unexpected(ErrorCode::INVALID_ARGS);
-
     std::array<Segments<result<RegGroup>>, RDSV.size()> regs;
 
     for (size_t group = 0; group < RDSV.size(); group++)
     {
         RETURN_IF_ERR_SILENT(reversible::readRegGroup(RDSV[group], regs[group]));
     }
-
-    // A broken wire pulls one of its two neighbouring cells out of range in either the EVEN or ODD check,
-    // so a cell is only ok if it passed the latest check of both parities
-    app::pack::CellFlags &phase_bad = parity == OpenWireParity::EVEN ? stats.even_bad : stats.odd_bad;
 
     for (size_t seg = 0; seg < NUM_SEGMENTS; seg++)
     {
@@ -160,34 +157,97 @@ result<void> sAdc(const OpenWireParity parity, app::pack::OwcStats &stats)
 
             if (!reg)
             {
-                phase_bad[seg][cell] = true;
+                voltages[seg][cell] = std::unexpected(reg.error());
                 continue;
             }
 
-            const size_t  lsb     = (cell % CELLS_PER_GROUP) * sizeof(int16_t);
-            const int16_t raw     = static_cast<int16_t>((*reg)[lsb] | (*reg)[lsb + 1] << 8);
-            const float   voltage = static_cast<float>(raw) * ADC_LSB_V + ADC_OFFSET_V;
-            phase_bad[seg][cell]  = voltage < OWC_V_LOW || voltage > OWC_V_HIGH;
+            const size_t  lsb = (cell % CELLS_PER_GROUP) * sizeof(int16_t);
+            const int16_t raw = static_cast<int16_t>(reg[lsb] | reg[lsb + 1] << 8);
+
+            if (raw == ADC_DEFAULT)
+            {
+                voltages[seg][cell] = std::unexpected(ErrorCode::INVALID_READING);
+                continue;
+            }
+
+            voltages[seg][cell] = static_cast<float>(raw) * ADC_LSB_V + ADC_OFFSET_V;
         }
-        stats.cells_ok[seg] = ~(stats.even_bad[seg] | stats.odd_bad[seg]);
     }
 
-    stats.updated_ms = io::time::getCurrentMs();
     return {};
 }
 
-result<void> xAdc(const ThermistorMux mux, app::pack::TempStats &stats)
+result<void> xAdc(const ThermistorMux mux, app::pack::TempStats &stats, PackTherms<result<float>> &voltages)
 {
-    std::array<Segments<RegGroup>, RDAUX.size()> gpio_regs;
-    Segments<RegGroup>                           stat_regs;
+    std::array<Segments<result<RegGroup>>, RDAUX.size()> gpio_regs;
 
     for (size_t group = 0; group < RDAUX.size(); group++)
     {
         RETURN_IF_ERR_SILENT(reversible::readRegGroup(RDAUX[group], gpio_regs[group]));
     }
 
-    RETURN_IF_ERR_SILENT(reversible::readRegGroup(RDSTATA, stat_regs));
-    const Segments<STATA> stat_a = std::bit_cast<Segments<STATA>>(stat_regs);
+    const size_t first_therm = mux == ThermistorMux::EVEN ? 0 : THERM_GPIOS_PER_SEGMENT;
+
+    for (size_t seg = 0; seg < NUM_SEGMENTS; seg++)
+    {
+        for (size_t gpio = 0; gpio < THERM_GPIOS_PER_SEGMENT && first_therm + gpio < THERMISTORS_PER_SEGMENT; gpio++)
+        {
+            const size_t            therm = first_therm + gpio;
+            const result<RegGroup> &reg   = gpio_regs[gpio / GPIOS_PER_GROUP][seg];
+
+            if (!reg)
+            {
+                voltages[seg][therm]           = std::unexpected(reg.error());
+                stats.temperatures[seg][therm] = std::unexpected(reg.error());
+                continue;
+            }
+
+            const size_t  lsb = (gpio % GPIOS_PER_GROUP) * sizeof(int16_t);
+            const int16_t raw = static_cast<int16_t>((*reg)[lsb] | (*reg)[lsb + 1] << 8);
+
+            if (raw == ADC_DEFAULT)
+            {
+                voltages[seg][therm]           = std::unexpected(ErrorCode::INVALID_READING);
+                stats.temperatures[seg][therm] = std::unexpected(ErrorCode::INVALID_READING);
+                continue;
+            }
+
+            const float voltage  = static_cast<float>(raw) * ADC_LSB_V + ADC_OFFSET_V;
+            voltages[seg][therm] = voltage;
+
+            // Outside the LUT the thermistor is open or shorted, so there is no temperature to give
+            const long lut_index = std::lround(voltage / THERM_LUT_STEP_V) - 1;
+            if (lut_index < 0 || lut_index >= static_cast<long>(THERM_LUT_SIZE))
+                stats.temperatures[seg][therm] = std::unexpected(ErrorCode::INVALID_READING);
+            else
+                stats.temperatures[seg][therm] = THERM_LUT[static_cast<size_t>(lut_index)];
+        }
+    }
+
+    // Over all thermistors, the other mux's half still holds its last reading
+    app::pack::Reading max{ .value = std::numeric_limits<float>::lowest() };
+    app::pack::Reading min{ .value = std::numeric_limits<float>::max() };
+
+    for (size_t seg = 0; seg < NUM_SEGMENTS; seg++)
+    {
+        for (size_t therm = 0; therm < THERMISTORS_PER_SEGMENT; therm++)
+        {
+            if (!stats.temperatures[seg][therm])
+                continue;
+
+            const float temp = stats.temperatures[seg][therm].value();
+            if (temp > max.value)
+                max = { temp, static_cast<uint8_t>(seg), static_cast<uint8_t>(therm) };
+            if (temp < min.value)
+                min = { temp, static_cast<uint8_t>(seg), static_cast<uint8_t>(therm) };
+        }
+    }
+
+    if (max.value >= min.value)
+    {
+        stats.max = max;
+        stats.min = min;
+    }
 
     stats.updated_ms = io::time::getCurrentMs();
     return {};

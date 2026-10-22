@@ -159,15 +159,15 @@ void cellTemps(const TempStats &stats)
     io::can_tx::BMS_CellTempStats_sendAperiodic();
 }
 
-void cellOpenWire(const OwcStats &stats)
+void cellOpenWire(const OpenWireCheckBuffer &owc)
 {
     for (uint8_t seg = 0; seg < NUM_SEGMENTS; seg++)
     {
         for (uint8_t cell = 0; cell < CELLS_PER_SEGMENT; cell++)
-            cell_owc_ok_buffer[seg * CELLS_PER_SEGMENT + cell] = stats.cells_ok[seg][cell];
+            cell_owc_ok_buffer[seg * CELLS_PER_SEGMENT + cell] = owc.cells_owc_ok[seg][cell];
 
         for (uint8_t therm = 0; therm < THERMISTORS_PER_SEGMENT; therm++)
-            therm_owc_ok_buffer[seg * THERMISTORS_PER_SEGMENT + therm] = stats.therms_ok[seg][therm];
+            therm_owc_ok_buffer[seg * THERMISTORS_PER_SEGMENT + therm] = owc.therms_owc_ok[seg][therm];
     }
     cell_owc_ok_buffer.send();
     therm_owc_ok_buffer.send();

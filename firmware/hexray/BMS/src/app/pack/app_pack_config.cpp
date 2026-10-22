@@ -20,6 +20,7 @@ constexpr std::array<io::adbms::SegmentConfig, NUM_SEGMENTS> createSegmentConfig
         reg_a.gpio_1_8  = 0xFF;
         reg_a.gpio_9_10 = 0x03;
         reg_a.fc        = 0x03;
+        //reg mute a = 1
     }
     return config;
 }

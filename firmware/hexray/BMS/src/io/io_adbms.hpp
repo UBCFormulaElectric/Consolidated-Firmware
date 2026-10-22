@@ -11,7 +11,6 @@ namespace app::pack
 {
 struct VoltStats;
 struct TempStats;
-struct OwcStats;
 struct ADBMS6830Diag;
 } // namespace app::pack
 
@@ -189,8 +188,8 @@ namespace read
     [[nodiscard]] result<void> configReg(Segments<CFGA> &config_a, Segments<CFGB> &config_b);
     [[nodiscard]] result<void> pwmReg(Segments<PWMA> &pwm_a, Segments<PWMB> &pwm_b);
     [[nodiscard]] result<void> cAdc(bool redundant, app::pack::VoltStats &stats);
-    [[nodiscard]] result<void> sAdc(OpenWireParity parity, app::pack::OwcStats &stats);
-    [[nodiscard]] result<void> xAdc(ThermistorMux mux, app::pack::TempStats &stats);
+    [[nodiscard]] result<void> sAdc(PackCells<result<float>> &voltages);
+    [[nodiscard]] result<void> xAdc(ThermistorMux mux, app::pack::TempStats &stats, PackTherms<result<float>> &voltages);
     [[nodiscard]] result<void> flags(app::pack::ADBMS6830Diag &diag);
 } // namespace read
 
