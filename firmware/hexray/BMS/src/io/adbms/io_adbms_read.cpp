@@ -30,15 +30,16 @@ constexpr std::array<uint16_t, 3> RDAUX{ io::adbms::RDAUXA, io::adbms::RDAUXB, i
 constexpr size_t CELLS_PER_GROUP = io::adbms::REG_GROUP_SIZE / sizeof(int16_t);
 constexpr size_t GPIOS_PER_GROUP = io::adbms::REG_GROUP_SIZE / sizeof(int16_t);
 
-// TODO: check
+constexpr float  THERM_LUT_STEP_V = 0.01f;
+constexpr size_t THERM_LUT_SIZE   = 299;
 constexpr float  THERM_VREF2_V    = 3.0f;
 constexpr float  THERM_R_SERIES   = 10e3f;
+// Thermistor datasheet (NTCS0603E3103JMT); worst case error of +- 2degC
 constexpr float  THERM_R_NOMINAL  = 10e3f;
 constexpr float  THERM_T_NOMINAL  = 298.15f;
 constexpr float  THERM_BETA       = 3610.0f;
 constexpr float  KELVIN_OFFSET    = 273.15f;
-constexpr float  THERM_LUT_STEP_V = 0.01f;
-constexpr size_t THERM_LUT_SIZE   = 299;
+
 
 constexpr std::array<float, THERM_LUT_SIZE> THERM_LUT = []
 {
@@ -46,7 +47,9 @@ constexpr std::array<float, THERM_LUT_SIZE> THERM_LUT = []
     for (size_t i = 0; i < THERM_LUT_SIZE; i++)
     {
         const float voltage    = static_cast<float>(i + 1) * THERM_LUT_STEP_V;
+        // Voltage divider equation: 10k resistor (highside) and 10k thermistor (lowside)
         const float resistance = THERM_R_SERIES * voltage / (THERM_VREF2_V - voltage);
+        // Beta equation: 1/T = 1/T0 + ln(R/R0)/B in Kelvin
         lut[i] = 1.0f / (1.0f / THERM_T_NOMINAL + std::log(resistance / THERM_R_NOMINAL) / THERM_BETA) - KELVIN_OFFSET;
     }
     return lut;
@@ -254,8 +257,9 @@ result<void> xAdcTherm(const ThermistorMux mux, app::pack::TemperatureBuffer &te
             const float voltage  = static_cast<float>(raw) * ADC_LSB_V + ADC_OFFSET_V;
             voltages[seg][therm] = voltage;
 
-            //TODO: check
+            
             const long lut_index = std::lround(voltage / THERM_LUT_STEP_V) - 1;
+            // LUT is used if voltage is between 0.01 to 2.99V (inclusive)
             if (lut_index < 0 || lut_index >= static_cast<long>(THERM_LUT_SIZE))
                 temp_buffer.temperatures[seg][therm] = std::unexpected(ErrorCode::INVALID_READING);
             else
