@@ -50,7 +50,7 @@ result<void> setSegmentConfig(const io::adbms::ThermistorMux mux)
         auto &[reg_a, reg_b] = segment_config[seg];
 
         reg_a.gpio_1_8  = 0xFF;
-        reg_a.gpio_9_10 = 0x2 | (mux == io::adbms::ThermistorMux::ODD);
+        reg_a.gpio_9_10 = 0x2 | (mux == io::adbms::ThermistorMux::THERM_8_14);
 
         reg_b.vuv_0_7  = static_cast<uint8_t>(vuv & 0xFF);
         reg_b.vuv_8_11 = static_cast<uint8_t>(vuv >> 8 & 0x0F);

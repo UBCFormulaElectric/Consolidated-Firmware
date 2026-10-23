@@ -32,14 +32,14 @@ enum class OpenWireParity
 
 enum class ThermistorMux
 {
-    ODD,
-    EVEN,
+    THERM_0_7, // GPIO9 is set low
+    THERM_8_13, // GPIO9 is set high
 };
 
 struct __attribute__((packed)) CFGA
 {
     uint8_t cth : 3;    // C-ADC vs. S-ADC comparison voltage threshold
-    uint8_t : 4;        // unused bits
+    uint8_t : 4;       
     uint8_t ref_on : 1; // reference powered up, enables REFUP state
 
     uint8_t flag_d; // asserts flags in Status Reg C for latent fault detection (pg. 70)
@@ -52,7 +52,7 @@ struct __attribute__((packed)) CFGA
     uint8_t gpio_1_8; // GPIOx pin control
 
     uint8_t gpio_9_10 : 2; // GPIOx pin control
-    uint8_t : 6;           // unused bits
+    uint8_t : 6;           
 
     uint8_t fc : 3;      // IIR filter parameter, see table 21
     uint8_t comm_bk : 1; // communication break, propagation communication prevention
@@ -169,6 +169,14 @@ struct __attribute__((packed)) STATE
 };
 static_assert(sizeof(STATE) == REG_GROUP_SIZE);
 
+struct __attribute__((packed)) AUXD
+{
+    int16_t g10v;
+    int16_t vmv;
+    int16_t vpv;
+};
+static_assert(sizeof(AUXD) == REG_GROUP_SIZE);
+
 namespace write
 {
     [[nodiscard]] result<void> configReg(const Segments<CFGA> &config_a, const Segments<CFGB> &config_b);
@@ -182,8 +190,11 @@ namespace read
     [[nodiscard]] result<void> pwmReg(Segments<PWMA> &pwm_a, Segments<PWMB> &pwm_b);
     [[nodiscard]] result<void> cAdc(bool redundant, app::pack::VoltStats &stats);
     [[nodiscard]] result<void> sAdc(PackCells<result<float>> &voltages);
-    [[nodiscard]] result<void>
-        xAdc(ThermistorMux mux, app::pack::TempStats &stats, PackTherms<result<float>> &voltages);
+    [[nodiscard]] result<void> xAdc(
+        ThermistorMux                 mux,
+        app::pack::TemperatureBuffer &temp_buffer,
+        app::pack::SupplyBuffer      &supply_buffer,
+        PackTherms<result<float>>    &voltages);
     [[nodiscard]] result<void> flags(app::pack::ADBMS6830Diag &diag);
 } // namespace read
 

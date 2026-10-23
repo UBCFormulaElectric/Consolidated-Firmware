@@ -45,6 +45,18 @@ struct OpenWireCheckBuffer
     ThermFlags therms_owc_ok{};
 };
 
+struct SupplyBuffer
+{
+    uint32_t                           updated_ms = 0U;
+    io::adbms::Segments<result<float>> vmv{};
+    io::adbms::Segments<result<float>> vpv{};
+    io::adbms::Segments<result<float>> vref{};
+    io::adbms::Segments<result<float>> itmp{};
+    io::adbms::Segments<result<float>> va{};
+    io::adbms::Segments<result<float>> vd{};
+    io::adbms::Segments<result<float>> vres{};
+};
+
 struct DiagnosticBuffer
 {
     uint32_t     updated_ms = 0U;
@@ -56,8 +68,9 @@ struct DiagnosticBuffer
 };
 
 inline VoltageBuffer       voltage_buffer{};
-inline TempBuffer          temp_buffer{};
+inline TemperatureBuffer   temp_buffer{};
 inline OpenWireCheckBuffer owc_buffer{};
+inline SupplyBuffer        supply_buffer{};
 inline DiagnosticBuffer    diag_buffer{};
 inline const io::Semaphore buffer_lock{ true };
 
