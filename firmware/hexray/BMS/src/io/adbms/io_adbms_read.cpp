@@ -21,11 +21,11 @@ constexpr float   ITMP_LSB_C    = 0.02f;
 constexpr float   ITMP_OFFSET_C = -73.0f;
 constexpr int16_t ADC_DEFAULT   = INT16_MIN;
 
-constexpr std::array<uint16_t, 5> RDCV{ io::adbms::RDCVA, io::adbms::RDCVB, io::adbms::RDCVC, io::adbms::RDCVD,
-                                        io::adbms::RDCVE };
-constexpr std::array<uint16_t, 5> RDSV{ io::adbms::RDSVA, io::adbms::RDSVB, io::adbms::RDSVC, io::adbms::RDSVD,
-                                        io::adbms::RDSVE };
-constexpr std::array<uint16_t, 3> RDAUX{ io::adbms::RDAUXA, io::adbms::RDAUXB, io::adbms::RDAUXC };
+constexpr std::array<uint16_t, 5> RDCV{ { io::adbms::RDCVA, io::adbms::RDCVB, io::adbms::RDCVC, io::adbms::RDCVD,
+                                          io::adbms::RDCVE } };
+constexpr std::array<uint16_t, 5> RDSV{ { io::adbms::RDSVA, io::adbms::RDSVB, io::adbms::RDSVC, io::adbms::RDSVD,
+                                          io::adbms::RDSVE } };
+constexpr std::array<uint16_t, 3> RDAUX{ { io::adbms::RDAUXA, io::adbms::RDAUXB, io::adbms::RDAUXC } };
 
 constexpr size_t CELLS_PER_GROUP = io::adbms::REG_GROUP_SIZE / sizeof(int16_t);
 constexpr size_t GPIOS_PER_GROUP = io::adbms::REG_GROUP_SIZE / sizeof(int16_t);
@@ -182,7 +182,7 @@ result<void> cAdc(const bool redundant, app::pack::VoltageBuffer &voltage_buffer
     return {};
 }
 
-result<void> sAdc(PackCells<result<float>> &owc_voltages, )
+result<void> sAdc(PackCells<result<float>> &owc_voltages)
 {
     std::array<Segments<result<RegGroup>>, RDSV.size()> regs;
 
@@ -346,6 +346,7 @@ result<void> xAdcSupply(app::pack::SupplyBuffer &supply_buffer) {
     }
 
     supply_buffer.updated_ms = io::time::getCurrentMs();
+    return {};
 }
 
 result<void> flags(app::pack::DiagnosticBuffer &diag_buffer )

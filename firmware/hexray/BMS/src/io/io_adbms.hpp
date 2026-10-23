@@ -7,6 +7,15 @@
 #include <cstdint>
 #include <cstring>
 
+// Forward declared since app_pack.hpp includes this header
+namespace app::pack
+{
+struct VoltageBuffer;
+struct TemperatureBuffer;
+struct SupplyBuffer;
+struct DiagnosticBuffer;
+} // namespace app::pack
+
 namespace io::adbms
 {
 
@@ -186,16 +195,14 @@ namespace write
 
 namespace read
 {
-    [[nodiscard]] result<void> configReg(Segments<CFGA> &config_a, Segments<CFGB> &config_b);
-    [[nodiscard]] result<void> pwmReg(Segments<PWMA> &pwm_a, Segments<PWMB> &pwm_b);
-    [[nodiscard]] result<void> cAdc(bool redundant, app::pack::VoltStats &stats);
-    [[nodiscard]] result<void> sAdc(PackCells<result<float>> &voltages);
-    [[nodiscard]] result<void> xAdc(
-        ThermistorMux                 mux,
-        app::pack::TemperatureBuffer &temp_buffer,
-        app::pack::SupplyBuffer      &supply_buffer,
-        PackTherms<result<float>>    &voltages);
-    [[nodiscard]] result<void> flags(app::pack::ADBMS6830Diag &diag);
+    [[nodiscard]] result<void> configReg(Segments<result<CFGA>> &config_a, Segments<result<CFGB>> &config_b);
+    [[nodiscard]] result<void> pwmReg(Segments<result<PWMA>> &pwm_a, Segments<result<PWMB>> &pwm_b);
+    [[nodiscard]] result<void> cAdc(bool redundant, app::pack::VoltageBuffer &voltage_buffer);
+    [[nodiscard]] result<void> sAdc(PackCells<result<float>> &owc_voltages);
+    [[nodiscard]] result<void>
+        xAdcTherm(ThermistorMux mux, app::pack::TemperatureBuffer &temp_buffer, PackTherms<result<float>> &voltages);
+    [[nodiscard]] result<void> xAdcSupply(app::pack::SupplyBuffer &supply_buffer);
+    [[nodiscard]] result<void> flags(app::pack::DiagnosticBuffer &diag_buffer);
 } // namespace read
 
 namespace command

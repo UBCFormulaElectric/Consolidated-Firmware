@@ -96,13 +96,4 @@ namespace sequence
     void tick();
 } // namespace sequence
 
-namespace broadcast
-{
-    void cellVoltages(const VoltStats &stats);
-    void cellTemps(const TempStats &stats);
-    void cellOpenWire(const OpenWireCheckBuffer &owc);
-    void adbmsFlags(const ADBMS6830Diag &diag);
-    void balancing(const io::adbms::PackCells<uint8_t> &duty);
-} // namespace broadcast
-
 } // namespace app::pack

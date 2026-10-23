@@ -111,15 +111,15 @@ BroadcastBuffer<bool, NUM_SEGMENTS, io::can_tx::BMS_SegmentSupplyOk_sendAperiodi
 
 namespace app::pack::broadcast
 {
-void cellVoltages(const VoltStats &stats)
+void cellVoltages(const VoltageBuffer &stats)
 {
     for (uint8_t seg = 0; seg < NUM_SEGMENTS; seg++)
     {
         for (uint8_t cell = 0; cell < CELLS_PER_SEGMENT; cell++)
         {
-            const bool valid = stats.valid[seg][cell];
+            const bool valid = stats.voltages[seg][cell].has_value();
 
-            cell_voltage_setters[seg][cell] = valid ? stats.voltages[seg][cell] : INVALID_VOLTAGE;
+            cell_voltage_setters[seg][cell] = valid ? *stats.voltages[seg][cell] : INVALID_VOLTAGE;
             cell_voltage_valid_buffer[seg * CELLS_PER_SEGMENT + cell] = valid;
         }
     }
@@ -135,15 +135,15 @@ void cellVoltages(const VoltStats &stats)
     io::can_tx::BMS_CellVoltageStats_sendAperiodic();
 }
 
-void cellTemps(const TempStats &stats)
+void cellTemps(const TemperatureBuffer &stats)
 {
     for (uint8_t seg = 0; seg < NUM_SEGMENTS; seg++)
     {
         for (uint8_t therm = 0; therm < THERMISTORS_PER_SEGMENT; therm++)
         {
-            const bool valid = stats.valid[seg][therm];
+            const bool valid = stats.temperatures[seg][therm].has_value();
 
-            cell_temperature_setters[seg][therm] = valid ? stats.temperatures[seg][therm] : INVALID_TEMP;
+            cell_temperature_setters[seg][therm] = valid ? *stats.temperatures[seg][therm] : INVALID_TEMP;
             cell_temperature_valid_buffer[seg * THERMISTORS_PER_SEGMENT + therm] = valid;
         }
     }
@@ -173,7 +173,7 @@ void cellOpenWire(const OpenWireCheckBuffer &owc)
     therm_owc_ok_buffer.send();
 }
 
-void adbmsFlags(const ADBMS6830Diag &diag)
+void adbmsFlags(const DiagnosticBuffer &diag)
 {
     for (uint8_t seg = 0; seg < NUM_SEGMENTS; seg++)
     {
@@ -193,7 +193,7 @@ void adbmsFlags(const ADBMS6830Diag &diag)
     segment_supply_ok_buffer.send();
 }
 
-void balancing(const io::adbms::Cells<uint8_t> &duty)
+void balancing(const io::adbms::PackCells<uint8_t> &duty)
 {
     for (uint8_t seg = 0; seg < NUM_SEGMENTS; seg++)
     {
