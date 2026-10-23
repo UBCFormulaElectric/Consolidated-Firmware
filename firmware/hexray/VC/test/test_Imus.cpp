@@ -23,7 +23,7 @@ TEST_F(VCImuTest, Imu1_Accel_Gyro_Test)
 
     LetTimePass(1);
 
-    app::imus::broadcast();
+    app::imu::broadcast();
 
     LetTimePass(1);
 
@@ -40,7 +40,7 @@ TEST_F(VCImuTest, Imu1_Accel_Error_Returns_Early)
 {
     io::imus::IMU1.imu_status_set(false);
     LetTimePass(1);
-    app::imus::init();
+    app::imu::init();
     LetTimePass(1);
 
     // CAN values should remain at default (0.0f)
