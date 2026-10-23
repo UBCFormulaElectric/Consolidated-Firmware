@@ -1,14 +1,15 @@
 use ctrlc;
 use tokio::time::sleep;
-use std::sync::Arc;
+use std::sync::{Arc, OnceLock};
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::time::Duration;
 use tokio::select;
-use tokio::sync::RwLock;
+use tokio::sync::{RwLock, watch};
 use tokio::sync::broadcast;
 use tokio::task::{JoinError, JoinSet};
 
 use crate::config::{CONFIG, SerialType};
+use crate::tasks::can_data::influx_util::BootState;
 use crate::tasks::telem_message::TelemetryOutgoingMessage;
 use crate::tasks::{HealthCheckError, HealthCheckSenderExt, MAX_CHANNEL_BUFFER_SIZE, Task};
 use crate::tasks::can_data::load_can_database;
@@ -30,13 +31,18 @@ use tasks::telem_message::CanPayload;
 use utils::red;
 use utils::yellow;
 
+static SHUTDOWN_SIGNAL: OnceLock<broadcast::Receiver<()>> = OnceLock::new();
+static BOOT_STATE: OnceLock<watch::Receiver<Option<BootState>>> = OnceLock::new();
+
 #[tokio::main]
 async fn main() {
     vprintln!("Verbose print enabled");
     dprintln!("Debug print enabled");
 
     // shutdown signal for threads
-    let (shutdown_tx, mut shutdown_rx) = broadcast::channel(1);
+    let (shutdown_tx, shutdown_rx) = broadcast::channel(1);
+
+    SHUTDOWN_SIGNAL.set(shutdown_rx).unwrap();
 
     // handle termination signal
     let interrupt_count = Arc::new(AtomicUsize::new(0));
@@ -57,6 +63,9 @@ async fn main() {
 
     // below are channels and objects that are used among the different tasks
 
+    let (bootstate_tx, bootstate_rx) = watch::channel::<Option<BootState>>(None);
+    BOOT_STATE.set(bootstate_rx).unwrap();
+    
     // this is equivalent to queue in old backend
     // use broadcast instead of mpsc, probably only one serial source but multiple consumers
     // TODO figure out buffer size
@@ -81,7 +90,6 @@ async fn main() {
         &mut tasks,
         Task::ApiHandler,
         run_api_handler(
-            shutdown_rx.resubscribe(),
             health_check.hc_tx.clone(),
             clients.clone(),
             can_db.clone(),
@@ -92,7 +100,6 @@ async fn main() {
         &mut tasks, 
         Task::CanDataHandler,
         run_can_data_handler(
-            shutdown_rx.resubscribe(),
             health_check.hc_tx.clone(),
             can_queue_rx,
             diag_rx,
@@ -105,20 +112,19 @@ async fn main() {
     // to reuse code below when restarting tasks
     let serial_spawner = {
         // clone twice to not move ownership of variables
-        let base_shutdown_rx = shutdown_rx.resubscribe();
         let base_hc_tx = health_check.hc_tx.clone();
         let base_can_queue_tx = can_queue_tx.clone();
         let base_diag_tx = diag_tx.clone();
         let base_can_db = can_db.clone();
 
         move |tasks: &mut JoinSet<(Task, Result<(), JoinError>)>| {
-            let shutdown_rx_clone = base_shutdown_rx.resubscribe();
             let hc_tx_clone = base_hc_tx.clone();
             let can_queue_tx_clone = base_can_queue_tx.clone();
             let diag_tx_clone = base_diag_tx.clone();
             let can_db_clone = base_can_db.clone();
             let clients_clone = clients.clone();
             let client_out_msg_rx_clone = client_out_msg_rx.resubscribe();
+            let bootstate_tx_clone = bootstate_tx.clone();
 
             match CONFIG.serial {
                 SerialType::RADIO => {
@@ -126,11 +132,11 @@ async fn main() {
                         tasks,
                         Task::SerialHandler,
                         run_serial_task(
-                            shutdown_rx_clone,
                             hc_tx_clone,
                             can_queue_tx_clone,
                             diag_tx_clone,
                             client_out_msg_rx_clone,
+                            bootstate_tx_clone,
                         ),
                     );
                 },
@@ -139,7 +145,6 @@ async fn main() {
                         tasks,
                         Task::SerialHandler,
                         run_mock_task(
-                            shutdown_rx_clone,
                             hc_tx_clone,
                             can_queue_tx_clone,
                             diag_tx_clone,
@@ -158,6 +163,7 @@ async fn main() {
     };
     serial_spawner(&mut tasks);
 
+    let mut shutdown_rx = SHUTDOWN_SIGNAL.get().unwrap().resubscribe();
     select! {
         hc_res = health_check.wait_for_health_checks() => {
             match hc_res {

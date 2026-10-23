@@ -3,6 +3,7 @@ use std::{collections::HashMap, mem, time::{Duration, SystemTime}};
 use axum::{Json, Router, extract::{Path, Query, State}, http::StatusCode, response::IntoResponse, routing::get};
 use chrono::{DateTime, FixedOffset};
 use influxdb2::FromDataPoint;
+use influxdb2_structmap::value::Value;
 use serde::{Deserialize, Serialize};
 use regex::Regex;
 use serde_json::from_str;
@@ -199,6 +200,7 @@ struct MarkerPoint {
  * Takes start and end time of search range as RFC3339 format
  * Currently implemented as simple two pair of times between car on signal
  */
+#[deprecated(note = "Use v2 signal_sessions, kept for backwards compatibility on existing data without boot_hash")]
 async fn signal_sessions(
     Path((start, end)): Path<(String, String)>,
     Query(SourceQuery { source, .. }): Query<SourceQuery>,
@@ -287,6 +289,112 @@ async fn signal_sessions(
     return (StatusCode::OK, serde_json::to_string(&time_bigram).unwrap());
 }
 
+async fn signal_sessions_hash(
+    Path((start, end)): Path<(String, String)>,
+    Query(SourceQuery { source, .. }): Query<SourceQuery>,
+    State(state): State<AppState>
+) -> impl IntoResponse {
+    vprintln!("[sessions] request start={:?} end={:?} source={:?}", start, end, source);
+
+    let (start_utc, end_utc) =
+        if let (Some(s), Some(e)) =
+        (rfc3339_to_utc_str(&start), rfc3339_to_utc_str(&end)) {
+            (s, e)
+        } else {
+            vprintln!("[sessions] BAD_REQUEST: bad date format start={:?} end={:?}", start, end);
+            return (StatusCode::BAD_REQUEST, "Bad date format, should be RFC3339 format".to_string());
+        };
+
+
+    let source_str = match source {
+        Some(s) => {
+            // `s` arrives JSON-encoded (e.g. `"Radio"` with quotes); deserialize
+            // and use the enum's lowercase Display so the Flux filter matches the
+            // tag value written by build_data_point (e.g. `radio`), not the raw
+            // quoted string.
+            match from_str::<InfluxSignalSource>(&s) {
+                Ok(parsed) => parsed.to_string(),
+                Err(_) => {
+                    error_println!("[sessions] BAD_REQUEST: bad source={:?}", s);
+                    return (StatusCode::BAD_REQUEST, "Bad source!".to_string());
+                }
+            }
+        }
+        _ => InfluxSignalSource::Radio.to_string(),
+    };
+
+    vprintln!(
+        "[sessions] querying bucket={} measurement={} range=[{}, {}] source={}",
+        &CONFIG.influxdb_bucket, &CONFIG.influxdb_measurement, start_utc, end_utc, source_str
+    );
+
+    let query = format!(
+        r#"
+            data = from(bucket: "{}")
+                |> range(start: time(v: "{start_utc}"), stop: time(v: "{end_utc}"))
+                |> filter(fn: (r) => r["_measurement"] == "{}")
+                |> filter(fn: (r) => r["signal_name"] == "DAM_Alive")
+                |> filter(fn: (r) => r["source"] == "{source_str}")
+                |> filter(fn: (r) => exists r["boot_hash"])
+                |> group(columns: ["boot_hash"])
+
+            starts = data
+                |> min(column: "_time")
+                |> keep(columns: ["boot_hash", "_time"])
+                |> rename(columns: {{_time: "start"}})
+
+            ends = data
+                |> max(column: "_time")
+                |> keep(columns: ["boot_hash", "_time"])
+                |> rename(columns: {{_time: "end"}})
+
+            join(
+                tables: {{starts: starts, ends: ends}},
+                on: ["boot_hash"],
+                method: "inner"
+            )
+                |> keep(columns: ["boot_hash", "start", "end"])
+        "#,
+        &CONFIG.influxdb_bucket,
+        &CONFIG.influxdb_measurement
+    );
+
+    let req: Result<Vec<_>, influxdb2::RequestError> = select! {
+        // query_raw: the typed query() requires _field/_value columns, which the join drops
+        val = state.influx_client.query_raw(
+            Some(influxdb2::models::Query::new(query))
+        ) => val,
+        _ = sleep(Duration::from_millis(INFLUX_QUERY_TIMEOUT_MS)) => {
+            return (StatusCode::REQUEST_TIMEOUT, "InfluxDB query timed out".to_string());
+        }
+    };
+
+    fn to_unix(v: Option<&Value>) -> Option<String> {
+        match v {
+            Some(Value::TimeRFC(t)) => Some(t.timestamp_millis().to_string()),
+            _ => None,
+        }
+    }
+
+    match req {
+        Ok(records) => {
+            let session_times: Vec<(String, String, String)> = records
+                .into_iter()
+                .filter_map(|r| {
+                    let Some(Value::String(hash)) = r.values.get("boot_hash") else { return None; };
+                    Some((hash.clone(), to_unix(r.values.get("start"))?, to_unix(r.values.get("end"))?))
+                })
+                .collect();
+            vprintln!("[sessions] returning {} session(s)", session_times.len());
+            return (StatusCode::OK, serde_json::to_string(&session_times).unwrap());
+        },
+        Err(e) => {
+            error_println!("[sessions] INTERNAL_SERVER_ERROR: influx query failed: {}", e);
+            return (StatusCode::INTERNAL_SERVER_ERROR, format!("Error occurred while fetching session timestamps: {}", e));
+        },
+    }
+}
+
 async fn signal_markers(
     Path((start, end)): Path<(String, String)>,
     Query(SourceQuery { source, .. }): Query<SourceQuery>,
@@ -344,7 +452,7 @@ async fn signal_markers(
     }
 }
 
-pub fn get_signal_router() -> Router<AppState> {
+pub fn get_signal_router_v1() -> Router<AppState> {
     return Router::new()
         .route("/signal/nodes", get(nodes))
         .route("/signal/metadata", get(metadata))
@@ -353,4 +461,9 @@ pub fn get_signal_router() -> Router<AppState> {
         .route("/signal/tiles/{signal}/{start}/{end}", get(signal_tiles))
         .route("/signal/sessions/{start}/{end}", get(signal_sessions))
         .route("/signal/markers/{start}/{end}", get(signal_markers));
+}
+
+pub fn get_signal_router_v2() -> Router<AppState> {
+    return Router::new()
+        .route("/signal/sessions/{start}/{end}", get(signal_sessions_hash));
 }

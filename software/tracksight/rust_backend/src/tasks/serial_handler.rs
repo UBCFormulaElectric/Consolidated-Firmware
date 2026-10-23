@@ -1,6 +1,6 @@
 use tokio::select;
 use tokio::io::{AsyncReadExt, AsyncWriteExt, ReadHalf, WriteHalf};
-use tokio::sync::{broadcast, mpsc};
+use tokio::sync::{broadcast, mpsc, watch};
 use tokio_serial::{SerialPortBuilderExt, SerialStream};
 use std::collections::VecDeque;
 use std::io::{Error, ErrorKind};
@@ -9,10 +9,11 @@ use std::time::{Duration, SystemTime, UNIX_EPOCH};
 const ERROR_RATE_WINDOW_SECS: usize = 60;
 
 use crate::config::CONFIG;
+use crate::tasks::can_data::influx_util::BootState;
 use crate::tasks::{HealthCheckSender, HealthCheckSenderExt, ResultExt, Task};
 use crate::tasks::telem_message::{CRC32_CALC, TelemetryOutgoingMessage};
 use crate::utils::yellow;
-use crate::{dprintln, vprintln};
+use crate::{SHUTDOWN_SIGNAL, dprintln, vprintln};
 use super::telem_message::{TelemetryIncomingMessage, CanPayload};
 
 /**
@@ -27,11 +28,11 @@ enum SerialReaderOutput {
  * Handling serial signals from radio. Main task
  */
 pub async fn run_serial_task(
-    mut shutdown_rx: broadcast::Receiver<()>,
     health_check_tx: HealthCheckSender,
     can_queue_tx: broadcast::Sender<CanPayload>,
     diag_tx: broadcast::Sender<f64>,
     client_out_msg_rx: broadcast::Receiver<TelemetryOutgoingMessage>,
+    bootstate_tx: watch::Sender<Option<BootState>>,
 ) {
     vprintln!("{}", yellow("Serial handler task started."));
 
@@ -54,12 +55,10 @@ pub async fn run_serial_task(
     // spawn blocking packet reader
     // the reader thread will allow the handler thread to be async
     let mut packet_reader = {
-        let shutdown_rx = shutdown_rx.resubscribe();
-        tokio::spawn(packet_reader_handler(shutdown_rx, serial_read, in_msg_tx))
+        tokio::spawn(packet_reader_handler(serial_read, in_msg_tx))
     };
     let packet_sender = {
-        let shutdown_rx = shutdown_rx.resubscribe();
-        tokio::spawn(packet_sender_handler(shutdown_rx, serial_write, out_msg_rx, client_out_msg_rx))
+        tokio::spawn(packet_sender_handler(serial_write, out_msg_rx, client_out_msg_rx))
     };
 
     // metrics: per-second counts rolled into a 60s window for error rate
@@ -69,11 +68,14 @@ pub async fn run_serial_task(
         VecDeque::with_capacity(ERROR_RATE_WINDOW_SECS);
     let mut diag_interval = tokio::time::interval(Duration::from_secs(1));
 
+    on_start_dam_init(&out_msg_tx, &health_check_tx).await;
+
     // no set up involved with packet sender and reader thread, send health check
     health_check_tx.send_health_check(Task::SerialHandler, true).await;
 
     // loop select check for shutdown signal
     // if shutdown signal, select block breaks loop early
+    let mut shutdown_rx = SHUTDOWN_SIGNAL.get().unwrap().resubscribe();
     loop {
         select! {
             _ = shutdown_rx.recv() => {
@@ -132,6 +134,10 @@ pub async fn run_serial_task(
                                     eprintln!("Channel has closed");
                                     break;
                                 };
+                            },
+                            TelemetryIncomingMessage::BootInfo { boot_hash } => {
+                                vprintln!("Backend ingested boot info: hash={:02x?}", boot_hash);
+                                bootstate_tx.send(Some(BootState { boot_hash: format!("{:02x?}", boot_hash) })).ok();
                             }
                         }
                     }
@@ -144,6 +150,20 @@ pub async fn run_serial_task(
     vprintln!("{}", yellow("Serial handler task ended."));
 }
 
+/**
+ * Some tasks to deal with DAM at startup
+ */
+async fn on_start_dam_init(out_msg_tx: &mpsc::Sender<TelemetryOutgoingMessage>, health_check_tx: &HealthCheckSender) {
+    out_msg_tx.send(TelemetryOutgoingMessage::NtpTrigger)
+        .await
+        .unwrap_or_fail_health_check(health_check_tx, Task::SerialHandler)
+        .await;
+    out_msg_tx.send(TelemetryOutgoingMessage::BootInfoRequest)
+        .await
+        .unwrap_or_fail_health_check(health_check_tx, Task::SerialHandler)
+        .await;
+}
+
 //
 // Serial reading stuff
 //
@@ -152,13 +172,13 @@ pub async fn run_serial_task(
  * Subhandler that manages packet reading, sends packet bytes to main task
  */
 async fn packet_reader_handler(
-    mut shutdown_flag: broadcast::Receiver<()>, 
     mut serial_read: ReadHalf<SerialStream>, 
     in_msg_tx: mpsc::Sender<SerialReaderOutput>
 ) {   
+    let mut shutdown_rx = SHUTDOWN_SIGNAL.get().unwrap().resubscribe();
     loop {
         select! {
-            _ = shutdown_flag.recv() => break,
+            _ = shutdown_rx.recv() => break,
             result = read_packet(&mut serial_read) => {
                 match result {
                     Ok(packet_bytes) =>  {
@@ -213,6 +233,10 @@ fn parse_incoming_telem_message(payload: &Vec<u8>) -> Result<TelemetryIncomingMe
             }
         },
         TelemetryIncomingMessage::NTP_BYTE => TelemetryIncomingMessage::NTP,
+        TelemetryIncomingMessage::BOOT_INFO_BYTE => {
+            let boot_hash: u32 = u32::from_le_bytes([payload[1], payload[2], payload[3], payload[4]]);
+            TelemetryIncomingMessage::BootInfo { boot_hash }
+        }
         invalid => {
             eprintln!("Invalid message type: {invalid}");
             return Err(());
@@ -281,14 +305,13 @@ async fn read_packet(serial_read: &mut ReadHalf<SerialStream>) -> Result<Vec<u8>
         ));
     }
 
-    return Ok(payload_buffer);
+    return Ok(payload_buffer.into());
 }
 
 /**
  * Subhandler that manages packet sending, handles outgoing telemetry messages from main task
  */
 async fn packet_sender_handler(
-    mut shutdown_flag: broadcast::Receiver<()>, 
     mut serial_write: WriteHalf<SerialStream>, 
     mut out_msg_rx: mpsc::Receiver<TelemetryOutgoingMessage>,
     mut client_out_msg_rx: broadcast::Receiver<TelemetryOutgoingMessage>
@@ -302,10 +325,11 @@ async fn packet_sender_handler(
             }
         }
     };
+    let mut shutdown_rx = SHUTDOWN_SIGNAL.get().unwrap().resubscribe();
     loop {
         select! {
             // TODO select! is pseudo random, so in absolute saturated worst case, one may be starved over another
-            _ = shutdown_flag.recv() => break,
+            _ = shutdown_rx.recv() => break,
             Ok(client_outgoing) = client_out_msg_rx.recv() => {
                 write_msg_to_serial(client_outgoing).await;
             },
@@ -339,6 +363,9 @@ fn generate_packet(message: TelemetryOutgoingMessage) -> Vec<u8> {
                 .as_millis() as u64)
                 .to_le_bytes();
             payload.extend_from_slice(&t2_millis);
+        },
+        TelemetryOutgoingMessage::BootInfoRequest => {
+            payload.push(TelemetryOutgoingMessage::BOOT_INFO_REQUEST_BYTE);
         }
     }
 
