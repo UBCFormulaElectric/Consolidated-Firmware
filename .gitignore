@@ -10,6 +10,7 @@
 !/.travis.yml
 !/.env
 !**/.clang-format
+!software/dimos/assets/fun/.gitkeep
 !inverter-eeprom-config/
 !.gdbinit
 !.dockerignore
