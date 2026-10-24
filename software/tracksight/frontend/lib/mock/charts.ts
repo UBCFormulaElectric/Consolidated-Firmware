@@ -21,10 +21,10 @@ export function createMockCharts(count: number, catalog: SignalMetadata[]): Widg
     return Array.from({ length: count }, (): WidgetData => {
         if (states.length === 0 || (numerical.length > 0 && Math.random() < 0.7)) {
             const signals = pick(numerical, 1 + Math.floor(Math.random() * 3));
-            return { id: "", type: "numericalGraph", data: [], signals, options: { ...CHART_OPTIONS, colorPalette: Object.fromEntries(signals.map((signal) => [signal.name, chroma.random()])) } };
+            return { id: "", name: "Chart", type: "numericalGraph", data: [], signals, options: { ...CHART_OPTIONS, colorPalette: Object.fromEntries(signals.map((signal) => [signal.name, chroma.random()])) } };
         }
 
         const signals = pick(states, 1 + Math.floor(Math.random() * 2));
-        return { id: "", type: "enumTimeline", data: [], signals, options: { ...CHART_OPTIONS, colorPalette: Object.fromEntries(signals.map((signal) => [signal.name, buildEnumPalette(signal)])) } };
+        return { id: "", name: "Chart", type: "enumTimeline", data: [], signals, options: { ...CHART_OPTIONS, colorPalette: Object.fromEntries(signals.map((signal) => [signal.name, buildEnumPalette(signal)])) } };
     });
 }

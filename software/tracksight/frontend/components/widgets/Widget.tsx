@@ -1,8 +1,8 @@
 "use client";
 
 import chroma, { Color } from "chroma-js";
-import { GripVertical } from "lucide-react";
-import { memo, ReactNode, RefObject, useCallback, useState } from "react";
+import { GripVertical, Pencil } from "lucide-react";
+import { memo, ReactNode, RefObject, useCallback, useEffect, useRef, useState } from "react";
 import { ConnectDragSource, useDrag, useDragLayer } from "react-dnd";
 
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -100,13 +100,31 @@ function SignalButton(props: { signal: SignalMetadata; signalIndex: number; widg
     );
 }
 
-function WidgetConfiguration(props: { id: string; title: string; children?: ReactNode; dragHandle: ConnectDragSource }) {
-    const { id, title, children, dragHandle } = props;
-    const { removeWidget } = useWidgetManager();
+function WidgetConfiguration(props: WidgetData & { children?: ReactNode; dragHandle: ConnectDragSource }) {
+    const { id, name, children, dragHandle } = props;
+    const { removeWidget, updateWidget } = useWidgetManager();
+
+    const nameRef = useRef<HTMLDivElement>(null);
 
     const deleteSelfWidget = useCallback(() => {
         removeWidget(id);
     }, [id, removeWidget]);
+
+    const updateWidgetName = useCallback(
+        (newName: string) => {
+            updateWidget(props, (previousWidget) => ({
+                ...previousWidget,
+                name: newName,
+            }));
+        },
+        [id, updateWidget]
+    );
+
+    useEffect(() => {
+        if (!nameRef.current || nameRef.current.textContent === name) return;
+
+        nameRef.current.textContent = name;
+    }, [name]);
 
     return (
         <div className="px-6">
@@ -119,9 +137,49 @@ function WidgetConfiguration(props: { id: string; title: string; children?: Reac
                 >
                     <GripVertical className="w-5 h-5 cursor-grab text-gray-500" />
                 </div>
-                <h3 className="truncate text-sm font-semibold" title={title}>
-                    {title}
-                </h3>
+                <div className="flex min-w-0 text-sm font-semibold hover:cursor-text items-center">
+                    <span
+                        ref={nameRef}
+                        contentEditable="plaintext-only"
+                        autoCorrect="off"
+                        role="textbox"
+                        className="col-start-1 row-start-1 min-w-0 whitespace-pre text-gray-900 empty:before:content-['Untitled_Chart'] empty:before:opacity-30 focus:outline-none"
+                        onInput={(e) => {
+                            const newName = e.currentTarget.textContent ?? "";
+
+                            if (newName === "") e.currentTarget.replaceChildren();
+
+                            if (newName === name) return;
+
+                            updateWidgetName(newName);
+                        }}
+                        onKeyDown={(e) => {
+                            if (e.key !== "Enter") return;
+
+                            e.preventDefault();
+                            e.currentTarget.blur();
+                        }}
+                    />
+                </div>
+                <button
+                    onClick={() => {
+                        nameRef.current?.focus();
+
+                        setTimeout(() => {
+                            const selection = window.getSelection();
+                            if (!selection || !nameRef.current) return;
+
+                            const range = document.createRange();
+                            range.selectNodeContents(nameRef.current);
+                            selection.removeAllRanges();
+                            selection.addRange(range);
+                        }, 0);
+                    }}
+                    className="shrink-0 rounded px-2 py-1 text-xs font-medium"
+                    title="Edit chart name"
+                >
+                    <Pencil className="w-4 h-4 text-gray-500" />
+                </button>
                 <button type="button" onClick={deleteSelfWidget} className="shrink-0 rounded px-2 py-1 text-xs font-medium text-red-700 hover:bg-red-50 focus-visible:outline-2 focus-visible:outline-red-600">
                     Remove chart
                 </button>
@@ -198,7 +256,7 @@ export const Widget = memo(function Widget(props: WidgetData & { hoveredSignal: 
 
             return (
                 <>
-                    <WidgetConfiguration id={widget.id} dragHandle={drag} title={widget.signals.map((signal) => signal.name).join(" · ") || "Numerical chart"}>
+                    <WidgetConfiguration {...widget} dragHandle={drag}>
                         {(draggedAwaySignal ? [...widget.signals, draggedAwaySignal] : widget.signals).map((signal, signalIndex) => (
                             <SignalButton key={signal.name} signal={signal} signalIndex={signalIndex} widgetId={widget.id} isHidden={signal.name === draggedAwaySignal?.name} handleRemoveSignal={handleRemoveSignal} hoverSignalName={hoveredSignal} color={widget.options.colorPalette[signal.name] ?? chroma("#ffffff")} />
                         ))}
@@ -235,7 +293,7 @@ export const Widget = memo(function Widget(props: WidgetData & { hoveredSignal: 
 
             return (
                 <>
-                    <WidgetConfiguration id={widget.id} dragHandle={drag} title={widget.signals.map((signal) => signal.name).join(" · ") || "State timeline"}>
+                    <WidgetConfiguration {...widget} dragHandle={drag}>
                         {(draggedAwaySignal ? [...widget.signals, draggedAwaySignal] : widget.signals).map((signal, signalIndex) => (
                             <SignalButton key={signal.name} signal={signal} signalIndex={signalIndex} widgetId={widget.id} isHidden={signal.name === draggedAwaySignal?.name} handleRemoveSignal={handleRemoveSignal} hoverSignalName={hoveredSignal} color={widget.options.colorPalette[signal.name]?.color ?? chroma("#ffffff")} />
                         ))}
