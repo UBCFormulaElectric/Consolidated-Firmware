@@ -5,7 +5,7 @@
 #include "app_timer.hpp"
 #include "app_tractiveSystem.hpp"
 #include "app_canAlerts.hpp"
-#include "app_segments.hpp"
+#include "app_pack.hpp"
 #include "io_irs.hpp"
 #include "io_semaphore.hpp"
 
@@ -63,8 +63,8 @@ State poll(bool precharge_for_charging)
 #else
     float threshold_voltage;
     {
-        io::unique_semaphore s{ shared_lock };
-        threshold_voltage = app::segments::shared::getPackVoltage().value() * PRECHARGE_ACC_V_THRESHOLD;
+        const io::unique_semaphore s{ app::pack::buffer_lock };
+        threshold_voltage = app::pack::voltage_buffer.pack_voltage.value() * PRECHARGE_ACC_V_THRESHOLD;
     }
 #endif
 

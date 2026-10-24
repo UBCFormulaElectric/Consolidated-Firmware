@@ -8,7 +8,7 @@
 #include "io_charger.hpp"
 #include "io_semaphore.hpp"
 #include "app_charger.hpp"
-#include "app_segments.hpp"
+#include "app_pack.hpp"
 #include "app_canUtils.hpp"
 #include "app_canRx.hpp"
 #include "app_canTx.hpp"
@@ -25,7 +25,7 @@ constexpr float I_TERMINATE_A      = 0.5f;  // A
 
 // Pack-level target commanded to the Elcon
 constexpr float PACK_VOLTAGE_MAX =
-    static_cast<float>(NUM_SEGMENTS) * static_cast<float>(CELLS_PER_SEGMENT) * CELL_V_MAX_CHARGE;
+    static_cast<float>(io::adbms::NUM_SEGMENTS) * static_cast<float>(io::adbms::CELLS_PER_SEGMENT) * CELL_V_MAX_CHARGE;
 
 constexpr float CHARGER_EFFICIENCY = 0.93f; // average DC-side efficiency of the Elcon
 constexpr float MAX_DC_CURRENT     = 12.0f; // 1C standard limit of DC input current to the pack
@@ -53,8 +53,8 @@ namespace chargeState
         const float pout = pin * CHARGER_EFFICIENCY;
         float       pack_voltage;
         {
-            const io::unique_semaphore s{ shared_lock };
-            pack_voltage = app::segments::shared::getPackVoltage().value_or(PACK_VOLTAGE_MAX);
+            const io::unique_semaphore s{ app::pack::buffer_lock };
+            pack_voltage = app::pack::voltage_buffer.pack_voltage.value_or(PACK_VOLTAGE_MAX);
         }
         float idc = pout / pack_voltage;
         return (idc > MAX_DC_CURRENT) ? MAX_DC_CURRENT : idc;
@@ -85,8 +85,8 @@ namespace chargeState
         const bool                           ir_negative_debounced = app::irs::negativeOpenedDebounced();
         float                                max_cell_v;
         {
-            const io::unique_semaphore s{ shared_lock };
-            max_cell_v = app::segments::shared::getMaxCellVoltage().value;
+            const io::unique_semaphore s{ app::pack::buffer_lock };
+            max_cell_v = app::pack::voltage_buffer.max.value;
         }
         // Cells are essentially full AND Elcon has already tapered down
         // Both conditions required (high V + high I = mid-CV-ramp, low I + low V = idle)

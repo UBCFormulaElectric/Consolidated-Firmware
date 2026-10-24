@@ -28,6 +28,7 @@ struct VoltageBuffer
     Reading                             max{};
     Reading                             min{};
     io::adbms::PackCells<result<float>> voltages{};
+    result<float>                       pack_voltage;
 };
 
 struct TemperatureBuffer
