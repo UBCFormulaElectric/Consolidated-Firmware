@@ -10,8 +10,7 @@
 // #include "app_canRx.h"
 // #include "io_shift_register.h"
 // #include "app_canUtils.h"
-//
-// Written from the rotary ISR callbacks, read from the 100Hz task.
+
 static auto              drive_mode       = app::can_utils::DriveMode::VANILLA;
 static constexpr uint8_t DRIVE_MODE_COUNT = static_cast<size_t>(app::can_utils::DriveMode::COUNT);
 
