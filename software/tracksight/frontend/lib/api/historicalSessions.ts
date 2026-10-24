@@ -71,10 +71,10 @@ function toHistoricalSession(startUtcMs: number, endUtcMs: number, timeZone: str
     };
 }
 
-// Backend returns paired session boundaries as [startMs, endMs | null] tuples,
+// Backend returns session boundaries as [bootHash, startMs, endMs | null] tuples,
 // with millisecond values encoded as strings. A null end marks the most recent
 // session that is still ongoing (no later boot event observed yet).
-type SessionBoundaryPair = [string, string | null];
+type SessionBoundaryPair = [string, string, string | null];
 
 function parseSessionPayload(payloadText: string): SessionBoundaryPair[] {
     const parsed = JSON.parse(payloadText) as unknown;
@@ -86,7 +86,7 @@ function parseSessionPayload(payloadText: string): SessionBoundaryPair[] {
 }
 
 function pairsToSessions(pairs: SessionBoundaryPair[], timeZone: string): HistoricalSession[] {
-    return pairs.map(([startStr, endStr]) => {
+    return pairs.map(([, startStr, endStr]) => {
         const startUtcMs = Number(startStr);
         // An ongoing session (null end) runs up to "now" so it stays selectable.
         const endUtcMs = endStr !== null ? Number(endStr) : Date.now();
@@ -112,7 +112,7 @@ function buildMockSessionPairs(startUtcMs: number, endUtcMs: number): SessionBou
         bootMs.push(dayStart + 15 * 60 * 60 * 1000); // 15:00 UTC
     }
 
-    return bootMs.filter((ms) => ms >= startUtcMs && ms < endUtcMs).map((ms, i, all) => [String(ms), i < all.length - 1 ? String(ms + 3 * 60 * 60 * 1000) : null] as SessionBoundaryPair);
+    return bootMs.filter((ms) => ms >= startUtcMs && ms < endUtcMs).map((ms, i, all) => [String(i), String(ms), i < all.length - 1 ? String(ms + 3 * 60 * 60 * 1000) : null] as SessionBoundaryPair);
 }
 
 export async function fetchHistoricalSessionsForRange(startUtcMs: number, endUtcMs: number, source: HistoricalSignalSource, timeZone: string): Promise<HistoricalSession[]> {
