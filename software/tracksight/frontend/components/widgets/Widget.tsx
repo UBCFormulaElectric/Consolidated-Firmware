@@ -1,7 +1,7 @@
 "use client";
 
 import chroma, { Color } from "chroma-js";
-import { GripVertical, Pencil } from "lucide-react";
+import { ChevronDown, GripVertical, Pencil } from "lucide-react";
 import { memo, ReactNode, RefObject, useCallback, useEffect, useRef, useState } from "react";
 import { ConnectDragSource, useDrag, useDragLayer } from "react-dnd";
 
@@ -100,8 +100,62 @@ function SignalButton(props: { signal: SignalMetadata; signalIndex: number; widg
     );
 }
 
-function WidgetConfiguration(props: WidgetData & { children?: ReactNode; dragHandle: ConnectDragSource }) {
-    const { id, name, children, dragHandle } = props;
+function CollapseToggle(props: { isCollapsed: boolean; onToggle: () => void; title: string; children?: ReactNode }) {
+    const { isCollapsed, onToggle, title, children } = props;
+
+    return (
+        <button type="button" onClick={onToggle} className="flex shrink-0 items-center gap-1 rounded text-xs font-medium text-gray-500 transition-colors hover:cursor-pointer hover:text-gray-900 focus-visible:outline-2 focus-visible:outline-blue-600" title={title} aria-expanded={!isCollapsed}>
+            <ChevronDown className={`size-4 shrink-0 transition-transform duration-200 ${isCollapsed ? "-rotate-90" : ""}`} strokeWidth={2.25} />
+            {children}
+        </button>
+    );
+}
+
+function Collapsible(props: { isOpen: boolean; children?: ReactNode }) {
+    const { isOpen, children } = props;
+    const [isHidden, setIsHidden] = useState(!isOpen);
+    const [isExpanded, setIsExpanded] = useState(isOpen);
+    const [isSettled, setIsSettled] = useState(isOpen);
+    const previousIsOpen = useRef(isOpen);
+
+    useEffect(() => {
+        if (previousIsOpen.current === isOpen) return;
+        previousIsOpen.current = isOpen;
+
+        setIsSettled(false);
+
+        if (!isOpen) {
+            setIsExpanded(false);
+            return;
+        }
+
+        setIsHidden(false);
+
+        let frame = requestAnimationFrame(() => {
+            frame = requestAnimationFrame(() => setIsExpanded(true));
+        });
+
+        return () => cancelAnimationFrame(frame);
+    }, [isOpen]);
+
+    return (
+        <div
+            className={`${isHidden ? "hidden" : "grid"} transition-[grid-template-rows,opacity] duration-200 ease-in-out ${isExpanded ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}
+            onTransitionEnd={(e) => {
+                if (e.target !== e.currentTarget || e.propertyName !== "grid-template-rows") return;
+
+                if (!isOpen) setIsHidden(true);
+                else setIsSettled(true);
+            }}
+        >
+            <div className={`min-h-0 ${isSettled ? "" : "overflow-hidden"}`}>{children}</div>
+        </div>
+    );
+}
+
+function WidgetConfiguration(props: WidgetData & { children?: ReactNode; dragHandle: ConnectDragSource; signalCount: number; isCollapsed: boolean; onToggleCollapsed: () => void }) {
+    const { id, name, children, dragHandle, signalCount, isCollapsed, onToggleCollapsed } = props;
+    const [areSignalsCollapsed, setAreSignalsCollapsed] = useState(false);
     const { removeWidget, updateWidget } = useWidgetManager();
 
     const nameRef = useRef<HTMLDivElement>(null);
@@ -128,7 +182,8 @@ function WidgetConfiguration(props: WidgetData & { children?: ReactNode; dragHan
 
     return (
         <div className="px-6">
-            <div className="flex items-center gap-2 mb-4">
+            <div className="flex items-center gap-2">
+                <CollapseToggle isCollapsed={isCollapsed} onToggle={onToggleCollapsed} title={isCollapsed ? "Expand chart" : "Collapse chart"} />
                 <div
                     ref={(node) => {
                         dragHandle(node);
@@ -184,7 +239,16 @@ function WidgetConfiguration(props: WidgetData & { children?: ReactNode; dragHan
                     Remove chart
                 </button>
             </div>
-            <div className="flex flex-wrap items-center gap-3">{children}</div>
+            <Collapsible isOpen={!isCollapsed}>
+                <div className="pt-4">
+                    <CollapseToggle isCollapsed={areSignalsCollapsed} onToggle={() => setAreSignalsCollapsed((previous) => !previous)} title={areSignalsCollapsed ? "Show signals" : "Hide signals"}>
+                        Signals ({signalCount})
+                    </CollapseToggle>
+                </div>
+                <Collapsible isOpen={!areSignalsCollapsed}>
+                    <div className="pt-2 flex flex-wrap items-center gap-3">{children}</div>
+                </Collapsible>
+            </Collapsible>
         </div>
     );
 }
@@ -226,6 +290,8 @@ export const Widget = memo(function Widget(props: WidgetData & { hoveredSignal: 
     const { hoveredSignal, id } = props;
     const { widgets, updateWidget, moveWidgetToIndex } = useWidgetManager();
     const draggedAwaySignal = useDraggedAwaySignal(id);
+    const [isCollapsed, setIsCollapsed] = useState(false);
+    const toggleCollapsed = useCallback(() => setIsCollapsed((previous) => !previous), []);
 
     const [, drag] = useDrag(
         () => ({
@@ -256,7 +322,7 @@ export const Widget = memo(function Widget(props: WidgetData & { hoveredSignal: 
 
             return (
                 <>
-                    <WidgetConfiguration {...widget} dragHandle={drag}>
+                    <WidgetConfiguration {...widget} dragHandle={drag} signalCount={widget.signals.length} isCollapsed={isCollapsed} onToggleCollapsed={toggleCollapsed}>
                         {(draggedAwaySignal ? [...widget.signals, draggedAwaySignal] : widget.signals).map((signal, signalIndex) => (
                             <SignalButton key={signal.name} signal={signal} signalIndex={signalIndex} widgetId={widget.id} isHidden={signal.name === draggedAwaySignal?.name} handleRemoveSignal={handleRemoveSignal} hoverSignalName={hoveredSignal} color={widget.options.colorPalette[signal.name] ?? chroma("#ffffff")} />
                         ))}
@@ -274,7 +340,7 @@ export const Widget = memo(function Widget(props: WidgetData & { hoveredSignal: 
                             }
                         />
                     </WidgetConfiguration>
-                    {widget.signals.length === 0 ? <EmptyWidgetState message="Add a numerical signal to start graphing live data." /> : <NumericalCanvasChart {...widget} hoveredSignal={hoveredSignal} />}
+                    <Collapsible isOpen={!isCollapsed}>{widget.signals.length === 0 ? <EmptyWidgetState message="Add a numerical signal to start graphing live data." /> : <NumericalCanvasChart {...widget} hoveredSignal={hoveredSignal} />}</Collapsible>
                 </>
             );
         }
@@ -293,7 +359,7 @@ export const Widget = memo(function Widget(props: WidgetData & { hoveredSignal: 
 
             return (
                 <>
-                    <WidgetConfiguration {...widget} dragHandle={drag}>
+                    <WidgetConfiguration {...widget} dragHandle={drag} signalCount={widget.signals.length} isCollapsed={isCollapsed} onToggleCollapsed={toggleCollapsed}>
                         {(draggedAwaySignal ? [...widget.signals, draggedAwaySignal] : widget.signals).map((signal, signalIndex) => (
                             <SignalButton key={signal.name} signal={signal} signalIndex={signalIndex} widgetId={widget.id} isHidden={signal.name === draggedAwaySignal?.name} handleRemoveSignal={handleRemoveSignal} hoverSignalName={hoveredSignal} color={widget.options.colorPalette[signal.name]?.color ?? chroma("#ffffff")} />
                         ))}
@@ -311,7 +377,7 @@ export const Widget = memo(function Widget(props: WidgetData & { hoveredSignal: 
                             }
                         />
                     </WidgetConfiguration>
-                    {widget.signals.length === 0 ? <EmptyWidgetState message="Add an enum signal to start the timeline." /> : <EnumCanvasChart {...widget} hoveredSignal={hoveredSignal} />}
+                    <Collapsible isOpen={!isCollapsed}>{widget.signals.length === 0 ? <EmptyWidgetState message="Add an enum signal to start the timeline." /> : <EnumCanvasChart {...widget} hoveredSignal={hoveredSignal} />}</Collapsible>
                 </>
             );
         }
