@@ -3,6 +3,7 @@
 #include "shared_datatypes/vehicle_state_estimator.hpp"
 #include "shared_datatypes/wheel_set.hpp"
 #include "controllers/speed_controller.hpp"
+#include "controllers/power_limiting/power_limiting.hpp"
 #include "estimation/tire_model.hpp"
 #include <algorithm>
 #include <cmath>
@@ -90,10 +91,14 @@ app::tv::shared_datatypes::wheel_set<T> kappa_update(
     const app::tv::shared_datatypes::wheel_set<T> &omega_radps,
     const app::tv::shared_datatypes::wheel_set<T> &tire_ffb_Nm,
     const app::tv::shared_datatypes::wheel_set<T> &torque_max,
-    const app::tv::shared_datatypes::wheel_set<T> &torque_min)
+    const app::tv::shared_datatypes::wheel_set<T> &torque_min,
+    const T                                        discharge_pl,
+    const T                                        charge_pl)
 {
     // The speed controller is a PID that takes the wheel speed request and actual wheel speed and
     // outputs a torque request. The torque request is then limited by the max and min torque limits.
-    return app::tv::controllers::speed_controller::computeTorque(
+    app::tv::shared_datatypes::wheel_set<T> desired_torques = app::tv::controllers::speed_controller::computeTorque(
         motor_speed_request(kappas, v_x_mps), omega_radps, tire_ffb_Nm, torque_max, torque_min);
+
+    return app::tv::controllers::power_limiting::limitPower(omega_radps, desired_torques, discharge_pl, charge_pl);
 }

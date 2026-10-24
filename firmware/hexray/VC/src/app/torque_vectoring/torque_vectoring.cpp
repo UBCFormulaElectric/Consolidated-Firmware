@@ -133,14 +133,16 @@ extern "C" void update_matlab(
 }
 
 void kappa_update_matlab(
-    double       kappas[4],
+    const double kappas[4],
     const double v_x,
     const double omegas[4],
     const double tire_ffb[4],
     const double torque_max[4],
     const double torque_min[4],
     double       torque_request[4],
-    double       speed_request[4])
+    const double discharge_pl,
+    const double charge_pl,
+    tv_debug    *debug)
 {
     const auto to_wheel_set = [](const double w[4]) -> wheel_set<tv_real>
     {
@@ -162,19 +164,12 @@ void kappa_update_matlab(
 
     const auto [fl, fr, rl, rr] = kappa_update<tv_real>(
         to_wheel_set(kappas), static_cast<tv_real>(v_x), motor_omegas, to_wheel_set(tire_ffb), to_wheel_set(torque_max),
-        to_wheel_set(torque_min));
+        to_wheel_set(torque_min), discharge_pl, charge_pl);
     torque_request[0] = static_cast<double>(fl);
     torque_request[1] = static_cast<double>(fr);
     torque_request[2] = static_cast<double>(rl);
     torque_request[3] = static_cast<double>(rr);
-
-    // Simulink only: the power limiter needs the motor speed setpoints, which kappa_update keeps internal.
-    const auto [req_fl, req_fr, req_rl, req_rr] =
-        motor_speed_request<tv_real>(to_wheel_set(kappas), static_cast<tv_real>(v_x));
-    speed_request[0] = static_cast<double>(req_fl);
-    speed_request[1] = static_cast<double>(req_fr);
-    speed_request[2] = static_cast<double>(req_rl);
-    speed_request[3] = static_cast<double>(req_rr);
+    *debug            = tv_debug_data;
 }
 
 void estimate_matlab(
