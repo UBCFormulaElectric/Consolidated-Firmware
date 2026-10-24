@@ -84,14 +84,16 @@ namespace chargeState
         const app::charger::ElconFaultConfig fault_status          = app::charger::getFaultStatus();
         const bool                           ir_negative_debounced = app::irs::negativeOpenedDebounced();
         float                                max_cell_v;
+        bool                                 voltages_valid;
         {
             const io::semaphore::unique_semaphore s{ app::pack::buffer_lock };
-            max_cell_v = app::pack::voltage_buffer.max.value;
+            max_cell_v     = app::pack::voltage_buffer.max.value;
+            voltages_valid = app::pack::voltage_buffer.pack_voltage.has_value();
         }
         // Cells are essentially full AND Elcon has already tapered down
         // Both conditions required (high V + high I = mid-CV-ramp, low I + low V = idle)
-        const bool charging_done =
-            (max_cell_v >= CELL_V_TERMINATE) && (app::charger::getOutputCurrent() < I_TERMINATE_A);
+        const bool charging_done = voltages_valid && (max_cell_v >= CELL_V_TERMINATE) &&
+                                   (app::charger::getOutputCurrent() < I_TERMINATE_A);
         app::can_tx::BMS_ChargingDone_set(charging_done);
         app::can_tx::BMS_ChargingFaulted_set(fault_status);
 
@@ -99,6 +101,12 @@ namespace chargeState
         {
             app::charger::setChargingConfig(stop);
             app::StateMachine::set_next_state(&init_state);
+            return;
+        }
+
+        if (!voltages_valid)
+        {
+            app::charger::setChargingConfig(stop);
             return;
         }
 

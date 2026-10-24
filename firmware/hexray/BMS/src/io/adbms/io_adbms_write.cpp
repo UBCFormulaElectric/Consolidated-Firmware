@@ -18,7 +18,7 @@ result<void> pwmReg(const Segments<PWMA> &pwm_a, const Segments<PWMB> &pwm_b)
     return {};
 }
 
-result<void> clearFlags()
+result<void> clearAllFlags()
 {
     // Need to write 1s to clear flags/uvov
     Segments<RegGroup> clr_regs;
@@ -29,5 +29,17 @@ result<void> clearFlags()
     RETURN_IF_ERR_SILENT(reversible::writeRegGroup(CLRFLAG, clr_regs));
     RETURN_IF_ERR_SILENT(reversible::writeRegGroup(CLOVUV, clr_regs));
     return {};
+}
+
+result<void> clearCsFlags()
+{
+    // Bytes 0-1 (CS1FLT-CS16FLT) are set to clear
+    Segments<RegGroup> clr_regs{};
+    for (RegGroup &reg : clr_regs)
+    {
+        reg[0] = 0xFFU;
+        reg[1] = 0xFFU;
+    }
+    return reversible::writeRegGroup(CLRFLAG, clr_regs);
 }
 } // namespace io::adbms::write

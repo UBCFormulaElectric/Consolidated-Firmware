@@ -134,12 +134,14 @@ result<void> sendCmd(const hw::spi::device &port, const uint16_t cmd)
 
 result<uint32_t> poll(const hw::spi::device &port, const uint16_t cmd)
 {
-    const CmdPayload   tx_cmd{ cmd };
-    uint32_t           poll_buf; // Polling data is only valid after 2 * NUM_SEGMENTS bits
-    const result<void> status = port.transmitThenReceiveDma(
+    const CmdPayload tx_cmd{ cmd };
+    uint32_t         poll_buf; // Polling data is only valid after 2 * NUM_SEGMENTS bits
+    RETURN_IF_ERR_SILENT(port.transmitThenReceiveDma(
         { reinterpret_cast<const uint8_t *>(&tx_cmd), sizeof(CmdPayload) },
-        { reinterpret_cast<uint8_t *>(&poll_buf), sizeof(poll_buf) });
-    return status ? result<uint32_t>{ poll_buf } : std::unexpected(status.error());
+        { reinterpret_cast<uint8_t *>(&poll_buf), sizeof(poll_buf) }));
+    // Polls increment the ADBMS command counter
+    cmd_count = static_cast<uint8_t>(cmd_count % 63U + 1U);
+    return poll_buf;
 }
 
 result<void> readRegGroup(const hw::spi::device &port, const uint16_t cmd, const std::span<result<RegGroup>> rx)

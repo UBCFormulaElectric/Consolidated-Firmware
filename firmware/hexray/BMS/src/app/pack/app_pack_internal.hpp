@@ -3,8 +3,8 @@
 #include "app_pack.hpp"
 #include "io_adbms.hpp"
 
-extern const float V_FAULT_UV;
-extern const float V_FAULT_OV;
+inline constexpr float V_FAULT_UV = 2.5f;
+inline constexpr float V_FAULT_OV = 4.25f;
 
 namespace app::pack
 {

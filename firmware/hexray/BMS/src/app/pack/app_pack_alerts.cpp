@@ -12,10 +12,6 @@
 #include "io_semaphore.hpp"
 #include "io_time.hpp"
 
-// Fault thresholds
-extern const float V_FAULT_UV = 2.5f;
-extern const float V_FAULT_OV = 4.25f;
-
 namespace
 {
 using app::Timer;
@@ -213,7 +209,6 @@ namespace app::pack::alerts
 {
 void init()
 {
-    // Timers start expired on target, so stop them or the first true condition skips its debounce
     stopEntries(fault_entries);
     stopEntries(warning_entries);
     stopEntries(info_entries);

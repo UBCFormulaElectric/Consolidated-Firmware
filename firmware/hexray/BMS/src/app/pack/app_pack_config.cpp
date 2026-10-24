@@ -1,5 +1,3 @@
-#include <cmath>
-
 #include "app_pack.hpp"
 #include "app_pack_internal.hpp"
 
@@ -31,8 +29,29 @@ constexpr io::adbms::Segments<io::adbms::CFGA> createConfigA()
     return config;
 }
 
-io::adbms::Segments<io::adbms::CFGA> config_a = createConfigA();
-io::adbms::Segments<io::adbms::CFGB> config_b{};
+constexpr io::adbms::Segments<io::adbms::CFGB> createConfigB()
+{
+    const auto vuv = static_cast<uint16_t>((V_FAULT_UV - UVOV_OFFSET_V) / UVOV_LSB_V + 0.5f);
+    const auto vov = static_cast<uint16_t>((V_FAULT_OV - UVOV_OFFSET_V) / UVOV_LSB_V + 0.5f);
+
+    io::adbms::Segments<io::adbms::CFGB> config{};
+    for (io::adbms::CFGB &reg_b : config)
+    {
+        reg_b.vuv_0_7  = static_cast<uint8_t>(vuv & 0xFF);
+        reg_b.vuv_8_11 = static_cast<uint8_t>(vuv >> 8 & 0x0F);
+        reg_b.vov_0_3  = static_cast<uint8_t>(vov & 0x0F);
+        reg_b.vov_4_11 = static_cast<uint8_t>(vov >> 4 & 0xFF);
+        reg_b.dcto_0_5 = 0x00;
+        reg_b.dtrng    = 0x00;
+        reg_b.dtmen    = 0x00;
+        reg_b.dcc_1_8  = 0x00;
+        reg_b.dcc_9_16 = 0x00;
+    }
+    return config;
+}
+
+io::adbms::Segments<io::adbms::CFGA>           config_a = createConfigA();
+constexpr io::adbms::Segments<io::adbms::CFGB> config_b = createConfigB();
 io::adbms::Segments<io::adbms::PWMA> pwm_a{};
 io::adbms::Segments<io::adbms::PWMB> pwm_b{};
 } // namespace
@@ -41,24 +60,10 @@ namespace app::pack::config
 {
 result<void> setSegmentConfig(const io::adbms::ThermistorMux mux)
 {
-    const auto vuv = static_cast<uint16_t>(std::lround((V_FAULT_UV - UVOV_OFFSET_V) / UVOV_LSB_V));
-    const auto vov = static_cast<uint16_t>(std::lround((V_FAULT_OV - UVOV_OFFSET_V) / UVOV_LSB_V));
-
     for (uint8_t seg = 0; seg < io::adbms::NUM_SEGMENTS; seg++)
     {
-        config_a[seg].gpio_1_8  = 0xFF;
         config_a[seg].gpio_9_10 = 0x2 | (mux == io::adbms::ThermistorMux::THERM_8_13);
-        config_b[seg].vuv_0_7  = static_cast<uint8_t>(vuv & 0xFF);
-        config_b[seg].vuv_8_11 = static_cast<uint8_t>(vuv >> 8 & 0x0F);
-        config_b[seg].vov_0_3  = static_cast<uint8_t>(vov & 0x0F);
-        config_b[seg].vov_4_11 = static_cast<uint8_t>(vov >> 4 & 0xFF);
-        config_b[seg].dcto_0_5 = 0x00;
-        config_b[seg].dtrng = 0x00;
-        config_b[seg].dtmen = 0x00;
-        config_b[seg].dcc_1_8 = 0x00;
-        config_b[seg].dcc_9_16 = 0x00;
     }
-
     return io::adbms::write::configReg(config_a, config_b);
 }
 

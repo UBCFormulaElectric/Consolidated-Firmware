@@ -205,7 +205,8 @@ namespace write
 {
     [[nodiscard]] result<void> configReg(const Segments<CFGA> &config_a, const Segments<CFGB> &config_b);
     [[nodiscard]] result<void> pwmReg(const Segments<PWMA> &pwm_a, const Segments<PWMB> &pwm_b);
-    [[nodiscard]] result<void> clearFlags();
+    [[nodiscard]] result<void> clearAllFlags();
+    [[nodiscard]] result<void> clearCsFlags();
 } // namespace write
 
 namespace read

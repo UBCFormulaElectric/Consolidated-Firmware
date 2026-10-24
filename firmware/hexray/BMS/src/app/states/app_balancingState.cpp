@@ -3,6 +3,7 @@
 #include "app_canTx.hpp"
 #include "app_canRx.hpp"
 #include "app_pack.hpp"
+#include "io_irs.hpp"
 
 namespace app::states
 {
@@ -17,8 +18,10 @@ namespace balancingState
     static void balancingStateRunOnTick100Hz()
     {
         const bool balancing_enabled = app::can_rx::Debug_CellBalancing_Request_get();
+        const bool irs_negative_closed =
+            io::irs::negativeState() == app::can_utils::ContactorState::CONTACTOR_STATE_CLOSED;
 
-        if (!balancing_enabled)
+        if (!balancing_enabled || irs_negative_closed)
         {
             app::StateMachine::set_next_state(&app::states::init_state);
             return;
@@ -30,6 +33,7 @@ namespace balancingState
     static void balancingStateRunOnExit()
     {
         app::pack::balancing::stop();
+        app::can_rx::Debug_CellBalancing_Request_update(false);
     }
 } // namespace balancingState
 

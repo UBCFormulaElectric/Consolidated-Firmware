@@ -40,7 +40,7 @@ const app::Fsm::State measure_state{
 const app::Fsm::State balance_state{ "CONTINUOUS PRIMARY VOLTAGE MEASUREMENTS; BALANCE", balanceOnEntry, balanceOnTick,
                                      balanceOnExit };
 const app::Fsm::State diagnostic_a_state{ "CONTINUOUS PRIMARY VOLTAGE MEASUREMENTS; THERM_0_7 TEMP MEASUREMENTS; ODD CELL "
-                                            "OPEN WIRE CHECK; THERM_8_13 THERM OPEN WIRE CHECK; DIAGNOSTICS",
+                                            "OPEN WIRE CHECK; THERM_0_7 THERM OPEN WIRE CHECK; DIAGNOSTICS",
                                             diagnosticOnEntry<io::adbms::OpenWireParity::ODD, io::adbms::ThermistorMux::THERM_0_7>,
                                             diagnosticOnTick<io::adbms::OpenWireParity::ODD, io::adbms::ThermistorMux::THERM_0_7>, nullptr };
 const app::Fsm::State diagnostic_b_state{ "CONTINUOUS PRIMARY VOLTAGE MEASUREMENTS; THERM_8_13 TEMP MEASUREMENTS; EVEN "
@@ -86,6 +86,7 @@ app::Fsm fsm;
 
 result<void> measureOnEntry()
 {
+    RETURN_IF_ERR(io::adbms::command::resetCmdCount());
     RETURN_IF_ERR(io::adbms::command::startCadc(true)); // RD on
     RETURN_IF_ERR(io::adbms::command::startSadc(true, io::adbms::OpenWireParity::NONE)); // CONT on
     settle_timer.restart();
@@ -94,9 +95,11 @@ result<void> measureOnEntry()
 
 void measureOnTick()
 {
+    LOG_IF_ERR(io::adbms::command::resetCmdCount());
     LOG_IF_ERR(io::adbms::command::snap());
     const result<void> cadc = io::adbms::read::cAdc(true, voltages); // RD on
     LOG_IF_ERR(cadc);
+    LOG_IF_ERR(io::adbms::write::clearCsFlags());
     app::pack::broadcast::cellVoltages(voltages);
 
     // Cells need to recover if they were previously balancing
@@ -124,6 +127,7 @@ void measureOnTick()
 
 result<void> balanceOnEntry()
 {
+    RETURN_IF_ERR(io::adbms::command::resetCmdCount());
     io::adbms::PackCells<uint8_t> duty;
     {
         const io::semaphore::unique_semaphore s{ app::pack::buffer_lock };
@@ -140,6 +144,7 @@ result<void> balanceOnEntry()
 
 void balanceOnTick()
 {
+    LOG_IF_ERR(io::adbms::command::resetCmdCount());
     LOG_IF_ERR(io::adbms::command::snap());
     LOG_IF_ERR(io::adbms::read::cAdc(false, voltages)); // RD off
     app::pack::broadcast::cellVoltages(voltages);
@@ -159,6 +164,7 @@ void balanceOnTick()
 
 result<void> balanceOnExit()
 {
+    RETURN_IF_ERR(io::adbms::command::resetCmdCount());
     RETURN_IF_ERR(io::adbms::command::stopBalance());
     app::pack::broadcast::balancing({});
     return {};
@@ -179,6 +185,8 @@ template <io::adbms::OpenWireParity owc_parity, io::adbms::ThermistorMux therm_m
 
 template <io::adbms::OpenWireParity owc_parity, io::adbms::ThermistorMux therm_mux> void diagnosticOnTick()
 {
+    LOG_IF_ERR(io::adbms::command::resetCmdCount());
+
     auto &owc_voltages = owc_parity == io::adbms::OpenWireParity::ODD ? owc_odd_voltages : owc_even_voltages;
 
     const bool sadc_ready = io::adbms::command::pollSadc().has_value();
@@ -205,7 +213,7 @@ template <io::adbms::OpenWireParity owc_parity, io::adbms::ThermistorMux therm_m
 
     LOG_IF_ERR(io::adbms::read::flags(diag));
     app::pack::broadcast::adbmsFlags(diag);
-    LOG_IF_ERR(io::adbms::write::clearFlags());
+    LOG_IF_ERR(io::adbms::write::clearAllFlags());
     LOG_IF_ERR(io::adbms::command::unsnap());
 
     {
@@ -227,6 +235,7 @@ template <io::adbms::OpenWireParity owc_parity, io::adbms::ThermistorMux therm_m
 
 result<void> diagnosticOnExit()
 {
+    RETURN_IF_ERR(io::adbms::command::resetCmdCount());
     const app::pack::OpenWireCheckBuffer owc =
         app::pack::owc::check(owc_odd_voltages, owc_even_voltages, therm_voltages);
     app::pack::broadcast::cellOpenWire(owc);
