@@ -35,7 +35,7 @@ class DashboardFrame extends StatelessWidget {
                   KeyedSubtree(key: ValueKey(router.index), child: router.currentPage.build()),
                   if (!router.isShowing(DashboardPages.drive)) const CenterPopup(),
                   if (fun.achievement) const AchievementToast(),
-                  if (shotNode != null) FaultShot(key: ValueKey(shotNode), node: shotNode),
+                  if (shotNode != null) FaultShot(key: ValueKey(('shot', shotNode)), node: shotNode),
                 ],
               ),
             ),

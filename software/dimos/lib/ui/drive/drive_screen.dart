@@ -242,7 +242,7 @@ class _EstopBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final first = context.select<VehicleState, int?>((v) => v.firstFaultNode);
-    final name = first == null ? '' : shutdownLoop[first].name.replaceAll(' ESTOP', '');
+    final name = first == null ? '' : carShutdownLoop[first].name.replaceAll(' ESTOP', '');
     return Container(
       height: 40,
       color: DashPalette.of(context).bad,

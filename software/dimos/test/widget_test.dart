@@ -48,6 +48,14 @@ void main() {
     expect(vehicle.system, SystemState.fault);
   });
 
+  test('the ring shows every car shutdown node, plus three without CAN status', () {
+    expect(shutdownRing, hasLength(20));
+    expect(shutdownRing.map((t) => t.node).whereType<int>().toSet(),
+        {for (var i = 0; i < carShutdownLoop.length; i++) i});
+    expect(shutdownRing.where((t) => t.node == null).map((t) => t.name),
+        ['GLVMS', 'EFUSE 24V', 'AIR−']);
+  });
+
   test('no CAN data means every board reports NO DATA', () {
     final vehicle = VehicleState();
     expect(vehicle.faultedBoards.map((b) => b.fault).toSet(), {'NO DATA'});

@@ -8,8 +8,9 @@ import 'package:dimos/ui/core/shared_widgets/effects.dart';
 import 'package:dimos/ui/core/themes/dash_palette.dart';
 
 /// Node / board health: the shutdown loop drawn as a ring around the boards.
-/// The first open node flashes; nodes after it are greyed out, since they're
-/// open because of it.
+/// The first open node flashes; nodes after it in the car's loop are greyed
+/// out, since they're open because of it. Parts of the loop with no CAN status
+/// are drawn as outlines.
 class FaultsScreen extends StatelessWidget {
   const FaultsScreen({super.key});
 
@@ -23,8 +24,8 @@ class FaultsScreen extends StatelessWidget {
     final first = vehicle.firstFaultNode;
 
     final nodes = [
-      for (final (i, node) in shutdownLoop.indexed)
-        _NodeTile(index: i, node: node, firstFault: first, party: party),
+      for (final (i, tile) in shutdownRing.indexed)
+        _NodeTile(index: i, tile: tile, firstFault: first, party: party),
     ];
     final topCount = (nodes.length - 2 * _sideCount + 1) ~/ 2;
     final top = nodes.sublist(0, topCount);
@@ -105,7 +106,7 @@ class _Header extends StatelessWidget {
     final palette = DashPalette.of(context);
     final first = vehicle.firstFaultNode;
     final chips = [
-      if (first != null) (shutdownLoop[first].name, 'LOOP OPEN · FIRST'),
+      if (first != null) (carShutdownLoop[first].name, 'LOOP OPEN · FIRST'),
       for (final board in vehicle.faultedBoards) (board.board.label, board.fault!),
     ];
     final count = vehicle.faultCount;
@@ -155,26 +156,36 @@ class _Header extends StatelessWidget {
 class _NodeTile extends StatelessWidget {
   const _NodeTile({
     required this.index,
-    required this.node,
+    required this.tile,
     required this.firstFault,
     required this.party,
   });
 
+  /// Position in [shutdownRing].
   final int index;
-  final ShutdownNode node;
+  final RingTile tile;
+
+  /// Index into [carShutdownLoop].
   final int? firstFault;
   final bool party;
 
   @override
   Widget build(BuildContext context) {
     final palette = DashPalette.of(context);
-    final isFirst = index == firstFault;
-    final isDown = firstFault != null && index > firstFault!;
+    final node = tile.node;
+    final first = firstFault;
+    final isFirst = node != null && node == first;
+    final isDown = node != null && first != null && node > first;
     final foreground = isFirst
         ? (party ? Colors.black : Colors.white)
-        : isDown
+        : isDown || node == null
             ? palette.downNodeText
             : palette.foreground;
+    final source = node == null
+        ? 'NO CAN'
+        : isFirst
+            ? 'FIRST OPEN'
+            : carShutdownLoop[node].reportedBy.label;
 
     final label = Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4),
@@ -182,12 +193,12 @@ class _NodeTile extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         spacing: 1,
         children: [
-          Text(node.name,
+          Text(tile.name,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: dashText(14, weight: FontWeight.w800, color: foreground)),
           Text(
-            '${'${index + 1}'.padLeft(2, '0')} · ${isFirst ? 'FIRST OPEN' : node.reportedBy.label}',
+            '${'${index + 1}'.padLeft(2, '0')} · $source',
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: dashText(11, weight: FontWeight.w700, color: foreground),
@@ -196,8 +207,14 @@ class _NodeTile extends StatelessWidget {
       ),
     );
 
+    if (node == null) {
+      return DecoratedBox(
+        decoration: BoxDecoration(border: Border.all(color: palette.off, width: 2)),
+        child: label,
+      );
+    }
     if (isFirst && party) return Rainbow(seed: index, child: label);
-    final tile = Stack(
+    final box = Stack(
       fit: StackFit.expand,
       children: [
         ColoredBox(color: isFirst ? palette.bad : isDown ? palette.downNode : palette.cell),
@@ -205,7 +222,7 @@ class _NodeTile extends StatelessWidget {
         label,
       ],
     );
-    return isFirst ? Blink(child: tile) : tile;
+    return isFirst ? Blink(child: box) : box;
   }
 }
 

@@ -4,13 +4,15 @@
 /// (can_bus/hexray/*_enum.json).
 library;
 
-/// The boards whose vitals the dashboard watches, in `DimosSignals.board_*` order.
+/// The boards whose vitals the dashboard watches, in `DimosSignals.board_*`
+/// order, which is also the faults page's order (the design's, with CRIT in
+/// PCM's place: the PCM is part of the VC, not its own CAN node).
 enum Board {
   bms('BMS', 'ACCUMULATOR'),
   vc('VC', 'VEHICLE CONTROL'),
+  crit('CRIT', 'COCKPIT'),
   fsm('FSM', 'FRONT SENSORS'),
   rsm('RSM', 'REAR SENSORS'),
-  crit('CRIT', 'COCKPIT'),
   dam('DAM', 'DATA ACQUISITION');
 
   const Board(this.label, this.description);
@@ -19,7 +21,7 @@ enum Board {
   final String description;
 }
 
-/// One node of the shutdown loop and the board that reports its status.
+/// One node of the car's shutdown loop and the board that reports its status.
 class ShutdownNode {
   const ShutdownNode(this.name, this.reportedBy, {this.isEstop = false});
 
@@ -28,15 +30,15 @@ class ShutdownNode {
   final bool isEstop;
 }
 
-/// The shutdown loop in loop order; index i is `ShutdownNode` value i in
-/// shared_enum.json, and `DimosSignals.shutdown_node_ok[i]`.
-const List<ShutdownNode> shutdownLoop = [
+/// The shutdown loop as the car reports it, in loop order; index i is
+/// `ShutdownNode` value i in shared_enum.json, and `DimosSignals.shutdown_node_ok[i]`.
+const List<ShutdownNode> carShutdownLoop = [
   ShutdownNode('BMS OK', Board.bms),
   ShutdownNode('IMD', Board.bms),
   ShutdownNode('BSPD', Board.bms),
-  ShutdownNode('HV+ ILCK', Board.bms),
-  ShutdownNode('HV− ILCK', Board.bms),
-  ShutdownNode('MSD/EMETER', Board.vc),
+  ShutdownNode('TS+ ILCK', Board.bms),
+  ShutdownNode('TS− ILCK', Board.bms),
+  ShutdownNode('EMETER/MSD', Board.vc),
   ShutdownNode('RL ILCK', Board.rsm),
   ShutdownNode('RR ILCK', Board.vc),
   ShutdownNode('R ESTOP', Board.dam, isEstop: true),
@@ -49,7 +51,45 @@ const List<ShutdownNode> shutdownLoop = [
   ShutdownNode('TSMS', Board.vc),
 ];
 
-/// Indices into [shutdownLoop] that dashboard debug faults refer to.
+/// One tile of the faults page's shutdown ring.
+class RingTile {
+  const RingTile(this.name, int this.node);
+
+  /// A part of the loop the car has no CAN status for; always drawn neutral.
+  const RingTile.unmonitored(this.name) : node = null;
+
+  final String name;
+
+  /// Index into [carShutdownLoop] whose status this tile shows, or null.
+  final int? node;
+}
+
+/// The design's 20-tile ring, clockwise from the top left. EMETER and MSD share
+/// one CAN status; GLVMS, EFUSE 24V and AIR− have none.
+const List<RingTile> shutdownRing = [
+  RingTile.unmonitored('GLVMS'),
+  RingTile.unmonitored('EFUSE 24V'),
+  RingTile('BMS OK', 0),
+  RingTile('IMD', 1),
+  RingTile('BSPD', 2),
+  RingTile('TS+ ILCK', 3),
+  RingTile('TS− ILCK', 4),
+  RingTile('EMETER', 5),
+  RingTile('MSD', 5),
+  RingTile('RL ILCK', 6),
+  RingTile('RR ILCK', 7),
+  RingTile('R ESTOP', 8),
+  RingTile('L ESTOP', 9),
+  RingTile('COCKPIT', 10),
+  RingTile('BOTS', 11),
+  RingTile('FL ILCK', 13),
+  RingTile('FR ILCK', 12),
+  RingTile('INERTIA', 14),
+  RingTile('TSMS', 15),
+  RingTile.unmonitored('AIR−'),
+];
+
+/// Indices into [carShutdownLoop] that dashboard debug faults refer to.
 abstract final class ShutdownNodes {
   static const int bmsOk = 0;
   static const int imd = 1;
@@ -103,10 +143,10 @@ class CanSnapshot {
   final int bmsState;
   final int canLoggingRemainingErrors;
 
-  /// Index into [shutdownLoop], or null when the loop is closed.
+  /// Index into [carShutdownLoop], or null when the loop is closed.
   final int? firstFaultNode;
 
-  /// Indexed like [shutdownLoop].
+  /// Indexed like [carShutdownLoop].
   final List<bool> shutdownNodeOk;
 
   /// Since each [Board]'s vitals were last received, or null if never.

@@ -125,7 +125,7 @@ class _FaultShotState extends State<FaultShot> with SingleTickerProviderStateMix
   @override
   Widget build(BuildContext context) {
     final (file, color) = _shots[widget.node]!;
-    final name = shutdownLoop[widget.node].name;
+    final name = carShutdownLoop[widget.node].name;
     final picture = Image.asset(
       'assets/fun/screenshot-$file.png',
       fit: BoxFit.cover,

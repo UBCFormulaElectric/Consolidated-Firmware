@@ -70,7 +70,7 @@ class VehicleState extends ChangeNotifier {
 
   // ---- Faults ----
 
-  /// The first open shutdown loop node (index into [shutdownLoop]), if any.
+  /// The first open shutdown loop node (index into [carShutdownLoop]), if any.
   /// The VC's view of the loop wins; without the VC, each node's own status
   /// from the board that reports it.
   int? get firstFaultNode {
@@ -79,7 +79,7 @@ class VehicleState extends ChangeNotifier {
     if (_alive(Board.vc)) {
       fromCan = can!.firstFaultNode;
     } else if (can != null) {
-      for (final (i, node) in shutdownLoop.indexed) {
+      for (final (i, node) in carShutdownLoop.indexed) {
         if (_alive(node.reportedBy) && !can.shutdownNodeOk[i]) {
           fromCan = i;
           break;
@@ -121,7 +121,7 @@ class VehicleState extends ChangeNotifier {
   /// The loop is only open at an e-stop, so the driver just needs to release it.
   bool get estopOnly {
     final first = firstFaultNode;
-    return first != null && shutdownLoop[first].isEstop && faultedBoards.isEmpty;
+    return first != null && carShutdownLoop[first].isEstop && faultedBoards.isEmpty;
   }
 
   // ---- Debug overrides ----
@@ -141,7 +141,7 @@ class VehicleState extends ChangeNotifier {
   void injectFault() {
     const boardFaults = ['CAN TIMEOUT', 'CELL OVERTEMP', 'OVERCURRENT', 'UNDERVOLTAGE'];
     final freeBoards = boards.where((b) => b.fault == null).map((b) => b.board).toList();
-    final freeNodes = List.generate(firstFaultNode ?? shutdownLoop.length, (i) => i);
+    final freeNodes = List.generate(firstFaultNode ?? carShutdownLoop.length, (i) => i);
     if (freeBoards.isEmpty && freeNodes.isEmpty) return;
 
     _change(() {
@@ -166,7 +166,7 @@ class VehicleState extends ChangeNotifier {
 
   void pressEstop() {
     final free = [
-      for (final (i, node) in shutdownLoop.indexed)
+      for (final (i, node) in carShutdownLoop.indexed)
         if (node.isEstop && !_debugNodeFaults.containsKey(i)) i,
     ];
     if (free.isEmpty) return;

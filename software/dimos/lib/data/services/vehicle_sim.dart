@@ -36,7 +36,7 @@ class VehicleSim {
       bmsState: 0,
       canLoggingRemainingErrors: 0,
       firstFaultNode: null,
-      shutdownNodeOk: List.filled(shutdownLoop.length, true),
+      shutdownNodeOk: List.filled(carShutdownLoop.length, true),
       boardAgeMs: List.filled(Board.values.length, 0),
       boardVitalsId: [for (final board in Board.values) _vitalsIds[board]!],
     );

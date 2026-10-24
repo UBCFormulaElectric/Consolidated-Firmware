@@ -22,8 +22,8 @@ using Clock = std::chrono::steady_clock;
 
 // Same order as DIMOS_BOARD_COUNT documents.
 constexpr std::array<uint32_t, DIMOS_BOARD_COUNT> board_vitals_ids = {
-    BMS_Vitals_Signals::MSG_ID, VC_Vitals_Signals::MSG_ID,   FSM_Vitals_Signals::MSG_ID,
-    RSM_Vitals_Signals::MSG_ID, CRIT_Vitals_Signals::MSG_ID, DAM_Vitals_Signals::MSG_ID,
+    BMS_Vitals_Signals::MSG_ID, VC_Vitals_Signals::MSG_ID,  CRIT_Vitals_Signals::MSG_ID,
+    FSM_Vitals_Signals::MSG_ID, RSM_Vitals_Signals::MSG_ID, DAM_Vitals_Signals::MSG_ID,
 };
 
 std::array<std::optional<Clock::time_point>, DIMOS_BOARD_COUNT> board_last_seen{};

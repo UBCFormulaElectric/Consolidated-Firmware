@@ -12,7 +12,7 @@ extern "C" {
 #define DIMOS_SHUTDOWN_LOOP_OK 16
 
 // Boards whose `<BOARD>_Vitals` message the dashboard watches, in this order:
-// BMS, VC, FSM, RSM, CRIT, DAM.
+// BMS, VC, CRIT, FSM, RSM, DAM (the faults page's order).
 #define DIMOS_BOARD_COUNT 6
 // `board_age_ms` for a board whose vitals have never been received.
 #define DIMOS_BOARD_NEVER_SEEN UINT32_MAX
