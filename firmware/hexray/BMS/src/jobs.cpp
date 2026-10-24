@@ -31,15 +31,8 @@
 #include "io_charger.hpp"
 #include "io_fans.hpp"
 #include "io_faultLatch.hpp"
-#include "io_semaphore.hpp"
 #include "io_time.hpp"
 #include "io_irs.hpp"
-
-using io::adbms::Cells;
-using io::adbms::OpenWireSwitch;
-using io::adbms::Segments;
-using io::adbms::ThermGpios;
-using io::adbms::Therms;
 
 static void vehicle_transmit_func(const JsonCanMsg &tx_msg)
 {
