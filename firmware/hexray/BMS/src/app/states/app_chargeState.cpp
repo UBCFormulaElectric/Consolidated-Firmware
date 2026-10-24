@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <cstddef>
 #include <cstdint>
 
@@ -19,8 +20,8 @@ namespace
 {
 // Per-cell charge thresholds
 constexpr float CELL_V_TAPER_START = 4.10f; // V
-constexpr float CELL_V_TERMINATE   = 4.18f; // V
-constexpr float CELL_V_MAX_CHARGE  = 4.20f; // V
+constexpr float CELL_V_TERMINATE   = 4.17f; // V
+constexpr float CELL_V_MAX_CHARGE  = 4.19f; // V, 
 constexpr float I_TERMINATE_A      = 0.5f;  // A
 
 // Pack-level target commanded to the Elcon
@@ -131,7 +132,7 @@ namespace chargeState
         if (max_cell_v > CELL_V_TAPER_START)
         {
             const float frac = (CELL_V_MAX_CHARGE - max_cell_v) / (CELL_V_MAX_CHARGE - CELL_V_TAPER_START);
-            i_cmd            = i_cmd_max * frac;
+            i_cmd            = i_cmd_max * std::max(frac, 0.0f);
         }
         else
         {

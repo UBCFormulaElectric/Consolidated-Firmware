@@ -4,7 +4,7 @@
 #include "io_adbms.hpp"
 
 inline constexpr float V_FAULT_UV = 2.5f;
-inline constexpr float V_FAULT_OV = 4.25f;
+inline constexpr float V_FAULT_OV = 4.2f;
 
 namespace app::pack
 {
