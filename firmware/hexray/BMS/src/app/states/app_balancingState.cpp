@@ -20,11 +20,9 @@ namespace balancingState
 
     static void balancingStateRunOnTick100Hz()
     {
-        const bool ir_negative_closed =
-            (io::irs::negativeState() == app::can_utils::ContactorState::CONTACTOR_STATE_CLOSED);
         const bool balancing_enabled = app::can_rx::Debug_CellBalancing_Request_get();
 
-        if (!balancing_enabled || ir_negative_closed)
+        if (!balancing_enabled)
         {
             app::StateMachine::set_next_state(&app::states::init_state);
             return;
