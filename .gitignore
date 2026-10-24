@@ -11,6 +11,7 @@
 !/.env
 !**/.clang-format
 !software/dimos/assets/fun/.gitkeep
+!software/dimos/.fvmrc
 !inverter-eeprom-config/
 !.gdbinit
 !.dockerignore
