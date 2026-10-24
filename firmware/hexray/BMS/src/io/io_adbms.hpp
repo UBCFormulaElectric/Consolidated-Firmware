@@ -68,6 +68,14 @@ struct __attribute__((packed)) CFGA
     uint8_t mute_st : 1; // 1 = mute is active, discharging disabled
     uint8_t snap_st : 1; // 1 = snapshot is activated, result registers are frozen
     uint8_t : 2;
+
+    // mute_st and snap_st are read only, so left out of check
+    bool operator==(const CFGA &other) const
+    {
+        return cth == other.cth && ref_on == other.ref_on && flag_d == other.flag_d && owa == other.owa &&
+               owrng == other.owrng && soak_on == other.soak_on && gpio_1_8 == other.gpio_1_8 &&
+               gpio_9_10 == other.gpio_9_10 && fc == other.fc && comm_bk == other.comm_bk;
+    }
 };
 static_assert(sizeof(CFGA) == REG_GROUP_SIZE);
 
@@ -87,6 +95,8 @@ struct __attribute__((packed)) CFGB
     uint8_t dcc_1_8; // discharge cell x
 
     uint8_t dcc_9_16; // discharge cell x
+
+    bool operator==(const CFGB &) const = default;
 };
 static_assert(sizeof(CFGB) == REG_GROUP_SIZE);
 
@@ -104,6 +114,8 @@ struct __attribute__((packed)) PWMA
     uint8_t pwm10 : 4;
     uint8_t pwm11 : 4;
     uint8_t pwm12 : 4;
+
+    bool operator==(const PWMA &) const = default;
 };
 static_assert(sizeof(PWMA) == REG_GROUP_SIZE);
 
@@ -114,6 +126,8 @@ struct __attribute__((packed)) PWMB
     uint8_t  pwm15 : 4;
     uint8_t  pwm16 : 4;
     uint32_t res : 32;
+
+    bool operator==(const PWMB &) const = default;
 };
 static_assert(sizeof(PWMB) == REG_GROUP_SIZE);
 
