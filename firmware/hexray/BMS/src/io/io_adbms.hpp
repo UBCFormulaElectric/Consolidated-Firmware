@@ -230,5 +230,6 @@ namespace command
     [[nodiscard]] result<void> unsnap();
     [[nodiscard]] result<void> startBalance();
     [[nodiscard]] result<void> stopBalance();
+    [[nodiscard]] result<void> resetCmdCount();
 } // namespace command
 } // namespace io::adbms

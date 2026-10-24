@@ -52,4 +52,9 @@ result<void> stopBalance()
 {
     return reversible::sendCmd(MUTE);
 }
+
+result<void> resetCmdCount()
+{
+    return reversible::sendCmd(RSTCC);
+}
 } // namespace io::adbms::command
