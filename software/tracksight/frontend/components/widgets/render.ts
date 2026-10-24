@@ -243,12 +243,18 @@ function render_numerical(context: CanvasRenderingContext2D, width: number, char
         };
     });
 
-    let [all_series_min, all_series_max] = series_bounds.reduce(([min, max], meta) => [Math.min(min, meta.min), Math.max(max, meta.max)], [Infinity, -Infinity]);
 
-    // edge case where all values are the same
-    if (all_series_min === all_series_max) {
-        all_series_min -= 1;
-        all_series_max += 1;
+    
+    let [all_series_max, all_series_min] = widgetConfig.signals.reduce(([max, min], signal) => {
+        return [
+            Math.max(max, signal.max_val ?? -Infinity),
+            Math.min(min, signal.min_val ?? Infinity),
+        ]
+    }, [-Infinity, Infinity]);
+    
+    if (hoveredSignal?.current) {
+        all_series_max = widgetConfig.signals.find((s) => s.name === hoveredSignal?.current)?.max_val ?? all_series_max;
+        all_series_min = widgetConfig.signals.find((s) => s.name === hoveredSignal?.current)?.min_val ?? all_series_min;
     }
 
     context.strokeStyle = "#333";
