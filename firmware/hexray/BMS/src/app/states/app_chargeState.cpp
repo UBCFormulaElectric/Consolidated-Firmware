@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <cstddef>
 #include <cstdint>
 
@@ -8,7 +9,7 @@
 #include "io_charger.hpp"
 #include "io_semaphore.hpp"
 #include "app_charger.hpp"
-#include "app_segments.hpp"
+#include "app_pack.hpp"
 #include "app_canUtils.hpp"
 #include "app_canRx.hpp"
 #include "app_canTx.hpp"
@@ -19,13 +20,13 @@ namespace
 {
 // Per-cell charge thresholds
 constexpr float CELL_V_TAPER_START = 4.10f; // V
-constexpr float CELL_V_TERMINATE   = 4.18f; // V
-constexpr float CELL_V_MAX_CHARGE  = 4.20f; // V
+constexpr float CELL_V_TERMINATE   = 4.17f; // V
+constexpr float CELL_V_MAX_CHARGE  = 4.19f; // V, 
 constexpr float I_TERMINATE_A      = 0.5f;  // A
 
 // Pack-level target commanded to the Elcon
 constexpr float PACK_VOLTAGE_MAX =
-    static_cast<float>(NUM_SEGMENTS) * static_cast<float>(CELLS_PER_SEGMENT) * CELL_V_MAX_CHARGE;
+    static_cast<float>(io::adbms::NUM_SEGMENTS) * static_cast<float>(io::adbms::CELLS_PER_SEGMENT) * CELL_V_MAX_CHARGE;
 
 constexpr float CHARGER_EFFICIENCY = 0.93f; // average DC-side efficiency of the Elcon
 constexpr float MAX_DC_CURRENT     = 12.0f; // 1C standard limit of DC input current to the pack
@@ -53,8 +54,8 @@ namespace chargeState
         const float pout = pin * CHARGER_EFFICIENCY;
         float       pack_voltage;
         {
-            const io::unique_semaphore s{ shared_lock };
-            pack_voltage = app::segments::shared::getPackVoltage().value_or(PACK_VOLTAGE_MAX);
+            const io::semaphore::unique_semaphore s{ app::pack::buffer_lock };
+            pack_voltage = app::pack::voltage_buffer.pack_voltage.value_or(PACK_VOLTAGE_MAX);
         }
         float idc = pout / pack_voltage;
         return (idc > MAX_DC_CURRENT) ? MAX_DC_CURRENT : idc;
@@ -84,14 +85,16 @@ namespace chargeState
         const app::charger::ElconFaultConfig fault_status          = app::charger::getFaultStatus();
         const bool                           ir_negative_debounced = app::irs::negativeOpenedDebounced();
         float                                max_cell_v;
+        bool                                 voltages_valid;
         {
-            const io::unique_semaphore s{ shared_lock };
-            max_cell_v = app::segments::shared::getMaxCellVoltage().value;
+            const io::semaphore::unique_semaphore s{ app::pack::buffer_lock };
+            max_cell_v     = app::pack::voltage_buffer.max.value;
+            voltages_valid = app::pack::voltage_buffer.pack_voltage.has_value();
         }
         // Cells are essentially full AND Elcon has already tapered down
         // Both conditions required (high V + high I = mid-CV-ramp, low I + low V = idle)
-        const bool charging_done =
-            (max_cell_v >= CELL_V_TERMINATE) && (app::charger::getOutputCurrent() < I_TERMINATE_A);
+        const bool charging_done = voltages_valid && (max_cell_v >= CELL_V_TERMINATE) &&
+                                   (app::charger::getOutputCurrent() < I_TERMINATE_A);
         app::can_tx::BMS_ChargingDone_set(charging_done);
         app::can_tx::BMS_ChargingFaulted_set(fault_status);
 
@@ -99,6 +102,12 @@ namespace chargeState
         {
             app::charger::setChargingConfig(stop);
             app::StateMachine::set_next_state(&init_state);
+            return;
+        }
+
+        if (!voltages_valid)
+        {
+            app::charger::setChargingConfig(stop);
             return;
         }
 
@@ -123,7 +132,7 @@ namespace chargeState
         if (max_cell_v > CELL_V_TAPER_START)
         {
             const float frac = (CELL_V_MAX_CHARGE - max_cell_v) / (CELL_V_MAX_CHARGE - CELL_V_TAPER_START);
-            i_cmd            = i_cmd_max * frac;
+            i_cmd            = i_cmd_max * std::max(frac, 0.0f);
         }
         else
         {
