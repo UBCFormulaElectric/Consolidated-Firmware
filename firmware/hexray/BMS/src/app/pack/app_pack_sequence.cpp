@@ -6,12 +6,10 @@
 
 namespace
 {
-constexpr uint32_t DIAG_PERIOD_MS  = 1000;
-constexpr uint32_t DIAG_TIMEOUT_MS = 200; // Adjust timing
-constexpr uint32_t SETTLE_MS       = 200; // Adjust timing
+constexpr uint32_t DIAG_PERIOD_MS = 1000;
+constexpr uint32_t SETTLE_MS      = 200; // Adjust timing
 
 app::Timer diag_timer{ DIAG_PERIOD_MS };
-app::Timer diag_timeout_timer{ DIAG_TIMEOUT_MS };
 app::Timer settle_timer{ SETTLE_MS };
 
 bool       sadc_done = false;
@@ -60,12 +58,12 @@ app::Fsm fsm;
                ┌─────────────┐
   ┌───────────►│   DIAG_A    │  read odd cell OWC, read therms 0-7
   │            └──────┬──────┘
-  │                   │ both reads done (or 200 ms timeout)
+  │                   │ both reads done
   │                   ▼
   │            ┌─────────────┐
   │            │   DIAG_B    │  read even cell OWC, read therms 8-13
   │            └──────┬──────┘
-  │                   │ both reads done (or 200 ms timeout)
+  │                   │ both reads done
   │                   │ exit: OWC check, restart diag_timer (1 s)
   │                   ▼
   │ diag_timer ┌─────────────┐  entry: restart settle_timer (200 ms)
@@ -172,7 +170,6 @@ template <io::adbms::OpenWireParity owc_parity, io::adbms::ThermistorMux therm_m
     RETURN_IF_ERR(io::adbms::command::startCadc(false));         // RD off
     RETURN_IF_ERR(io::adbms::command::startSadc(false, owc_parity)); // CONT off
     RETURN_IF_ERR(io::adbms::command::startAuxadc());
-    diag_timeout_timer.restart();
     sadc_done = false;
     xadc_done = false;
     return {};
@@ -208,34 +205,6 @@ template <io::adbms::OpenWireParity owc_parity, io::adbms::ThermistorMux therm_m
     app::pack::broadcast::adbmsFlags(diag);
     LOG_IF_ERR(io::adbms::write::clearFlags());
     LOG_IF_ERR(io::adbms::command::unsnap());
-
-    if (diag_timeout_timer.updateAndGetState() == app::Timer::TimerState::EXPIRED)
-    {
-        if (!sadc_done)
-        {
-            for (auto &seg : owc_voltages)
-                seg.fill(std::unexpected(ErrorCode::TIMEOUT));
-            sadc_done = true;
-        }
-
-        if (!xadc_done)
-        {
-            for (auto &seg : temps.temperatures)
-                seg.fill(std::unexpected(ErrorCode::TIMEOUT));
-            for (auto &seg : therm_voltages)
-                seg.fill(std::unexpected(ErrorCode::TIMEOUT));
-            supply.vmv.fill(std::unexpected(ErrorCode::TIMEOUT));
-            supply.vpv.fill(std::unexpected(ErrorCode::TIMEOUT));
-            supply.vref.fill(std::unexpected(ErrorCode::TIMEOUT));
-            supply.itmp.fill(std::unexpected(ErrorCode::TIMEOUT));
-            supply.va.fill(std::unexpected(ErrorCode::TIMEOUT));
-            supply.vd.fill(std::unexpected(ErrorCode::TIMEOUT));
-            supply.vres.fill(std::unexpected(ErrorCode::TIMEOUT));
-            app::pack::broadcast::cellTemps(temps);
-            app::pack::broadcast::adbmsSupply(supply);
-            xadc_done = true;
-        }
-    }
 
     {
         const io::unique_semaphore s{ app::pack::buffer_lock };
