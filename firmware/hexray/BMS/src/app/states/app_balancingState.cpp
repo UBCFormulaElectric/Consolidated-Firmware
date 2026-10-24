@@ -2,11 +2,7 @@
 #include "app_states.hpp"
 #include "app_canTx.hpp"
 #include "app_canRx.hpp"
-#include "app_segments.hpp"
-#include "app_irs.hpp"
 #include "app_pack.hpp"
-#include "io_irs.hpp"
-#include "io_time.hpp"
 
 namespace app::states
 {
