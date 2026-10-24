@@ -6,9 +6,9 @@
 #include "app_canRx.hpp"
 
 // EVSE duty cycle thresholds for computing current. Values derived from SAE J1772 standard for EVSE duty cycle
-#define EVSE_DUTY_CYCLE_MIN 10.0f
-#define EVSE_DUTY_CYCLE_MID 85.0f
-#define EVSE_DUTY_CYCLE_MAX 96.0f
+constexpr float EVSE_DUTY_CYCLE_MIN = 10.0f;
+constexpr float EVSE_DUTY_CYCLE_MID = 85.0f;
+constexpr float EVSE_DUTY_CYCLE_MAX = 96.0f;
 
 namespace app::charger
 {
