@@ -1,11 +1,12 @@
 use std::{collections::{HashMap, HashSet}, f64::consts::TAU, sync::Arc, time::{Duration, Instant, SystemTime, UNIX_EPOCH}};
 
 use jsoncan_rust::can_database::{CanDatabase, CanSignalType, DecodedSignal};
-use tokio::{select, sync::broadcast, sync::RwLock};
+use tokio::{select, sync::broadcast, sync::RwLock, sync::watch};
 
 use crate::{tasks::client_api::signal_metadata::{get_all_signal_metadatas, SignalMetadata}, utils::yellow, SHUTDOWN_SIGNAL};
 use crate::{tasks::{HealthCheckSender, HealthCheckSenderExt, Task}, tasks::telem_message::CanPayload, vprintln};
 use crate::Clients;
+use crate::tasks::can_data::influx_util::BootState;
 
 /*
     Debugging/dev mock file, not used functionally
@@ -60,12 +61,17 @@ pub async fn run_mock_task(
     _diag_tx: broadcast::Sender<f64>,
     can_db: Arc<CanDatabase>,
     clients: Arc<RwLock<Clients>>,
+    bootstate_tx: watch::Sender<Option<BootState>>,
 ) {
     vprintln!("{}", yellow("Mock task started."));
     let mut i: u32 = 0;
     let mut shutdown_rx = SHUTDOWN_SIGNAL.get().unwrap().resubscribe();
 
     health_check_tx.send_health_check(Task::SerialHandler, true).await;
+
+    // fake a boot hash per run so mock data groups into sessions
+    let boot_hash = format!("mock-{}", SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_millis());
+    bootstate_tx.send(Some(BootState { boot_hash })).ok();
     
     let mut diag_interval = tokio::time::interval(tokio::time::Duration::from_secs(1));
     let can_signals = get_all_signal_metadatas(&can_db, None);

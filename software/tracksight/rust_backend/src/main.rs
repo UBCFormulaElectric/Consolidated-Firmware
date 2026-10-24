@@ -150,6 +150,7 @@ async fn main() {
                             diag_tx_clone,
                             can_db_clone,
                             clients_clone,
+                            bootstate_tx_clone,
                         ),
                     );
                 },
