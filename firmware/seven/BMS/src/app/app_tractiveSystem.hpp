@@ -3,12 +3,12 @@
 #include <cstdint>
 
 constexpr uint32_t TS_OVERCURRENT_DEBOUNCE_DURATION_MS = 100U;
-constexpr uint32_t CELLS_IN_PARALLEL                   = 4U;
+constexpr float CELLS_IN_PARALLEL                   = 4U;
 // Constants taken from cell datasheet: https://www.molicel.com/wp-content/uploads/INR18650P26A-V2-80087.pdf
-constexpr int32_t  MAX_TS_DISCHARGE_CURRENT_PER_CELL_AMPS = -35.0f; 
-constexpr int32_t  MAX_TS_CHARGE_CURRENT_PER_CELL_AMPS    = 6.0f;
-constexpr int32_t  MAX_TS_DISCHARGE_CURRENT_AMPS = MAX_TS_DISCHARGE_CURRENT_PER_CELL_AMPS * CELLS_IN_PARALLEL;
-constexpr int32_t  MAX_TS_CHARGE_CURRENT_AMPS    = MAX_TS_CHARGE_CURRENT_PER_CELL_AMPS * CELLS_IN_PARALLEL;
+constexpr float  MAX_TS_DISCHARGE_CURRENT_PER_CELL_AMPS = -35.0f; 
+constexpr float  MAX_TS_CHARGE_CURRENT_PER_CELL_AMPS    = 6.0f;
+constexpr float  MAX_TS_DISCHARGE_CURRENT_AMPS = MAX_TS_DISCHARGE_CURRENT_PER_CELL_AMPS * CELLS_IN_PARALLEL;
+constexpr float  MAX_TS_CHARGE_CURRENT_AMPS    = MAX_TS_CHARGE_CURRENT_PER_CELL_AMPS * CELLS_IN_PARALLEL;
 
 namespace app::ts
 {
