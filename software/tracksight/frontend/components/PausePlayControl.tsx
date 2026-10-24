@@ -1,6 +1,5 @@
 "use client";
 
-import { cn } from "@/lib/utils";
 import { Lock, LockOpen } from "lucide-react";
 import { createContext, ReactNode, useCallback, useContext } from "react";
 import { useLocalState } from "../lib/hooks/useLocalState";
@@ -47,20 +46,14 @@ export function DisplayControlProvider({ children, defaultViewportLocked = true,
     );
 }
 
-function ControlButton(props: { className: string; onClick: () => void; title: string; children: ReactNode }) {
-    return (
-        <button onClick={props.onClick} className={cn("size-16 p-4 rounded-full flex items-center justify-center transition-all duration-200 border-2 hover:scale-105 active:scale-95 cursor-pointer", props.className)} title={props.title}>
-            {props.children}
-        </button>
-    );
-}
-
 export function ViewportLockButton() {
     const { isViewportLocked, toggleViewportLock } = useDisplayControlContext();
 
     return (
-        <ControlButton onClick={toggleViewportLock} className={isViewportLocked ? "bg-blue-500 border-blue-600 hover:bg-blue-600 text-white" : "bg-amber-500 border-amber-600 hover:bg-amber-600 text-white"} title={isViewportLocked ? "Unlock viewport" : "Lock viewport to newest data"}>
-            {isViewportLocked ? <Lock className="w-full h-full" /> : <LockOpen className="w-full h-full" />}
-        </ControlButton>
+        <button type="button" onClick={toggleViewportLock} className="flex items-center gap-2 rounded-full border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium hover:bg-gray-50 focus-visible:outline-2 focus-visible:outline-blue-600">
+            {isViewportLocked ? <Lock className="size-4 text-blue-600" /> : <LockOpen className="size-4 text-amber-600" />}
+            <span>{isViewportLocked ? "Following live" : "Browsing history"}</span>
+            <span className="border-l border-gray-300 pl-2 text-blue-700">{isViewportLocked ? "Pause follow" : "Jump to live"}</span>
+        </button>
     );
 }
