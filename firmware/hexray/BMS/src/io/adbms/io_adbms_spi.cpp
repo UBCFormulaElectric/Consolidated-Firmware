@@ -151,9 +151,17 @@ result<void> readRegGroup(const hw::spi::device &port, const uint16_t cmd, const
     const CmdPayload        tx_cmd{ cmd };
     Segments<RxDataPayload> rx_buf;
 
-    RETURN_IF_ERR_SILENT(port.transmitThenReceiveDma(
+    const result<void> status = port.transmitThenReceiveDma(
         { reinterpret_cast<const uint8_t *>(&tx_cmd), sizeof(CmdPayload) },
-        { reinterpret_cast<uint8_t *>(rx_buf.data()), rx.size() * sizeof(RxDataPayload) }));
+        { reinterpret_cast<uint8_t *>(rx_buf.data()), rx.size() * sizeof(RxDataPayload) });
+
+    // SPI failure is written to rx data of every segment
+    if (!status)
+    {
+        for (result<RegGroup> &segment : rx)
+            segment = std::unexpected(status.error());
+        return status;
+    }
 
     // Only need to check upto span size, rest of data is ignored
     for (size_t segment = 0U; segment < rx.size(); ++segment)
