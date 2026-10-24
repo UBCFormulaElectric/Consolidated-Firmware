@@ -3,58 +3,70 @@
 #include <limits>
 
 #include "app_canRx.hpp"
+#include "app_math.hpp"
 #include "app_pack.hpp"
 #include "app_pack_internal.hpp"
 #include "io_semaphore.hpp"
 
 namespace
 {
-const io::semaphore                                        request_lock{ true };
-app::pack::Request                                         shared_request{};
-app::pack::PackChannel<app::pack::VoltStats>::Subscription voltage_sub{ "balancing_volts" };
-
 constexpr float   DISCHARGE_THRESHOLD_V = 10e-3f;
+constexpr float   FULL_DUTY_DELTA_V     = 50e-3f;
 constexpr uint8_t MAX_DUTY              = 0x0F;
 
-io::adbms::Cells<uint8_t> determineBalance(const io::adbms::Cells<float> &voltages, const app::pack::CellFlags &valid)
+uint32_t pwm_updated_ms = 0U;
+
+io::adbms::PackCells<uint8_t>
+    calculateDuty(const app::pack::BalancingBuffer &balance_buffer, const app::pack::PackCellFlags &cells_owc_ok)
 {
-    io::adbms::Cells<uint8_t> duty{};
+    io::adbms::PackCells<uint8_t> duty{};
 
-    const auto commanded_duty =
-        static_cast<uint8_t>(std::lround(app::can_rx::Debug_CellBalancing_DutyCycle_get() / 100.0f * MAX_DUTY));
-
-    if (commanded_duty == 0)
-        return duty;
-
-    float leader = std::numeric_limits<float>::max();
-    for (uint8_t seg = 0; seg < NUM_SEGMENTS; seg++)
+    // Min cell must have no open wire, invalid reading or undervoltage
+    float min_cell_v = std::numeric_limits<float>::max();
+    for (uint8_t seg = 0; seg < io::adbms::NUM_SEGMENTS; seg++)
     {
-        for (uint8_t cell = 0; cell < CELLS_PER_SEGMENT; cell++)
+        if (!cells_owc_ok[seg][0])
+            continue;
+
+        for (uint8_t cell = 0; cell < io::adbms::CELLS_PER_SEGMENT; cell++)
         {
-            if (valid[seg][cell])
-                leader = std::min(leader, voltages[seg][cell]);
+            const result<float> &volts = balance_buffer.voltages[seg][cell];
+            if (volts && cells_owc_ok[seg][cell] && *volts > V_FAULT_UV)
+                min_cell_v = std::min(min_cell_v, *volts);
         }
     }
 
-    if (leader >= std::numeric_limits<float>::max())
-        return duty;
+    // Balance down to the min cell unless overridden
+    const float target = app::can_rx::Debug_CellBalancing_MinCellVoltageOverrideEnable_get()
+                             ? app::can_rx::Debug_CellBalancing_MinCellVoltageOverride_get()
+                             : min_cell_v;
 
-    for (uint8_t seg = 0; seg < NUM_SEGMENTS; seg++)
+    for (uint8_t seg = 0; seg < io::adbms::NUM_SEGMENTS; seg++)
     {
-        if (!valid[seg].all())
+        // Cell 0 open wire turns off balancing on entire segment
+        if (!cells_owc_ok[seg][0])
             continue;
 
-        for (uint8_t cell = 0; cell < CELLS_PER_SEGMENT; cell++)
+        for (uint8_t cell = 0; cell < io::adbms::CELLS_PER_SEGMENT; cell++)
         {
-            const float volts = voltages[seg][cell];
+            const result<float> &volts = balance_buffer.voltages[seg][cell];
 
-            if (volts <= V_FAULT_UV)
+            // Invalid cell reading or cell open wire disables cell balancing
+            if (!volts || !cells_owc_ok[seg][cell])
                 continue;
 
-            if (volts - leader < DISCHARGE_THRESHOLD_V)
+            // Cell undervoltage disables balancing
+            if (*volts <= V_FAULT_UV)
                 continue;
 
-            duty[seg][cell] = commanded_duty;
+            // Threshold value met disables balancing
+            const float delta = *volts - target;
+            if (delta < DISCHARGE_THRESHOLD_V)
+                continue;
+
+            // Duty derates linearly as cell approaches thershold
+            duty[seg][cell] = static_cast<uint8_t>(
+                std::lround(app::math::linearDerating(delta, MAX_DUTY, FULL_DUTY_DELTA_V, 0.0f, INCREASE_X)));
         }
     }
     return duty;
@@ -63,37 +75,28 @@ io::adbms::Cells<uint8_t> determineBalance(const io::adbms::Cells<float> &voltag
 
 namespace app::pack::balancing
 {
+
 void init()
 {
-    voltage_channel.subscribe(voltage_sub);
-    setRequest({});
+    stop();
 }
 
 void tick()
 {
-    while (const auto stats = voltage_sub.pop(0))
-    {
-        setRequest({
-            .start_balance = true,
-            .duty          = determineBalance(stats->voltages, stats->valid),
-        });
-    }
+    const io::unique_semaphore s{ buffer_lock };
+    balance_buffer.balancing_enabled = true;
+
+    // Recompute only when data is new
+    if (balance_buffer.updated_ms == pwm_updated_ms)
+        return;
+
+    balance_buffer.pwm = calculateDuty(balance_buffer, owc_buffer.cells_owc_ok);
+    pwm_updated_ms     = balance_buffer.updated_ms;
 }
 
 void stop()
 {
-    setRequest({});
-}
-
-Request getRequest()
-{
-    const io::unique_semaphore s{ request_lock };
-    return shared_request;
-}
-
-void setRequest(const Request &r)
-{
-    const io::unique_semaphore s{ request_lock };
-    shared_request = r;
+    const io::unique_semaphore s{ buffer_lock };
+    balance_buffer = {};
 }
 } // namespace app::pack::balancing

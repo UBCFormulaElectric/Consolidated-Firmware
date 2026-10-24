@@ -8,9 +8,12 @@ namespace
 {
 constexpr uint32_t DIAG_PERIOD_MS  = 1000;
 constexpr uint32_t DIAG_TIMEOUT_MS = 200; // Adjust timing
+constexpr uint32_t SETTLE_MS       = 200; // Adjust timing
 
 app::Timer diag_timer{ DIAG_PERIOD_MS };
 app::Timer diag_timeout_timer{ DIAG_TIMEOUT_MS };
+app::Timer settle_timer{ SETTLE_MS };
+
 bool       sadc_done = false;
 bool       xadc_done = false;
 
@@ -48,33 +51,85 @@ const app::Fsm::State diagnostic_b_state{ "CONTINUOUS PRIMARY VOLTAGE MEASUREMEN
 
 app::Fsm fsm;
 
+/*
+                        ADBMS STATE MACHINE
+
+                    init
+                      │
+                      ▼
+               ┌─────────────┐
+  ┌───────────►│   DIAG_A    │  read odd cell OWC, read therms 0-7
+  │            └──────┬──────┘
+  │                   │ both reads done (or 200 ms timeout)
+  │                   ▼
+  │            ┌─────────────┐
+  │            │   DIAG_B    │  read even cell OWC, read therms 8-13
+  │            └──────┬──────┘
+  │                   │ both reads done (or 200 ms timeout)
+  │                   │ exit: OWC check, restart diag_timer (1 s)
+  │                   ▼
+  │ diag_timer ┌─────────────┐  entry: restart settle_timer (200 ms)
+  ├────────────┤   MEASURE   │  tick:  read voltages,
+  │   (1 s)    │   (RD on)   │         copy into balance_buffer once settled
+  │            └──┬───────▲──┘
+  │               │       │
+  │  balancing && │       │ !balancing
+  │  settled      │       │
+  │  (200 ms)     ▼       │
+  │            ┌──────────┴──┐  entry: load pwm, start balance
+  │            │   BALANCE   │  tick:  read voltages
+  │            │   (RD off)  │  exit:  stop balance
+  │            └──────┬──────┘
+  │                   │ diag_timer (1 s)
+  └───────────────────┘
+
+*/
+
 result<void> measureOnEntry()
 {
     RETURN_IF_ERR(io::adbms::command::startCadc(true)); // RD on
     RETURN_IF_ERR(io::adbms::command::startSadc(true, io::adbms::OpenWireParity::NONE)); // CONT on
+    settle_timer.restart();
     return {};
 }
 
 void measureOnTick()
 {
     LOG_IF_ERR(io::adbms::command::snap());
-    LOG_IF_ERR(io::adbms::read::cAdc(true, voltages)); // RD on
+    const result<void> cadc = io::adbms::read::cAdc(true, voltages); // RD on
+    LOG_IF_ERR(cadc);
     app::pack::broadcast::cellVoltages(voltages);
+
+    // Cells need to recover if they were previously balancing, and a failed read leaves the last state's voltages
+    const bool settled = cadc && settle_timer.updateAndGetState() == app::Timer::TimerState::EXPIRED;
+    bool       balancing_enabled;
     {
         const io::unique_semaphore s{ app::pack::buffer_lock };
         app::pack::voltage_buffer = voltages;
+
+        // Only settled data is used for balancing
+        if (settled)
+        {
+            app::pack::balance_buffer.updated_ms = voltages.updated_ms;
+            app::pack::balance_buffer.voltages   = voltages.voltages;
+        }
+        balancing_enabled = app::pack::balance_buffer.balancing_enabled;
     }
     LOG_IF_ERR(io::adbms::command::unsnap());
 
     if (diag_timer.updateAndGetState() == app::Timer::TimerState::EXPIRED)
         fsm.setNextState(diagnostic_a_state);
-    else if (app::pack::balancing::getRequest().start_balance)
+    else if (balancing_enabled && settled)
         fsm.setNextState(balance_state);
 }
 
 result<void> balanceOnEntry()
 {
-    const io::adbms::PackCells<uint8_t> duty = app::pack::balancing::getRequest().duty; //needs to be fixed
+    io::adbms::PackCells<uint8_t> duty;
+    {
+        const io::unique_semaphore s{ app::pack::buffer_lock };
+        duty = app::pack::balance_buffer.pwm;
+    }
     RETURN_IF_ERR(app::pack::config::setPWMConfig(duty));
     RETURN_IF_ERR(app::pack::config::checkPWMConfig());
     app::pack::broadcast::balancing(duty);
@@ -89,22 +144,24 @@ void balanceOnTick()
     LOG_IF_ERR(io::adbms::command::snap());
     LOG_IF_ERR(io::adbms::read::cAdc(false, voltages)); // RD off
     app::pack::broadcast::cellVoltages(voltages);
+    bool balancing_enabled;
     {
         const io::unique_semaphore s{ app::pack::buffer_lock };
         app::pack::voltage_buffer = voltages;
+        balancing_enabled         = app::pack::balance_buffer.balancing_enabled;
     }
     LOG_IF_ERR(io::adbms::command::unsnap());
 
     if (diag_timer.updateAndGetState() == app::Timer::TimerState::EXPIRED)
         fsm.setNextState(diagnostic_a_state);
-    else if (!app::pack::balancing::getRequest().start_balance) //needs to be fixed
+    else if (!balancing_enabled)
         fsm.setNextState(measure_state);
 }
 
 result<void> balanceOnExit()
 {
     RETURN_IF_ERR(io::adbms::command::stopBalance());
-    app::pack::broadcast::balancing({}); //needs to be fixed
+    app::pack::broadcast::balancing({});
     return {};
 }
 
