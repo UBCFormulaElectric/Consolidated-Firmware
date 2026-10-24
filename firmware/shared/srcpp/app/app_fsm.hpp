@@ -4,12 +4,6 @@
 
 namespace app
 {
-/**
- * Instance-based state machine, tick() it at whatever rate you want.
- * A failed on_entry or on_exit is retried next tick, on_tick only runs once on_entry has succeeded.
- * on_exit runs on every transition out of a state (even if on_entry never succeeded), so keep it safe to repeat.
- * Any function pointer can be nullptr.
- */
 class Fsm
 {
   public:
