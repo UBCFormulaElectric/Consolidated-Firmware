@@ -4,8 +4,12 @@ publish_to: 'none'
 version: 0.1.0
 
 environment:
-  sdk: ^3.5.4
-  flutter: ^3.27.4
+  # Pinned to Flutter 3.38.3 (Dart 3.10.x) to match the Yocto build
+  # (meta-flutter FLUTTER_SDK_TAG). Resolving pubspec.lock with a newer Flutter
+  # breaks `pub get --enforce-lockfile` there. Pub ignores upper bounds on the
+  # flutter constraint, so the Dart range is what actually enforces this.
+  sdk: ">=3.10.0 <3.11.0"
+  flutter: 3.38.3
 
 dependencies:
   flutter:

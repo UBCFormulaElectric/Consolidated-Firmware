@@ -20,9 +20,21 @@ Either way, frames go through the same generated jsoncan decoder as on the car.
 
 |              | macOS                          | Linux                                                                                   |
 | ------------ | ------------------------------ | --------------------------------------------------------------------------------------- |
-| Flutter      | `brew install --cask flutter`  | [flutter.dev install guide](https://docs.flutter.dev/get-started/install/linux/desktop) |
+| Flutter      | **3.38.3** (see below)         | **3.38.3** (see below)                                                                  |
 | Build tools  | Xcode, `brew install cmake`    | `sudo apt install clang cmake ninja-build pkg-config libgtk-3-dev`                      |
 | Rust (cargo) | [rustup.rs](https://rustup.rs) | [rustup.rs](https://rustup.rs)                                                          |
+
+Flutter is pinned to 3.38.3 in `pubspec.yaml` to match the Yocto image, which runs `pub get --enforce-lockfile`
+against that SDK. Any other version fails `pub get`; this is intentional, because resolving `pubspec.lock`
+with a newer Flutter breaks the board build. Install it from the
+[SDK archive](https://docs.flutter.dev/install/archive), or with git:
+
+```sh
+git clone https://github.com/flutter/flutter.git -b 3.38.3 ~/develop/flutter
+export PATH="$HOME/develop/flutter/bin:$PATH"
+```
+
+Change the pin only together with `FLUTTER_SDK_TAG` in the Yocto layers.
 
 Rust is needed both for the simulator and to build `cppcodegen`, the jsoncan generator. Building the app
 generates the decoder automatically.
