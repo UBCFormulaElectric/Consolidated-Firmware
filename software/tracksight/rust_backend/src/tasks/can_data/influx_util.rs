@@ -41,24 +41,28 @@ pub async fn flush_buffer(buffer: &mut Vec<DataPoint>, client: &Client) {
  * helper to build InfluxDB data point
  */
 pub fn build_data_point(boot_state: &Option<BootState>, decoded_signal: DecodedSignal, source: InfluxSignalSource) -> Result<DataPoint, DataPointError> {
-    DataPoint::builder(&CONFIG.influxdb_measurement)
+    let mut builder = DataPoint::builder(&CONFIG.influxdb_measurement)
         .field("_value", decoded_signal.value)
         .tag("signal_name", &decoded_signal.name)
         .tag("source", source.to_string())
         .tag("signal_type", format!("{:?}", decoded_signal.signal_type).to_ascii_lowercase())
-        .tag("boot_hash", boot_state.as_ref().map_or_else(|| "", |s| &s.boot_hash))
-        .timestamp(decoded_signal.timestamp.unwrap_or_default() as i64)
-        .build()
+        .timestamp(decoded_signal.timestamp.unwrap_or_default() as i64);
+    if let Some(s) = boot_state {
+        builder = builder.tag("boot_hash", &s.boot_hash);
+    }
+    builder.build()
 }
 
 pub fn build_marker_data_point(boot_state: &Option<BootState>, decoded_marker: DecodedMarker, source: InfluxSignalSource) -> Result<DataPoint, DataPointError> {
-    DataPoint::builder(&CONFIG.influxdb_measurement)
+    let mut builder = DataPoint::builder(&CONFIG.influxdb_measurement)
         .field("_value", 1.0)
         .tag("signal_name", &decoded_marker.name)
         .tag("source", source.to_string())
-        .tag("boot_hash", boot_state.as_ref().map_or_else(|| "", |s| &s.boot_hash))
-        .timestamp(decoded_marker.timestamp as i64)
-        .build()
+        .timestamp(decoded_marker.timestamp as i64);
+    if let Some(s) = boot_state {
+        builder = builder.tag("boot_hash", &s.boot_hash);
+    }
+    builder.build()
 }
 
 pub fn build_boot_state_data_point(boot_state: &BootState, source: InfluxSignalSource) -> Result<DataPoint, DataPointError> {
