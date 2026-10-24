@@ -33,13 +33,13 @@ namespace
     constexpr float mean_y_reading = 0.1f;
     constexpr float mean_z_reading = 0.97468f;
 
-    // TODO Find biases by laying IMU flat
-    constexpr float x_bias     = 0.0f;
-    constexpr float y_bias     = 0.0f;
-    constexpr float z_bias     = 0.0f;
-    constexpr float roll_bias  = 0.0f;
-    constexpr float pitch_bias = 0.0f;
-    constexpr float yaw_bias   = 0.0f;
+    // TODO: Use better setup to lay IMU flat
+    constexpr float x_bias     = 0.04f;
+    constexpr float y_bias     = 0.01f;
+    constexpr float z_bias     = -0.01f;
+    constexpr float roll_bias  = 0.63f;
+    constexpr float pitch_bias = -0.4f;
+    constexpr float yaw_bias   = -0.26f;
 
     // Bias corrected values
     constexpr float corrected_x = mean_x_reading - x_bias;
