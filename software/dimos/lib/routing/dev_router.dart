@@ -1,56 +1,59 @@
-import 'package:dimos/ui/braking/braking_screen.dart';
-import 'package:dimos/ui/debug/debug_screen.dart';
-import 'package:dimos/ui/low_voltage/lv_screen.dart';
-import 'package:dimos/ui/racing/racing_screen.dart';
-import 'package:dimos/ui/skidpad/skidpad_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
-// Make a better router which hides/reveals onkeypressed
-// Not exactly sure about design for now
+import 'package:dimos/data/input/input_service.dart';
+import 'package:dimos/routing/input_router.dart';
+import 'package:dimos/ui/drive/drive_screen.dart';
+import 'package:dimos/ui/faults/faults_screen.dart';
 
-class RouterProvider extends ChangeNotifier {
-  Widget _currentPage = LVScreen();
+class DashboardPage {
+  const DashboardPage(this.name, this.build);
 
-  Widget get currentPage => _currentPage;
-
-  void navigateTo(Widget page) {
-    _currentPage = page;
-    notifyListeners(); // Triggers UI update
-  }
+  final String name;
+  final Widget Function() build;
 }
 
-class RouterPanel extends StatelessWidget {
-  const RouterPanel({super.key});
+abstract final class DashboardPages {
+  static final drive = DashboardPage('DRIVE', () => const DriveScreen());
+  static final faults = DashboardPage('NODE / BOARD HEALTH', () => const FaultsScreen());
+}
+
+// The pages in the order the left/right buttons move through them.
+final List<DashboardPage> dashboardPages = [
+  DashboardPages.drive,
+  DashboardPages.faults,
+];
+
+/// The last stage of input routing: left/right page through [dashboardPages],
+/// wrapping around at either end. Other code jumps straight to a page with [show].
+class RouterProvider extends ChangeNotifier implements InputMiddleware {
+  int _index = 0;
+
+  int get index => _index;
+  DashboardPage get currentPage => dashboardPages[_index];
+  bool isShowing(DashboardPage page) => currentPage == page;
+
+  void next() => _goTo((_index + 1) % dashboardPages.length);
+
+  void previous() => _goTo((_index - 1) % dashboardPages.length);
+
+  void show(DashboardPage page) => _goTo(dashboardPages.indexOf(page));
 
   @override
-  Widget build(BuildContext context) {
-    return Container(
-      color: const Color.fromARGB(255, 0, 0, 0), // Background color for the router
-      child: Column(
-        children: [
-          ListTile(
-            title: Text("LV Page"),
-            onTap: () => context.read<RouterProvider>().navigateTo(LVScreen()),
-          ),
-          ListTile(
-            title: Text("Racing Page"),
-            onTap: () => context.read<RouterProvider>().navigateTo(RacingScreen()),
-          ),
-          ListTile(
-            title: Text("Skidpad Page"),
-            onTap: () => context.read<RouterProvider>().navigateTo(SkidpadScreen()),
-          ),
-          ListTile(
-            title: Text("Braking Page"),
-            onTap: () => context.read<RouterProvider>().navigateTo(BrakingScreen()),
-          ),
-          ListTile(
-            title: Text("Debug Page"),
-            onTap: () => context.read<RouterProvider>().navigateTo(DebugScreen()),
-          ),
-        ],
-      ),
-    );
+  bool handleInput(DashboardInput input) {
+    switch (input) {
+      case ButtonPressed(button: DashboardButton.left):
+        previous();
+      case ButtonPressed(button: DashboardButton.right):
+        next();
+      default:
+        return false;
+    }
+    return true;
+  }
+
+  void _goTo(int index) {
+    if (index == _index) return;
+    _index = index;
+    notifyListeners();
   }
 }

@@ -2,9 +2,22 @@
     "messages": [
         "BMS_Vitals",
         "BMS_LatchStatus",
+        "BMS_TractiveSystem",
+        "BMS_HvBatteryProperties",
+        "BMS_BMSShdnNodeStatus",
         "CRIT_Vitals",
+        "CRIT_ButtonsAndSwitches",
+        "DAM_Vitals",
+        "DAM_ShdnNodeStatus",
         "FSM_Vitals",
+        "FSM_Apps",
+        "FSM_Brake",
+        "FSM_ShdnNodeStatus",
         "RSM_Vitals",
-        "VC_Vitals"
+        "RSM_ShdnNodeStatus",
+        "VC_Vitals",
+        "VC_VehicleDynamics",
+        "VC_GlobalShdnNodeStatus",
+        "VC_ShdnNodeStatus"
     ]
 }

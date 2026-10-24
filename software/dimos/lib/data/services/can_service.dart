@@ -15,15 +15,24 @@ class CanConfig {
     required this.udpPort,
   });
 
-  /// `socketcan` (default on Linux) or `udp` (default elsewhere).
+  /// `socketcan` (default on Linux), `udp` (default on macOS), or `sim` (default
+  /// on Windows, where libdimos_jsoncan isn't built): no CAN, VehicleSim instead.
   final String source;
   final String interfaceName;
   final int udpPort;
 
+  bool get simulated => source == 'sim';
+
   factory CanConfig.fromEnvironment() {
     const source = String.fromEnvironment('DIMOS_CAN_SOURCE');
     return CanConfig(
-      source: source.isNotEmpty ? source : (Platform.isLinux ? 'socketcan' : 'udp'),
+      source: source.isNotEmpty
+          ? source
+          : Platform.isLinux
+              ? 'socketcan'
+              : Platform.isWindows
+                  ? 'sim'
+                  : 'udp',
       interfaceName:
           const String.fromEnvironment('DIMOS_CAN_INTERFACE', defaultValue: 'can0'),
       udpPort: const int.fromEnvironment('DIMOS_CAN_UDP_PORT', defaultValue: 5005),

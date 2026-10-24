@@ -24,3 +24,5 @@ flutter:
   uses-material-design: true
   assets:
     - assets/fe_logo.svg
+    # Optional fault "screenshots" (screenshot-imd/bspd/bms.png); see FaultShot.
+    - assets/fun/
