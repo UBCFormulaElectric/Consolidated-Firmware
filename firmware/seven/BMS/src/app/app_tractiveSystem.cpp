@@ -11,7 +11,7 @@ constexpr float W_TO_KW                      = 1.0e-3f;     // Conversion factor
 namespace app::ts 
 {
 // Initialize timer to check whether there is an overcurrent
-static Timer overcurrent_warning_timer{ TS_OVERCURRENT_DEBOUNCE_DURATION_MS };
+static Timer overcurrent_warning_timer{TS_OVERCURRENT_DEBOUNCE_DURATION_MS};
 
 float getVoltage()
 {
@@ -20,10 +20,11 @@ float getVoltage()
 
 float getCurrent()
 {
-
     const float low_res_current   = io::ts::getCurrentLowResolution();
     const float high_res_current  = io::ts::getCurrentHighResolution();
 
+    // Use low res measurement to determine whether the high res sensor is within 
+    // its valid ±70 A range. If it is, we use the high res measurement instead
     if (IS_IN_RANGE(-HIGH_RES_MAX_CURRENT_READING, HIGH_RES_MAX_CURRENT_READING, low_res_current))
     {
         return high_res_current;
