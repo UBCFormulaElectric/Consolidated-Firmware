@@ -1,6 +1,7 @@
 #include "app_pack.hpp"
 #include "app_pack_internal.hpp"
 
+#include <algorithm>
 #include <array>
 #include <span>
 
@@ -126,7 +127,7 @@ void cellTemps(const TemperatureBuffer &stats)
         {
             const result<float> &temp = stats.temperatures[seg][therm];
 
-            cell_temperature_setters[seg][therm] = temp.value_or(INVALID_TEMP);
+            cell_temperature_setters[seg][therm] = std::clamp(temp.value_or(INVALID_TEMP), -40.0f, 125.0f);
             cell_temperature_error_setters[seg][therm] =
                 temp ? can_utils::ErrorCode::NO_ERROR : static_cast<can_utils::ErrorCode>(temp.error());
         }
