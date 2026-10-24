@@ -4,6 +4,7 @@
 #include "app_commitInfo.hpp"
 #include "app_jsoncan.hpp"
 #include "app_switches.hpp"
+#include "app_rotary.hpp"
 #include "app_leds.hpp"
 #include "screens/app_screens.hpp"
 #include "app_heartbeatMonitors.hpp"
@@ -44,6 +45,7 @@ void jobs_run1Hz_tick()
 void jobs_run100Hz_tick()
 {
     app::switches::broadcast();
+    app::rotary::broadcast();
 
     static bool prev_telem_mark = false;
     const bool  telem_mark      = app::switches::telem_get();

@@ -11,7 +11,8 @@
 // #include "io_shift_register.h"
 // #include "app_canUtils.h"
 //
-static auto              drive_mode       = app::can_utils::DriveMode::VANILLA;
+// Written from the rotary ISR callbacks, read from the 100Hz task.
+static volatile auto     drive_mode       = app::can_utils::DriveMode::VANILLA;
 static constexpr uint8_t DRIVE_MODE_COUNT = static_cast<size_t>(app::can_utils::DriveMode::COUNT);
 
 static void drive_mode_ccw()
@@ -43,14 +44,15 @@ static void drive_mode_update()
             data_buffer[1] = io::seven_seg::a;
             data_buffer[2] = io::seven_seg::n;
             break;
-        case app::can_utils::DriveMode::LAUNCH:
-            data_buffer[0] = io::seven_seg::l;
-            data_buffer[1] = io::seven_seg::a;
-            data_buffer[2] = io::seven_seg::u;
+        case app::can_utils::DriveMode::ACCELERATION:
+            data_buffer[0] = io::seven_seg::a;
+            data_buffer[1] = io::seven_seg::c;
+            data_buffer[2] = io::seven_seg::c;
             break;
-        case app::can_utils::DriveMode::TV:
+        case app::can_utils::DriveMode::TRACK:
             data_buffer[0] = io::seven_seg::t;
-            data_buffer[1] = io::seven_seg::v;
+            data_buffer[1] = io::seven_seg::r;
+            data_buffer[2] = io::seven_seg::c;
             break;
         case app::can_utils::DriveMode::COUNT:
         default:
@@ -58,6 +60,11 @@ static void drive_mode_update()
     }
 
     LOG_IF_ERR(io::seven_seg::write(data_buffer));
+}
+
+app::can_utils::DriveMode app::screens::drive_mode_get()
+{
+    return drive_mode;
 }
 
 constexpr app::screens::Screen app::screens::drive_modes_screen = { .ccw_callback = drive_mode_ccw,
