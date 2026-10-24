@@ -558,6 +558,27 @@ export default function render(context: CanvasRenderingContext2D, width: number,
     }
     context.stroke();
 
+    const SUBTICKS_PER_TICK = 4;
+    const numGridLines = Math.round((lastTick - firstTick) / tickSpacing) * SUBTICKS_PER_TICK * SUBTICKS_PER_TICK;
+
+    for (let i = 0; i <= numGridLines; i++) {
+        const x = timeToX(firstTick + (i * tickSpacing) / (SUBTICKS_PER_TICK * SUBTICKS_PER_TICK));
+        if (x < CHART_PADDING.left || x > width - CHART_PADDING.right) continue;
+
+        if (i % (SUBTICKS_PER_TICK * SUBTICKS_PER_TICK) === 0) {
+            context.lineWidth = 1;
+        } else if (i % SUBTICKS_PER_TICK === 0) {
+            context.lineWidth = 0.5;
+        } else {
+            context.lineWidth = 0.25;
+        }
+
+        context.beginPath();
+        context.moveTo(x, CHART_PADDING.top);
+        context.lineTo(x, height - CHART_PADDING.bottom);
+        context.stroke();
+    }
+
     for (let tick = firstTick; tick <= lastTick; tick += tickSpacing) {
         const x = timeToX(tick);
         if (x < CHART_PADDING.left - 10 || x > width - CHART_PADDING.right + 10) continue;
