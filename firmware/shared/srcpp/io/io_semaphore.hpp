@@ -8,7 +8,7 @@
 #include <FreeRTOS.h>
 #endif
 
-namespace io
+namespace io::semaphore
 {
 class Semaphore
 {
@@ -47,4 +47,4 @@ class unique_semaphore
     }
     ~unique_semaphore() { _sem.give(); }
 };
-} // namespace io
+} // namespace io::semaphore

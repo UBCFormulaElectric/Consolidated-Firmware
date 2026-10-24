@@ -28,7 +28,7 @@ struct VoltageBuffer
     Reading                             max{};
     Reading                             min{};
     io::adbms::PackCells<result<float>> voltages{};
-    result<float>                       pack_voltage;
+    result<float>                       pack_voltage = std::unexpected(ErrorCode::STALE_VALUE);
 };
 
 struct TemperatureBuffer
@@ -83,7 +83,7 @@ inline OpenWireCheckBuffer owc_buffer{};
 inline SupplyBuffer        supply_buffer{};
 inline DiagnosticBuffer    diag_buffer{};
 inline BalancingBuffer     balance_buffer{};
-inline const io::Semaphore buffer_lock{ true };
+inline const io::semaphore::Semaphore buffer_lock{ true };
 
 namespace alerts
 {

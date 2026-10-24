@@ -151,27 +151,28 @@ struct __attribute__((packed)) STATC
 {
     uint16_t csflt;
 
+    uint8_t ct_6_10 : 5;
     uint8_t : 3;
-    uint16_t ct : 11;
-    uint8_t  cts : 2;
+    uint8_t cts : 2;
+    uint8_t ct_0_5 : 6;
 
-    uint8_t va_ov : 1;
-    uint8_t va_uv : 1;
-    uint8_t vd_ov : 1;
-    uint8_t vd_uv : 1;
-    uint8_t ced : 1;
-    uint8_t cmed : 1;
-    uint8_t sed : 1;
     uint8_t smed : 1;
+    uint8_t sed : 1;
+    uint8_t cmed : 1;
+    uint8_t ced : 1;
+    uint8_t vd_uv : 1;
+    uint8_t vd_ov : 1;
+    uint8_t va_uv : 1;
+    uint8_t va_ov : 1;
 
-    uint8_t vdel : 1;
-    uint8_t vde : 1;
-    uint8_t comp : 1;
-    uint8_t spiflt : 1;
-    uint8_t sleep : 1;
-    uint8_t thsd : 1;
-    uint8_t tmodchk : 1;
     uint8_t oscchk : 1;
+    uint8_t tmodchk : 1;
+    uint8_t thsd : 1;
+    uint8_t sleep : 1;
+    uint8_t spiflt : 1;
+    uint8_t comp : 1;
+    uint8_t vde : 1;
+    uint8_t vdel : 1;
 };
 static_assert(sizeof(STATC) == REG_GROUP_SIZE);
 

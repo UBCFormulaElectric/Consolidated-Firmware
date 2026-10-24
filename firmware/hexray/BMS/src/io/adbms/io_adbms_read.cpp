@@ -113,14 +113,19 @@ result<void> cAdc(const bool redundant, app::pack::VoltageBuffer &voltage_buffer
     std::array<Segments<result<RegGroup>>, RDCV.size()> cell_regs;
     Segments<result<RegGroup>>                          stat_c_regs{};
 
+    // A failed read puts the error on every segment, so keep going and let each cell take it instead of its old voltage
+    result<void> status{};
     for (size_t group = 0; group < RDCV.size(); group++)
     {
-        RETURN_IF_ERR_SILENT(reversible::readRegGroup(RDCV[group], cell_regs[group]));
+        if (const result<void> res = reversible::readRegGroup(RDCV[group], cell_regs[group]); !res)
+            status = res;
     }
 
     if (redundant)
     {
-        RETURN_IF_ERR_SILENT(reversible::readRegGroup(RDSTATC, stat_c_regs));
+        if (const result<void> res = reversible::readRegGroup(RDSTATC, stat_c_regs); !res)
+            status = res;
+        
     }
 
     app::pack::Reading max{ .value = std::numeric_limits<float>::lowest() };
@@ -162,6 +167,7 @@ result<void> cAdc(const bool redundant, app::pack::VoltageBuffer &voltage_buffer
                     voltage_buffer.voltages[seg][cell] = std::unexpected(ErrorCode::MISMATCH);
                     continue;
                 }
+
             }
 
             const float voltage = static_cast<float>(raw) * ADC_LSB_V + ADC_OFFSET_V;
@@ -178,17 +184,32 @@ result<void> cAdc(const bool redundant, app::pack::VoltageBuffer &voltage_buffer
         voltage_buffer.min = min;
     }
 
+    // A single invalid cell makes the whole pack voltage invalid
+    result<float> pack_voltage = 0.0f;
+    for (const SegmentCells<result<float>> &segment : voltage_buffer.voltages)
+    {
+        for (const result<float> &voltage : segment)
+        {
+            if (pack_voltage)
+                pack_voltage = voltage ? *pack_voltage + *voltage : voltage;
+        }
+    }
+    voltage_buffer.pack_voltage = pack_voltage;
+
     voltage_buffer.updated_ms = io::time::getCurrentMs();
-    return {};
+    return status;
 }
 
 result<void> sAdc(PackCells<result<float>> &owc_voltages)
 {
     std::array<Segments<result<RegGroup>>, RDSV.size()> regs;
 
+    // A failed read puts the error on every segment, so keep going and let each cell take it
+    result<void> status{};
     for (size_t group = 0; group < RDSV.size(); group++)
     {
-        RETURN_IF_ERR_SILENT(reversible::readRegGroup(RDSV[group], regs[group]));
+        if (const result<void> res = reversible::readRegGroup(RDSV[group], regs[group]); !res)
+            status = res;
     }
 
     for (size_t seg = 0; seg < NUM_SEGMENTS; seg++)
@@ -216,16 +237,19 @@ result<void> sAdc(PackCells<result<float>> &owc_voltages)
             owc_voltages[seg][cell] = static_cast<float>(raw) * ADC_LSB_V + ADC_OFFSET_V;
         }
     }
-    return {};
+    return status;
 }
 
 result<void> xAdcTherm(const ThermistorMux mux, app::pack::TemperatureBuffer &temp_buffer, PackTherms<result<float>> &voltages)
 {
     std::array<Segments<result<RegGroup>>, RDAUX.size()> gpio_regs;
 
+    // A failed read puts the error on every segment, so keep going and let each thermistor take it
+    result<void> status{};
     for (size_t group = 0; group < RDAUX.size(); group++)
     {
-        RETURN_IF_ERR_SILENT(reversible::readRegGroup(RDAUX[group], gpio_regs[group]));
+        if (const result<void> res = reversible::readRegGroup(RDAUX[group], gpio_regs[group]); !res)
+            status = res;
     }
     
     const size_t first_therm = mux == ThermistorMux::THERM_0_7 ? 0 : THERM_GPIOS_PER_SEGMENT;
@@ -292,7 +316,7 @@ result<void> xAdcTherm(const ThermistorMux mux, app::pack::TemperatureBuffer &te
     }
 
     temp_buffer.updated_ms = io::time::getCurrentMs();
-    return {};
+    return status;
 }
 
 result<void> xAdcSupply(app::pack::SupplyBuffer &supply_buffer) {
@@ -300,9 +324,14 @@ result<void> xAdcSupply(app::pack::SupplyBuffer &supply_buffer) {
     Segments<result<RegGroup>> stat_b_regs;
     Segments<result<RegGroup>> aux_d_regs;
 
-    RETURN_IF_ERR_SILENT(reversible::readRegGroup(RDSTATA, stat_a_regs));
-    RETURN_IF_ERR_SILENT(reversible::readRegGroup(RDSTATB, stat_b_regs));
-    RETURN_IF_ERR_SILENT(reversible::readRegGroup(RDAUXD, aux_d_regs));
+    // A failed read puts the error on every segment, so keep going and let each reading take it
+    result<void> status{};
+    if (const result<void> res = reversible::readRegGroup(RDSTATA, stat_a_regs); !res)
+        status = res;
+    if (const result<void> res = reversible::readRegGroup(RDSTATB, stat_b_regs); !res)
+        status = res;
+    if (const result<void> res = reversible::readRegGroup(RDAUXD, aux_d_regs); !res)
+        status = res;
 
     for (size_t seg = 0; seg < NUM_SEGMENTS; seg++)
     {
@@ -346,7 +375,7 @@ result<void> xAdcSupply(app::pack::SupplyBuffer &supply_buffer) {
     }
 
     supply_buffer.updated_ms = io::time::getCurrentMs();
-    return {};
+    return status;
 }
 
 result<void> flags(app::pack::DiagnosticBuffer &diag_buffer )
@@ -354,8 +383,12 @@ result<void> flags(app::pack::DiagnosticBuffer &diag_buffer )
     Segments<result<RegGroup>> stat_c_regs;
     Segments<result<RegGroup>> stat_d_regs;
 
-    RETURN_IF_ERR_SILENT(reversible::readRegGroup(RDSTATC, stat_c_regs));
-    RETURN_IF_ERR_SILENT(reversible::readRegGroup(RDSTATD, stat_d_regs));
+    // A failed read puts the error on every segment, so keep going and leave those segments not ok
+    result<void> status{};
+    if (const result<void> res = reversible::readRegGroup(RDSTATC, stat_c_regs); !res)
+        status = res;
+    if (const result<void> res = reversible::readRegGroup(RDSTATD, stat_d_regs); !res)
+        status = res;
 
     // Assume everything is not ok
     diag_buffer = {};
@@ -384,6 +417,6 @@ result<void> flags(app::pack::DiagnosticBuffer &diag_buffer )
     }
 
     diag_buffer.updated_ms = io::time::getCurrentMs();
-    return {};
+    return status;
 }
 } // namespace io::adbms::read

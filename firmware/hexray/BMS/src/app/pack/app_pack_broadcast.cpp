@@ -105,7 +105,7 @@ void cellVoltages(const VoltageBuffer &stats)
         {
             const result<float> &voltage = stats.voltages[seg][cell];
 
-            cell_voltage_setters[seg][cell] = voltage.value_or(INVALID_VOLTAGE);
+            cell_voltage_setters[seg][cell] = std::clamp(voltage.value_or(INVALID_VOLTAGE), -0.1f, 5.0f);
             cell_voltage_error_setters[seg][cell] =
                 voltage ? can_utils::ErrorCode::NO_ERROR : static_cast<can_utils::ErrorCode>(voltage.error());
         }
@@ -172,13 +172,13 @@ void adbmsSupply(const SupplyBuffer &supply)
 {
     for (uint8_t seg = 0; seg < NUM_SEGMENTS; seg++)
     {
-        segment_vmv_setters[seg][0]  = supply.vmv[seg].value_or(INVALID_VOLTAGE);
-        segment_vpv_setters[seg][0]  = supply.vpv[seg].value_or(INVALID_VOLTAGE);
-        segment_vref_setters[seg][0] = supply.vref[seg].value_or(INVALID_VOLTAGE);
-        segment_itmp_setters[seg][0] = supply.itmp[seg].value_or(INVALID_TEMP);
-        segment_va_setters[seg][0]   = supply.va[seg].value_or(INVALID_VOLTAGE);
-        segment_vd_setters[seg][0]   = supply.vd[seg].value_or(INVALID_VOLTAGE);
-        segment_vres_setters[seg][0] = supply.vres[seg].value_or(INVALID_VOLTAGE);
+        segment_vmv_setters[seg][0]  = std::clamp(supply.vmv[seg].value_or(INVALID_VOLTAGE), -1.0f, 5.0f);
+        segment_vpv_setters[seg][0]  = std::clamp(supply.vpv[seg].value_or(INVALID_VOLTAGE), -0.1f, 65.0f);
+        segment_vref_setters[seg][0] = std::clamp(supply.vref[seg].value_or(INVALID_VOLTAGE), -0.1f, 5.0f);
+        segment_itmp_setters[seg][0] = std::clamp(supply.itmp[seg].value_or(INVALID_TEMP), -40.0f, 150.0f);
+        segment_va_setters[seg][0]   = std::clamp(supply.va[seg].value_or(INVALID_VOLTAGE), -0.1f, 7.0f);
+        segment_vd_setters[seg][0]   = std::clamp(supply.vd[seg].value_or(INVALID_VOLTAGE), -0.1f, 5.0f);
+        segment_vres_setters[seg][0] = std::clamp(supply.vres[seg].value_or(INVALID_VOLTAGE), -0.1f, 5.0f);
 
         segment_vmv_error_setters[seg][0]  = supply.vmv[seg]
                                                  ? can_utils::ErrorCode::NO_ERROR

@@ -57,14 +57,16 @@ State poll(bool precharge_for_charging)
 
     const float ts_voltage = app::ts::getVoltage();
 
-#ifdef TARGET_HV_SUPPLY
 #define HV_SUPPLY_VOLTAGE (588.0f)
+#ifdef TARGET_HV_SUPPLY
     const float threshold_voltage = HV_SUPPLY_VOLTAGE * PRECHARGE_ACC_V_THRESHOLD;
 #else
     float threshold_voltage;
     {
-        const io::unique_semaphore s{ app::pack::buffer_lock };
-        threshold_voltage = app::pack::voltage_buffer.pack_voltage.value() * PRECHARGE_ACC_V_THRESHOLD;
+        // Invalid pack voltage falls back to the max so precharge can't succeed early
+        const io::semaphore::unique_semaphore s{ app::pack::buffer_lock };
+        threshold_voltage =
+            app::pack::voltage_buffer.pack_voltage.value_or(HV_SUPPLY_VOLTAGE) * PRECHARGE_ACC_V_THRESHOLD;
     }
 #endif
 

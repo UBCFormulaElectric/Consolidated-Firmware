@@ -3,9 +3,11 @@
 
 #include <cassert>
 
+namespace io::semaphore
+{
 #ifdef TARGET_EMBEDDED
 
-io::semaphore::Semaphore(const bool priority_inheritance_protocol_on, const uint32_t sysview_id)
+Semaphore::Semaphore(const bool priority_inheritance_protocol_on, const uint32_t sysview_id)
   : _sysview_id(sysview_id)
 {
     if (priority_inheritance_protocol_on)
@@ -32,7 +34,7 @@ io::semaphore::Semaphore(const bool priority_inheritance_protocol_on, const uint
     }
 }
 
-void io::semaphore::give() const
+void Semaphore::give() const
 {
     if (mutex_id_ != nullptr)
         osMutexRelease(mutex_id_);
@@ -41,7 +43,7 @@ void io::semaphore::give() const
     if (_sysview_id != 0)
         SEGGER_SYSVIEW_MarkStop(_sysview_id);
 }
-void io::semaphore::take(const uint32_t timeout) const
+void Semaphore::take(const uint32_t timeout) const
 {
     [[maybe_unused]] const osStatus_t status =
         mutex_id_ != nullptr ? osMutexAcquire(mutex_id_, timeout) : osSemaphoreAcquire(semaphore_id_, timeout);
@@ -50,15 +52,16 @@ void io::semaphore::take(const uint32_t timeout) const
         SEGGER_SYSVIEW_MarkStart(_sysview_id);
 }
 
-bool io::semaphore::is_held() const
+bool Semaphore::is_held() const
 {
     return mutex_id_ != nullptr && osMutexGetOwner(mutex_id_) == osThreadGetId();
 }
 
 #else
 
-io::semaphore::semaphore(bool p, uint32_t sysview_id) : created_(true), _sysview_id(sysview_id) {}
-void io::semaphore::give() const {}
-void io::semaphore::take(uint32_t) const {}
+Semaphore::Semaphore(bool p, uint32_t sysview_id) : created_(true), _sysview_id(sysview_id) {}
+void Semaphore::give() const {}
+void Semaphore::take(uint32_t) const {}
 
 #endif
+} // namespace io::semaphore

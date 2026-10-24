@@ -53,7 +53,7 @@ namespace chargeState
         const float pout = pin * CHARGER_EFFICIENCY;
         float       pack_voltage;
         {
-            const io::unique_semaphore s{ app::pack::buffer_lock };
+            const io::semaphore::unique_semaphore s{ app::pack::buffer_lock };
             pack_voltage = app::pack::voltage_buffer.pack_voltage.value_or(PACK_VOLTAGE_MAX);
         }
         float idc = pout / pack_voltage;
@@ -85,7 +85,7 @@ namespace chargeState
         const bool                           ir_negative_debounced = app::irs::negativeOpenedDebounced();
         float                                max_cell_v;
         {
-            const io::unique_semaphore s{ app::pack::buffer_lock };
+            const io::semaphore::unique_semaphore s{ app::pack::buffer_lock };
             max_cell_v = app::pack::voltage_buffer.max.value;
         }
         // Cells are essentially full AND Elcon has already tapered down

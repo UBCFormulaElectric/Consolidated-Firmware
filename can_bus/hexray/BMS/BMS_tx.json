@@ -343,7 +343,7 @@
     "description": "Min/max cell temperature with segment + thermistor index",
     "signals": {
       "MinCellTemp": {
-        "resolution": 0.01,
+        "resolution": 0.5,
         "min": -40,
         "max": 125,
         "unit": "degC"
@@ -359,7 +359,7 @@
         "max": 13
       },
       "MaxCellTemp": {
-        "resolution": 0.01,
+        "resolution": 0.5,
         "min": -40,
         "max": 125,
         "unit": "degC"

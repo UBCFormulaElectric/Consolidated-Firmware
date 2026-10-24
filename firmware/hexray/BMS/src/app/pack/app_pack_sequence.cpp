@@ -3,6 +3,7 @@
 #include "app_fsm.hpp"
 #include "app_timer.hpp"
 #include "io_adbms.hpp"
+#include <util_errorCodes.hpp>
 
 namespace
 {
@@ -98,11 +99,11 @@ void measureOnTick()
     LOG_IF_ERR(cadc);
     app::pack::broadcast::cellVoltages(voltages);
 
-    // Cells need to recover if they were previously balancing, and a failed read leaves the last state's voltages
-    const bool settled = cadc && settle_timer.updateAndGetState() == app::Timer::TimerState::EXPIRED;
+    // Cells need to recover if they were previously balancing
+    const bool settled = settle_timer.updateAndGetState() == app::Timer::TimerState::EXPIRED;
     bool       balancing_enabled;
     {
-        const io::unique_semaphore s{ app::pack::buffer_lock };
+        const io::semaphore::unique_semaphore s{ app::pack::buffer_lock };
         app::pack::voltage_buffer = voltages;
 
         // Only settled data is used for balancing
@@ -125,7 +126,7 @@ result<void> balanceOnEntry()
 {
     io::adbms::PackCells<uint8_t> duty;
     {
-        const io::unique_semaphore s{ app::pack::buffer_lock };
+        const io::semaphore::unique_semaphore s{ app::pack::buffer_lock };
         duty = app::pack::balance_buffer.pwm;
     }
     RETURN_IF_ERR(app::pack::config::setPWMConfig(duty));
@@ -144,7 +145,7 @@ void balanceOnTick()
     app::pack::broadcast::cellVoltages(voltages);
     bool balancing_enabled;
     {
-        const io::unique_semaphore s{ app::pack::buffer_lock };
+        const io::semaphore::unique_semaphore s{ app::pack::buffer_lock };
         app::pack::voltage_buffer = voltages;
         balancing_enabled         = app::pack::balance_buffer.balancing_enabled;
     }
@@ -165,6 +166,7 @@ result<void> balanceOnExit()
 
 template <io::adbms::OpenWireParity owc_parity, io::adbms::ThermistorMux therm_mux> result<void> diagnosticOnEntry()
 {
+    RETURN_IF_ERR(io::adbms::command::resetCmdCount());
     RETURN_IF_ERR(app::pack::config::setSegmentConfig(therm_mux));
     RETURN_IF_ERR(app::pack::config::checkSegmentConfig());
     RETURN_IF_ERR(io::adbms::command::startCadc(false));         // RD off
@@ -207,7 +209,7 @@ template <io::adbms::OpenWireParity owc_parity, io::adbms::ThermistorMux therm_m
     LOG_IF_ERR(io::adbms::command::unsnap());
 
     {
-        const io::unique_semaphore s{ app::pack::buffer_lock };
+        const io::semaphore::unique_semaphore s{ app::pack::buffer_lock };
         app::pack::voltage_buffer = voltages;
         app::pack::temp_buffer    = temps;
         app::pack::diag_buffer    = diag;
@@ -229,7 +231,7 @@ result<void> diagnosticOnExit()
         app::pack::owc::check(owc_odd_voltages, owc_even_voltages, therm_voltages);
     app::pack::broadcast::cellOpenWire(owc);
     {
-        const io::unique_semaphore s{ app::pack::buffer_lock };
+        const io::semaphore::unique_semaphore s{ app::pack::buffer_lock };
         app::pack::owc_buffer = owc;
     }
     diag_timer.restart();

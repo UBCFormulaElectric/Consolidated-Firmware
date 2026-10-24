@@ -83,7 +83,7 @@ void init()
 
 void tick()
 {
-    const io::unique_semaphore s{ buffer_lock };
+    const io::semaphore::unique_semaphore s{ buffer_lock };
     balance_buffer.balancing_enabled = true;
 
     // Recompute only when data is new
@@ -96,7 +96,7 @@ void tick()
 
 void stop()
 {
-    const io::unique_semaphore s{ buffer_lock };
+    const io::semaphore::unique_semaphore s{ buffer_lock };
     balance_buffer = {};
 }
 } // namespace app::pack::balancing

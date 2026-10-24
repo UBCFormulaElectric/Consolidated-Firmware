@@ -29,7 +29,7 @@ namespace driveState
     {
         result<float> pack_voltage;
         {
-            const io::unique_semaphore s{ app::pack::buffer_lock };
+            const io::semaphore::unique_semaphore s{ app::pack::buffer_lock };
             pack_voltage = app::pack::voltage_buffer.pack_voltage;
         }
         if (pack_voltage)

@@ -1,8 +1,5 @@
 #include "SEGGER_SYSVIEW.h"
 
-#include "io_adbms.hpp"
-#include "app_segments.hpp"
-
 // I# = IRQn + 16 for peripheral IRQs, check stm32h733xx.h for IRQ enum
 extern "C" void hw_sysviewConfig_sendSystemDesc()
 {
