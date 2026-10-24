@@ -1,41 +1,54 @@
-/**
- * @file io_adbms.hpp
- * @brief Public interface for the Hexray BMS ADBMS driver.
- */
 #pragma once
 
 #include "util_errorCodes.hpp"
 
 #include <array>
+#include <cstddef>
 #include <cstdint>
 #include <cstring>
-#include <expected>
 
-// Physical daisy-chain dimensions for this ECU.
-inline constexpr uint8_t NUM_SEGMENTS            = 10;
-inline constexpr uint8_t CELLS_PER_SEGMENT       = 14;
-inline constexpr uint8_t THERMISTORS_PER_SEGMENT = 14;
-inline constexpr uint8_t THERM_GPIOS_PER_SEGMENT = 8;
+// Forward declared since app_pack.hpp includes this header
+namespace app::pack
+{
+struct VoltageBuffer;
+struct TemperatureBuffer;
+struct SupplyBuffer;
+struct DiagnosticBuffer;
+} // namespace app::pack
 
 namespace io::adbms
 {
 
-inline constexpr uint8_t REG_GROUP_SIZE = 6;
+inline constexpr size_t NUM_SEGMENTS            = 10;
+inline constexpr size_t CELLS_PER_SEGMENT       = 14;
+inline constexpr size_t THERMISTORS_PER_SEGMENT = 14;
+inline constexpr size_t THERM_GPIOS_PER_SEGMENT = 8;
 
-using RegBuffer = std::array<uint8_t, REG_GROUP_SIZE>;
+inline constexpr size_t REG_GROUP_SIZE = 6;
 
-enum class OpenWireSwitch
+template <typename T> using Segments      = std::array<T, NUM_SEGMENTS>;
+template <typename T> using SegmentCells  = std::array<T, CELLS_PER_SEGMENT>;
+template <typename T> using SegmentTherms = std::array<T, THERMISTORS_PER_SEGMENT>;
+template <typename T> using PackCells     = Segments<SegmentCells<T>>;
+template <typename T> using PackTherms    = Segments<SegmentTherms<T>>;
+
+enum class OpenWireParity
 {
-    ODD_CHANNELS,
-    EVEN_CHANNELS,
-    CHANNEL_COUNT
+    ODD,
+    EVEN,
+    NONE,
 };
 
-// Configuration Register Group A (Table 55 and 102)
+enum class ThermistorMux
+{
+    THERM_0_7, // GPIO9 is set low
+    THERM_8_13, // GPIO9 is set high
+};
+
 struct __attribute__((packed)) CFGA
 {
     uint8_t cth : 3;    // C-ADC vs. S-ADC comparison voltage threshold
-    uint8_t : 4;        // unused bits
+    uint8_t : 4;       
     uint8_t ref_on : 1; // reference powered up, enables REFUP state
 
     uint8_t flag_d; // asserts flags in Status Reg C for latent fault detection (pg. 70)
@@ -48,24 +61,24 @@ struct __attribute__((packed)) CFGA
     uint8_t gpio_1_8; // GPIOx pin control
 
     uint8_t gpio_9_10 : 2; // GPIOx pin control
-    uint8_t : 6;           // unused bits
+    uint8_t : 6;           
 
     uint8_t fc : 3;      // IIR filter parameter, see table 21
     uint8_t comm_bk : 1; // communication break, propagation communication prevention
     uint8_t mute_st : 1; // 1 = mute is active, discharging disabled
     uint8_t snap_st : 1; // 1 = snapshot is activated, result registers are frozen
     uint8_t : 2;
-    bool operator==(const CFGA &cfga) const
+
+    // mute_st and snap_st are read only, so left out of check
+    bool operator==(const CFGA &other) const
     {
-        return cth == cfga.cth && ref_on == cfga.ref_on && flag_d == cfga.flag_d && owa == cfga.owa &&
-               owrng == cfga.owrng && soak_on == cfga.soak_on && gpio_1_8 == cfga.gpio_1_8 &&
-               gpio_9_10 == cfga.gpio_9_10 && fc == cfga.fc && comm_bk == cfga.comm_bk;
-    };
+        return cth == other.cth && ref_on == other.ref_on && flag_d == other.flag_d && owa == other.owa &&
+               owrng == other.owrng && soak_on == other.soak_on && gpio_1_8 == other.gpio_1_8 &&
+               gpio_9_10 == other.gpio_9_10 && fc == other.fc && comm_bk == other.comm_bk;
+    }
 };
 static_assert(sizeof(CFGA) == REG_GROUP_SIZE);
-static_assert(sizeof(RegBuffer) == sizeof(CFGA));
 
-// Configuration Register Group B (Table 56 and 103)
 struct __attribute__((packed)) CFGB
 {
     uint8_t vuv_0_7; // cell undervoltage threshold = vuv * 16 * 150uV + 1.5V
@@ -82,19 +95,11 @@ struct __attribute__((packed)) CFGB
     uint8_t dcc_1_8; // discharge cell x
 
     uint8_t dcc_9_16; // discharge cell x
-    bool    operator==(const CFGB &cfgb) const = default;
+
+    bool operator==(const CFGB &) const = default;
 };
 static_assert(sizeof(CFGB) == REG_GROUP_SIZE);
-static_assert(sizeof(RegBuffer) == sizeof(CFGB));
 
-struct SegmentConfig
-{
-    CFGA reg_a;
-    CFGB reg_b;
-    bool operator==(const SegmentConfig &) const = default;
-};
-
-// PWM Register Group A: per-cell duty cycle for cells 0–11
 struct __attribute__((packed)) PWMA
 {
     uint8_t pwm1 : 4;
@@ -109,11 +114,11 @@ struct __attribute__((packed)) PWMA
     uint8_t pwm10 : 4;
     uint8_t pwm11 : 4;
     uint8_t pwm12 : 4;
-    bool    operator==(const PWMA &other) const { return std::memcmp(this, &other, sizeof(PWMA)) == 0; }
+
+    bool operator==(const PWMA &) const = default;
 };
 static_assert(sizeof(PWMA) == REG_GROUP_SIZE);
 
-// PWM Register Group B: per-cell duty cycle for cells 12–13
 struct __attribute__((packed)) PWMB
 {
     uint8_t  pwm13 : 4;
@@ -121,16 +126,10 @@ struct __attribute__((packed)) PWMB
     uint8_t  pwm15 : 4;
     uint8_t  pwm16 : 4;
     uint32_t res : 32;
-    bool     operator==(const PWMB &other) const { return std::memcmp(this, &other, sizeof(PWMB)) == 0; }
+
+    bool operator==(const PWMB &) const = default;
 };
 static_assert(sizeof(PWMB) == REG_GROUP_SIZE);
-
-struct PWMConfig
-{
-    PWMA reg_a;
-    PWMB reg_b;
-    bool operator==(const PWMConfig &) const = default;
-};
 
 struct __attribute__((packed)) STATA
 {
@@ -174,9 +173,7 @@ struct __attribute__((packed)) STATC
     uint8_t tmodchk : 1;
     uint8_t oscchk : 1;
 };
-#ifdef TARGET_EMBEDDED
 static_assert(sizeof(STATC) == REG_GROUP_SIZE);
-#endif
 
 struct __attribute__((packed)) STATD
 {
@@ -193,92 +190,45 @@ struct __attribute__((packed)) STATE
     uint8_t : 2;
     uint8_t rev : 4;
 };
-#ifdef TARGET_EMBEDDED
 static_assert(sizeof(STATE) == REG_GROUP_SIZE);
-#endif
 
-struct StatusGroupsRes
+struct __attribute__((packed)) AUXD
 {
-    result<STATA> stat_a;
-    result<STATB> stat_b;
-    result<STATC> stat_c;
-    result<STATD> stat_d;
-    result<STATE> stat_e;
+    int16_t g10v;
+    int16_t vmv;
+    int16_t vpv;
 };
-
-// Base array types. Kept inside io::adbms so generic names don't collide at global scope.
-template <typename T> using Segments          = std::array<T, NUM_SEGMENTS>;
-template <typename T> using SegmentCells      = std::array<T, CELLS_PER_SEGMENT>;
-template <typename T> using SegmentTherms     = std::array<T, THERMISTORS_PER_SEGMENT>;
-template <typename T> using SegmentThermGpios = std::array<T, THERM_GPIOS_PER_SEGMENT>;
-template <typename T> using Cells             = Segments<SegmentCells<T>>;
-template <typename T> using Therms            = Segments<SegmentTherms<T>>;
-template <typename T> using ThermGpios        = Segments<SegmentThermGpios<T>>;
+static_assert(sizeof(AUXD) == REG_GROUP_SIZE);
 
 namespace write
 {
-    [[nodiscard]] result<void> pwmReg(const Segments<PWMConfig> &pwm_config);
-    [[nodiscard]] result<void> configReg(const Segments<SegmentConfig> &config);
+    [[nodiscard]] result<void> configReg(const Segments<CFGA> &config_a, const Segments<CFGB> &config_b);
+    [[nodiscard]] result<void> pwmReg(const Segments<PWMA> &pwm_a, const Segments<PWMB> &pwm_b);
+    [[nodiscard]] result<void> clearFlags();
 } // namespace write
 
 namespace read
 {
-    [[nodiscard]] Segments<result<SegmentConfig>> configReg();
-    [[nodiscard]] Segments<result<PWMConfig>>     pwmReg();
-    /**
-     * Reads C-ADCs
-     * @return
-     */
-    [[nodiscard]] Cells<result<int16_t>> cellVoltage();
-    /**
-     * Reads S-ADCs
-     * @return
-     */
-    [[nodiscard]] Cells<result<int16_t>>      secondaryCellVoltage();
-    [[nodiscard]] Segments<result<int16_t>>   segVoltage();
-    [[nodiscard]] ThermGpios<result<int16_t>> thermGpioVoltage();
-    [[nodiscard]] Segments<StatusGroupsRes>   status();
+    [[nodiscard]] result<void> configReg(Segments<result<CFGA>> &config_a, Segments<result<CFGB>> &config_b);
+    [[nodiscard]] result<void> pwmReg(Segments<result<PWMA>> &pwm_a, Segments<result<PWMB>> &pwm_b);
+    [[nodiscard]] result<void> cAdc(bool redundant, app::pack::VoltageBuffer &voltage_buffer);
+    [[nodiscard]] result<void> sAdc(PackCells<result<float>> &owc_voltages);
+    [[nodiscard]] result<void>
+        xAdcTherm(ThermistorMux mux, app::pack::TemperatureBuffer &temp_buffer, PackTherms<result<float>> &voltages);
+    [[nodiscard]] result<void> xAdcSupply(app::pack::SupplyBuffer &supply_buffer);
+    [[nodiscard]] result<void> flags(app::pack::DiagnosticBuffer &diag_buffer);
 } // namespace read
 
 namespace command
 {
-    [[nodiscard]] result<void> startCellsAdc();
-    [[nodiscard]] result<void> startAuxAdc();
-    /**
-     * Polls for ADCs conversion, with retries. If returns successfully, S-ADCs are ready to be read.
-     * @throws ErrorCode poll() errors if poll fails
-     * @throws ErrorCode::POLL_INVALID if ADC is not ready after retries
-     * @return
-     */
-    [[nodiscard]] result<void> pollSecondaryCellsAdc();
-    /**
-     * Polls for ADCs conversion, with retries. If returns successfully, C-ADCs are ready to be read.
-     * @throws ErrorCode poll() errors if poll fails
-     * @throws ErrorCode::POLL_INVALID if ADC is not ready after retries
-     * @return
-     */
-    [[nodiscard]] result<void> pollCellsAdc();
-    /**
-     * Polls for ADCs conversion, with retries. If returns successfully, Aux ADCs are ready to be read.
-     * @throws ErrorCode poll() errors if poll fails
-     * @throws ErrorCode::POLL_INVALID if ADC is not ready after retries
-     * @return
-     */
-    [[nodiscard]] result<void> pollAuxAdc();
+    [[nodiscard]] result<void> startCadc(bool redundant);
+    [[nodiscard]] result<void> startSadc(bool continuous, OpenWireParity parity);
+    [[nodiscard]] result<void> startAuxadc();
+    [[nodiscard]] result<void> pollSadc();
+    [[nodiscard]] result<void> pollXadc();
+    [[nodiscard]] result<void> snap();
+    [[nodiscard]] result<void> unsnap();
     [[nodiscard]] result<void> startBalance();
     [[nodiscard]] result<void> stopBalance();
-
-    [[nodiscard]] result<void> owcCells(OpenWireSwitch owcSwitch);
 } // namespace command
-
-namespace clear
-{
-    [[nodiscard]] result<void> aux();
-    [[nodiscard]] result<void> flags();
-    [[nodiscard]] result<void> cell();
-    [[nodiscard]] result<void> secondaryCell();
-    [[nodiscard]] result<void> filteredCell();
-    [[nodiscard]] result<void> stat();
-} // namespace clear
-
 } // namespace io::adbms
