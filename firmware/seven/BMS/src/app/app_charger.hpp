@@ -37,7 +37,7 @@ void setChargingConfig(const ElconChargingConfig &cmd);
 // Returns the available charging current in A, computed from the EVSE CP duty cycle. Returns 0.0f when the duty cycle is outside supported ranges.
 float getAvailableCurrent(); 
 
-// Broadcasts charger-related CAN signals (EVSE CP duty cycle + frequency, available current) to the BMS CAN TX table
+// Broadcasts EVSE status CAN signals (EVSE CP duty cycle + frequency, available current) to the BMS CAN TX table
 void broadcastEvseStatus();
 
 } // namespace app::charger

@@ -5,6 +5,10 @@
 #include "app_canTx.hpp"
 #include "app_canRx.hpp"
 
+#define EVSE_DUTY_CYCLE_MIN 10.0f
+#define EVSE_DUTY_CYCLE_MID 85.0f
+#define EVSE_DUTY_CYCLE_MAX 96.0f
+
 namespace app::charger
 {
 
@@ -37,13 +41,13 @@ float getAvailableCurrent()
 {
     const float evse_duty_cycle = io::charger::getCPDutyCycle();
 
-    if (evse_duty_cycle >= 10.0f && evse_duty_cycle <= 85.0f) 
+    if (evse_duty_cycle >= EVSE_DUTY_CYCLE_MIN && evse_duty_cycle <= EVSE_DUTY_CYCLE_MID) 
     {
-        return evse_duty_cycle * 0.6f;
+        return evse_duty_cycle * 0.6f;              // Formula derived from SAE J1772 standard for EVSE duty cycle
     } 
-    else if (evse_duty_cycle > 85.0f && evse_duty_cycle <= 96.0f)
+    else if (evse_duty_cycle > EVSE_DUTY_CYCLE_MID && evse_duty_cycle <= EVSE_DUTY_CYCLE_MAX)
     {
-        return (evse_duty_cycle - 64.0f) * 2.5f;
+        return (evse_duty_cycle - 64.0f) * 2.5f;    // Formula derived from SAE J1772 standard for EVSE duty cycle  
     }
     return 0.0f;     // Sentinel value for invalid conditions such as duty cycle > 96% (critical error) or < 10% (charger not ready)
 }
