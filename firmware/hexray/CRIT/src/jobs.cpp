@@ -16,6 +16,8 @@
 #include "io_leds.hpp"
 #include "io_sevenSeg.hpp"
 
+#include "hw_gpios.hpp"
+
 void jobs_init()
 {
     can_tx_queue.init();
@@ -43,6 +45,14 @@ void jobs_run1Hz_tick()
 }
 void jobs_run100Hz_tick()
 {
+    // ADD YOUR LOGIC HERE
+    const bool torque_vectoring = app::switches::torque_vectoring_get();
+    const bool regen            = app::switches::regen_get();
+
+    led_torque_vectoring.writePin(torque_vectoring);
+    led_regen.writePin(regen);
+
+    //
     app::switches::broadcast();
 
     static bool prev_telem_mark = false;
