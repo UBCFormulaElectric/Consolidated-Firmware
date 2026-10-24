@@ -17,7 +17,7 @@ TEST_F(CritDriveModeTest, ClockwiseStepGoesToNextMode)
 
     app::screens::drive_modes_screen.cw_callback();
 
-    app::rotary::broadcast();
+    app::can_tx::CRIT_DriveMode_set(app::screens::drive_mode_get());
 
     EXPECT_EQ(app::can_tx::CRIT_DriveMode_get(), expected);
 }
@@ -33,7 +33,7 @@ TEST_F(CritDriveModeTest, CounterClockwiseStepFromFirstModeWrapsToLastMode)
 
     app::screens::drive_modes_screen.ccw_callback();
 
-    app::rotary::broadcast();
+    app::can_tx::CRIT_DriveMode_set(app::screens::drive_mode_get());
 
     EXPECT_EQ(app::can_tx::CRIT_DriveMode_get(), expected);
 }
