@@ -1,5 +1,5 @@
-import { API_BASE_URL } from "@/lib/constants";
 import socket from "@/lib/realtime/socket";
+import { ENDPOINTS } from "@/lib/api/endpoints";
 
 const SOCKET_CONNECT_TIMEOUT_MS = 10_000;
 
@@ -41,9 +41,9 @@ async function waitForSocketId(): Promise<string> {
     return socket.id;
 }
 
-async function postSubscriptionAction<TBody extends object>(path: string, body: TBody, allowedStatuses: number[] = []) {
-    console.log(API_BASE_URL, path, body);
-    const response = await fetch(`${API_BASE_URL}${path}`, {
+async function postSubscriptionAction<TBody extends object>(url: string, body: TBody, allowedStatuses: number[] = []) {
+    console.log(url, body);
+    const response = await fetch(url, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -52,7 +52,7 @@ async function postSubscriptionAction<TBody extends object>(path: string, body: 
     });
 
     if (!response.ok && !allowedStatuses.includes(response.status)) {
-        throw new Error(`Request failed for ${path}: ${response.status}`);
+        throw new Error(`Request failed for ${url}: ${response.status}`);
     }
 
     return response.json();
@@ -60,7 +60,7 @@ async function postSubscriptionAction<TBody extends object>(path: string, body: 
 
 const subscribeToSignal = async (signalName: string) => {
     const sid = await waitForSocketId();
-    return postSubscriptionAction("/api/v1/subscribe", {
+    return postSubscriptionAction(ENDPOINTS.subscribe, {
         sid,
         signal: signalName,
     });
@@ -68,7 +68,7 @@ const subscribeToSignal = async (signalName: string) => {
 
 const unsubscribeFromSignal = async (signalName: string) => {
     const sid = await waitForSocketId();
-    return postSubscriptionAction("/api/v1/unsubscribe", {
+    return postSubscriptionAction(ENDPOINTS.unsubscribe, {
         sid,
         signal: signalName,
     });

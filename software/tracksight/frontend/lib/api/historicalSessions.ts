@@ -1,5 +1,6 @@
 import { HistoricalSignalSource } from "@/lib/api/historicalSignals";
-import { API_BASE_URL, IS_MOCK } from "@/lib/constants";
+import { IS_MOCK } from "@/lib/constants";
+import { ENDPOINTS } from "@/lib/api/endpoints";
 
 export type HistoricalSession = {
     id: string;
@@ -122,7 +123,7 @@ export async function fetchHistoricalSessionsForRange(startUtcMs: number, endUtc
 
     const start = toIsoUtcSeconds(startUtcMs);
     const end = toIsoUtcSeconds(endUtcMs);
-    const url = `${API_BASE_URL}/api/v2/signal/sessions/${start}/${end}?source=${encodeURIComponent(JSON.stringify(source))}`;
+    const url = `${ENDPOINTS.signalSessions(start, end)}?source=${encodeURIComponent(JSON.stringify(source))}`;
 
     const response = await fetch(url, {
         cache: "no-store",

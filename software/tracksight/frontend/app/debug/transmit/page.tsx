@@ -1,6 +1,6 @@
 "use client";
 
-import { API_BASE_URL } from "@/lib/constants";
+import { ENDPOINTS } from "@/lib/api/endpoints";
 
 export default function TransmitPage() {
     return (
@@ -8,10 +8,10 @@ export default function TransmitPage() {
             <div className="pt-20 w-screen" />
             <span className="text-3xl font-bold">Transmit</span>
             <span className="text-sm text-gray-500">Click the button to send request to endpoint</span>
-            <button style={{all: "revert"}} onClick={() => { fetch(`${API_BASE_URL}/api/v1/transmit/ntp`) }}>
+            <button style={{all: "revert"}} onClick={() => { fetch(ENDPOINTS.transmitNtp) }}>
                 /transmit/ntp
             </button>
-            <button style={{all: "revert"}} onClick={() => { fetch(`${API_BASE_URL}/api/v1/transmit/boot_info`) }}>
+            <button style={{all: "revert"}} onClick={() => { fetch(ENDPOINTS.transmitBootInfo) }}>
                 /transmit/boot_info
             </button>
         </div>

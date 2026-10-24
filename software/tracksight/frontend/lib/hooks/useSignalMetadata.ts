@@ -1,8 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
 
-import { API_BASE_URL } from "@/lib/constants";
 import { SignalMetadata } from "@/lib/types/Signal";
 import { getSignalType } from "../api/signals";
+import { ENDPOINTS } from "@/lib/api/endpoints";
 
 /**
  * Hook to fetch metadata for a specific signal.
@@ -18,7 +18,7 @@ export default function useSignalMetadata(signalName: string | null) {
                 return null;
             }
 
-            const response = await fetch(`${API_BASE_URL}/api/v1/signal/metadata?name=${encodeURIComponent(signalName)}`);
+            const response = await fetch(`${ENDPOINTS.signalMetadata}?name=${encodeURIComponent(signalName)}`);
             if (!response.ok) {
                 throw new Error(`Failed to fetch signals: ${response.statusText}`);
             }
