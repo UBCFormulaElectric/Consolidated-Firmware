@@ -43,9 +43,19 @@ void broadcast()
     const bool ts_voltage_sns_diag_state = io::ts::getVoltageSnsDiagState();
     const bool ts_current_sns_diag_state = io::ts::getCurrentSnsDiagState();
 
-    // Check if current is within safe range, if not, set overcurrent warning flag
-    const bool ts_overcurrent_warning = overcurrent_warning_timer.runIfCondition(!IS_IN_RANGE(
-        MAX_TS_DISCHARGE_CURRENT_AMPS, MAX_TS_CHARGE_CURRENT_AMPS, ts_current)) == Timer::TimerState::RUNNING;
+    // Check if current is within the safe range
+    const bool current_out_of_range = !IS_IN_RANGE(
+        MAX_TS_DISCHARGE_CURRENT_AMPS, 
+        MAX_TS_CHARGE_CURRENT_AMPS, 
+        ts_current);
+
+    // Pass the current state boolean to the timer, and returns the current state of the timer
+    const Timer::TimerState overcurrent_timer_state = 
+        overcurrent_warning_timer.runIfCondition(current_out_of_range);
+
+    const bool ts_overcurrent_warning = 
+        overcurrent_timer_state == Timer::TimerState::RUNNING;    // might need fix to check for expired state instead?  
+
 
     // Broadcast all diagnostics over CAN 
     app::can_tx::BMS_TractiveSystemVoltage_set(ts_voltage);
