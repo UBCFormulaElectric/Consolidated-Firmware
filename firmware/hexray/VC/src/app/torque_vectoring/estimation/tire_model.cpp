@@ -156,7 +156,7 @@ template <DecimalOrDual T> T TireModel::computeMy_Nm(float fz_N, float v_x_mps, 
     // the bracket term is [ qsy1 + qsy2·Fx/Fz0 + qsy3·|Vx/V0| + qsy4·(Vx/V0)^4 + (qsy5 + qsy6·Fz/Fz0)·γ^2 ]
     const T bracket_term = T(fx_independent_terms) + T(qsy2 / fz0) * fx_N;
 
-    const float load_pressure_factor std::pow(load_ratio, qsy7) * std::pow(pressure_ratio, qsy8);
+    const float load_pressure_factor = std::pow(load_ratio, qsy7) * std::pow(pressure_ratio, qsy8);
 
     // quadratic func smoothing of My with function: direction = x(2 - |x|), which is very close to the simulink applied
     // smoothing smoothing is applied to get rid of the M_y jumping suddenly currently due to it being a constant 2.05

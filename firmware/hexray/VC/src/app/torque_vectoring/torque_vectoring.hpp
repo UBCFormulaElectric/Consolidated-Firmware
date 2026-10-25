@@ -79,7 +79,13 @@ app::tv::shared_datatypes::wheel_set<T>
  * @param kappas slip ratio setpoints for each wheel, where kappa = (wheel_speed - vehicle_speed) / vehicle_speed
  * @param v_x_mps current longitudinal vehicle speed in meters per second
  * @param omega_radps measured motor speeds in rad/s
- * @param tire_ffb_Nm feedforward torque from the tire model in Nm
+ *
+ * for tire ffb calculation
+ * @param F_x_N longitudinal force
+ * @param radial_deflection_m the vertical compression of a tire under vehicle load, measured as difference between
+ * unloaded and loaded height
+ * @param M_y_Nm the calculated rolling resistance moment from tire model
+ *
  * @param torque_max / torque_min per-wheel torque limits in Nm
  * @return per-wheel torque requests in Nm
  */
@@ -88,12 +94,14 @@ app::tv::shared_datatypes::wheel_set<T> kappa_update(
     const app::tv::shared_datatypes::wheel_set<T> &kappas,
     const T                                        v_x_mps,
     const app::tv::shared_datatypes::wheel_set<T> &omega_radps,
-    const app::tv::shared_datatypes::wheel_set<T> &tire_ffb_Nm,
+    const app::tv::shared_datatypes::wheel_set<T> &F_x_N,
+    const app::tv::shared_datatypes::wheel_set<T> &radial_deflection_m,
+    const app::tv::shared_datatypes::wheel_set<T> &M_y_Nm,
     const app::tv::shared_datatypes::wheel_set<T> &torque_max,
     const app::tv::shared_datatypes::wheel_set<T> &torque_min)
 {
     // The speed controller is a PID that takes the wheel speed request and actual wheel speed and
     // outputs a torque request. The torque request is then limited by the max and min torque limits.
     return app::tv::controllers::speed_controller::computeTorque(
-        motor_speed_request(kappas, v_x_mps), omega_radps, tire_ffb_Nm, torque_max, torque_min);
+        motor_speed_request(kappas, v_x_mps), omega_radps, F_x_N, radial_deflection_m, M_y_Nm, torque_max, torque_min);
 }
