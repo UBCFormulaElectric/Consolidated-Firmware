@@ -123,6 +123,54 @@ template <Decimal T> T TireModel::effectiveRollingRadius_m(const float fz_N, con
 }
 template tv_real TireModel::effectiveRollingRadius_m(float fz_N, tv_real v_x_mps) const;
 
+template <DecimalOrDual T> T TireModel::computeMy_Nm(float fz_N, float v_x_mps, const T &fx_N) const
+{
+    constexpr float fz0       = FZ0;
+    constexpr float r0        = R0;
+    const float     lambda_My = scaling_factors_.LMY;
+    const float     qsy1      = rolling_resistance_.QSY1;
+    const float     qsy2      = rolling_resistance_.QSY2;
+    const float     qsy3      = rolling_resistance_.QSY3;
+    const float     qsy4      = rolling_resistance_.QSY4;
+    const float     qsy5      = rolling_resistance_.QSY5;
+    const float     qsy6      = rolling_resistance_.QSY6;
+    const float     qsy7      = rolling_resistance_.QSY7;
+    const float     qsy8      = rolling_resistance_.QSY8;
+    const float     v_x       = v_x_mps;
+    const float     v_0       = rolling_radius_.LONGVL;
+    constexpr float gamma_rad = 0.0f; // MF 6.2 assumption for this tire model
+    // (pressure ratio = p/p0)
+    constexpr float pressure_ratio = 1.0f; // MF 6.2 assumption for this tire model
+
+    const float clamped_Fz_N        = std::fmax(fz_N, 0.0f);
+    const float load_ratio          = (clamped_Fz_N / fz0);
+    const float speed_ratio         = (v_x / v_0);
+    const float speed_ratio_squared = speed_ratio * speed_ratio;
+
+    // every bracket term except the Fx because they have no κ dependence
+    const float fx_independent_terms = qsy1 + qsy3 * std::fabs(speed_ratio) +
+                                       qsy4 * (speed_ratio_squared * speed_ratio_squared) +
+                                       (qsy5 + qsy6 * load_ratio) * (gamma_rad * gamma_rad);
+
+    // Fx term as a T so its derivative is carried through w.r.t κ.
+    // the bracket term is [ qsy1 + qsy2·Fx/Fz0 + qsy3·|Vx/V0| + qsy4·(Vx/V0)^4 + (qsy5 + qsy6·Fz/Fz0)·γ^2 ]
+    const T bracket_term = T(fx_independent_terms) + T(qsy2 / fz0) * fx_N;
+
+    const float load_pressure_factor std::pow(load_ratio, qsy7) * std::pow(pressure_ratio, qsy8);
+
+    // quadratic func smoothing of My with function: direction = x(2 - |x|), which is very close to the simulink applied
+    // smoothing smoothing is applied to get rid of the M_y jumping suddenly currently due to it being a constant 2.05
+    // MF 6.2 has no direction term, and the QSY1 term keeps M_y nonzero as v_x → 0, so the sign is smoothed here
+    // hence this quadratic smoothing between -1 and 1 just eases into the final value at low speeds
+    const float fade_ratio = std::fmin(std::fmax(v_x / ROLLING_RESISTANCE_FADE_SPEED_MPS, -1.0f), 1.0f);
+    const float direction  = fade_ratio * (2.0f - std::fabs(fade_ratio));
+
+    return T(-r0 * fz0 * lambda_My * load_pressure_factor * direction) * bracket_term;
+}
+template tv_real TireModel::computeMy_Nm<tv_real>(float fz_N, float v_x_mps, const tv_real &fx_N) const;
+template DecimalDual<tv_real>
+    TireModel::computeMy_Nm<DecimalDual<tv_real>>(float fz_N, float v_x_mps, const DecimalDual<tv_real> &fx_N) const;
+
 // [[nodiscard]] float TireModel::slipRatioToWheelAngularVelocity(const float slip_ratio, const float
 // wheel_vel_x_mps)
 // {

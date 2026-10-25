@@ -19,6 +19,34 @@ class TireModel
      */
     template <Decimal T> [[nodiscard]] T effectiveRollingRadius_m(float fz_N, T v_x_mps) const;
 
+    /**
+     * MF 6.2 rolling resistance moment M_y about the wheel spin axis. Opposes the rolling direction and fades to zero
+     * at standstill.
+     * @param fz_N normal load
+     * @param v_x_mps wheel longitudinal speed
+     * @param fx_N combined-slip longitudinal force, i.e. the computeCombinedFx_N result at the same operating point
+     *
+     * MF 6.2 : M_y = -R0 * Fz0 * λMy * [ qsy1
+                        + qsy2 · Fx / Fz0
+                        + qsy3 · |Vx / V0|
+                        + qsy4 · (Vx / V0)⁴
+                        + (qsy5 + qsy6 · Fz / Fz0) · γ² ]
+                      · [ (Fz / Fz0)^qsy7 · (p / p0)^qsy8 ]
+
+        where R0        : unloaded tire radius
+              Fz0       : nominal tire load
+              λMy       : M_y scaling factor (LMY)
+              qsy1-qsy8 : rolling resistance coefficients
+              Fx        : longitudinal force
+              Fz        : normal load
+              Vx        : longitudinal speed
+              V0        : reference speed
+              γ         : camber angle (0.0 for this tire model)
+              p         : tire pressure
+              p0        : nominal pressure
+     */
+    template <DecimalOrDual T> [[nodiscard]] T computeMy_Nm(float fz_N, float v_x_mps, const T &fx_N) const;
+
     struct TireFitPureParamFy
     {
         float p_Cy1;
@@ -91,6 +119,7 @@ class TireModel
         float LVY;
         float LYKA;
         float LVYKA;
+        float LMY;
     };
 
     struct TireFitCombParamFx
@@ -134,22 +163,36 @@ class TireModel
         float FREFF;
     };
 
+    struct TireRollingResistanceParam
+    {
+        float QSY1; // torque resistance coefficient
+        float QSY2; // torque resistance due to Fx coefficient
+        float QSY3; // torque resistance due to speed
+        float QSY4; // torque resistance due to speed^4
+        float QSY5; // torque resistance due to square of camber
+        float QSY6; // torque resistance due to square of camber and load
+        float QSY7; // torque resistance due to load
+        float QSY8; // torque resistance due to pressure
+    };
+
     TireModel() = delete;
 
   protected:
     constexpr TireModel(
-        const TireFitPureParamFx     &fit_pure_fx,
-        const TireFitPureParamFy     &fit_pure_fy,
-        const TireFitCombParamFx     &fit_comb_fx,
-        const TireFitCombParamFy     &fit_comb_fy,
-        const TireScalingFactors     &scaling_factors,
-        const TireRollingRadiusParam &rolling_radius)
+        const TireFitPureParamFx         &fit_pure_fx,
+        const TireFitPureParamFy         &fit_pure_fy,
+        const TireFitCombParamFx         &fit_comb_fx,
+        const TireFitCombParamFy         &fit_comb_fy,
+        const TireScalingFactors         &scaling_factors,
+        const TireRollingRadiusParam     &rolling_radius,
+        const TireRollingResistanceParam &rolling_resistance)
       : fit_pure_fx_(fit_pure_fx),
         fit_pure_fy_(fit_pure_fy),
         fit_comb_fx_(fit_comb_fx),
         fit_comb_fy_(fit_comb_fy),
         scaling_factors_(scaling_factors),
-        rolling_radius_(rolling_radius)
+        rolling_radius_(rolling_radius),
+        rolling_resistance_(rolling_resistance)
     {
     }
 
@@ -203,6 +246,11 @@ class TireModel
     static constexpr float FZ0 = 890.0f;
     static constexpr float R0  = 0.230885999f;
     static constexpr float P0  = 82737.12f;
+    // M_y fades in quadratically and reaches its full value at this speed, so it does not step between
+    // +-QSY1 * Fz0 * R0 as v_x crosses zero
+    // this value was landed upon by checking the simulink data plot of M_y vs v_x and seeing where the curve flattened
+    // out
+    static constexpr float ROLLING_RESISTANCE_FADE_SPEED_MPS = 0.11f;
     //-------------------------------------------------------------------- Class Helpers
     //----------------------------------------------------------------------//
     [[nodiscard]] float normalizedLoadDelta(float normal_load_N) const;
@@ -267,12 +315,13 @@ class TireModel
     template <DecimalOrDual T> [[nodiscard]] T computePureFx_N(float fz, const T &kappa) const;
     [[nodiscard]] float                        computePureFy_N(float fz_N, float alpha) const;
 
-    const TireFitPureParamFx     &fit_pure_fx_;
-    const TireFitPureParamFy     &fit_pure_fy_;
-    const TireFitCombParamFx     &fit_comb_fx_;
-    const TireFitCombParamFy     &fit_comb_fy_;
-    const TireScalingFactors     &scaling_factors_;
-    const TireRollingRadiusParam &rolling_radius_;
+    const TireFitPureParamFx         &fit_pure_fx_;
+    const TireFitPureParamFy         &fit_pure_fy_;
+    const TireFitCombParamFx         &fit_comb_fx_;
+    const TireFitCombParamFy         &fit_comb_fy_;
+    const TireScalingFactors         &scaling_factors_;
+    const TireRollingRadiusParam     &rolling_radius_;
+    const TireRollingResistanceParam &rolling_resistance_;
 };
 
 class HoosierTireModel : public TireModel
@@ -378,6 +427,7 @@ class HoosierTireModel : public TireModel
         .LVY   = 1.0f,
         .LYKA  = 1.0f,
         .LVYKA = 1.0f,
+        .LMY   = 1.0f,
     };
 
     // From the same fit as the rows above (sim/tires/full_norm.tir).
@@ -391,6 +441,18 @@ class HoosierTireModel : public TireModel
         .FREFF              = 0.1752313270320525f,
     };
 
+    // controls_testing.slx tire block
+    static constexpr TireRollingResistanceParam HOOSIER_ROLLING_RESISTANCE_12_PSI = {
+        .QSY1 = 0.01f,
+        .QSY2 = 0.0f,
+        .QSY3 = 0.0f,
+        .QSY4 = 0.0f,
+        .QSY5 = 0.0f,
+        .QSY6 = 0.0f,
+        .QSY7 = 0.0f,
+        .QSY8 = 0.0f,
+    };
+
   public:
     constexpr HoosierTireModel()
       : TireModel(
@@ -399,7 +461,8 @@ class HoosierTireModel : public TireModel
             HOOSIER_FIT_COMB_FX_12_PSI,
             HOOSIER_FIT_COMB_FY_12_PSI,
             HOOSIER_SCALING_FACTORS,
-            HOOSIER_ROLLING_RADIUS_12_PSI)
+            HOOSIER_ROLLING_RADIUS_12_PSI,
+            HOOSIER_ROLLING_RESISTANCE_12_PSI)
     {
     }
 };
