@@ -33,6 +33,7 @@
 #include "hw_bootup.hpp"
 
 #include <cmsis_os.h>
+#include <atomic>
 #include <array>
 #include <optional>
 #ifdef STM32H562xx
@@ -49,15 +50,31 @@ struct instance
 {
     // The tick period of the task being monitored.
     uint32_t period;
+    // The tick grace period of the task being monitored.
+    uint32_t grace_period;
     // The current deadline of the task being monitored.
     uint32_t deadline;
-    // Has the task being monitored checked in for the current period?
-    bool check_in_status = true;
+    // We use a counter instead of a boolean flag for the following reasons:
+    // - We only check for a check-in after the deadline + grace period has passed.
+    // - Assume a task mostly finishes in [start, start + grace period).
+    // - It can then check in twice before we check once: once for its own tick and once at
+    //   [start + period, start + period + grace period) for the next tick.
+    // - With a flag, these 2 check-ins collapse into 1, so every check after this effectively uses the
+    //   check-in of the next tick. The task now has to finish within the grace period instead of the
+    //   period + grace period.
+    // - If the task then takes a bit longer once (ex. it finishes at start + grace period + 1ms, which is
+    //   still well within its deadline), the watchdog task will think that task had a deadline miss.
+    // - ex. period = 10ms, grace = 2ms: the task checks in at 1, 11 and 21ms. The check at 12ms clears both
+    //   the 1ms and 11ms check-ins, and the check at 22ms clears the 21ms one. If the next tick finishes
+    //   at 33ms, the check at 32ms sees no check-in and the watchdog trips.
+    // A counter counts every check-in, so each check uses exactly 1 check-in and every tick always gets
+    // the full period + grace period.
+    std::atomic<uint32_t> check_in_count = 0;
     // ID to identify the task this watchdog monitors (for debugging only).
     TaskHandle_t task_id = xTaskGetCurrentTaskHandle();
 
-    explicit instance(const uint32_t period_in_ticks)
-      : period(period_in_ticks), deadline(period_in_ticks + osKernelGetTickCount())
+    explicit instance(const uint32_t period_ticks, const uint32_t grace_period_ticks)
+      : period(period_ticks), grace_period(grace_period_ticks), deadline(period_ticks + osKernelGetTickCount())
     {
     }
 
@@ -65,7 +82,7 @@ struct instance
      * Every periodic task monitored by a software watchdog must call this at the
      * end of each period.
      */
-    void checkIn() { check_in_status = true; }
+    void checkIn() { check_in_count.fetch_add(1U, std::memory_order_release); }
 };
 
 template <size_t WATCHDOG_INSTANCES> class monitor
@@ -85,15 +102,17 @@ template <size_t WATCHDOG_INSTANCES> class monitor
      * This is important because the instance is instantiated with the current (monitored) task's ID for debugging
      * purposes.
      * @param period The tick period of the task being monitored.
+     * @param grace_period Extra ticks a tick may take past its period before it counts as a deadline miss.
      * @return An instance of the software watchdog monitoring the task that calls this function.
      */
-    instance &spawn_instance(const uint32_t period)
+    instance &spawn_instance(const uint32_t period, const uint32_t grace_period)
     {
         for (std::optional<instance> &i : watchdogs)
         {
             if (not i.has_value())
             {
-                i = instance(period);
+                // Constructed in place: instance holds a std::atomic, so it cannot be copied or moved.
+                i.emplace(period, grace_period);
                 return i.value();
             }
         }
@@ -124,13 +143,13 @@ template <size_t WATCHDOG_INSTANCES> class monitor
             if (not instance.has_value())
                 continue;
 
-            if (osKernelGetTickCount() >= instance->deadline)
+            if (osKernelGetTickCount() >= instance->deadline + instance->grace_period)
             {
-                // Check if the check-in status is set
-                if (instance->check_in_status)
+                // Check if the check-in counter is non-zero
+                if (instance->check_in_count.load(std::memory_order_relaxed) > 0)
                 {
-                    // Clear the check-in status
-                    instance->check_in_status = false;
+                    // Decrement the check-in counter
+                    instance->check_in_count.fetch_sub(1U, std::memory_order_relaxed);
 
                     // Update deadline
                     instance->deadline += instance->period;

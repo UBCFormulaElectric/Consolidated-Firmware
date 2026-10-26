@@ -98,7 +98,7 @@ void tasks_run1Hz(void *arg)
 {
     constexpr uint32_t      period_ms                = 1000U;
     constexpr uint32_t      watchdog_grace_period_ms = 50U;
-    hw::watchdog::instance &watchdog1hz              = monitor.spawn_instance(period_ms + watchdog_grace_period_ms);
+    hw::watchdog::instance &watchdog1hz              = monitor.spawn_instance(period_ms, watchdog_grace_period_ms);
 
     uint32_t start_ticks = osKernelGetTickCount();
     forever
@@ -115,7 +115,7 @@ void tasks_run100Hz(void *arg)
 {
     constexpr uint32_t      period_ms                = 10U;
     constexpr uint32_t      watchdog_grace_period_ms = 2U;
-    hw::watchdog::instance &watchdog100hz            = monitor.spawn_instance(period_ms + watchdog_grace_period_ms);
+    hw::watchdog::instance &watchdog100hz            = monitor.spawn_instance(period_ms, watchdog_grace_period_ms);
 
     uint32_t start_ticks = osKernelGetTickCount();
     forever
@@ -130,7 +130,7 @@ void tasks_run1kHz(void *arg)
 {
     constexpr uint32_t      period_ms                = 1U;
     constexpr uint32_t      watchdog_grace_period_ms = 1U;
-    hw::watchdog::instance &watchdog1khz             = monitor.spawn_instance(period_ms + watchdog_grace_period_ms);
+    hw::watchdog::instance &watchdog1khz             = monitor.spawn_instance(period_ms, watchdog_grace_period_ms);
 
     uint32_t start_ticks = osKernelGetTickCount();
     forever
@@ -144,11 +144,9 @@ void tasks_run1kHz(void *arg)
 }
 void tasks_runImu(void *arg)
 {
-    jobs_initImu();
-
     constexpr uint32_t      period_ms                = 10U;
     constexpr uint32_t      watchdog_grace_period_ms = 2U;
-    hw::watchdog::instance &watchdogImu              = monitor.spawn_instance(period_ms + watchdog_grace_period_ms);
+    hw::watchdog::instance &watchdogImu              = monitor.spawn_instance(period_ms, watchdog_grace_period_ms);
 
     uint32_t start_ticks = osKernelGetTickCount();
     forever
@@ -220,7 +218,7 @@ void tasks_runCanRx(void *arg)
     start_ticks                         = osKernelGetTickCount();
 
     app::batteryMonitoring::init();
-    for (;;)
+    forever
     {
         jobs_runBatteryMonitoring_tick();
         start_ticks += period_ms;
@@ -233,7 +231,7 @@ void tasks_runCanRx(void *arg)
     static uint32_t         start_ticks = 0;
     start_ticks                         = osKernelGetTickCount();
 
-    for (;;)
+    forever
     {
         jobs_runPowerMonitoring_tick();
         start_ticks += period_ms;
@@ -242,14 +240,12 @@ void tasks_runCanRx(void *arg)
 }
 [[noreturn]] static void tasks_sbgEllipse(void *arg)
 {
-    app::sbgEllipse::init();
-
     static const TickType_t period_ms                = 10;
     constexpr uint32_t      watchdog_grace_period_ms = 2U;
-    hw::watchdog::instance &watchdogSbgEllipse       = monitor.spawn_instance(period_ms + watchdog_grace_period_ms);
+    hw::watchdog::instance &watchdogSbgEllipse       = monitor.spawn_instance(period_ms, watchdog_grace_period_ms);
 
     uint32_t start_ticks = osKernelGetTickCount();
-    for (;;)
+    forever
     {
         jobs_runSbgEllipse_tick();
         watchdogSbgEllipse.checkIn();
