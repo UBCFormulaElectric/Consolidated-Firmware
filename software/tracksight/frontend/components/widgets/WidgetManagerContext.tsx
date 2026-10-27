@@ -14,6 +14,7 @@ interface WidgetManagerContext {
     widgets: WidgetData[];
     initializedFromLocalStorage: boolean;
     appendWidget: (newWidget: WidgetData) => void;
+    replaceWidgets: (nextWidgets: WidgetData[]) => void;
     removeWidget: (widgetToRemove: string) => void;
     moveWidget: (widgetToMove: string, insertionIndex: number) => void;
     moveWidgetToIndex: (widgetToMove: string, targetIndex: number) => void;
@@ -200,7 +201,15 @@ export function WidgetManager({ children, storageKey = LOCAL_STORAGE_KEY }: { ch
 
     const appendWidget = useCallback(
         (newWidget: WidgetData) => {
-            setWidgets((prev) => [...prev, { ...newWidget, id: uuidv4() }]);
+            // callers may choose the id to keep editing the widget they just added
+            setWidgets((prev) => [...prev, { ...newWidget, id: newWidget.id || uuidv4() }]);
+        },
+        [setWidgets]
+    );
+
+    const replaceWidgets = useCallback(
+        (nextWidgets: WidgetData[]) => {
+            setWidgets(nextWidgets.map((widget) => ({ ...widget, id: uuidv4() })));
         },
         [setWidgets]
     );
@@ -379,6 +388,7 @@ export function WidgetManager({ children, storageKey = LOCAL_STORAGE_KEY }: { ch
         () => ({
             widgets,
             appendWidget,
+            replaceWidgets,
             removeWidget,
             moveWidget,
             moveWidgetToIndex,
@@ -388,7 +398,7 @@ export function WidgetManager({ children, storageKey = LOCAL_STORAGE_KEY }: { ch
             updateWidget,
             initializedFromLocalStorage: isInitialized,
         }),
-        [widgets, appendWidget, removeWidget, moveWidget, moveWidgetToIndex, appendSignal, removeSignal, moveSignal, updateWidget, isInitialized]
+        [widgets, appendWidget, replaceWidgets, removeWidget, moveWidget, moveWidgetToIndex, appendSignal, removeSignal, moveSignal, updateWidget, isInitialized]
     );
 
     return <WidgetManagerContext value={contextValue}>{children}</WidgetManagerContext>;
