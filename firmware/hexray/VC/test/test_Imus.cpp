@@ -40,7 +40,7 @@ TEST_F(VCImuTest, Imu1_Accel_Gyro_Test)
 {
     io::imus::IMU1.set_AccelX(0.2f + 0.04f);
     io::imus::IMU1.set_AccelY(0.1f + 0.01f);
-    io::imus::IMU1.set_AccelZ(0.97468f -0.01f);
+    io::imus::IMU1.set_AccelZ(0.97468f - 0.01f);
     io::imus::IMU1.set_GyroRoll(0.2f + 0.63f);
     io::imus::IMU1.set_GyroPitch(0.1f - 0.4f);
     io::imus::IMU1.set_GyroYaw(0.97468f - 0.26f);
