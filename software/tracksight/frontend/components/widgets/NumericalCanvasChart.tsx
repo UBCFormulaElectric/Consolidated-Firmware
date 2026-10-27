@@ -37,6 +37,7 @@ export default function NumericalCanvasChart({ id, options, signals, hoveredSign
             layoutRef,
             {
                 type: "numericalGraph",
+                name: "",
                 signals,
                 options,
                 data: chartData.current,

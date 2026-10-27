@@ -12,7 +12,7 @@ import { EnumTimelineWidgetData } from "@/lib/types/Widget";
 import { useRef } from "react";
 
 // TODO(evan): This can probably be merged into NumericalCanvasChart w some type magic.
-export default function EnumCanvasChart({ id, options, signals, hoveredSignal, onHoverTimestampChange }: EnumTimelineWidgetData) {
+export default function EnumCanvasChart({ id, options, signals, hoveredSignal, onHoverTimestampChange, name }: EnumTimelineWidgetData) {
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
     const layoutRef = useRef<ChartLayout | null>(null);
     const { globalTimeRangeRef, hoverXRef, XToTime, highlightedAlertRef } = useSyncedGraph();
@@ -39,6 +39,7 @@ export default function EnumCanvasChart({ id, options, signals, hoveredSignal, o
             layoutRef,
             {
                 type: "enumTimeline",
+                name: name,
                 signals,
                 options,
                 data: chartData.current,

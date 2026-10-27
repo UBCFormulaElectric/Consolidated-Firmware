@@ -243,12 +243,18 @@ function render_numerical(context: CanvasRenderingContext2D, width: number, char
         };
     });
 
-    let [all_series_min, all_series_max] = series_bounds.reduce(([min, max], meta) => [Math.min(min, meta.min), Math.max(max, meta.max)], [Infinity, -Infinity]);
 
-    // edge case where all values are the same
-    if (all_series_min === all_series_max) {
-        all_series_min -= 1;
-        all_series_max += 1;
+    
+    let [all_series_max, all_series_min] = widgetConfig.signals.reduce(([max, min], signal) => {
+        return [
+            Math.max(max, signal.max_val ?? -Infinity),
+            Math.min(min, signal.min_val ?? Infinity),
+        ]
+    }, [-Infinity, Infinity]);
+    
+    if (hoveredSignal?.current) {
+        all_series_max = widgetConfig.signals.find((s) => s.name === hoveredSignal?.current)?.max_val ?? all_series_max;
+        all_series_min = widgetConfig.signals.find((s) => s.name === hoveredSignal?.current)?.min_val ?? all_series_min;
     }
 
     context.strokeStyle = "#333";
@@ -551,6 +557,25 @@ export default function render(context: CanvasRenderingContext2D, width: number,
         }
     }
     context.stroke();
+
+    const SUBTICKS_PER_TICK = 4;
+    const numGridLines = Math.round((lastTick - firstTick) / tickSpacing) * SUBTICKS_PER_TICK;
+
+    for (let i = 0; i <= numGridLines; i++) {
+        const x = timeToX(firstTick + (i * tickSpacing) / (SUBTICKS_PER_TICK));
+        if (x < CHART_PADDING.left || x > width - CHART_PADDING.right) continue;
+
+        if (i % (SUBTICKS_PER_TICK) === 0) {
+            context.lineWidth = 0.5;
+        } else {
+            context.lineWidth = 0.25;
+        }
+
+        context.beginPath();
+        context.moveTo(x, CHART_PADDING.top);
+        context.lineTo(x, height - CHART_PADDING.bottom);
+        context.stroke();
+    }
 
     for (let tick = firstTick; tick <= lastTick; tick += tickSpacing) {
         const x = timeToX(tick);

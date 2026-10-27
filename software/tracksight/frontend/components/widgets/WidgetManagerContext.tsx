@@ -85,6 +85,7 @@ function WidgetDeserialize(widgetString: string): WidgetData[] {
                 id: candidate.id,
                 type: "enumTimeline",
                 data: candidate.data,
+                name: candidate.name,
                 signals: candidate.signals,
                 options: {
                     height: candidate.options.height,
@@ -105,6 +106,7 @@ function WidgetDeserialize(widgetString: string): WidgetData[] {
         if (candidate.type === "numericalGraph") {
             return {
                 id: candidate.id,
+                name: candidate.name,
                 type: "numericalGraph",
                 signals: candidate.signals,
                 data: candidate.data,
@@ -202,7 +204,7 @@ export function WidgetManager({ children, storageKey = LOCAL_STORAGE_KEY }: { ch
     const appendWidget = useCallback(
         (newWidget: WidgetData) => {
             // callers may choose the id to keep editing the widget they just added
-            setWidgets((prev) => [...prev, { ...newWidget, id: newWidget.id || uuidv4() }]);
+            setWidgets((prev) => [...prev, { ...newWidget, name: newWidget.name ?? "", id: newWidget.id || uuidv4() }]);
         },
         [setWidgets]
     );

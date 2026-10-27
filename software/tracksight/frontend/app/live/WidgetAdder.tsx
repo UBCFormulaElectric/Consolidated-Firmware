@@ -22,10 +22,10 @@ export function WidgetAdder() {
         const states = signals.filter(isStateSignal);
 
         if (numerical.length > 0) {
-            appendWidget({ id: "", type: "numericalGraph", data: [], signals: numerical, options: { ...DEFAULT_OPTIONS, colorPalette: Object.fromEntries(numerical.map((signal) => [signal.name, chroma.random()])) } });
+            appendWidget({ id: "", name: "", type: "numericalGraph", data: [], signals: numerical, options: { ...DEFAULT_OPTIONS, colorPalette: Object.fromEntries(numerical.map((signal) => [signal.name, chroma.random()])) } });
         }
         if (states.length > 0) {
-            appendWidget({ id: "", type: "enumTimeline", data: [], signals: states, options: { ...DEFAULT_OPTIONS, colorPalette: Object.fromEntries(states.map((signal) => [signal.name, buildEnumPalette(signal)])) } });
+            appendWidget({ id: "", name: "", type: "enumTimeline", data: [], signals: states, options: { ...DEFAULT_OPTIONS, colorPalette: Object.fromEntries(states.map((signal) => [signal.name, buildEnumPalette(signal)])) } });
         }
         setOpen(false);
     };
