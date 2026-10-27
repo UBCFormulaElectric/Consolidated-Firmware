@@ -1,5 +1,5 @@
-import { API_BASE_URL } from "@/lib/constants";
 import { SignalType } from "../types/Signal";
+import { ENDPOINTS } from "@/lib/api/endpoints";
 
 type HistoricalSignalRow = {
     timestamp: string;
@@ -44,7 +44,7 @@ export async function fetchHistoricalSignal(params: { signalName: string; signal
     const start = toIsoUtcSeconds(startUtcMs);
     const end = toIsoUtcSeconds(endUtcMs);
     const agg = signalType === SignalType.NUMERICAL ? "mean" : "first";
-    const url = `${API_BASE_URL}/api/v1/signal/tiles/${encodeURIComponent(signalName)}/${start}/${end}?agg=${agg}&source=${encodeURIComponent(JSON.stringify(source))}`;
+    const url = `${ENDPOINTS.signalTiles(encodeURIComponent(signalName), start, end)}?agg=${agg}&source=${encodeURIComponent(JSON.stringify(source))}`;
 
     const response = await fetch(url, {
         cache: "no-store",
