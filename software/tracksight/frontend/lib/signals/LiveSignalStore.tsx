@@ -13,7 +13,6 @@ type SignalSubscriptionCallbacks = {
 type SignalMutationFunction = (signalName: string, callbacks?: SignalSubscriptionCallbacks) => void;
 
 const NUM_LOD_LEVELS = 10;
-const TELEM_MARK_COUNT_SIGNAL = "CRIT_Info_TelemMarkEvent_Count";
 
 class LiveSignalStore extends SignalStore {
     private subscribeToSignal: SignalMutationFunction;
@@ -56,7 +55,7 @@ class LiveSignalStore extends SignalStore {
                 return;
             }
 
-            if (signalName === TELEM_MARK_COUNT_SIGNAL) {
+            if (signalName === "CRIT_Info_TelemMarkEvent_Count") {
                 const prevCount = this.lastTelemMarkCount;
                 this.lastTelemMarkCount = value;
 
@@ -114,7 +113,7 @@ class LiveSignalStore extends SignalStore {
 
         const subscribeToTelemMarks = () => {
             this.lastTelemMarkCount = null; // don't mark presses missed while disconnected
-            this.subscribeToSignal(TELEM_MARK_COUNT_SIGNAL, {
+            this.subscribeToSignal("CRIT_Info_TelemMarkEvent_Count", {
                 onError: (error) => {
                     console.error("Error subscribing to telem marks:", error);
                 },
