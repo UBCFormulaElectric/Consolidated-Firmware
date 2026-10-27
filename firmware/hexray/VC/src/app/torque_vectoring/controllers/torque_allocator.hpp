@@ -14,14 +14,26 @@ namespace app::tv::controllers
  *
  * Outputs per-wheel optimal slip ratios using the caller-provided per-wheel tire models.
  */
+
 namespace allocator
 {
+    struct OptimizerWeights
+    {
+        float W_FX;
+        float W_MZ;
+        float W_R;
+    };
+
     /**
      * Run Gauss-Newton iterations to find optimal slip ratios.
      * @return Per-wheel optimal slip ratios
      */
     template <Decimal T>
     [[nodiscard]] shared_datatypes::wheel_set<T>
-        optimize(const shared_datatypes::VehicleState<T> &state, T ax_setpoint, T omegadot_setpoint);
+        optimize(
+            const shared_datatypes::VehicleState<T> &state,
+            T                                        ax_setpoint,
+            T                                        omegadot_setpoint,
+            OptimizerWeights                         optimizerWeights);
 }; // namespace allocator
 } // namespace app::tv::controllers

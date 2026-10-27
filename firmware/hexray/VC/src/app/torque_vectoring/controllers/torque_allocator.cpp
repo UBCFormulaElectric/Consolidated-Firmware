@@ -20,10 +20,6 @@ namespace app::tv::controllers::allocator
 namespace
 {
     // ---- Optimizer tuning ----
-    constexpr float W_FX = 2.5f;
-    constexpr float W_MZ = 15.0f;
-    constexpr float W_R  = 2000.0f;
-
     constexpr int MAX_ITER = 20;
     // Static bound on each wheel's slip target. The tire's Fx peak moves with slip angle (~0.09 at alpha = 0,
     // ~0.24 at alpha = 0.1), so this is a compromise: too low caps cornering force, too high lets straight-line
@@ -53,7 +49,7 @@ namespace
 } // namespace
 
 template <Decimal T>
-[[nodiscard]] wheel_set<T> optimize(const VehicleState<T> &state, const T ax_setpoint, const T omegadot_setpoint)
+[[nodiscard]] wheel_set<T> optimize(const VehicleState<T> &state, const T ax_setpoint, const T omegadot_setpoint, OptimizerWeights optimizerWeights)
 {
     // Low-speed safeguard:
     // torque_vectoring.cpp computes a single force-availability blend from vehicle speed and passes it
@@ -67,9 +63,9 @@ template <Decimal T>
     //     return { .fl = 0.0f, .fr = 0.0f, .rl = 0.0f, .rr = 0.0f };
     // }
 
-    static const T SQRT_W_FX     = std::sqrt(W_FX);
-    static const T SQRT_W_MZ     = std::sqrt(W_MZ);
-    static const T SQRT_W_R      = std::sqrt(W_R);
+    const T        SQRT_W_FX     = std::sqrt(optimizerWeights.W_FX);
+    const T        SQRT_W_MZ     = std::sqrt(optimizerWeights.W_MZ);
+    const T        SQRT_W_R      = std::sqrt(optimizerWeights.W_R);
     static Vec4<T> previous_slip = Vec4<T>::Zero(); // warm start for the next cycle
 
     // const wheel_set<float> blended_des_f_x{
@@ -267,7 +263,7 @@ template <Decimal T>
     const Vec4<T> best_slip           = use_warm ? warm_slip : cold_slip;
     previous_slip                     = best_slip;
 
-    // Residuals at the chosen slips, reported in the debug struct.
+// Residuals at the chosen slips, reported in the debug struct.
     const DualVec6<T> residual_at_solution = residualVector({
         DecimalDual<T>(best_slip(0)),
         DecimalDual<T>(best_slip(1)),
@@ -295,5 +291,9 @@ template <Decimal T>
 }
 
 template wheel_set<tv_real>
-    optimize(const VehicleState<tv_real> &state, tv_real ax_setpoint, tv_real omegadot_setpoint);
+    optimize(
+        const VehicleState<tv_real> &state,
+        tv_real                      ax_setpoint,
+        tv_real                      omegadot_setpoint,
+        OptimizerWeights             optimizerWeights);
 } // namespace app::tv::controllers::allocator

@@ -1,5 +1,30 @@
 #pragma once
 #include "app_pid.hpp"
+#include "torque_allocator.hpp"
+
+namespace app::tv::controllers::allocator
+{
+    static constexpr OptimizerWeights accel_ow  = 
+    {
+        .W_FX = 1.0f,
+        .W_MZ = 0.5f,
+        .W_R = 10.0f
+    };
+
+    static constexpr OptimizerWeights track_ow = 
+    {
+        .W_FX = 2.0f,
+        .W_MZ = 15.0f,
+        .W_R = 5000.0f
+    };
+
+    static constexpr OptimizerWeights vanilla_ow = 
+    {
+        .W_FX = 0.05f,
+        .W_MZ = 0.05f,
+        .W_R = 5000.0f
+    };
+}
 
 namespace app::tv::controllers::dyrc
 {

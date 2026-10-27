@@ -6,9 +6,12 @@
 #include "torque_vectoring/controllers/controllers_dyrc.hpp"
 #include "torque_vectoring/controllers/accel_request.hpp"
 #include "torque_vectoring/controllers/torque_allocator.hpp"
+#include "torque_vectoring/controllers/drivemode_handling.hpp"
 #include "torque_vectoring/shared_datatypes/constants.hpp"
 
 #include "torque_vectoring/estimation/steering_model.hpp"
+
+#include "app_canRx.hpp"
 
 using namespace app::tv::shared_datatypes;
 using namespace app::tv::controllers;
@@ -38,9 +41,11 @@ template <Decimal T> ControlOutput<T> update(const VehicleState<T> &state)
     // const float vehicle_speed_mps = std::hypot(estimated_state.v_x_mps, estimated_state.v_y_mps);
     // const float low_speed_blend   = shared_datatypes::velocityBlend(vehicle_speed_mps);
 
+    const allocator::OptimizerWeights optimizer_weights = getOptimizerWeights(app::can_rx::CRIT_DriveMode_get());
+
     // ReSharper disable once CppUseStructuredBinding
-    const wheel_set<T> kappa_opt =
-        allocator::optimize(state, ax_request.percentage * MAX_AX_MPS2, omegadot_radps2_setpoint);
+    const wheel_set<T> kappa_opt = allocator::optimize(
+        state, ax_request.percentage * MAX_AX_MPS2, omegadot_radps2_setpoint, optimizer_weights);
 
     //------------------------------------- POWER LIMITER -----------------------------------//
     // TODO: slip_ratio_opt -> slipRatioToWheelAngularVelocity() -> power limiter -> torque request
