@@ -165,6 +165,8 @@ function AlertTimeline() {
 
             let rowsChanged = false;
             Object.entries(store.getAlertSeries()).forEach(([name, series]) => {
+                // shown as a vertical telemetry marker line
+                if (name === "CRIT_Info_TelemMarkEvent") return;
                 if (series.lods.length === 0) return;
 
                 let tracker = trackers.get(name);
