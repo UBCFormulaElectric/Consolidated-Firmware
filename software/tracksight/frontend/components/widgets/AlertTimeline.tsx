@@ -59,6 +59,8 @@ const computeAlertModel = (alertSeries: { [signalName: string]: LODAwareAlertSer
     const bars: AlertBar[] = [];
 
     Object.keys(alertSeries).forEach((name) => {
+        if (name === "CRIT_Info_TelemMarkEvent") return;
+
         const series = alertSeries[name];
         if (series.lods.length === 0) return;
 

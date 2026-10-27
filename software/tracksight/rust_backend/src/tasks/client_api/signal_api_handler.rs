@@ -317,8 +317,10 @@ async fn signal_markers(
         |> range(start: time(v: "{start_utc}"), stop: time(v: "{end_utc}"))
         |> filter(fn: (r) => r["_measurement"] == "{}")
         |> filter(fn: (r) => r["source"] == "{source_str}")
-        |> filter(fn: (r) => r["signal_name"] =~ /TelemMarkEvent$/)
+        |> filter(fn: (r) => r["signal_name"] == "CRIT_Info_TelemMarkEvent_Count")
         |> sort(columns: ["_time"])
+        |> difference(nonNegative: true)
+        |> filter(fn: (r) => r["_value"] > 0.0)
         "#, &CONFIG.influxdb_bucket, &CONFIG.influxdb_measurement);
 
     let req: Result<Vec<_>, influxdb2::RequestError> = select! {

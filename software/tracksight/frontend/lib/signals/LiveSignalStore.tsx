@@ -19,6 +19,7 @@ class LiveSignalStore extends SignalStore {
     private unsubscribeFromSignal: SignalMutationFunction;
     private lodBuffers: Map<string, HaarLodBuffer[] | ModeLodBuffer[]>;
     private pendingUnsubscribes: Map<string, ReturnType<typeof setTimeout>>;
+    private lastTelemMarkCount: number | null = null;
 
     constructor(updateWithTimestamp: (timestamp: number) => void, subscribeToSignal: SignalMutationFunction, unsubscribeFromSignal: SignalMutationFunction) {
         super(updateWithTimestamp);
@@ -52,6 +53,20 @@ class LiveSignalStore extends SignalStore {
 
                 this.updateWithTimestamp(ts);
                 return;
+            }
+
+            if (signalName === "CRIT_Info_TelemMarkEvent_Count") {
+                const prevCount = this.lastTelemMarkCount;
+                this.lastTelemMarkCount = value;
+
+                if (prevCount !== null && value > prevCount) {
+                    addTelemetryMarker({
+                        timestampMs: ts,
+                    });
+
+                    this.updateWithTimestamp(ts);
+                }
+                // no return: a graph may also be plotting this signal
             }
 
             if (!this.storage[signalName] && signal_type !== "Alert") return;
@@ -96,7 +111,18 @@ class LiveSignalStore extends SignalStore {
             }
         });
 
+        const subscribeToTelemMarks = () => {
+            this.lastTelemMarkCount = null; // don't mark presses missed while disconnected
+            this.subscribeToSignal("CRIT_Info_TelemMarkEvent_Count", {
+                onError: (error) => {
+                    console.error("Error subscribing to telem marks:", error);
+                },
+            });
+        };
+
         socket.on("connect", () => {
+            subscribeToTelemMarks();
+
             Object.entries(this.subscriberCounts).forEach(([signalName, subscriberCount]) => {
                 if (subscriberCount <= 0) return;
 
@@ -107,6 +133,8 @@ class LiveSignalStore extends SignalStore {
                 });
             });
         });
+
+        if (socket.connected) subscribeToTelemMarks();
     }
 
     getReferenceToSignal<T extends SignalMetadata>(signal: T) {
