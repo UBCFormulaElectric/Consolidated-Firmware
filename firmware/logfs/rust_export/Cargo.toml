@@ -1,0 +1,16 @@
+[package]
+name = "logfs_export"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "logfs_export"
+path = "src/lib.rs"
+
+[dependencies]
+jsoncan_rust = { git = "https://github.com/UBCFormulaElectric/Consolidated-Firmware.git", branch = "master" }
+logfs = { git = "https://github.com/UBCFormulaElectric/Consolidated-Firmware.git", branch = "master" }
+
+chrono = "0.4.44"
+rust_xlsxwriter = { version = "0.99.1", features = ["chrono", "constant_memory"] }
+crc = "3.0.0"

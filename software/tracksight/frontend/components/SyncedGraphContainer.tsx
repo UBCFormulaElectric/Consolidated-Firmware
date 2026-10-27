@@ -54,6 +54,8 @@ const MAX_CONTENT_WIDTH_PX = 15_000_000;
 const WHEEL_ZOOM_SENSITIVITY = 0.005;
 const MAX_WHEEL_ZOOM_DELTA = 50; // caps one mouse wheel notch at ~1.28x while leaving small trackpad pinch deltas untouched
 const WHEEL_LINE_HEIGHT_PX = 16;
+// live: how far past the newest sample the clock may carry the view before it waits for data (e.g. while disconnected)
+const MAX_LIVE_EXTRAPOLATION_MS = 10_000;
 
 export default function SyncedGraphContainer({ children, initialTimeRange, onViewportSettled }: SyncedGraphContainerProps) {
     const { isViewportLocked } = useDisplayControlContext();
@@ -81,6 +83,9 @@ export default function SyncedGraphContainer({ children, initialTimeRange, onVie
 
     // glokbal time range
     const globalTimeRangeRef = useRef<TimeRange | null>(null);
+    // newest sample seen, and its timestamp minus the local clock when it arrived (absorbs car/laptop clock skew)
+    const newestSampleRef = useRef(-Infinity);
+    const clockOffsetRef = useRef<number | null>(null);
     // manage left scroll variable
     const scrollLeftRef = useRef<number>(0);
 
@@ -246,6 +251,11 @@ export default function SyncedGraphContainer({ children, initialTimeRange, onVie
 
     const updateWithTimestamp = useCallback(
         (timestamp: number) => {
+            if (timestamp > newestSampleRef.current) {
+                newestSampleRef.current = timestamp;
+                clockOffsetRef.current = timestamp - Date.now();
+            }
+
             if (!globalTimeRangeRef.current || timestamp < globalTimeRangeRef.current.min || timestamp > globalTimeRangeRef.current.max) {
                 globalTimeRangeRef.current = {
                     min: Math.min(timestamp, globalTimeRangeRef.current?.min || timestamp),
@@ -287,6 +297,25 @@ export default function SyncedGraphContainer({ children, initialTimeRange, onVie
 
         setTimeRange(initialTimeRange, true);
     }, [initialTimeRange, setTimeRange, updateGraphWidth]);
+
+    useEffect(() => {
+        // live: between samples, move the right edge with the clock so slow signals scroll smoothly instead of jumping
+        if (initialTimeRange || !isViewportLocked || typeof requestAnimationFrame === "undefined") return;
+
+        let frame = requestAnimationFrame(function advance() {
+            const range = globalTimeRangeRef.current;
+            const offset = clockOffsetRef.current;
+            if (range && offset !== null) {
+                const estimatedNow = Math.min(Date.now() + offset, newestSampleRef.current + MAX_LIVE_EXTRAPOLATION_MS);
+                if (estimatedNow > range.max) {
+                    globalTimeRangeRef.current = { min: range.min, max: estimatedNow };
+                    updateGraphWidth();
+                }
+            }
+            frame = requestAnimationFrame(advance);
+        });
+        return () => cancelAnimationFrame(frame);
+    }, [initialTimeRange, isViewportLocked, updateGraphWidth]);
 
     const updateLeftScroll = useCallback(
         (e: UIEvent<HTMLDivElement>) => {

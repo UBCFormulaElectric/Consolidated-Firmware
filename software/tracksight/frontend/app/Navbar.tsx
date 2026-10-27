@@ -51,7 +51,7 @@ function Navbar() {
     const links = [
         { href: "/live", label: "Live Data" },
         { href: "/historical", label: "Historical Data" },
-        { href: "/sd/dump", label: "SD Card Dump" },
+        { href: "/tools", label: "Tools" },
     ];
 
     return (
