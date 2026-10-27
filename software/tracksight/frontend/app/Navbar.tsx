@@ -10,6 +10,10 @@ import { formatSessionLabel } from "@/lib/api/historicalSessions";
 import { useHistoricalSelection } from "@/lib/contexts/HistoricalSelectionContext";
 import { useTimezone } from "@/lib/contexts/TimezoneContext";
 
+function NavBarDivider() {
+    return <div className="h-6 w-px bg-gray-300" />;
+}
+
 function HistoricalNavButton({ label, value, onClick }: { label: string; value: string; onClick: () => void }) {
     return (
         <button type="button" onClick={onClick} className="flex items-center gap-2 rounded border border-black bg-white py-1.5 pl-3 pr-2 text-left transition-colors hover:cursor-pointer hover:border-black/75">
@@ -44,9 +48,11 @@ function Navbar() {
             <div className="flex flex-row items-center justify-between px-8 py-4 select-none">
                 <div className="flex flex-row items-center gap-6">
                     <Link href="/">Home</Link>
+                    <NavBarDivider />
                     <Link href="/live">Live Data</Link>
                     <Link href="/historical">Historical Data</Link>
-                    <Link href="/sd/dump">SD Card Dump</Link>
+                    <NavBarDivider />
+                    <Link href="/tools">Tools</Link>
                 </div>
                 <div className="flex items-center gap-4">
                     {isHistorical ? <HistoricalNavControls /> : null}
