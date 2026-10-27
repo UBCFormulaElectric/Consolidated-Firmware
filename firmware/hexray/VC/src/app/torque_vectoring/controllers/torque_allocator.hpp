@@ -19,9 +19,9 @@ namespace allocator
 {
     struct OptimizerWeights
     {
-        float W_FX;
-        float W_MZ;
-        float W_R;
+        tv_real W_FX;
+        tv_real W_MZ;
+        tv_real W_R;
     };
 
     /**

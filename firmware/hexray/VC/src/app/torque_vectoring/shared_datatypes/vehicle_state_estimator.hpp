@@ -4,6 +4,7 @@
 #include "torque_vectoring/shared_datatypes/decimal_dual.hpp"
 #include <algorithm>
 #include <cmath>
+#include "app_canUtils.hpp"
 
 namespace app::tv::shared_datatypes
 {
@@ -14,9 +15,10 @@ template <Decimal T> struct VehicleState
     T            v_y_mps        = 0.0f;
     T            yaw_rate_radps = 0.0f;
     T            a_x_mps2       = 0.0f;
-    T            a_y_mps2       = 0.0f;
-    T            apps           = 0.0f;
-    T            brake          = 0.0f; // brake pedal, 0..1
+    T            a_y_mps2               = 0.0f;
+    T            apps                   = 0.0f;
+    T            brake                  = 0.0f; // brake pedal, 0..1
+    app::can_utils::DriveMode drivemode = app::can_utils::DriveMode::VANILLA; 
     wheel_set<T> delta{};
     wheel_set<T> omegas{};
 

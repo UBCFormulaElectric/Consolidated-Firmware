@@ -9,6 +9,8 @@
 #include "torque_vectoring/shared_datatypes/constants.hpp"
 #include <torque_vectoring/shared_datatypes/pair.hpp>
 
+#include "app_canRx.hpp"
+
 using namespace app::tv::shared_datatypes::vd_constants;
 
 namespace app::tv::estimation
@@ -266,6 +268,7 @@ namespace VehicleStateEstimator
             .brake          = meas.brake,
             .delta          = app::tv::estimation::steering::wheel_steer_angles(meas.delta),
             .omegas         = meas.omegas,
+            .drivemode      = app::can_rx::CRIT_DriveMode_get(),
         };
 
         const auto wheelspeed_meas = WheelMeas(meas.omegas.fl, meas.omegas.fr, meas.omegas.rl, meas.omegas.rr);

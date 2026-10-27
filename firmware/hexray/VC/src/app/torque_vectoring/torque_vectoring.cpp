@@ -41,7 +41,7 @@ template <Decimal T> ControlOutput<T> update(const VehicleState<T> &state)
     // const float vehicle_speed_mps = std::hypot(estimated_state.v_x_mps, estimated_state.v_y_mps);
     // const float low_speed_blend   = shared_datatypes::velocityBlend(vehicle_speed_mps);
 
-    const allocator::OptimizerWeights optimizer_weights = getOptimizerWeights(app::can_rx::CRIT_DriveMode_get());
+    const allocator::OptimizerWeights optimizer_weights = getOptimizerWeights(state.drivemode);
 
     // ReSharper disable once CppUseStructuredBinding
     const wheel_set<T> kappa_opt = allocator::optimize(
