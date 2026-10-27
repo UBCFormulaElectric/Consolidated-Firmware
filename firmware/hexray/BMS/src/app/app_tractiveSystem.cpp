@@ -39,7 +39,7 @@ void broadcast()
     const bool ts_current_sns_diag_state = io::ts::getCurrentSnsDiagState();
     const bool ts_overcurrent_warning =
         overcurrent_warning_timer.runIfCondition(!IS_IN_RANGE(
-            MAX_TS_DISCHARGE_CURRENT_AMPS, MAX_TS_CHARGE_CURRENT_AMPS, ts_current)) == Timer::TimerState::RUNNING;
+            MAX_TS_DISCHARGE_CURRENT_AMPS, MAX_TS_CHARGE_CURRENT_AMPS, ts_current)) == Timer::TimerState::EXPIRED;
 
     app::can_tx::BMS_TractiveSystemVoltage_set(ts_voltage);
     app::can_tx::BMS_TractiveSystemCurrent_set(ts_current);

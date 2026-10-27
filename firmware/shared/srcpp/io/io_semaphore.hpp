@@ -4,19 +4,18 @@
 #include <cstdint>
 
 #ifdef TARGET_EMBEDDED
+#include "cmsis_os2.h"
 #include <FreeRTOS.h>
-#include "semphr.h"
-#include <portmacro.h>
 #endif
 
-namespace io
+namespace io::semaphore
 {
-class semaphore
+class Semaphore
 {
     uint32_t _sysview_id;
 
   public:
-    explicit semaphore(bool priority_inheritance_protocol_on, const uint32_t sysview_id = 0);
+    explicit Semaphore(bool priority_inheritance_protocol_on, const uint32_t sysview_id = 0);
 
     void take(uint32_t timeout = std::numeric_limits<uint32_t>::max()) const;
     void give() const;
@@ -29,7 +28,8 @@ class semaphore
   private:
 #ifdef TARGET_EMBEDDED
     StaticSemaphore_t freertos_semaphore_buf_{};
-    SemaphoreHandle_t freertos_semaphore_;
+    osMutexId_t       mutex_id_{};
+    osSemaphoreId_t   semaphore_id_{};
 #else
     bool created_;
 #endif
@@ -37,14 +37,14 @@ class semaphore
 
 class unique_semaphore
 {
-    const semaphore &_sem;
+    const Semaphore &_sem;
 
   public:
-    explicit unique_semaphore(const semaphore &sem, const uint32_t timeout = std::numeric_limits<uint32_t>::max())
+    explicit unique_semaphore(const Semaphore &sem, const uint32_t timeout = std::numeric_limits<uint32_t>::max())
       : _sem(sem)
     {
         _sem.take(timeout);
     }
     ~unique_semaphore() { _sem.give(); }
 };
-} // namespace io
+} // namespace io::semaphore

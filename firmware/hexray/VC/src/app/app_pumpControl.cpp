@@ -23,7 +23,7 @@ void restart()
     can_tx::VC_RLPumpSetpoint_set(0);
     {
         // NOTE: no semaphore because this is called pre operating system
-        // const io::unique_semaphore lock{ pwr_pump_i2c_bus_lock };
+        // const io::semaphore::unique_semaphore lock{ pwr_pump_i2c_bus_lock };
         LOG_IF_ERR(rr_pump.setPercentage(0));
         can_tx::VC_RRPumpSetpoint_set(0);
     }
@@ -68,7 +68,7 @@ void MonitorPumps()
                 break;
         }
         {
-            const io::unique_semaphore lock{ pwr_pump_i2c_bus_lock };
+            const io::semaphore::unique_semaphore lock{ pwr_pump_i2c_bus_lock };
             const float                percentage =
                 static_cast<float>(ramp_timer_rr.getElapsedTime()) / static_cast<float>(RAMP_DURATION_MS);
             const auto percentage_u8 = static_cast<uint8_t>(percentage * MAX_PUMP_VALUE);
@@ -81,7 +81,7 @@ void MonitorPumps()
         // stops the flow to reramp up to a setpoint
         ramp_timer_rr.stop();
         {
-            const io::unique_semaphore lock{ pwr_pump_i2c_bus_lock };
+            const io::semaphore::unique_semaphore lock{ pwr_pump_i2c_bus_lock };
             LOG_IF_ERR(rr_pump.setPercentage(0));
             can_tx::VC_RRPumpSetpoint_set(0);
         }
