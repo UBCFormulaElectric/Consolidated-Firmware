@@ -16,5 +16,10 @@
     }
   },
   "warnings": {},
-  "faults": {}
+  "faults": {
+     "LogQueueHighWatermark": {
+      "id": 884,
+      "description": "SD log queue watemerk"
+    }
+  }
 }

@@ -5,6 +5,7 @@
 
 #include "app_bootcount.hpp"
 #include "app_buzzer.hpp"
+#include "app_canAlerts.hpp"
 #include "app_canTx.hpp"
 #include "app_canUtils.hpp"
 #include "app_canDataCapture.hpp"
@@ -30,6 +31,9 @@
 #include "util_errorCodes.hpp"
 
 #include <span>
+
+constexpr uint32_t LOG_QUEUE_WATERMARK_SET_PERCENT   = 85U;
+constexpr uint32_t LOG_QUEUE_WATERMARK_CLEAR_PERCENT = 75U;
 
 void jobs_init()
 {
@@ -123,6 +127,9 @@ void jobs_run1Hz_tick()
         }
     }
 
+    app::can_tx::DAM_LogQueueOverflowCount_set(static_cast<uint16_t>(log_queue.get_overflowCount()));
+    app::can_tx::DAM_LogQueueCount_set(static_cast<uint16_t>(log_queue.get_count()));
+
     app::sd::requestSync();
     io::can_tx::enqueue1HzMsgs();
 }
@@ -138,6 +145,15 @@ void jobs_run100Hz_tick()
     }
 
     app::buzzer::tick();
+
+    static bool    watermark_active = false;
+    const size_t   count            = log_queue.get_count();
+    constexpr auto capacity         = decltype(log_queue)::get_capacity();
+
+    // Percent checks in integer math: (count / capacity >= 85 / 100)  ==  (count * 100 >= capacity * 85)
+    if      (count * 100u >= capacity * LOG_QUEUE_WATERMARK_SET_PERCENT)  watermark_active = true;
+    else if (count * 100u < capacity * LOG_QUEUE_WATERMARK_CLEAR_PERCENT) watermark_active = false;
+    app::can_alerts::faults::LogQueueHighWatermark_set(watermark_active);
 
     hb_monitor.checkIn();
     hb_monitor.broadcastFaults();

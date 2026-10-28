@@ -17,92 +17,154 @@
 
 namespace io
 {
+namespace internal
+{
+#if defined(TARGET_EMBEDDED)
+    template <typename T, size_t QUEUE_SIZE> class queueImpl
+    {
+        constexpr static size_t QUEUE_SIZE_BYTES = sizeof(T) * QUEUE_SIZE;
+
+        osMessageQueueId_t                    queue_id = nullptr;
+        StaticQueue_t                         queue_control_block{};
+        std::array<uint8_t, QUEUE_SIZE_BYTES> queue_buf{};
+        const osMessageQueueAttr_t            queue_attr;
+
+      public:
+        /**
+         * @brief Set up the static queue attributes
+         * @param name Queue name
+         */
+        explicit queueImpl([[maybe_unused]] const char *name)
+          : queue_attr({
+                .name      = name,
+                .attr_bits = 0,
+                .cb_mem    = &this->queue_control_block,
+                .cb_size   = sizeof(StaticQueue_t),
+                .mq_mem    = this->queue_buf.data(),
+                .mq_size   = QUEUE_SIZE_BYTES,
+            })
+        {
+        }
+
+        /**
+         * @brief Create the RTOS queue on the static buffers
+         */
+        void init() { 
+            this->queue_id = osMessageQueueNew(QUEUE_SIZE, sizeof(T), &this->queue_attr); 
+        }
+
+        /**
+         * @brief Enqueue without blocking
+         * @return false if the queue is full
+         */
+        bool put(const T &msg) {
+            assert(queue_id != nullptr);
+            return osMessageQueuePut(this->queue_id, &msg, 0, 0) == osOK;
+        }
+
+        /**
+         * @brief Dequeue into `out`, blocking for up to `timeout` ticks
+         * @return false on timeout
+         */
+        bool get(T &out, const uint32_t timeout) {
+            assert(queue_id != nullptr);
+            return osMessageQueueGet(this->queue_id, &out, nullptr, timeout) == osOK;
+        }
+
+        /**
+         * @return number of elements currently in the queue
+         */
+        size_t count() const { 
+            assert(queue_id != nullptr);
+            return osMessageQueueGetCount(this->queue_id);
+        }
+    };
+#elif defined(TARGET_TEST)
+    template <typename T, size_t QUEUE_SIZE> class queueImpl
+    {
+        std::queue<T> q{};
+
+      public:
+        explicit queueImpl(const char *) {}
+
+        void init() {}
+
+        /**
+         * @brief Enqueue element into queue
+         */
+        bool put(const T &msg)
+        {
+            q.push(msg);
+            return true;
+        }
+
+        /**
+         * @brief Dequeue into `out`
+         * @return false if the queue is empty
+         */
+        bool get(T &out, uint32_t)
+        {
+            if (q.empty()) return false;
+            out = q.front();
+            q.pop();
+            return true;
+        }
+
+        /**
+         * @brief Number of elements currently in the queue
+         */
+        size_t count() const { return q.size(); }
+    };
+#else
+#error "io::queue requires TARGET_EMBEDDED or TARGET_TEST to be defined"
+#endif
+} // namespace internal
+
 template <typename T, size_t QUEUE_SIZE> class queue
 {
-    constexpr static size_t QUEUE_SIZE_BYTES = sizeof(T) * QUEUE_SIZE;
-
-#ifdef TARGET_EMBEDDED
-    osMessageQueueId_t                    queue_id = nullptr;
-    StaticQueue_t                         queue_control_block{};
-    std::array<uint8_t, QUEUE_SIZE_BYTES> queue_buf{};
-    const osMessageQueueAttr_t            queue_attr;
-#elif TARGET_TEST
-    std::queue<T> q{};
-#endif
-
-    // void (*const overflow_callback)(uint32_t){};
-    // void (*const overflow_clear_callback)(){};
+    internal::queueImpl<T, QUEUE_SIZE> queue_impl;
+    uint32_t                         overflow_count = 0;
 
   public:
-    explicit queue([[maybe_unused]] const char *name)
-#ifdef TARGET_EMBEDDED
-      : queue_attr({
-            .name      = name,
-            .attr_bits = 0,
-            .cb_mem    = &this->queue_control_block,
-            .cb_size   = sizeof(StaticQueue_t),
-            .mq_mem    = this->queue_buf.data(),
-            .mq_size   = QUEUE_SIZE_BYTES,
-        })
-#endif
-    {
-    }
-
-    // private vars
-    uint32_t overflow_count = 0;
+    explicit queue(const char *name) : queue_impl(name) {}
 
     /**
-     * Initialize and start the CAN peripheral.
-     * Note: this breaks RAII but embedded moment
+     * @brief Create the underlying queue.
+     * @note this breaks RAII but embedded moment
      */
-    void init()
-    {
-#ifdef TARGET_EMBEDDED
-        this->queue_id = osMessageQueueNew(QUEUE_SIZE, sizeof(T), &this->queue_attr);
-#endif
-    }
+    void init() { queue_impl.init(); }
 
     /**
-     * Enqueue a CAN msg to be transmitted on the d_bus.
-     * Does not block, calls `overflow_callback` if queue is full.
-     * @param msg CAN msg to be TXed.
+     * @brief Adds an element to the back of the queue
+     * @param msg Element to enqueue, copied into the queue
+     * @return Success, or ErrorCode::OUT_OF_RANGE if the queue is ful and the overflow count (get_overflowCount()) is incremented
      */
     [[nodiscard]] result<void> push(const T &msg)
     {
-#ifdef TARGET_EMBEDDED
-        assert(queue_id != nullptr);
-        if (const osStatus_t s = osMessageQueuePut(this->queue_id, &msg, 0, 0); s != osOK)
-        {
+        if (!queue_impl.put(msg)) {
             ++this->overflow_count;
             return std::unexpected(ErrorCode::OUT_OF_RANGE);
         }
-#elif TARGET_TEST
-        q.push(msg);
-#endif
         return {};
     }
 
     /**
-     * Pops a CAN msg from the queue. Blocks until a msg exists in the queue.
+     * @brief Removes the oldest element from the queue, blocking until one is available or the timeout expires
+     * @param timeout Max time to wait, defaults to oswaitForever
+     * @return The dequued element, or ErrorCode::ERROR if nothing arrived before the bruh timeout 
+     * @note In unit tests this never blocks and fails immediately if the queue is empty
      */
     [[nodiscard]] result<T> pop(const uint32_t timeout = std::numeric_limits<uint32_t>::max())
     {
-#ifdef TARGET_EMBEDDED
-        assert(queue_id != nullptr);
         T msg;
-        if (const osStatus_t s = osMessageQueueGet(this->queue_id, &msg, nullptr, timeout); s != osOK)
-        {
+        if (!queue_impl.get(msg, timeout)) {
             return std::unexpected(ErrorCode::ERROR);
         }
         return msg;
-#elif TARGET_TEST
-        UNUSED(timeout);
-        const auto out = q.front();
-        q.pop();
-        return out;
-#endif
     }
 
     uint32_t get_overflowCount() const { return this->overflow_count; }
+    static constexpr size_t get_capacity() { return QUEUE_SIZE; }
+    size_t get_count() const { return queue_impl.count(); }
 };
 } // namespace io
