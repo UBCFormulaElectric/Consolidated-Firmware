@@ -4,7 +4,7 @@ import { CheckCheckIcon, CircleCheck, CircleX, Info, X } from "lucide-react";
 import { createContext, ReactNode, useContext, useRef, useState } from "react";
 
 type ToastContextType = {
-    notify: (message: string, title: string, type?: "success" | "error" | "info") => void;
+    notify: (title: string, message: string, type?: "success" | "error" | "info") => void;
 };
 
 const ToastContext = createContext<ToastContextType | null>(null);
