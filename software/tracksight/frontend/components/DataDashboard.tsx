@@ -1,5 +1,6 @@
 "use client";
 
+import { WidgetAdder } from "@/app/live/WidgetAdder";
 import { DRAGGABLE_TYPES } from "@/lib/constants";
 import { canWidgetAcceptSignal, SignalDragItem, SignalDropResult, WidgetData, WidgetDragItem } from "@/lib/types/Widget";
 import { RefObject, useEffect, useLayoutEffect, useRef } from "react";
@@ -75,7 +76,7 @@ function DashboardWidgetSlot(props: { widget: WidgetData; stackOrder: number; is
                 if (node) itemRefs.current.set(widget.id, node);
                 else itemRefs.current.delete(widget.id);
             }}
-            className={`sticky left-0 w-screen ${isDraggedWidget ? "opacity-50" : ""}`}
+            className={`sticky left-0 w-full ${isDraggedWidget ? "opacity-50" : ""}`}
             style={{ zIndex: stackOrder }}
         >
             <Widget {...widget} hoveredSignal={hoveredSignal} />
@@ -83,7 +84,7 @@ function DashboardWidgetSlot(props: { widget: WidgetData; stackOrder: number; is
     );
 }
 
-function DataDashboard() {
+function DataDashboard(props: { emptyMessage: string }) {
     const { widgets, moveWidget } = useWidgetManager();
 
     const hoveredSignal = useRef<string | null>(null);
@@ -160,18 +161,37 @@ function DataDashboard() {
     }, [isDragging]);
 
     return (
-        <div
+        <section
             ref={(node) => {
                 drop(node);
             }}
+            aria-labelledby="charts-heading"
             className="w-full h-fit"
         >
-            <div ref={listRef} className="relative flex h-full min-w-full flex-col gap-16 py-3">
-                {widgets.map((widget, index) => (
-                    <DashboardWidgetSlot key={widget.id} widget={widget} stackOrder={widgets.length - index} isDraggedWidget={widget.id === draggedWidgetId} hoveredSignal={hoveredSignal} itemRefs={itemRefs} />
-                ))}
+            <div className="mb-6 flex items-baseline gap-2 border-b border-gray-200 px-6 pt-5 pb-2">
+                <h2 id="charts-heading" className="text-xs font-semibold tracking-wide text-gray-600 uppercase">
+                    Charts
+                </h2>
+                {widgets.length > 0 && <span className="text-xs text-gray-500">{widgets.length}</span>}
             </div>
-        </div>
+            {widgets.length === 0 ? (
+                <div className="mx-6 flex flex-col items-center gap-4 rounded-lg border border-dashed border-gray-300 px-6 py-12 text-sm text-gray-500">
+                    <p>{props.emptyMessage}</p>
+                    <WidgetAdder />
+                </div>
+            ) : (
+                <>
+                    <div ref={listRef} className="relative flex h-full min-w-full flex-col gap-16 py-3">
+                        {widgets.map((widget, index) => (
+                            <DashboardWidgetSlot key={widget.id} widget={widget} stackOrder={widgets.length - index} isDraggedWidget={widget.id === draggedWidgetId} hoveredSignal={hoveredSignal} itemRefs={itemRefs} />
+                        ))}
+                    </div>
+                    <div className="flex justify-center py-8">
+                        <WidgetAdder />
+                    </div>
+                </>
+            )}
+        </section>
     );
 }
 
