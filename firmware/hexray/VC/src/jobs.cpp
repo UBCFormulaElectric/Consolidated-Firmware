@@ -65,11 +65,14 @@ void jobs_init()
     app::pumpControl::restart();
 
     app::StateMachine::init(&app::states::init_state);
-}
-void jobs_initImu()
-{
+
+    // gps
+    app::sbgEllipse::init();
+
+    // imu
     app::imus::init();
 }
+
 void jobs_run1Hz_tick() {}
 void jobs_run100Hz_tick()
 {
@@ -107,6 +110,7 @@ void jobs_run100Hz_tick()
     // pumps
     app::pumpControl::MonitorPumps();
 
+    // can
     io::can_tx::enqueue100HzMsgs();
 }
 void jobs_run1kHz_tick()
