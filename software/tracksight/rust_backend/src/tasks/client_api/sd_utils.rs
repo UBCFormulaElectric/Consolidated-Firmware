@@ -2,10 +2,9 @@ use std::{fs, path::Path, sync::Arc};
 
 use influxdb2::models::DataPoint;
 use jsoncan_rust::can_database::{CanDatabase, DecodedSignal};
-use logfs::{LogFsErr, logfs::{LogFs, LogFsUnixDisk}};
+use logfs::{LogFsErr, logfs::{LogFs, LogFsDisk, LogFsRamDisk, LogFsUnixDisk}};
 use logfs_export::can_log::parse_can_log_frames;
 use crate::{tasks::can_data::influx_util::{InfluxSignalSource, MAX_BATCH_CAPACITY, build_data_point, flush_buffer}, vprintln};
-
 
 /**
  * Specific to Ubuntu
@@ -44,6 +43,20 @@ pub fn get_logfs(drive: String) -> Result<LogFs, ()> {
         return Ok(logfs);
     }
     return Err(());
+}
+
+#[derive(Debug)]
+pub enum RamLogFsError {
+    DiskCreation(std::io::Error),
+    FormatFailed(LogFsErr),
+}
+
+pub fn create_ram_logfs(block_size: u32, block_count: u32) -> Result<LogFs, RamLogFsError> {
+    let disk = LogFsRamDisk::new(block_size, block_count)
+        .map_err(RamLogFsError::DiskCreation)?;
+    let mut logfs = LogFs::new(block_size, block_count, Arc::new(disk), 0, false);
+    logfs.format().map_err(RamLogFsError::FormatFailed)?;
+    Ok(logfs)
 }
 
 #[derive(Debug)]

@@ -22,7 +22,7 @@ LogFsErr tryMount(LogFs &fs, const LogFsCfg &fs_cfg)
 /**
  * Converts logfs errors to firmware filesystem error
  */
-io::FileSystem::FileSystemError logfsErrorToFsError(const LogFsErr err)
+inline io::FileSystem::FileSystemError logfsErrorToFsError(const LogFsErr err)
 {
     switch (err)
     {
@@ -239,5 +239,20 @@ std::expected<void, FileSystem::FileSystemError> FileSystem::sync(const uint32_t
         return std::unexpected(err);
 
     return {};
+}
+
+std::expected<uint32_t, FileSystem::FileSystemError> FileSystem::get_size(const uint32_t fd)
+{
+    if (!checkMount())
+        return std::unexpected(FileSystemError::MOUNT_FAILED);
+    if (!checkFileDescriptor(fd))
+        return std::unexpected(FileSystemError::ERROR);
+
+    uint32_t file_size = 0U;
+    if (const FileSystemError err = logfsErrorToFsError(logfs_size(&fs, &files[fd], &file_size));
+        err != FileSystemError::OK)
+        return std::unexpected(err);
+
+    return file_size;
 }
 } // namespace io
