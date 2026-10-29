@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <cmath>
 #include "app_imu.hpp"
 #include "app_canAlerts.hpp"
 #include "app_canTx.hpp"
@@ -7,6 +8,7 @@ namespace app::imus
 {
 using namespace app::can_alerts;
 using namespace io::imus;
+using namespace std;
 
 static VCImuResults imu_results = { .accel_x_res = std::unexpected(ErrorCode::ERROR),
                                     .accel_y_res = std::unexpected(ErrorCode::ERROR),
@@ -23,11 +25,96 @@ void init()
     infos::Imu1InitFailed_set(not imu1_init_ok.has_value());
 }
 
+namespace
+{
+    // Hard coded values taken from manually sampling
+    // These are dummy values for now. In future, sample during boot
+    constexpr float mean_x_reading = 0.2f;
+    constexpr float mean_y_reading = 0.1f;
+    constexpr float mean_z_reading = 0.97468f;
+
+    // TODO: Use better setup to lay IMU flat
+    constexpr float x_bias     = 0.04f;
+    constexpr float y_bias     = 0.01f;
+    constexpr float z_bias     = -0.01f;
+    constexpr float roll_bias  = 0.63f;
+    constexpr float pitch_bias = -0.4f;
+    constexpr float yaw_bias   = -0.26f;
+
+    // Bias corrected values
+    constexpr float corrected_x = mean_x_reading - x_bias;
+    constexpr float corrected_y = mean_y_reading - y_bias;
+    constexpr float corrected_z = mean_z_reading - z_bias;
+
+    // TODO: Ratio needs to be found during driving
+    constexpr float xy_ratio = 0.0f; // mean y/x when moving straight
+
+    const float alpha = atan2(corrected_y, corrected_z);                      // angle to rotate by about x axis
+    const float beta  = -atan2(corrected_x, hypot(corrected_y, corrected_z)); // angle to rotate by about y axis
+    const float gamma = -atan(xy_ratio);
+
+    const float cos_alpha = cos(alpha);
+    const float cos_beta  = cos(beta);
+    const float cos_gamma = cos(gamma);
+    const float sin_alpha = sin(alpha);
+    const float sin_beta  = sin(beta);
+    const float sin_gamma = sin(gamma);
+
+    static const array<array<const float, 3>, 3> R = {
+        { { { cos_beta * cos_gamma, sin_alpha *sin_beta *cos_gamma - cos_alpha *sin_gamma,
+              cos_alpha *sin_beta *cos_gamma + sin_alpha *sin_gamma } },
+          { { cos_beta * sin_gamma, sin_alpha *sin_beta *sin_gamma + cos_alpha *cos_gamma,
+              cos_alpha *sin_beta *sin_gamma - sin_alpha *cos_gamma } },
+          { { -sin_beta, sin_alpha *cos_beta, cos_alpha *cos_beta } } }
+    }; // rotation matrix R = Rz(gamma) * Ry(beta) * Rx(alpha)
+
+    void reorient_imu(
+        result<float> accelX,
+        result<float> accelY,
+        result<float> accelZ,
+        result<float> gyroX,
+        result<float> gyroY,
+        result<float> gyroZ)
+    {
+        if (accelX.has_value() && accelY.has_value() && accelZ.has_value())
+        {
+            const float x           = accelX.value() - x_bias;
+            const float y           = accelY.value() - y_bias;
+            const float z           = accelZ.value() - z_bias;
+            imu_results.accel_x_res = R[0][0] * x + R[0][1] * y + R[0][2] * z;
+            imu_results.accel_y_res = R[1][0] * x + R[1][1] * y + R[1][2] * z;
+            imu_results.accel_z_res = R[2][0] * x + R[2][1] * y + R[2][2] * z;
+        }
+        else
+        {
+            imu_results.accel_x_res = std::unexpected(ErrorCode::ERROR);
+            imu_results.accel_y_res = std::unexpected(ErrorCode::ERROR);
+            imu_results.accel_z_res = std::unexpected(ErrorCode::ERROR);
+        }
+
+        if (gyroX.has_value() && gyroY.has_value() && gyroZ.has_value())
+        {
+            const float x          = gyroX.value() - roll_bias;
+            const float y          = gyroY.value() - pitch_bias;
+            const float z          = gyroZ.value() - yaw_bias;
+            imu_results.gyro_x_res = R[0][0] * x + R[0][1] * y + R[0][2] * z;
+            imu_results.gyro_y_res = R[1][0] * x + R[1][1] * y + R[1][2] * z;
+            imu_results.gyro_z_res = R[2][0] * x + R[2][1] * y + R[2][2] * z;
+        }
+        else
+        {
+            imu_results.gyro_x_res = std::unexpected(ErrorCode::ERROR);
+            imu_results.gyro_y_res = std::unexpected(ErrorCode::ERROR);
+            imu_results.gyro_z_res = std::unexpected(ErrorCode::ERROR);
+        }
+    }
+
+} // namespace
+
 void broadcast()
 {
-    // IMU1 data broadcasting
-    imu_results = { IMU1.getAccelX(), IMU1.getAccelY(), IMU1.getAccelZ(),
-                    IMU1.getGyroX(),  IMU1.getGyroY(),  IMU1.getGyroZ() };
+    reorient_imu(
+        IMU1.getAccelX(), IMU1.getAccelY(), IMU1.getAccelZ(), IMU1.getGyroX(), IMU1.getGyroY(), IMU1.getGyroZ());
 
     can_tx::VC_Imu1AccelX_set(imu_results.accel_x_res.value_or(0.0f));
     can_tx::VC_Imu1AccelY_set(imu_results.accel_y_res.value_or(0.0f));
