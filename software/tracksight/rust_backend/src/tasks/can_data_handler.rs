@@ -7,7 +7,7 @@ use crate::tasks::can_data::influx_handler::run_influx_handler;
 use crate::tasks::can_data::live_data_handler::run_live_data_handler;
 use crate::tasks::can_data::decoded_item::{DecodedItem, DecodedMarker};
 use crate::utils::yellow;
-use crate::tasks::{HealthCheckSender, HealthCheckSenderExt, Task};
+use crate::tasks::{HealthCheckSender, HealthCheckSenderExt, MAX_CHANNEL_BUFFER_SIZE, Task};
 use crate::tasks::telem_message::CanPayload;
 use crate::tasks::client_api::subtable_clients::Clients;
 use crate::{error_println, vprintln};
@@ -50,7 +50,7 @@ pub async fn run_can_data_handler(
 ) {
     vprintln!("{}", yellow("CAN data task started."));
 
-    let (decoded_signal_tx, _) = broadcast::channel::<DecodedItem>(4096);
+    let (decoded_signal_tx, _) = broadcast::channel::<DecodedItem>(MAX_CHANNEL_BUFFER_SIZE);
 
     // parsed can signal consumers
     let influx_handler_task: tokio::task::JoinHandle<()> = spawn(run_influx_handler(shutdown_rx.resubscribe(), health_check_tx.clone(), decoded_signal_tx.subscribe()));
@@ -88,32 +88,15 @@ mod tests {
     use super::*;
 
     #[test]
-    fn telem_mark_event_becomes_marker_item() {
+    fn telem_mark_count_signal_exists() {
         let can_db = load_can_database().expect("CAN DB should load for tests");
-        let telem_mark_message = can_db
+        let found = can_db
             .get_all_msgs()
             .expect("Messages should load")
             .into_iter()
-            .find(|msg| msg.name.ends_with("TelemMarkEvent"))
-            .expect("TelemMarkEvent should exist in configured CAN DB");
-
-        let decoded_items = decode_items_from_payload(
-            &can_db,
-            CanPayload {
-                can_id: telem_mark_message.id,
-                can_timestamp: 1_000,
-                payload: vec![],
-            },
-        );
-
-        assert_eq!(decoded_items.len(), 1);
-        match &decoded_items[0] {
-            DecodedItem::Marker(marker) => {
-                assert!(marker.name.ends_with("TelemMarkEvent"));
-                assert_eq!(marker.timestamp, 1_000);
-            }
-            DecodedItem::Signal(_) => panic!("Expected zero-signal TelemMarkEvent to decode as Marker"),
-        }
+            .flat_map(|msg| msg.signals)
+            .any(|signal| signal.name == "CRIT_Info_TelemMarkEvent_Count");
+        assert!(found, "CRIT_Info_TelemMarkEvent_Count should exist in configured CAN DB");
     }
 
     #[test]

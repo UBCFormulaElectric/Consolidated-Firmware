@@ -127,14 +127,16 @@ namespace powerMonitoring
 namespace sbgEllipse
 {
     ::io::sbgEllipse::Attitude     attitude{ 0.0f, 0.0f, 0.0f };
-    ::io::sbgEllipse::VelocityData velocity{ 0u, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
-    uint32_t                       solution_mode  = 0;
-    uint32_t                       timestamp_us   = 0;
-    uint8_t                        overflow_count = 0;
-    uint32_t                       com_status     = 0;
-    uint16_t                       general_status = 0;
-    bool                           initialized    = false;
-    result<void>                   init_status    = {};
+    ::io::sbgEllipse::VelocityData velocity{
+        0u, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f
+    };
+    uint32_t     solution_mode  = 0;
+    uint32_t     timestamp_us   = 0;
+    uint8_t      overflow_count = 0;
+    uint32_t     com_status     = 0;
+    uint16_t     general_status = 0;
+    bool         initialized    = false;
+    result<void> init_status    = {};
 
     void reset_init()
     {
@@ -174,10 +176,17 @@ namespace sbgEllipse
         const float    down,
         const float    north_std_dev,
         const float    east_std_dev,
-        const float    down_std_dev)
+        const float    down_std_dev,
+        const float    x,
+        const float    y,
+        const float    z,
+        const float    x_std_dev,
+        const float    y_std_dev,
+        const float    z_std_dev)
     {
         velocity =
-            ::io::sbgEllipse::VelocityData{ status, north, east, down, north_std_dev, east_std_dev, down_std_dev };
+            ::io::sbgEllipse::VelocityData{ status, north, east, down,      north_std_dev, east_std_dev, down_std_dev,
+                                            x,      y,     z,    x_std_dev, y_std_dev,     z_std_dev };
     }
     void setSolutionMode(const uint32_t mode)
     {

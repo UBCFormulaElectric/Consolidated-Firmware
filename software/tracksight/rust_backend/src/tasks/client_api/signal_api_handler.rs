@@ -3,14 +3,14 @@ use std::{collections::HashMap, mem, time::{Duration, SystemTime}};
 use axum::{Json, Router, extract::{Path, Query, State}, http::StatusCode, response::IntoResponse, routing::get};
 use chrono::{DateTime, FixedOffset};
 use influxdb2::FromDataPoint;
-use jsoncan_rust::can_database::CanMessage;
 use serde::{Deserialize, Serialize};
 use regex::Regex;
 use serde_json::from_str;
 use tokio::{select, time::sleep};
 
-use crate::{config::CONFIG, dprintln, error_println, tasks::{can_data::influx_util::InfluxSignalSource, client_api::{AppState, signal_tile::{InfluxSignalRow, get_signals}}}, utils::{rfc3339_to_utc, rfc3339_to_utc_str}, vprintln};
+use crate::{config::CONFIG, dprintln, error_println, tasks::{can_data::{influx_util::InfluxSignalSource}, client_api::{AppState, signal_tile::{InfluxSignalRow, get_signals}}}, utils::{rfc3339_to_utc, rfc3339_to_utc_str}, vprintln};
 use crate::tasks::client_api::INFLUX_QUERY_TIMEOUT_MS;
+use crate::tasks::client_api::signal_metadata::{SignalMetadata, get_all_signal_metadatas};
 
 /**
  * Gets the list of all nodes (str) in the current parser.
@@ -27,25 +27,6 @@ async fn nodes(State(state): State<AppState>) -> impl IntoResponse {
 struct SignalTilesResponse {
     resolution_ms: u64,
     rows: Vec<InfluxSignalRow>,
-}
-
-#[derive(Debug, Serialize)]
-struct SignalMetadata {
-    name: String,
-    min_val: f64,
-    max_val: f64,
-    unit: Option<String>,
-    enum_signal: Option<SignalMetadataEnumSignal>,
-    tx_node: String,
-    cycle_time_ms: Option<u32>,
-    id: u32,
-    msg_name: String,
-}
-
-#[derive(Debug, Serialize)]
-struct SignalMetadataEnumSignal {
-    enum_name: String,
-    enum_values: HashMap<String, u32>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -66,42 +47,7 @@ async fn metadata(Query(SignalNameParam { mut name } ): Query<SignalNameParam>, 
         }
     };
 
-    let flat_map = | msg: &CanMessage | {
-        return msg.signals.iter().map(
-            | signal | {
-                let can_enum: Option<SignalMetadataEnumSignal> = 
-                    if let Some(enum_name) = &signal.enum_name && 
-                    let Some(can_enum) = 
-                    state.can_db.get_enum(enum_name) {
-                        Some(SignalMetadataEnumSignal {
-                            enum_name: can_enum.name.clone(),
-                            enum_values: can_enum.values.clone()
-                        })
-                    } else {
-                        None
-                    };
-                (signal.name.clone(),
-                SignalMetadata {
-                    name: signal.name.clone(),
-                    min_val: signal.min,
-                    max_val: signal.max,
-                    unit: signal.unit.clone(),
-                    enum_signal: can_enum,
-                    tx_node: msg.tx_node_name.clone(),
-                    cycle_time_ms: msg.cycle_time.clone(),
-                    id: msg.id,
-                    msg_name: msg.name.clone(),
-                })
-            }
-        ).collect::<Vec<_>>()
-    };
-
-    let metadatas: HashMap<String, SignalMetadata> = state.can_db.get_all_msgs()
-        .unwrap_or_default()
-        .iter()
-        .filter(|msg| regex.is_match(&msg.name))
-        .flat_map(flat_map)
-        .collect();
+    let metadatas: HashMap<String, SignalMetadata> = get_all_signal_metadatas(&state.can_db, Some(regex));
 
     return (StatusCode::OK, Json(metadatas));
 }
@@ -232,10 +178,64 @@ async fn signal_tiles(
     };
 }
 
-async fn signal_csv() -> impl IntoResponse {
-    // TODO implement
-    // todo!("to implement signal csv download");
-    return (StatusCode::OK, Json(()));
+#[derive(Deserialize)]
+struct CsvQuery {
+    start: String,
+    end: String,
+    source: InfluxSignalSource,
+}
+
+impl CsvQuery {
+    fn flux(&self, bucket: &str, measurement: &str) -> Result<String, (StatusCode, &'static str)> {
+        let (Some(start), Some(end)) = (rfc3339_to_utc(&self.start), rfc3339_to_utc(&self.end)) else {
+            return Err((StatusCode::BAD_REQUEST, "Start and end must be RFC3339 timestamps"));
+        };
+        if start >= end {
+            return Err((StatusCode::BAD_REQUEST, "Start must be before end"));
+        }
+        Ok(format!(r#"
+            from(bucket: {})
+            |> range(start: time(v: "{}"), stop: time(v: "{}"))
+            |> filter(fn: (r) => r["_measurement"] == {})
+            |> filter(fn: (r) => r["source"] == "{}")
+            |> keep(columns: ["_time", "signal_name", "_value", "source"])
+            |> rename(columns: {{_time: "timestamp", _value: "value"}})
+        "#, serde_json::to_string(bucket).unwrap(), start.to_rfc3339(), end.to_rfc3339(),
+            serde_json::to_string(measurement).unwrap(), self.source))
+    }
+}
+
+async fn signal_csv(Query(params): Query<CsvQuery>) -> Result<axum::response::Response, (StatusCode, &'static str)> {
+    let query = params.flux(&CONFIG.influxdb_bucket, &CONFIG.influxdb_measurement)?;
+    let request = reqwest::Client::new()
+        .post(format!("{}/api/v2/query", CONFIG.influxdb_url.trim_end_matches('/')))
+        .query(&[("org", &CONFIG.influxdb_org)])
+        .header("Authorization", format!("Token {}", CONFIG.influxdb_token))
+        .header("Accept", "application/csv")
+        .json(&serde_json::json!({
+            "query": query,
+            "dialect": {"annotations": [], "dateTimeFormat": "RFC3339Nano"}
+        }));
+
+    // only bound the wait for InfluxDB to start answering: a request timeout would also cover the
+    // streamed body and cut off any export that takes longer than that to download
+    let response = select! {
+        response = request.send() => response
+            .and_then(reqwest::Response::error_for_status)
+            .map_err(|_| (StatusCode::BAD_GATEWAY, "Could not export data from InfluxDB"))?,
+        _ = sleep(Duration::from_millis(INFLUX_QUERY_TIMEOUT_MS)) => {
+            return Err((StatusCode::GATEWAY_TIMEOUT, "InfluxDB did not start the export in time"));
+        }
+    };
+
+    Ok((
+        [
+            ("Content-Type", "text/csv; charset=utf-8".to_string()),
+            ("Content-Disposition", format!("attachment; filename=tracksight-{}-{}.csv", params.source, params.start.replace(':', "-"))),
+            ("Cache-Control", "no-store".to_string()),
+        ],
+        axum::body::Body::from_stream(response.bytes_stream()),
+    ).into_response())
 }
 
 #[derive(Debug, FromDataPoint, Default)]
@@ -371,8 +371,10 @@ async fn signal_markers(
         |> range(start: time(v: "{start_utc}"), stop: time(v: "{end_utc}"))
         |> filter(fn: (r) => r["_measurement"] == "{}")
         |> filter(fn: (r) => r["source"] == "{source_str}")
-        |> filter(fn: (r) => r["signal_name"] =~ /TelemMarkEvent$/)
+        |> filter(fn: (r) => r["signal_name"] == "CRIT_Info_TelemMarkEvent_Count")
         |> sort(columns: ["_time"])
+        |> difference(nonNegative: true)
+        |> filter(fn: (r) => r["_value"] > 0.0)
         "#, &CONFIG.influxdb_bucket, &CONFIG.influxdb_measurement);
 
     let req: Result<Vec<_>, influxdb2::RequestError> = select! {
@@ -407,4 +409,29 @@ pub fn get_signal_router() -> Router<AppState> {
         .route("/signal/tiles/{signal}/{start}/{end}", get(signal_tiles))
         .route("/signal/sessions/{start}/{end}", get(signal_sessions))
         .route("/signal/markers/{start}/{end}", get(signal_markers));
+}
+
+#[cfg(test)]
+mod export_tests {
+    use super::*;
+
+    #[test]
+    fn export_preserves_session_boundaries_and_source() {
+        let mut params = CsvQuery {
+            start: "2026-09-23T10:00:00.123-07:00".into(),
+            end: "2026-09-23T17:00:00.456Z".into(),
+            source: InfluxSignalSource::SdCard,
+        };
+        let query = params.flux("telemetry", "car_live").unwrap();
+        assert!(query.contains("2026-09-23T17:00:00.123+00:00"));
+        assert!(query.contains("2026-09-23T17:00:00.456+00:00"));
+        assert!(query.contains(r#"r["source"] == "sdcard""#));
+        assert!(!query.contains("aggregateWindow"));
+        params.end = params.start.clone();
+        assert!(params.flux("telemetry", "car_live").is_err());
+        params.end = "2026-09-23T16:00:00Z".into();
+        assert!(params.flux("telemetry", "car_live").is_err());
+        params.start = "invalid".into();
+        assert!(params.flux("telemetry", "car_live").is_err());
+    }
 }

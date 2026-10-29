@@ -3,8 +3,8 @@
 import { HardDrive, RadioIcon } from "lucide-react";
 import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from "react";
 
-import { HistoricalSignalSource } from "@/lib/api/historicalSignals";
 import { HistoricalSession } from "@/lib/api/historicalSessions";
+import { HistoricalSignalSource } from "@/lib/api/historicalSignals";
 
 export const SOURCE_OPTIONS: { value: HistoricalSignalSource; label: string; description: string; Icon: typeof RadioIcon }[] = [
     {
@@ -37,7 +37,7 @@ type HistoricalSelectionContextValue = {
     initialStep: SelectionStep;
     setModalOpen: (open: boolean) => void;
     openModal: (step?: SelectionStep) => void;
-    
+
     applySelection: (source: HistoricalSignalSource, session: HistoricalSession) => void;
 
     isSyncing: boolean;

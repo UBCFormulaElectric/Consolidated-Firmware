@@ -1,10 +1,10 @@
-import React, { memo, useRef } from "react";
+import React, { memo, useEffect, useRef } from "react";
 
-import LiveSignalStore from "@/lib/signals/LiveSignalStore";
+import { useSyncedGraph } from "@/components/SyncedGraphContainer";
 import { SignalDataStoreProvider } from "@/lib/contexts/signalStores/SignalStoreContext";
 import useSubscribeToSignal from "@/lib/mutations/useSubscribeToSignal";
 import useUnsubscribeToSignal from "@/lib/mutations/useUnsubscribeToSignal";
-import { useSyncedGraph } from "@/components/SyncedGraphContainer";
+import LiveSignalStore from "@/lib/signals/LiveSignalStore";
 
 const LiveSignalStoreProvider = memo(({ children }: { children: React.ReactNode }) => {
     const subscribeToSignalMutation = useSubscribeToSignal();
@@ -13,18 +13,16 @@ const LiveSignalStoreProvider = memo(({ children }: { children: React.ReactNode 
     const liveSignalStore = useRef<LiveSignalStore>(null!);
 
     if (!liveSignalStore.current) {
-        liveSignalStore.current = new LiveSignalStore(
-            updateWithTimestamp,
-            subscribeToSignalMutation.mutate,
-            unsubscribeFromSignalMutation.mutate
-        );
+        liveSignalStore.current = new LiveSignalStore(updateWithTimestamp, subscribeToSignalMutation.mutate, unsubscribeFromSignalMutation.mutate);
     }
 
-    return (
-        <SignalDataStoreProvider signalStore={liveSignalStore}>
-            {children}
-        </SignalDataStoreProvider>
-    );
+    useEffect(() => {
+        const store = liveSignalStore.current;
+        store.attach();
+        return () => store.detach();
+    }, []);
+
+    return <SignalDataStoreProvider signalStore={liveSignalStore}>{children}</SignalDataStoreProvider>;
 });
 
 export { LiveSignalStoreProvider };

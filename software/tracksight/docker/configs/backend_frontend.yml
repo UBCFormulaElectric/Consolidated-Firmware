@@ -1,0 +1,15 @@
+name: tracksight-backend-frontend
+services:
+  backend:
+    extends:
+      file: ../common.yml
+      service: backend
+  frontend:
+    extends:
+      file: ../common.yml
+      service: frontend
+    command:
+      [
+        "npm",
+        "start"
+     ]

@@ -59,6 +59,10 @@
         "min": 0,
         "max": 1000
       }
+    },
+    "data_capture": {
+      "telem_cycle_time": 1000,
+      "log_cycle_time": 100
     }
   },
   "FRInverterInfo2": {
@@ -90,6 +94,10 @@
         "min": -1,
         "max": 1000
       }
+    },
+    "data_capture": {
+      "telem_cycle_time": 1000,
+      "log_cycle_time": 100
     }
   },
   "FRInverterInfo3": {
@@ -104,6 +112,10 @@
         "start_bit": 32,
         "bits": 32
       }
+    },
+    "data_capture": {
+      "telem_cycle_time": 1000,
+      "log_cycle_time": 1000
     }
   }
 }

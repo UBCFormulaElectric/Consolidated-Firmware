@@ -42,6 +42,18 @@ template <size_t NUM_ADC_CHANNELS> class adcchip
                 full_scale = MAX_10_BITS_VALUE;
                 break;
             case ADC_RESOLUTION_12B:
+                full_scale = MAX_12_BITS_VALUE;
+                break;
+#ifdef ADC_RESOLUTION_14B
+            case ADC_RESOLUTION_14B:
+                full_scale = MAX_14_BITS_VALUE;
+                break;
+#endif
+#ifdef ADC_RESOLUTION_16B
+            case ADC_RESOLUTION_16B:
+                full_scale = MAX_16_BITS_VALUE;
+                break;
+#endif
             default:
                 full_scale = MAX_12_BITS_VALUE;
                 break;

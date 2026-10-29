@@ -11,6 +11,7 @@ debug = ["verbose"]
 [dependencies]
 jsoncan_rust = { git = "https://github.com/UBCFormulaElectric/Consolidated-Firmware.git", branch = "master" }
 logfs = { git = "https://github.com/UBCFormulaElectric/Consolidated-Firmware.git", branch = "master" }
+logfs_export = { git = "https://github.com/UBCFormulaElectric/Consolidated-Firmware.git", branch = "master" }
 
 serialport = "4.0"
 ctrlc = "3.5"
@@ -21,6 +22,7 @@ axum = { version = "0.8.8", features = ["ws", "macros"] }
 socketioxide = "0.18.1"
 influxdb2 = "0.5"
 influxdb2-structmap = "0.2"
+reqwest = { version = "0.11", features = ["json", "stream"] }
 dotenv = "0.15"
 crc = "3.0.0"
 serde = "1.0.228"
@@ -34,3 +36,4 @@ moka = { version = "0.12.15", features=["future"] }
 chrono = "0.4.44"
 num-traits = "0.2.19"
 strum = { version = "0.26", features = ["derive"] }
+rand = { version = "0.10.3", features = ["thread_rng"] }
