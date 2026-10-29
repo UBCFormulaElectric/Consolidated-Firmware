@@ -6,6 +6,10 @@
     "BMS_TractiveSystem",
     "BMS_Contactors",
     "BMS_CellVoltageStats",
-    "BMS_CellTempStats"
+    "BMS_CellTempStats",
+    "BMS_SegmentHealthErrors",
+    "BMS_LatchStatus",
+    "BMS_Charger",
+    "BMS_BMSShdnNodeStatus"
   ]
 }
