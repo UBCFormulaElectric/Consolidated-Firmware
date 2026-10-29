@@ -3,7 +3,6 @@
 #include "ecuTestBase.hpp"
 #include "jobs.hpp"
 #include <array>
-#include "jobs.hpp"
 #include "app_canRx.hpp"
 #include "states/app_states.hpp"
 
