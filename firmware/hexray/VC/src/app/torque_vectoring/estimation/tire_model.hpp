@@ -47,6 +47,17 @@ class TireModel
      */
     template <DecimalOrDual T> [[nodiscard]] T computeMy_Nm(float fz_N, float v_x_mps, const T &fx_N) const;
 
+    /**
+     * MF 6.2 radial tire deflection rho, found by inverting the MF 6.2 vertical load model
+     * Fz = F(Omega, Fx, Fy, rho) * (q_FZ1 * rho / R0 + q_FZ2 * (rho / R0)^2) * (1 + p_FZ1 * dpi) * Fz0.
+     * q_FZ1 is derived from Cz so that the stiffness at nominal load equals VERTICAL_STIFFNESS.
+     * @param fz_N normal load
+     * @param wheel_speed_radps wheel angular speed (not motor speed so divide motor speed (omega_radps) by GEAR_RATIO)
+     * @param fx_N longitudinal force
+     * @param fy_N lateral force
+     */
+    [[nodiscard]] float compute_radialDeflection_m(float fz_N, float wheel_speed_radps, float fx_N, float fy_N) const;
+
     struct TireFitPureParamFy
     {
         float p_Cy1;
@@ -152,6 +163,20 @@ class TireModel
         float rVy6;
     };
 
+    struct TireVerticalParam
+    {
+        // Cz already in TireRollingRadiusParam
+        float Q_V2;   // vertical stiffness
+        float Q_FZ2;  // quadratic term in load vs deflection
+        float Q_FCX;  // longitudinal force influence on vertical stiffness
+        float Q_FCY;  // lateral force influence on vertical stiffness
+        float Q_FCY2; // explicit load dependency for the lateral force influence on vertical stiffness
+        float Q_FYS1; // constant camber and slip angle effect on vertical stiffness
+        float Q_FYS2; // linear camber and slip angle effect on vertical stiffness
+        float Q_FYS3; // quadratic camber and slip angle effect on vertical stiffness
+        float PFZ1;   // pressure effect on vertical stiffness
+    };
+
     struct TireRollingRadiusParam
     {
         float LONGVL;             // reference speed V0
@@ -184,6 +209,7 @@ class TireModel
         const TireFitCombParamFx         &fit_comb_fx,
         const TireFitCombParamFy         &fit_comb_fy,
         const TireScalingFactors         &scaling_factors,
+        const TireVerticalParam          &vertical_params,
         const TireRollingRadiusParam     &rolling_radius,
         const TireRollingResistanceParam &rolling_resistance)
       : fit_pure_fx_(fit_pure_fx),
@@ -191,6 +217,7 @@ class TireModel
         fit_comb_fx_(fit_comb_fx),
         fit_comb_fy_(fit_comb_fy),
         scaling_factors_(scaling_factors),
+        vertical_(vertical_params),
         rolling_radius_(rolling_radius),
         rolling_resistance_(rolling_resistance)
     {
@@ -246,6 +273,11 @@ class TireModel
     static constexpr float FZ0 = 890.0f;
     static constexpr float R0  = 0.230885999f;
     static constexpr float P0  = 82737.12f;
+    // Operating point assumed by M_y and the vertical model (no camber or pressure sensing). Changing these turns on
+    // the camber (QSY5/6, Q_FYS2/3) and pressure (QSY8, PFZ1) terms. Fx/Fy use the reduced gamma = 0, dpi = 0 fit
+    // regardless.
+    static constexpr float CAMBER_RAD            = 0.0f;
+    static constexpr float INFLATION_PRESSURE_PA = 82737.12f; // INFLPRES
     // M_y fades in quadratically and reaches its full value at this speed, so it does not step between
     // +-QSY1 * Fz0 * R0 as v_x crosses zero
     // this value was landed upon by checking the simulink data plot of M_y vs v_x and seeing where the curve flattened
@@ -320,6 +352,7 @@ class TireModel
     const TireFitCombParamFx         &fit_comb_fx_;
     const TireFitCombParamFy         &fit_comb_fy_;
     const TireScalingFactors         &scaling_factors_;
+    const TireVerticalParam          &vertical_;
     const TireRollingRadiusParam     &rolling_radius_;
     const TireRollingResistanceParam &rolling_resistance_;
 };
@@ -430,6 +463,19 @@ class HoosierTireModel : public TireModel
         .LMY   = 1.0f,
     };
 
+    // from sim tire model
+    static constexpr TireVerticalParam HOOSIER_VERTICAL_12_PSI = {
+        .Q_V2   = 0.0f,
+        .Q_FZ2  = 69.83969166212475f,
+        .Q_FCX  = 0.0f,
+        .Q_FCY  = 0.0f,
+        .Q_FCY2 = 0.0f,
+        .Q_FYS1 = 0.0f,
+        .Q_FYS2 = 0.0f,
+        .Q_FYS3 = 0.0f,
+        .PFZ1   = 1.1022483001837622f,
+    };
+
     // From the same fit as the rows above (sim/tires/full_norm.tir).
     static constexpr TireRollingRadiusParam HOOSIER_ROLLING_RADIUS_12_PSI = {
         .LONGVL             = 11.1f,
@@ -461,6 +507,7 @@ class HoosierTireModel : public TireModel
             HOOSIER_FIT_COMB_FX_12_PSI,
             HOOSIER_FIT_COMB_FY_12_PSI,
             HOOSIER_SCALING_FACTORS,
+            HOOSIER_VERTICAL_12_PSI,
             HOOSIER_ROLLING_RADIUS_12_PSI,
             HOOSIER_ROLLING_RESISTANCE_12_PSI)
     {

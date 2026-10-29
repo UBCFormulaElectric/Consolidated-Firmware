@@ -82,8 +82,7 @@ app::tv::shared_datatypes::wheel_set<T>
  *
  * for tire ffb calculation
  * @param F_x_N longitudinal force
- * @param radial_deflection_m the vertical compression of a tire under vehicle load, measured as difference between
- * unloaded and loaded height
+ * @param F_y_N lateral force, used by the vertical model for the radial deflection
  * @param M_y_Nm the calculated rolling resistance moment from tire model
  *
  * @param torque_max / torque_min per-wheel torque limits in Nm
@@ -95,11 +94,28 @@ app::tv::shared_datatypes::wheel_set<T> kappa_update(
     const T                                        v_x_mps,
     const app::tv::shared_datatypes::wheel_set<T> &omega_radps,
     const app::tv::shared_datatypes::wheel_set<T> &F_x_N,
-    const app::tv::shared_datatypes::wheel_set<T> &radial_deflection_m,
+    const app::tv::shared_datatypes::wheel_set<T> &F_y_N,
     const app::tv::shared_datatypes::wheel_set<T> &M_y_Nm,
     const app::tv::shared_datatypes::wheel_set<T> &torque_max,
     const app::tv::shared_datatypes::wheel_set<T> &torque_min)
 {
+    // Same static + aero load model as motor_speed_request (no load transfer at this rate).
+    const auto fz_N = app::tv::shared_datatypes::VehicleState<T>{ .v_x_mps = v_x_mps }.est_Fz_N();
+
+    // omega_radps is motor speed; the vertical model's speed term needs wheel speed.
+    const auto deflection_m = [&](const T fz, const T motor_omega, const T fx, const T fy)
+    {
+        return static_cast<T>(app::tv::estimation::tire_model.compute_radialDeflection_m(
+            static_cast<float>(fz), static_cast<float>(motor_omega / static_cast<T>(GEAR_RATIO)),
+            static_cast<float>(fx), static_cast<float>(fy)));
+    };
+    const app::tv::shared_datatypes::wheel_set<T> radial_deflection_m = {
+        .fl = deflection_m(fz_N.fl, omega_radps.fl, F_x_N.fl, F_y_N.fl),
+        .fr = deflection_m(fz_N.fr, omega_radps.fr, F_x_N.fr, F_y_N.fr),
+        .rl = deflection_m(fz_N.rl, omega_radps.rl, F_x_N.rl, F_y_N.rl),
+        .rr = deflection_m(fz_N.rr, omega_radps.rr, F_x_N.rr, F_y_N.rr),
+    };
+
     // The speed controller is a PID that takes the wheel speed request and actual wheel speed and
     // outputs a torque request. The torque request is then limited by the max and min torque limits.
     return app::tv::controllers::speed_controller::computeTorque(

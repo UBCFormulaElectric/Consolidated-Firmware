@@ -52,7 +52,7 @@ extern "C"
         double       v_x,
         const double omegas[4],
         const double Fx[4],
-        const double radial_deflection[4],
+        const double Fy[4],
         const double My[4],
         const double torque_max[4],
         const double torque_min[4],
