@@ -123,6 +123,85 @@ template <Decimal T> T TireModel::effectiveRollingRadius_m(const float fz_N, con
 }
 template tv_real TireModel::effectiveRollingRadius_m(float fz_N, tv_real v_x_mps) const;
 
+template <DecimalOrDual T> T TireModel::computeMy_Nm(const float fz_N, const float v_x_mps, const T &fx_N) const
+{
+    const float     lambda_My      = scaling_factors_.LMY;
+    const float     qsy1           = rolling_resistance_.QSY1;
+    const float     qsy2           = rolling_resistance_.QSY2;
+    const float     qsy3           = rolling_resistance_.QSY3;
+    const float     qsy4           = rolling_resistance_.QSY4;
+    const float     qsy5           = rolling_resistance_.QSY5;
+    const float     qsy6           = rolling_resistance_.QSY6;
+    const float     qsy7           = rolling_resistance_.QSY7;
+    const float     qsy8           = rolling_resistance_.QSY8;
+    const float     v_x            = v_x_mps;
+    const float     v_0            = rolling_radius_.LONGVL;
+    constexpr float gamma_rad      = CAMBER_RAD;
+    constexpr float pressure_ratio = INFLATION_PRESSURE_PA / P0; // p / p0
+
+    const float clamped_Fz_N        = std::fmax(fz_N, 0.0f);
+    const float load_ratio          = (clamped_Fz_N / FZ0);
+    const float speed_ratio         = (v_x / v_0);
+    const float speed_ratio_squared = speed_ratio * speed_ratio;
+
+    // every bracket term except the Fx because they have no κ dependence
+    const float fx_independent_terms = qsy1 + qsy3 * std::fabs(speed_ratio) +
+                                       qsy4 * (speed_ratio_squared * speed_ratio_squared) +
+                                       (qsy5 + qsy6 * load_ratio) * (gamma_rad * gamma_rad);
+
+    // Fx term as a T so its derivative is carried through w.r.t κ.
+    // the bracket term is [ qsy1 + qsy2·Fx/Fz0 + qsy3·|Vx/V0| + qsy4·(Vx/V0)^4 + (qsy5 + qsy6·Fz/Fz0)·γ^2 ]
+    const T bracket_term = T(fx_independent_terms) + T(qsy2 / FZ0) * fx_N;
+
+    const float load_pressure_factor = std::pow(load_ratio, qsy7) * std::pow(pressure_ratio, qsy8);
+
+    // quadratic func smoothing of My with function: direction = x(2 - |x|), which is very close to the simulink applied
+    // smoothing smoothing is applied to get rid of the M_y jumping suddenly currently due to it being a constant 2.05
+    // MF 6.2 has no direction term, and the QSY1 term keeps M_y nonzero as v_x → 0, so the sign is smoothed here
+    // hence this quadratic smoothing between -1 and 1 just eases into the final value at low speeds
+    const float fade_ratio = std::fmin(std::fmax(v_x / ROLLING_RESISTANCE_FADE_SPEED_MPS, -1.0f), 1.0f);
+    const float direction  = fade_ratio * (2.0f - std::fabs(fade_ratio));
+
+    return T(-R0 * FZ0 * lambda_My * load_pressure_factor * direction) * bracket_term;
+}
+template tv_real TireModel::computeMy_Nm<tv_real>(float fz_N, float v_x_mps, const tv_real &fx_N) const;
+template DecimalDual<tv_real>
+    TireModel::computeMy_Nm<DecimalDual<tv_real>>(float fz_N, float v_x_mps, const DecimalDual<tv_real> &fx_N) const;
+
+float TireModel::compute_radialDeflection_m(
+    const float fz_N,
+    const float wheel_speed_radps,
+    const float fx_N,
+    const float fy_N) const
+{
+    constexpr float gamma_rad             = CAMBER_RAD;
+    constexpr float dpi                   = (INFLATION_PRESSURE_PA - P0) / P0;
+    const float     clamped_normal_load_N = std::fmax(fz_N, 0.0f);
+    const float     cz_Npm                = rolling_radius_.VERTICAL_STIFFNESS;
+    const float     cz_term               = cz_Npm * R0 / FZ0;
+    // Guarded so a future fit with 4 * Q_FZ2 > (Cz * R0 / Fz0)^2 gives a finite deflection instead of NaN.
+    const float q_fz1 = std::sqrt(std::fmax(cz_term * cz_term - 4.0f * vertical_.Q_FZ2, 0.0f));
+
+    // linear first guess
+    float rho_m = clamped_normal_load_N / cz_Npm;
+
+    for (int i = 0; i < 2; i++)
+    {
+        const float fy_offset_N =
+            fy_N - vertical_.Q_FYS1 - vertical_.Q_FYS2 * gamma_rad - vertical_.Q_FYS3 * (gamma_rad * gamma_rad);
+        const float fy_term          = std::pow(rho_m / R0, vertical_.Q_FCY2) * vertical_.Q_FCY * fy_offset_N / FZ0;
+        const float fx_term          = vertical_.Q_FCX * fx_N / FZ0;
+        const float stiffness_factor = std::fmax(
+            1 + vertical_.Q_V2 * std::fabs(wheel_speed_radps) * R0 / rolling_radius_.LONGVL - (fx_term * fx_term) -
+                (fy_term * fy_term),
+            0.1f);
+        const float load_term = clamped_normal_load_N / (FZ0 * stiffness_factor * (1 + vertical_.PFZ1 * dpi));
+        rho_m =
+            R0 * 2 * load_term / (q_fz1 + std::sqrt(std::fmax(q_fz1 * q_fz1 + 4 * vertical_.Q_FZ2 * load_term, 0.0f)));
+    }
+
+    return rho_m;
+}
 // [[nodiscard]] float TireModel::slipRatioToWheelAngularVelocity(const float slip_ratio, const float
 // wheel_vel_x_mps)
 // {

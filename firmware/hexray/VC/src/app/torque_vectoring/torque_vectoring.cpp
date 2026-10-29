@@ -136,7 +136,9 @@ void kappa_update_matlab(
     double       kappas[4],
     const double v_x,
     const double omegas[4],
-    const double tire_ffb[4],
+    const double Fx[4],
+    const double Fy[4],
+    const double My[4],
     const double torque_max[4],
     const double torque_min[4],
     double       torque_request[4],
@@ -161,8 +163,8 @@ void kappa_update_matlab(
     };
 
     const auto [fl, fr, rl, rr] = kappa_update<tv_real>(
-        to_wheel_set(kappas), static_cast<tv_real>(v_x), motor_omegas, to_wheel_set(tire_ffb), to_wheel_set(torque_max),
-        to_wheel_set(torque_min));
+        to_wheel_set(kappas), static_cast<tv_real>(v_x), motor_omegas, to_wheel_set(Fx), to_wheel_set(Fy),
+        to_wheel_set(My), to_wheel_set(torque_max), to_wheel_set(torque_min));
     torque_request[0] = static_cast<double>(fl);
     torque_request[1] = static_cast<double>(fr);
     torque_request[2] = static_cast<double>(rl);
