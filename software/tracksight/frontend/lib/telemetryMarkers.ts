@@ -9,6 +9,7 @@ const MAX_MARKERS = 500;
 
 let markerCache: TelemetryMarker[] | null = null;
 let remoteMarkerCache: TelemetryMarker[] = [];
+let combinedMarkerCache: TelemetryMarker[] | null = null;
 
 function normalizeMarkers(markers: TelemetryMarker[]): TelemetryMarker[] {
     const timestamps = new Set<number>();
@@ -50,6 +51,7 @@ function readMarkersFromStorage(): TelemetryMarker[] {
 
 function writeMarkersToStorage(markers: TelemetryMarker[]) {
     markerCache = normalizeMarkers(markers);
+    combinedMarkerCache = null;
     if (!canUseStorage()) return;
 
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(markerCache));
@@ -64,7 +66,8 @@ export function getTelemetryMarkers(): TelemetryMarker[] {
 }
 
 export function getVisibleTelemetryMarkers(startTimeMs: number, endTimeMs: number): TelemetryMarker[] {
-    return normalizeMarkers([...getTelemetryMarkers(), ...remoteMarkerCache]).filter((marker) => marker.timestampMs >= startTimeMs && marker.timestampMs <= endTimeMs);
+    combinedMarkerCache ??= normalizeMarkers([...getTelemetryMarkers(), ...remoteMarkerCache]);
+    return combinedMarkerCache.filter((marker) => marker.timestampMs >= startTimeMs && marker.timestampMs <= endTimeMs);
 }
 
 export function addTelemetryMarker(marker: TelemetryMarker) {
@@ -78,8 +81,10 @@ export function addTelemetryMarker(marker: TelemetryMarker) {
 
 export function setRemoteTelemetryMarkers(markers: TelemetryMarker[]) {
     remoteMarkerCache = normalizeMarkers(markers);
+    combinedMarkerCache = null;
 }
 
 export function clearRemoteTelemetryMarkers() {
     remoteMarkerCache = [];
+    combinedMarkerCache = null;
 }
