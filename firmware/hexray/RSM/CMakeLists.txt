@@ -72,10 +72,16 @@ set(CHIMERA_INCLUDE_DIRS ${HW_INCLUDE_DIRS})
 
 
 if ("${TARGET}" STREQUAL "binary")
+    # Characterization bench for hw_fmac (src/bench), results on RTT channel 2. See scripts/fmac_bench/README.md.
+    option(RSM_FMAC_BENCH "Run the FMAC characterization bench on boot" OFF)
+
     set(ARM_CORE "cm33")
     set(LINKER_SCRIPT "${LINKER_DIR}/stm32h562ritx/stm32h562ritx_app.ld")
     set(SRCS ${APP_SRCS} ${APP_SHARED_SRCS} ${IO_SRCS} ${IO_SHARED_SRCS} ${HW_SRCS} ${HW_SHARED_SRCS} ${SYSTEM_SRCS})
     set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${HW_INCLUDE_DIRS} ${SHARED_UTIL_INCLUDE_DIR} ${SYSTEM_INCLUDE_DIRS} ${CUBEMX_INCLUDE_DIRS})
+    if (RSM_FMAC_BENCH)
+        list(APPEND SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/bench/fmac_bench.cpp" "${SHARED_HW_INCLUDE_DIR_CPP}/hw_fmac.cpp")
+    endif ()
 
     embedded_binary(
             "hexray_RSM_app"
@@ -108,6 +114,9 @@ if ("${TARGET}" STREQUAL "binary")
             "stm32h5xx_ll_usb.c"
             "stm32h5xx_hal_iwdg.c"
     )
+    if (RSM_FMAC_BENCH)
+        list(APPEND STM32_HAL_SRCS "stm32h5xx_hal_fmac.c")
+    endif ()
     stm32h562xx_cube_library(
             "hexray_RSM_stm32"
             "${STM32_HAL_SRCS}"
@@ -130,6 +139,10 @@ if ("${TARGET}" STREQUAL "binary")
 
     target_link_libraries("hexray_RSM_app.elf" PRIVATE "hexray_RSM_stm32" "hexray_RSM_commit_info" "hexray_RSM_jsoncan" "m")
     target_compile_definitions("hexray_RSM_app.elf" PRIVATE "HAL_SPI_MODULE_ENABLED")
+    if (RSM_FMAC_BENCH)
+        target_compile_definitions("hexray_RSM_stm32" PUBLIC "HAL_FMAC_MODULE_ENABLED")
+        target_compile_definitions("hexray_RSM_app.elf" PRIVATE "RSM_FMAC_BENCH")
+    endif ()
 
     add_chimera_stm32h5("hexray_RSM_chimera" "${CHIMERA_SRCS}" "${CHIMERA_INCLUDE_DIRS}" "hexray_chimera_v2_proto_cm33")
     target_link_libraries("hexray_RSM_chimera.elf" PRIVATE "hexray_RSM_stm32")
