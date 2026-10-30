@@ -9,7 +9,9 @@
 #include "torque_vectoring/shared_datatypes/constants.hpp"
 #include <torque_vectoring/shared_datatypes/pair.hpp>
 
+#ifdef TARGET_EMBEDDED
 #include "app_canRx.hpp"
+#endif
 
 using namespace app::tv::shared_datatypes::vd_constants;
 
@@ -266,9 +268,13 @@ namespace VehicleStateEstimator
             .a_y_mps2       = meas.ay_mps2,
             .apps           = meas.apps,
             .brake          = meas.brake,
+#ifdef TARGET_EMBEDDED
+            .drivemode      = static_cast<shared_datatypes::DriveMode>(app::can_rx::CRIT_DriveMode_get()),
+#else
+            .drivemode      = meas.drivemode,
+#endif
             .delta          = app::tv::estimation::steering::wheel_steer_angles(meas.delta),
             .omegas         = meas.omegas,
-            .drivemode      = app::can_rx::CRIT_DriveMode_get(),
         };
 
         const auto wheelspeed_meas = WheelMeas(meas.omegas.fl, meas.omegas.fr, meas.omegas.rl, meas.omegas.rr);

@@ -30,6 +30,7 @@ struct Measurements
     const app::can_utils::VcEkfStatus sbg_ekf_mode;
 #else
     bool enable_gps;
+    shared_datatypes::DriveMode drivemode = shared_datatypes::DriveMode::VANILLA;
 #endif
 };
 

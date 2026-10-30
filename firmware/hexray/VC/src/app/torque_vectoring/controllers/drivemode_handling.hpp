@@ -1,8 +1,8 @@
 #pragma once
-#include "app_canUtils.hpp"
 #include "torque_allocator.hpp"
+#include "torque_vectoring/shared_datatypes/drive_mode.hpp"
 
 namespace app::tv::controllers
 {
-[[nodiscard]] allocator::OptimizerWeights getOptimizerWeights(app::can_utils::DriveMode drivemode);
+[[nodiscard]] allocator::OptimizerWeights getOptimizerWeights(shared_datatypes::DriveMode drivemode);
 } // namespace app::tv::controllers

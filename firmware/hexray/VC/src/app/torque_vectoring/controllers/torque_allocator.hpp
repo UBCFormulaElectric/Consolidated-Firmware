@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cmath>
+
 #include "torque_vectoring/shared_datatypes/vehicle_state_estimator.hpp"
 #include "torque_vectoring/shared_datatypes/wheel_set.hpp"
 
@@ -19,9 +21,14 @@ namespace allocator
 {
     struct OptimizerWeights
     {
-        tv_real W_FX;
-        tv_real W_MZ;
-        tv_real W_R;
+        tv_real SQRT_W_FX;
+        tv_real SQRT_W_MZ;
+        tv_real SQRT_W_R;
+
+        explicit OptimizerWeights(tv_real W_FX, tv_real W_MZ, tv_real W_R)
+          : SQRT_W_FX(std::sqrt(W_FX)), SQRT_W_MZ(std::sqrt(W_MZ)), SQRT_W_R(std::sqrt(W_R))
+        {
+        }
     };
 
     /**

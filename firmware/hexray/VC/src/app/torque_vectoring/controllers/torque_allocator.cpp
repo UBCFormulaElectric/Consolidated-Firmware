@@ -63,9 +63,9 @@ template <Decimal T>
     //     return { .fl = 0.0f, .fr = 0.0f, .rl = 0.0f, .rr = 0.0f };
     // }
 
-    const T        SQRT_W_FX     = std::sqrt(optimizerWeights.W_FX);
-    const T        SQRT_W_MZ     = std::sqrt(optimizerWeights.W_MZ);
-    const T        SQRT_W_R      = std::sqrt(optimizerWeights.W_R);
+    const T        SQRT_W_FX     = optimizerWeights.SQRT_W_FX;
+    const T        SQRT_W_MZ     = optimizerWeights.SQRT_W_MZ;
+    const T        SQRT_W_R      = optimizerWeights.SQRT_W_R;
     static Vec4<T> previous_slip = Vec4<T>::Zero(); // warm start for the next cycle
 
     // const wheel_set<float> blended_des_f_x{

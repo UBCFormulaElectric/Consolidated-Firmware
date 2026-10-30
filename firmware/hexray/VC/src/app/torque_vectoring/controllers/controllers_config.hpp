@@ -4,27 +4,10 @@
 
 namespace app::tv::controllers::allocator
 {
-    const OptimizerWeights accel_ow  = 
-    {
-        .W_FX = std::sqrt(1.0f),
-        .W_MZ = std::sqrt(0.5f),
-        .W_R  = std::sqrt(10.0f)
-    };
-
-    const OptimizerWeights track_ow = 
-    {
-        .W_FX = std::sqrt(2.0f),
-        .W_MZ = std::sqrt(15.0f),
-        .W_R  = std::sqrt(5000.0f)
-    };
-
-    const OptimizerWeights vanilla_ow = 
-    {
-        .W_FX = std::sqrt(0.05f),
-        .W_MZ = std::sqrt(0.05f),
-        .W_R  = std::sqrt(5000.0f)
-    };
-}
+const OptimizerWeights accel_ow{ 1.0f, 0.5f, 10.0f };
+const OptimizerWeights track_ow{ 2.0f, 15.0f, 5000.0f };
+const OptimizerWeights vanilla_ow{ 0.05f, 0.05f, 5000.0f };
+} // namespace app::tv::controllers::allocator
 
 namespace app::tv::controllers::dyrc
 {

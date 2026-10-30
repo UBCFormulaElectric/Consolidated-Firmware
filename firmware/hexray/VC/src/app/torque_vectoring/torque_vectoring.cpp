@@ -11,8 +11,6 @@
 
 #include "torque_vectoring/estimation/steering_model.hpp"
 
-#include "app_canRx.hpp"
-
 using namespace app::tv::shared_datatypes;
 using namespace app::tv::controllers;
 using namespace vd_constants;

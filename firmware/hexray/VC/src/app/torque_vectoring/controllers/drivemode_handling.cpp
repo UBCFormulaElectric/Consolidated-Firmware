@@ -3,16 +3,15 @@
 
 namespace app::tv::controllers
 {
-allocator::OptimizerWeights getOptimizerWeights(const app::can_utils::DriveMode drivemode)
+allocator::OptimizerWeights getOptimizerWeights(const shared_datatypes::DriveMode drivemode)
 {
     switch (drivemode)
     {
-        case app::can_utils::DriveMode::ACCELERATION:
+        case shared_datatypes::DriveMode::ACCELERATION:
             return allocator::accel_ow;
-        case app::can_utils::DriveMode::TRACK:
+        case shared_datatypes::DriveMode::TRACK:
             return allocator::track_ow;
-        case app::can_utils::DriveMode::VANILLA:
-        case app::can_utils::DriveMode::COUNT:
+        case shared_datatypes::DriveMode::VANILLA:
         default:
             return allocator::vanilla_ow;
     }
