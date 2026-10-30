@@ -2,6 +2,7 @@
 #include "torque_vectoring/shared_datatypes/wheel_set.hpp"
 #include "torque_vectoring/shared_datatypes/constants.hpp"
 #include "torque_vectoring/shared_datatypes/decimal_dual.hpp"
+#include "torque_vectoring/shared_datatypes/drive_mode.hpp"
 #include <algorithm>
 #include <cmath>
 
@@ -17,6 +18,7 @@ template <Decimal T> struct VehicleState
     T            a_y_mps2       = 0.0f;
     T            apps           = 0.0f;
     T            brake          = 0.0f; // brake pedal, 0..1
+    DriveMode    drivemode      = DriveMode::VANILLA;
     wheel_set<T> delta{};
     wheel_set<T> omegas{};
 

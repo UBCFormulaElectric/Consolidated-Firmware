@@ -1,5 +1,13 @@
 #pragma once
 #include "app_pid.hpp"
+#include "torque_allocator.hpp"
+
+namespace app::tv::controllers::allocator
+{
+const OptimizerWeights accel_ow{ 1.0f, 0.5f, 10.0f };
+const OptimizerWeights track_ow{ 2.0f, 15.0f, 5000.0f };
+const OptimizerWeights vanilla_ow{ 0.05f, 0.05f, 5000.0f };
+} // namespace app::tv::controllers::allocator
 
 namespace app::tv::controllers::dyrc
 {
