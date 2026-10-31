@@ -36,3 +36,4 @@ chrono = "0.4.44"
 num-traits = "0.2.19"
 strum = { version = "0.26", features = ["derive"] }
 rand = { version = "0.10.3", features = ["thread_rng"] }
+plotters = { version = "0.3.7", default-features = false, features = ["svg_backend", "line_series"] }
