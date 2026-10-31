@@ -44,3 +44,4 @@ add_subdirectory(logfs)
 # board binaries
 add_subdirectory(dev)
 add_subdirectory(hexray)
+add_subdirectory(seven)
