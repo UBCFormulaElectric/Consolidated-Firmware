@@ -14,6 +14,13 @@ use std::{
 };
 
 use crc::{CRC_32_ISO_HDLC, Crc};
+use crossterm::{
+    event::{
+        self, Event, KeyCode, KeyEventKind, KeyModifiers, KeyboardEnhancementFlags,
+        PopKeyboardEnhancementFlags, PushKeyboardEnhancementFlags,
+    },
+    execute, terminal,
+};
 use plotters::prelude::*;
 
 /*
@@ -23,9 +30,14 @@ use plotters::prelude::*;
     Payload is a u32 LE sequence number followed by random bytes. The receiver validates
     framing + CRC and uses the sequence number to count dropped packets.
     On ctrl-c, per-second samples are written to CSV and plotted as SVGs in --out.
+    With --hold-space, the sender only transmits while space is held down.
 */
 
-const USAGE: &str = "usage: throughput (--sender | --receiver) --port <path> [--baud <rate>] [--size <payload bytes>] [--rate <bytes/s>] [--out <dir>]";
+const USAGE: &str = "usage: throughput (--sender | --receiver) --port <path> [--baud <rate>] [--size <payload bytes>] [--rate <bytes/s>] [--out <dir>] [--hold-space]";
+
+// terminals without key release events only give key repeats, so space counts as
+// released once repeats stop for this long (must exceed the OS initial repeat delay)
+const HOLD_TIMEOUT: Duration = Duration::from_millis(600);
 
 // mirrors TelemetryIncomingMessage in tasks/telem_message.rs (bins can't import from the backend crate)
 const CRC32_CALC: Crc<u32> = Crc::<u32>::new(&CRC_32_ISO_HDLC);
@@ -46,6 +58,7 @@ struct Args {
     size: usize,
     rate: Option<u64>,
     out: PathBuf,
+    hold_space: bool,
 }
 
 fn parse_args() -> Result<Args, String> {
@@ -55,6 +68,7 @@ fn parse_args() -> Result<Args, String> {
     let mut size = MAX_PAYLOAD_SIZE;
     let mut rate = None;
     let mut out = None;
+    let mut hold_space = false;
 
     let mut args = std::env::args().skip(1);
     while let Some(arg) = args.next() {
@@ -67,6 +81,7 @@ fn parse_args() -> Result<Args, String> {
             "--size" => size = value()?.parse().map_err(|e| format!("bad size: {}", e))?,
             "--rate" => rate = Some(value()?.parse().map_err(|e| format!("bad rate: {}", e))?),
             "--out" => out = Some(PathBuf::from(value()?)),
+            "--hold-space" => hold_space = true,
             "-h" | "--help" => return Err(String::new()),
             _ => return Err(format!("unknown argument: {}", arg)),
         }
@@ -77,6 +92,9 @@ fn parse_args() -> Result<Args, String> {
     }
 
     let mode = mode.ok_or("specify --sender or --receiver")?;
+    if hold_space && matches!(mode, Mode::Receiver) {
+        return Err("--hold-space only applies to --sender".to_string());
+    }
     let out = out.unwrap_or_else(|| {
         let name = match mode {
             Mode::Sender => "sender",
@@ -93,6 +111,7 @@ fn parse_args() -> Result<Args, String> {
         size,
         rate,
         out,
+        hold_space,
     })
 }
 
@@ -144,19 +163,29 @@ fn main() {
         ctrlc::set_handler(move || running.store(false, Ordering::SeqCst)).unwrap();
     }
 
+    // without --hold-space the sender is always sending
+    let sending = Arc::new(AtomicBool::new(!args.hold_space));
+    let watcher = args.hold_space.then(|| {
+        let (running, sending) = (running.clone(), sending.clone());
+        thread::spawn(move || watch_space(running, sending))
+    });
+
     let counters = Arc::new(Mutex::new(Counters::default()));
     let worker = {
         let link = Link { port, running: running.clone(), counters: counters.clone() };
         match args.mode {
             Mode::Sender => thread::spawn({
                 let (size, rate) = (args.size, args.rate);
-                move || run_sender(link, size, rate)
+                move || run_sender(link, size, rate, sending)
             }),
             Mode::Receiver => thread::spawn(move || run_receiver(link)),
         }
     };
 
     let samples = report(&running, &counters, worker);
+    if let Some(watcher) = watcher {
+        watcher.join().unwrap();
+    }
 
     if let Err(e) = write_results(&args.out, &args.mode, &samples) {
         eprintln!("failed to write results: {}", e);
@@ -225,17 +254,25 @@ fn generate_packet(seq: u32, size: usize) -> Vec<u8> {
 }
 
 /**
- * Writes packets as fast as the port (or --rate) allows
+ * Writes packets as fast as the port (or --rate) allows, while `sending` is set
  */
-fn run_sender(mut link: Link, size: usize, rate: Option<u64>) {
-    let start = Instant::now();
+fn run_sender(mut link: Link, size: usize, rate: Option<u64>, sending: Arc<AtomicBool>) {
+    let mut window_start = Instant::now();
     let mut sent_bytes = 0u64;
     let mut seq = 0u32;
 
     while link.running() {
+        if !sending.load(Ordering::SeqCst) {
+            // restart the rate window so a pause doesn't bank up a burst
+            window_start = Instant::now();
+            sent_bytes = 0;
+            thread::sleep(Duration::from_millis(1));
+            continue;
+        }
+
         // throttle so we don't overrun the radio's buffer
         if let Some(rate) = rate {
-            let allowed = (start.elapsed().as_secs_f64() * rate as f64) as u64;
+            let allowed = (window_start.elapsed().as_secs_f64() * rate as f64) as u64;
             if sent_bytes >= allowed {
                 thread::sleep(Duration::from_millis(1));
                 continue;
@@ -255,11 +292,55 @@ fn run_sender(mut link: Link, size: usize, rate: Option<u64>) {
             }
             Err(e) if e.kind() == io::ErrorKind::TimedOut => {}
             Err(e) => {
-                eprintln!("write error: {}", e);
+                eprint!("write error: {}\r\n", e);
                 link.running.store(false, Ordering::SeqCst);
             }
         }
     }
+}
+
+/**
+ * Sets `sending` while space is held. Puts the terminal in raw mode, so ctrl-c is handled here
+ */
+fn watch_space(running: Arc<AtomicBool>, sending: Arc<AtomicBool>) {
+    terminal::enable_raw_mode().unwrap();
+    // key release events need the kitty keyboard protocol (iTerm2, kitty, WezTerm, Ghostty)
+    let releases = terminal::supports_keyboard_enhancement().unwrap_or(false);
+    if releases {
+        execute!(io::stdout(), PushKeyboardEnhancementFlags(KeyboardEnhancementFlags::REPORT_EVENT_TYPES)).ok();
+        print!("hold space to send, ctrl-c to stop\r\n");
+    } else {
+        print!(
+            "hold space to send, ctrl-c to stop (terminal doesn't report key releases, sending stops ~{}ms after letting go)\r\n",
+            HOLD_TIMEOUT.as_millis()
+        );
+    }
+
+    let mut last_press: Option<Instant> = None;
+    while running.load(Ordering::SeqCst) {
+        if event::poll(Duration::from_millis(10)).unwrap_or(false) {
+            if let Ok(Event::Key(key)) = event::read() {
+                match key.code {
+                    KeyCode::Char('c') if key.modifiers.contains(KeyModifiers::CONTROL) => {
+                        running.store(false, Ordering::SeqCst);
+                    }
+                    KeyCode::Char(' ') => match key.kind {
+                        KeyEventKind::Release => last_press = None,
+                        _ => last_press = Some(Instant::now()),
+                    },
+                    _ => {}
+                }
+            }
+        }
+        let held = last_press.is_some_and(|t| releases || t.elapsed() < HOLD_TIMEOUT);
+        sending.store(held, Ordering::SeqCst);
+    }
+
+    sending.store(false, Ordering::SeqCst);
+    if releases {
+        execute!(io::stdout(), PopKeyboardEnhancementFlags).ok();
+    }
+    terminal::disable_raw_mode().ok();
 }
 
 //
@@ -373,8 +454,8 @@ fn report(running: &AtomicBool, counters: &Mutex<Counters>, worker: thread::Join
         total.length_errors += c.length_errors;
         total.dropped += c.dropped;
 
-        println!(
-            "{:>8.1} B/s wire | {:>8.1} B/s payload | {:>5} pkt | crc err {} | len err {} | dropped {} | error {:.2}%",
+        print!(
+            "{:>8.1} B/s wire | {:>8.1} B/s payload | {:>5} pkt | crc err {} | len err {} | dropped {} | error {:.2}%\r\n",
             c.wire_bytes as f64 / dt,
             c.payload_bytes as f64 / dt,
             c.packets,
@@ -391,8 +472,8 @@ fn report(running: &AtomicBool, counters: &Mutex<Counters>, worker: thread::Join
     }
 
     let elapsed = start.elapsed().as_secs_f64();
-    println!(
-        "\ndone: {:.1}s | avg {:.1} B/s wire, {:.1} B/s payload | {} pkt | crc err {} | len err {} | dropped {} | error {:.2}%",
+    print!(
+        "\r\ndone: {:.1}s | avg {:.1} B/s wire, {:.1} B/s payload | {} pkt | crc err {} | len err {} | dropped {} | error {:.2}%\r\n",
         elapsed,
         total.wire_bytes as f64 / elapsed,
         total.payload_bytes as f64 / elapsed,
