@@ -1,47 +1,62 @@
 message("")
 message("⚙️ Configuring BMS (Seven)")
 
+# QUESTION: Where is SHARED_xxx_INCLUDE_DIR defined?
+
 # Cmake Configuration to glob cubemx source code
 # TODO: Add project specific and shared sources used in project
-file(GLOB CUBEMX_SRCS CONFIGURE_DEPENDS "")
-set(CUBEMX_INCLUDE_DIRS "")
+file(GLOB CUBEMX_SRCS CONFIGURE_DEPENDS "${CMAKE_INCLUDE_CURRENT_DIR}/src/cubemx/Src/*.c")
+set(CUBEMX_INCLUDE_DIRS "${CMAKE_INCLUDE_CURRENT_DIR}/src/cubemx/Inc")
 
 # Task and Job level source file glob
 # TODO: Add project specific and shared sources used in project
-set(JOBS_SRC "")
-set(TASKS_SRC "")
+set(JOBS_SRC "${CMAKE_INCLUDE_CURRENT_DIR}/src/jobs.cpp")
+set(TASKS_SRC "${CMAKE_INCLUDE_CURRENT_DIR}/tasks.cpp")
 set(SYSTEM_SRCS ${JOBS_SRC} ${TASKS_SRC})
-set(SYSTEM_INCLUDE_DIRS "" "")
+set(SYSTEM_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src" "${CMAKE_CURRENT_SOURCE_DIR}/boot")
 
 # APP layer resources (shared + project specific APP code)
 # TODO: Add project specific and shared sources used in project
-file(GLOB_RECURSE APP_SRCS CONFIGURE_DEPENDS "")
+file(GLOB_RECURSE APP_SRCS CONFIGURE_DEPENDS "{CMAKE_CURRENT_SOURCE_DIR}/src/app/*.cpp")
 set(APP_SHARED_SRCS
+        "${SHARED_APP_INCLUDE_DIR_CPP}/app_timer.cpp"
+        "${SHARED_APP_INCLUDE_DIR_CPP}/app_stateMachine.cpp"
 )
 set(APP_INCLUDE_DIRS
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/app"
+        "${SHARED_APP_INCLUDE_DIR}" "${SHARED_APP_INCLUDE_DIR_CPP}"
 )
 
 # IO layer resources (shared + project specific IO code)
 # TODO: Add project specific and shared sources used in project
-file(GLOB_RECURSE IO_SRCS CONFIGURE_DEPENDS "")
+file(GLOB_RECURSE IO_SRCS CONFIGURE_DEPENDS "{CMAKE_CURRENT_SOURCE_DIR}/src/io/*.cpp")
 set(IO_SHARED_SRCS
+        "${SHARED_IO_INCLUDE_DIR_CPP}/io_time.cpp"
+        "${SHARED_IO_INCLUDE_DIR_CPP}/io_semaphore.cpp"
 )
 set(IO_INCLUDE_DIRS
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/app"
+        "${SHARED_IO_INCLUDE_DIR}" "${SHARED_IO_INCLUDE_DIR_CPP}"
 )
 
-# IO layer resources (shared + project specific HW code)
+# HW layer resources (shared + project specific HW code)
 # TODO: Add project specific and shared sources used in project
-file(GLOB_RECURSE HW_SRCS CONFIGURE_DEPENDS "")
+file(GLOB_RECURSE HW_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.cpp")
 set(HW_SHARED_SRCS
+
 )
 set(HW_INCLUDE_DIRS
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/app"
+        "${SHARED_HW_INCLUDE_DIR}" "${SHARED_HW_INCLUDE_DIR_CPP}"
 )
 
 # Chimera sources
 # TODO: Add project specific and shared sources used in project
 set(CHIMERA_SRCS
+
 )
 set(CHIMERA_INCLUDE_DIRS
+
 )
 
 if ("${TARGET}" STREQUAL "binary")
