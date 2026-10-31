@@ -6,6 +6,7 @@ import type { ReactNode } from "react";
 import { HistoricalSelectionProvider } from "@/lib/contexts/HistoricalSelectionContext";
 import QueryProvider from "@/lib/contexts/QueryProvider";
 import { TimezoneProvider } from "@/lib/contexts/TimezoneContext";
+import { ToastProvider } from "@/lib/contexts/ToastContext";
 import Navbar from "./Navbar";
 
 export const metadata: Metadata = {
@@ -32,8 +33,10 @@ export default async function RootLayout({
                 <TimezoneProvider>
                     <QueryProvider>
                         <HistoricalSelectionProvider>
-                            <Navbar />
-                            <main>{children}</main>
+                            <ToastProvider>
+                                <Navbar />
+                                <main>{children}</main>
+                            </ToastProvider>
                         </HistoricalSelectionProvider>
                     </QueryProvider>
                 </TimezoneProvider>

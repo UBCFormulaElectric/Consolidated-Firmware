@@ -1,14 +1,11 @@
 import { createContext, ReactNode, useCallback, useContext, useMemo } from "react";
 
-import chroma from "chroma-js";
 import { v4 as uuidv4 } from "uuid";
 
 import { IS_DEBUG } from "@/lib/constants";
-import { useLocalState } from "@/lib/hooks/useLocalState";
 import { isBooleanSignalMetadata, isEnumSignalMetadata, isNumericalSignalMetadata, SignalMetadata } from "@/lib/types/Signal";
 import { canWidgetAcceptSignal, WidgetData, WidgetType } from "@/lib/types/Widget";
-
-const LOCAL_STORAGE_KEY = "tracksight_widgets_config_v1";
+import { useWidgetLayout } from "./WidgetLayoutContext";
 
 interface WidgetManagerContext {
     widgets: WidgetData[];
@@ -32,94 +29,6 @@ export function useWidgetManager() {
         throw new Error("useWidgetManagerContext must be used within a WidgetManagerProvider");
     }
     return ctx;
-}
-
-function WidgetSerialize(widgets: WidgetData[]): string {
-    return JSON.stringify(
-        widgets.map((widget) => {
-            if (widget.type === "enumTimeline") {
-                return {
-                    ...widget,
-                    options: {
-                        ...widget.options,
-                        colorPalette: Object.fromEntries(
-                            Object.entries(widget.options.colorPalette).map(([signalName, enumColors]) => [
-                                signalName,
-                                {
-                                    color: enumColors.color.hex(),
-                                    enumValueColors: Object.fromEntries(Object.entries(enumColors.enumValueColors).map(([enumVal, color]) => [enumVal, color.hex()])),
-                                },
-                            ])
-                        ),
-                    },
-                };
-            }
-
-            return {
-                ...widget,
-                options: {
-                    ...widget.options,
-                    colorPalette: Object.fromEntries(Object.entries(widget.options.colorPalette).map(([signalName, color]) => [signalName, color.hex()])),
-                },
-            };
-        })
-    );
-}
-
-function WidgetDeserialize(widgetString: string): WidgetData[] {
-    const back = JSON.parse(widgetString) as unknown;
-
-    if (!Array.isArray(back)) {
-        throw new Error("Deserialized widget config is not an array");
-    }
-
-    return back.map((widget) => {
-        if (!widget || typeof widget !== "object" || !("type" in widget)) {
-            throw new Error("Deserialized widget has invalid shape");
-        }
-
-        const candidate = widget as any;
-
-        if (candidate.type === "enumTimeline") {
-            return {
-                id: candidate.id,
-                type: "enumTimeline",
-                data: candidate.data,
-                name: candidate.name,
-                signals: candidate.signals,
-                options: {
-                    height: candidate.options.height,
-                    timeTickCount: candidate.options.timeTickCount,
-                    colorPalette: Object.fromEntries(
-                        Object.entries(candidate.options.colorPalette).map(([signalName, palette]) => [
-                            signalName,
-                            {
-                                color: chroma((palette as { color: string }).color),
-                                enumValueColors: Object.fromEntries(Object.entries((palette as { enumValueColors: Record<string, string> }).enumValueColors).map(([enumVal, color]) => [enumVal, chroma(color)])),
-                            },
-                        ])
-                    ),
-                },
-            } satisfies WidgetData;
-        }
-
-        if (candidate.type === "numericalGraph") {
-            return {
-                id: candidate.id,
-                name: candidate.name,
-                type: "numericalGraph",
-                signals: candidate.signals,
-                data: candidate.data,
-                options: {
-                    colorPalette: Object.fromEntries(Object.entries(candidate.options.colorPalette).map(([signalName, color]) => [signalName, chroma(color as string)])),
-                    height: candidate.options.height,
-                    timeTickCount: candidate.options.timeTickCount,
-                },
-            } satisfies WidgetData;
-        }
-
-        throw new Error(`Deserialized widget has invalid type: ${candidate.type}`);
-    });
 }
 
 function removeSignalFromWidget(widget: WidgetData, signalName: string): WidgetData {
@@ -198,8 +107,8 @@ function addSignalFromWidget(targetWidget: WidgetData, sourceWidget: WidgetData,
     return null;
 }
 
-export function WidgetManager({ children, storageKey = LOCAL_STORAGE_KEY }: { children: ReactNode; storageKey?: string }) {
-    const [widgets, setWidgets, isInitialized] = useLocalState<WidgetData[]>(storageKey, [], WidgetSerialize, WidgetDeserialize);
+export function WidgetManager({ children }: { children: ReactNode }) {
+    const { widgets, setWidgets, isInitialized } = useWidgetLayout();
 
     const appendWidget = useCallback(
         (newWidget: WidgetData) => {

@@ -6,6 +6,20 @@ import useSubscribeToSignal from "@/lib/mutations/useSubscribeToSignal";
 import useUnsubscribeToSignal from "@/lib/mutations/useUnsubscribeToSignal";
 import LiveSignalStore from "@/lib/signals/LiveSignalStore";
 
+type SignalMutationCallbacks = {
+    onSuccess?: () => void;
+    onError?: (error: unknown) => void;
+};
+
+function withPerCallCallbacks(mutateAsync: (signalName: string) => Promise<unknown>) {
+    return (signalName: string, callbacks?: SignalMutationCallbacks) => {
+        mutateAsync(signalName).then(
+            () => callbacks?.onSuccess?.(),
+            (error: unknown) => callbacks?.onError?.(error)
+        );
+    };
+}
+
 const LiveSignalStoreProvider = memo(({ children }: { children: React.ReactNode }) => {
     const subscribeToSignalMutation = useSubscribeToSignal();
     const unsubscribeFromSignalMutation = useUnsubscribeToSignal();
@@ -13,7 +27,7 @@ const LiveSignalStoreProvider = memo(({ children }: { children: React.ReactNode 
     const liveSignalStore = useRef<LiveSignalStore>(null!);
 
     if (!liveSignalStore.current) {
-        liveSignalStore.current = new LiveSignalStore(updateWithTimestamp, subscribeToSignalMutation.mutate, unsubscribeFromSignalMutation.mutate);
+        liveSignalStore.current = new LiveSignalStore(updateWithTimestamp, withPerCallCallbacks(subscribeToSignalMutation.mutateAsync), withPerCallCallbacks(unsubscribeFromSignalMutation.mutateAsync));
     }
 
     useEffect(() => {
