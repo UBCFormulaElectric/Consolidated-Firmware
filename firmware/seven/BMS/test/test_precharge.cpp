@@ -12,32 +12,62 @@ using namespace app::precharge;
 
 class prechargeTest : public BMSBaseTest
 {
-  protected:
-    // Drives the charge state into a "clean" precondition: charger connected, user enabled,
-    // contactors closed, all Elcon faults cleared, and cells in a mid-charge state.
-    // Individual tests override whichever knobs they care about.
-    void EnterChargeStateClean()
-    {
-        fakes::irs::setNegativeState(ContactorState::CONTACTOR_STATE_CLOSED);
-        fakes::charger::setConnectionStatus(ChargerConnectedType::CHARGER_CONNECTED_WALL);
-        app::can_rx::Debug_StartCharging_update(true);
-
-        app::can_rx::Elcon_HardwareFailure_update(false);
-        app::can_rx::Elcon_ChargerOverTemperature_update(false);
-        app::can_rx::Elcon_InputVoltageError_update(false);
-        app::can_rx::Elcon_ChargingDisabled_update(false);
-        app::can_rx::Elcon_CommunicationTimeout_update(false);
-
-        //arbitrary for charigng start
-        app::can_rx::Elcon_OutputCurrent_update(5.0f);
-        app::can_rx::Elcon_OutputVoltage_update(400.0f);
-
-        fakes::adbms::setCellVoltage(0, 0, 3.8f);
-        // fakes::segments::setMaxCellTemp(25.0f);
-
-        app::StateMachine::set_current_state(&charge_state);
-    }
 };
+
+/*
+Getters in precharge: 
+
+// ts voltage
+app::ts::getVoltage();
+
+// pack voltage
+app::segments::shared::getPackVoltage().value();
+
+// air -
+io::irs::negativeState() == app::can_utils::ContactorState::CONTACTOR_STATE_OPEN)
+
+//precharge for charging
+set_precharge_for_charging{
+
+}
+
+
+
+- precharge failure state based on timings
+- fake accumulator voltage and ts voltage
+- feed into precharge functions
+- takes in as inputs : Air condiiton, accumulator and ts voltage
+- set TS voltage, use same getter to set
+
+float ts_voltage 
+
+//bms/io
+io::ts::getVoltage(){
+
+}
+
+//fakes.cpp
+io::ts::getVoltage(){
+    return ts_voltage;
+}
+
+io::ts::setVoltage(){
+    ts_voltage = v
+}
+
+
+//tests
+io::ts::setVoltage(400)
+
+runTime()
+
+*/
+
+
+
+
+
+
 /*
 Tests I wanna run:
 

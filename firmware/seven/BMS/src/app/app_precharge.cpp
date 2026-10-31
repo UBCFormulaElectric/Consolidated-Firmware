@@ -8,7 +8,6 @@
 #include "io_irs.hpp"
 #include "io_semaphore.hpp"
 
-
 namespace app::precharge
 {
 namespace
