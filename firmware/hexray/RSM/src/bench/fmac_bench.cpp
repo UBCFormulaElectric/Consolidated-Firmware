@@ -40,11 +40,19 @@ namespace
     constexpr size_t  IMPULSE_LEN = 512;
     constexpr size_t  STEP_LEN    = 512;
     constexpr size_t  NOISE_LEN   = 4096;
+    constexpr size_t  TIMING_LEN  = 1000;
+    constexpr size_t  INIT_RUNS   = 20;
     constexpr size_t  MAX_LEN     = NOISE_LEN;
     constexpr int16_t IMPULSE_AMP = 29491; // 0.9 FS
     constexpr int16_t STEP_AMP    = 16384; // 0.5 FS
     constexpr int16_t STEP_FS_AMP = 32440; // 0.99 FS, so any overshoot has to clip
     constexpr size_t  MAX_PRE     = 8;
+
+    // false: the timing tests run with interrupts on, so preemption by other tasks and ISRs shows up like in the real
+    // firmware. true: every timed sample is masked, which isolates the FMAC/driver cost from the rest of the system.
+    constexpr bool MASK_IRQS_WHILE_TIMING = false;
+    // The production RSM image doesn't enable the instruction cache (HAL_ICACHE_MODULE_ENABLED is off), the bench does.
+    constexpr bool ENABLE_ICACHE = true;
 
     // y[n] = 2^1 * (0.5 * x[n]) = x[n]: makes sample alignment and the float <-> Q1.15 conversion directly visible.
     constexpr std::array<int16_t, 2> PASS_B    = { { 16384, 0 } };
@@ -147,6 +155,50 @@ namespace
     inline uint32_t now()
     {
         return DWT->CYCCNT;
+    }
+
+    /** 2-way ICACHE in front of flash; waits for the invalidation started at reset to finish before enabling it. */
+    void enableInstructionCache()
+    {
+        for (uint32_t guard = 0; (ICACHE->SR & ICACHE_SR_BUSYF) != 0U && guard < 100000U; ++guard)
+        {
+        }
+        ICACHE->CR |= ICACHE_CR_EN;
+    }
+
+    /** With MASK_IRQS_WHILE_TIMING, masks every interrupt while in scope so a timed section can't be preempted. */
+    class IrqMask
+    {
+      public:
+        IrqMask() : primask_(__get_PRIMASK())
+        {
+            if constexpr (MASK_IRQS_WHILE_TIMING)
+                __disable_irq();
+        }
+        ~IrqMask()
+        {
+            if constexpr (MASK_IRQS_WHILE_TIMING)
+                __set_PRIMASK(primask_);
+        }
+        IrqMask(const IrqMask &)            = delete;
+        IrqMask &operator=(const IrqMask &) = delete;
+
+      private:
+        uint32_t primask_;
+    };
+
+    /** Cycles spent reading the cycle counter itself, subtracted from the isolated timings. */
+    uint32_t counterOverhead()
+    {
+        uint32_t best = UINT32_MAX;
+        for (size_t i = 0; i < 64; ++i)
+        {
+            const IrqMask  mask;
+            const uint32_t t0 = now();
+            const uint32_t t1 = now();
+            best              = std::min(best, t1 - t0);
+        }
+        return best;
     }
 
     int32_t toCounts(const float x)
@@ -326,6 +378,92 @@ namespace
         return runRaw(f, std::span(ZEROS).first(f.b.size() - 1), std::span(ZEROS).first(f.a.size()), in);
     }
 
+    // ---------------------------------------------------------------------------------------------------------------
+    // Dedicated timing runs with the counter's own cost subtracted. Interrupts are masked per sample only with
+    // MASK_IRQS_WHILE_TIMING; both loops are bounded (the driver's poll is capped too), so masking can't hang the board.
+    // ---------------------------------------------------------------------------------------------------------------
+
+    /** FMAC hardware alone: write one sample to WDATA until the result is ready in RDATA. */
+    Run timeHardware(const Filter &f, std::span<const float> in, const uint32_t overhead)
+    {
+        Run     run;
+        RawFmac fmac;
+        if (const auto res =
+                fmac.init(f, std::span(ZEROS).first(f.b.size() - 1), std::span(ZEROS).first(f.a.size()), run);
+            !res)
+        {
+            run.err = errorToInt(res.error());
+            return run;
+        }
+
+        for (size_t n = 0; n < in.size(); ++n)
+        {
+            const auto x     = static_cast<uint16_t>(toQ15Saturated(in[n]));
+            bool       ready = false;
+            uint32_t   t0 = 0, t1 = 0;
+            {
+                const IrqMask mask;
+                t0          = now();
+                FMAC->WDATA = x;
+                for (uint32_t guard = 0; guard < 20000U && !ready; ++guard)
+                    ready = (FMAC->SR & FMAC_SR_YEMPTY) == 0U;
+                t1 = now();
+            }
+            cycles[n]  = t1 - t0 - overhead;
+            outputs[n] = ready ? static_cast<int16_t>(FMAC->RDATA) : NO_OUTPUT;
+        }
+        run.produced = in.size();
+        run.sr       = FMAC->SR;
+        RawFmac::stop();
+        return run;
+    }
+
+    /** One full hw::fmac::FmacIir::process() call; init() is the best of INIT_RUNS (it needs the tick, so unmasked). */
+    Run timeDriver(const Filter &f, std::span<const float> in, const uint32_t overhead)
+    {
+        Run run;
+        run.initCycles = UINT32_MAX;
+        for (size_t i = 0; i < INIT_RUNS; ++i)
+        {
+            resetFmac();
+            hw::fmac::FmacIir iir(hfmac_bench);
+            const uint32_t    t0  = now();
+            const auto        res = iir.init(f.b, f.a, f.r);
+            const uint32_t    t1  = now();
+            if (!res)
+            {
+                run.err = errorToInt(res.error());
+                return run;
+            }
+            run.initCycles = std::min(run.initCycles, t1 - t0 - overhead);
+        }
+
+        // The last init() above left the filter running with zeroed history.
+        hw::fmac::FmacIir iir(hfmac_bench);
+        for (size_t n = 0; n < in.size(); ++n)
+        {
+            result<float> y = std::unexpected(ErrorCode::ERROR);
+            uint32_t      t0 = 0, t1 = 0;
+            {
+                const IrqMask mask;
+                t0 = now();
+                y  = iir.process(in[n]);
+                t1 = now();
+            }
+            if (!y)
+            {
+                run.err = errorToInt(y.error());
+                break;
+            }
+            cycles[n]    = t1 - t0 - overhead;
+            outputs[n]   = toCounts(y.value());
+            run.produced = n + 1;
+        }
+        run.sr = FMAC->SR;
+        (void)iir.stop();
+        return run;
+    }
+
     void emit(const char *path, const char *test, std::span<const float> in, const Run &run)
     {
         Line()
@@ -435,6 +573,18 @@ namespace
         xorshift_state = 0x12345678U;
         runTest("noise", FILTER_UNDER_TEST, fill(NOISE_LEN, noiseSample));
 
+        const uint32_t overhead = counterOverhead();
+        Line()
+            .s("meta")
+            .kv("cyc_overhead", static_cast<int32_t>(overhead))
+            .kv("irq_masked", MASK_IRQS_WHILE_TIMING ? 1 : 0)
+            .kv("icache", (ICACHE->CR & ICACHE_CR_EN) != 0U ? 1 : 0)
+            .send();
+        xorshift_state     = 0x12345678U;
+        const auto timingX = fill(TIMING_LEN, noiseSample);
+        emit("raw", "timing_hw", timingX, timeHardware(FILTER_UNDER_TEST, timingX, overhead));
+        emit("drv", "timing", timingX, timeDriver(FILTER_UNDER_TEST, timingX, overhead));
+
         Line().s("#FMAC_BENCH done").send();
     }
 
@@ -443,6 +593,8 @@ namespace
         SEGGER_RTT_ConfigUpBuffer(
             RTT_CHANNEL, "FMAC", rtt_buffer.data(), rtt_buffer.size(), SEGGER_RTT_MODE_NO_BLOCK_SKIP);
         enableCycleCounter();
+        if constexpr (ENABLE_ICACHE)
+            enableInstructionCache();
         osDelay(BOOT_SETTLE_MS);
 
         LOG_INFO("FMAC bench: streaming results on RTT channel %d", RTT_CHANNEL);

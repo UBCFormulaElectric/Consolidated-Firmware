@@ -376,14 +376,26 @@ def analyze(meta, runs):
         failures = {t: run.failure for (p, t), run in runs.items() if p == path and run.failure}
         s["failures"] = failures
 
+        # Isolated: interrupts masked per sample, counter overhead already subtracted on target.
+        # raw = FMAC hardware alone (WDATA write -> result ready), drv = one full process() call.
+        if run := runs.get((path, "timing_hw" if path == "raw" else "timing")):
+            iso = run.cyc[~np.isnan(run.cyc)]
+            if len(iso):
+                s["iso_min"], s["iso_med"], s["iso_max"] = float(np.min(iso)), float(np.median(iso)), float(np.max(iso))
+                s["iso_p99"] = float(np.percentile(iso, 99))
+                s["rate_max_khz"] = sysclk / s["iso_med"] / 1e3
+                curves[path]["cycles"] = iso
+            if path == "drv":
+                s["init_cyc"] = run.meta.get("init_cyc", float("nan"))
+
+        # In system: interrupts on during the noise test, so the tail shows preemption by other tasks / ISRs.
         if run := runs.get((path, "noise")):
             ok = run.cyc[~np.isnan(run.cyc)][10:]
             if len(ok):
                 s["cyc_min"], s["cyc_med"] = float(np.min(ok)), float(np.median(ok))
                 s["cyc_p99"], s["cyc_max"] = float(np.percentile(ok, 99)), float(np.max(ok))
-                s["rate_max_khz"] = sysclk / s["cyc_med"] / 1e3
-                curves[path]["cycles"] = ok
-            if path == "drv":
+                curves[path].setdefault("cycles", ok)
+            if path == "drv" and "init_cyc" not in s:
                 s["init_cyc"] = run.meta.get("init_cyc", float("nan"))
 
         if run := runs.get((path, "passthru")):
@@ -451,7 +463,9 @@ def analyze(meta, runs):
         if align:
             s["align"] = align
 
-    return {"fs": fs, "sysclk": sysclk, "desc": meta.get("desc", ""), "P": len(bq), "Q": len(aq), "R": r}, spec, curves, notes
+    return {"fs": fs, "sysclk": sysclk, "desc": meta.get("desc", ""), "P": len(bq), "Q": len(aq), "R": r,
+            "cyc_overhead": meta.get("cyc_overhead"), "irq_masked": meta.get("irq_masked", 1),
+            "icache": meta.get("icache")}, spec, curves, notes
 
 
 def freq_specs(freqs, H, gd, fs):
@@ -515,19 +529,29 @@ def print_report(info, spec, notes):
     ms = 1000.0 / fs
     print(f"\nFMAC characterization: {info['desc']}")
     print(f"  P={info['P']} Q={info['Q']} R={info['R']}  fs={fs:g} Hz  sysclk={sysclk / 1e6:g} MHz")
+    if info.get("cyc_overhead") is not None:
+        print(f"  cycle counter read cost {info['cyc_overhead']} cycles (already subtracted from dedicated timings)")
+        print(f"  dedicated timings: interrupts {'masked' if info['irq_masked'] else 'ON'}, "
+              f"instruction cache {'on' if info.get('icache') else 'off'}")
     print("  columns: ideal = float design, quantized = Q1.15 coefficients in float math,")
     print("           raw = FMAC hardware via registers, drv = hw::fmac::FmacIir\n")
 
     cols = ["ideal", "quantized", "raw", "drv"]
     rows = [
-        ("TIMING (per process() call)", None, None),
-        ("latency min [cycles]", "cyc_min", "{:.0f}"),
-        ("latency median [cycles]", "cyc_med", "{:.0f}"),
-        ("latency p99 [cycles]", "cyc_p99", "{:.0f}"),
-        ("latency max [cycles]", "cyc_max", "{:.0f}"),
-        ("latency median [us]", lambda s: s.get("cyc_med", math.nan) / sysclk * 1e6, "{:.3f}"),
+        (f"TIMING, {'isolated' if info['irq_masked'] else 'dedicated, interrupts on'} "
+         "(raw = FMAC write->ready, drv = process())", None, None),
+        ("min [cycles]", "iso_min", "{:.0f}"),
+        ("median [cycles]", "iso_med", "{:.0f}"),
+        ("p99 [cycles]", "iso_p99", "{:.0f}"),
+        ("max [cycles]", "iso_max", "{:.0f}"),
+        ("median [us]", lambda s: s.get("iso_med", math.nan) / sysclk * 1e6, "{:.3f}"),
         ("max sample rate @ median [kHz]", "rate_max_khz", "{:.0f}"),
-        ("init() [cycles]", "init_cyc", "{:.0f}"),
+        ("init() best of 20 [cycles]", "init_cyc", "{:.0f}"),
+        ("init() [us]", lambda s: s.get("init_cyc", math.nan) / sysclk * 1e6, "{:.2f}"),
+        ("TIMING, in system (interrupts on, noise test)", None, None),
+        ("median [cycles]", "cyc_med", "{:.0f}"),
+        ("p99 [cycles]", "cyc_p99", "{:.0f}"),
+        ("max [cycles]", "cyc_max", "{:.0f}"),
         ("SAMPLE DELAY", None, None),
         ("pure delay: first output response [samples]", "first_response", "{:.0f}"),
         ("passthrough lag [samples]", "passthru_lag", "{:.0f}"),
@@ -589,8 +613,10 @@ def print_report(info, spec, notes):
         if "fs_sr" in s:
             flags = [n for bit, n in SR_FLAGS.items() if s["fs_sr"] >> bit & 1 and bit >= 8]
             print(f"  status flags after 0.99 FS step: {', '.join(flags) or 'none'}")
-        if "cyc_med" in spec["raw"] and "cyc_med" in s and path == "drv":
-            print(f"  driver overhead vs raw registers: {s['cyc_med'] - spec['raw']['cyc_med']:.0f} cycles median")
+        if "iso_med" in spec["raw"] and "iso_med" in s and path == "drv":
+            hw = spec["raw"]["iso_med"]
+            print(f"  process() = {s['iso_med']:.0f} cycles median, of which FMAC hardware {hw:.0f}; "
+                  f"driver software (conversions, checks, call) {s['iso_med'] - hw:.0f}")
         for name, al in s.get("align", {}).items():
             print(f"  init variant {name:>12}: {len(al['pre'])} output(s) before first input {al['pre']}, "
                   f"lag {al['lag']} sample(s), {al['bad']} mismatch(es)")
@@ -604,41 +630,66 @@ def plot(info, curves, out, show):
     fs = info["fs"]
     freqs = curves["freqs"]
     style = {"ideal": ("k", "-"), "quantized": ("0.5", "--"), "raw": ("tab:blue", "-"), "drv": ("tab:red", ":")}
-    fig, ax = plt.subplots(2, 3, figsize=(16, 9))
-    fig.suptitle(f"FMAC characterization: {info['desc']}")
+    names = {
+        "ideal": "ideal (float design)",
+        "quantized": "Q1.15 coefficients, float math",
+        "raw": "raw: FMAC via registers",
+        "drv": "drv: hw::fmac::FmacIir",
+    }
+    ms_per_sample = 1000.0 / fs
+    to_ms = (lambda n: n * ms_per_sample, lambda t: t / ms_per_sample)
+    fig, ax = plt.subplots(2, 3, figsize=(17, 10))
+    fig.suptitle(f"FMAC characterization: {info['desc']}  (1 sample = {ms_per_sample:g} ms)")
 
     for k in ("ideal", "raw", "drv"):
         if "impulse" in curves.get(k, {}):
             h = curves[k]["impulse"][:96]
-            ax[0, 0].plot(h, color=style[k][0], linestyle=style[k][1], marker="." if k != "ideal" else None, label=k)
-    ax[0, 0].set(title="impulse response (normalized)", xlabel="sample")
+            ax[0, 0].plot(h, color=style[k][0], linestyle=style[k][1], marker="." if k != "ideal" else None,
+                          label=names[k])
+    ax[0, 0].set(title="Impulse response: output after a single input spike", xlabel="samples after the spike",
+                 ylabel="output / spike height")
+    ax[0, 0].secondary_xaxis("top", functions=to_ms).set_xlabel("ms")
 
     for k in ("ideal", "quantized", "raw", "drv"):
         if "H" in curves.get(k, {}):
-            ax[0, 1].plot(freqs, db(np.abs(curves[k]["H"])), color=style[k][0], linestyle=style[k][1], label=k)
-            ax[0, 2].plot(freqs, curves[k]["gd"], color=style[k][0], linestyle=style[k][1], label=k)
-    ax[0, 1].set(title="magnitude", xlabel="Hz", ylabel="dB", ylim=(-100, 5))
+            ax[0, 1].plot(freqs, db(np.abs(curves[k]["H"])), color=style[k][0], linestyle=style[k][1],
+                          label=names[k])
+            ax[0, 2].plot(freqs, curves[k]["gd"], color=style[k][0], linestyle=style[k][1], label=names[k])
+    ax[0, 1].axhline(-3, color="0.6", lw=0.8, linestyle="--")
+    ax[0, 1].set(title="Gain: how much of each frequency gets through", xlabel="input frequency [Hz]",
+                 ylabel="output / input [dB]   (-3 dB = cutoff)", ylim=(-100, 5))
     gd_ideal = curves["ideal"]["gd"][freqs <= fs / 4]
-    ax[0, 2].set(title="group delay", xlabel="Hz", ylabel="samples", xlim=(0, fs / 4),
+    ax[0, 2].set(title="Group delay: how late each frequency comes out", xlabel="input frequency [Hz]",
+                 ylabel="delay [samples]", xlim=(0, fs / 4),
                  ylim=(min(0.0, np.nanmin(gd_ideal)) - 1, 1.5 * np.nanmax(gd_ideal) + 1))
+    ax[0, 2].secondary_yaxis("right", functions=to_ms).set_ylabel("delay [ms]")
 
     for k in ("ideal", "raw", "drv"):
         if "step" in curves.get(k, {}):
-            ax[1, 0].plot(curves[k]["step"][:128], color=style[k][0], linestyle=style[k][1], label=k)
-    ax[1, 0].set(title="step response (normalized)", xlabel="sample")
+            ax[1, 0].plot(curves[k]["step"][:128], color=style[k][0], linestyle=style[k][1], label=names[k])
+    ax[1, 0].set(title="Step response: input jumps from 0 to a constant", xlabel="samples after the jump",
+                 ylabel="output / step size   (1 = settled)")
+    ax[1, 0].secondary_xaxis("top", functions=to_ms).set_xlabel("ms")
 
     for k in ("raw", "drv"):
         if "noise_err" in curves.get(k, {}):
             e = curves[k]["noise_err"]
-            ax[1, 1].hist(e, bins=np.arange(np.floor(e.min()) - 0.5, np.ceil(e.max()) + 1.5), alpha=0.5,
-                          color=style[k][0], label=k)
-    ax[1, 1].set(title="noise test: output - ideal", xlabel="LSB")
+            # 1-LSB bins when the error is small; a fixed bin count if a corrupted run makes the range huge.
+            lo, hi = np.floor(e.min()), np.ceil(e.max())
+            bins = np.arange(lo - 0.5, hi + 1.5) if hi - lo <= 200 else 100
+            ax[1, 1].hist(e, bins=bins, alpha=0.5, color=style[k][0], label=names[k])
+    ax[1, 1].set(title="Accuracy on random input: FMAC output minus ideal filter",
+                 xlabel="error [LSB]   (1 LSB = 1/32768 of full scale)", ylabel="number of samples")
 
     for k in ("raw", "drv"):
         if "cycles" in curves.get(k, {}):
             c = curves[k]["cycles"]
-            ax[1, 2].hist(c, bins=60, range=(c.min(), np.percentile(c, 99.5)), alpha=0.5, color=style[k][0], label=k)
-    ax[1, 2].set(title="process() latency", xlabel="CPU cycles")
+            ax[1, 2].hist(c, bins=60, range=(c.min(), np.percentile(c, 99.5)), alpha=0.5, color=style[k][0],
+                          label={"raw": "FMAC hardware alone", "drv": "full process() call"}[k])
+    ax[1, 2].set(title="Execution time per sample", xlabel="CPU cycles", ylabel="number of samples")
+    sysclk_mhz = info["sysclk"] / 1e6
+    ax[1, 2].secondary_xaxis("top", functions=(lambda c: c / sysclk_mhz, lambda us: us * sysclk_mhz)).set_xlabel(
+        f"µs at {sysclk_mhz:g} MHz")
 
     for a in ax.flat:
         a.grid(alpha=0.3)
@@ -727,6 +778,13 @@ def cmd_simulate(args):
             cyc = base + rng.poisson(3, len(x)) + (rng.random(len(x)) < 0.01) * 400
             lines += [f"{int(a)} {int(b)} {int(c)}" for a, b, c in zip(xq, y, cyc)]
             lines.append(f"end {path} {test}")
+    lines.append("meta cyc_overhead=1 irq_masked=0 icache=1")
+    for path, test, base in (("raw", "timing_hw", 12), ("drv", "timing", 180)):
+        xq = np.round(noise[:1000])
+        y = fmac_model(h["B_Q15"], h["A_Q15"], h["R"], xq)
+        lines.append(f"begin {path} {test} n=1000 len=1000 err=-1 sr=0x1 init_cyc={base * 10} pre=0")
+        lines += [f"{int(a)} {int(b)} {base + int(c)}" for a, b, c in zip(xq, y, rng.integers(0, 3, 1000))]
+        lines.append(f"end {path} {test}")
     lines.append("#FMAC_BENCH done")
     Path(args.out).write_text("\n".join(lines) + "\n")
     print(f"wrote {args.out}")

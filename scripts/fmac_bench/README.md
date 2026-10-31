@@ -61,3 +61,20 @@ can attach late without losing anything. Reset the board to run it again. Use
   cross-checked against the measured variance ratio (the "ideal" column for that row uses the same noise realization).
 - **error vs ideal / bias / limit cycle**: what Q1.15 arithmetic costs you. The FMAC truncates, so expect a small
   negative bias and a few LSB of deadband in the tail of the impulse response.
+
+## Delay on the car signal (gyro Z over CAN)
+
+`can_delay.py` measures the lag between `RSM_GyroZRaw` and `RSM_GyroZFiltered` (message 715) from a CANoe export.
+Both signals sit in the same frame and come from the same IMU sample, so CAN latency cancels and the gap is the filter.
+
+```powershell
+# 1. RSM running the gyro Z FMAC integration, CANoe measuring. Twist the board about Z, holding each rate ~10 s:
+#    very slow, ~1 Hz, ~2 Hz, ~3 Hz, ~5 Hz, as fast as you can. Stay under +-250 deg/s (gyro full scale).
+# 2. Export both signals from the Graphics window to CSV (whole measurement).
+# 3. Analyze (defaults are the app_imu.cpp filter: b=[1105 2210 1105] a=[18727 -6763] R=1, fs=100 Hz)
+python scripts/fmac_bench/can_delay.py analyze gyroz.csv --plot gyroz.png
+```
+
+It reports whether the filtered signal is exactly the Q1.15 filter applied to the raw one at zero sample offset,
+the delay you see between the curves (dominant frequency, cross-correlation, zero crossings), and delay and gain
+against theory at 0.5-8 Hz. `simulate` writes a synthetic export to check the analysis without hardware.

@@ -81,6 +81,11 @@ if ("${TARGET}" STREQUAL "binary")
     set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${HW_INCLUDE_DIRS} ${SHARED_UTIL_INCLUDE_DIR} ${SYSTEM_INCLUDE_DIRS} ${CUBEMX_INCLUDE_DIRS})
     if (RSM_FMAC_BENCH)
         list(APPEND SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/bench/fmac_bench.cpp" "${SHARED_HW_INCLUDE_DIR_CPP}/hw_fmac.cpp")
+        # Time the driver at the optimization level production builds use, even in a Debug build.
+        set_source_files_properties(
+                "${CMAKE_CURRENT_SOURCE_DIR}/src/bench/fmac_bench.cpp" "${SHARED_HW_INCLUDE_DIR_CPP}/hw_fmac.cpp"
+                PROPERTIES COMPILE_OPTIONS "-Os"
+        )
     endif ()
 
     embedded_binary(
