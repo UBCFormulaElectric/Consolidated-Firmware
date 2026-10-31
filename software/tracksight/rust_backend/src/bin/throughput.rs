@@ -31,9 +31,11 @@ use plotters::prelude::*;
     framing + CRC and uses the sequence number to count dropped packets.
     On ctrl-c, per-second samples are written to CSV and plotted as SVGs in --out.
     With --hold-space, the sender only transmits while space is held down.
+    With --cts, RTS/CTS hardware flow control is used so the sender blocks when the radio's
+    buffer is full instead of overflowing it (needs the pins wired and flow control enabled on the radio).
 */
 
-const USAGE: &str = "usage: throughput (--sender | --receiver) --port <path> [--baud <rate>] [--size <payload bytes>] [--rate <bytes/s>] [--out <dir>] [--hold-space]";
+const USAGE: &str = "usage: throughput (--sender | --receiver) --port <path> [--baud <rate>] [--size <payload bytes>] [--rate <bytes/s>] [--out <dir>] [--hold-space] [--cts]";
 
 // terminals without key release events only give key repeats, so space counts as
 // released once repeats stop for this long (must exceed the OS initial repeat delay)
@@ -59,6 +61,7 @@ struct Args {
     rate: Option<u64>,
     out: PathBuf,
     hold_space: bool,
+    cts: bool,
 }
 
 fn parse_args() -> Result<Args, String> {
@@ -69,6 +72,7 @@ fn parse_args() -> Result<Args, String> {
     let mut rate = None;
     let mut out = None;
     let mut hold_space = false;
+    let mut cts = false;
 
     let mut args = std::env::args().skip(1);
     while let Some(arg) = args.next() {
@@ -82,6 +86,7 @@ fn parse_args() -> Result<Args, String> {
             "--rate" => rate = Some(value()?.parse().map_err(|e| format!("bad rate: {}", e))?),
             "--out" => out = Some(PathBuf::from(value()?)),
             "--hold-space" => hold_space = true,
+            "--cts" => cts = true,
             "-h" | "--help" => return Err(String::new()),
             _ => return Err(format!("unknown argument: {}", arg)),
         }
@@ -112,6 +117,7 @@ fn parse_args() -> Result<Args, String> {
         rate,
         out,
         hold_space,
+        cts,
     })
 }
 
@@ -149,6 +155,7 @@ fn main() {
     // long timeout like serial_handler, timeouts are only used to poll the running flag
     let port = match serialport::new(&args.port, args.baud)
         .timeout(Duration::from_millis(1000))
+        .flow_control(if args.cts { serialport::FlowControl::Hardware } else { serialport::FlowControl::None })
         .open()
     {
         Ok(port) => port,
