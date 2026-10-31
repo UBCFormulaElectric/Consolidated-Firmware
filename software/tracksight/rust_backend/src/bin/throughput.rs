@@ -229,6 +229,22 @@ impl Link {
         }
         Ok(())
     }
+
+    /**
+     * Blocking write_all that retries on timeout until shutdown. Plain write_all gives up
+     * mid-packet when the radio applies flow control, which corrupts the stream
+     */
+    fn write_all(&mut self, buf: &[u8]) -> io::Result<()> {
+        let mut index = 0;
+        while index < buf.len() {
+            match self.port.write(&buf[index..]) {
+                Ok(n) => index += n,
+                Err(e) if e.kind() == io::ErrorKind::TimedOut && self.running() => {}
+                Err(e) => return Err(e),
+            }
+        }
+        Ok(())
+    }
 }
 
 //
@@ -280,7 +296,7 @@ fn run_sender(mut link: Link, size: usize, rate: Option<u64>, sending: Arc<Atomi
         }
 
         let packet = generate_packet(seq, size);
-        match link.port.write_all(&packet) {
+        match link.write_all(&packet) {
             Ok(()) => {
                 sent_bytes += packet.len() as u64;
                 seq = seq.wrapping_add(1);
@@ -290,8 +306,11 @@ fn run_sender(mut link: Link, size: usize, rate: Option<u64>, sending: Arc<Atomi
                     c.packets += 1;
                 });
             }
-            Err(e) if e.kind() == io::ErrorKind::TimedOut => {}
             Err(e) => {
+                // timeouts only surface here on shutdown
+                if !link.running() {
+                    break;
+                }
                 eprint!("write error: {}\r\n", e);
                 link.running.store(false, Ordering::SeqCst);
             }
