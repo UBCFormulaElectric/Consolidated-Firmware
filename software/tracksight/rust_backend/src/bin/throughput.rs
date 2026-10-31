@@ -131,6 +131,7 @@ struct Counters {
 struct Sample {
     t: f64,
     c: Counters,
+    total_payload_bytes: u64, // cumulative valid body bytes up to this sample
 }
 
 fn main() {
@@ -474,16 +475,17 @@ fn report(running: &AtomicBool, counters: &Mutex<Counters>, worker: thread::Join
         total.dropped += c.dropped;
 
         print!(
-            "{:>8.1} B/s wire | {:>8.1} B/s payload | {:>5} pkt | crc err {} | len err {} | dropped {} | error {:.2}%\r\n",
+            "{:>8.1} B/s wire | {:>8.1} B/s payload | {:>10} B payload total | {:>5} pkt | crc err {} | len err {} | dropped {} | error {:.2}%\r\n",
             c.wire_bytes as f64 / dt,
             c.payload_bytes as f64 / dt,
+            total.payload_bytes,
             c.packets,
             c.crc_errors,
             c.length_errors,
             c.dropped,
             error_rate(&c),
         );
-        samples.push(Sample { t: (now - start).as_secs_f64(), c });
+        samples.push(Sample { t: (now - start).as_secs_f64(), c, total_payload_bytes: total.payload_bytes });
 
         if stopping {
             break;
@@ -492,10 +494,11 @@ fn report(running: &AtomicBool, counters: &Mutex<Counters>, worker: thread::Join
 
     let elapsed = start.elapsed().as_secs_f64();
     print!(
-        "\r\ndone: {:.1}s | avg {:.1} B/s wire, {:.1} B/s payload | {} pkt | crc err {} | len err {} | dropped {} | error {:.2}%\r\n",
+        "\r\ndone: {:.1}s | avg {:.1} B/s wire, {:.1} B/s payload | {} B payload total | {} pkt | crc err {} | len err {} | dropped {} | error {:.2}%\r\n",
         elapsed,
         total.wire_bytes as f64 / elapsed,
         total.payload_bytes as f64 / elapsed,
+        total.payload_bytes,
         total.packets,
         total.crc_errors,
         total.length_errors,
@@ -518,13 +521,13 @@ fn write_results(out: &Path, mode: &Mode, samples: &[Sample]) -> Result<(), Box<
     fs::create_dir_all(out)?;
 
     let mut csv = fs::File::create(out.join("samples.csv"))?;
-    writeln!(csv, "t,wire_bytes,payload_bytes,packets,crc_errors,length_errors,dropped,error_rate")?;
+    writeln!(csv, "t,wire_bytes,payload_bytes,total_payload_bytes,packets,crc_errors,length_errors,dropped,error_rate")?;
     for s in samples {
         let c = &s.c;
         writeln!(
             csv,
-            "{:.3},{},{},{},{},{},{},{:.4}",
-            s.t, c.wire_bytes, c.payload_bytes, c.packets, c.crc_errors, c.length_errors, c.dropped, error_rate(c)
+            "{:.3},{},{},{},{},{},{},{},{:.4}",
+            s.t, c.wire_bytes, c.payload_bytes, s.total_payload_bytes, c.packets, c.crc_errors, c.length_errors, c.dropped, error_rate(c)
         )?;
     }
 
@@ -544,6 +547,12 @@ fn write_results(out: &Path, mode: &Mode, samples: &[Sample]) -> Result<(), Box<
         "Bitrate",
         "kbps",
         &[("wire", BLUE, series(|c| c.wire_bytes as f64 * 8.0 / 1000.0))],
+    )?;
+    plot(
+        &out.join("cumulative_payload.svg"),
+        "Cumulative valid body bytes",
+        "bytes",
+        &[("valid payload", GREEN, samples.iter().map(|s| (s.t, s.total_payload_bytes as f64)).collect())],
     )?;
 
     if let Mode::Receiver = mode {
