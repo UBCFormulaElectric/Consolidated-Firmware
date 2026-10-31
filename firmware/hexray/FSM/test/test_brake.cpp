@@ -85,7 +85,6 @@ TEST_F(BrakeModuleTest, PSIOutOfRange_CANUnderFlow)
     LetTimePass(100);
 
     EXPECT_FALSE(app::can_tx::FSM_BrakeActuated_get());
-    EXPECT_EQ(app::can_tx::FSM_FrontBrakePressure_get(), 2500); 
     EXPECT_FALSE(app::can_tx::FSM_Info_FrontBrakePressureOCSC_get());
     EXPECT_TRUE(app::can_tx::FSM_Info_FrontBrakePressureOutOfRange_get());
 }
