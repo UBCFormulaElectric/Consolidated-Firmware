@@ -32,14 +32,14 @@ namespace
     // Hard coded values taken from manually sampling
     // These are dummy values for now. In future, sample during boot
     // TODO: sample when VC on car 
-    constexpr float mean_x_reading = 0.0f;
-    constexpr float mean_y_reading = 0.0f;
-    constexpr float mean_z_reading = 1.0f;
+    constexpr float mean_x_reading = -0.065f;
+    constexpr float mean_y_reading = 0.125f;
+    constexpr float mean_z_reading = 0.985f;
 
-    // TODO: Use better setup to lay IMU flat
-    constexpr float x_bias     = 0.04f;
-    constexpr float y_bias     = 0.01f;
-    constexpr float z_bias     = -0.01f;
+    // // TODO: Use better setup to lay IMU flat
+    constexpr float x_bias     = 0.045f;
+    constexpr float y_bias     = -0.035f;
+    constexpr float z_bias     = -0.005f;
     constexpr float roll_bias  = 0.63f;
     constexpr float pitch_bias = -0.4f;
     constexpr float yaw_bias   = -0.26f;
@@ -47,8 +47,8 @@ namespace
     // TODO: Ratio needs to be found during driving
     constexpr float xy_ratio = 0.0f; // mean y/x when moving straight
 
-    imu_reorient reorient(
-        x_bias_in,
+    imu_reorient reorient = imu_reorient(
+        x_bias,
         y_bias,
         z_bias,
         roll_bias,
@@ -57,7 +57,8 @@ namespace
         mean_x_reading,
         mean_y_reading,
         mean_z_reading,
-        xy_ratio);
+        xy_ratio
+    );
 } // namespace
 
 void broadcast()
