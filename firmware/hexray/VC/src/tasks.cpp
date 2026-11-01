@@ -38,17 +38,17 @@
 [[noreturn]] static void tasks_sbgEllipse(void *arg);
 
 // Define the task with StaticTask Class
-constexpr size_t                                   TASK_COUNT = 7; // IMU, Batt Mon, Power Mon ADD
-static hw::rtos::StaticTask::StaticTaskStack<8096> Task100HzStack;
-static hw::rtos::StaticTask::StaticTaskStack<512>  Task1kHzStack;
-static hw::rtos::StaticTask::StaticTaskStack<512>  Task1HzStack;
-static hw::rtos::StaticTask::StaticTaskStack<512>  TaskImuStack;
-static hw::rtos::StaticTask::StaticTaskStack<512>  TaskCanRxStack;
-static hw::rtos::StaticTask::StaticTaskStack<512>  TaskCan1TxStack;
-static hw::rtos::StaticTask::StaticTaskStack<512>  TaskCan2TxStack;
-static hw::rtos::StaticTask::StaticTaskStack<1024> BatteryMonitoringStack;
-static hw::rtos::StaticTask::StaticTaskStack<512>  TaskPowerMonitoringStack;
-static hw::rtos::StaticTask::StaticTaskStack<4096> TaskSbgEllipseStack;
+constexpr size_t                                    TASK_COUNT = 7; // IMU, Batt Mon, Power Mon ADD
+static hw::rtos::StaticTask::StaticTaskStack<16192> Task100HzStack;
+static hw::rtos::StaticTask::StaticTaskStack<512>   Task1kHzStack;
+static hw::rtos::StaticTask::StaticTaskStack<512>   Task1HzStack;
+static hw::rtos::StaticTask::StaticTaskStack<512>   TaskImuStack;
+static hw::rtos::StaticTask::StaticTaskStack<512>   TaskCanRxStack;
+static hw::rtos::StaticTask::StaticTaskStack<512>   TaskCan1TxStack;
+static hw::rtos::StaticTask::StaticTaskStack<512>   TaskCan2TxStack;
+static hw::rtos::StaticTask::StaticTaskStack<1024>  BatteryMonitoringStack;
+static hw::rtos::StaticTask::StaticTaskStack<512>   TaskPowerMonitoringStack;
+static hw::rtos::StaticTask::StaticTaskStack<4096>  TaskSbgEllipseStack;
 
 static hw::rtos::StaticTask Task100Hz(osPriorityHigh, "Task100Hz", tasks_run100Hz, Task100HzStack);
 static hw::rtos::StaticTask Task1kHz(osPriorityRealtime, "Task1kHz", tasks_run1kHz, Task1kHzStack);

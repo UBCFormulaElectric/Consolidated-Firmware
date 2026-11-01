@@ -6,7 +6,7 @@
 #include "app_canUtils.hpp"
 #include "app_canAlerts.hpp"
 #include "app_pumpControl.hpp"
-#include "torque_vectoring/datatypes/torque_limits.hpp"
+#include "torque_vectoring/shared_datatypes/torque_limits.hpp"
 #include "io_log.hpp"
 #include "io_pcm.hpp"
 

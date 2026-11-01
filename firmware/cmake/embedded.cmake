@@ -23,6 +23,7 @@ set(SHARED_COMPILER_FLAGS
         -ffunction-sections
         -fdata-sections
         -fno-common
+        -fno-math-errno
         -fmessage-length=0
         -fstack-usage
         -nostdlib
