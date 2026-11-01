@@ -38,23 +38,38 @@ template <Decimal T>
 ControlOutputAutonomous<T> update_autonomous(const app::tv::shared_datatypes::VehicleState<T> &state);
 
 /**
+ * Per-wheel normal loads for the kappa_update path: static weight + aero + load transfer
+ * @param v_x_mps current longitudinal vehicle speed in meters per second
+ * @param a_x_mps2 / a_y_mps2 body accelerations in m/s^2 (ISO 8855, y left)
+ * @return per-wheel normal loads in N
+ */
+template <Decimal T>
+app::tv::shared_datatypes::wheel_set<T> wheel_loads_N(const T v_x_mps, const T a_x_mps2, const T a_y_mps2)
+{
+    return app::tv::shared_datatypes::VehicleState<T>{ .v_x_mps = v_x_mps, .a_x_mps2 = a_x_mps2, .a_y_mps2 = a_y_mps2 }
+        .est_Fz_N();
+}
+
+/**
  * Given a slip ratio setpoint, gives motor angular velocity setpoints to achieve that slip ratio at the current
  * vehicle speed
  * @param kappas slip ratio setpoints for each wheel, where kappa = (wheel_speed - vehicle_speed) / vehicle_speed
  * @param v_x_mps current longitudinal vehicle speed in meters per second
+ * @param fz_N per-wheel normal loads from wheel_loads_N
  * @return motor speed setpoints in rad/s
  */
 template <Decimal T>
-app::tv::shared_datatypes::wheel_set<T>
-    motor_speed_request(const app::tv::shared_datatypes::wheel_set<T> &kappas, const T v_x_mps)
+app::tv::shared_datatypes::wheel_set<T> motor_speed_request(
+    const app::tv::shared_datatypes::wheel_set<T> &kappas,
+    const T                                        v_x_mps,
+    const app::tv::shared_datatypes::wheel_set<T> &fz_N)
 {
     const T v_regularized = std::max(
         std::abs(v_x_mps), static_cast<T>(app::tv::shared_datatypes::vd_constants::SLIP_REGULARIZATION_SPEED_MPS));
 
-    // Slip is defined against the effective rolling radius, not the unloaded radius. Only v_x is available at this
-    // rate, so the loads come from static weight + aero (no load transfer, which moves Re by ~0.4% at 1.5 g).
-    const auto [fz_fl, fz_fr, fz_rl, fz_rr] =
-        app::tv::shared_datatypes::VehicleState<T>{ .v_x_mps = v_x_mps }.est_Fz_N();
+    // Slip is defined against the effective rolling radius, not the unloaded radius. Re depends on load, and load
+    // transfer moves it by ~0.4% at 1.5 g (~13% of a 0.03 slip target), so the loads include it.
+    const auto [fz_fl, fz_fr, fz_rl, fz_rr] = fz_N;
 
     const auto wheel_speed_request = [&](const T kappa, const T fz_N)
     {
@@ -74,10 +89,41 @@ app::tv::shared_datatypes::wheel_set<T>
 }
 
 /**
+ * Estimates each tire's radial deflection for the tire force feedback's loaded radius
+ * @param fz_N per-wheel normal loads from wheel_loads_N
+ * @param omega_radps measured motor speeds in rad/s
+ * @param F_x_N longitudinal force
+ * @param F_y_N lateral force
+ * @return per-wheel radial deflection in m
+ */
+template <Decimal T>
+app::tv::shared_datatypes::wheel_set<T> radial_deflection_estimate(
+    const app::tv::shared_datatypes::wheel_set<T> &fz_N,
+    const app::tv::shared_datatypes::wheel_set<T> &omega_radps,
+    const app::tv::shared_datatypes::wheel_set<T> &F_x_N,
+    const app::tv::shared_datatypes::wheel_set<T> &F_y_N)
+{
+    // omega_radps is motor speed; the vertical model's speed term needs wheel speed.
+    const auto deflection_m = [&](const T fz, const T motor_omega, const T fx, const T fy)
+    {
+        return static_cast<T>(app::tv::estimation::tire_model.compute_radialDeflection_m(
+            static_cast<float>(fz), static_cast<float>(motor_omega / static_cast<T>(GEAR_RATIO)),
+            static_cast<float>(fx), static_cast<float>(fy)));
+    };
+    return {
+        .fl = deflection_m(fz_N.fl, omega_radps.fl, F_x_N.fl, F_y_N.fl),
+        .fr = deflection_m(fz_N.fr, omega_radps.fr, F_x_N.fr, F_y_N.fr),
+        .rl = deflection_m(fz_N.rl, omega_radps.rl, F_x_N.rl, F_y_N.rl),
+        .rr = deflection_m(fz_N.rr, omega_radps.rr, F_x_N.rr, F_y_N.rr),
+    };
+}
+
+/**
  * Given a slip ratio setpoint, computes the motor speed setpoints that achieve that slip ratio at the current
  * vehicle speed and runs the per-wheel speed controller to track them
  * @param kappas slip ratio setpoints for each wheel, where kappa = (wheel_speed - vehicle_speed) / vehicle_speed
  * @param v_x_mps current longitudinal vehicle speed in meters per second
+ * @param a_x_mps2 / a_y_mps2 body accelerations in m/s^2 (ISO 8855, y left), for the wheel loads' load transfer
  * @param omega_radps measured motor speeds in rad/s
  *
  * for tire ffb calculation
@@ -92,6 +138,8 @@ template <Decimal T>
 app::tv::shared_datatypes::wheel_set<T> kappa_update(
     const app::tv::shared_datatypes::wheel_set<T> &kappas,
     const T                                        v_x_mps,
+    const T                                        a_x_mps2,
+    const T                                        a_y_mps2,
     const app::tv::shared_datatypes::wheel_set<T> &omega_radps,
     const app::tv::shared_datatypes::wheel_set<T> &F_x_N,
     const app::tv::shared_datatypes::wheel_set<T> &F_y_N,
@@ -99,25 +147,13 @@ app::tv::shared_datatypes::wheel_set<T> kappa_update(
     const app::tv::shared_datatypes::wheel_set<T> &torque_max,
     const app::tv::shared_datatypes::wheel_set<T> &torque_min)
 {
-    // Same static + aero load model as motor_speed_request (no load transfer at this rate).
-    const auto fz_N = app::tv::shared_datatypes::VehicleState<T>{ .v_x_mps = v_x_mps }.est_Fz_N();
-
-    // omega_radps is motor speed; the vertical model's speed term needs wheel speed.
-    const auto deflection_m = [&](const T fz, const T motor_omega, const T fx, const T fy)
-    {
-        return static_cast<T>(app::tv::estimation::tire_model.compute_radialDeflection_m(
-            static_cast<float>(fz), static_cast<float>(motor_omega / static_cast<T>(GEAR_RATIO)),
-            static_cast<float>(fx), static_cast<float>(fy)));
-    };
-    const app::tv::shared_datatypes::wheel_set<T> radial_deflection_m = {
-        .fl = deflection_m(fz_N.fl, omega_radps.fl, F_x_N.fl, F_y_N.fl),
-        .fr = deflection_m(fz_N.fr, omega_radps.fr, F_x_N.fr, F_y_N.fr),
-        .rl = deflection_m(fz_N.rl, omega_radps.rl, F_x_N.rl, F_y_N.rl),
-        .rr = deflection_m(fz_N.rr, omega_radps.rr, F_x_N.rr, F_y_N.rr),
-    };
+    // One load estimate shared by the rolling radius (speed setpoints) and the tire deflection (feedforward radius).
+    const auto fz_N                = wheel_loads_N(v_x_mps, a_x_mps2, a_y_mps2);
+    const auto radial_deflection_m = radial_deflection_estimate(fz_N, omega_radps, F_x_N, F_y_N);
 
     // The speed controller is a PID that takes the wheel speed request and actual wheel speed and
     // outputs a torque request. The torque request is then limited by the max and min torque limits.
     return app::tv::controllers::speed_controller::computeTorque(
-        motor_speed_request(kappas, v_x_mps), omega_radps, F_x_N, radial_deflection_m, M_y_Nm, torque_max, torque_min);
+        motor_speed_request(kappas, v_x_mps, fz_N), omega_radps, F_x_N, radial_deflection_m, M_y_Nm, torque_max,
+        torque_min);
 }
