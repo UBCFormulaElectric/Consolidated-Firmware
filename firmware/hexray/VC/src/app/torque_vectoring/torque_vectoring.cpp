@@ -135,12 +135,17 @@ extern "C" void update_matlab(
 void kappa_update_matlab(
     double       kappas[4],
     const double v_x,
+    const double a_x,
+    const double a_y,
     const double omegas[4],
-    const double tire_ffb[4],
+    const double Fx[4],
+    const double Fy[4],
+    const double My[4],
     const double torque_max[4],
     const double torque_min[4],
     double       torque_request[4],
-    double       speed_request[4])
+    double       speed_request[4],
+    double       radial_deflection[4])
 {
     const auto to_wheel_set = [](const double w[4]) -> wheel_set<tv_real>
     {
@@ -160,21 +165,36 @@ void kappa_update_matlab(
         .rr = wheel_omegas.rr * gear_ratio,
     };
 
+    // The plant reports body accelerations in g; the load transfer model needs m/s^2. Lateral also gets the same
+    // SAE J670 -> ISO 8855 sign flip as update_matlab.
+    const auto a_x_mps2 = static_cast<tv_real>(a_x * GRAVITY);
+    const auto a_y_mps2 = static_cast<tv_real>(-a_y * GRAVITY);
+
     const auto [fl, fr, rl, rr] = kappa_update<tv_real>(
-        to_wheel_set(kappas), static_cast<tv_real>(v_x), motor_omegas, to_wheel_set(tire_ffb), to_wheel_set(torque_max),
-        to_wheel_set(torque_min));
+        to_wheel_set(kappas), static_cast<tv_real>(v_x), a_x_mps2, a_y_mps2, motor_omegas, to_wheel_set(Fx),
+        to_wheel_set(Fy), to_wheel_set(My), to_wheel_set(torque_max), to_wheel_set(torque_min));
     torque_request[0] = static_cast<double>(fl);
     torque_request[1] = static_cast<double>(fr);
     torque_request[2] = static_cast<double>(rl);
     torque_request[3] = static_cast<double>(rr);
 
-    // Simulink only: the power limiter needs the motor speed setpoints, which kappa_update keeps internal.
+    // Simulink only: the power limiter needs the motor speed setpoints and the comparison against the plant needs the
+    // deflection, both of which kappa_update keeps internal. Same loads as kappa_update, so these match what it used.
+    const auto fz_N = wheel_loads_N<tv_real>(static_cast<tv_real>(v_x), a_x_mps2, a_y_mps2);
+
     const auto [req_fl, req_fr, req_rl, req_rr] =
-        motor_speed_request<tv_real>(to_wheel_set(kappas), static_cast<tv_real>(v_x));
+        motor_speed_request<tv_real>(to_wheel_set(kappas), static_cast<tv_real>(v_x), fz_N);
     speed_request[0] = static_cast<double>(req_fl);
     speed_request[1] = static_cast<double>(req_fr);
     speed_request[2] = static_cast<double>(req_rl);
     speed_request[3] = static_cast<double>(req_rr);
+
+    const auto [def_fl, def_fr, def_rl, def_rr] =
+        radial_deflection_estimate<tv_real>(fz_N, motor_omegas, to_wheel_set(Fx), to_wheel_set(Fy));
+    radial_deflection[0] = static_cast<double>(def_fl);
+    radial_deflection[1] = static_cast<double>(def_fr);
+    radial_deflection[2] = static_cast<double>(def_rl);
+    radial_deflection[3] = static_cast<double>(def_rr);
 }
 
 void estimate_matlab(
