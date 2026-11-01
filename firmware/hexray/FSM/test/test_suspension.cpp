@@ -24,7 +24,7 @@ TEST_F(SuspensionModuleTest, Normal_SuspensionConditions)
 TEST_F(SuspensionModuleTest, TravelOutOfRange_CANOverFlow)
 {
     fakes::io::suspension::setLeftTravel(60.0f); // Positive Travel, LARGER than CAN threshold psi(50)
-    fakes::io::suspension::setRightTravel(60.0f);
+    fakes::io::suspension::setRightTravel(59.0f);
     fakes::io::suspension::setLeftSensorOCSC(false);
     fakes::io::suspension::setRightSensorOCSC(false);
 
@@ -39,7 +39,7 @@ TEST_F(SuspensionModuleTest, TravelOutOfRange_CANOverFlow)
 TEST_F(SuspensionModuleTest, TravelOutOfRange_CANUnderFlow)
 {
     fakes::io::suspension::setLeftTravel(-10.0f); // Negative Travel, SMALLER than CAN threshold (0)
-    fakes::io::suspension::setRightTravel(-10.0f);
+    fakes::io::suspension::setRightTravel(-9.0f);
     fakes::io::suspension::setLeftSensorOCSC(false);
     fakes::io::suspension::setRightSensorOCSC(false);
 

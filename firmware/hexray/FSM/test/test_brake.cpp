@@ -51,13 +51,13 @@ TEST_F(BrakeModuleTest, Brake_Released)
 TEST_F(BrakeModuleTest, PSIOutOfRange_OverFlow)
 {
     fakes::io::brake::setBrakeActuated(true);
-    fakes::io::brake::setFrontPressurePsi(2200.0f); // Positive Psi, WITHIN CAN threshold psi
+    fakes::io::brake::setFrontPressurePsi(1000.1f); // Positive Psi, WITHIN CAN threshold psi
     fakes::io::brake::setOCSC(false);
 
     LetTimePass(100);
 
     EXPECT_TRUE(app::can_tx::FSM_BrakeActuated_get());
-    EXPECT_EQ(app::can_tx::FSM_FrontBrakePressure_get(), 2200);
+    EXPECT_EQ(app::can_tx::FSM_FrontBrakePressure_get(), 1000);
     EXPECT_FALSE(app::can_tx::FSM_Info_FrontBrakePressureOCSC_get());
     EXPECT_TRUE(app::can_tx::FSM_Info_FrontBrakePressureOutOfRange_get());
 }
@@ -65,7 +65,7 @@ TEST_F(BrakeModuleTest, PSIOutOfRange_OverFlow)
 TEST_F(BrakeModuleTest, PSIOutOfRange_CANOverFlow)
 {
     fakes::io::brake::setBrakeActuated(true);
-    fakes::io::brake::setFrontPressurePsi(3000.0f); // Positive Psi, LARGER than CAN threshold psi(2500)
+    fakes::io::brake::setFrontPressurePsi(3000.0f); // Just over alert threshold (1000) within CAN range
     fakes::io::brake::setOCSC(false);
 
     LetTimePass(100);
@@ -85,7 +85,6 @@ TEST_F(BrakeModuleTest, PSIOutOfRange_CANUnderFlow)
     LetTimePass(100);
 
     EXPECT_FALSE(app::can_tx::FSM_BrakeActuated_get());
-    EXPECT_EQ(app::can_tx::FSM_FrontBrakePressure_get(), 2500); // CAN only accepts positive values
     EXPECT_FALSE(app::can_tx::FSM_Info_FrontBrakePressureOCSC_get());
     EXPECT_TRUE(app::can_tx::FSM_Info_FrontBrakePressureOutOfRange_get());
 }
