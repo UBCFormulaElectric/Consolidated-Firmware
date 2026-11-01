@@ -26,6 +26,8 @@ struct Measurements
     const float                              brake;
     const float                              gps_vx_mps;
     const float                              gps_vy_mps;
+    const float                              discharge_power_limit;
+    const float                              charge_power_limit;
 #ifdef TARGET_EMBEDDED
     const app::can_utils::VcEkfStatus sbg_ekf_mode;
 #else
