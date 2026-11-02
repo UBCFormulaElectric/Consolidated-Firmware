@@ -91,9 +91,16 @@ if ("${TARGET}" STREQUAL "binary")
         set(LINKER_SCRIPT "${LINKER_DIR}/stm32h733vgtx/stm32h733vgtx_app_only.ld")
     endif ()
 
+    # Board-in-the-loop bench for the sensor filter library on gyro Z (src/bench), driven and logged over CAN from
+    # CANoe. See scripts/gyro_filter_bench/README.md.
+    option(VC_GYRO_FILTER_BENCH "Run the gyro Z filter bench task" OFF)
+
     set(ARM_CORE "cm7")
     set(SRCS ${APP_SRCS} ${APP_SHARED_SRCS} ${IO_SRCS} ${IO_SHARED_SRCS} ${HW_SRCS} ${HW_SHARED_SRCS} ${SYSTEM_SRCS})
     set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${HW_INCLUDE_DIRS} ${SHARED_UTIL_INCLUDE_DIR} ${SYSTEM_INCLUDE_DIRS} ${CUBEMX_INCLUDE_DIRS})
+    if (VC_GYRO_FILTER_BENCH)
+        list(APPEND SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/bench/gyro_filter_bench.cpp" "${SHARED_APP_INCLUDE_DIR_CPP}/app_sensor_filter.cpp")
+    endif ()
 
     embedded_binary(
             "hexray_VC_app"
@@ -155,6 +162,9 @@ if ("${TARGET}" STREQUAL "binary")
 
     target_link_libraries("hexray_VC_app.elf" PRIVATE "hexray_VC_stm32" "hexray_VC_commit_info" "hexray_VC_jsoncan" "m" "sbg_ecom_${ARM_CORE}")
     target_compile_definitions("hexray_VC_app.elf" PRIVATE VC)
+    if (VC_GYRO_FILTER_BENCH)
+        target_compile_definitions("hexray_VC_app.elf" PRIVATE VC_GYRO_FILTER_BENCH)
+    endif ()
 
     if ("${BOOTLOAD}" STREQUAL "ON")
         target_compile_definitions("hexray_VC_app.elf" PRIVATE BOOTLOAD)
