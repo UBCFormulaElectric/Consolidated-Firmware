@@ -22,6 +22,10 @@
 #include "hw_bootup.hpp"
 #include "hw_runTimeStat.hpp"
 
+#ifdef RSM_FMAC_BENCH
+#include "bench/fmac_bench.hpp"
+#endif
+
 constexpr size_t         TASK_COUNT = 5;
 [[noreturn]] static void tasks_run1Hz(void *arg);
 [[noreturn]] static void tasks_run100Hz(void *arg);
@@ -177,6 +181,9 @@ static void RSM_StartAllTasks()
     TaskCanTx.start();
     TaskCanRx.start();
     Task1Hz.start();
+#ifdef RSM_FMAC_BENCH
+    bench::fmac::start();
+#endif
 }
 
 void tasks_preInit()
