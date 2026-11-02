@@ -8,33 +8,57 @@ set(CUBEMX_INCLUDE_DIRS "")
 
 # Task and Job level source file glob
 # TODO: Add project specific and shared sources used in project
-set(JOBS_SRC "")
+set(JOBS_SRC "${CMAKE_CURRENT_SOURCE_DIR}/src/jobs.cpp")
 set(TASKS_SRC "")
 set(SYSTEM_SRCS ${JOBS_SRC} ${TASKS_SRC})
-set(SYSTEM_INCLUDE_DIRS "" "")
+set(SYSTEM_INCLUDE_DIRS
+        "${CMAKE_CURRENT_SOURCE_DIR}/src"
+        "${CMAKE_CURRENT_SOURCE_DIR}/boot"
+)
 
 # APP layer resources (shared + project specific APP code)
 # TODO: Add project specific and shared sources used in project
-file(GLOB_RECURSE APP_SRCS CONFIGURE_DEPENDS "")
+file(GLOB_RECURSE APP_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/app/*.cpp")
 set(APP_SHARED_SRCS
+        "${SHARED_APP_INCLUDE_DIR_CPP}/app_timer.cpp"
 )
 set(APP_INCLUDE_DIRS
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/app"
+        "${SHARED_APP_INCLUDE_DIR}" "${SHARED_APP_INCLUDE_DIR_CPP}"
 )
 
 # IO layer resources (shared + project specific IO code)
 # TODO: Add project specific and shared sources used in project
-file(GLOB_RECURSE IO_SRCS CONFIGURE_DEPENDS "")
+file(GLOB_RECURSE IO_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/io/*.cpp")
 set(IO_SHARED_SRCS
+        "${SHARED_IO_INCLUDE_DIR_CPP}/io_time.cpp"
+        "${SHARED_IO_INCLUDE_DIR_CPP}/io_imu.cpp"
+        "${SHARED_IO_INCLUDE_DIR_CPP}/io_shdnLoopNode.cpp"
+        "${SHARED_IO_INCLUDE_DIR_CPP}/io_pump.cpp"
 )
 set(IO_INCLUDE_DIRS
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/io"
+        "${SHARED_IO_INCLUDE_DIR}" "${SHARED_IO_INCLUDE_DIR_CPP}"
 )
 
 # IO layer resources (shared + project specific HW code)
 # TODO: Add project specific and shared sources used in project
 file(GLOB_RECURSE HW_SRCS CONFIGURE_DEPENDS "")
 set(HW_SHARED_SRCS
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_i2c.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_can_hx.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_spi.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_error.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_usb.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_hardFaultHandler.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_pwmOutput.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_bootup.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_resetReason.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_runTimeStat.cpp"
 )
 set(HW_INCLUDE_DIRS
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"
+        "${SHARED_HW_INCLUDE_DIR}" "${SHARED_HW_INCLUDE_DIR_CPP}"
 )
 
 # Chimera sources
@@ -130,9 +154,9 @@ if ("${TARGET}" STREQUAL "binary")
         target_compile_definitions("seven_RSM_app.elf" PRIVATE BOOTLOAD)
         # TODO: Add project specific and shared sources used in project for bootloader
 
-        file(GLOB BOOT_SRCS CONFIGURE_DEPENDS "")
-        file(GLOB BOOT_CUBEMX_SRCS CONFIGURE_DEPENDS "")
-        set(BOOT_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/boot" "")
+        file(GLOB BOOT_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/boot/*.cpp")
+        file(GLOB BOOT_CUBEMX_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Src/*.c")
+        set(BOOT_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/boot" "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Inc")
         no_checks("")
         stm32h7_boot_binary(
                 "seven_RSM_boot"
@@ -153,13 +177,18 @@ if ("${TARGET}" STREQUAL "binary")
     endif ()
 
 elseif ("${TARGET}" STREQUAL "test")
-    file(GLOB_RECURSE TEST_SRCS CONFIGURE_DEPENDS "")
+    file(GLOB_RECURSE TEST_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp")
     set(FAKE_SRCS
+            "${SHARED_FAKES_DIR_CPP}/io_time.cpp"
+            "${SHARED_FAKES_DIR_CPP}/io_imu.cpp"
+            "${SHARED_FAKES_DIR_CPP}/io_shdnLoopNode.cpp"
+            "${SHARED_FAKES_DIR_CPP}/io_pump.cpp"
     )
     set(SRCS ${APP_SRCS} ${APP_SHARED_SRCS} ${JOBS_SRC} ${TEST_SRCS} ${FAKE_SRCS})
     set(INCLUDE_DIRS
             "${CMAKE_CURRENT_SOURCE_DIR}/test"
-            ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${TEST_INCLUDE_DIRS} ${SYSTEM_INCLUDE_DIRS} ${SHARED_UTIL_INCLUDE_DIR_CPP} ${SHARED_FAKES_DIR}
+            ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${TEST_INCLUDE_DIRS} ${SYSTEM_INCLUDE_DIRS} ${SHARED_UTIL_INCLUDE_DIR} ${SHARED_UTIL_INCLUDE_DIR_CPP}
+            ${SHARED_FAKES_DIR} ${SHARED_FAKES_DIR_CPP} ${SHARED_TEST_INCLUDE_DIR}
     )
     compile_gtest_executable(
             "seven_RSM_test"
@@ -180,13 +209,16 @@ elseif ("${TARGET}" STREQUAL "test")
     )
 
     # FakeIO
-    set(HEADERS_TO_FAKE
+    set(HEADERS_TO_FAKE ${TEST_IO_HDRS}
     )
+
+    file(GLOB TEST_IO_HDRS "${CMAKE_CURRENT_SOURCE_DIR}/src/io/*.h")
+    list(APPEND HEADERS_TO_FAKE ${TEST_IO_HDRS})
     create_fake_library(
             "seven_RSM_fakes"
             "${HEADERS_TO_FAKE}"
     )
 
     target_link_libraries("seven_RSM_test" PRIVATE "seven_RSM_jsoncan" "seven_RSM_fakes" "seven_RSM_commit_info")
-    target_compile_definitions("seven_RSM_test" PRIVATE stm32h562xx)
+    target_compile_definitions("seven_RSM_test" PRIVATE STM32H562xx)
 endif()
