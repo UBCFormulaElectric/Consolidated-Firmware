@@ -25,6 +25,7 @@
         "INVRR_RRInverterInfo2",
         "BMS_LatchStatus",
         "BMS_PowerLimit",
-        "Debug_SetTorqueRequest"
+        "Debug_SetTorqueRequest",
+        "Debug_GyroFilterBenchCmd"
     ]
 }
