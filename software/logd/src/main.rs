@@ -1,4 +1,16 @@
-use std::path::PathBuf;
+use socketcan::{
+    CanFrame,
+    Frame,
+    CanSocket,
+    Socket
+};
+
+mod logger;
+
+use logger::{
+    encode,
+    Logger
+};
 
 const HELP: &str = "\
 usage:
@@ -15,7 +27,7 @@ const FAILURE: i32 = 1;
 
 struct Args {
     interface: String,
-    outdir: PathBuf,
+    outdir: std::path::PathBuf,
 }
 
 fn parse_args() -> Result<Args, pico_args::Error> {
@@ -45,6 +57,10 @@ fn parse_args() -> Result<Args, pico_args::Error> {
     Ok(args)
 }
 
+fn run(args: &Args) -> std::io::Result<()> {
+    let sock = CanSocket::open(&args.interface)?;
+    Ok(())
+}
 
 fn main() {
     let args = parse_args()
@@ -53,6 +69,14 @@ fn main() {
             std::process::exit(FAILURE);
         });
 
+    // todo: check if interface is up?
+    // todo: and if the outdir exists
+
     println!("{}", args.interface);
     println!("{}", args.outdir.display());
+
+    run(&args).unwrap_or_else(|e| {
+        eprintln!("error: {}", e);
+        std::process::exit(FAILURE);
+    });
 }
