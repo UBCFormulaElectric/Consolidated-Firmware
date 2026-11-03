@@ -21,9 +21,6 @@ IF ("${TARGET}" STREQUAL "test")
     compile_gtest_executable("shared_test" "${SRCS}" "${INCLUDE_DIRS}")
     compile_gtest_executable("shared_test_cpp" "${SRCS_CPP}" "${INCLUDE_DIRS_CPP}")
 
-    # jsoncan lib
-    jsoncan_library("Debug" "quintuna" "${CMAKE_CURRENT_BINARY_DIR}")
-
     # io time :)
     set(HDRS_TO_FAKE
             "${SHARED_IO_INCLUDE_DIR}/io_time.h"
@@ -35,6 +32,6 @@ IF ("${TARGET}" STREQUAL "test")
 
     target_compile_definitions("shared_test" PRIVATE STM32H733xx)
     target_compile_definitions("shared_test_cpp" PRIVATE STM32H733xx)
-    target_link_libraries("shared_test" PRIVATE "quintuna_Debug_jsoncan" "shared_test_fakes")
+    target_link_libraries("shared_test" PRIVATE "shared_test_fakes")
     target_link_libraries("shared_test_cpp" PRIVATE "eigen_interface" "autodiff_interface")
 ENDIF ()

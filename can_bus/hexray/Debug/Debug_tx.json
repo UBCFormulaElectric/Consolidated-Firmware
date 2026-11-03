@@ -27,11 +27,14 @@
       "CellBalancing_Request": {
         "bits": 1
       },
-      "CellBalancing_DutyCycle": {
-        "resolution": 0.1,
-        "min": 0,
-        "max": 100,
-        "unit": "%"
+      "CellBalancing_MinCellVoltageOverrideEnable": {
+        "bits": 1
+      },
+      "CellBalancing_MinCellVoltageOverride": {
+        "resolution": 0.001,
+        "min": 2.5,
+        "max": 4.25,
+        "unit": "V"
       }
     }
   },

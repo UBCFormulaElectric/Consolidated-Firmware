@@ -12,15 +12,28 @@ void init();
  * Broadcast sensor outputs over CAN.
  */
 void broadcast(void);
-
-/*
- * Get vehicle velocity
- */
-float getVehicleVelocity(io::sbgEllipse::VelocityData &VelData);
 /*
  * Check if the Sbg Ellipsed Initialized properly
  */
 bool sbgInitOk();
+
+/**
+ * Body Velocity from SBG ellipse
+ */
+float bodyVelX();
+
+float bodyVelY();
+
+float bodyVelZ();
+
+/**
+ * Global Velocity from SBG ellipse
+ */
+float globalVelN();
+
+float globalVelE();
+
+float globalVelD();
 
 /*
  * Get Ekf Solution mode

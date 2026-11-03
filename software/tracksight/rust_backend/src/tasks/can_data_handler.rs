@@ -7,7 +7,7 @@ use crate::tasks::can_data::influx_handler::run_influx_handler;
 use crate::tasks::can_data::live_data_handler::run_live_data_handler;
 use crate::tasks::can_data::decoded_item::{DecodedItem, DecodedMarker};
 use crate::utils::yellow;
-use crate::tasks::{HealthCheckSender, HealthCheckSenderExt, Task};
+use crate::tasks::{HealthCheckSender, HealthCheckSenderExt, MAX_CHANNEL_BUFFER_SIZE, Task};
 use crate::tasks::telem_message::CanPayload;
 use crate::tasks::client_api::subtable_clients::Clients;
 use crate::{error_println, vprintln};
@@ -50,7 +50,7 @@ pub async fn run_can_data_handler(
 ) {
     vprintln!("{}", yellow("CAN data task started."));
 
-    let (decoded_signal_tx, _) = broadcast::channel::<DecodedItem>(4096);
+    let (decoded_signal_tx, _) = broadcast::channel::<DecodedItem>(MAX_CHANNEL_BUFFER_SIZE);
 
     // parsed can signal consumers
     let influx_handler_task: tokio::task::JoinHandle<()> = spawn(run_influx_handler(shutdown_rx.resubscribe(), health_check_tx.clone(), decoded_signal_tx.subscribe()));

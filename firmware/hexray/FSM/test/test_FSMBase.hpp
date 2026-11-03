@@ -12,6 +12,7 @@ class FSMBaseTest : public EcuTestBase
         register_task(jobs_run1Hz_tick, 10);
         register_task(jobs_run100Hz_tick, 10);
         register_task(jobs_run1kHz_tick, 10);
+        register_task(jobs_runImu_tick, 10);
     }
     void board_teardown()
     {

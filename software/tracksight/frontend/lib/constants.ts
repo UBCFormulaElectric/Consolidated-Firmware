@@ -5,6 +5,13 @@ const MAX_RECONECTION_ATTEMPTS = +(process.env.NEXT_PUBLIC_MAX_RECONNECTION_ATTE
 const IS_MOCK = process.env.NEXT_PUBLIC_USE_MOCK_DATA === "true";
 const IS_DEBUG = process.env.NEXT_PUBLIC_IS_DEBUG === "true";
 
-export { API_BASE_URL, IS_DEBUG, IS_MOCK, MAX_RECONECTION_ATTEMPTS };
+const DRAGGABLE_TYPES = {
+    WIDGET: "widget",
+    SIGNAL: "signal",
+} as const;
+
+export { API_BASE_URL, IS_DEBUG, IS_MOCK, MAX_RECONECTION_ATTEMPTS, DRAGGABLE_TYPES };
 
 export const ENUM_COLORS = ["#FF3B2F", "#FFCC02", "#FF9500", "#35C759", "#007AFF", "#5856D6", "#AF52DE", "#FF2D55"];
+
+export const ALERT_COLOR = "#0a5efa";

@@ -1,170 +1,269 @@
 #include "app_pack.hpp"
 #include "app_pack_internal.hpp"
+#include "app_fsm.hpp"
 #include "app_timer.hpp"
-#include "io_time.hpp"
+#include "io_adbms.hpp"
+#include <util_errorCodes.hpp>
 
-// only problem with this design is that when balancing, state machine goes between balance and diagnostic 
-// so there is never a time where cadc does a redudant check with sadc
-// not sure how important this is 
+namespace
+{
+constexpr uint32_t DIAG_PERIOD_MS = 1000;
+constexpr uint32_t SETTLE_MS      = 200; // Adjust timing
 
-namespace {
+app::Timer diag_timer{ DIAG_PERIOD_MS };
+app::Timer settle_timer{ SETTLE_MS };
 
-    inline constexpr uint32_t DIAG_PERIOD_MS = 250;
+bool       sadc_done = false;
+bool       xadc_done = false;
 
-    app::pack::Snapshot local{};
-    app::Timer          diag_timer{ DIAG_PERIOD_MS };
-    const SequenceState *current = nullptr;
-    const SequenceState *next    = nullptr;
-    bool                entered = false;
-    io::adbms::OpenWireParity sadc_ow_parity;
-    io::adbms::ThermistorMux  xadc_therm_mux;
-    bool sadc_done = false;
-    bool xadc_done = false;
+app::pack::VoltageBuffer             voltages{};
+app::pack::TemperatureBuffer         temps{};
+app::pack::SupplyBuffer              supply{};
+app::pack::DiagnosticBuffer          diag{};
+io::adbms::PackCells<result<float>>  owc_odd_voltages{};
+io::adbms::PackCells<result<float>>  owc_even_voltages{};
+io::adbms::PackTherms<result<float>> therm_voltages{};
 
-    result<void> measureOnEntry();
-    void         measureOnTick();
-    result<void> balanceOnEntry();
-    void         balanceOnTick();
-    result<void> diagnosticOnEntry();
-    void         diagnosticOnTick();
+result<void>                                                                    measureOnEntry();
+void                                                                            measureOnTick();
+result<void>                                                                    balanceOnEntry();
+void                                                                            balanceOnTick();
+result<void>                                                                    balanceOnExit();
+template <io::adbms::OpenWireParity, io::adbms::ThermistorMux> result<void>     diagnosticOnEntry();
+template <io::adbms::OpenWireParity, io::adbms::ThermistorMux> void             diagnosticOnTick();
+result<void>                                                                    diagnosticOnExit();
 
-    const SequenceState measure_state{ measureOnEntry, measureOnTick};
-    const SequenceState balance_state{ balanceOnEntry, balanceOnTick};
-    const SequenceState diagnostic_state{ diagnosticOnEntry, diagnosticOnTick};
+const app::Fsm::State measure_state{
+    "CONTINUOUS REDUNDANT PRIMARY VOLTAGE MEASUREMENTS; CONTINUOUS SECONDARY VOLTAGE MEASUREMENTS", measureOnEntry,
+    measureOnTick, nullptr
+};
+const app::Fsm::State balance_state{ "CONTINUOUS PRIMARY VOLTAGE MEASUREMENTS; BALANCE", balanceOnEntry, balanceOnTick,
+                                     balanceOnExit };
+const app::Fsm::State diagnostic_a_state{ "CONTINUOUS PRIMARY VOLTAGE MEASUREMENTS; THERM_0_7 TEMP MEASUREMENTS; ODD CELL "
+                                            "OPEN WIRE CHECK; THERM_0_7 THERM OPEN WIRE CHECK; DIAGNOSTICS",
+                                            diagnosticOnEntry<io::adbms::OpenWireParity::ODD, io::adbms::ThermistorMux::THERM_0_7>,
+                                            diagnosticOnTick<io::adbms::OpenWireParity::ODD, io::adbms::ThermistorMux::THERM_0_7>, nullptr };
+const app::Fsm::State diagnostic_b_state{ "CONTINUOUS PRIMARY VOLTAGE MEASUREMENTS; THERM_8_13 TEMP MEASUREMENTS; EVEN "
+                                             "CELL OPEN WIRE CHECK; THERM_8_13 THERM OPEN WIRE CHECK; DIAGNOSTICS",
+                                             diagnosticOnEntry<io::adbms::OpenWireParity::EVEN, io::adbms::ThermistorMux::THERM_8_13>,
+                                             diagnosticOnTick<io::adbms::OpenWireParity::EVEN, io::adbms::ThermistorMux::THERM_8_13>, diagnosticOnExit };
 
-    void setNextState(const SequenceState *const s) {
-        next = s;
-    }
+app::Fsm fsm;
 
-    void runStateMachine() {
-        if (next != current) {
-            current = next;
-            entered = false;
+/*
+                        ADBMS STATE MACHINE
+
+                    init
+                      │
+                      ▼
+               ┌─────────────┐
+  ┌───────────►│   DIAG_A    │  read odd cell OWC, read therms 0-7
+  │            └──────┬──────┘
+  │                   │ both reads done
+  │                   ▼
+  │            ┌─────────────┐
+  │            │   DIAG_B    │  read even cell OWC, read therms 8-13
+  │            └──────┬──────┘
+  │                   │ both reads done
+  │                   │ exit: OWC check, restart diag_timer (1 s)
+  │                   ▼
+  │ diag_timer ┌─────────────┐  entry: restart settle_timer (200 ms)
+  ├────────────┤   MEASURE   │  tick:  read voltages,
+  │   (1 s)    │   (RD on)   │         copy into balance_buffer once settled
+  │            └──┬───────▲──┘
+  │               │       │
+  │  balancing && │       │ !balancing
+  │  settled      │       │
+  │  (200 ms)     ▼       │
+  │            ┌──────────┴──┐  entry: load pwm, start balance
+  │            │   BALANCE   │  tick:  read voltages
+  │            │   (RD off)  │  exit:  stop balance
+  │            └──────┬──────┘
+  │                   │ diag_timer (1 s)
+  └───────────────────┘
+
+*/
+
+result<void> measureOnEntry()
+{
+    RETURN_IF_ERR(io::adbms::command::resetCmdCount());
+    RETURN_IF_ERR(io::adbms::command::startCadc(true)); // RD on
+    RETURN_IF_ERR(io::adbms::command::startSadc(true, io::adbms::OpenWireParity::NONE)); // CONT on
+    settle_timer.restart();
+    return {};
+}
+
+void measureOnTick()
+{
+    LOG_IF_ERR(io::adbms::command::resetCmdCount());
+    LOG_IF_ERR(io::adbms::command::snap());
+    const result<void> cadc = io::adbms::read::cAdc(true, voltages); // RD on
+    LOG_IF_ERR(cadc);
+    LOG_IF_ERR(io::adbms::write::clearCsFlags());
+    app::pack::broadcast::cellVoltages(voltages);
+
+    // Cells need to recover if they were previously balancing
+    const bool settled = settle_timer.updateAndGetState() == app::Timer::TimerState::EXPIRED;
+    bool       balancing_enabled;
+    {
+        const io::semaphore::unique_semaphore s{ app::pack::buffer_lock };
+        app::pack::voltage_buffer = voltages;
+
+        // Only settled data is used for balancing
+        if (settled)
+        {
+            app::pack::balance_buffer.updated_ms = voltages.updated_ms;
+            app::pack::balance_buffer.voltages   = voltages.voltages;
         }
-        if (!entered) {
-            entered = current->run_on_entry().has_value();
-            return;
-        }
-        current->run_on_tick();
+        balancing_enabled = app::pack::balance_buffer.balancing_enabled;
+    }
+    LOG_IF_ERR(io::adbms::command::unsnap());
+
+    if (diag_timer.updateAndGetState() == app::Timer::TimerState::EXPIRED)
+        fsm.setNextState(diagnostic_a_state);
+    else if (balancing_enabled && settled)
+        fsm.setNextState(balance_state);
+}
+
+result<void> balanceOnEntry()
+{
+    RETURN_IF_ERR(io::adbms::command::resetCmdCount());
+    io::adbms::PackCells<uint8_t> duty;
+    {
+        const io::semaphore::unique_semaphore s{ app::pack::buffer_lock };
+        duty = app::pack::balance_buffer.pwm;
+    }
+    RETURN_IF_ERR(app::pack::config::setPWMConfig(duty));
+    RETURN_IF_ERR(app::pack::config::checkPWMConfig());
+    app::pack::broadcast::balancing(duty);
+    RETURN_IF_ERR(io::adbms::command::startCadc(false)); // RD off
+    RETURN_IF_ERR(io::adbms::command::startSadc(false, io::adbms::OpenWireParity::NONE)); // CONT off
+    RETURN_IF_ERR(io::adbms::command::startBalance());
+    return {};
+}
+
+void balanceOnTick()
+{
+    LOG_IF_ERR(io::adbms::command::resetCmdCount());
+    LOG_IF_ERR(io::adbms::command::snap());
+    LOG_IF_ERR(io::adbms::read::cAdc(false, voltages)); // RD off
+    app::pack::broadcast::cellVoltages(voltages);
+    bool balancing_enabled;
+    {
+        const io::semaphore::unique_semaphore s{ app::pack::buffer_lock };
+        app::pack::voltage_buffer = voltages;
+        balancing_enabled         = app::pack::balance_buffer.balancing_enabled;
+    }
+    LOG_IF_ERR(io::adbms::command::unsnap());
+
+    if (diag_timer.updateAndGetState() == app::Timer::TimerState::EXPIRED)
+        fsm.setNextState(diagnostic_a_state);
+    else if (!balancing_enabled)
+        fsm.setNextState(measure_state);
+}
+
+result<void> balanceOnExit()
+{
+    RETURN_IF_ERR(io::adbms::command::resetCmdCount());
+    RETURN_IF_ERR(io::adbms::command::stopBalance());
+    app::pack::broadcast::balancing({});
+    return {};
+}
+
+template <io::adbms::OpenWireParity owc_parity, io::adbms::ThermistorMux therm_mux> result<void> diagnosticOnEntry()
+{
+    RETURN_IF_ERR(io::adbms::command::resetCmdCount());
+    RETURN_IF_ERR(app::pack::config::setSegmentConfig(therm_mux));
+    RETURN_IF_ERR(app::pack::config::checkSegmentConfig());
+    RETURN_IF_ERR(io::adbms::command::startCadc(false));         // RD off
+    RETURN_IF_ERR(io::adbms::command::startSadc(false, owc_parity)); // CONT off
+    RETURN_IF_ERR(io::adbms::command::startAuxadc());
+    sadc_done = false;
+    xadc_done = false;
+    return {};
+}
+
+template <io::adbms::OpenWireParity owc_parity, io::adbms::ThermistorMux therm_mux> void diagnosticOnTick()
+{
+    LOG_IF_ERR(io::adbms::command::resetCmdCount());
+
+    auto &owc_voltages = owc_parity == io::adbms::OpenWireParity::ODD ? owc_odd_voltages : owc_even_voltages;
+
+    const bool sadc_ready = io::adbms::command::pollSadc().has_value();
+    const bool xadc_ready = io::adbms::command::pollXadc().has_value();
+
+    LOG_IF_ERR(io::adbms::command::snap());
+    LOG_IF_ERR(io::adbms::read::cAdc(false, voltages)); // RD off
+    app::pack::broadcast::cellVoltages(voltages);
+
+    if (sadc_ready && !sadc_done)
+    {
+        LOG_IF_ERR(io::adbms::read::sAdc(owc_voltages));
+        sadc_done = true;
     }
 
-    result<void> measureOnEntry() {
-        RETURN_IF_ERR(io::adbms::command::stopBalance());
-        app::pack::broadcast::balancing({});
-        RETURN_IF_ERR(app::pack::config::setSegmentConfig(xadc_therm_mux));
-        RETURN_IF_ERR(app::pack::config::checkSegmentConfig());
-        RETURN_IF_ERR(io::adbms::command::startCadc(true));  // RD on
-        RETURN_IF_ERR(io::adbms::command::startSadc(true, io::adbms::OpenWireParity::NONE)); // CONT on
-        return {};
+    if (xadc_ready && !xadc_done)
+    {
+        LOG_IF_ERR(io::adbms::read::xAdcTherm(therm_mux, temps, therm_voltages));
+        LOG_IF_ERR(io::adbms::read::xAdcSupply(supply));
+        app::pack::broadcast::cellTemps(temps);
+        app::pack::broadcast::adbmsSupply(supply);
+        xadc_done = true;
     }
 
-    void measureOnTick() {
-        LOG_IF_ERR(io::adbms::command::snap());
-        local.voltage_stats.updated_ms = io::time::getCurrentMs();
-        LOG_IF_ERR(io::adbms::read::Cadc(true, local.voltage_stats)); // RD on
-        app::pack::broadcast::cellVoltages(local.voltage_stats);
-        app::pack::voltage_channel.publish(local.voltage_stats);
-        LOG_IF_ERR(io::adbms::command::unsnap());
+    LOG_IF_ERR(io::adbms::read::flags(diag));
+    app::pack::broadcast::adbmsFlags(diag);
+    LOG_IF_ERR(io::adbms::write::clearAllFlags());
+    LOG_IF_ERR(io::adbms::command::unsnap());
+
+    {
+        const io::semaphore::unique_semaphore s{ app::pack::buffer_lock };
+        app::pack::voltage_buffer = voltages;
+        app::pack::temp_buffer    = temps;
+        app::pack::diag_buffer    = diag;
+        app::pack::supply_buffer  = supply;
     }
 
-    result<void> balanceOnEntry() {
-        const io::adbms::Cells<uint8_t> duty = app::pack::balancing::getRequest().duty;
-        RETURN_IF_ERR(app::pack::config::setPWMConfig(duty));
-        RETURN_IF_ERR(app::pack::config::checkPWMConfig());
-        app::pack::broadcast::balancing(duty);
-        RETURN_IF_ERR(io::adbms::command::startCadc(false)); // RD off
-        RETURN_IF_ERR(io::adbms::command::startSadc(false, io::adbms::OpenWireParity::NONE)); // CONT off
-        RETURN_IF_ERR(io::adbms::command::startBalance());
-        return {};
-    }
-
-    void balanceOnTick() {
-        LOG_IF_ERR(io::adbms::command::snap());
-        local.voltage_stats.updated_ms = io::time::getCurrentMs();
-        LOG_IF_ERR(io::adbms::read::Cadc(false, local.voltage_stats)); // RD off
-        app::pack::broadcast::cellVoltages(local.voltage_stats);
-        app::pack::voltage_channel.publish(local.voltage_stats);
-        LOG_IF_ERR(io::adbms::command::unsnap());
-    }
-
-    result<void> diagnosticOnEntry() {
-        RETURN_IF_ERR(io::adbms::command::stopBalance());
-        RETURN_IF_ERR(app::pack::config::setSegmentConfig(xadc_therm_mux));
-        RETURN_IF_ERR(app::pack::config::checkSegmentConfig());
-        RETURN_IF_ERR(io::adbms::command::startCadc(false)); // RD off
-        RETURN_IF_ERR(io::adbms::command::startSadc(false, sadc_ow_parity)); // CONT off
-        RETURN_IF_ERR(io::adbms::command::startAuxadc());
-        sadc_done = false;
-        xadc_done = false;
-        return {};
-    }
-
-    void diagnosticOnTick() {
-        const bool sadc_ready = io::adbms::command::pollSadc().has_value();
-        const bool xadc_ready = io::adbms::command::pollXadc().has_value();
-
-        LOG_IF_ERR(io::adbms::command::snap());
-        const auto time = io::time::getCurrentMs();
-        local.voltage_stats.updated_ms = time;
-        LOG_IF_ERR(io::adbms::read::Cadc(false, local.voltage_stats)); // RD off
-        app::pack::broadcast::cellVoltages(local.voltage_stats);
-
-        if (sadc_ready && !sadc_done) {
-            local.owc_stats.updated_ms = time;
-            LOG_IF_ERR(io::adbms::read::Sadc(sadc_ow_parity, local.owc_stats));
-            app::pack::broadcast::cellOpenWire(local.owc_stats);
-            app::pack::owc_channel.publish(local.owc_stats);
-            sadc_done = true;
-        }
-
-        if (xadc_ready && !xadc_done) {
-            local.temperature_stats.updated_ms = time;
-            LOG_IF_ERR(io::adbms::read::Xadc(xadc_therm_mux, local.temperature_stats));
-            app::pack::broadcast::cellTemps(local.temperature_stats);
-            app::pack::temperature_channel.publish(local.temperature_stats);
-            xadc_done = true;
-        }
-
-        local.adbms6830_diag.updated_ms = time;
-        LOG_IF_ERR(io::adbms::read::flags(local.adbms6830_diag));
-        app::pack::broadcast::adbmsFlags(local.adbms6830_diag);
-        app::pack::diag_channel.publish(local.adbms6830_diag);
-        LOG_IF_ERR(io::adbms::command::clearFlags());
-        LOG_IF_ERR(io::adbms::command::unsnap());
-
-        if (sadc_done && xadc_done) {
-            setNextState(
-                app::pack::balancing::getRequest().start_balance ? &balance_state : &measure_state);
-        }
+    if (sadc_done && xadc_done)
+    {
+        if constexpr (therm_mux == io::adbms::ThermistorMux::THERM_0_7)
+            fsm.setNextState(diagnostic_b_state);
+        else
+            fsm.setNextState(measure_state);
     }
 }
 
-namespace app::pack::sequence {
-    void init() {
-        local = Snapshot{};
-        current = &measure_state;
-        next    = &measure_state;
-        entered = false;
-        sadc_ow_parity = io::adbms::OpenWireParity::ODD;
-        xadc_therm_mux = io::adbms::ThermistorMux::ODD;
-        diag_timer.restart();
+result<void> diagnosticOnExit()
+{
+    RETURN_IF_ERR(io::adbms::command::resetCmdCount());
+    const app::pack::OpenWireCheckBuffer owc =
+        app::pack::owc::check(owc_odd_voltages, owc_even_voltages, therm_voltages);
+    app::pack::broadcast::cellOpenWire(owc);
+    {
+        const io::semaphore::unique_semaphore s{ app::pack::buffer_lock };
+        app::pack::owc_buffer = owc;
     }
-
-    void tick() {
-        const bool diag_due = diag_timer.updateAndGetState() == app::Timer::TimerState::EXPIRED;
-
-        if (diag_due && current != &diagnostic_state) {
-            diag_timer.restart();
-            sadc_ow_parity = (sadc_ow_parity == io::adbms::OpenWireParity::EVEN)
-                               ? io::adbms::OpenWireParity::ODD
-                               : io::adbms::OpenWireParity::EVEN;
-            xadc_therm_mux = (xadc_therm_mux == io::adbms::ThermistorMux::EVEN)
-                               ? io::adbms::ThermistorMux::ODD
-                               : io::adbms::ThermistorMux::EVEN;
-            setNextState(&diagnostic_state);
-        } else if (current != &diagnostic_state) {
-            setNextState(balancing::getRequest().start_balance ? &balance_state : &measure_state);
-        }
-        runStateMachine();
-    }
+    diag_timer.restart();
+    return {};
 }
+} // namespace
+
+namespace app::pack::sequence
+{
+void init()
+{
+    voltages          = {};
+    temps             = {};
+    supply            = {};
+    diag              = {};
+    owc_odd_voltages  = {};
+    owc_even_voltages = {};
+    therm_voltages    = {};
+    fsm.init(diagnostic_a_state);
+}
+
+void tick()
+{
+    fsm.tick();
+}
+} // namespace app::pack::sequence

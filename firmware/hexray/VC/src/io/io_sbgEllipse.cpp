@@ -39,6 +39,7 @@ static void processMsg_Imu(const SbgEComLogUnion *log_data);
 static void processMsg_eulerAngles(const SbgEComLogUnion *log_data);
 static void processMsg_status(const SbgEComLogUnion *log_data);
 static void processMsg_EkfNavVelandPos(const SbgEComLogUnion *log_data);
+static void processMsg_EkfVelocityBody(const SbgEComLogUnion *log_data);
 
 /*
  * Callback called when a UART packet is received.
@@ -113,6 +114,11 @@ SbgErrorCode logReceivedCallback(
             case SBG_ECOM_LOG_EKF_NAV:
             {
                 processMsg_EkfNavVelandPos(log_data);
+                break;
+            }
+            case SBG_ECOM_LOG_EKF_VEL_BODY:
+            {
+                processMsg_EkfVelocityBody(log_data);
                 break;
             }
             default:
@@ -190,6 +196,19 @@ static void processMsg_EkfNavVelandPos(const SbgEComLogUnion *log_data)
     sensor_data.ekf_nav_data.position.altitude_std_dev  = log_data->ekfNavData.positionStdDev[0];
     sensor_data.ekf_nav_data.position.latitude_std_dev  = log_data->ekfNavData.positionStdDev[1];
     sensor_data.ekf_nav_data.position.longitude_std_dev = log_data->ekfNavData.positionStdDev[2];
+}
+
+static void processMsg_EkfVelocityBody(const SbgEComLogUnion *log_data)
+{
+    // velocity body
+    sensor_data.ekf_nav_data.velocity.vel_x = log_data->ekfVelBody.velocity[0];
+    sensor_data.ekf_nav_data.velocity.vel_y = log_data->ekfVelBody.velocity[1];
+    sensor_data.ekf_nav_data.velocity.vel_z = log_data->ekfVelBody.velocity[2];
+
+    // velocity body accuracy
+    sensor_data.ekf_nav_data.velocity.vel_x_std_dev = log_data->ekfVelBody.velocityStdDev[0];
+    sensor_data.ekf_nav_data.velocity.vel_y_std_dev = log_data->ekfVelBody.velocityStdDev[1];
+    sensor_data.ekf_nav_data.velocity.vel_z_std_dev = log_data->ekfVelBody.velocityStdDev[2];
 }
 
 /* ------------------------- Public Function Definitions -------------------------- */

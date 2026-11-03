@@ -1,15 +1,13 @@
 "use client";
 
 import { Plus } from "lucide-react";
-import { HTMLAttributes } from "react";
+import { ComponentProps } from "react";
 
-export function PlusButton(props: HTMLAttributes<HTMLDivElement>) {
-  return (
-    <div
-      {...props}
-      className="border-green-600 bg-green-500 rounded-full text-white hover:scale-105 active:scale-95  hover:bg-green-600 cursor-pointer transition-transform duration-150 w-min"
-    >
-      <Plus size={32} />
-    </div>
-  );
-};
+import { cn } from "@/lib/utils";
+import { CircleIconButton } from "./CircleIconButton";
+
+export function PlusButton(props: ComponentProps<"button">) {
+    const { className, ...buttonProps } = props;
+
+    return <CircleIconButton {...buttonProps} Icon={Plus} className={cn("bg-green-500 hover:bg-green-600", className)} />;
+}

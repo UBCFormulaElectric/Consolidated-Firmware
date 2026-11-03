@@ -117,6 +117,13 @@ impl Clients {
             .unwrap_or_default();
     }
 
+    pub fn get_subscribed_signals(&self) -> Vec<String> {
+        return self.signal_to_client
+            .keys()
+            .cloned()
+            .collect();
+    }
+
     /**
      * Check if client is subscribed to signal
      */

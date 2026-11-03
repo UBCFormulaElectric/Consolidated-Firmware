@@ -1,13 +1,6 @@
 "use client";
 
-import {
-    createContext,
-    useContext,
-    useRef,
-    ReactNode,
-    RefObject,
-    useEffect,
-} from "react";
+import { createContext, ReactNode, RefObject, useContext, useEffect, useRef } from "react";
 
 /**
  * Default duration of time (in milliseconds) that fits within the full view of the scrollable area.
@@ -50,7 +43,7 @@ const isOverWidget = (x: number, y: number) => {
 
     // NOTE(evan): This assumes that all widgets contain a canvas element
     return element.closest("canvas") !== null;
-}
+};
 
 const resetScrollPosition = (scrollableElement: HTMLDivElement, childElement: HTMLDivElement) => {
     const scrollableWidth = scrollableElement.clientWidth;
@@ -104,7 +97,7 @@ export function ScrollProvider({ children, initialTimestamp }: ScrollProviderPro
 
             lastTimestamp = currentTimestamp;
             animationFrame.current = requestAnimationFrame(handleTick);
-        }
+        };
 
         animationFrame.current = requestAnimationFrame(handleTick);
 
@@ -174,12 +167,12 @@ export function ScrollProvider({ children, initialTimestamp }: ScrollProviderPro
 
             if (leftEdgeTimestampRef.current < initialTimestamp) {
                 leftEdgeTimestampRef.current = initialTimestamp;
-                rightEdgeTimestampRef.current = initialTimestamp + (FULL_VIEW_DURATION_MS * zoomLevelRef.current);
+                rightEdgeTimestampRef.current = initialTimestamp + FULL_VIEW_DURATION_MS * zoomLevelRef.current;
             }
 
             if (rightEdgeTimestampRef.current >= maximumTimestampRef.current) {
                 autoFollowRef.current = true;
-                leftEdgeTimestampRef.current = maximumTimestampRef.current - (FULL_VIEW_DURATION_MS * zoomLevelRef.current);
+                leftEdgeTimestampRef.current = maximumTimestampRef.current - FULL_VIEW_DURATION_MS * zoomLevelRef.current;
                 rightEdgeTimestampRef.current = maximumTimestampRef.current;
             }
 
@@ -222,19 +215,19 @@ export function ScrollProvider({ children, initialTimestamp }: ScrollProviderPro
 
             zoomLevelRef.current = Math.max(MIN_ZOOM_LEVEL, Math.min(zoomLevelRef.current, MAX_ZOOM_LEVEL));
 
-            const centerTimestamp = leftEdgeTimestampRef.current + (FULL_VIEW_DURATION_MS * previousZoomLevel * mouseXRatio);
+            const centerTimestamp = leftEdgeTimestampRef.current + FULL_VIEW_DURATION_MS * previousZoomLevel * mouseXRatio;
 
-            leftEdgeTimestampRef.current = centerTimestamp - (FULL_VIEW_DURATION_MS * zoomLevelRef.current * mouseXRatio);
-            rightEdgeTimestampRef.current = leftEdgeTimestampRef.current + (FULL_VIEW_DURATION_MS * zoomLevelRef.current);
+            leftEdgeTimestampRef.current = centerTimestamp - FULL_VIEW_DURATION_MS * zoomLevelRef.current * mouseXRatio;
+            rightEdgeTimestampRef.current = leftEdgeTimestampRef.current + FULL_VIEW_DURATION_MS * zoomLevelRef.current;
 
             if (leftEdgeTimestampRef.current < initialTimestamp) {
                 leftEdgeTimestampRef.current = initialTimestamp;
-                rightEdgeTimestampRef.current = initialTimestamp + (FULL_VIEW_DURATION_MS * zoomLevelRef.current);
+                rightEdgeTimestampRef.current = initialTimestamp + FULL_VIEW_DURATION_MS * zoomLevelRef.current;
             }
 
             if (rightEdgeTimestampRef.current >= maximumTimestampRef.current) {
                 rightEdgeTimestampRef.current = maximumTimestampRef.current;
-                leftEdgeTimestampRef.current = rightEdgeTimestampRef.current - (FULL_VIEW_DURATION_MS * zoomLevelRef.current);
+                leftEdgeTimestampRef.current = rightEdgeTimestampRef.current - FULL_VIEW_DURATION_MS * zoomLevelRef.current;
                 autoFollowRef.current = true;
             }
 
@@ -259,9 +252,7 @@ export function ScrollProvider({ children, initialTimestamp }: ScrollProviderPro
         resetScrollPosition(scrollableElement, childElement);
     }, []);
 
-    return (
-        <ScrollContext.Provider value={value}>{children}</ScrollContext.Provider>
-    );
+    return <ScrollContext.Provider value={value}>{children}</ScrollContext.Provider>;
 }
 
 export function useScrollableRef() {

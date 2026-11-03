@@ -28,15 +28,28 @@ namespace
 
     constexpr Efuses efuse_status_setters = {
         .front_efuse     = can_tx::VC_FrontStatus_set,
-        .rsm_efuse       = can_tx::VC_RSMStatus_set,
-        .bms_efuse       = can_tx::VC_BMSStatus_set,
-        .dam_efuse       = can_tx::VC_DAMStatus_set,
+        .rsm_efuse       = can_tx::VC_RsmStatus_set,
+        .bms_efuse       = can_tx::VC_BmsStatus_set,
+        .dam_efuse       = can_tx::VC_DamStatus_set,
         .f_inv_efuse     = can_tx::VC_FrontInvertersStatus_set,
         .r_inv_efuse     = can_tx::VC_RearInvertersStatus_set,
         .r_rad_fan_efuse = can_tx::VC_RightRadiatorFanStatus_set,
         .l_rad_fan_efuse = can_tx::VC_LeftRadiatorFanStatus_set,
         .rr_pump_efuse   = can_tx::VC_RearRightPumpStatus_set,
         .rl_pump_efuse   = can_tx::VC_RearLeftPumpStatus_set,
+    };
+
+    constexpr Efuses efuse_ok_setters = {
+        .front_efuse     = can_tx::VC_FrontOK_set,
+        .rsm_efuse       = can_tx::VC_RsmOK_set,
+        .bms_efuse       = can_tx::VC_BmsOK_set,
+        .dam_efuse       = can_tx::VC_DamOK_set,
+        .f_inv_efuse     = can_tx::VC_FrontInvertersOK_set,
+        .r_inv_efuse     = can_tx::VC_RearInvertersOK_set,
+        .r_rad_fan_efuse = can_tx::VC_RightRadiatorFanOK_set,
+        .l_rad_fan_efuse = can_tx::VC_LeftRadiatorFanOK_set,
+        .rr_pump_efuse   = can_tx::VC_RearRightPumpOK_set,
+        .rl_pump_efuse   = can_tx::VC_RearLeftPumpOK_set,
     };
 
     constexpr Efuses efuse_current_setters = {
@@ -156,7 +169,9 @@ void efuseProtocolTick_100Hz()
     {
         const io::Efuse *efuse = efuses[ch];
         assert(efuse != nullptr);
+
         efuse_status_setters[ch](efuse->isChannelEnabled());
+        efuse_ok_setters[ch](efuse->ok());
         efuse_current_setters[ch](efuse->getChannelCurrent());
     }
 }

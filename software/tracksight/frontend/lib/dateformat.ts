@@ -1,9 +1,7 @@
 export function formatWithMs(date: Date): string {
-  const pad = (n: number) => n.toString().padStart(2, "0");
-  const ms = date.getMilliseconds().toString().padStart(3, "0");
-  return `${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(
-    date.getSeconds()
-  )}.${ms}`;
+    const pad = (n: number) => n.toString().padStart(2, "0");
+    const ms = date.getMilliseconds().toString().padStart(3, "0");
+    return `${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}.${ms}`;
 }
 
 // export function getTimeAgo(date: Date): string {

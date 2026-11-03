@@ -5,6 +5,7 @@ pub mod signal_tile;
 pub mod subtable_api_handler;
 pub mod subtable_clients;
 pub mod transmit_api_handler;
+pub mod signal_metadata;
 
 use crate::tasks::{
     client_api::{signal_tile::SignalTileCache, subtable_clients::Clients},

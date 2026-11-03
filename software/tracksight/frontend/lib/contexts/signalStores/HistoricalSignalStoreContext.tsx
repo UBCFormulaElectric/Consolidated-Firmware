@@ -2,7 +2,7 @@ import React, { memo, useEffect, useMemo, useRef, useState } from "react";
 
 import { useSyncedGraph } from "@/components/SyncedGraphContainer";
 import { useWidgetManager } from "@/components/widgets/WidgetManagerContext";
-import { fetchHistoricalSignal, HistoricalSignalResult, HistoricalSignalSource } from "@/lib/api/historicalSignals";
+import { fetchHistoricalSignal, HistoricalSignalPoint, HistoricalSignalResult, HistoricalSignalSource } from "@/lib/api/historicalSignals";
 import { useHistoricalSelection } from "@/lib/contexts/HistoricalSelectionContext";
 import { SignalDataStoreProvider } from "@/lib/contexts/signalStores/SignalStoreContext";
 import HistoricalSignalStore from "@/lib/signals/HistoricalSignalStore";
@@ -19,6 +19,10 @@ type HistoricalSignalStoreProviderProps = {
     };
 };
 
+const filterPointsInRange = (points: HistoricalSignalPoint[], min: number, max: number): HistoricalSignalPoint[] => {
+    return points.filter((point) => point.timestampMs >= min && point.timestampMs <= max);
+}
+
 export const HistoricalSignalStoreProvider = memo(function HistoricalSignalStoreProvider(props: HistoricalSignalStoreProviderProps) {
     const { children, startUtcMs, endUtcMs, source, selectedRange } = props;
     const { widgets } = useWidgetManager();
@@ -33,6 +37,7 @@ export const HistoricalSignalStoreProvider = memo(function HistoricalSignalStore
         signalStoreRef.current = new HistoricalSignalStore(updateWithTimestamp);
     }
 
+    const previousSelectedSignalsRef = useRef<SignalMetadata[]>([]);
     const selectedSignals = useMemo(() => {
         const signalsByName = new Map<string, SignalMetadata>();
         widgets.forEach((widget) => {
@@ -42,7 +47,16 @@ export const HistoricalSignalStoreProvider = memo(function HistoricalSignalStore
                 });
             }
         });
-        return [...signalsByName.values()];
+
+        const previousSelectedSignals = previousSelectedSignalsRef.current;
+        const isSameSignalSet = previousSelectedSignals.length === signalsByName.size && previousSelectedSignals.every((signal) => signalsByName.has(signal.name));
+        if (isSameSignalSet) {
+            return previousSelectedSignals;
+        }
+
+        const nextSelectedSignals = [...signalsByName.values()];
+        previousSelectedSignalsRef.current = nextSelectedSignals;
+        return nextSelectedSignals;
     }, [widgets]);
 
     const selectedRangeKey = `${source}:${selectedRange.min}:${selectedRange.max}`;
@@ -76,7 +90,9 @@ export const HistoricalSignalStoreProvider = memo(function HistoricalSignalStore
                     source,
                 });
 
-                signalStoreRef.current.mergeAlerts(alertResult.resolutionMs, startUtcMs, endUtcMs, alertResult.points);
+                const filteredPoints = filterPointsInRange(alertResult.points, selectedRange.min, selectedRange.max);
+
+                signalStoreRef.current.mergeAlerts(alertResult.resolutionMs, startUtcMs, endUtcMs, filteredPoints);
             }
 
             if (isCancelled) {
@@ -88,7 +104,10 @@ export const HistoricalSignalStoreProvider = memo(function HistoricalSignalStore
 
             successes.forEach((result) => {
                 const { signal, result: signalResult } = result.value;
-                signalStoreRef.current.mergeSignal(signal, signalResult.resolutionMs, startUtcMs, endUtcMs, signalResult.points);
+
+                const filteredPoints = filterPointsInRange(signalResult.points, selectedRange.min, selectedRange.max);
+
+                signalStoreRef.current.mergeSignal(signal, signalResult.resolutionMs, startUtcMs, endUtcMs, filteredPoints);
             });
 
             const shouldFitViewport = initializedSelectedRangeKeyRef.current !== selectedRangeKey;

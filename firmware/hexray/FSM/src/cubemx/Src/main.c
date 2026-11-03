@@ -434,7 +434,7 @@ static void MX_SPI1_Init(void)
     hspi1.Init.DataSize                = SPI_DATASIZE_8BIT;
     hspi1.Init.CLKPolarity             = SPI_POLARITY_LOW;
     hspi1.Init.CLKPhase                = SPI_PHASE_1EDGE;
-    hspi1.Init.NSS                     = SPI_NSS_HARD_OUTPUT;
+    hspi1.Init.NSS                     = SPI_NSS_SOFT;
     hspi1.Init.BaudRatePrescaler       = SPI_BAUDRATEPRESCALER_2;
     hspi1.Init.FirstBit                = SPI_FIRSTBIT_MSB;
     hspi1.Init.TIMode                  = SPI_TIMODE_DISABLE;
@@ -592,6 +592,9 @@ static void MX_GPIO_Init(void)
     __HAL_RCC_GPIOD_CLK_ENABLE();
 
     /*Configure GPIO pin Output Level */
+    HAL_GPIO_WritePin(IMU_CS_GPIO_Port, IMU_CS_Pin, GPIO_PIN_SET);
+
+    /*Configure GPIO pin Output Level */
     HAL_GPIO_WritePin(D_P_PULLUP_GPIO_Port, D_P_PULLUP_Pin, GPIO_PIN_RESET);
 
     /*Configure GPIO pin Output Level */
@@ -616,6 +619,13 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+    /*Configure GPIO pin : IMU_CS_Pin */
+    GPIO_InitStruct.Pin   = IMU_CS_Pin;
+    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull  = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+    HAL_GPIO_Init(IMU_CS_GPIO_Port, &GPIO_InitStruct);
 
     /*Configure GPIO pin : D_P_PULLUP_Pin */
     GPIO_InitStruct.Pin   = D_P_PULLUP_Pin;

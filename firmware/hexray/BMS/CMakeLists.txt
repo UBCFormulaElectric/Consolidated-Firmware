@@ -25,7 +25,6 @@ set(IO_SHARED_SRCS
         "${SHARED_IO_INCLUDE_DIR_CPP}/io_time.cpp"
         "${SHARED_IO_INCLUDE_DIR_CPP}/io_semaphore.cpp"
         "${SHARED_IO_INCLUDE_DIR_CPP}/io_shdnLoopNode.cpp"
-        "${SHARED_IO_INCLUDE_DIR_CPP}/io_notify.cpp"
 )
 set(IO_INCLUDE_DIRS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io"
@@ -170,7 +169,6 @@ elseif ("${TARGET}" STREQUAL "test")
     set(FAKE_SRCS
             #     "${SHARED_FAKES_DIR_CPP}/io_canQueue.cpp"
             "${SHARED_FAKES_DIR_CPP}/io_semaphore.cpp"
-            "${SHARED_FAKES_DIR_CPP}/io_notify.cpp"
             #     "${SHARED_FAKES_DIR_CPP}/io_timer.cpp"
             "${SHARED_FAKES_DIR_CPP}/io_shdnLoopNode.cpp"
             "${SHARED_FAKES_DIR_CPP}/io_time.cpp"

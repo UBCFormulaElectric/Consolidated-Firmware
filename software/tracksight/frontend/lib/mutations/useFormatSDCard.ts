@@ -28,11 +28,7 @@ const useFormatSDCard = () => {
             });
 
             if (!response.ok) {
-                const text = (
-                    await response.text() 
-                    || response.statusText 
-                    || "Failed to format SD card"
-                );
+                const text = (await response.text()) || response.statusText || "Failed to format SD card";
 
                 throw new FormatSDCardError(response.status, text);
             }

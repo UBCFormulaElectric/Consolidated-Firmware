@@ -4,7 +4,7 @@
 
 namespace app::tv::datatypes::torque_limits
 {
-inline constexpr float MAX_TORQUE_REQUEST_Nm     = 20.5f;  // Safety limit (actual max is 21 Nm)
+inline constexpr float MAX_TORQUE_REQUEST_Nm     = 15.5f;  // Safety limit (actual max is 21 Nm)
 inline constexpr float NOMINAL_TORQUE_REQUEST_Nm = 9.8f;   // Nominal continuous torque
 inline constexpr float MAX_REGEN_TORQUE_Nm       = -15.0f; // Maximum regenerative braking torque
 inline constexpr float NO_TORQUE_Nm              = 0.0f;

@@ -1,6 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { DndProvider } from "react-dnd";
+import { HTML5Backend } from "react-dnd-html5-backend";
 
 import { WidgetAdder } from "@/app/live/WidgetAdder";
 import DataDashboard from "@/components/DataDashboard";
@@ -93,20 +95,16 @@ export default function Historical() {
     }, [selectedSession, isModalOpen, openModal]);
 
     return (
-        <DisplayControlProvider defaultViewportLocked={false} viewportLockStorageKey={HISTORIC_VIEWPORT_LOCK_STORAGE_KEY}>
-            <div className="mt-20 flex h-[calc(100vh-72px)] flex-col overflow-hidden">
-                <div className="relative min-h-0 w-full flex-1">
-                    <WidgetManager storageKey={HISTORIC_WIDGET_STORAGE_KEY}>
-                        {selectedRange ? (
-                            <HistoricContent selectedRange={selectedRange} selectedSource={source} />
-                        ) : (
-                            <div className="mx-4 grid h-full place-items-center text-gray-500">No historical session selected.</div>
-                        )}
-                    </WidgetManager>
+        <DndProvider backend={HTML5Backend}>
+            <DisplayControlProvider defaultViewportLocked={false} viewportLockStorageKey={HISTORIC_VIEWPORT_LOCK_STORAGE_KEY}>
+                <div className="mt-20 flex h-[calc(100vh-72px)] flex-col overflow-hidden">
+                    <div className="relative min-h-0 w-full flex-1">
+                        <WidgetManager storageKey={HISTORIC_WIDGET_STORAGE_KEY}>{selectedRange ? <HistoricContent selectedRange={selectedRange} selectedSource={source} /> : <div className="mx-4 grid h-full place-items-center text-gray-500">No historical session selected.</div>}</WidgetManager>
+                    </div>
                 </div>
-            </div>
 
-            <HistoricalSelectionModal />
-        </DisplayControlProvider>
+                <HistoricalSelectionModal />
+            </DisplayControlProvider>
+        </DndProvider>
     );
 }
