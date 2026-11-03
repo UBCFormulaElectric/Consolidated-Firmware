@@ -1,0 +1,8 @@
+[package]
+name = "logd"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+socketcan = "4.0.0"
+pico-args = "0.5.0"
