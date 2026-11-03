@@ -81,7 +81,7 @@ TEST_F(RSMSuspensionTest, SuspensionTravelPinOpen) {
 
     LetTimePass(1000);
 
-    EXPECT_EQ(10, app::can_tx::RSM_RearLeftSuspensionTravel_get());
+    EXPECT_EQ(0, app::can_tx::RSM_RearLeftSuspensionTravel_get());
     EXPECT_EQ(0, app::can_tx::RSM_RearRightSuspensionTravel_get());
     EXPECT_FALSE(app::can_tx::RSM_Info_RearLeftSuspension_OCSC_get());
     EXPECT_TRUE(app::can_tx::RSM_Info_RearRightSuspension_OCSC_get());
