@@ -13,5 +13,6 @@
     "--query-driver=**/arm-none-eabi-*"
   ],
   "C_Cpp.default.cppStandard": "c++23",
-  "cortex-debug.variableUseNaturalFormat": true
+  "cortex-debug.variableUseNaturalFormat": true,
+  "clangd.onConfigChanged": "restart"
 }
