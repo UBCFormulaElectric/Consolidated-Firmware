@@ -48,5 +48,5 @@ TEST_F(RSMTireTempTest, tireTempinvalidToValid)
     LetTimePass(100);
 
     EXPECT_EQ(25, app::can_tx::RSM_TireTemperature_get());
-    EXPECT_TRUE(app::can_tx::RSM_Info_TireTemperatureOutOfRange_get());
+    EXPECT_FALSE(app::can_tx::RSM_Info_TireTemperatureOutOfRange_get());
 }
