@@ -47,7 +47,7 @@ inline constexpr uint16_t CLOVUV  = 0x0715U;
 inline constexpr uint16_t CLRFLAG = 0x0717U;
 
 // Start
-inline constexpr uint16_t ADCV_BASE = 0x0270U;
+inline constexpr uint16_t ADCV_BASE = 0x0260U;
 inline constexpr uint16_t ADSV_BASE = 0x0168U;
 inline constexpr uint16_t ADAX_BASE = 0x0410U;
 
