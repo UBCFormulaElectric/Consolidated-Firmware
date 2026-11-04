@@ -4,17 +4,20 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 
-import { WidgetAdder } from "@/app/live/WidgetAdder";
 import DataDashboard from "@/components/DataDashboard";
 import HistoricalSelectionModal from "@/components/historical/HistoricalSelectionModal";
 import { DisplayControlProvider } from "@/components/PausePlayControl";
 import SyncedGraphContainer, { TimeRange } from "@/components/SyncedGraphContainer";
 import AlertTimeline from "@/components/widgets/AlertTimeline";
-import { WidgetManager, useWidgetManager } from "@/components/widgets/WidgetManagerContext";
+import { useWidgetManager, WidgetManager } from "@/components/widgets/WidgetManagerContext";
 import { fetchHistoricalMarkers } from "@/lib/api/historicalMarkers";
 import { HistoricalSignalSource } from "@/lib/api/historicalSignals";
+import { IS_MOCK } from "@/lib/constants";
 import { useHistoricalSelection } from "@/lib/contexts/HistoricalSelectionContext";
 import { HistoricalSignalStoreProvider } from "@/lib/contexts/signalStores/HistoricalSignalStoreContext";
+import { getMockSignalCatalog } from "@/lib/mock/catalog";
+import { createMockCharts } from "@/lib/mock/charts";
+import { readMockParam } from "@/lib/mock/config";
 import { clearRemoteTelemetryMarkers, setRemoteTelemetryMarkers } from "@/lib/telemetryMarkers";
 
 const HISTORIC_WIDGET_STORAGE_KEY = "tracksight_historic_widgets_config_v1";
@@ -32,8 +35,18 @@ const expandViewportFetchRange = (range: TimeRange, bounds: TimeRange): TimeRang
 
 function HistoricContent(props: { selectedRange: { min: number; max: number }; selectedSource: HistoricalSignalSource }) {
     const { selectedRange, selectedSource } = props;
-    const { widgets } = useWidgetManager();
+    const { initializedFromLocalStorage, replaceWidgets } = useWidgetManager();
     const [fetchRange, setFetchRange] = useState<TimeRange>(selectedRange);
+
+    useEffect(() => {
+        if (!IS_MOCK || !initializedFromLocalStorage) return;
+        const count = readMockParam("mockCharts");
+        if (!count) return;
+        replaceWidgets(createMockCharts(count, getMockSignalCatalog()));
+        const url = new URL(window.location.href);
+        url.searchParams.delete("mockCharts");
+        window.history.replaceState(null, "", url);
+    }, [initializedFromLocalStorage, replaceWidgets]);
 
     useEffect(() => {
         setFetchRange(selectedRange);
@@ -76,8 +89,7 @@ function HistoricContent(props: { selectedRange: { min: number; max: number }; s
         <SyncedGraphContainer initialTimeRange={selectedRange} onViewportSettled={handleViewportSettled}>
             <HistoricalSignalStoreProvider startUtcMs={fetchRange.min} endUtcMs={fetchRange.max} source={selectedSource} selectedRange={selectedRange}>
                 <AlertTimeline />
-                {widgets.length === 0 ? <div className="grid h-full place-items-center text-gray-500">Select signals by adding a widget and choosing signals.</div> : <DataDashboard />}
-                <WidgetAdder />
+                <DataDashboard emptyMessage="Choose a signal to explore this session." />
             </HistoricalSignalStoreProvider>
         </SyncedGraphContainer>
     );
@@ -97,7 +109,7 @@ export default function Historical() {
     return (
         <DndProvider backend={HTML5Backend}>
             <DisplayControlProvider defaultViewportLocked={false} viewportLockStorageKey={HISTORIC_VIEWPORT_LOCK_STORAGE_KEY}>
-                <div className="mt-20 flex h-[calc(100vh-72px)] flex-col overflow-hidden">
+                <div className="flex h-screen flex-col overflow-hidden pt-16">
                     <div className="relative min-h-0 w-full flex-1">
                         <WidgetManager storageKey={HISTORIC_WIDGET_STORAGE_KEY}>{selectedRange ? <HistoricContent selectedRange={selectedRange} selectedSource={source} /> : <div className="mx-4 grid h-full place-items-center text-gray-500">No historical session selected.</div>}</WidgetManager>
                     </div>
