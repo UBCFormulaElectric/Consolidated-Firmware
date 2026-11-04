@@ -430,7 +430,7 @@ class Bootloader:
         time.sleep(0.5)
 
     def _await_can_msg(
-        self, validator=Callable[[can.Message], Optional[bool]], timeout: int = 5
+        self, validator: Callable[[can.Message], Optional[bool]], timeout: int = 5
     ) -> Optional[can.Message]:
         """
         Helper function to await a CAN msg response within a timeout, with a validator function.
