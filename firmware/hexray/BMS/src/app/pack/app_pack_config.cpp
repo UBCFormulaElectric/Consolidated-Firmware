@@ -12,7 +12,7 @@ constexpr io::adbms::Segments<io::adbms::CFGA> createConfigA()
     io::adbms::Segments<io::adbms::CFGA> config{};
     for (io::adbms::CFGA &reg_a : config)
     {
-        reg_a.cth       = 0x01;
+        reg_a.cth       = 0x04;
         reg_a.ref_on    = 0x01;
         reg_a.flag_d    = 0x00;
         reg_a.owa       = 0x00;
@@ -41,7 +41,7 @@ constexpr io::adbms::Segments<io::adbms::CFGB> createConfigB()
         reg_b.vuv_8_11 = static_cast<uint8_t>(vuv >> 8 & 0x0F);
         reg_b.vov_0_3  = static_cast<uint8_t>(vov & 0x0F);
         reg_b.vov_4_11 = static_cast<uint8_t>(vov >> 4 & 0xFF);
-        reg_b.dcto_0_5 = 0x00;
+        reg_b.dcto_0_5 = 0x01;
         reg_b.dtrng    = 0x00;
         reg_b.dtmen    = 0x00;
         reg_b.dcc_1_8  = 0x00;

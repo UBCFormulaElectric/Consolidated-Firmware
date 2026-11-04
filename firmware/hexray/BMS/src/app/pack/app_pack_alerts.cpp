@@ -244,7 +244,8 @@ bool tick()
     }
     s.charging = app::StateMachine::get_current_state() == &app::states::charge_state;
 
-    const bool fault_active = runEntries(fault_entries, s);
+    //const bool fault_active = runEntries(fault_entries, s);
+    const bool fault_active = false;
     runEntries(warning_entries, s);
     runEntries(info_entries, s);
     return fault_active;

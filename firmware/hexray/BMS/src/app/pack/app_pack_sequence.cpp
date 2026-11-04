@@ -7,8 +7,9 @@
 
 namespace
 {
-constexpr uint32_t DIAG_PERIOD_MS = 1000;
-constexpr uint32_t SETTLE_MS      = 200; // Adjust timing
+constexpr uint32_t DIAG_PERIOD_MS           = 1000;
+constexpr uint32_t DIAG_BALANCING_PERIOD_MS = 10000;
+constexpr uint32_t SETTLE_MS                = 200; // Adjust timing
 
 app::Timer diag_timer{ DIAG_PERIOD_MS };
 app::Timer settle_timer{ SETTLE_MS };
@@ -65,7 +66,7 @@ app::Fsm fsm;
   │            │   DIAG_B    │  read even cell OWC, read therms 8-13
   │            └──────┬──────┘
   │                   │ both reads done
-  │                   │ exit: OWC check, restart diag_timer (1 s)
+  │                   │ exit: OWC check, restart diag_timer
   │                   ▼
   │ diag_timer ┌─────────────┐  entry: restart settle_timer (200 ms)
   ├────────────┤   MEASURE   │  tick:  read voltages,
@@ -75,11 +76,11 @@ app::Fsm fsm;
   │  balancing && │       │ !balancing
   │  settled      │       │
   │  (200 ms)     ▼       │
-  │            ┌──────────┴──┐  entry: load pwm, start balance
+  │            ┌──────────┴──┐  entry: diag_timer 10 s, load pwm, start balance
   │            │   BALANCE   │  tick:  read voltages
-  │            │   (RD off)  │  exit:  stop balance
+  │            │   (RD off)  │  exit:  diag_timer 1 s, stop balance
   │            └──────┬──────┘
-  │                   │ diag_timer (1 s)
+  │                   │ diag_timer (10 s)
   └───────────────────┘
 
 */
@@ -127,6 +128,7 @@ void measureOnTick()
 
 result<void> balanceOnEntry()
 {
+    diag_timer.update_duration(DIAG_BALANCING_PERIOD_MS);
     RETURN_IF_ERR(io::adbms::command::resetCmdCount());
     io::adbms::PackCells<uint8_t> duty;
     {
@@ -164,6 +166,7 @@ void balanceOnTick()
 
 result<void> balanceOnExit()
 {
+    diag_timer.update_duration(DIAG_PERIOD_MS);
     RETURN_IF_ERR(io::adbms::command::resetCmdCount());
     RETURN_IF_ERR(io::adbms::command::stopBalance());
     app::pack::broadcast::balancing({});
