@@ -28,17 +28,17 @@ extern "C"
     unsigned long getRunTimeCounterValue()
     {
 #if defined(DWT) && defined(CoreDebug)
-    if ((CoreDebug->DEMCR & CoreDebug_DEMCR_TRCENA_Msk) == 0 ||
-        (DWT->CTRL & DWT_CTRL_CYCCNTENA_Msk) == 0) // ts exists to force enable dwt if j-link diables it
-    {
-        // re-enable
-        CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
-        #if defined(__CORTEX_M) && (__CORTEX_M == 7U)
-        DWT->LAR = 0xC5ACCE55;
-        #endif
-        DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;
-    } // Can be removed if we have it such j-link does not disalbe global trace block
-        return DWT->CYCCNT >> 8;
+        if ((CoreDebug->DEMCR & CoreDebug_DEMCR_TRCENA_Msk) == 0 ||
+            (DWT->CTRL & DWT_CTRL_CYCCNTENA_Msk) == 0) // ts exists to force enable dwt if j-link diables it
+        {
+            // re-enable
+            CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
+#if defined(__CORTEX_M) && (__CORTEX_M == 7U)
+            DWT->LAR = 0xC5ACCE55;
+#endif
+            DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;
+        } // Can be removed if we have it such j-link does not disalbe global trace block
+        return DWT->CYCCNT;
 #else
         return 0;
 #endif

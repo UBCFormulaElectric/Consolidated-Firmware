@@ -5,7 +5,7 @@
 #include <array>
 #include <cmsis_os.h>
 
-// added the below cuz imma force profiling at runtime for now (may change)
+// added the below cuz imma force profiling at compiletime for now (may change)
 #if configUSE_TRACE_FACILITY != 1
 #error "configUSE_TRACE_FACILITY must be set to 1 in FreeRTOSConfig.h to use runTimeStat"
 #endif
@@ -51,7 +51,7 @@ template <size_t TaskCount> class monitor
   private:
     struct TaskInfoInternal
     {
-        const rtos::StaticTask *t             = nullptr; //goood boyy
+        const rtos::StaticTask *t             = nullptr; // goood boyy
         void (*cpu_usage_setter)(float)       = nullptr;
         void (*cpu_usage_max_setter)(float)   = nullptr;
         void (*stack_usage_max_setter)(float) = nullptr;
@@ -89,7 +89,7 @@ template <size_t TaskCount> class monitor
      */
     void checkin() const
     {
-        const uint32_t current_total_time = getRunTimeCounterValue();
+        const uint32_t current_total_time = static_cast<uint32_t>(getRunTimeCounterValue());
 
         // get IDLE task runtime via O(1) TCB read (no memory scan)
         TaskHandle_t idle_handle       = xTaskGetIdleTaskHandle();
