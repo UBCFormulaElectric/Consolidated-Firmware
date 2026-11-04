@@ -10,8 +10,8 @@
 
 namespace
 {
-constexpr float   DISCHARGE_THRESHOLD_V = 10e-3f;
-constexpr float   FULL_DUTY_DELTA_V     = 50e-3f;
+constexpr float   DISCHARGE_THRESHOLD_V = 5e-3f;
+constexpr float   FULL_DUTY_DELTA_V     = 25e-3f;
 constexpr uint8_t MAX_DUTY              = 0x0F;
 
 uint32_t pwm_updated_ms = 0U;
