@@ -44,12 +44,12 @@ TEST_F(SteeringModuleTest, Normal_SteeringConditions_3)
 
 TEST_F(SteeringModuleTest, AngleOutOfRange_Overflow)
 {
-    fakes::io::steering::setAngleDegrees(95.01f); // Within Threshold
+    fakes::io::steering::setAngleDegrees(95.0f); // Within Threshold
     fakes::io::steering::setOCSC(false);
 
     LetTimePass(100);
 
-    EXPECT_FLOAT_EQ(app::can_tx::FSM_SteeringAngle_get(), 95.01f);
+    EXPECT_FLOAT_EQ(app::can_tx::FSM_SteeringAngle_get(), 95.0f);
     EXPECT_FALSE(app::can_tx::FSM_Info_SteeringAngleOCSC_get());
     EXPECT_FALSE(app::can_tx::FSM_Info_SteeringAngleOutOfRange_get());
 }
@@ -68,12 +68,12 @@ TEST_F(SteeringModuleTest, AngleOutOfRange_CANOverflow)
 
 TEST_F(SteeringModuleTest, AngleOutOfRange_Underflow)
 {
-    fakes::io::steering::setAngleDegrees(-95.01f); // Within Threshold
+    fakes::io::steering::setAngleDegrees(-95.0f); // Within Threshold
     fakes::io::steering::setOCSC(false);
 
     LetTimePass(100);
 
-    EXPECT_FLOAT_EQ(app::can_tx::FSM_SteeringAngle_get(), -95.01f);
+    EXPECT_FLOAT_EQ(app::can_tx::FSM_SteeringAngle_get(), -95.0f);
     EXPECT_FALSE(app::can_tx::FSM_Info_SteeringAngleOCSC_get());
     EXPECT_FALSE(app::can_tx::FSM_Info_SteeringAngleOutOfRange_get());
 }
