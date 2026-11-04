@@ -4,15 +4,16 @@
 #include "io_adbms.hpp"
 
 #include <cstdint>
+#include <util_errorCodes.hpp>
 
 namespace app::soc
 {
-struct SocStats {
-    uint32_t                  updated_ms = 0U;
-    app::pack::LocatedValue   max{};
-    app::pack::LocatedValue   min{};
-    io::adbms::Cells<float>   soc{};
-    app::pack::CellFlags      valid{};
+struct SocBuffer
+{
+    uint32_t                    updated_ms = 0U;
+    app::pack::Reading          max{};
+    app::pack::Reading          min{};
+    io::adbms::PackCells<std::expected<float, ErrorCode>> soc{};
 };
 
 void init();

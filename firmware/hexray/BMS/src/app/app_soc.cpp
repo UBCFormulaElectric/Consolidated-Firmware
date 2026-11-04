@@ -2,16 +2,20 @@
 #include "app_pack.hpp"
 #include "app_canTx.hpp"
 #include "app_tractiveSystem.hpp"
+#include "io_adbms.hpp"
+#include "state_estimation/app_kalman_filter.hpp"
 
+#include <FreeRTOS.h>
 #include <array>
 #include <cstddef>
+#include <cstdint>
+#include <optional>
+#include <util_errorCodes.hpp>
 
 namespace
 {
-constexpr size_t CELLS_IN_PARALLEL = 4;
 constexpr size_t P30B_SOC_N  = 21U;
 constexpr size_t P30B_TEMP_N = 4U;
-using P30BTable = std::array<std::array<float, P30B_TEMP_N>, P30B_SOC_N>;
 
 // Capacity of a single cell in ampere-seconds (Ah * 3600), not of a 4P group
 constexpr float P30B_CAP_AS = 10800.000000f;
@@ -24,6 +28,8 @@ constexpr std::array<float, P30B_SOC_N> P30B_SOC_BP = {
 constexpr std::array<float, P30B_TEMP_N> P30B_TEMP_BP_C = {
     { 10.00f, 23.00f, 35.00f, 45.00f }
 };
+
+using P30BTable = std::array<std::array<float, P30B_TEMP_N>, P30B_SOC_N>;
 
 // Open circuit voltage of one cell, in volts.
 constexpr P30BTable P30B_OCV_V = { {
@@ -225,110 +231,99 @@ constexpr P30BTable P30B_TAU1_CHG_S = { {
     { { 19.84500334f, 27.69980701f,        50.28894551f, 73.45802012f } },
 } };
 
-struct Interp {
-    float soc_i;
-    float soc_f;
-    float temp_i
-    float temp_f;
+// STATES: SOC, V1          parameters in state vector
+// MEASUREMENTS: V_term     what filter predicts  
+// INPUTS: I, T, dt         what filter uses to predict
+using Ekf = app::state_estimation::ekf<float, 2U, 1U, 3U>;
+
+struct PackData {    
+    app::pack::VoltageBuffer       voltage_buffer{};
+    app::pack::TemperatureBuffer   temp_buffer{};
+    app::pack::OpenWireCheckBuffer owc_buffer{};
 };
 
-struct SocState {
-    float v1  = 0.0f;
-    float p00 = 0;      //P_SOC (need to come up with initial value)
-    float p01 = 0.0f;   //P_SOC_V1
-    float p11 = 0;      //P_V1 (need to come up with initial value)
-};
-
-app::pack::PackChannel<app::pack::VoltStats>::Subscription volt_sub{ "soc_volt" };
-app::pack::PackChannel<app::pack::TempStats>::Subscription temp_sub{ "soc_temp" };
-
-app::soc::SocStats     soc_stats{};
-app::pack::VoltStats   volt_stats{};
-app::pack::TempStats   temp_stats{};
-io::adbms::Cells<SocState> soc_states{};
-
-
-float lookup(const P30BTable &table, const Interp &in) {
-}
-
-void calculate(const app::pack::VoltStats &volts, const app::pack::TempStats &temps) {
-    const float dt_s  = static_cast<float>(volt_stats.updated_ms - soc_stats.updated_ms) * 1.0e-3f;
-    soc_stats.updated_ms = volt_stats.updated_ms;
-
-    const float cell_current_a = -app::ts::getCurrent() / static_cast<float>(CELLS_IN_PARALLEL);   //prob should change the convention (+ for discharge instead of + for charge) change this shit in ts file
-
-    const bool charging = cell_current_a < 0;
-    for (size_t seg = 0; seg < NUM_SEGMENTS; seg++) {
-        for (size_t cell = 0; cell < CELLS_PER_SEGMENT; cell++) {
-            if (!volts.valid[seg][cell]) 
-                continue;// should soc value go invalid???? prob not
-
-            const float temp_c = temps.valid[seg][cell] ? temps.temperatures[seg][cell] : 0; //what should be the invalid temp path
-
-            SocState &soc_state = soc_states[seg][cell];
-
-         
-            
-            // this is for reset so it can intialize with ocv lookup
-            if (!soc_stats.valid[seg][cell]) {
-                soc_stats.soc[seg][cell] = 
-                soc_stats.valid[seg][cell] = true;
-                soc_state = {};
-                continue;
-            }
-
-            const float r0 = charging ? lookup(P30B_R0_CHG_OHM, soc, temp_c) : lookup(P30B_R0_DIS_OH, soc, temp_c);
-            const float r1 = 
-            const float tau_s = charging ? lookup(P30B_TAU1_CHG_S, soc, temp_c) : lookup(P30B_TAU1_DIS_S, soc, temp_c); 
-            const float a = std::exp(-dt_s / tau_s);
-
-            //Predict next state and covariance
-            soc_stats.soc[seg][cell] -= cell_current_a * dt_s / P30B_CAP_AS;
-            soc_state.v1 = a* soc_state.v1 + r1 * (1.0f - a) * cell_current_a;
-            soc_state.p00 += Q_SOC; // need to come up with this value
-            soc_state.p01 += a;
-            soc_state.p11 = a * a * soc_state.p11 + Q_V1; //need to come up with this value
-
-            //Calculate innovation
-            const float innovation = volts.votlages[seg][cell] - (lookup(P30B_OCV_V, ocv, temp) - r0 * cell_current_a - soc_state.v1);
-
-
-        }
-    }   
-}
-
-
-}
-
-
+app::soc::SocBuffer soc_buffer{};
+io::adbms::PackCells<std::optional<Ekf>> filters{};
+uint32_t last_voltage_ms = 0U;
+float charge_out_as  = 0.0f; // A*s out of one cell since last voltage reading
 
 } // namespace
 
 namespace app::soc
 {
-void init()
-{
-    app::pack::voltage_channel.subscribe(volt_sub);
-    app::pack::temperature_channel.subscribe(temp_sub);
-    //later will need to add ts_current channel s
 
+void init() {
+    filters = {};
 }
-
+    
 void update()
 {
-    while (const auto stats = volt_sub.pop(0)) 
-        volt_stats = *stats;
-    while (const auto stats = temp_sub.pop(0))
-        temp_stats = *stats;
+    PackData d{};
+    {
+        const io::semaphore::unique_semaphore lock{ pack::buffer_lock };
+        d.voltage_buffer = pack::voltage_buffer;
+        d.temp_buffer = pack::temp_buffer;
+        d.owc_buffer = pack::owc_buffer;
+    }
 
-    if (volt_stats.updated_ms > soc_stats.updated_ms || temp_stats.updated_ms > soc_stats.updated_ms) 
-        calculate(volt_stats, temp_stats);
+    // Negative value indicates charging current (need to change); converted for dischnage = + / charge = - 
+    // Coulomb count every 100 Hz tick (charge = cell current × 0.01 s) so the filter step uses the average current
+    charge_out_as += -ts::getCurrent() / static_cast<float>(pack::CELLS_IN_PARALLEL);
+    if (d.voltage_buffer.updated_ms == last_voltage_ms) return;
+
+    const float dt = static_cast<float> (d.voltage_buffer.updated_ms - last_voltage_ms) * 1e-3f;
+    const float I = charge_out_as / dt;
+    last_voltage_ms = 0U;
+    charge_out_as = 0;
+
+    pack::Reading max { .value = std::numeric_limits<float>::min() };
+    pack::Reading min { .value = std::numeric_limits<float>::max() };
+
+    for (size_t seg = 0U; seg < io::adbms::NUM_SEGMENTS; ++seg) {
+        for (size_t cell = 0U; cell < io::adbms::CELLS_PER_SEGMENT; ++cell) {
+            const result<float> &voltage = d.voltage_buffer.voltages[seg][cell];
+            const result<float> &temp = d.temp_buffer.temperatures[seg][cell];
+            const bool owc_ok = d.owc_buffer.cells_owc_ok[seg][cell];
+
+            const bool           voltage_valid  = voltage.has_value() && owc_ok;
+            const float          T        = temp.has_value() ? *temp : 23.0f;
+
+            // Initialization: the first good sample seeds SOC by OCV lookup, which assumes the cell is at rest
+            // (contactors are open at boot). x0 = [SOC0, 0].
+            std::optional<Ekf> &filter = filters[seg][cell];
+            if (!filter.has_value()) {
+                if (!measured) {
+                    soc_buffer.soc[seg][cell] = std::unexpected(ErrorCode::STALE_VALUE);
+                    continue;
+                }
+                //filter.emplace()
+            }
+            
+            const Ekf::U_1 u(I, T, dt);
+            filter->predict(u);
+            if (measured) filter->update(u, Ekf::M_1(*voltage));
+
+            const float SOC = filter->state()(0);
+            soc_buffer.soc[seg][cell] = SOC;
+    
+            if (SOC > max.value) {
+                max = { SOC, static_cast<uint8_t>(seg), static_cast<uint8_t>(cell)};
+            }
+            if (SOC < min.value) {
+                min = { SOC, static_cast<uint8_t>(seg), static_cast<uint8_t>(cell)};
+            }
+        }
+    }
+
+    if (max.value >= min.value) {
+        soc_buffer.max = max;
+        soc_buffer.min = min;
+    }
+    soc_buffer.updated_ms = d.voltage_buffer.updated_ms;
 }
 
 void broadcast()
 {
-    // The weakest cell sets what the pack can actually deliver.
-    app::can_tx::BMS_HvBatterySoc_set(
-        soc_stats.updated_ms != 0U ? static_cast<uint8_t>(soc_stats.min.value * 100.0f) : 0U);
+
 }
 } // namespace app::soc
