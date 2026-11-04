@@ -93,10 +93,6 @@ bool isOverVoltageFault(const AlertData &s)
 {
     return s.voltages.updated_ms != 0U && s.voltages.max.value > V_FAULT_OV;
 }
-bool isTempInvalidFault(const AlertData &s)
-{
-    return isStale(s.temps.updated_ms, DIAG_STALE_MS, s.now_ms) || anyInvalid(s.temps.temperatures);
-}
 bool isOverTempFault(const AlertData &s)
 {
     return s.temps.updated_ms != 0U &&
@@ -179,11 +175,10 @@ struct Entry
     Timer timer;
 };
 
-std::array<Entry, 9> fault_entries = { {
+std::array<Entry, 8> fault_entries = { {
     { &isVoltInvalidFault, &app::can_alerts::faults::CellVoltageInvalid_set, Timer{ FAULT_V_DEBOUNCE_MS } },
     { &isUnderVoltageFault, &app::can_alerts::faults::CellUndervoltage_set, Timer{ FAULT_V_DEBOUNCE_MS } },
     { &isOverVoltageFault, &app::can_alerts::faults::CellOvervoltage_set, Timer{ FAULT_V_DEBOUNCE_MS } },
-    { &isTempInvalidFault, &app::can_alerts::faults::CellTemperatureInvalid_set, Timer{ FAULT_T_DEBOUNCE_MS } },
     { &isOverTempFault, &app::can_alerts::faults::CellOvertemp_set, Timer{ FAULT_T_DEBOUNCE_MS } },
     { &isUnderTempFault, &app::can_alerts::faults::CellUndertemp_set, Timer{ FAULT_T_DEBOUNCE_MS } },
     { &isCellOpenWireFault, &app::can_alerts::faults::CellOpenWire_set, Timer{ FAULT_OWC_DEBOUNCE_MS } },

@@ -62,10 +62,6 @@
       "id": 456,
       "description": "One or more cell voltage measurements are missing or failed to read"
     },
-    "CellTemperatureInvalid": {
-      "id": 457,
-      "description": "One or more thermistor measurements are missing or failed to read"
-    },
     "ItmpOvertemp": {
       "id": 458,
       "description": "ADBMS internal die temperature (ITMP) is critically high"

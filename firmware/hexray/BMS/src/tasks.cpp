@@ -39,7 +39,7 @@ static hw::rtos::StaticTask::StaticTaskStack<1024 * 6> Task100HzStack;
 static hw::rtos::StaticTask::StaticTaskStack<512>      TaskCanRxStack;
 static hw::rtos::StaticTask::StaticTaskStack<512>      TaskVehicleCanTxStack;
 static hw::rtos::StaticTask::StaticTaskStack<512>      TaskChargerCanTxStack;
-static hw::rtos::StaticTask::StaticTaskStack<1024 * 3> TaskAdbmsChainStack;
+static hw::rtos::StaticTask::StaticTaskStack<1024 * 5> TaskAdbmsChainStack;
 
 static hw::rtos::StaticTask Task1kHz(osPriorityRealtime, "Task1kHz", tasks_run1kHz, Task1kHzStack);
 static hw::rtos::StaticTask Task1Hz(osPriorityAboveNormal, "Task1Hz", tasks_run1Hz, Task1HzStack);

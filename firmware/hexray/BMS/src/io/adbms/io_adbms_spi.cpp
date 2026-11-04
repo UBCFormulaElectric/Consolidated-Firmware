@@ -70,14 +70,21 @@ class __attribute__((packed)) DataPayload
     io::adbms::RegGroup data;
     uint16_t            pec10;
 
-    // Calculates PEC10 based on 6 data bytes
-    [[nodiscard]] uint16_t calculatePec10() const
+    [[nodiscard]] uint16_t calculatePec10(const uint8_t cnt) const
     {
         uint16_t remainder = 16U;
         for (const uint8_t byte : data)
         {
             const uint16_t address = ((remainder >> 2) ^ byte) & 0xFFU;
             remainder              = static_cast<uint16_t>((remainder << 8) ^ pec10Table[address]);
+        }
+        remainder ^= static_cast<uint16_t>(cnt << 4);
+        for (int bit = 0; bit < 6; ++bit)
+        {
+            const bool msb = (remainder & 0x200U) != 0;
+            remainder      = static_cast<uint16_t>(remainder << 1);
+            if (msb)
+                remainder ^= PEC10_POLY;
         }
         return static_cast<uint16_t>(remainder & 0x3FFU);
     }
@@ -91,7 +98,7 @@ class TxDataPayload : public DataPayload
     explicit TxDataPayload(const io::adbms::RegGroup _data)
     {
         data  = _data;
-        pec10 = std::byteswap(calculatePec10());
+        pec10 = std::byteswap(calculatePec10(0U));
     }
 };
 static_assert(sizeof(TxDataPayload) == 8);
@@ -99,21 +106,8 @@ static_assert(sizeof(TxDataPayload) == 8);
 class RxDataPayload : public DataPayload
 {
   public:
-    [[nodiscard]] bool checksum() const
-    {
-        const uint16_t rx_pec = std::byteswap(pec10);
-
-        // Calculates PEC10 based on 6 data bytes AND command counter
-        uint16_t remainder = static_cast<uint16_t>(calculatePec10() ^ ((rx_pec >> 10) << 4));
-        for (int bit = 0; bit < 6; ++bit)
-        {
-            const bool msb = (remainder & 0x200U) != 0;
-            remainder      = static_cast<uint16_t>(remainder << 1);
-            if (msb)
-                remainder ^= PEC10_POLY;
-        }
-        return (remainder & 0x3FFU) == (rx_pec & 0x3FFU);
-    }
+    // Mask command count off to compareP
+    [[nodiscard]] bool checksum() const { return calculatePec10(cmdCount()) == (std::byteswap(pec10) & 0x3FFU); }
 
     [[nodiscard]] uint8_t cmdCount() const { return static_cast<uint8_t>(std::byteswap(pec10) >> 10); }
 
@@ -134,14 +128,12 @@ result<void> sendCmd(const hw::spi::device &port, const uint16_t cmd)
 
 result<uint32_t> poll(const hw::spi::device &port, const uint16_t cmd)
 {
-    const CmdPayload tx_cmd{ cmd };
-    uint32_t         poll_buf; // Polling data is only valid after 2 * NUM_SEGMENTS bits
-    RETURN_IF_ERR_SILENT(port.transmitThenReceiveDma(
+    const CmdPayload   tx_cmd{ cmd };
+    uint32_t           poll_buf; // Polling data is only valid after 2 * NUM_SEGMENTS bits
+    const result<void> status = port.transmitThenReceiveDma(
         { reinterpret_cast<const uint8_t *>(&tx_cmd), sizeof(CmdPayload) },
-        { reinterpret_cast<uint8_t *>(&poll_buf), sizeof(poll_buf) }));
-    // Polls increment the ADBMS command counter
-    cmd_count = static_cast<uint8_t>(cmd_count % 63U + 1U);
-    return poll_buf;
+        { reinterpret_cast<uint8_t *>(&poll_buf), sizeof(poll_buf) });
+    return status ? result<uint32_t>{ poll_buf } : std::unexpected(status.error());
 }
 
 result<void> readRegGroup(const hw::spi::device &port, const uint16_t cmd, const std::span<result<RegGroup>> rx)
@@ -171,9 +163,9 @@ result<void> readRegGroup(const hw::spi::device &port, const uint16_t cmd, const
         // Checksum error indicates break in chain or invalid data; needs to be reported on RegGroup/segment level
         if (!rx_buf[segment].checksum())
             rx[segment] = std::unexpected(ErrorCode::CHECKSUM_FAIL);
-        // Command count mismatch means that segment missed a command
-        else if (rx_buf[segment].cmdCount() != cmd_count)
-            rx[segment] = std::unexpected(ErrorCode::CMD_COUNT_MISMATCH);
+        // Command count mismatch means that segment missed a command (doesnt work)
+        // else if (rx_buf[segment].cmdCount() != cmd_count)
+        //     rx[segment] = std::unexpected(ErrorCode::CMD_COUNT_MISMATCH);
         else
             rx[segment] = rx_buf[segment].getData();
     }
