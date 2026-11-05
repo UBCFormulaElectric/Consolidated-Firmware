@@ -1,8 +1,12 @@
 set(LOGFS_INCLUDE_DIRS
         "${CMAKE_CURRENT_SOURCE_DIR}/src"
+        "${CMAKE_CURRENT_SOURCE_DIR}/srcpp"
 )
-file(GLOB_RECURSE LOGFS_SRCS
+file(GLOB_RECURSE LOGFS_C_SRCS CONFIGURE_DEPENDS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c"
+)
+file(GLOB_RECURSE LOGFS_CPP_SRCS CONFIGURE_DEPENDS
+        "${CMAKE_CURRENT_SOURCE_DIR}/srcpp/*.cpp"
 )
 message("")
 message("⚙️ Configuring LogFS")
@@ -16,7 +20,7 @@ if (SKBUILD)
     find_package(Python3 REQUIRED COMPONENTS Interpreter Development)
     find_package(pybind11 CONFIG REQUIRED)
 
-    pybind11_add_module(logfs_src ${LOGFS_SRCS} ${CMAKE_CURRENT_SOURCE_DIR}/python/bindings.cpp)
+    pybind11_add_module(logfs_src ${LOGFS_CPP_SRCS} ${CMAKE_CURRENT_SOURCE_DIR}/python/bindings.cpp)
     target_include_directories(logfs_src PUBLIC "${LOGFS_INCLUDE_DIRS}")
 
     if (MSVC)
@@ -43,21 +47,35 @@ else ()
             message(FATAL_ERROR "❌ embedded.cmake must be included before logfs is subdirectoried")
         endif ()
         embedded_library(
-                "logfs_cm7"
-                "${LOGFS_SRCS}"
+                "logfs_C"
+                "${LOGFS_C_SRCS}"
                 "${LOGFS_INCLUDE_DIRS}"
                 "cm7"
                 TRUE
         )
-        target_compile_options(logfs_cm7 PRIVATE
+        target_compile_options(logfs_C PRIVATE
+                -O3
+        )
+        embedded_library(
+                "logfs_CXX"
+                "${LOGFS_CPP_SRCS}"
+                "${LOGFS_INCLUDE_DIRS}"
+                "cm7"
+                TRUE
+        )
+        target_compile_options(logfs_CXX PRIVATE
                 -O3
         )
     elseif ("${TARGET}" STREQUAL "test")
         find_package(Python3 REQUIRED COMPONENTS Interpreter Development)
         find_package(pybind11 CONFIG)
 
-        # Create pybind11 module.
-        pybind11_add_module(logfs_src ${LOGFS_SRCS} ${CMAKE_CURRENT_SOURCE_DIR}/python/bindings.cpp)
+        # Create pybind11 module, imma make this js CPP when rewrite is done.
+        pybind11_add_module(logfs_src
+                ${LOGFS_C_SRCS}
+                ${LOGFS_CPP_SRCS}
+                ${CMAKE_CURRENT_SOURCE_DIR}/python/bindings.cpp
+        )
         target_include_directories(logfs_src PUBLIC "${LOGFS_INCLUDE_DIRS}")
 
         set(LOGFS_SRC_OUTPUT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/python")
@@ -83,4 +101,3 @@ else ()
                 DEPENDS logfs_src)
     endif ()
 endif ()
-
