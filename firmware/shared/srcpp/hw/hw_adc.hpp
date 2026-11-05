@@ -31,6 +31,7 @@ template <size_t NUM_ADC_CHANNELS> class adcchip
     {
         uint16_t full_scale;
         switch (hadc.Init.Resolution)
+        
         {
             case ADC_RESOLUTION_6B:
                 full_scale = MAX_6_BITS_VALUE;

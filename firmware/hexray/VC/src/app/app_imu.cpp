@@ -32,15 +32,15 @@ namespace
     // Hard coded values taken from manually sampling
     // These are dummy values for now. In future, sample during boot
     // TODO: sample when VC on car 
-    constexpr float mean_x_reading = -0.065f;
-    constexpr float mean_y_reading = 0.125f;
-    constexpr float mean_z_reading = 0.985f;
+    constexpr float mean_x_reading = -0.03f;
+    constexpr float mean_y_reading = -0.65f;
+    constexpr float mean_z_reading = 0.76f;
 
     // // TODO: Use better setup to lay IMU flat
-    constexpr float x_bias     = 0.045f;
-    constexpr float y_bias     = -0.035f;
+    constexpr float x_bias     = 0.04f;
+    constexpr float y_bias     = -0.015f;
     constexpr float z_bias     = -0.005f;
-    constexpr float roll_bias  = 0.63f;
+    constexpr float roll_bias  = 0.0f;
     constexpr float pitch_bias = -0.4f;
     constexpr float yaw_bias   = -0.26f;
 
@@ -48,16 +48,16 @@ namespace
     constexpr float xy_ratio = 0.0f; // mean y/x when moving straight
 
     imu_reorient reorient = imu_reorient(
-        x_bias,
-        y_bias,
-        z_bias,
-        roll_bias,
-        pitch_bias,
-        yaw_bias,
-        mean_x_reading,
-        mean_y_reading,
-        mean_z_reading,
-        xy_ratio
+        // x_bias,
+        // y_bias,
+        // z_bias,
+        // roll_bias,
+        // pitch_bias,
+        // yaw_bias,
+        // mean_x_reading,
+        // mean_y_reading,
+        // mean_z_reading,
+        // xy_ratio
     );
 } // namespace
 
@@ -111,4 +111,4 @@ bool initSuccess()
 {
     return imu1_init_ok.has_value();
 }
-} // namespace app::imus
+ } // namespace app::imus
