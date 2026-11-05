@@ -21,16 +21,16 @@ struct imu_reorient
     Rotation R;
 
     imu_reorient(
-        const float x_bias_in = 0.0f,
-        const float y_bias_in = 0.0f,
-        const float z_bias_in = 0.0f,
-        const float roll_bias_in = 0.0f,
+        const float x_bias_in     = 0.0f,
+        const float y_bias_in     = 0.0f,
+        const float z_bias_in     = 0.0f,
+        const float roll_bias_in  = 0.0f,
         const float pitch_bias_in = 0.0f,
-        const float yaw_bias_in = 0.0f,
-        const float x_mean = 0.0f,
-        const float y_mean = 0.0f,
-        const float z_mean = 1.0f,
-        const float xy_ratio = 0.0f)
+        const float yaw_bias_in   = 0.0f,
+        const float x_mean        = 0.0f,
+        const float y_mean        = 0.0f,
+        const float z_mean        = 1.0f,
+        const float xy_ratio      = 0.0f)
       : x_bias(x_bias_in),
         y_bias(y_bias_in),
         z_bias(z_bias_in),
