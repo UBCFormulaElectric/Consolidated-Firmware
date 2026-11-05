@@ -64,6 +64,7 @@ pub async fn run_mock_task(
 ) {
     vprintln!("{}", yellow("Mock task started."));
     let mut i: u32 = 0;
+    let mut telem_mark_count: f64 = 0.0;
 
     health_check_tx.send_health_check(Task::SerialHandler, true).await;
     
@@ -95,6 +96,9 @@ pub async fn run_mock_task(
                 // Simulate sending mock CAN payloads
                 i += 1;
                 let base_value = ((i as f64 * TAU / 100.0).sin() + 1.0) / 2.0;
+                if rand::random_bool(0.02) {
+                    telem_mark_count = (telem_mark_count + 1.0) % 256.0;
+                }
 
                 if i == 1 {
                     let bootup_signal = DecodedSignal {
@@ -135,7 +139,11 @@ pub async fn run_mock_task(
                         continue;
                     }
                     
-                    let value = base_value * (signal_metadata.max_val - signal_metadata.min_val) + signal_metadata.min_val;
+                    let value = if signal_name == "CRIT_Info_TelemMarkEvent_Count" {
+                        telem_mark_count
+                    } else {
+                        base_value * (signal_metadata.max_val - signal_metadata.min_val) + signal_metadata.min_val
+                    };
                     let is_discrete = signal_metadata.enum_signal.is_some() || (signal_metadata.min_val == 0.0 && signal_metadata.max_val == 1.0);
 
                     signals_by_msg
