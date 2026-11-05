@@ -4,6 +4,7 @@ import DataDashboard from "@/components/DataDashboard";
 import { DisplayControlProvider } from "@/components/PausePlayControl";
 import SyncedGraphContainer from "@/components/SyncedGraphContainer";
 import AlertTimeline from "@/components/widgets/AlertTimeline";
+import { WidgetLayout } from "@/components/widgets/WidgetLayoutContext";
 import { useWidgetManager, WidgetManager } from "@/components/widgets/WidgetManagerContext";
 import { LiveSignalStoreProvider } from "@/lib/contexts/signalStores/LiveSignalStoreContext";
 import { MockSignalStoreProvider } from "@/lib/contexts/signalStores/MockSignalStoreContext";
@@ -54,9 +55,11 @@ export default function LiveDataPage() {
                 <DisplayControlProvider>
                     <div className="flex-1 min-h-0 w-full relative">
                         <SyncedGraphContainer>
-                            <WidgetManager>
-                                <Content />
-                            </WidgetManager>
+                            <WidgetLayout pageKey="live">
+                                <WidgetManager>
+                                    <Content />
+                                </WidgetManager>
+                            </WidgetLayout>
                         </SyncedGraphContainer>
                     </div>
                 </DisplayControlProvider>
