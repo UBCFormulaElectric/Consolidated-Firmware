@@ -732,9 +732,6 @@
       },
       "osx": {
         "MIMode": "lldb"
-      },
-      "windows": {
-        "MIMode": "gdb"
       }
     },
     {
