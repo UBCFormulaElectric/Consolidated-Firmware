@@ -244,7 +244,6 @@ result<void> xAdcTherm(const ThermistorMux mux, app::pack::TemperatureBuffer &te
 {
     std::array<Segments<result<RegGroup>>, RDAUX.size()> gpio_regs;
 
-    // A failed read puts the error on every segment, so keep going and let each thermistor take it
     result<void> status{};
     for (size_t group = 0; group < RDAUX.size(); group++)
     {
@@ -324,7 +323,6 @@ result<void> xAdcSupply(app::pack::SupplyBuffer &supply_buffer) {
     Segments<result<RegGroup>> stat_b_regs;
     Segments<result<RegGroup>> aux_d_regs;
 
-    // A failed read puts the error on every segment, so keep going and let each reading take it
     result<void> status{};
     if (const result<void> res = reversible::readRegGroup(RDSTATA, stat_a_regs); !res)
         status = res;
@@ -383,7 +381,6 @@ result<void> flags(app::pack::DiagnosticBuffer &diag_buffer )
     Segments<result<RegGroup>> stat_c_regs;
     Segments<result<RegGroup>> stat_d_regs;
 
-    // A failed read puts the error on every segment, so keep going and leave those segments not ok
     result<void> status{};
     if (const result<void> res = reversible::readRegGroup(RDSTATC, stat_c_regs); !res)
         status = res;
