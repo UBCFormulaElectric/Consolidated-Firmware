@@ -1,5 +1,6 @@
 #pragma once
 #include "io_rotary.hpp"
+#include "app_canUtils.hpp"
 
 namespace app::screens
 {
@@ -17,6 +18,11 @@ extern const Screen shdn_screen;
 extern const Screen alerts_screen;
 extern const Screen brightness_screen;
 extern const Screen drive_modes_screen;
+
+/**
+ * @brief Get the drive mode currently selected on the drive modes screen.
+ */
+can_utils::DriveMode drive_mode_get();
 
 /**
  * @brief Initalize all screens, and starting init screen.

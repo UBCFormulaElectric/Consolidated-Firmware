@@ -47,8 +47,8 @@
   },
   "DriveMode": {
     "VANILLA": 0,
-    "TV": 1,
-    "LAUNCH": 2,
+    "TRACK": 1,
+    "ACCELERATION": 2,
     "COUNT": 3
   }
 }
