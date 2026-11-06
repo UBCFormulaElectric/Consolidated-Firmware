@@ -1,7 +1,7 @@
 #include "jobs.hpp"
 
-//#include "app_brake.hpp"
-//#include "app_coolant.hpp"
+#include "app_brake.hpp"
+#include "app_coolant.hpp"
 #include "app_imu.hpp"
 #include "app_jsoncan.hpp"
 #include "app_suspension.hpp"
@@ -14,7 +14,7 @@
 //#include "app_rsmShdnLoop.hpp"
 
 #include "io_canQueues.hpp"
-//#include "io_brakeLight.hpp"
+#include "io_brakeLight.hpp"
 #include "io_time.hpp"
 #include "io_canMsg.hpp"
 #include "io_canTx.hpp"
@@ -46,11 +46,11 @@ void jobs_initImu()
 }
 void jobs_run100Hz_tick()
 {
-    //app::brake::broadcast();
-    //io::brakeLight::set(app::brake::isActuated());
+    app::brake::broadcast();
+    io::brakeLight::set(app::brake::isActuated());
     app::suspension::broadcast();
     app::tireTemp::broadcast();
-    //app::coolant::broadcast();
+    app::coolant::broadcast();
     app::pumpControl::broadcast();
     app::pumpControl::monitorPumps();
 
