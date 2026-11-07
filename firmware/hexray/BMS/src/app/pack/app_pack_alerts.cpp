@@ -23,8 +23,6 @@ constexpr uint32_t FAULT_OWC_DEBOUNCE_MS    = 5000;
 constexpr uint32_t FAULT_HEALTH_DEBOUNCE_MS = 3000;
 constexpr float    T_FAULT_OT               = 55.0f;
 constexpr float    T_CHARGE_FAULT_OT        = 45.0f;
-constexpr float    T_FAULT_UT               = -20.0f;
-constexpr float    T_CHARGE_FAULT_UT        = 0.0f;
 constexpr float    T_FAULT_ITMP_OT          = 85.0f;
 
 // Warning thresholds
@@ -100,11 +98,6 @@ bool isOverTempFault(const AlertData &s)
 {
     return s.temps.updated_ms != 0U &&
            s.temps.max.value > (s.charging ? std::min(T_FAULT_OT, T_CHARGE_FAULT_OT) : T_FAULT_OT);
-}
-bool isUnderTempFault(const AlertData &s)
-{
-    return s.temps.updated_ms != 0U &&
-           s.temps.min.value < (s.charging ? std::max(T_FAULT_UT, T_CHARGE_FAULT_UT) : T_FAULT_UT);
 }
 // Both C-ADC and S-ADC open wire checks must pass
 bool isCellOpenWireFault(const AlertData &s)
@@ -187,12 +180,11 @@ struct Entry
     Timer timer;
 };
 
-std::array<Entry, 8> fault_entries = { {
+std::array<Entry, 7> fault_entries = { {
     { &isVoltInvalidFault, &app::can_alerts::faults::CellVoltageInvalid_set, Timer{ FAULT_V_DEBOUNCE_MS } },
     { &isUnderVoltageFault, &app::can_alerts::faults::CellUndervoltage_set, Timer{ FAULT_V_DEBOUNCE_MS } },
     { &isOverVoltageFault, &app::can_alerts::faults::CellOvervoltage_set, Timer{ FAULT_V_DEBOUNCE_MS } },
     { &isOverTempFault, &app::can_alerts::faults::CellOvertemp_set, Timer{ FAULT_T_DEBOUNCE_MS } },
-    { &isUnderTempFault, &app::can_alerts::faults::CellUndertemp_set, Timer{ FAULT_T_DEBOUNCE_MS } },
     { &isCellOpenWireFault, &app::can_alerts::faults::CellOpenWire_set, Timer{ FAULT_OWC_DEBOUNCE_MS } },
     { &isHealthFault, &app::can_alerts::faults::HealthError_set, Timer{ FAULT_HEALTH_DEBOUNCE_MS } },
     { &isItmpOverTempFault, &app::can_alerts::faults::ItmpOvertemp_set, Timer{ FAULT_T_DEBOUNCE_MS } },
