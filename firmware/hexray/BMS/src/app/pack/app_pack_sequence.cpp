@@ -7,12 +7,6 @@
 
 namespace
 {
-constexpr uint32_t TEMP_PERIOD_MS    = 1000;
-constexpr uint32_t COWC_PERIOD_MS    = 5 * 1000;
-constexpr uint32_t SOWC_PERIOD_MS    = 5 * 1000;
-constexpr uint32_t BALANCE_PERIOD_MS = 60 * 1000;
-constexpr uint32_t SETTLE_MS         = 10 * 1000;
-
 app::Timer temp_timer{ TEMP_PERIOD_MS };
 app::Timer cowc_timer{ COWC_PERIOD_MS };
 app::Timer sowc_timer{ SOWC_PERIOD_MS };

@@ -90,6 +90,10 @@
       "id": 957,
       "description": "Open wire detected on a thermistor sense line"
     },
+    "CellTempInvalid": {
+      "id": 457,
+      "description": "One or more thermistor readings are missing or out of range (open or shorted)"
+    },
     "CellUnderVoltage": {
       "id": 467,
       "description": "A cell briefly dipped below the undervoltage tripwire"

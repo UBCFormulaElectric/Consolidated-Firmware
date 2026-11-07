@@ -6,6 +6,12 @@
 inline constexpr float V_FAULT_UV = 2.5f;
 inline constexpr float V_FAULT_OV = 4.2f;
 
+inline constexpr uint32_t TEMP_PERIOD_MS    = 1000;
+inline constexpr uint32_t COWC_PERIOD_MS    = 5 * 1000;
+inline constexpr uint32_t SOWC_PERIOD_MS    = 5 * 1000;
+inline constexpr uint32_t BALANCE_PERIOD_MS = 60 * 1000;
+inline constexpr uint32_t SETTLE_MS         = 10 * 1000;
+
 namespace app::pack
 {
 
