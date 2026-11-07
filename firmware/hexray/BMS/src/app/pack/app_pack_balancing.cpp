@@ -15,8 +15,10 @@ constexpr uint8_t MAX_DUTY              = 0x0F;
 
 uint32_t pwm_updated_ms = 0U;
 
-io::adbms::PackCells<uint8_t>
-    calculateDuty(const app::pack::BalancingBuffer &balance_buffer, const app::pack::PackCellFlags &cells_owc_ok)
+io::adbms::PackCells<uint8_t> calculateDuty(
+    const app::pack::BalancingBuffer &balance_buffer,
+    const app::pack::PackCellFlags   &cadc_owc_ok,
+    const app::pack::PackCellFlags   &sadc_owc_ok)
 {
     io::adbms::PackCells<uint8_t> duty{};
 
@@ -24,13 +26,13 @@ io::adbms::PackCells<uint8_t>
     float min_cell_v = std::numeric_limits<float>::max();
     for (uint8_t seg = 0; seg < io::adbms::NUM_SEGMENTS; seg++)
     {
-        if (!cells_owc_ok[seg][0])
+        if (!cadc_owc_ok[seg][0] || !sadc_owc_ok[seg][0])
             continue;
 
         for (uint8_t cell = 0; cell < io::adbms::CELLS_PER_SEGMENT; cell++)
         {
             const result<float> &volts = balance_buffer.voltages[seg][cell];
-            if (volts && cells_owc_ok[seg][cell] && *volts > V_FAULT_UV)
+            if (volts && cadc_owc_ok[seg][cell] && sadc_owc_ok[seg][cell] && *volts > V_FAULT_UV)
                 min_cell_v = std::min(min_cell_v, *volts);
         }
     }
@@ -43,7 +45,7 @@ io::adbms::PackCells<uint8_t>
     for (uint8_t seg = 0; seg < io::adbms::NUM_SEGMENTS; seg++)
     {
         // Cell 0 open wire turns off balancing on entire segment
-        if (!cells_owc_ok[seg][0])
+        if (!cadc_owc_ok[seg][0] || !sadc_owc_ok[seg][0])
             continue;
 
         for (uint8_t cell = 0; cell < io::adbms::CELLS_PER_SEGMENT; cell++)
@@ -51,7 +53,7 @@ io::adbms::PackCells<uint8_t>
             const result<float> &volts = balance_buffer.voltages[seg][cell];
 
             // Invalid cell reading or cell open wire disables cell balancing
-            if (!volts || !cells_owc_ok[seg][cell])
+            if (!volts || !cadc_owc_ok[seg][cell] || !sadc_owc_ok[seg][cell])
                 continue;
 
             // Cell undervoltage disables balancing
@@ -87,7 +89,7 @@ void tick()
     if (balance_buffer.updated_ms == pwm_updated_ms)
         return;
 
-    balance_buffer.pwm = calculateDuty(balance_buffer, owc_buffer.cells_owc_ok);
+    balance_buffer.pwm = calculateDuty(balance_buffer, cadc_owc_buffer.cells_owc_ok, sadc_owc_buffer.cells_owc_ok);
     pwm_updated_ms     = balance_buffer.updated_ms;
 }
 

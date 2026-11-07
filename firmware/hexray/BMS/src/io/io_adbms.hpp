@@ -220,7 +220,7 @@ namespace read
     [[nodiscard]] result<void> configReg(Segments<result<CFGA>> &config_a, Segments<result<CFGB>> &config_b);
     [[nodiscard]] result<void> pwmReg(Segments<result<PWMA>> &pwm_a, Segments<result<PWMB>> &pwm_b);
     [[nodiscard]] result<void> cAdc(bool redundant, app::pack::VoltageBuffer &voltage_buffer);
-    [[nodiscard]] result<void> sAdc(PackCells<result<float>> &owc_voltages);
+    [[nodiscard]] result<void> sAdc(app::pack::VoltageBuffer &voltage_buffer);
     [[nodiscard]] result<void>
         xAdcTherm(ThermistorMux mux, app::pack::TemperatureBuffer &temp_buffer, PackTherms<result<float>> &voltages);
     [[nodiscard]] result<void> xAdcSupply(app::pack::SupplyBuffer &supply_buffer);
@@ -229,9 +229,10 @@ namespace read
 
 namespace command
 {
-    [[nodiscard]] result<void> startCadc(bool redundant);
+    [[nodiscard]] result<void> startCadc(bool continuous, bool redundant, OpenWireParity parity);
     [[nodiscard]] result<void> startSadc(bool continuous, OpenWireParity parity);
     [[nodiscard]] result<void> startAuxadc();
+    [[nodiscard]] result<void> pollCadc();
     [[nodiscard]] result<void> pollSadc();
     [[nodiscard]] result<void> pollXadc();
     [[nodiscard]] result<void> snap();

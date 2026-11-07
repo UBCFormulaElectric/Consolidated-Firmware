@@ -20,16 +20,18 @@ namespace config
 namespace owc
 {
     [[nodiscard]] OpenWireCheckBuffer check(
-        const io::adbms::PackCells<result<float>>  &odd_voltages,
-        const io::adbms::PackCells<result<float>>  &even_voltages,
-        const io::adbms::PackTherms<result<float>> &therm_voltages);
+        const io::adbms::PackCells<result<float>> &odd_voltages,
+        const io::adbms::PackCells<result<float>> &even_voltages);
+    [[nodiscard]] ThermOpenWireCheckBuffer checkTherms(const io::adbms::PackTherms<result<float>> &therm_voltages);
 } // namespace owc
 
 namespace broadcast
 {
     void cellVoltages(const VoltageBuffer &stats);
     void cellTemps(const TemperatureBuffer &stats);
-    void cellOpenWire(const OpenWireCheckBuffer &owc);
+    void cadcOpenWire(const OpenWireCheckBuffer &owc);
+    void sadcOpenWire(const OpenWireCheckBuffer &owc);
+    void thermOpenWire(const ThermOpenWireCheckBuffer &owc);
     void adbmsFlags(const DiagnosticBuffer &diag);
     void adbmsSupply(const SupplyBuffer &supply);
     void balancing(const io::adbms::PackCells<uint8_t> &duty);

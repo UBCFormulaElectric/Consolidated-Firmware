@@ -200,7 +200,7 @@ result<void> cAdc(const bool redundant, app::pack::VoltageBuffer &voltage_buffer
     return status;
 }
 
-result<void> sAdc(PackCells<result<float>> &owc_voltages)
+result<void> sAdc(app::pack::VoltageBuffer &voltage_buffer)
 {
     std::array<Segments<result<RegGroup>>, RDSV.size()> regs;
 
@@ -212,6 +212,9 @@ result<void> sAdc(PackCells<result<float>> &owc_voltages)
             status = res;
     }
 
+    app::pack::Reading max{ .value = std::numeric_limits<float>::lowest() };
+    app::pack::Reading min{ .value = std::numeric_limits<float>::max() };
+
     for (size_t seg = 0; seg < NUM_SEGMENTS; seg++)
     {
         for (size_t cell = 0; cell < CELLS_PER_SEGMENT; cell++)
@@ -221,7 +224,7 @@ result<void> sAdc(PackCells<result<float>> &owc_voltages)
 
             if (!reg)
             {
-                owc_voltages[seg][cell] = std::unexpected(reg.error());
+                voltage_buffer.voltages[seg][cell] = std::unexpected(reg.error());
                 continue;
             }
 
@@ -230,13 +233,37 @@ result<void> sAdc(PackCells<result<float>> &owc_voltages)
 
             if (raw == ADC_DEFAULT)
             {
-                owc_voltages[seg][cell] = std::unexpected(ErrorCode::INVALID_READING);
+                voltage_buffer.voltages[seg][cell] = std::unexpected(ErrorCode::INVALID_READING);
                 continue;
             }
 
-            owc_voltages[seg][cell] = static_cast<float>(raw) * ADC_LSB_V + ADC_OFFSET_V;
+            const float voltage = static_cast<float>(raw) * ADC_LSB_V + ADC_OFFSET_V;
+            voltage_buffer.voltages[seg][cell] = voltage;
+
+            if (voltage > max.value) max = { voltage, static_cast<uint8_t>(seg), static_cast<uint8_t>(cell) };
+            if (voltage < min.value) min = { voltage, static_cast<uint8_t>(seg), static_cast<uint8_t>(cell) };
         }
     }
+
+    if (max.value >= min.value)
+    {
+        voltage_buffer.max = max;
+        voltage_buffer.min = min;
+    }
+
+    // A single invalid cell makes the whole pack voltage invalid
+    result<float> pack_voltage = 0.0f;
+    for (const SegmentCells<result<float>> &segment : voltage_buffer.voltages)
+    {
+        for (const result<float> &voltage : segment)
+        {
+            if (pack_voltage)
+                pack_voltage = voltage ? *pack_voltage + *voltage : voltage;
+        }
+    }
+    voltage_buffer.pack_voltage = pack_voltage;
+
+    voltage_buffer.updated_ms = io::time::getCurrentMs();
     return status;
 }
 

@@ -54,13 +54,15 @@ constexpr uint32_t DIAG_STALE_MS = 3000;
 // Everything the alerts need, copied out of the shared buffers once per tick
 struct AlertData
 {
-    uint32_t                       now_ms   = 0U;
-    bool                           charging = false;
-    app::pack::VoltageBuffer       voltages{};
-    app::pack::TemperatureBuffer   temps{};
-    app::pack::OpenWireCheckBuffer owc{};
-    app::pack::DiagnosticBuffer    diag{};
-    app::pack::SupplyBuffer        supply{};
+    uint32_t                            now_ms   = 0U;
+    bool                                charging = false;
+    app::pack::VoltageBuffer            voltages{};
+    app::pack::TemperatureBuffer        temps{};
+    app::pack::OpenWireCheckBuffer      cadc_owc{};
+    app::pack::OpenWireCheckBuffer      sadc_owc{};
+    app::pack::ThermOpenWireCheckBuffer therm_owc{};
+    app::pack::DiagnosticBuffer         diag{};
+    app::pack::SupplyBuffer             supply{};
 };
 
 template <size_t BITS, size_t SEGMENTS> bool anyClear(const std::array<std::bitset<BITS>, SEGMENTS> &flags)
@@ -103,16 +105,21 @@ bool isUnderTempFault(const AlertData &s)
     return s.temps.updated_ms != 0U &&
            s.temps.min.value < (s.charging ? std::max(T_FAULT_UT, T_CHARGE_FAULT_UT) : T_FAULT_UT);
 }
+// Both the C-ADC and S-ADC open wire checks must pass
 bool isCellOpenWireFault(const AlertData &s)
 {
-    return s.owc.updated_ms != 0U && anyClear(s.owc.cells_owc_ok);
+    return (s.cadc_owc.updated_ms != 0U && anyClear(s.cadc_owc.cells_owc_ok)) ||
+           (s.sadc_owc.updated_ms != 0U && anyClear(s.sadc_owc.cells_owc_ok));
 }
 // ADBMS  OV/UV comparators, thermal shutdown, self test and supply, stale diagnostics/open wire results
 bool isHealthFault(const AlertData &s)
 {
-    return isStale(s.diag.updated_ms, DIAG_STALE_MS, s.now_ms) || isStale(s.owc.updated_ms, DIAG_STALE_MS, s.now_ms) ||
-           anyClear(s.diag.ov_ok) || anyClear(s.diag.uv_ok) || !s.diag.therm_shdn_ok.all() ||
-           !s.diag.self_test_ok.all() || !s.diag.supply_ok.all();
+    return isStale(s.diag.updated_ms, DIAG_STALE_MS, s.now_ms) ||
+           isStale(s.cadc_owc.updated_ms, DIAG_STALE_MS, s.now_ms) ||
+           isStale(s.sadc_owc.updated_ms, DIAG_STALE_MS, s.now_ms) ||
+           isStale(s.therm_owc.updated_ms, DIAG_STALE_MS, s.now_ms) || anyClear(s.diag.ov_ok) ||
+           anyClear(s.diag.uv_ok) || !s.diag.therm_shdn_ok.all() || !s.diag.self_test_ok.all() ||
+           !s.diag.supply_ok.all();
 }
 bool isItmpOverTempFault(const AlertData &s)
 {
@@ -161,7 +168,7 @@ bool isOverTempInfo(const AlertData &s)
 }
 bool isThermOpenWireInfo(const AlertData &s)
 {
-    return s.owc.updated_ms != 0U && anyClear(s.owc.therms_owc_ok);
+    return s.therm_owc.updated_ms != 0U && anyClear(s.therm_owc.therms_owc_ok);
 }
 bool isCellImbalanceInfo(const AlertData &s)
 {
@@ -237,7 +244,9 @@ bool tick()
         const io::semaphore::unique_semaphore lock{ buffer_lock };
         s.voltages = voltage_buffer;
         s.temps    = temp_buffer;
-        s.owc      = owc_buffer;
+        s.cadc_owc  = cadc_owc_buffer;
+        s.sadc_owc  = sadc_owc_buffer;
+        s.therm_owc = therm_owc_buffer;
         s.diag     = diag_buffer;
         s.supply   = supply_buffer;
         s.now_ms = io::time::getCurrentMs();

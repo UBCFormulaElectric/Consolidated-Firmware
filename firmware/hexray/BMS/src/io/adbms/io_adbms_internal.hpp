@@ -60,6 +60,7 @@ inline constexpr uint16_t OW0 =
     1U << 0; // open wire on even channels (C2, C4, ... in datasheet; odd cell indices in code)
 
 // Poll
+inline constexpr uint16_t PLCADC = 0x071CU;
 inline constexpr uint16_t PLSADC = 0x071DU;
 inline constexpr uint16_t PLAUX  = 0x071EU;
 

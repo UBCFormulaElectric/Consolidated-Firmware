@@ -86,7 +86,8 @@ SegmentBroadcaster<uint8_t, 5> cell_pwm_duty_setters(
     app::can_tx::BMS_CellPwmDuty_Seg0_Seg4_getData(),
     app::can_tx::BMS_CellPwmDuty_Seg5_Seg9_getData());
 
-SegmentBroadcaster<bool, 10> cell_owc_ok_setters(app::can_tx::BMS_CellOpenWireCheckOk_getData());
+SegmentBroadcaster<bool, 10> cadc_owc_ok_setters(app::can_tx::BMS_CadcCellOpenWireCheckOk_getData());
+SegmentBroadcaster<bool, 10> sadc_owc_ok_setters(app::can_tx::BMS_SadcCellOpenWireCheckOk_getData());
 SegmentBroadcaster<bool, 10, THERMISTORS_PER_SEGMENT> therm_owc_ok_setters(
     app::can_tx::BMS_ThermistorOpenWireCheckOk_getData());
 SegmentBroadcaster<bool, 10> cell_ov_ok_setters(app::can_tx::BMS_CellOverVoltageOk_getData());
@@ -143,13 +144,28 @@ void cellTemps(const TemperatureBuffer &stats)
     can_tx::BMS_MaxCellTempCell_set(stats.max.index);
 }
 
-void cellOpenWire(const OpenWireCheckBuffer &owc)
+void cadcOpenWire(const OpenWireCheckBuffer &owc)
 {
     for (uint8_t seg = 0; seg < NUM_SEGMENTS; seg++)
     {
         for (uint8_t cell = 0; cell < CELLS_PER_SEGMENT; cell++)
-            cell_owc_ok_setters[seg][cell] = owc.cells_owc_ok[seg][cell];
+            cadc_owc_ok_setters[seg][cell] = owc.cells_owc_ok[seg][cell];
+    }
+}
 
+void sadcOpenWire(const OpenWireCheckBuffer &owc)
+{
+    for (uint8_t seg = 0; seg < NUM_SEGMENTS; seg++)
+    {
+        for (uint8_t cell = 0; cell < CELLS_PER_SEGMENT; cell++)
+            sadc_owc_ok_setters[seg][cell] = owc.cells_owc_ok[seg][cell];
+    }
+}
+
+void thermOpenWire(const ThermOpenWireCheckBuffer &owc)
+{
+    for (uint8_t seg = 0; seg < NUM_SEGMENTS; seg++)
+    {
         for (uint8_t therm = 0; therm < THERMISTORS_PER_SEGMENT; therm++)
             therm_owc_ok_setters[seg][therm] = owc.therms_owc_ok[seg][therm];
     }

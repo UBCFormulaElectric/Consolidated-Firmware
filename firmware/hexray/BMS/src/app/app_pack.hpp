@@ -41,8 +41,13 @@ struct TemperatureBuffer
 
 struct OpenWireCheckBuffer
 {
-    uint32_t   updated_ms = 0U;
-    PackCellFlags  cells_owc_ok{};
+    uint32_t      updated_ms = 0U;
+    PackCellFlags cells_owc_ok{};
+};
+
+struct ThermOpenWireCheckBuffer
+{
+    uint32_t       updated_ms = 0U;
     PackThermFlags therms_owc_ok{};
 };
 
@@ -77,12 +82,14 @@ struct BalancingBuffer
     io::adbms::PackCells<result<float>> voltages{};
 };
 
-inline VoltageBuffer       voltage_buffer{};
-inline TemperatureBuffer   temp_buffer{};
-inline OpenWireCheckBuffer owc_buffer{};
-inline SupplyBuffer        supply_buffer{};
-inline DiagnosticBuffer    diag_buffer{};
-inline BalancingBuffer     balance_buffer{};
+inline VoltageBuffer            voltage_buffer{};
+inline TemperatureBuffer        temp_buffer{};
+inline OpenWireCheckBuffer      cadc_owc_buffer{};
+inline OpenWireCheckBuffer      sadc_owc_buffer{};
+inline ThermOpenWireCheckBuffer therm_owc_buffer{};
+inline SupplyBuffer             supply_buffer{};
+inline DiagnosticBuffer         diag_buffer{};
+inline BalancingBuffer          balance_buffer{};
 inline const io::semaphore::Semaphore buffer_lock{ true };
 
 namespace alerts
