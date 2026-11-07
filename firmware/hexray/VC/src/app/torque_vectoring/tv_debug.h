@@ -54,11 +54,19 @@ typedef struct
 
 typedef struct
 {
-    optimizer_info     optimizer;
-    yrc_info           yrc;
-    veh_state_info     veh_state;
-    veh_ekf_info       ekf_info;
-    accel_request_info accel_req;
+    double desired_power_draw;
+    double discharge_pl;
+    double charge_pl;
+} power_limiting_info;
+
+typedef struct
+{
+    optimizer_info      optimizer;
+    yrc_info            yrc;
+    veh_state_info      veh_state;
+    veh_ekf_info        ekf_info;
+    accel_request_info  accel_req;
+    power_limiting_info plim;
 } tv_debug;
 
 #ifdef __cplusplus

@@ -133,7 +133,7 @@ extern "C" void update_matlab(
 }
 
 void kappa_update_matlab(
-    double       kappas[4],
+    const double kappas[4],
     const double v_x,
     const double a_x,
     const double a_y,
@@ -146,6 +146,9 @@ void kappa_update_matlab(
     double       torque_request[4],
     double       speed_request[4],
     double       radial_deflection[4])
+    const double discharge_pl,
+    const double charge_pl,
+    tv_debug    *debug)
 {
     const auto to_wheel_set = [](const double w[4]) -> wheel_set<tv_real>
     {
@@ -195,6 +198,7 @@ void kappa_update_matlab(
     radial_deflection[1] = static_cast<double>(def_fr);
     radial_deflection[2] = static_cast<double>(def_rl);
     radial_deflection[3] = static_cast<double>(def_rr);
+    *debug   = tv_debug_data;
 }
 
 void estimate_matlab(

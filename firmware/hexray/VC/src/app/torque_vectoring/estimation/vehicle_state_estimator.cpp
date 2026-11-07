@@ -216,7 +216,7 @@ namespace
 
     [[nodiscard]] bool zSpeedPedalCondition()
     {
-        return (vehicle_state.apps < 0.02) && (vehicle_state.brake > 0.1);
+        return (vehicle_state.apps < 0.02f) && (vehicle_state.brake > 0.1f);
     }
 
     // Call once per estimate() cycle. Returns which axes are confirmed at zero velocity: {v_x, v_y}.

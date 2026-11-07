@@ -66,8 +66,6 @@ inline constexpr float FRONT_WEIGHT_DISTRIBUTION = WEIGHT_ACROSS_BODY * DIST_FRO
 // TODO: Verify all of these
 // Power Limits
 inline constexpr float RULES_BASED_POWER_LIMIT_KW = 80.0f; // FSAE maximum allowed power
-inline constexpr float POWER_LIMIT_CAR_kW         = 40.0f; // TODO: Update with hexray constants or remove
-inline constexpr float POWER_LIMIT_REGEN_kW       = 17.0f; // ~17.64kW = 30A charge for Molicel cells
                                                            // TODO: Verify if per motor or entire accumulator
 
 // Thermal Limits

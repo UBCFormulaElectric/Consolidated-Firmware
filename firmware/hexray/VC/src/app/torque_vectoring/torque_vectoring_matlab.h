@@ -49,7 +49,7 @@ extern "C"
      * speed_request is the motor speed setpoint in rad/s (for the Simulink power limiter)
      */
     void kappa_update_matlab(
-        double       kappas[4],
+        const double kappas[4],
         double       v_x,
         double       a_x,
         double       a_y,
@@ -62,6 +62,9 @@ extern "C"
         double       torque_request[4],
         double       speed_request[4],
         double       radial_deflection[4]);
+        const double discharge_pl,
+        const double charge_pl,
+        tv_debug    *debug);
 #ifdef __cplusplus
 }
 #endif

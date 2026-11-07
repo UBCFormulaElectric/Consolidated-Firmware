@@ -131,8 +131,12 @@ void jobs_run100Hz_tick()
                 .rr = MOTOR_RPM_TO_WHEEL_RADPS(static_cast<float>(app::can_rx::INVRR_ActualVelocity_get())),
             },
             .delta        = DEG_TO_RAD(app::can_rx::FSM_SteeringAngle_get()),
+            .apps         = app::can_rx::FSM_PappsMappedPedalPercentage_get(),
+            .brake        = static_cast<float>(app::can_rx::FSM_FrontBrakePressure_get()),
             .gps_vx_mps   = app::sbgEllipse::bodyVelX(),
             .gps_vy_mps   = app::sbgEllipse::bodyVelY(),
+            .discharge_power_limit = static_cast<float>(app::can_rx::BMS_ChargePowerLimit_get()),
+            .charge_power_limit = static_cast<float>(app::can_rx::BMS_DischargePowerLimit_get()),
             .sbg_ekf_mode = app::sbgEllipse::getEkfSolutionMode(),
         };
 
