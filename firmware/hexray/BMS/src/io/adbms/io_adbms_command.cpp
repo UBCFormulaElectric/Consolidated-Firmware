@@ -3,9 +3,14 @@
 
 namespace io::adbms::command
 {
-result<void> startCadc(const bool redundant)
+// Datasheet uses 1-indexing hence the odd/even switch bits are swapped
+result<void> startCadc(const bool continuous, const bool redundant, const OpenWireParity parity)
 {
-    return reversible::sendCmd(ADCV_BASE | CONT | (redundant ? RD : 0U));
+    return reversible::sendCmd(
+        ADCV_BASE | (continuous ? CONT : 0U) | (redundant ? RD : 0U) |
+        (parity == OpenWireParity::EVEN  ? OW1 // Enables odd switches specified in datasheet
+         : parity == OpenWireParity::ODD ? OW0 // Enables even switches specified in datasheet
+                                         : 0U));
 }
 
 // Datasheet uses 1-indexing hence the odd/even switch bits are swapped
@@ -21,6 +26,11 @@ result<void> startSadc(const bool continuous, const OpenWireParity parity)
 result<void> startAuxadc()
 {
     return reversible::sendCmd(ADAX_BASE);
+}
+
+result<void> pollCadc()
+{
+    return reversible::poll(PLCADC);
 }
 
 result<void> pollSadc()

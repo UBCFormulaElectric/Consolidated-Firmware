@@ -13,9 +13,8 @@ constexpr float THERM_OWC_V_HIGH = 2.8f;
 namespace app::pack::owc
 {
 OpenWireCheckBuffer check(
-    const io::adbms::PackCells<result<float>>  &odd_voltages,
-    const io::adbms::PackCells<result<float>>  &even_voltages,
-    const io::adbms::PackTherms<result<float>> &therm_voltages)
+    const io::adbms::PackCells<result<float>> &odd_voltages,
+    const io::adbms::PackCells<result<float>> &even_voltages)
 {
     OpenWireCheckBuffer owc{};
 
@@ -32,7 +31,18 @@ OpenWireCheckBuffer check(
             const bool  even_ok         = even >= OWC_V_LOW && even <= OWC_V_HIGH;
             owc.cells_owc_ok[seg][cell] = odd_ok && even_ok;
         }
+    }
 
+    owc.updated_ms = io::time::getCurrentMs();
+    return owc;
+}
+
+ThermOpenWireCheckBuffer checkTherms(const io::adbms::PackTherms<result<float>> &therm_voltages)
+{
+    ThermOpenWireCheckBuffer owc{};
+
+    for (size_t seg = 0; seg < io::adbms::NUM_SEGMENTS; seg++)
+    {
         for (size_t therm = 0; therm < io::adbms::THERMISTORS_PER_SEGMENT; therm++)
         {
             if (!therm_voltages[seg][therm])
