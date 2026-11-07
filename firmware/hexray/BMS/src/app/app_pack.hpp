@@ -11,6 +11,8 @@
 namespace app::pack
 {
 
+inline constexpr int32_t CELLS_IN_PARALLEL = 4U;
+    
 using PackCellFlags    = std::array<std::bitset<io::adbms::CELLS_PER_SEGMENT>, io::adbms::NUM_SEGMENTS>;
 using PackThermFlags   = std::array<std::bitset<io::adbms::THERMISTORS_PER_SEGMENT>, io::adbms::NUM_SEGMENTS>;
 using SegmentFlags     = std::bitset<io::adbms::NUM_SEGMENTS>;
