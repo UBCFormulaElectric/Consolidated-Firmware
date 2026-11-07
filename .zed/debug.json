@@ -177,7 +177,9 @@
         "--device",
         "STM32H733VG",
         "--build",
-        "cmake --build build_fw_dev --target hexray_VC.hex"
+        "cmake --build build_fw_dev --target hexray_VC.hex",
+        "--flash", // temp added this to VC only
+        "build_fw_dev/firmware/hexray/VC/hexray_VC.hex"
       ]
     }
   },
