@@ -16,6 +16,9 @@ enum class ErrorCode
     INVALID_READING,
     ERROR_INDETERMINATE,
     POLL_INVALID,
+    STALE_VALUE,
+    MISMATCH,
+    CMD_COUNT_MISMATCH,
     NUM_EXIT_CODES,
 };
 
@@ -47,6 +50,12 @@ constexpr const char *error_code_to_string(const ErrorCode code)
             return "Indeterminate error";
         case ErrorCode::POLL_INVALID:
             return "Poll invalid";
+        case ErrorCode::STALE_VALUE:
+            return "Value too old to use";
+        case ErrorCode::MISMATCH:
+            return "Readback did not match what was written";
+        case ErrorCode::CMD_COUNT_MISMATCH:
+            return "Command counter did not match expected (missed command)";
         case ErrorCode::NUM_EXIT_CODES:
         default:
             return "Unknown error code";
