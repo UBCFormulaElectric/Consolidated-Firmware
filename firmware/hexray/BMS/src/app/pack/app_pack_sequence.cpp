@@ -29,9 +29,8 @@ io::adbms::PackTherms<result<float>> therm_voltages{};
 
 result<void>                                      measureOnEntry();
 void                                              measureOnTick();
-result<void>                                      balanceOnEntry();
-void                                              balanceOnTick();
-result<void>                                      balanceOnExit();
+template <io::adbms::ThermistorMux> result<void>  balanceOnEntry();
+template <io::adbms::ThermistorMux> void          balanceOnTick();
 template <io::adbms::ThermistorMux> result<void>  tempOnEntry();
 template <io::adbms::ThermistorMux> void          tempOnTick();
 result<void>                                      tempOnExit();
@@ -46,10 +45,15 @@ const app::Fsm::State measure_state{"CONTINUOUS REDUNDANT PRIMARY VOLTAGE MEASUR
                                     measureOnEntry,
                                     measureOnTick, 
                                     nullptr};
-const app::Fsm::State balance_state{ "CONTINUOUS PRIMARY VOLTAGE MEASUREMENTS; BALANCE",   
-                                    balanceOnEntry, 
-                                    balanceOnTick,
-                                    balanceOnExit };
+const app::Fsm::State balance_a_state{ "CONTINUOUS PRIMARY VOLTAGE MEASUREMENTS; THERM_0_7 TEMP MEASUREMENTS; BALANCE",
+                                       balanceOnEntry<io::adbms::ThermistorMux::THERM_0_7>,
+                                       balanceOnTick<io::adbms::ThermistorMux::THERM_0_7>,
+                                       nullptr };
+const app::Fsm::State balance_b_state{ "CONTINUOUS PRIMARY VOLTAGE MEASUREMENTS; THERM_8_13 TEMP MEASUREMENTS; "
+                                       "THERM OPEN WIRE CHECK; BALANCE",
+                                       balanceOnEntry<io::adbms::ThermistorMux::THERM_8_13>,
+                                       balanceOnTick<io::adbms::ThermistorMux::THERM_8_13>,
+                                       tempOnExit };
 const app::Fsm::State temp_a_state{ "CONTINUOUS REDUNDANT PRIMARY VOLTAGE MEASUREMENTS; THERM_0_7 TEMP MEASUREMENTS; "
                                     "DIAGNOSTICS",
                                     tempOnEntry<io::adbms::ThermistorMux::THERM_0_7>,
@@ -92,31 +96,35 @@ app::Fsm fsm;
         │         │     cowc_timer     │     sowc_timer     │         │ balancing   │ !balancing ||
    temp_timer     │        (5 s)       │        (5 s)       │         │ && settled  │ balance_timer
       (1 s)       │     && settled     │     && settled     │         │ (10 s)      │ (60 s)
+        ▼         │          ▼         │          ▼         │         ▼             │ from A or B
+  ┌───────────┐   │    ┌───────────┐   │    ┌───────────┐   │   ┌───────────────────┴─────┐
+  │   TEMP_A  │   │    │   COWC_A  │   │    │   SOWC_A  │   │   │        BALANCE_A        │
+  │ therms 0-7│   │    │ C-ADC odd │   │    │ S-ADC odd │   │   │        therms 0-7       │
+  └─────┬─────┘   │    └─────┬─────┘   │    └─────┬─────┘   │   └─────┬─────────────▲─────┘
+        │ done    │          │ done    │          │ done    │         │ done        │ done
         ▼         │          ▼         │          ▼         │         ▼             │
   ┌───────────┐   │    ┌───────────┐   │    ┌───────────┐   │   ┌───────────────────┴─────┐
-  │   TEMP_A  │   │    │   COWC_A  │   │    │   SOWC_A  │   │   │         BALANCE         │
-  │ therms 0-7│   │    │ C-ADC odd │   │    │ S-ADC odd │   │   │  C-ADC no RD, S-ADC off │
-  └─────┬─────┘   │    └─────┬─────┘   │    └─────┬─────┘   │   └─────────────────────────┘
-        │ done    │          │ done    │          │ done    │
-        ▼         │          ▼         │          ▼         │
-  ┌───────────┐   │    ┌───────────┐   │    ┌───────────┐   │
-  │   TEMP_B  ├───┘    │   COWC_B  ├───┘    │   SOWC_B  ├───┘
-  │therms 8-13│ done   │ C-ADC even│ done   │ S-ADC even│ done
-  └───────────┘        └───────────┘        └───────────┘
+  │   TEMP_B  ├───┘    │   COWC_B  ├───┘    │   SOWC_B  ├───┘   │        BALANCE_B        │
+  │therms 8-13│ done   │ C-ADC even│ done   │ S-ADC even│ done  │       therms 8-13       │
+  └───────────┘        └───────────┘        └───────────┘       └─────────────────────────┘
 
-  TIMERS    temp_timer     1 s  from TEMP_B exit to the next TEMP_A
+  TIMERS    temp_timer     1 s  from TEMP_B / BALANCE_B exit to the next TEMP_A
             cowc_timer     5 s  from COWC_B exit to the next COWC_A
             sowc_timer     5 s  from SOWC_B exit to the next SOWC_A
-            balance_timer 60 s  from BALANCE entry until it hands back to MEASURE
-            settle_timer  10 s  from BALANCE exit until voltages feed balance_buffer and BALANCE, COWC
-                                and SOWC can be entered
+            balance_timer 60 s  from MEASURE -> BALANCE_A until balancing hands back to MEASURE
+            settle_timer  10 s  from leaving BALANCE_A/B until voltages feed balance_buffer and BALANCE_A,
+                                COWC and SOWC can be entered
 
-  MEASURE   entry:  start C-ADC (cont, RD on), S-ADC (cont)
+  MEASURE   entry:  stop balance, start C-ADC (cont, RD on), S-ADC (cont)
             tick:   read C-ADC, copy into balance_buffer once settled
                     priority: temp_timer > cowc_timer > sowc_timer > balance (all but temps wait for settled)
-  BALANCE   entry:  restart balance_timer, load pwm, C-ADC (cont, RD off), S-ADC off, start balance
-            tick:   read C-ADC
-            exit:   restart settle_timer, stop balance
+                    restart balance_timer when going to BALANCE_A
+  BALANCE_A/B
+            entry:  set therm mux (0-7 / 8-13), load pwm, C-ADC (cont, RD off), S-ADC off, start AUX ADC,
+                    start balance
+            tick:   read C-ADC; once AUX ready read therms, supply; read flags; then hop to the other half
+                    leaving for MEASURE restarts settle_timer
+            exit:   none on A; B does the therm OWC check -> therm_owc_buffer, restart temp_timer
   TEMP_A/B  entry:  set therm mux (0-7 / 8-13), C-ADC (cont, RD on), S-ADC (cont), start AUX ADC
             tick:   read C-ADC; once AUX ready read therms, supply; read flags
             B exit: therm OWC check -> therm_owc_buffer, restart temp_timer
@@ -132,6 +140,8 @@ app::Fsm fsm;
 result<void> measureOnEntry()
 {
     RETURN_IF_ERR(io::adbms::command::resetCmdCount());
+    RETURN_IF_ERR(io::adbms::command::stopBalance());
+    app::pack::broadcast::balancing({});
     RETURN_IF_ERR(app::pack::config::setSegmentConfig(io::adbms::ThermistorMux::THERM_0_7));
     RETURN_IF_ERR(app::pack::config::checkSegmentConfig());
     RETURN_IF_ERR(io::adbms::command::startCadc(true, true, io::adbms::OpenWireParity::NONE)); // CONT on, RD on
@@ -173,54 +183,77 @@ void measureOnTick()
     else if (settled && sowc_timer.updateAndGetState() == app::Timer::TimerState::EXPIRED)
         fsm.setNextState(sowc_a_state);
     else if (balancing_enabled && settled)
-        fsm.setNextState(balance_state);
+    {
+        balance_timer.restart();
+        fsm.setNextState(balance_a_state);
+    }
 }
 
-result<void> balanceOnEntry()
+template <io::adbms::ThermistorMux therm_mux> result<void> balanceOnEntry()
 {
-    balance_timer.restart();
     RETURN_IF_ERR(io::adbms::command::resetCmdCount());
     io::adbms::PackCells<uint8_t> duty;
     {
         const io::semaphore::unique_semaphore s{ app::pack::buffer_lock };
         duty = app::pack::balance_buffer.pwm;
     }
-    RETURN_IF_ERR(app::pack::config::setSegmentConfig(io::adbms::ThermistorMux::THERM_0_7));
+    RETURN_IF_ERR(app::pack::config::setSegmentConfig(therm_mux));
     RETURN_IF_ERR(app::pack::config::checkSegmentConfig());
     RETURN_IF_ERR(app::pack::config::setPWMConfig(duty));
     RETURN_IF_ERR(app::pack::config::checkPWMConfig());
     app::pack::broadcast::balancing(duty);
     RETURN_IF_ERR(io::adbms::command::startCadc(true, false, io::adbms::OpenWireParity::NONE)); // CONT on, RD off
     RETURN_IF_ERR(io::adbms::command::startSadc(false, io::adbms::OpenWireParity::NONE));       // CONT off
+    RETURN_IF_ERR(io::adbms::command::startAuxadc());
     RETURN_IF_ERR(io::adbms::command::startBalance());
     return {};
 }
 
-void balanceOnTick()
+template <io::adbms::ThermistorMux therm_mux> void balanceOnTick()
 {
     LOG_IF_ERR(io::adbms::command::resetCmdCount());
+
+    const bool xadc_ready = io::adbms::command::pollXadc().has_value();
+
     LOG_IF_ERR(io::adbms::command::snap());
     LOG_IF_ERR(io::adbms::read::cAdc(false, voltages)); // RD off
     app::pack::broadcast::cellVoltages(voltages);
+
+    if (xadc_ready)
+    {
+        LOG_IF_ERR(io::adbms::read::xAdcTherm(therm_mux, temps, therm_voltages));
+        LOG_IF_ERR(io::adbms::read::xAdcSupply(supply));
+        app::pack::broadcast::cellTemps(temps);
+        app::pack::broadcast::adbmsSupply(supply);
+    }
+
+    LOG_IF_ERR(io::adbms::read::flags(diag));
+    app::pack::broadcast::adbmsFlags(diag);
+    LOG_IF_ERR(io::adbms::write::clearAllFlags());
+    LOG_IF_ERR(io::adbms::command::unsnap());
+
     bool balancing_enabled;
     {
         const io::semaphore::unique_semaphore s{ app::pack::buffer_lock };
         app::pack::voltage_buffer = voltages;
+        app::pack::temp_buffer    = temps;
+        app::pack::diag_buffer    = diag;
+        app::pack::supply_buffer  = supply;
         balancing_enabled         = app::pack::balance_buffer.balancing_enabled;
     }
-    LOG_IF_ERR(io::adbms::command::unsnap());
 
     if (!balancing_enabled || balance_timer.updateAndGetState() == app::Timer::TimerState::EXPIRED)
+    {
+        settle_timer.restart();
         fsm.setNextState(measure_state);
-}
-
-result<void> balanceOnExit()
-{
-    settle_timer.restart();
-    RETURN_IF_ERR(io::adbms::command::resetCmdCount());
-    RETURN_IF_ERR(io::adbms::command::stopBalance());
-    app::pack::broadcast::balancing({});
-    return {};
+    }
+    else if (xadc_ready)
+    {
+        if constexpr (therm_mux == io::adbms::ThermistorMux::THERM_0_7)
+            fsm.setNextState(balance_b_state);
+        else
+            fsm.setNextState(balance_a_state);
+    }
 }
 
 template <io::adbms::ThermistorMux therm_mux> result<void> tempOnEntry()
