@@ -24,7 +24,6 @@ constexpr io::adbms::Segments<io::adbms::CFGA> createConfigA()
         reg_a.comm_bk   = 0x00;
         reg_a.mute_st   = 0x01;
         reg_a.snap_st   = 0x00;
-
     }
     return config;
 }
@@ -52,8 +51,8 @@ constexpr io::adbms::Segments<io::adbms::CFGB> createConfigB()
 
 io::adbms::Segments<io::adbms::CFGA>           config_a = createConfigA();
 constexpr io::adbms::Segments<io::adbms::CFGB> config_b = createConfigB();
-io::adbms::Segments<io::adbms::PWMA> pwm_a{};
-io::adbms::Segments<io::adbms::PWMB> pwm_b{};
+io::adbms::Segments<io::adbms::PWMA>           pwm_a{};
+io::adbms::Segments<io::adbms::PWMB>           pwm_b{};
 } // namespace
 
 namespace app::pack::config
@@ -72,13 +71,13 @@ result<void> setPWMConfig(const io::adbms::PackCells<uint8_t> &duty)
     for (uint8_t seg = 0; seg < io::adbms::NUM_SEGMENTS; seg++)
     {
         const auto &d = duty[seg];
-        pwm_a[seg]    = { static_cast<uint8_t>(d[0] & 0x0F), static_cast<uint8_t>(d[1] & 0x0F),
-                          static_cast<uint8_t>(d[2] & 0x0F), static_cast<uint8_t>(d[3] & 0x0F),
-                          static_cast<uint8_t>(d[4] & 0x0F), static_cast<uint8_t>(d[5] & 0x0F),
-                          static_cast<uint8_t>(d[6] & 0x0F), static_cast<uint8_t>(d[7] & 0x0F),
-                          static_cast<uint8_t>(d[8] & 0x0F), static_cast<uint8_t>(d[9] & 0x0F),
+        pwm_a[seg]    = { static_cast<uint8_t>(d[0] & 0x0F),  static_cast<uint8_t>(d[1] & 0x0F),
+                          static_cast<uint8_t>(d[2] & 0x0F),  static_cast<uint8_t>(d[3] & 0x0F),
+                          static_cast<uint8_t>(d[4] & 0x0F),  static_cast<uint8_t>(d[5] & 0x0F),
+                          static_cast<uint8_t>(d[6] & 0x0F),  static_cast<uint8_t>(d[7] & 0x0F),
+                          static_cast<uint8_t>(d[8] & 0x0F),  static_cast<uint8_t>(d[9] & 0x0F),
                           static_cast<uint8_t>(d[10] & 0x0F), static_cast<uint8_t>(d[11] & 0x0F) };
-        pwm_b[seg] = { static_cast<uint8_t>(d[12] & 0x0F), static_cast<uint8_t>(d[13] & 0x0F), 0, 0, 0xFFFFFFFFu };
+        pwm_b[seg]    = { static_cast<uint8_t>(d[12] & 0x0F), static_cast<uint8_t>(d[13] & 0x0F), 0, 0, 0xFFFFFFFFu };
     }
 
     return io::adbms::write::pwmReg(pwm_a, pwm_b);

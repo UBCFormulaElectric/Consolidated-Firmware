@@ -94,12 +94,11 @@ SegmentBroadcaster<uint8_t, 5> cell_pwm_duty_setters(
 
 SegmentBroadcaster<bool, 10> cadc_owc_ok_setters(app::can_tx::BMS_CadcCellOpenWireCheckOk_getData());
 SegmentBroadcaster<bool, 10> sadc_owc_ok_setters(app::can_tx::BMS_SadcCellOpenWireCheckOk_getData());
-SegmentBroadcaster<bool, 10, THERMISTORS_PER_SEGMENT> therm_owc_ok_setters(
-    app::can_tx::BMS_ThermistorOpenWireCheckOk_getData());
-SegmentBroadcaster<bool, 10> cell_ov_ok_setters(app::can_tx::BMS_CellOverVoltageOk_getData());
-SegmentBroadcaster<bool, 10> cell_uv_ok_setters(app::can_tx::BMS_CellUnderVoltageOk_getData());
-SegmentBroadcaster<bool, 10, 1> segment_therm_shdn_ok_setters(
-    app::can_tx::BMS_SegmentThermShutdownOk_getData());
+SegmentBroadcaster<bool, 10, THERMISTORS_PER_SEGMENT>
+                                therm_owc_ok_setters(app::can_tx::BMS_ThermistorOpenWireCheckOk_getData());
+SegmentBroadcaster<bool, 10>    cell_ov_ok_setters(app::can_tx::BMS_CellOverVoltageOk_getData());
+SegmentBroadcaster<bool, 10>    cell_uv_ok_setters(app::can_tx::BMS_CellUnderVoltageOk_getData());
+SegmentBroadcaster<bool, 10, 1> segment_therm_shdn_ok_setters(app::can_tx::BMS_SegmentThermShutdownOk_getData());
 SegmentBroadcaster<bool, 10, 1> segment_self_test_ok_setters(app::can_tx::BMS_SegmentSelfTestOk_getData());
 SegmentBroadcaster<bool, 10, 1> segment_supply_ok_setters(app::can_tx::BMS_SegmentSupplyOk_getData());
 } // namespace
@@ -155,8 +154,7 @@ void thermVoltages(const io::adbms::PackTherms<result<float>> &voltages)
     for (uint8_t seg = 0; seg < NUM_SEGMENTS; seg++)
     {
         for (uint8_t therm = 0; therm < THERMISTORS_PER_SEGMENT; therm++)
-            therm_voltage_setters[seg][therm] =
-                std::clamp(voltages[seg][therm].value_or(INVALID_VOLTAGE), -0.1f, 5.0f);
+            therm_voltage_setters[seg][therm] = std::clamp(voltages[seg][therm].value_or(INVALID_VOLTAGE), -0.1f, 5.0f);
     }
 }
 

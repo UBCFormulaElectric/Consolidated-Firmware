@@ -41,14 +41,14 @@ enum class OpenWireParity
 
 enum class ThermistorMux
 {
-    THERM_0_7, // GPIO9 is set low
+    THERM_0_7,  // GPIO9 is set low
     THERM_8_13, // GPIO9 is set high
 };
 
 struct __attribute__((packed)) CFGA
 {
-    uint8_t cth : 3;    // C-ADC vs. S-ADC comparison voltage threshold
-    uint8_t : 4;       
+    uint8_t cth : 3; // C-ADC vs. S-ADC comparison voltage threshold
+    uint8_t : 4;
     uint8_t ref_on : 1; // reference powered up, enables REFUP state
 
     uint8_t flag_d; // asserts flags in Status Reg C for latent fault detection (pg. 70)
@@ -61,7 +61,7 @@ struct __attribute__((packed)) CFGA
     uint8_t gpio_1_8; // GPIOx pin control
 
     uint8_t gpio_9_10 : 2; // GPIOx pin control
-    uint8_t : 6;           
+    uint8_t : 6;
 
     uint8_t fc : 3;      // IIR filter parameter, see table 21
     uint8_t comm_bk : 1; // communication break, propagation communication prevention
@@ -100,8 +100,8 @@ struct __attribute__((packed)) CFGB
     bool operator==(const CFGB &other) const
     {
         return vuv_0_7 == other.vuv_0_7 && vuv_8_11 == other.vuv_8_11 && vov_0_3 == other.vov_0_3 &&
-               vov_4_11 == other.vov_4_11 && dtrng == other.dtrng && dtmen == other.dtmen &&
-               dcc_1_8 == other.dcc_1_8 && dcc_9_16 == other.dcc_9_16;
+               vov_4_11 == other.vov_4_11 && dtrng == other.dtrng && dtmen == other.dtmen && dcc_1_8 == other.dcc_1_8 &&
+               dcc_9_16 == other.dcc_9_16;
     }
 };
 static_assert(sizeof(CFGB) == REG_GROUP_SIZE);

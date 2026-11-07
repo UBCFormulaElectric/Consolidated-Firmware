@@ -21,7 +21,7 @@ namespace
 // Per-cell charge thresholds
 constexpr float CELL_V_TAPER_START = 4.10f; // V
 constexpr float CELL_V_TERMINATE   = 4.17f; // V
-constexpr float CELL_V_MAX_CHARGE  = 4.19f; // V, 
+constexpr float CELL_V_MAX_CHARGE  = 4.19f; // V,
 constexpr float I_TERMINATE_A      = 0.5f;  // A
 
 // Pack-level target commanded to the Elcon
@@ -93,8 +93,8 @@ namespace chargeState
         }
         // Cells are essentially full AND Elcon has already tapered down
         // Both conditions required (high V + high I = mid-CV-ramp, low I + low V = idle)
-        const bool charging_done = voltages_valid && (max_cell_v >= CELL_V_TERMINATE) &&
-                                   (app::charger::getOutputCurrent() < I_TERMINATE_A);
+        const bool charging_done =
+            voltages_valid && (max_cell_v >= CELL_V_TERMINATE) && (app::charger::getOutputCurrent() < I_TERMINATE_A);
         app::can_tx::BMS_ChargingDone_set(charging_done);
         app::can_tx::BMS_ChargingFaulted_set(fault_status);
 
