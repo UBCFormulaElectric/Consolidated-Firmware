@@ -1,3 +1,5 @@
+import { IS_MOCK } from "@/lib/constants";
+import { buildMockHistoricalPayload, waitForMockHistoricalSignal } from "@/lib/mock/historical";
 import { SignalType } from "../types/Signal";
 import { ENDPOINTS } from "@/lib/api/endpoints";
 
@@ -46,16 +48,20 @@ export async function fetchHistoricalSignal(params: { signalName: string; signal
     const agg = signalType === SignalType.NUMERICAL ? "mean" : "first";
     const url = `${ENDPOINTS.signalTiles(encodeURIComponent(signalName), start, end)}?agg=${agg}&source=${encodeURIComponent(JSON.stringify(source))}`;
 
-    const response = await fetch(url, {
-        cache: "no-store",
-    });
+    let payloadText: string;
+    if (IS_MOCK) {
+        await waitForMockHistoricalSignal();
+        payloadText = JSON.stringify(buildMockHistoricalPayload(signalName, Date.parse(start), Date.parse(end), source));
+    } else {
+        const response = await fetch(url, { cache: "no-store" });
 
-    if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Failed to fetch historical signal ${signalName}: ${response.status} ${errorText}`);
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`Failed to fetch historical signal ${signalName}: ${response.status} ${errorText}`);
+        }
+
+        payloadText = await response.text();
     }
-
-    const payloadText = await response.text();
     const { resolution_ms, rows } = parseHistoricalPayload(payloadText);
 
     return {
