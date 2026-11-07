@@ -41,17 +41,17 @@ constexpr float    T_WARN_ITMP_OT   = 75.0f;
 constexpr uint32_t INFO_DEBOUNCE_MS           = 100;
 constexpr uint32_t INFO_OWC_DEBOUNCE_MS       = 5000;
 constexpr uint32_t INFO_IMBALANCE_DEBOUNCE_MS = 5000;
+constexpr uint32_t INFO_T_INVALID_DEBOUNCE_MS = 3000;
 constexpr float    V_INFO_UV                  = 2.8f;
 constexpr float    V_INFO_OV                  = 4.15f;
 constexpr float    V_INFO_IMBALANCE           = 0.1f;
 constexpr float    T_INFO_OT                  = 45.0f;
 constexpr float    T_CHARGE_INFO_OT           = 40.0f;
 
-// Voltages are read every ADBMS tick (50 ms), everything else once per diagnostic cycle (~1 s)
 constexpr uint32_t V_STALE_MS    = 500;
 constexpr uint32_t DIAG_STALE_MS = 3000;
+constexpr uint32_t OWC_STALE_MS = BALANCE_PERIOD_MS + SETTLE_MS + std::max(COWC_PERIOD_MS, SOWC_PERIOD_MS);
 
-// Everything the alerts need, copied out of the shared buffers once per tick
 struct AlertData
 {
     uint32_t                            now_ms   = 0U;
@@ -76,6 +76,7 @@ template <size_t N> bool anyInvalid(const io::adbms::Segments<std::array<result<
         [](const std::array<result<float>, N> &segment)
         { return std::ranges::any_of(segment, [](const result<float> &reading) { return !reading; }); });
 }
+
 // ADBMS stops updating data
 bool isStale(const uint32_t updated_ms, const uint32_t stale_ms, const uint32_t now_ms)
 {
@@ -105,18 +106,18 @@ bool isUnderTempFault(const AlertData &s)
     return s.temps.updated_ms != 0U &&
            s.temps.min.value < (s.charging ? std::max(T_FAULT_UT, T_CHARGE_FAULT_UT) : T_FAULT_UT);
 }
-// Both the C-ADC and S-ADC open wire checks must pass
+// Both C-ADC and S-ADC open wire checks must pass
 bool isCellOpenWireFault(const AlertData &s)
 {
     return (s.cadc_owc.updated_ms != 0U && anyClear(s.cadc_owc.cells_owc_ok)) ||
            (s.sadc_owc.updated_ms != 0U && anyClear(s.sadc_owc.cells_owc_ok));
 }
-// ADBMS  OV/UV comparators, thermal shutdown, self test and supply, stale diagnostics/open wire results
+// OV/UV comparators, thermal shutdown, self test, supply, and stale diagnostic or open wire results
 bool isHealthFault(const AlertData &s)
 {
     return isStale(s.diag.updated_ms, DIAG_STALE_MS, s.now_ms) ||
-           isStale(s.cadc_owc.updated_ms, DIAG_STALE_MS, s.now_ms) ||
-           isStale(s.sadc_owc.updated_ms, DIAG_STALE_MS, s.now_ms) ||
+           isStale(s.cadc_owc.updated_ms, OWC_STALE_MS, s.now_ms) ||
+           isStale(s.sadc_owc.updated_ms, OWC_STALE_MS, s.now_ms) ||
            isStale(s.therm_owc.updated_ms, DIAG_STALE_MS, s.now_ms) || anyClear(s.diag.ov_ok) ||
            anyClear(s.diag.uv_ok) || !s.diag.therm_shdn_ok.all() || !s.diag.self_test_ok.all() ||
            !s.diag.supply_ok.all();
@@ -170,6 +171,10 @@ bool isThermOpenWireInfo(const AlertData &s)
 {
     return s.therm_owc.updated_ms != 0U && anyClear(s.therm_owc.therms_owc_ok);
 }
+bool isTempInvalidInfo(const AlertData &s)
+{
+    return s.temps.updated_ms != 0U && anyInvalid(s.temps.temperatures);
+}
 bool isCellImbalanceInfo(const AlertData &s)
 {
     return s.voltages.updated_ms != 0U && s.voltages.max.value - s.voltages.min.value > V_INFO_IMBALANCE;
@@ -201,11 +206,12 @@ std::array<Entry, 5> warning_entries = { {
     { &isItmpOverTempWarn, &app::can_alerts::warnings::ItmpOverTemp_set, Timer{ WARN_DEBOUNCE_MS } },
 } };
 
-std::array<Entry, 5> info_entries = { {
+std::array<Entry, 6> info_entries = { {
     { &isUnderVoltageInfo, &app::can_alerts::infos::CellUnderVoltage_set, Timer{ INFO_DEBOUNCE_MS } },
     { &isOverVoltageInfo, &app::can_alerts::infos::CellOverVoltage_set, Timer{ INFO_DEBOUNCE_MS } },
     { &isOverTempInfo, &app::can_alerts::infos::CellOverTemp_set, Timer{ INFO_DEBOUNCE_MS } },
     { &isThermOpenWireInfo, &app::can_alerts::infos::ThermOpenWire_set, Timer{ INFO_OWC_DEBOUNCE_MS } },
+    { &isTempInvalidInfo, &app::can_alerts::infos::CellTempInvalid_set, Timer{ INFO_T_INVALID_DEBOUNCE_MS } },
     { &isCellImbalanceInfo, &app::can_alerts::infos::CellImbalance_set, Timer{ INFO_IMBALANCE_DEBOUNCE_MS } },
 } };
 
@@ -242,19 +248,18 @@ bool tick()
     AlertData s{};
     {
         const io::semaphore::unique_semaphore lock{ buffer_lock };
-        s.voltages = voltage_buffer;
-        s.temps    = temp_buffer;
+        s.voltages  = voltage_buffer;
+        s.temps     = temp_buffer;
         s.cadc_owc  = cadc_owc_buffer;
         s.sadc_owc  = sadc_owc_buffer;
         s.therm_owc = therm_owc_buffer;
-        s.diag     = diag_buffer;
-        s.supply   = supply_buffer;
-        s.now_ms = io::time::getCurrentMs();
+        s.diag      = diag_buffer;
+        s.supply    = supply_buffer;
+        s.now_ms    = io::time::getCurrentMs();
     }
     s.charging = app::StateMachine::get_current_state() == &app::states::charge_state;
 
-    //const bool fault_active = runEntries(fault_entries, s);
-    const bool fault_active = false;
+    const bool fault_active = runEntries(fault_entries, s);
     runEntries(warning_entries, s);
     runEntries(info_entries, s);
     return fault_active;
