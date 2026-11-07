@@ -80,7 +80,7 @@ const app::Fsm::State sowc_b_state{ "CONTINUOUS PRIMARY VOLTAGE MEASUREMENTS; EV
 app::Fsm fsm;
 
 /*
-                              ADBMS STATE MACHINE
+                                    ADBMS STATE MACHINE
 
                                         init
                                           │
