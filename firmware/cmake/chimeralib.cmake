@@ -1,7 +1,6 @@
 message("")
 message("⚙️ [chimeralib.cmake] Configuring Chimera Executable functions")
 
-add_subdirectory(chimera_v2/proto/quintuna_proto)
 add_subdirectory(chimera_v2/proto/hexray_proto)
 
 message(" 🔃 Registered add_chimera_stm32f4() function")

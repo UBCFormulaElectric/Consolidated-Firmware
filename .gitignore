@@ -144,6 +144,7 @@ build_fw_dev_wsl
 build_fw_chimera
 build_fw_test
 build_fw_test_wsl
+build_fw_test_msvc
 
 build_dimos_deploy*
 build_dimos_dev*

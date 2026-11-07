@@ -96,23 +96,26 @@ function pairsToSessions(pairs: SessionBoundaryPair[], timeZone: string): Histor
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
-// Synthesizes a backend-shaped payload (string ms, null-terminated last
-// session) for NEXT_PUBLIC_USE_MOCK_DATA=true, so the historical session
-// dropdown is usable without a running backend/InfluxDB. Runs through the
-// same parse/map path as real data. Four "boot events" across the UTC day,
-// the last one left open-ended to mirror an ongoing session.
+// Fixed short, multi-hour, and overnight sessions; every third day is empty.
+// Keep the backend's string-millisecond pairs and the real parse/map path.
 function buildMockSessionPairs(startUtcMs: number, endUtcMs: number): SessionBoundaryPair[] {
-    const bootMs: number[] = [];
+    const pairs: SessionBoundaryPair[] = [];
     const firstDayStart = Math.floor(startUtcMs / DAY_MS) * DAY_MS;
 
     for (let dayStart = firstDayStart; dayStart < endUtcMs; dayStart += DAY_MS) {
         if ((dayStart / DAY_MS) % 3 === 0) continue;
 
-        bootMs.push(dayStart + 9 * 60 * 60 * 1000); // 09:00 UTC
-        bootMs.push(dayStart + 15 * 60 * 60 * 1000); // 15:00 UTC
+        for (const [hour, durationMinutes] of [
+            [9, 10],
+            [15, 180],
+            [23, 120],
+        ]) {
+            const start = dayStart + hour * 60 * 60 * 1000;
+            if (start >= startUtcMs && start < endUtcMs) pairs.push([String(start), String(start + durationMinutes * 60000)]);
+        }
     }
 
-    return bootMs.filter((ms) => ms >= startUtcMs && ms < endUtcMs).map((ms, i, all) => [String(ms), i < all.length - 1 ? String(ms + 3 * 60 * 60 * 1000) : null] as SessionBoundaryPair);
+    return pairs;
 }
 
 export async function fetchHistoricalSessionsForRange(startUtcMs: number, endUtcMs: number, source: HistoricalSignalSource, timeZone: string): Promise<HistoricalSession[]> {

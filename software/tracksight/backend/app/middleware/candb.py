@@ -20,7 +20,7 @@ def _download_file(commit_sha, file, folder_path, save_dir):
     print(f"Downloaded: {file['path']}")
 
 
-_car = os.environ.get("CAR_NAME") or "quintuna"
+_car = os.environ.get("CAR_NAME") or "hexray"
 bus_configs_path = os.path.abspath(
     os.path.join(os.path.dirname(__file__), "../bus_configs", _car)
 )

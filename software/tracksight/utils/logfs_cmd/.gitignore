@@ -1,0 +1,6 @@
+# MF4 files written by the logfs_cmd `export` command.
+exports/
+
+# The root .gitignore ignores *.bat and dotfiles; these belong to the launcher.
+!logfs_cmd.bat
+!.gitattributes

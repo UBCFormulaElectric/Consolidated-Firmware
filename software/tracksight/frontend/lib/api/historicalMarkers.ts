@@ -1,5 +1,6 @@
 import { HistoricalSignalSource } from "@/lib/api/historicalSignals";
 import { API_BASE_URL, IS_MOCK } from "@/lib/constants";
+import { buildMockHistoricalMarkers } from "@/lib/mock/historical";
 
 import { TelemetryMarker } from "@/lib/telemetryMarkers";
 
@@ -18,7 +19,7 @@ function parseMarkerPayload(payloadText: string): number[] {
 }
 
 export async function fetchHistoricalMarkers(startUtcMs: number, endUtcMs: number, source: HistoricalSignalSource): Promise<TelemetryMarker[]> {
-    if (IS_MOCK) return [];
+    if (IS_MOCK) return parseMarkerPayload(JSON.stringify(buildMockHistoricalMarkers(startUtcMs, endUtcMs))).map((timestampMs) => ({ timestampMs }));
 
     const start = toIsoUtcSeconds(startUtcMs);
     const end = toIsoUtcSeconds(endUtcMs);

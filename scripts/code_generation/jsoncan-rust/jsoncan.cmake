@@ -126,4 +126,4 @@ endfunction()
 #
 #message("")
 #message("Configuring JSONCAN")
-#log_bus_load("quintuna")
+#log_bus_load("hexray")

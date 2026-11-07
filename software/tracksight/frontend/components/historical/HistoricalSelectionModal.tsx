@@ -70,7 +70,7 @@ type StepTabProps = {
 
 function StepTab({ index, label, value, isActive, isComplete, onClick }: StepTabProps) {
     return (
-        <button type="button" onClick={onClick} className={cn("flex w-full min-w-0 items-center gap-2.5 rounded border px-3 py-2 text-left transition-colors outline-none hover:cursor-pointer focus:outline-none focus-visible:outline-none", isActive ? "border-blue-500 bg-blue-100" : "border-black hover:border-black/75")}>
+        <button type="button" onClick={onClick} aria-current={isActive ? "step" : undefined} className={cn("flex w-full min-w-0 items-center gap-2.5 rounded border px-3 py-2 text-left transition-colors hover:cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600", isActive ? "border-blue-500 bg-blue-100" : "border-black hover:border-black/75")}>
             <span className={cn("flex size-5 shrink-0 items-center justify-center text-sm font-bold", isActive ? "text-blue-600" : isComplete ? "text-blue-500" : "text-gray-400")}>{isComplete && !isActive ? <Check className="size-4" strokeWidth={3} /> : index}</span>
             <span className="min-w-0">
                 <span className="block text-[0.65rem] font-semibold uppercase tracking-wide text-gray-500">{label}</span>
@@ -117,14 +117,14 @@ function DateStep({ displayMonth, onDisplayMonthChange, selectedDate, onDateSele
     return (
         <div className="overflow-hidden rounded border border-black">
             <div className="flex items-center justify-between gap-3 border-b border-black bg-gray-100 px-3 py-2">
-                <button type="button" className="flex size-8 items-center justify-center rounded border border-black bg-white text-gray-700 transition-colors hover:cursor-pointer hover:border-black/75" onClick={() => onDisplayMonthChange(createUtcDate(displayMonth.getUTCFullYear(), displayMonth.getUTCMonth() - 1, 1))}>
+                <button type="button" aria-label="Previous month" className="flex size-8 items-center justify-center rounded border border-black bg-white text-gray-700 transition-colors hover:cursor-pointer hover:border-black/75" onClick={() => onDisplayMonthChange(createUtcDate(displayMonth.getUTCFullYear(), displayMonth.getUTCMonth() - 1, 1))}>
                     <ChevronLeft className="size-5" />
                 </button>
                 <span className="flex items-center gap-2 text-base font-bold text-gray-900">
                     {MONTH_NAMES[displayMonth.getUTCMonth()]} {displayMonth.getUTCFullYear()}
                     {isLoading ? <Loader2 className="size-4 animate-spin text-blue-500" /> : null}
                 </span>
-                <button type="button" className="flex size-8 items-center justify-center rounded border border-black bg-white text-gray-700 transition-colors hover:cursor-pointer hover:border-black/75" onClick={() => onDisplayMonthChange(createUtcDate(displayMonth.getUTCFullYear(), displayMonth.getUTCMonth() + 1, 1))}>
+                <button type="button" aria-label="Next month" className="flex size-8 items-center justify-center rounded border border-black bg-white text-gray-700 transition-colors hover:cursor-pointer hover:border-black/75" onClick={() => onDisplayMonthChange(createUtcDate(displayMonth.getUTCFullYear(), displayMonth.getUTCMonth() + 1, 1))}>
                     <ChevronRight className="size-5" />
                 </button>
             </div>
@@ -142,7 +142,7 @@ function DateStep({ displayMonth, onDisplayMonthChange, selectedDate, onDateSele
                     const hasSessions = daysWithSessions.has(key);
 
                     return (
-                        <button key={date.toISOString()} type="button" disabled={!hasSessions} onClick={() => onDateSelect(date)} className={cn("relative mx-auto flex size-10 flex-col items-center justify-center rounded text-base font-semibold transition-colors", isSelected ? "bg-blue-100 text-blue-500" : hasSessions ? "text-gray-800 hover:cursor-pointer hover:bg-blue-100/50" : inCurrentMonth ? "cursor-not-allowed text-gray-400" : "cursor-not-allowed text-gray-300")}>
+                        <button key={date.toISOString()} type="button" aria-label={`${date.toLocaleDateString("en-US", { dateStyle: "full", timeZone: "UTC" })}${hasSessions ? " — sessions available" : " — no sessions"}`} disabled={!hasSessions} onClick={() => onDateSelect(date)} className={cn("relative mx-auto flex size-10 flex-col items-center justify-center rounded text-base font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-blue-600", isSelected ? "bg-blue-100 text-blue-500" : hasSessions ? "text-gray-800 hover:cursor-pointer hover:bg-blue-100/50" : inCurrentMonth ? "cursor-not-allowed text-gray-400" : "cursor-not-allowed text-gray-300")}>
                             <span>{date.getUTCDate()}</span>
                             <span className={cn("absolute bottom-1 size-1.5 rounded-full", hasSessions ? "bg-blue-500" : "bg-transparent")} />
                         </button>

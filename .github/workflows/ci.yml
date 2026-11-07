@@ -40,22 +40,6 @@ jobs:
           - board: h5dev
             ioc_dir: firmware/dev/h5dev/src/cubemx
           - board: BMS
-            ioc_dir: firmware/quintuna/BMS/src/cubemx
-          - board: CRIT
-            ioc_dir: firmware/quintuna/CRIT/src/cubemx
-          - board: DAM
-            ioc_dir: firmware/quintuna/DAM/src/cubemx
-          - board: FSM
-            ioc_dir: firmware/quintuna/FSM/src/cubemx
-          - board: RSM
-            ioc_dir: firmware/quintuna/RSM/src/cubemx
-          - board: VC
-            ioc_dir: firmware/quintuna/VC/src/cubemx
-          - board: VCR
-            ioc_dir: firmware/quintuna/VCR/src/cubemx
-          - board: PCM
-            ioc_dir: firmware/quintuna/PCM/src/cubemx
-          - board: BMS
             ioc_dir: firmware/hexray/BMS/src/cubemx
           - board: CRIT
             ioc_dir: firmware/hexray/CRIT/src/cubemx
@@ -179,18 +163,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # - board: BMS
-          #   car: quintuna
-          #- board: CRIT
-          #  car: quintuna
-          #- board: DAM
-          #  car: quintuna
-          #- board: FSM
-          #  car: quintuna
-          #- board: RSM
-          #  car: quintuna
-          #- board: VC
-          #  car: quintuna
           - board: BMS
             car: hexray
           - board: CRIT
