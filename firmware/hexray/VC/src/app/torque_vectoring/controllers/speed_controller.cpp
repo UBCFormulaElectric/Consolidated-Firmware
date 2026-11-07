@@ -1,6 +1,9 @@
 #include "speed_controller.hpp"
 #include "torque_vectoring/controllers/controllers_config.hpp"
+#include "torque_vectoring/shared_datatypes/constants.hpp"
 #include <algorithm>
+
+using namespace app::tv::shared_datatypes::vd_constants;
 
 namespace app::tv::controllers::speed_controller
 {
@@ -22,14 +25,30 @@ static float wheelTorque(
     return std::clamp(pid.compute(speed_request_radps, omega_radps, tire_ffb_Nm), torque_min_Nm, torque_max_Nm);
 }
 
+static float calculateTireForceFeedback(const float F_x_N, const float radial_deflection_m, const float M_y_Nm)
+{
+    const float loaded_radius_m = std::fmax(WHEEL_RADIUS_M - radial_deflection_m, 0.0f);
+    const float wheel_torque_Nm = M_y_Nm - F_x_N * loaded_radius_m;
+    return -wheel_torque_Nm / GEAR_RATIO;
+}
+
 template <Decimal T>
 shared_datatypes::wheel_set<T> computeTorque(
     const shared_datatypes::wheel_set<T> &speed_request_radps,
     const shared_datatypes::wheel_set<T> &omega_radps,
-    const shared_datatypes::wheel_set<T> &tire_ffb_Nm,
+    const shared_datatypes::wheel_set<T> &F_x_N,
+    const shared_datatypes::wheel_set<T> &radial_deflection_m,
+    const shared_datatypes::wheel_set<T> &M_y_Nm,
     const shared_datatypes::wheel_set<T> &torque_max_Nm,
     const shared_datatypes::wheel_set<T> &torque_min_Nm)
 {
+    const shared_datatypes::wheel_set<T> tire_ffb_Nm = {
+        .fl = calculateTireForceFeedback(F_x_N.fl, radial_deflection_m.fl, M_y_Nm.fl),
+        .fr = calculateTireForceFeedback(F_x_N.fr, radial_deflection_m.fr, M_y_Nm.fr),
+        .rl = calculateTireForceFeedback(F_x_N.rl, radial_deflection_m.rl, M_y_Nm.rl),
+        .rr = calculateTireForceFeedback(F_x_N.rr, radial_deflection_m.rr, M_y_Nm.rr),
+    };
+
     return { .fl = wheelTorque(
                  pid_fl, speed_request_radps.fl, omega_radps.fl, tire_ffb_Nm.fl, torque_max_Nm.fl, torque_min_Nm.fl),
              .fr = wheelTorque(
@@ -42,7 +61,9 @@ shared_datatypes::wheel_set<T> computeTorque(
 template shared_datatypes::wheel_set<tv_real> computeTorque(
     const shared_datatypes::wheel_set<tv_real> &speed_request_radps,
     const shared_datatypes::wheel_set<tv_real> &omega_radps,
-    const shared_datatypes::wheel_set<tv_real> &tire_ffb_Nm,
+    const shared_datatypes::wheel_set<tv_real> &F_x_N,
+    const shared_datatypes::wheel_set<tv_real> &radial_deflection_m,
+    const shared_datatypes::wheel_set<tv_real> &M_y_Nm,
     const shared_datatypes::wheel_set<tv_real> &torque_max_Nm,
     const shared_datatypes::wheel_set<tv_real> &torque_min_Nm);
 
