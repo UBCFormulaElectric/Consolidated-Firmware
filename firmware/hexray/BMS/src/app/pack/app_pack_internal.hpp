@@ -35,6 +35,7 @@ namespace broadcast
 {
     void cellVoltages(const VoltageBuffer &stats);
     void cellTemps(const TemperatureBuffer &stats);
+    void thermVoltages(const io::adbms::PackTherms<result<float>> &voltages);
     void cadcOpenWire(const OpenWireCheckBuffer &owc);
     void sadcOpenWire(const OpenWireCheckBuffer &owc);
     void thermOpenWire(const ThermOpenWireCheckBuffer &owc);

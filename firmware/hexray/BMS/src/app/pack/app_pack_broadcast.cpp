@@ -59,6 +59,12 @@ SegmentBroadcaster<float, 2, THERMISTORS_PER_SEGMENT> cell_temperature_setters(
 SegmentBroadcaster<app::can_utils::ErrorCode, 5, THERMISTORS_PER_SEGMENT> cell_temperature_error_setters(
     app::can_tx::BMS_CellTempErrors_Seg0_Seg4_getData(),
     app::can_tx::BMS_CellTempErrors_Seg5_Seg9_getData());
+SegmentBroadcaster<float, 2, THERMISTORS_PER_SEGMENT> therm_voltage_setters(
+    app::can_tx::BMS_ThermVoltages_Seg0_Seg1_getData(),
+    app::can_tx::BMS_ThermVoltages_Seg2_Seg3_getData(),
+    app::can_tx::BMS_ThermVoltages_Seg4_Seg5_getData(),
+    app::can_tx::BMS_ThermVoltages_Seg6_Seg7_getData(),
+    app::can_tx::BMS_ThermVoltages_Seg8_Seg9_getData());
 
 SegmentBroadcaster<float, 10, 1> segment_vmv_setters(app::can_tx::BMS_SegmentVmv_getData());
 SegmentBroadcaster<float, 10, 1> segment_vpv_setters(app::can_tx::BMS_SegmentVpv_getData());
@@ -142,6 +148,16 @@ void cellTemps(const TemperatureBuffer &stats)
     can_tx::BMS_MaxCellTemp_set(stats.max.value);
     can_tx::BMS_MaxCellTempSegment_set(stats.max.segment);
     can_tx::BMS_MaxCellTempCell_set(stats.max.index);
+}
+
+void thermVoltages(const io::adbms::PackTherms<result<float>> &voltages)
+{
+    for (uint8_t seg = 0; seg < NUM_SEGMENTS; seg++)
+    {
+        for (uint8_t therm = 0; therm < THERMISTORS_PER_SEGMENT; therm++)
+            therm_voltage_setters[seg][therm] =
+                std::clamp(voltages[seg][therm].value_or(INVALID_VOLTAGE), -0.1f, 5.0f);
+    }
 }
 
 void cadcOpenWire(const OpenWireCheckBuffer &owc)

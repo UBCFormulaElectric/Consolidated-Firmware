@@ -218,6 +218,7 @@ template <io::adbms::ThermistorMux therm_mux> void balanceOnTick()
         LOG_IF_ERR(io::adbms::read::xAdcTherm(therm_mux, temps, therm_voltages));
         LOG_IF_ERR(io::adbms::read::xAdcSupply(supply));
         app::pack::broadcast::cellTemps(temps);
+        app::pack::broadcast::thermVoltages(therm_voltages);
         app::pack::broadcast::adbmsSupply(supply);
     }
 
@@ -276,6 +277,7 @@ template <io::adbms::ThermistorMux therm_mux> void tempOnTick()
         LOG_IF_ERR(io::adbms::read::xAdcTherm(therm_mux, temps, therm_voltages));
         LOG_IF_ERR(io::adbms::read::xAdcSupply(supply));
         app::pack::broadcast::cellTemps(temps);
+        app::pack::broadcast::thermVoltages(therm_voltages);
         app::pack::broadcast::adbmsSupply(supply);
     }
 
