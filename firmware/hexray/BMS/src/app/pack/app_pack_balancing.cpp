@@ -11,7 +11,6 @@
 namespace
 {
 constexpr float   DISCHARGE_THRESHOLD_V = 5e-3f;
-constexpr float   FULL_DUTY_DELTA_V     = 25e-3f;
 constexpr uint8_t MAX_DUTY              = 0x0F;
 
 uint32_t pwm_updated_ms = 0U;
@@ -64,9 +63,7 @@ io::adbms::PackCells<uint8_t>
             if (delta < DISCHARGE_THRESHOLD_V)
                 continue;
 
-            // Duty derates linearly as cell approaches thershold
-            duty[seg][cell] = static_cast<uint8_t>(
-                std::lround(app::math::linearDerating(delta, MAX_DUTY, FULL_DUTY_DELTA_V, 0.0f, INCREASE_X)));
+            duty[seg][cell] = MAX_DUTY;
         }
     }
     return duty;
