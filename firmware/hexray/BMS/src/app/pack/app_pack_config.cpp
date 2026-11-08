@@ -1,6 +1,8 @@
 #include "app_pack.hpp"
 #include "app_pack_internal.hpp"
 
+#include <algorithm>
+
 namespace
 {
 
@@ -63,7 +65,15 @@ result<void> setSegmentConfig(const io::adbms::ThermistorMux mux)
     {
         config_a[seg].gpio_9_10 = 0x2 | (mux == io::adbms::ThermistorMux::THERM_8_13);
     }
-    return io::adbms::write::configReg(config_a, config_b);
+
+    io::adbms::Segments<result<io::adbms::CFGA>> readback_a;
+    io::adbms::Segments<result<io::adbms::CFGB>> readback_b;
+    RETURN_IF_ERR(io::adbms::read::configReg(readback_a, readback_b));
+    if (!std::ranges::equal(readback_a, config_a))
+        RETURN_IF_ERR(io::adbms::write::configReg(config_a));
+    if (!std::ranges::equal(readback_b, config_b))
+        RETURN_IF_ERR(io::adbms::write::configReg(config_b));
+    return {};
 }
 
 result<void> setPWMConfig(const io::adbms::PackCells<uint8_t> &duty)
@@ -80,7 +90,14 @@ result<void> setPWMConfig(const io::adbms::PackCells<uint8_t> &duty)
         pwm_b[seg]    = { static_cast<uint8_t>(d[12] & 0x0F), static_cast<uint8_t>(d[13] & 0x0F), 0, 0, 0xFFFFFFFFu };
     }
 
-    return io::adbms::write::pwmReg(pwm_a, pwm_b);
+    io::adbms::Segments<result<io::adbms::PWMA>> readback_a;
+    io::adbms::Segments<result<io::adbms::PWMB>> readback_b;
+    RETURN_IF_ERR(io::adbms::read::pwmReg(readback_a, readback_b));
+    if (!std::ranges::equal(readback_a, pwm_a))
+        RETURN_IF_ERR(io::adbms::write::pwmReg(pwm_a));
+    if (!std::ranges::equal(readback_b, pwm_b))
+        RETURN_IF_ERR(io::adbms::write::pwmReg(pwm_b));
+    return {};
 }
 
 result<void> checkSegmentConfig()

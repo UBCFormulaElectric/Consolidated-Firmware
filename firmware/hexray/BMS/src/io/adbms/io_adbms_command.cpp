@@ -14,10 +14,11 @@ result<void> startCadc(const bool continuous, const bool redundant, const OpenWi
 }
 
 // Datasheet uses 1-indexing hence the odd/even switch bits are swapped
+// Single shots keep PWM balancing running, outside balancing it is muted anyway
 result<void> startSadc(const bool continuous, const OpenWireParity parity)
 {
     return reversible::sendCmd(
-        ADSV_BASE | (continuous ? CONT : 0U) |
+        ADSV_BASE | (continuous ? CONT : DCP) |
         (parity == OpenWireParity::EVEN  ? OW1 // Enables odd switches specified in datasheet
          : parity == OpenWireParity::ODD ? OW0 // Enables even switches specified in datasheet
                                          : 0U));

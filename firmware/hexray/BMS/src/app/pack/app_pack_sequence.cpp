@@ -81,7 +81,7 @@ app::Fsm fsm;
   └─────┬─────────▲──────────┬─────────▲──────────┬─────────▲─────────┬─────────────▲───┘
         │         │     cowc_timer     │     sowc_timer     │         │ balancing   │ !balancing ||
    temp_timer     │        (5 s)       │        (5 s)       │         │ && settled  │ balance_timer
-      (1 s)       │     && settled     │     && settled     │         │ (10 s)      │ (60 s)
+      (1 s)       │     && settled     │     && settled     │         │ (10 s)      │ (120 s)
         ▼         │          ▼         │          ▼         │         ▼             │ from A or B
   ┌───────────┐   │    ┌───────────┐   │    ┌───────────┐   │   ┌───────────────────┴─────┐
   │   TEMP_A  │   │    │   COWC_A  │   │    │   SOWC_A  │   │   │        BALANCE_A        │
@@ -97,7 +97,7 @@ app::Fsm fsm;
   TIMERS    temp_timer     1 s  from TEMP_B / BALANCE_B exit to the next TEMP_A
             cowc_timer     5 s  from COWC_B exit to the next COWC_A
             sowc_timer     5 s  from SOWC_B exit to the next SOWC_A
-            balance_timer 60 s  from MEASURE -> BALANCE_A until balancing hands back to MEASURE
+            balance_timer 120 s from MEASURE -> BALANCE_A until balancing hands back to MEASURE
             settle_timer  10 s  from leaving BALANCE_A/B until voltages feed balance_buffer and BALANCE_A,
                                 COWC and SOWC can be entered
 
