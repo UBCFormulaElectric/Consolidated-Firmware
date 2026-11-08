@@ -18,13 +18,13 @@ using namespace vd_constants;
 
 tv_debug tv_debug_data{};
 
-template <Decimal T> ControlOutput<T> update(const VehicleState<T> &state)
+template <Decimal T> ControlOutput<T> update(const VehicleState<T> &state, const ControlsConfig config)
 {
     //------------------------------------- HIGH LEVEL CONTROLLER ----------------------------//
 
     // TODO: add regen enabled into state, as an argument into update, or in some other struct
     const accel_request::AccelRequest<T> ax_request =
-        accel_request::compute(state.apps, state.brake, state.v_x_mps, false);
+        accel_request::compute(state.apps, state.brake, state.v_x_mps, config.regen_enabled);
 
     // Direct yaw rate control: corrective yaw moment
     const T mz_setpoint_Nm =
@@ -57,15 +57,17 @@ template <Decimal T> ControlOutput<T> update(const VehicleState<T> &state)
 
     return { kappa_opt, torque_max, torque_min };
 }
-template ControlOutput<tv_real> update(const VehicleState<tv_real> &state);
+template ControlOutput<tv_real> update(const VehicleState<tv_real> &state, const ControlsConfig config);
 
-template <Decimal T> ControlOutputAutonomous<T> update_autonomous(const VehicleState<T> &state)
+template <Decimal T>
+ControlOutputAutonomous<T> update_autonomous(const VehicleState<T> &state, const ControlsConfig config)
 {
     (void)state;
     // TODO inshallah one day
     return {};
 }
-template ControlOutputAutonomous<tv_real> update_autonomous(const VehicleState<tv_real> &state);
+template ControlOutputAutonomous<tv_real>
+    update_autonomous(const VehicleState<tv_real> &state, const ControlsConfig config);
 
 //------------------------------------- KAPPA UPDATE --------------------------------------//
 namespace
@@ -106,82 +108,48 @@ wheel_set<T>
 }
 
 /**
- * Lowers the torques so their sum is at most max_net_Nm. Calculate an equal torque drop, see if one of
- * the wheels goes below the limit, if it does, redistribute the torque across that axle. If a single
- * axle is below the torque limit, redistribute its torque.
+ * Lowers the torques so the sum on each axle is at most max_axle_Nm, so torque does not move between the axles (brake
+ * balance). Both wheels on an axle drop by the same amount (keeps the yaw split); if one goes below its limit, the
+ * other wheel takes the rest. Assumes max_axle_Nm >= the sum of the axle's two lower limits.
  * @param torque_Nm per-wheel torque requests in Nm
  * @param torque_min_Nm per-wheel lower torque limits in Nm
- * @param max_net_Nm upper limit for the sum of the four torques in Nm
+ * @param max_axle_Nm upper limit for the sum of the two torques on each axle in Nm
  * @return the lowered per-wheel torque requests in Nm
  */
 template <Decimal T>
-wheel_set<T> limitNetTorque(wheel_set<T> torque_Nm, const wheel_set<T> &torque_min_Nm, const T max_net_Nm)
+wheel_set<T> limitAxleTorque(wheel_set<T> torque_Nm, const wheel_set<T> &torque_min_Nm, const T max_axle_Nm)
 {
-    const T net_torque_Nm = torque_Nm.fl + torque_Nm.fr + torque_Nm.rl + torque_Nm.rr;
-
-    if (net_torque_Nm <= max_net_Nm)
+    const auto limit_axle = [max_axle_Nm](T &left_Nm, T &right_Nm, const T min_left_Nm, const T min_right_Nm)
     {
-        return torque_Nm;
-    }
-
-    // Equal shift on all four wheels: the left/right differences (the yaw moment) are kept
-    const T    diff               = (max_net_Nm - net_torque_Nm) / T(4.0);
-    const bool left_front_outside = (torque_Nm.fl - torque_Nm.fr) > T(0);
-    const bool left_rear_outside  = (torque_Nm.rl - torque_Nm.rr) > T(0);
-
-    wheel_set<T> adj_torque_Nm = {
-        .fl = torque_Nm.fl + diff,
-        .fr = torque_Nm.fr + diff,
-        .rl = torque_Nm.rl + diff,
-        .rr = torque_Nm.rr + diff,
-    };
-
-    // if torque on one wheel on an axle goes below the limit, the torque will redistribute to the outer wheel.
-    // Returns the torque (<= 0) the axle cannot take when both wheels are at their limits.
-    const auto adj_out_of_bounds_torque = [](const bool left_outside, T &left_Nm, T &right_Nm, const T min_left_Nm,
-                                             const T min_right_Nm, const T other_axle_overflow_Nm) -> T
-    {
-        left_Nm += other_axle_overflow_Nm / T(2.0);
-        right_Nm += other_axle_overflow_Nm / T(2.0);
-
-        if (left_outside)
+        const T excess_Nm = left_Nm + right_Nm - max_axle_Nm;
+        if (excess_Nm <= T(0))
         {
-            if (right_Nm < min_right_Nm)
-            {
-                left_Nm -= min_right_Nm - right_Nm;
-                right_Nm = min_right_Nm;
-            }
-        }
-        else
-        {
-            if (left_Nm < min_left_Nm)
-            {
-                right_Nm -= min_left_Nm - left_Nm;
-                left_Nm = min_left_Nm;
-            }
+            return;
         }
 
-        const T overflow_Nm = std::min(left_Nm - min_left_Nm, T(0)) + std::min(right_Nm - min_right_Nm, T(0));
-        left_Nm             = std::max(left_Nm, min_left_Nm);
-        right_Nm            = std::max(right_Nm, min_right_Nm);
-        return overflow_Nm;
+        left_Nm -= excess_Nm / T(2.0);
+        right_Nm -= excess_Nm / T(2.0);
+
+        if (left_Nm < min_left_Nm)
+        {
+            right_Nm -= min_left_Nm - left_Nm;
+            left_Nm = min_left_Nm;
+        }
+        else if (right_Nm < min_right_Nm)
+        {
+            left_Nm -= min_right_Nm - right_Nm;
+            right_Nm = min_right_Nm;
+        }
     };
 
-    // Front then rear with the front overflow, then front again(with rear overflow
-    // overflow after the last call means all four wheels are at their limits and
-    // max_net_Nm cannot be reached
-    const T front_overflow_Nm = adj_out_of_bounds_torque(
-        left_front_outside, adj_torque_Nm.fl, adj_torque_Nm.fr, torque_min_Nm.fl, torque_min_Nm.fr, T(0));
-    const T rear_overflow_Nm = adj_out_of_bounds_torque(
-        left_rear_outside, adj_torque_Nm.rl, adj_torque_Nm.rr, torque_min_Nm.rl, torque_min_Nm.rr, front_overflow_Nm);
-    adj_out_of_bounds_torque(
-        left_front_outside, adj_torque_Nm.fl, adj_torque_Nm.fr, torque_min_Nm.fl, torque_min_Nm.fr, rear_overflow_Nm);
-
-    return adj_torque_Nm;
+    limit_axle(torque_Nm.fl, torque_Nm.fr, torque_min_Nm.fl, torque_min_Nm.fr);
+    limit_axle(torque_Nm.rl, torque_Nm.rr, torque_min_Nm.rl, torque_min_Nm.rr);
+    return torque_Nm;
 }
 } // namespace
 
-template <Decimal T> wheel_set<T> kappa_update(const ControlOutput<T> &control, const VehicleState<T> &state)
+template <Decimal T>
+wheel_set<T> kappa_update(const ControlOutput<T> &control, const VehicleState<T> &state, const ControlsConfig config)
 {
     // Stopped: nothing to track, so the integrators must not wind up (e.g. against the brakes at standstill)
     const auto stopped_speed_mps = static_cast<T>(speed_controller::STOPPED_SPEED_MPS);
@@ -194,7 +162,7 @@ template <Decimal T> wheel_set<T> kappa_update(const ControlOutput<T> &control, 
     // torque against them, and their integrators would wind up and push again when the brake is released. While the
     // driver brakes, hold the integrators at zero and do not allow a net positive torque.
     const bool braking = state.brake > static_cast<T>(BRAKE_ACTIVE_THRESHOLD);
-    if (braking)
+    if (braking && not config.regen_enabled)
     {
         speed_controller::reset();
     }
@@ -221,7 +189,7 @@ template <Decimal T> wheel_set<T> kappa_update(const ControlOutput<T> &control, 
 
     if (braking)
     {
-        torque_Nm = limitNetTorque(torque_Nm, control.torque_min, T(0));
+        torque_Nm = limitAxleTorque(torque_Nm, control.torque_min, T(0));
     }
 
     // The battery power limits come last: they are the hard limit from the BMS.
@@ -229,7 +197,10 @@ template <Decimal T> wheel_set<T> kappa_update(const ControlOutput<T> &control, 
         omega_radps, torque_Nm, control.torque_max, control.torque_min, state.discharge_pl, state.charge_pl);
 }
 
-template wheel_set<tv_real> kappa_update(const ControlOutput<tv_real> &control, const VehicleState<tv_real> &state);
+template wheel_set<tv_real> kappa_update(
+    const ControlOutput<tv_real> &control,
+    const VehicleState<tv_real>  &state,
+    const ControlsConfig          config);
 
 // Simulink (MATLAB C Function block) interface only; never called on the car.
 #ifndef TARGET_EMBEDDED
@@ -294,15 +265,17 @@ extern "C" void update_matlab(
     };
     const VehicleState<tv_real> state = app::tv::estimation::VehicleStateEstimator::estimate(meas);
 
+    const ControlsConfig config = { .regen_enabled = false };
+
     // High level controller and optimizer: slip ratio setpoints and torque limits
     if (tick++ % 5 == 0)
     {
-        control = update(state);
+        control = update(state, config);
     }
 
     // Speed controller, tire force feedforward and power limits. kappa_update works in motor speeds (what the
     // inverters report on the car).
-    const wheel_set<tv_real> torque = kappa_update(control, state);
+    const wheel_set<tv_real> torque = kappa_update(control, state, config);
 
     toArray(torque, torque_request);
     *debug = tv_debug_data;

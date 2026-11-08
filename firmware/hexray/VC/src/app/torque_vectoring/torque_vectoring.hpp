@@ -25,12 +25,19 @@ template <Decimal T> struct ControlOutputAutonomous
     const T                                 delta = 0;
 };
 
+struct ControlsConfig
+{
+    // TODO: add other controls related configs here like drive mode
+    bool regen_enabled = false;
+};
+
 /**
  * This is the main entrypoint into the low level vehicle controls algorithm
  * @param state The current measured vehicle state, note that intent is in here as well
  * @return The per-wheel torque requests to achieve the desired accelerations, in Newton-meters
  */
-template <Decimal T> ControlOutput<T> update(const app::tv::shared_datatypes::VehicleState<T> &state);
+template <Decimal T>
+ControlOutput<T> update(const app::tv::shared_datatypes::VehicleState<T> &state, const ControlsConfig config);
 
 /**
  * This is the main entrypoint into the low level vehicle controls algorithm for autonomous
@@ -38,7 +45,8 @@ template <Decimal T> ControlOutput<T> update(const app::tv::shared_datatypes::Ve
  * @return
  */
 template <Decimal T>
-ControlOutputAutonomous<T> update_autonomous(const app::tv::shared_datatypes::VehicleState<T> &state);
+ControlOutputAutonomous<T>
+    update_autonomous(const app::tv::shared_datatypes::VehicleState<T> &state, const ControlsConfig config);
 
 /**
  * Given the slip ratio setpoints, computes the motor speed setpoints that achieve them at the current vehicle speed
@@ -50,13 +58,10 @@ ControlOutputAutonomous<T> update_autonomous(const app::tv::shared_datatypes::Ve
  * @param state current vehicle state: estimated v_x / v_y in m/s and yaw rate (wheel speeds over ground, slip angles),
  * body accelerations in m/s^2 (ISO 8855, y left) for the wheel loads' load transfer, measured wheel speeds, steer
  * angles and the brake pedal
- * @param discharge_pl power limit when discharging the battery pack in W, from the BMS
- * @param charge_pl power limit when charging the battery pack (regen) in W, from the BMS
  * @return per-wheel motor torque requests in Nm
  */
 template <Decimal T>
 app::tv::shared_datatypes::wheel_set<T> kappa_update(
     const ControlOutput<T>                           &control,
     const app::tv::shared_datatypes::VehicleState<T> &state,
-    T                                                 discharge_pl,
-    T                                                 charge_pl);
+    const ControlsConfig                              config);
