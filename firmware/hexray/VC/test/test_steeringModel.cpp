@@ -15,7 +15,7 @@ using namespace app::controls;
 
 TEST_F(TVSteeringModelTest, ZeroSteeringAngle)
 {
-    wheel_set<float> ws_ang_rad = steering::wheel_steer_angles(0.0f);
+    wheel_set<float> ws_ang_rad = steering::wheelSteerAngles(0.0f);
 
     ASSERT_FLOAT_EQ(ws_ang_rad.rr, 0.0f);
     ASSERT_FLOAT_EQ(ws_ang_rad.rl, 0.0f);
@@ -25,7 +25,7 @@ TEST_F(TVSteeringModelTest, ZeroSteeringAngle)
 
 TEST_F(TVSteeringModelTest, MaxSteeringAngleRightTurn)
 {
-    wheel_set<float> ws_ang_rad = steering::wheel_steer_angles(params::STEER_WHEEL_RANGE_rad);
+    wheel_set<float> ws_ang_rad = steering::wheelSteerAngles(params::STEER_WHEEL_RANGE_rad);
 
     ASSERT_FLOAT_EQ(ws_ang_rad.rr, 0.0f);
     ASSERT_FLOAT_EQ(ws_ang_rad.rl, 0.0f);
@@ -35,7 +35,7 @@ TEST_F(TVSteeringModelTest, MaxSteeringAngleRightTurn)
 
 TEST_F(TVSteeringModelTest, MaxSteeringAngleLeftTurn)
 {
-    wheel_set<float> ws_ang_rad = steering::wheel_steer_angles(-params::STEER_WHEEL_RANGE_rad);
+    wheel_set<float> ws_ang_rad = steering::wheelSteerAngles(-params::STEER_WHEEL_RANGE_rad);
 
     ASSERT_FLOAT_EQ(ws_ang_rad.rr, 0.0f);
     ASSERT_FLOAT_EQ(ws_ang_rad.rl, 0.0f);

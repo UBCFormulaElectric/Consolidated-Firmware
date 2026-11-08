@@ -6,14 +6,14 @@ namespace app::controls::actuation::speed_controller
 {
 // The car counts as stopped (speed controllers reset) while the estimated |v_x| and |v_y| are both below this. The
 // estimate is never exactly 0; at standstill the zero-speed update holds it within a few mm/s.
-inline constexpr float STOPPED_SPEED_MPS = 0.05f;
+inline constexpr float STOPPED_SPEED_mps = 0.05f;
 
 // actual velocity in INVRL is the motor rpm so no need to multiply by gear ratio.
 /**
  * @brief Computes the motor torques that track the motor speed setpoints, with a PID per wheel and the tire force
  * feedforward.
  *
- * @param motor_speed_request_radps motor speed request setpoints from kappa_update in rad/s
+ * @param motor_omega_setpoint_radps motor speed setpoints from kappaUpdate in rad/s
  * @param motor_omega_radps  measured motor speeds in rad/s
  *
  * for tire ffb calculation
@@ -28,7 +28,7 @@ inline constexpr float STOPPED_SPEED_MPS = 0.05f;
  *
  * */
 [[nodiscard]] wheel_set<float> computeTorque(
-    const wheel_set<float> &motor_speed_request_radps,
+    const wheel_set<float> &motor_omega_setpoint_radps,
     const wheel_set<float> &motor_omega_radps,
     const wheel_set<float> &fx_N,
     const wheel_set<float> &radial_deflection_m,

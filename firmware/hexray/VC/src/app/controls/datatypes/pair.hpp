@@ -12,18 +12,18 @@ template <DecimalOrDual T> struct Pair
 
 // {
 //
-// // inline float slipRatioToWheelAngularVelocity(const float slip_ratio, const float v_x_mps)
+// // inline float slipRatioToWheelAngularVelocity(const float slip_ratio, const float vx_mps)
 // // {
 // //     // Avoid division by zero at very low speeds
-// //     if (std::fabs(v_x_mps) < params::SMALL_EPSILON)
+// //     if (std::fabs(vx_mps) < params::SMALL_EPSILON)
 // //         return 0.0f;
-// //     return (1.0f + slip_ratio) * (v_x_mps / params::WHEEL_RADIUS_M);
+// //     return (1.0f + slip_ratio) * (vx_mps / params::WHEEL_RADIUS_m);
 // // }
 //
 
 //
 // inline float calculateSlipRatio(const float omega, const float vx)
 // {
-//     return (vx - omega * params::WHEEL_RADIUS_M) / safe_vx(vx);
+//     return (vx - omega * params::WHEEL_RADIUS_m) / safeVx(vx);
 // }
 // } // namespace app::controls

@@ -126,7 +126,7 @@ void jobs_run100Hz_tick()
         const app::controls::estimation::Measurements meas = {
             .ax_mps2        = app::imu::getAccelX().value_or(0.0f) * GRAVITY,
             .ay_mps2        = app::imu::getAccelY().value_or(0.0f) * GRAVITY,
-            .yaw_rate_radps = DEG_TO_RAD(app::imu::getGyroZ().value_or(0.0f)),
+            .r_radps = DEG_TO_RAD(app::imu::getGyroZ().value_or(0.0f)),
             .wheel_omega_radps   = {
                 .fl = MOTOR_RPM_TO_WHEEL_RADPS(static_cast<float>(app::can_rx::INVFL_ActualVelocity_get())),
                 .fr = MOTOR_RPM_TO_WHEEL_RADPS(static_cast<float>(app::can_rx::INVFR_ActualVelocity_get())),
@@ -140,16 +140,16 @@ void jobs_run100Hz_tick()
             .gps_vy_mps   = app::sbgEllipse::bodyVelY(),
             .discharge_limit_W = static_cast<float>(app::can_rx::BMS_DischargePowerLimit_get()),
             .charge_limit_W = static_cast<float>(app::can_rx::BMS_ChargePowerLimit_get()),
-            .sbg_ekf_mode = app::sbgEllipse::getEkfSolutionMode(),
+            .sbg_ekf_status = app::sbgEllipse::getEkfSolutionMode(),
         };
 
         const app::controls::VehicleState vehicle_state = app::controls::estimation::state_estimator::estimate(meas);
 
         const veh_ekf_info &ekf = tv_debug_data.ekf_info;
-        app::can_tx::VC_EkfEstVx_set(vehicle_state.v_x_mps);
-        app::can_tx::VC_EkfEstVy_set(vehicle_state.v_y_mps);
-        app::can_tx::VC_EkfPredVx_set(static_cast<float>(ekf.pred_v_x_mps));
-        app::can_tx::VC_EkfPredVy_set(static_cast<float>(ekf.pred_v_y_mps));
+        app::can_tx::VC_EkfEstVx_set(vehicle_state.vx_mps);
+        app::can_tx::VC_EkfEstVy_set(vehicle_state.vy_mps);
+        app::can_tx::VC_EkfPredVx_set(static_cast<float>(ekf.pred_vx_mps));
+        app::can_tx::VC_EkfPredVy_set(static_cast<float>(ekf.pred_vy_mps));
         app::can_tx::VC_EkfPredMotorRpmFL_set(
             WHEEL_RADPS_TO_MOTOR_RPM(static_cast<float>(ekf.pred_wheel_omega_radps[0])));
         app::can_tx::VC_EkfPredMotorRpmFR_set(

@@ -16,7 +16,7 @@ namespace app::controls::actuation
 inline wheel_set<float>
     limitAxleTorque(wheel_set<float> torque_Nm, const wheel_set<float> &torque_min_Nm, const float max_axle_Nm)
 {
-    const auto limit_axle =
+    const auto limitAxle =
         [max_axle_Nm](float &left_Nm, float &right_Nm, const float min_left_Nm, const float min_right_Nm)
     {
         const float excess_Nm = left_Nm + right_Nm - max_axle_Nm;
@@ -40,8 +40,8 @@ inline wheel_set<float>
         }
     };
 
-    limit_axle(torque_Nm.fl, torque_Nm.fr, torque_min_Nm.fl, torque_min_Nm.fr);
-    limit_axle(torque_Nm.rl, torque_Nm.rr, torque_min_Nm.rl, torque_min_Nm.rr);
+    limitAxle(torque_Nm.fl, torque_Nm.fr, torque_min_Nm.fl, torque_min_Nm.fr);
+    limitAxle(torque_Nm.rl, torque_Nm.rr, torque_min_Nm.rl, torque_min_Nm.rr);
     return torque_Nm;
 }
 } // namespace app::controls::actuation

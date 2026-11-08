@@ -107,11 +107,11 @@ template DecimalDual<float> TireModel::computeCombinedFy_N<DecimalDual<float>>(
     float                     slip_angle_rad,
     const DecimalDual<float> &slip_ratio) const;
 
-float TireModel::effectiveRollingRadius_m(const float fz_N, const float v_x_mps) const
+float TireModel::effectiveRollingRadius_m(const float fz_N, const float vx_mps) const
 {
     // MF 6.2 with dpi = 0 and linear vertical stiffness, so the normalized deflection rho_d = Fz / Fz0.
     // Free-rolling Omega * R0 ~= v_x is used in the centrifugal growth term.
-    const float speed_ratio        = v_x_mps / rolling_radius_.LONGVL;
+    const float speed_ratio        = vx_mps / rolling_radius_.LONGVL;
     const float r_omega            = R0 * (rolling_radius_.Q_RE0 + rolling_radius_.Q_V1 * speed_ratio * speed_ratio);
     const float nominal_deflection = FZ0 / rolling_radius_.VERTICAL_STIFFNESS;
     const float rho_d              = std::fmax(fz_N, 0.0f) / FZ0;
@@ -120,7 +120,7 @@ float TireModel::effectiveRollingRadius_m(const float fz_N, const float v_x_mps)
     return r_omega - nominal_deflection * load_term;
 }
 
-template <DecimalOrDual T> T TireModel::computeMy_Nm(const float fz_N, const float v_x_mps, const T &fx_N) const
+template <DecimalOrDual T> T TireModel::computeMy_Nm(const float fz_N, const float vx_mps, const T &fx_N) const
 {
     const float     lambda_My      = scaling_factors_.LMY;
     const float     qsy1           = rolling_resistance_.QSY1;
@@ -131,9 +131,9 @@ template <DecimalOrDual T> T TireModel::computeMy_Nm(const float fz_N, const flo
     const float     qsy6           = rolling_resistance_.QSY6;
     const float     qsy7           = rolling_resistance_.QSY7;
     const float     qsy8           = rolling_resistance_.QSY8;
-    const float     v_x            = v_x_mps;
+    const float     v_x            = vx_mps;
     const float     v_0            = rolling_radius_.LONGVL;
-    constexpr float gamma_rad      = CAMBER_RAD;
+    constexpr float gamma_rad      = CAMBER_rad;
     constexpr float pressure_ratio = INFLATION_PRESSURE_PA / P0; // p / p0
 
     const float clamped_Fz_N        = std::fmax(fz_N, 0.0f);
@@ -156,22 +156,22 @@ template <DecimalOrDual T> T TireModel::computeMy_Nm(const float fz_N, const flo
     // smoothing smoothing is applied to get rid of the M_y jumping suddenly currently due to it being a constant 2.05
     // MF 6.2 has no direction term, and the QSY1 term keeps M_y nonzero as v_x → 0, so the sign is smoothed here
     // hence this quadratic smoothing between -1 and 1 just eases into the final value at low speeds
-    const float fade_ratio = std::fmin(std::fmax(v_x / ROLLING_RESISTANCE_FADE_SPEED_MPS, -1.0f), 1.0f);
+    const float fade_ratio = std::fmin(std::fmax(v_x / ROLLING_RESISTANCE_FADE_SPEED_mps, -1.0f), 1.0f);
     const float direction  = fade_ratio * (2.0f - std::fabs(fade_ratio));
 
     return T(-R0 * FZ0 * lambda_My * load_pressure_factor * direction) * bracket_term;
 }
-template float TireModel::computeMy_Nm<float>(float fz_N, float v_x_mps, const float &fx_N) const;
+template float TireModel::computeMy_Nm<float>(float fz_N, float vx_mps, const float &fx_N) const;
 template DecimalDual<float>
-    TireModel::computeMy_Nm<DecimalDual<float>>(float fz_N, float v_x_mps, const DecimalDual<float> &fx_N) const;
+    TireModel::computeMy_Nm<DecimalDual<float>>(float fz_N, float vx_mps, const DecimalDual<float> &fx_N) const;
 
-float TireModel::compute_radialDeflection_m(
+float TireModel::computeRadialDeflection_m(
     const float fz_N,
-    const float wheel_speed_radps,
+    const float wheel_omega_radps,
     const float fx_N,
     const float fy_N) const
 {
-    constexpr float gamma_rad             = CAMBER_RAD;
+    constexpr float gamma_rad             = CAMBER_rad;
     constexpr float dpi                   = (INFLATION_PRESSURE_PA - P0) / P0;
     const float     clamped_normal_load_N = std::fmax(fz_N, 0.0f);
     const float     cz_Npm                = rolling_radius_.VERTICAL_STIFFNESS;
@@ -189,7 +189,7 @@ float TireModel::compute_radialDeflection_m(
         const float fy_term          = std::pow(rho_m / R0, vertical_.Q_FCY2) * vertical_.Q_FCY * fy_offset_N / FZ0;
         const float fx_term          = vertical_.Q_FCX * fx_N / FZ0;
         const float stiffness_factor = std::fmax(
-            1 + vertical_.Q_V2 * std::fabs(wheel_speed_radps) * R0 / rolling_radius_.LONGVL - (fx_term * fx_term) -
+            1 + vertical_.Q_V2 * std::fabs(wheel_omega_radps) * R0 / rolling_radius_.LONGVL - (fx_term * fx_term) -
                 (fy_term * fy_term),
             0.1f);
         const float load_term = clamped_normal_load_N / (FZ0 * stiffness_factor * (1 + vertical_.PFZ1 * dpi));
@@ -203,7 +203,7 @@ float TireModel::compute_radialDeflection_m(
 // wheel_vel_x_mps)
 // {
 //     const float wheel_surface_speed_mps = wheel_vel_x_mps * (1.0f + slip_ratio);
-//     return wheel_surface_speed_mps / safeMagnitude(WHEEL_RADIUS_M);
+//     return wheel_surface_speed_mps / safeMagnitude(WHEEL_RADIUS_m);
 // }
 //
 // [[nodiscard]] float TireModel::slipRatioToWheelAngularVelocity(
@@ -211,7 +211,7 @@ float TireModel::compute_radialDeflection_m(
 //     const VehicleState &vehicle_state) const
 // {
 //     const auto [x_mps, y_mps] =
-//         wheelVelocities(vehicle_state.v_x_mps, vehicle_state.v_y_mps, vehicle_state.yaw_rate_radps);
+//         wheelVelocities(vehicle_state.vx_mps, vehicle_state.vy_mps, vehicle_state.r_radps);
 //     return slipRatioToWheelAngularVelocity(slip_ratio, x_mps);
 // }
 // [[nodiscard]] float TireModel::estimateSlipRatio(
@@ -220,7 +220,7 @@ float TireModel::compute_radialDeflection_m(
 //     const float slip_angle_rad,
 //     const float wheel_angular_velocity_radps)
 // {
-//     const float wheel_surface_speed_mps   = wheel_angular_velocity_radps * WHEEL_RADIUS_M;
+//     const float wheel_surface_speed_mps   = wheel_angular_velocity_radps * WHEEL_RADIUS_m;
 //     const float wheel_speed_magnitude_mps = std::hypot(wheel_vel_x_mps, wheel_vel_y_mps);
 //     const float effective_wheel_speed_mps = wheel_speed_magnitude_mps * std::cos(slip_angle_rad);
 //

@@ -12,14 +12,14 @@ namespace
 {
 // Linear interpolation of inner wheel with respect to steering angle
 // Note: 0.09803348769 Degrees of error at full lock
-inline float inner_wheel_angle_rad(const float steering_wheel_angle_rad)
+inline float innerWheelAngle_rad(const float steering_wheel_angle_rad)
 {
     return (0.2651718671f * steering_wheel_angle_rad);
 }
 
 // Linear interpolation of outer wheel with respect to steering angle
 // Note: 0.3468418335 Degrees of error at full lock
-inline float outer_wheel_angle_rad(const float steering_wheel_angle_rad)
+inline float outerWheelAngle_rad(const float steering_wheel_angle_rad)
 {
     return (0.274579971f * steering_wheel_angle_rad);
 }
@@ -29,7 +29,7 @@ using namespace app::controls;
 
 namespace app::controls::estimation::steering
 {
-[[nodiscard]] wheel_set<float> wheel_steer_angles(const float steering_wheel_angle_rad)
+[[nodiscard]] wheel_set<float> wheelSteerAngles(const float steering_wheel_angle_rad)
 {
     const float steering_wheel_angle_clamped_rad =
         std::clamp(steering_wheel_angle_rad, -params::STEER_WHEEL_RANGE_rad, params::STEER_WHEEL_RANGE_rad);
@@ -48,8 +48,8 @@ namespace app::controls::estimation::steering
     if (steering_wheel_angle_clamped_rad >= 0.0f)
     {
         return {
-            .fl = inner_wheel_angle_rad(steering_wheel_angle_clamped_rad),
-            .fr = outer_wheel_angle_rad(steering_wheel_angle_clamped_rad),
+            .fl = innerWheelAngle_rad(steering_wheel_angle_clamped_rad),
+            .fr = outerWheelAngle_rad(steering_wheel_angle_clamped_rad),
             .rl = 0.0f,
             .rr = 0.0f,
         };
@@ -57,8 +57,8 @@ namespace app::controls::estimation::steering
     else
     {
         return {
-            .fl = outer_wheel_angle_rad(steering_wheel_angle_clamped_rad),
-            .fr = inner_wheel_angle_rad(steering_wheel_angle_clamped_rad),
+            .fl = outerWheelAngle_rad(steering_wheel_angle_clamped_rad),
+            .fr = innerWheelAngle_rad(steering_wheel_angle_clamped_rad),
             .rl = 0.0f,
             .rr = 0.0f,
         };

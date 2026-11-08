@@ -5,20 +5,20 @@
 // All vehicle quantities are in the controller's ISO frame (x fwd, y left, z up).
 typedef struct
 {
-    double kappas[4];  // chosen slip targets (fl, fr, rl, rr)
-    double r_fx;       // weighted total Fx residual (sqrt(W_FX) * kN)
-    double r_mz;       // weighted yaw moment residual (sqrt(W_MZ) * kNm)
-    double fx_des_N;   // requested total Fx
-    double mz_des_Nm;  // requested yaw moment
-    double fx_pred_N;  // model-predicted total Fx at the chosen slips
-    double mz_pred_Nm; // model-predicted yaw moment at the chosen slips
+    double kappas[4];      // chosen slip targets (fl, fr, rl, rr)
+    double r_fx;           // weighted total Fx residual (sqrt(W_FX) * kN)
+    double r_mz;           // weighted yaw moment residual (sqrt(W_MZ) * kNm)
+    double fx_setpoint_N;  // requested total Fx
+    double mz_setpoint_Nm; // requested yaw moment
+    double fx_pred_N;      // model-predicted total Fx at the chosen slips
+    double mz_pred_Nm;     // model-predicted yaw moment at the chosen slips
 } optimizer_info;
 
 typedef struct
 {
-    double r_ref_radps; // reference yaw rate
-    double r_err_radps; // r_ref - r_meas
-    double mz_des_Nm;   // yaw controller output: yaw moment request
+    double r_ref_radps;    // reference yaw rate
+    double r_err_radps;    // r_ref - measured r
+    double mz_setpoint_Nm; // yaw controller output: yaw moment request
 } yrc_info;
 
 typedef struct
@@ -31,16 +31,16 @@ typedef struct
 
 typedef struct
 {
-    double accel_request;    // -1..1, fraction of MAX_AX_MPS2 (negative = regen)
+    double accel_request;    // -1..1, fraction of MAX_AX_mps2 (negative = regen)
     double torque_max_Nm[4]; // per-motor torque limits for the speed controller
     double torque_min_Nm[4];
 } accel_request_info;
 
 typedef struct
 {
-    double motor_speed_request_radps[4]; // motor speed setpoints
-    double tire_ffb_Nm[4];               // tire force feedforward (motor torque)
-    double desired_torque_Nm[4];         // speed controller output, before the brake and power limits
+    double motor_omega_setpoint_radps[4]; // motor speed setpoints
+    double tire_ffb_Nm[4];                // tire force feedforward (motor torque)
+    double desired_torque_Nm[4];          // speed controller output, before the brake and power limits
 } speed_controller_info;
 
 typedef struct
@@ -51,10 +51,10 @@ typedef struct
     //     double predict_gain;
     //     double wheelspeed_gain;
     //     double gps_gain;
-    double pred_v_x_mps;
-    double pred_v_y_mps;
-    double est_v_x_mps;
-    double est_v_y_mps;
+    double pred_vx_mps;
+    double pred_vy_mps;
+    double est_vx_mps;
+    double est_vy_mps;
     double pred_wheel_omega_radps[4];
     double covariance[4];  // P of [v_x, v_y], (m/s)^2
     double zero_vx_active; // 1 when the zero-velocity update is applied to v_x this cycle

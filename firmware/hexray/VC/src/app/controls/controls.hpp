@@ -44,7 +44,7 @@ ControlOutput update(const VehicleState &state, const ControlsConfig config);
  * @param state The current measured vehicle state, note that intent is in here as well
  * @return
  */
-ControlOutputAutonomous update_autonomous(const VehicleState &state, const ControlsConfig config);
+ControlOutputAutonomous updateAutonomous(const VehicleState &state, const ControlsConfig config);
 
 /**
  * Given the slip ratio setpoints, computes the motor speed setpoints that achieve them at the current vehicle speed
@@ -58,5 +58,5 @@ ControlOutputAutonomous update_autonomous(const VehicleState &state, const Contr
  * angles and the brake pedal
  * @return per-wheel motor torque requests in Nm
  */
-wheel_set<float> kappa_update(const ControlOutput &control, const VehicleState &state, const ControlsConfig config);
+wheel_set<float> kappaUpdate(const ControlOutput &control, const VehicleState &state, const ControlsConfig config);
 } // namespace app::controls

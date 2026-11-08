@@ -32,7 +32,7 @@ static PID pid_rr(PID_SPEED_config);
 
 static float motorTorque(
     PID        &pid,
-    const float motor_speed_request_radps,
+    const float motor_omega_setpoint_radps,
     const float motor_omega_radps,
     const float tire_ffb_Nm,
     const float torque_max_Nm,
@@ -41,18 +41,18 @@ static float motorTorque(
     // The tire feedforward goes in as the PID's disturbance input, and the result is limited to this wheel's torque
     // limits.
     return std::clamp(
-        pid.compute(motor_speed_request_radps, motor_omega_radps, tire_ffb_Nm), torque_min_Nm, torque_max_Nm);
+        pid.compute(motor_omega_setpoint_radps, motor_omega_radps, tire_ffb_Nm), torque_min_Nm, torque_max_Nm);
 }
 
 static float calculateTireForceFeedback(const float fx_N, const float radial_deflection_m, const float my_Nm)
 {
-    const float loaded_radius_m = std::fmax(WHEEL_RADIUS_M - radial_deflection_m, 0.0f);
+    const float loaded_radius_m = std::fmax(WHEEL_RADIUS_m - radial_deflection_m, 0.0f);
     const float wheel_torque_Nm = my_Nm - fx_N * loaded_radius_m;
     return -wheel_torque_Nm / GEAR_RATIO;
 }
 
 wheel_set<float> computeTorque(
-    const wheel_set<float> &motor_speed_request_radps,
+    const wheel_set<float> &motor_omega_setpoint_radps,
     const wheel_set<float> &motor_omega_radps,
     const wheel_set<float> &fx_N,
     const wheel_set<float> &radial_deflection_m,
@@ -67,26 +67,26 @@ wheel_set<float> computeTorque(
         .rr = calculateTireForceFeedback(fx_N.rr, radial_deflection_m.rr, my_Nm.rr),
     };
 
-    const wheel_set<float> torque_Nm = {
+    const wheel_set<float> motor_torque_Nm = {
         .fl = motorTorque(
-            pid_fl, motor_speed_request_radps.fl, motor_omega_radps.fl, tire_ffb_Nm.fl, torque_max_Nm.fl,
+            pid_fl, motor_omega_setpoint_radps.fl, motor_omega_radps.fl, tire_ffb_Nm.fl, torque_max_Nm.fl,
             torque_min_Nm.fl),
         .fr = motorTorque(
-            pid_fr, motor_speed_request_radps.fr, motor_omega_radps.fr, tire_ffb_Nm.fr, torque_max_Nm.fr,
+            pid_fr, motor_omega_setpoint_radps.fr, motor_omega_radps.fr, tire_ffb_Nm.fr, torque_max_Nm.fr,
             torque_min_Nm.fr),
         .rl = motorTorque(
-            pid_rl, motor_speed_request_radps.rl, motor_omega_radps.rl, tire_ffb_Nm.rl, torque_max_Nm.rl,
+            pid_rl, motor_omega_setpoint_radps.rl, motor_omega_radps.rl, tire_ffb_Nm.rl, torque_max_Nm.rl,
             torque_min_Nm.rl),
         .rr = motorTorque(
-            pid_rr, motor_speed_request_radps.rr, motor_omega_radps.rr, tire_ffb_Nm.rr, torque_max_Nm.rr,
+            pid_rr, motor_omega_setpoint_radps.rr, motor_omega_radps.rr, tire_ffb_Nm.rr, torque_max_Nm.rr,
             torque_min_Nm.rr),
     };
 
-    motor_speed_request_radps.copyTo(tv_debug_data.speed_ctrl.motor_speed_request_radps);
+    motor_omega_setpoint_radps.copyTo(tv_debug_data.speed_ctrl.motor_omega_setpoint_radps);
     tire_ffb_Nm.copyTo(tv_debug_data.speed_ctrl.tire_ffb_Nm);
-    torque_Nm.copyTo(tv_debug_data.speed_ctrl.desired_torque_Nm);
+    motor_torque_Nm.copyTo(tv_debug_data.speed_ctrl.desired_torque_Nm);
 
-    return torque_Nm;
+    return motor_torque_Nm;
 }
 
 void reset()

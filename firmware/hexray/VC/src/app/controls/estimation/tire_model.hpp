@@ -19,15 +19,15 @@ class TireModel
      * that the fit (and the Simulink tire block) use. Re is noticeably smaller than the unloaded radius (~2% here),
      * which is as large as a typical part-throttle slip target, so wheel speed setpoints must use it.
      * @param fz_N normal load
-     * @param v_x_mps wheel longitudinal speed, used for the centrifugal radius growth term
+     * @param vx_mps wheel longitudinal speed, used for the centrifugal radius growth term
      */
-    [[nodiscard]] float effectiveRollingRadius_m(float fz_N, float v_x_mps) const;
+    [[nodiscard]] float effectiveRollingRadius_m(float fz_N, float vx_mps) const;
 
     /**
      * MF 6.2 rolling resistance moment M_y about the wheel spin axis. Opposes the rolling direction and fades to zero
      * at standstill.
      * @param fz_N normal load
-     * @param v_x_mps wheel longitudinal speed
+     * @param vx_mps wheel longitudinal speed
      * @param fx_N combined-slip longitudinal force, i.e. the computeCombinedFx_N result at the same operating point
      *
      * MF 6.2 : M_y = -R0 * Fz0 * λMy * [ qsy1
@@ -49,19 +49,19 @@ class TireModel
               p         : tire pressure
               p0        : nominal pressure
      */
-    template <DecimalOrDual T> [[nodiscard]] T computeMy_Nm(float fz_N, float v_x_mps, const T &fx_N) const;
+    template <DecimalOrDual T> [[nodiscard]] T computeMy_Nm(float fz_N, float vx_mps, const T &fx_N) const;
 
     /**
      * MF 6.2 radial tire deflection rho, found by inverting the MF 6.2 vertical load model
      * Fz = F(Omega, Fx, Fy, rho) * (q_FZ1 * rho / R0 + q_FZ2 * (rho / R0)^2) * (1 + p_FZ1 * dpi) * Fz0.
      * q_FZ1 is derived from Cz so that the stiffness at nominal load equals VERTICAL_STIFFNESS.
      * @param fz_N normal load
-     * @param wheel_speed_radps wheel angular speed (not motor speed so divide motor speed (motor_omega_radps) by
+     * @param wheel_omega_radps wheel angular speed (not motor speed so divide motor speed (motor_omega_radps) by
      * GEAR_RATIO)
      * @param fx_N longitudinal force
      * @param fy_N lateral force
      */
-    [[nodiscard]] float compute_radialDeflection_m(float fz_N, float wheel_speed_radps, float fx_N, float fy_N) const;
+    [[nodiscard]] float computeRadialDeflection_m(float fz_N, float wheel_omega_radps, float fx_N, float fy_N) const;
 
     struct TireFitPureParamFy
     {
@@ -281,13 +281,13 @@ class TireModel
     // Operating point assumed by M_y and the vertical model (no camber or pressure sensing). Changing these turns on
     // the camber (QSY5/6, Q_FYS2/3) and pressure (QSY8, PFZ1) terms. Fx/Fy use the reduced gamma = 0, dpi = 0 fit
     // regardless.
-    static constexpr float CAMBER_RAD            = 0.0f;
+    static constexpr float CAMBER_rad            = 0.0f;
     static constexpr float INFLATION_PRESSURE_PA = 82737.12f; // INFLPRES
     // M_y fades in quadratically and reaches its full value at this speed, so it does not step between
     // +-QSY1 * Fz0 * R0 as v_x crosses zero
     // this value was landed upon by checking the simulink data plot of M_y vs v_x and seeing where the curve flattened
     // out
-    static constexpr float ROLLING_RESISTANCE_FADE_SPEED_MPS = 0.11f;
+    static constexpr float ROLLING_RESISTANCE_FADE_SPEED_mps = 0.11f;
     //-------------------------------------------------------------------- Class Helpers
     //----------------------------------------------------------------------//
     [[nodiscard]] float normalizedLoadDelta(float normal_load_N) const;
@@ -523,14 +523,14 @@ inline constexpr HoosierTireModel tire_model{};
 
 // The combined-slip Fx fit (rCx1 sits on its fit bound at 1.4) flips sign beyond |alpha| ~ 0.22 rad, which is
 // outside the measured data. Saturate the slip angle fed to the fit at the edge of its valid region.
-inline constexpr float FIT_MAX_ALPHA_RAD = 0.2f;
+inline constexpr float FIT_MAX_ALPHA_rad = 0.2f;
 
 /**
  * Combined-slip tire forces at all four wheels, from the tire fit. The fit describes one physical tire, and the
  * right-side tires are its mirror image. Using the fit unmirrored on both sides puts its ply-steer/conicity offsets
  * (Fy ~ -20 N at alpha = 0) in the same direction on all four tires, which predicts a yaw moment the car does not have.
  * So for the fr and rr tires the slip angle is mirrored into the fit and Fy is mirrored back. The slip angle fed to
- * the fit is saturated to FIT_MAX_ALPHA_RAD.
+ * the fit is saturated to FIT_MAX_ALPHA_rad.
  * @param fz_N per-wheel normal loads in N
  * @param alpha_rad per-wheel slip angles in the body's ISO frame
  * @param kappa per-wheel slip ratios (plain or dual numbers)
@@ -542,7 +542,7 @@ template <DecimalOrDual T>
 {
     const auto forces = [](const float fz, const float alpha, const T &k, const bool right_side) -> Pair<T>
     {
-        const float fit_alpha = std::clamp(right_side ? -alpha : alpha, -FIT_MAX_ALPHA_RAD, FIT_MAX_ALPHA_RAD);
+        const float fit_alpha = std::clamp(right_side ? -alpha : alpha, -FIT_MAX_ALPHA_rad, FIT_MAX_ALPHA_rad);
         const T     fy        = tire_model.computeCombinedFy_N<T>(fz, fit_alpha, k);
         return { tire_model.computeCombinedFx_N<T>(fz, fit_alpha, k), right_side ? T(-fy) : fy };
     };
@@ -555,16 +555,16 @@ template <DecimalOrDual T>
 }
 
 [[nodiscard]] inline wheel_set<float>
-    tireMy_Nm(const wheel_set<float> &fx_N, const wheel_set<float> &fz_N, const wheel_set<float> &v_x_wheel_mps)
+    tireMy_Nm(const wheel_set<float> &fx_N, const wheel_set<float> &fz_N, const wheel_set<float> &vx_wheel_mps)
 {
-    const auto M_y = [](const float fx, const float fz, const float v_x_mps)
-    { return app::controls::estimation::tire_model.computeMy_Nm<float>(fz, v_x_mps, fx); };
+    const auto M_y = [](const float fx, const float fz, const float vx_mps)
+    { return app::controls::estimation::tire_model.computeMy_Nm<float>(fz, vx_mps, fx); };
 
     return {
-        .fl = M_y(fx_N.fl, fz_N.fl, v_x_wheel_mps.fl),
-        .fr = M_y(fx_N.fr, fz_N.fr, v_x_wheel_mps.fr),
-        .rl = M_y(fx_N.rl, fz_N.rl, v_x_wheel_mps.rl),
-        .rr = M_y(fx_N.rr, fz_N.rr, v_x_wheel_mps.rr),
+        .fl = M_y(fx_N.fl, fz_N.fl, vx_wheel_mps.fl),
+        .fr = M_y(fx_N.fr, fz_N.fr, vx_wheel_mps.fr),
+        .rl = M_y(fx_N.rl, fz_N.rl, vx_wheel_mps.rl),
+        .rr = M_y(fx_N.rr, fz_N.rr, vx_wheel_mps.rr),
     };
 }
 
@@ -575,7 +575,7 @@ template <DecimalOrDual T>
  * @param tire_forces_N per-wheel {Fx, Fy} from tireForces_N (Fy in the body's ISO frame)
  * @return per-wheel radial deflection in m
  */
-inline wheel_set<float> radial_deflection_estimate(
+inline wheel_set<float> radialDeflectionEstimate(
     const wheel_set<float>       &fz_N,
     const wheel_set<float>       &motor_omega_radps,
     const wheel_set<Pair<float>> &tire_forces_N)
@@ -584,7 +584,7 @@ inline wheel_set<float> radial_deflection_estimate(
     // offset (Q_FYS1) is in the tire's own frame, so Fy is mirrored back for the right-side tires.
     const auto deflection_m = [](const float fz, const float motor_omega, const Pair<float> &f, const bool right_side)
     {
-        return app::controls::estimation::tire_model.compute_radialDeflection_m(
+        return app::controls::estimation::tire_model.computeRadialDeflection_m(
             fz, motor_omega / static_cast<float>(GEAR_RATIO), f.x, right_side ? -f.y : f.y);
     };
     return {

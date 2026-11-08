@@ -16,7 +16,7 @@ struct Measurements
     // body accelerations
     const float ax_mps2;
     const float ay_mps2;
-    const float yaw_rate_radps;
+    const float r_radps;
 
     // specific to update step
     const wheel_set<float> wheel_omega_radps; // wheel (not motor) speeds
@@ -26,7 +26,7 @@ struct Measurements
     const float            gps_vx_mps;
     const float            gps_vy_mps;
 #ifdef TARGET_EMBEDDED
-    const app::can_utils::VcEkfStatus sbg_ekf_mode;
+    const app::can_utils::VcEkfStatus sbg_ekf_status;
 #else
     bool        enable_gps;
     const float discharge_limit_W;
@@ -48,7 +48,7 @@ namespace state_estimator
 
     [[nodiscard]] VehicleState      estimate(const Measurements &state);
     [[nodiscard]] const Covariance &covariance();
-    void                            reset_filter();
+    void                            resetFilter();
     // if you want to reset, just reconstruct the object
 }; // namespace state_estimator
 } // namespace app::controls::estimation

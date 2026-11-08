@@ -88,11 +88,11 @@ static void plot_combined_fy()
 int main()
 {
     // constexpr app::controls::VehicleState state{
-    //     .v_x_mps        = 10,
-    //     .v_y_mps        = 0,
-    //     .yaw_rate_radps = 0,
-    //     .a_x_mps2       = 1,
-    //     .a_y_mps2       = 0,
+    //     .vx_mps        = 10,
+    //     .vy_mps        = 0,
+    //     .r_radps = 0,
+    //     .ax_mps2       = 1,
+    //     .ay_mps2       = 0,
     //     .apps           = 0.2,
     //     .delta          = 0,
     // };

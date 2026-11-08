@@ -16,12 +16,12 @@ wheel_set<float> limitPower(
     float            discharge_limit_W,
     float            charge_limit_W)
 {
-    float sum_omega_radps = 0;
-    float desired_power_W = 0;
+    float sum_motor_omega_radps = 0;
+    float desired_power_W       = 0;
 
     for (const Wheel wheel : { Wheel::FL, Wheel::FR, Wheel::RL, Wheel::RR })
     {
-        sum_omega_radps += motor_omega_radps[wheel];
+        sum_motor_omega_radps += motor_omega_radps[wheel];
         desired_power_W += motor_omega_radps[wheel] * motor_torque_Nm[wheel];
     }
 
@@ -29,11 +29,11 @@ wheel_set<float> limitPower(
 
     if (desired_power_W < -1 * charge_limit_W)
     {
-        delta_torque_Nm = (desired_power_W + charge_limit_W) / sum_omega_radps;
+        delta_torque_Nm = (desired_power_W + charge_limit_W) / sum_motor_omega_radps;
     }
     else if (desired_power_W > discharge_limit_W)
     {
-        delta_torque_Nm = (desired_power_W - discharge_limit_W) / sum_omega_radps;
+        delta_torque_Nm = (desired_power_W - discharge_limit_W) / sum_motor_omega_radps;
     }
     else
     {

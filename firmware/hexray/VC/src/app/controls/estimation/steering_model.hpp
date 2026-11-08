@@ -11,5 +11,5 @@ namespace app::controls::estimation::steering
  *
  * @return road wheel angles in radians, rear wheels always 0 here
  */
-[[nodiscard]] app::controls::wheel_set<float> wheel_steer_angles(const float steering_wheel_angle_rad);
+[[nodiscard]] app::controls::wheel_set<float> wheelSteerAngles(const float steering_wheel_angle_rad);
 } // namespace app::controls::estimation::steering

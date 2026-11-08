@@ -42,7 +42,7 @@ namespace
     constexpr std::size_t  U_AX = 1;
     constexpr std::size_t  U_AY = 2;
 
-    constexpr float ESTIMATOR_DT_S = 0.01f; // Matches the 100 Hz control task.
+    constexpr float ESTIMATOR_DT_s = 0.01f; // Matches the 100 Hz control task.
 
     [[nodiscard]] Filter::N_N processNoise()
     {
@@ -72,28 +72,28 @@ namespace
 
     [[nodiscard]] DecimalDual<float> stateTransitionVx(const StateInput &x)
     {
-        const DecimalDual<float> &v_x_mps  = x(VX);
-        const DecimalDual<float> &v_y_mps  = x(VY);
-        const DecimalDual<float> &r_radps  = x(R);
-        const DecimalDual<float> &a_x_mps2 = x(AX);
+        const DecimalDual<float> &vx_mps  = x(VX);
+        const DecimalDual<float> &vy_mps  = x(VY);
+        const DecimalDual<float> &r_radps = x(R);
+        const DecimalDual<float> &ax_mps2 = x(AX);
 
-        DecimalDual<float> pred_v_x_mps     = v_x_mps + (ESTIMATOR_DT_S * (a_x_mps2 + (v_y_mps * r_radps)));
-        tv_debug_data.ekf_info.pred_v_x_mps = autodiff::val(pred_v_x_mps);
+        DecimalDual<float> pred_vx_mps     = vx_mps + (ESTIMATOR_DT_s * (ax_mps2 + (vy_mps * r_radps)));
+        tv_debug_data.ekf_info.pred_vx_mps = autodiff::val(pred_vx_mps);
 
-        return pred_v_x_mps;
+        return pred_vx_mps;
     }
 
     [[nodiscard]] DecimalDual<float> stateTransitionVy(const StateInput &x)
     {
-        const DecimalDual<float> &v_x_mps  = x(VX);
-        const DecimalDual<float> &v_y_mps  = x(VY);
-        const DecimalDual<float> &r_radps  = x(R);
-        const DecimalDual<float> &a_y_mps2 = x(AY);
+        const DecimalDual<float> &vx_mps  = x(VX);
+        const DecimalDual<float> &vy_mps  = x(VY);
+        const DecimalDual<float> &r_radps = x(R);
+        const DecimalDual<float> &ay_mps2 = x(AY);
 
-        DecimalDual<float> pred_v_y_mps     = v_y_mps + (ESTIMATOR_DT_S * (a_y_mps2 - (v_x_mps * r_radps)));
-        tv_debug_data.ekf_info.pred_v_y_mps = autodiff::val(pred_v_y_mps);
+        DecimalDual<float> pred_vy_mps     = vy_mps + (ESTIMATOR_DT_s * (ay_mps2 - (vx_mps * r_radps)));
+        tv_debug_data.ekf_info.pred_vy_mps = autodiff::val(pred_vy_mps);
 
-        return pred_v_y_mps;
+        return pred_vy_mps;
     }
 
     Filter::PredictStep predict = { { stateTransitionVx, stateTransitionVy } };
@@ -125,36 +125,36 @@ namespace
     //   2. component along the wheel's rolling direction (rotate by the wheel's steer angle delta_i)
     //        v_long,i = v_x,i * cos(delta_i) + v_y,i * sin(delta_i)
     //   3. angular velocity  omega_i = v_long,i / R_e,i
-    // Same convention as VehicleState::v_in_tire_frame().
-    // R_e is the effective rolling radius, the same one kappa_update() uses to turn speed back into a wheel speed
+    // Same convention as VehicleState::vInTireFrame().
+    // R_e is the effective rolling radius, the same one kappaUpdate() uses to turn speed back into a wheel speed
     // request. Using the unloaded radius here would bias v_x ~2% high, and the speed controller would chase it.
 
     constexpr std::array<app::controls::Pair<float>, WHEEL_DIM> WHEEL_POSITIONS = { {
-        { DIST_FRONT_AXLE_CG_m, HALF_TRACK_M },  // fl
-        { DIST_FRONT_AXLE_CG_m, -HALF_TRACK_M }, // fr
-        { -DIST_REAR_AXLE_CG_m, HALF_TRACK_M },  // rl
-        { -DIST_REAR_AXLE_CG_m, -HALF_TRACK_M }, // rr
+        { DIST_FRONT_AXLE_CG_m, HALF_TRACK_m },  // fl
+        { DIST_FRONT_AXLE_CG_m, -HALF_TRACK_m }, // fr
+        { -DIST_REAR_AXLE_CG_m, HALF_TRACK_m },  // rl
+        { -DIST_REAR_AXLE_CG_m, -HALF_TRACK_m }, // rr
     } };
 
     // One h function per wheel; WHEEL selects the row (FL, FR, RL, RR).
     template <Wheel WHEEL> [[nodiscard]] DecimalDual<float> wheelspeedMeas(const State &x)
     {
-        const DecimalDual<float> &v_x_mps         = x(VX);
-        const DecimalDual<float> &v_y_mps         = x(VY);
-        const float               r_radps         = vehicle_state.yaw_rate_radps;
+        const DecimalDual<float> &vx_mps          = x(VX);
+        const DecimalDual<float> &vy_mps          = x(VY);
+        const float               r_radps         = vehicle_state.r_radps;
         const float               wheel_angle_rad = vehicle_state.wheel_angle_rad[WHEEL];
 
-        const auto              &pos_m     = WHEEL_POSITIONS[static_cast<std::size_t>(WHEEL)];
-        const DecimalDual<float> v_x_i_mps = v_x_mps - r_radps * pos_m.y;
-        const DecimalDual<float> v_y_i_mps = v_y_mps + r_radps * pos_m.x;
+        const auto              &pos_m    = WHEEL_POSITIONS[static_cast<std::size_t>(WHEEL)];
+        const DecimalDual<float> vx_i_mps = vx_mps - r_radps * pos_m.y;
+        const DecimalDual<float> vy_i_mps = vy_mps + r_radps * pos_m.x;
         const DecimalDual<float> v_long_i_mps =
-            v_x_i_mps * std::cos(wheel_angle_rad) + v_y_i_mps * std::sin(wheel_angle_rad);
+            vx_i_mps * std::cos(wheel_angle_rad) + vy_i_mps * std::sin(wheel_angle_rad);
 
-        // Same load model and radius as kappa_update(). R_e is held constant for the Jacobian (its v_x dependence is
+        // Same load model and radius as kappaUpdate(). R_e is held constant for the Jacobian (its v_x dependence is
         // tiny).
-        const auto  v_x_val_mps = static_cast<float>(autodiff::val(v_x_mps));
-        const auto  fz_N        = vehicle_state.est_Fz_N();
-        const float re_m        = tire_model.effectiveRollingRadius_m(fz_N[WHEEL], std::abs(v_x_val_mps));
+        const auto  vx_val_mps = static_cast<float>(autodiff::val(vx_mps));
+        const auto  fz_N       = vehicle_state.estFz_N();
+        const float re_m       = tire_model.effectiveRollingRadius_m(fz_N[WHEEL], std::abs(vx_val_mps));
 
         const DecimalDual<float> pred_wheel_omega_radps = v_long_i_mps / re_m;
         tv_debug_data.ekf_info.pred_wheel_omega_radps[static_cast<std::size_t>(WHEEL)] =
@@ -196,9 +196,9 @@ namespace
     //            car sliding sideways, which needs lateral tire force. No pedal check.
     // Thresholds are sized for worst-case sensor noise (wheel speed sigma 0.5 rad/s, acceleration sigma 0.8 m/s^2 with
     // a 0.6 m/s^2 bias) so the checks still pass at standstill. A locked-wheel skid (a_x ~ -8 m/s^2) is still rejected.
-    constexpr float    ZERO_SPEED_WHEEL_RADPS = 1.5f; // 3 sigma of wheel speed noise, ~0.35 m/s at the tire
-    constexpr float    ZERO_SPEED_ACCEL_MPS2  = 2.0f; // bias + ~1.75 sigma of acceleration noise
-    constexpr float    ZERO_SPEED_YAW_RADPS   = 0.1f;
+    constexpr float    ZERO_SPEED_WHEEL_radps = 1.5f; // 3 sigma of wheel speed noise, ~0.35 m/s at the tire
+    constexpr float    ZERO_SPEED_ACCEL_mps2  = 2.0f; // bias + ~1.75 sigma of acceleration noise
+    constexpr float    ZERO_SPEED_YAW_radps   = 0.1f;
     constexpr float    ZERO_SPEED_MAX_APPS    = 0.02f; // accelerator pedal, 0..1
     constexpr uint32_t ZERO_SPEED_CONFIRM     = 4U;    // consecutive cycles (40 ms at 100 Hz) before the row is used
 
@@ -208,8 +208,8 @@ namespace
     [[nodiscard]] bool wheelsStopped()
     {
         const auto &w = vehicle_state.wheel_omega_radps;
-        return std::abs(w.fl) < ZERO_SPEED_WHEEL_RADPS && std::abs(w.fr) < ZERO_SPEED_WHEEL_RADPS &&
-               std::abs(w.rl) < ZERO_SPEED_WHEEL_RADPS && std::abs(w.rr) < ZERO_SPEED_WHEEL_RADPS;
+        return std::abs(w.fl) < ZERO_SPEED_WHEEL_radps && std::abs(w.fr) < ZERO_SPEED_WHEEL_radps &&
+               std::abs(w.rl) < ZERO_SPEED_WHEEL_radps && std::abs(w.rr) < ZERO_SPEED_WHEEL_radps;
     }
 
     // Counts consecutive true cycles; returns true once the condition has held for ZERO_SPEED_CONFIRM cycles.
@@ -223,9 +223,9 @@ namespace
     [[nodiscard]] std::array<bool, ZSPEED_DIM> updateZeroSpeed()
     {
         const bool vx_zero = wheelsStopped() && vehicle_state.apps < ZERO_SPEED_MAX_APPS &&
-                             std::abs(vehicle_state.a_x_mps2) < ZERO_SPEED_ACCEL_MPS2;
-        const bool vy_zero = std::abs(vehicle_state.a_y_mps2) < ZERO_SPEED_ACCEL_MPS2 &&
-                             std::abs(vehicle_state.yaw_rate_radps) < ZERO_SPEED_YAW_RADPS;
+                             std::abs(vehicle_state.ax_mps2) < ZERO_SPEED_ACCEL_mps2;
+        const bool vy_zero = std::abs(vehicle_state.ay_mps2) < ZERO_SPEED_ACCEL_mps2 &&
+                             std::abs(vehicle_state.r_radps) < ZERO_SPEED_YAW_radps;
 
         return { { confirm(vx_zero_cycles, vx_zero), confirm(vy_zero_cycles, vy_zero) } };
     }
@@ -243,7 +243,7 @@ namespace
 namespace state_estimator
 {
     Filter filter_ = createFilter();
-    void   reset_filter()
+    void   resetFilter()
     {
         filter_        = createFilter();
         vx_zero_cycles = 0U;
@@ -253,19 +253,19 @@ namespace state_estimator
     [[nodiscard]] VehicleState estimate(const Measurements &meas)
     {
         InputVector u = InputVector::Zero();
-        u(U_R)        = meas.yaw_rate_radps;
+        u(U_R)        = meas.r_radps;
         u(U_AX)       = meas.ax_mps2;
         u(U_AY)       = meas.ay_mps2;
 
         vehicle_state = {
-            .yaw_rate_radps    = meas.yaw_rate_radps,
-            .a_x_mps2          = meas.ax_mps2,
-            .a_y_mps2          = meas.ay_mps2,
+            .r_radps           = meas.r_radps,
+            .ax_mps2           = meas.ax_mps2,
+            .ay_mps2           = meas.ay_mps2,
             .apps              = meas.apps,
             .brake             = meas.brake,
             .charge_limit_W    = meas.charge_limit_W,
             .discharge_limit_W = meas.discharge_limit_W,
-            .wheel_angle_rad   = app::controls::estimation::steering::wheel_steer_angles(meas.steering_wheel_angle_rad),
+            .wheel_angle_rad   = app::controls::estimation::steering::wheelSteerAngles(meas.steering_wheel_angle_rad),
             .wheel_omega_radps = meas.wheel_omega_radps,
         };
 
@@ -274,7 +274,7 @@ namespace state_estimator
 
         auto gps_meas = GpsMeas::none();
 #ifdef TARGET_EMBEDDED
-        if (meas.sbg_ekf_mode == app::can_utils::VcEkfStatus::POSITION)
+        if (meas.sbg_ekf_status == app::can_utils::VcEkfStatus::POSITION)
         {
             gps_meas = GpsMeas(meas.gps_vx_mps, meas.gps_vy_mps);
         }
@@ -293,9 +293,9 @@ namespace state_estimator
 
         Filter::Measurements z = { wheelspeed_meas, gps_meas, zerospeed_meas };
 
-        const StateVector estimated_state  = filter_.estimated_states(u, z);
-        tv_debug_data.ekf_info.est_v_x_mps = estimated_state(VX);
-        tv_debug_data.ekf_info.est_v_y_mps = estimated_state(VY);
+        const StateVector estimated_state = filter_.estimated_states(u, z);
+        tv_debug_data.ekf_info.est_vx_mps = estimated_state(VX);
+        tv_debug_data.ekf_info.est_vy_mps = estimated_state(VY);
 
         Covariance P                         = filter_.covariance();
         tv_debug_data.ekf_info.covariance[0] = P(0, 0);
@@ -303,8 +303,8 @@ namespace state_estimator
         tv_debug_data.ekf_info.covariance[2] = P(1, 0);
         tv_debug_data.ekf_info.covariance[3] = P(1, 1);
 
-        vehicle_state.v_x_mps = estimated_state(VX);
-        vehicle_state.v_y_mps = estimated_state(VY);
+        vehicle_state.vx_mps = estimated_state(VX);
+        vehicle_state.vy_mps = estimated_state(VY);
 
         return vehicle_state;
     }

@@ -42,21 +42,21 @@ static float ku = UNDERSTEER_GRADIENT_S2PM2; // understeer gradient, s^2/m^2
 
 static PID pid(PID_YAW_RATE_config);
 
-[[nodiscard]] float computeRefYawRate(const float wheel_angle_rad, const float v_x_mps)
+[[nodiscard]] float computeRefYawRate(const float wheel_angle_rad, const float vx_mps)
 {
-    const float r_ref_radps = (v_x_mps * wheel_angle_rad) / (WHEELBASE_m * (1.0f + ku * v_x_mps * v_x_mps));
+    const float r_ref_radps = (vx_mps * wheel_angle_rad) / (WHEELBASE_m * (1.0f + ku * vx_mps * vx_mps));
     // Friction limit: a steady turn at yaw rate r needs a_y = v * r (speed floored so the limit stays finite)
-    const float r_max_radps = MU_LIMIT * GRAVITY / std::max(std::abs(v_x_mps), 1.0f);
+    const float r_max_radps = MU_LIMIT * GRAVITY / std::max(std::abs(vx_mps), 1.0f);
     return std::clamp(r_ref_radps, -r_max_radps, r_max_radps);
 }
 
-[[nodiscard]] float computeYawMoment(const float yaw_rate_radps, const float wheel_angle_rad, const float v_x_mps)
+[[nodiscard]] float computeYawMoment(const float r_radps, const float wheel_angle_rad, const float vx_mps)
 {
-    const float r_ref_radps   = computeRefYawRate(wheel_angle_rad, v_x_mps);
-    const float yaw_moment_Nm = pid.compute(r_ref_radps, yaw_rate_radps, 0.0f);
-    tv_debug_data.yrc         = { .r_ref_radps = r_ref_radps,
-                                  .r_err_radps = r_ref_radps - yaw_rate_radps,
-                                  .mz_des_Nm   = yaw_moment_Nm };
+    const float r_ref_radps   = computeRefYawRate(wheel_angle_rad, vx_mps);
+    const float yaw_moment_Nm = pid.compute(r_ref_radps, r_radps, 0.0f);
+    tv_debug_data.yrc         = { .r_ref_radps    = r_ref_radps,
+                                  .r_err_radps    = r_ref_radps - r_radps,
+                                  .mz_setpoint_Nm = yaw_moment_Nm };
     return yaw_moment_Nm;
 }
 } // namespace app::controls::reference::yaw_rate

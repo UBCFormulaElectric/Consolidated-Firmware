@@ -8,18 +8,18 @@ using namespace app::controls::params;
 
 namespace app::controls::reference::accel_request
 {
-AccelRequest compute(float apps, float brake, float v_x_mps, bool regen_enabled)
+AccelRequest compute(float apps, float brake, float vx_mps, bool regen_enabled)
 {
     // TODO: brake blending (regen in proportion to the brake pedal). May require some kind of brake model.
     // Net longitudinal request from both pedals (each 0..1). Braking requests fade out at low speed so the motors
     // stop helping before standstill (otherwise they lock the wheels / reverse the car); the brakes finish the stop.
     // const float pedal      = state.apps - state.brake;
-    // const float brake_fade = std::clamp(state.v_x_mps / BRAKE_FADE_SPEED_MPS, 0.0f, 1.0f);
-    // const float ax_mps2_setpoint = pedal >= 0 ? MAX_AX_MPS2 * pedal : MAX_AX_MPS2 * pedal * brake_fade;
+    // const float brake_fade = std::clamp(state.vx_mps / BRAKE_FADE_SPEED_mps, 0.0f, 1.0f);
+    // const float ax_mps2_setpoint = pedal >= 0 ? MAX_AX_mps2 * pedal : MAX_AX_mps2 * pedal * brake_fade;
 
-    const float v_x_kmh                 = MPS_TO_KMH(v_x_mps);
+    const float vx_kmh                  = MPS_TO_KMH(vx_mps);
     float       accel_request           = std::clamp((apps - PEDAL_DEADZONE) / (1.0f - PEDAL_DEADZONE), 0.0f, 1.0f);
-    float       regen_derate_factor     = std::clamp((v_x_kmh - MIN_SPEED_REGEN_KMH) / MIN_SPEED_REGEN_KMH, 0.0f, 1.0f);
+    float       regen_derate_factor     = std::clamp((vx_kmh - MIN_SPEED_REGEN_kmh) / MIN_SPEED_REGEN_kmh, 0.0f, 1.0f);
     float       brake_derate_factor     = std::clamp(5.0f * (1.0f - brake), 0.0f, 1.0f);
     float       low_pedal_derate_factor = std::clamp((apps / PEDAL_DEADZONE), 0.0f, 1.0f);
 
