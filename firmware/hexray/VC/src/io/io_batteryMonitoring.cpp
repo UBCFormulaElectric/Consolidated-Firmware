@@ -477,7 +477,7 @@ result<SafetyStatusB> get_safety_alert_b()
     return {};
 }
 
-result<void> init()
+result<void> Init()
 {
     // 1. Is chip responsive
     RETURN_IF_ERR(bat_mon.isTargetReady());

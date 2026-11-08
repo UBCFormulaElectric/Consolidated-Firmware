@@ -174,7 +174,7 @@ result<void> init()
     if (!init_done)
     {
         for (int tries = 0; tries < 10 && !init_done; tries++)
-            init_done = io::batteryMonitoring::init().has_value();
+            init_done = io::batteryMonitoring::Init().has_value();
 
         if (!init_done)
             return std::unexpected(ErrorCode::ERROR);
@@ -268,7 +268,6 @@ result<void> update()
         const bool charge_enable = should_charge(pack_voltage.value(), max_cell, min_cell);
         can_tx::VC_Charging_set(charge_enable);
         charge_enable ? io::batteryCharging::charger_enable() : io::batteryCharging::charger_disable();
-        const bool charger_gpio_status = io::batteryCharging::check_status();
     }
     else
     {
