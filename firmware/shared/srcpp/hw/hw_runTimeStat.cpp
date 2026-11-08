@@ -1,6 +1,17 @@
 #include "hw_runTimeStat.hpp"
 #include "hw_hal.hpp"
 
+void hw::runtimeStat::init([[maybe_unused]] TIM_HandleTypeDef &htim)
+{
+    // kept backward compatibility with board startup calls.
+    // hardware timer interrupts are not required cuz DWT cycle counter exists
+}
+
+void hw::runtimeStat::inc()
+{
+    // kept for backward compatibility with board timer callbacks
+}
+
 extern "C"
 {
     void configureTimerForRunTimeStats()

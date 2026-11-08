@@ -9,11 +9,22 @@
 #include "hw_rtosTaskHandler.hpp"
 #include "io_log.hpp"
 
+#if defined(STM32F412Rx)
+#include "stm32f4xx_hal_tim.h"
+#elif defined(STM32H562xx)
+#include "stm32h5xx_hal_tim.h"
+#elif defined(STM32H733xx)
+#include "stm32h7xx_hal_tim.h"
+#endif
+
 // When either FreeRTOS flag is off, monitor compiles down to an empty class that does no work
 #define HW_RUNTIME_STATS_ENABLED (configUSE_TRACE_FACILITY == 1 && configGENERATE_RUN_TIME_STATS == 1)
 
 namespace hw::runtimeStat
 {
+void init(TIM_HandleTypeDef &htim);
+void inc();
+
 template <size_t TaskCount> class monitor
 {
   public:
