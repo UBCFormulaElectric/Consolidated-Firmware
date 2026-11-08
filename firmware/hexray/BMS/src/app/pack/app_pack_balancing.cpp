@@ -10,7 +10,7 @@
 
 namespace
 {
-constexpr float   DISCHARGE_THRESHOLD_V = 5e-3f;
+constexpr float   DISCHARGE_THRESHOLD_V = 10e-3f;
 constexpr uint8_t DUTY              = 0x07; // need to adjust so ITMP overtemp fault doesn't trigger
 
 uint32_t pwm_updated_ms = 0U;
