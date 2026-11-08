@@ -12,7 +12,7 @@ constexpr io::adbms::Segments<io::adbms::CFGA> createConfigA()
     io::adbms::Segments<io::adbms::CFGA> config{};
     for (io::adbms::CFGA &reg_a : config)
     {
-        reg_a.cth       = 0x04;
+        reg_a.cth       = 0x06;
         reg_a.ref_on    = 0x01;
         reg_a.flag_d    = 0x00;
         reg_a.owa       = 0x00;

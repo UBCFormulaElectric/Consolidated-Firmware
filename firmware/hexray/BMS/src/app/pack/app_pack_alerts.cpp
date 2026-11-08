@@ -23,7 +23,7 @@ constexpr uint32_t FAULT_OWC_DEBOUNCE_MS    = 5000;
 constexpr uint32_t FAULT_HEALTH_DEBOUNCE_MS = 3000;
 constexpr float    T_FAULT_OT               = 55.0f;
 constexpr float    T_CHARGE_FAULT_OT        = 45.0f;
-constexpr float    T_FAULT_ITMP_OT          = 85.0f;
+constexpr float    T_FAULT_ITMP_OT          = 105.0f;
 
 // Warning thresholds
 constexpr uint32_t WARN_DEBOUNCE_MS = 1000;
@@ -33,7 +33,7 @@ constexpr float    T_WARN_OT        = 50.0f;
 constexpr float    T_CHARGE_WARN_OT = 42.0f;
 constexpr float    T_WARN_UT        = -10.0f;
 constexpr float    T_CHARGE_WARN_UT = 5.0f;
-constexpr float    T_WARN_ITMP_OT   = 75.0f;
+constexpr float    T_WARN_ITMP_OT   = 95.0f;
 
 // Info thresholds
 constexpr uint32_t INFO_DEBOUNCE_MS           = 100;
