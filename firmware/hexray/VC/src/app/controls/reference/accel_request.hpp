@@ -5,12 +5,12 @@
 namespace app::controls::reference::accel_request
 {
 
-template <Decimal T> struct AccelRequest
+struct AccelRequest
 {
-    T normalized;          // -1..1, fraction of MAX_AX_MPS2 (negative = regen)
-    T regen_derate_factor; // 0..1 with speed: 0 below MIN_SPEED_REGEN_KMH, 1 from twice that speed
-    T brake_derate_factor;
-    T low_pedal_derate_factor;
+    float normalized;          // -1..1, fraction of MAX_AX_MPS2 (negative = regen)
+    float regen_derate_factor; // 0..1 with speed: 0 below MIN_SPEED_REGEN_KMH, 1 from twice that speed
+    float brake_derate_factor;
+    float low_pedal_derate_factor;
 };
 
 /**
@@ -25,5 +25,5 @@ template <Decimal T> struct AccelRequest
  *
  * @return Acceleration request, -1..1 of MAX_AX_MPS2, and the derate factors
  */
-template <Decimal T> AccelRequest<T> compute(T apps, T brake, T v_x_mps, bool regen_enabled);
+AccelRequest compute(float apps, float brake, float v_x_mps, bool regen_enabled);
 } // namespace app::controls::reference::accel_request

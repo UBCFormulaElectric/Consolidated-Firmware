@@ -143,8 +143,7 @@ void jobs_run100Hz_tick()
             .sbg_ekf_mode = app::sbgEllipse::getEkfSolutionMode(),
         };
 
-        const app::controls::VehicleState<float> vehicle_state =
-            app::controls::estimation::state_estimator::estimate(meas);
+        const app::controls::VehicleState vehicle_state = app::controls::estimation::state_estimator::estimate(meas);
 
         const veh_ekf_info &ekf = tv_debug_data.ekf_info;
         app::can_tx::VC_EkfEstVx_set(vehicle_state.v_x_mps);

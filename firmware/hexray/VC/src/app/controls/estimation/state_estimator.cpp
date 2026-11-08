@@ -18,7 +18,7 @@ namespace
     using namespace state_estimator;
 
     // Internal vehicle state used so the estimator can get access to other vehicle data
-    static VehicleState<tv_real> vehicle_state{};
+    static VehicleState vehicle_state{};
 
     using StateInput  = Filter::state_inp_mtx;
     using State       = Filter::state_mtx;
@@ -42,8 +42,7 @@ namespace
     constexpr std::size_t  U_AX = 1;
     constexpr std::size_t  U_AY = 2;
 
-    constexpr float ESTIMATOR_DT_S             = 0.01f;                       // Matches the 100 Hz control task.
-    constexpr float ESTIMATOR_YAW_INERTIA_KGM2 = CAR_YAW_MOMENT_INERTIA_KGM2; // same yaw inertia as the controller
+    constexpr float ESTIMATOR_DT_S = 0.01f; // Matches the 100 Hz control task.
 
     [[nodiscard]] Filter::N_N processNoise()
     {
@@ -71,27 +70,27 @@ namespace
 
     // Predict Step
 
-    [[nodiscard]] DecimalDual<tv_real> stateTransitionVx(const StateInput &x)
+    [[nodiscard]] DecimalDual<float> stateTransitionVx(const StateInput &x)
     {
-        const DecimalDual<tv_real> &v_x_mps  = x(VX);
-        const DecimalDual<tv_real> &v_y_mps  = x(VY);
-        const DecimalDual<tv_real> &r_radps  = x(R);
-        const DecimalDual<tv_real> &a_x_mps2 = x(AX);
+        const DecimalDual<float> &v_x_mps  = x(VX);
+        const DecimalDual<float> &v_y_mps  = x(VY);
+        const DecimalDual<float> &r_radps  = x(R);
+        const DecimalDual<float> &a_x_mps2 = x(AX);
 
-        DecimalDual<tv_real> pred_v_x_mps   = v_x_mps + (ESTIMATOR_DT_S * (a_x_mps2 + (v_y_mps * r_radps)));
+        DecimalDual<float> pred_v_x_mps     = v_x_mps + (ESTIMATOR_DT_S * (a_x_mps2 + (v_y_mps * r_radps)));
         tv_debug_data.ekf_info.pred_v_x_mps = autodiff::val(pred_v_x_mps);
 
         return pred_v_x_mps;
     }
 
-    [[nodiscard]] DecimalDual<tv_real> stateTransitionVy(const StateInput &x)
+    [[nodiscard]] DecimalDual<float> stateTransitionVy(const StateInput &x)
     {
-        const DecimalDual<tv_real> &v_x_mps  = x(VX);
-        const DecimalDual<tv_real> &v_y_mps  = x(VY);
-        const DecimalDual<tv_real> &r_radps  = x(R);
-        const DecimalDual<tv_real> &a_y_mps2 = x(AY);
+        const DecimalDual<float> &v_x_mps  = x(VX);
+        const DecimalDual<float> &v_y_mps  = x(VY);
+        const DecimalDual<float> &r_radps  = x(R);
+        const DecimalDual<float> &a_y_mps2 = x(AY);
 
-        DecimalDual<tv_real> pred_v_y_mps   = v_y_mps + (ESTIMATOR_DT_S * (a_y_mps2 - (v_x_mps * r_radps)));
+        DecimalDual<float> pred_v_y_mps     = v_y_mps + (ESTIMATOR_DT_S * (a_y_mps2 - (v_x_mps * r_radps)));
         tv_debug_data.ekf_info.pred_v_y_mps = autodiff::val(pred_v_y_mps);
 
         return pred_v_y_mps;
@@ -101,12 +100,12 @@ namespace
 
     // GPS Update Step
 
-    [[nodiscard]] DecimalDual<tv_real> gpsMeasVx(const State &x)
+    [[nodiscard]] DecimalDual<float> gpsMeasVx(const State &x)
     {
         return x(VX);
     }
 
-    [[nodiscard]] DecimalDual<tv_real> gpsMeasVy(const State &x)
+    [[nodiscard]] DecimalDual<float> gpsMeasVy(const State &x)
     {
         return x(VY);
     }
@@ -138,27 +137,26 @@ namespace
     } };
 
     // One h function per wheel; WHEEL selects the row (FL, FR, RL, RR).
-    template <Wheel WHEEL> [[nodiscard]] DecimalDual<tv_real> wheelspeedMeas(const State &x)
+    template <Wheel WHEEL> [[nodiscard]] DecimalDual<float> wheelspeedMeas(const State &x)
     {
-        const DecimalDual<tv_real> &v_x_mps         = x(VX);
-        const DecimalDual<tv_real> &v_y_mps         = x(VY);
-        const float                 r_radps         = vehicle_state.yaw_rate_radps;
-        const float                 wheel_angle_rad = vehicle_state.wheel_angle_rad[WHEEL];
+        const DecimalDual<float> &v_x_mps         = x(VX);
+        const DecimalDual<float> &v_y_mps         = x(VY);
+        const float               r_radps         = vehicle_state.yaw_rate_radps;
+        const float               wheel_angle_rad = vehicle_state.wheel_angle_rad[WHEEL];
 
-        const auto                &pos_m     = WHEEL_POSITIONS[static_cast<std::size_t>(WHEEL)];
-        const DecimalDual<tv_real> v_x_i_mps = v_x_mps - r_radps * pos_m.y;
-        const DecimalDual<tv_real> v_y_i_mps = v_y_mps + r_radps * pos_m.x;
-        const DecimalDual<tv_real> v_long_i_mps =
+        const auto              &pos_m     = WHEEL_POSITIONS[static_cast<std::size_t>(WHEEL)];
+        const DecimalDual<float> v_x_i_mps = v_x_mps - r_radps * pos_m.y;
+        const DecimalDual<float> v_y_i_mps = v_y_mps + r_radps * pos_m.x;
+        const DecimalDual<float> v_long_i_mps =
             v_x_i_mps * std::cos(wheel_angle_rad) + v_y_i_mps * std::sin(wheel_angle_rad);
 
         // Same load model and radius as kappa_update(). R_e is held constant for the Jacobian (its v_x dependence is
         // tiny).
-        const auto  v_x_val_mps = static_cast<tv_real>(autodiff::val(v_x_mps));
+        const auto  v_x_val_mps = static_cast<float>(autodiff::val(v_x_mps));
         const auto  fz_N        = vehicle_state.est_Fz_N();
-        const float re_m        = static_cast<float>(tire_model.effectiveRollingRadius_m(
-            static_cast<float>(fz_N[WHEEL]), static_cast<tv_real>(std::abs(v_x_val_mps))));
+        const float re_m        = tire_model.effectiveRollingRadius_m(fz_N[WHEEL], std::abs(v_x_val_mps));
 
-        const DecimalDual<tv_real> pred_wheel_omega_radps = v_long_i_mps / re_m;
+        const DecimalDual<float> pred_wheel_omega_radps = v_long_i_mps / re_m;
         tv_debug_data.ekf_info.pred_wheel_omega_radps[static_cast<std::size_t>(WHEEL)] =
             autodiff::val(pred_wheel_omega_radps);
         return pred_wheel_omega_radps;
@@ -173,12 +171,12 @@ namespace
 
     // Zero Speed Update Step
 
-    [[nodiscard]] DecimalDual<tv_real> zeroSpeedMeasVx(const State &x)
+    [[nodiscard]] DecimalDual<float> zeroSpeedMeasVx(const State &x)
     {
         return x(VX);
     }
 
-    [[nodiscard]] DecimalDual<tv_real> zeroSpeedMeasVy(const State &x)
+    [[nodiscard]] DecimalDual<float> zeroSpeedMeasVy(const State &x)
     {
         return x(VY);
     }
@@ -252,7 +250,7 @@ namespace state_estimator
         vy_zero_cycles = 0U;
     }
 
-    [[nodiscard]] VehicleState<float> estimate(const Measurements &meas)
+    [[nodiscard]] VehicleState estimate(const Measurements &meas)
     {
         InputVector u = InputVector::Zero();
         u(U_R)        = meas.yaw_rate_radps;

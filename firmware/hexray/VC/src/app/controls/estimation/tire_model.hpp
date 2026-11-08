@@ -21,7 +21,7 @@ class TireModel
      * @param fz_N normal load
      * @param v_x_mps wheel longitudinal speed, used for the centrifugal radius growth term
      */
-    template <Decimal T> [[nodiscard]] T effectiveRollingRadius_m(float fz_N, T v_x_mps) const;
+    [[nodiscard]] float effectiveRollingRadius_m(float fz_N, float v_x_mps) const;
 
     /**
      * MF 6.2 rolling resistance moment M_y about the wheel spin axis. Opposes the rolling direction and fades to zero
@@ -538,14 +538,13 @@ inline constexpr float FIT_MAX_ALPHA_RAD = 0.2f;
  */
 template <DecimalOrDual T>
 [[nodiscard]] wheel_set<Pair<T>>
-    tireForces_N(const wheel_set<tv_real> &fz_N, const wheel_set<tv_real> &alpha_rad, const wheel_set<T> &kappa)
+    tireForces_N(const wheel_set<float> &fz_N, const wheel_set<float> &alpha_rad, const wheel_set<T> &kappa)
 {
-    const auto forces = [](const tv_real fz, const tv_real alpha, const T &k, const bool right_side) -> Pair<T>
+    const auto forces = [](const float fz, const float alpha, const T &k, const bool right_side) -> Pair<T>
     {
-        const float fit_alpha =
-            std::clamp(static_cast<float>(right_side ? -alpha : alpha), -FIT_MAX_ALPHA_RAD, FIT_MAX_ALPHA_RAD);
-        const T fy = tire_model.computeCombinedFy_N<T>(static_cast<float>(fz), fit_alpha, k);
-        return { tire_model.computeCombinedFx_N<T>(static_cast<float>(fz), fit_alpha, k), right_side ? T(-fy) : fy };
+        const float fit_alpha = std::clamp(right_side ? -alpha : alpha, -FIT_MAX_ALPHA_RAD, FIT_MAX_ALPHA_RAD);
+        const T     fy        = tire_model.computeCombinedFy_N<T>(fz, fit_alpha, k);
+        return { tire_model.computeCombinedFx_N<T>(fz, fit_alpha, k), right_side ? T(-fy) : fy };
     };
     return {
         .fl = forces(fz_N.fl, alpha_rad.fl, kappa.fl, false),
@@ -555,14 +554,11 @@ template <DecimalOrDual T>
     };
 }
 
-template <Decimal T>
-[[nodiscard]] wheel_set<T> tireMy_Nm(wheel_set<T> fx_N, wheel_set<T> fz_N, wheel_set<T> v_x_wheel_mps)
+[[nodiscard]] inline wheel_set<float>
+    tireMy_Nm(const wheel_set<float> &fx_N, const wheel_set<float> &fz_N, const wheel_set<float> &v_x_wheel_mps)
 {
-    const auto M_y = [](const T fx, const T fz, const T v_x_mps)
-    {
-        return app::controls::estimation::tire_model.computeMy_Nm<T>(
-            static_cast<float>(fz), static_cast<float>(v_x_mps), fx);
-    };
+    const auto M_y = [](const float fx, const float fz, const float v_x_mps)
+    { return app::controls::estimation::tire_model.computeMy_Nm<float>(fz, v_x_mps, fx); };
 
     return {
         .fl = M_y(fx_N.fl, fz_N.fl, v_x_wheel_mps.fl),
@@ -579,19 +575,17 @@ template <Decimal T>
  * @param tire_forces_N per-wheel {Fx, Fy} from tireForces_N (Fy in the body's ISO frame)
  * @return per-wheel radial deflection in m
  */
-template <Decimal T>
-wheel_set<T> radial_deflection_estimate(
-    const wheel_set<T>       &fz_N,
-    const wheel_set<T>       &motor_omega_radps,
-    const wheel_set<Pair<T>> &tire_forces_N)
+inline wheel_set<float> radial_deflection_estimate(
+    const wheel_set<float>       &fz_N,
+    const wheel_set<float>       &motor_omega_radps,
+    const wheel_set<Pair<float>> &tire_forces_N)
 {
     // motor_omega_radps is motor speed; the vertical model's speed term needs wheel speed. The vertical model's Fy
     // offset (Q_FYS1) is in the tire's own frame, so Fy is mirrored back for the right-side tires.
-    const auto deflection_m = [](const T fz, const T motor_omega, const Pair<T> &f, const bool right_side)
+    const auto deflection_m = [](const float fz, const float motor_omega, const Pair<float> &f, const bool right_side)
     {
-        return static_cast<T>(app::controls::estimation::tire_model.compute_radialDeflection_m(
-            static_cast<float>(fz), static_cast<float>(motor_omega / static_cast<T>(GEAR_RATIO)),
-            static_cast<float>(f.x), static_cast<float>(right_side ? -f.y : f.y)));
+        return app::controls::estimation::tire_model.compute_radialDeflection_m(
+            fz, motor_omega / static_cast<float>(GEAR_RATIO), f.x, right_side ? -f.y : f.y);
     };
     return {
         .fl = deflection_m(fz_N.fl, motor_omega_radps.fl, tire_forces_N.fl, false),

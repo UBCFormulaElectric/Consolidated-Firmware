@@ -8,17 +8,16 @@ namespace app::controls::actuation::power_limit
 using Wheel = app::controls::Wheel;
 using namespace app::controls::torque_limits;
 
-template <Decimal T>
-wheel_set<T> limitPower(
-    wheel_set<T> motor_omega_radps,
-    wheel_set<T> motor_torque_Nm,
-    wheel_set<T> torque_max_Nm,
-    wheel_set<T> torque_min_Nm,
-    T            discharge_limit_W,
-    T            charge_limit_W)
+wheel_set<float> limitPower(
+    wheel_set<float> motor_omega_radps,
+    wheel_set<float> motor_torque_Nm,
+    wheel_set<float> torque_max_Nm,
+    wheel_set<float> torque_min_Nm,
+    float            discharge_limit_W,
+    float            charge_limit_W)
 {
-    T sum_omega_radps = 0;
-    T desired_power_W = 0;
+    float sum_omega_radps = 0;
+    float desired_power_W = 0;
 
     for (const Wheel wheel : { Wheel::FL, Wheel::FR, Wheel::RL, Wheel::RR })
     {
@@ -26,7 +25,7 @@ wheel_set<T> limitPower(
         desired_power_W += motor_omega_radps[wheel] * motor_torque_Nm[wheel];
     }
 
-    T delta_torque_Nm;
+    float delta_torque_Nm;
 
     if (desired_power_W < -1 * charge_limit_W)
     {
@@ -41,14 +40,14 @@ wheel_set<T> limitPower(
         delta_torque_Nm = 0;
     }
 
-    const wheel_set<T> limited_torque_Nm = {
+    const wheel_set<float> limited_torque_Nm = {
         .fl = std::clamp(motor_torque_Nm.fl - delta_torque_Nm, torque_min_Nm.fl, torque_max_Nm.fl),
         .fr = std::clamp(motor_torque_Nm.fr - delta_torque_Nm, torque_min_Nm.fr, torque_max_Nm.fr),
         .rl = std::clamp(motor_torque_Nm.rl - delta_torque_Nm, torque_min_Nm.rl, torque_max_Nm.rl),
         .rr = std::clamp(motor_torque_Nm.rr - delta_torque_Nm, torque_min_Nm.rr, torque_max_Nm.rr),
     };
 
-    T limited_power_W = 0;
+    float limited_power_W = 0;
     for (const Wheel wheel : { Wheel::FL, Wheel::FR, Wheel::RL, Wheel::RR })
     {
         limited_power_W += motor_omega_radps[wheel] * limited_torque_Nm[wheel];
@@ -63,7 +62,5 @@ wheel_set<T> limitPower(
 }
 
 // don't forget to make an explicit instatiation request so the compiler compiles your function in the .lib file!
-template wheel_set<float>
-    limitPower<float>(wheel_set<float>, wheel_set<float>, wheel_set<float>, wheel_set<float>, float, float);
 
 } // namespace app::controls::actuation::power_limit

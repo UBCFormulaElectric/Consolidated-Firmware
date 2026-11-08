@@ -64,7 +64,7 @@ template <DecimalOrDual T> struct wheel_set<Pair<T>>
      * rotates each pair in the z-axis by the respective angle in z_rot
      * @param z_rot_rad rotation angles for each wheel in radians
      */
-    template <Decimal D> void rotate(const wheel_set<D> &z_rot_rad)
+    void rotate(const wheel_set<float> &z_rot_rad)
     {
         fl = { fl.x * std::cos(z_rot_rad.fl) + fl.y * std::sin(z_rot_rad.fl),
                fl.y * std::cos(z_rot_rad.fl) - fl.x * std::sin(z_rot_rad.fl) };

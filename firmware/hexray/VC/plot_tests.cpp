@@ -31,8 +31,8 @@ static void plot_combined_fx()
         fxs.reserve(kappas.size());
         for (const double kappa : kappas)
         {
-            fxs.push_back(static_cast<double>(app::controls::estimation::tire_model.computeCombinedFx_N<tv_real>(
-                fz_N, alpha_rad, static_cast<tv_real>(kappa))));
+            fxs.push_back(static_cast<double>(app::controls::estimation::tire_model.computeCombinedFx_N<float>(
+                fz_N, alpha_rad, static_cast<float>(kappa))));
         }
         std::stringstream ss;
         ss << "\\alpha = " << std::setprecision(2) << alpha_rad;
@@ -69,8 +69,8 @@ static void plot_combined_fy()
         fys.reserve(alphas.size());
         for (const float alpha : alphas)
         {
-            fys.push_back(static_cast<double>(app::controls::estimation::tire_model.computeCombinedFy_N<tv_real>(
-                fz_N, alpha, static_cast<tv_real>(kappa))));
+            fys.push_back(static_cast<double>(app::controls::estimation::tire_model.computeCombinedFy_N<float>(
+                fz_N, alpha, static_cast<float>(kappa))));
         }
         std::stringstream ss;
         ss << "\\kappa = " << std::setprecision(2) << kappa;
@@ -87,7 +87,7 @@ static void plot_combined_fy()
 
 int main()
 {
-    // constexpr app::controls::VehicleState<double> state{
+    // constexpr app::controls::VehicleState state{
     //     .v_x_mps        = 10,
     //     .v_y_mps        = 0,
     //     .yaw_rate_radps = 0,

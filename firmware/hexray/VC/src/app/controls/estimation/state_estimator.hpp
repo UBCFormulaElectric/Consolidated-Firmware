@@ -44,12 +44,12 @@ namespace state_estimator
     constexpr std::size_t WHEEL_DIM  = 4;
     constexpr std::size_t ZSPEED_DIM = 2;
 
-    using Filter     = app::state_estimation::ekf<tv_real, NUM_STATES, NUM_INPUTS, WHEEL_DIM, GPS_DIM, ZSPEED_DIM>;
+    using Filter     = app::state_estimation::ekf<float, NUM_STATES, NUM_INPUTS, WHEEL_DIM, GPS_DIM, ZSPEED_DIM>;
     using Covariance = Filter::N_N;
 
-    [[nodiscard]] VehicleState<float> estimate(const Measurements &state);
-    [[nodiscard]] const Covariance   &covariance();
-    void                              reset_filter();
+    [[nodiscard]] VehicleState      estimate(const Measurements &state);
+    [[nodiscard]] const Covariance &covariance();
+    void                            reset_filter();
     // if you want to reset, just reconstruct the object
 }; // namespace state_estimator
 } // namespace app::controls::estimation

@@ -19,13 +19,12 @@ namespace app::controls::actuation::power_limit
 * @return De-rated motor torques in Nm
 **/
 
-template <Decimal T>
-wheel_set<T> limitPower(
-    wheel_set<T> motor_omega_radps,
-    wheel_set<T> motor_torque_Nm,
-    wheel_set<T> torque_max_Nm,
-    wheel_set<T> torque_min_Nm,
-    T            discharge_limit_W,
-    T            charge_limit_W);
+wheel_set<float> limitPower(
+    wheel_set<float> motor_omega_radps,
+    wheel_set<float> motor_torque_Nm,
+    wheel_set<float> torque_max_Nm,
+    wheel_set<float> torque_min_Nm,
+    float            discharge_limit_W,
+    float            charge_limit_W);
 
 } // namespace app::controls::actuation::power_limit

@@ -22,6 +22,5 @@ namespace app::controls::allocation
  * @param mz_setpoint_Nm requested yaw moment in Nm (ISO 8855, positive = left), from the yaw rate controller
  * @return Per-wheel optimal slip ratios
  */
-template <Decimal T>
-[[nodiscard]] wheel_set<T> optimize(const VehicleState<T> &state, T ax_setpoint_mps2, T mz_setpoint_Nm);
+[[nodiscard]] wheel_set<float> optimize(const VehicleState &state, float ax_setpoint_mps2, float mz_setpoint_Nm);
 } // namespace app::controls::allocation

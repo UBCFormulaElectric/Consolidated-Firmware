@@ -8,20 +8,20 @@ using namespace app::controls::params;
 
 namespace app::controls::reference::accel_request
 {
-template <Decimal T> AccelRequest<T> compute(T apps, T brake, T v_x_mps, bool regen_enabled)
+AccelRequest compute(float apps, float brake, float v_x_mps, bool regen_enabled)
 {
     // TODO: brake blending (regen in proportion to the brake pedal). May require some kind of brake model.
     // Net longitudinal request from both pedals (each 0..1). Braking requests fade out at low speed so the motors
-    // stop helping before standstill (otherwise they lock the wheels / reverse the car); the brake finish the stop.
-    // const T pedal      = state.apps - state.brake;
-    // const T brake_fade = std::clamp(state.v_x_mps / static_cast<T>(BRAKE_FADE_SPEED_MPS), T(0), T(1));
-    // const T ax_mps2_setpoint = pedal >= 0 ? MAX_AX_MPS2 * pedal : MAX_AX_MPS2 * pedal * brake_fade;
+    // stop helping before standstill (otherwise they lock the wheels / reverse the car); the brakes finish the stop.
+    // const float pedal      = state.apps - state.brake;
+    // const float brake_fade = std::clamp(state.v_x_mps / BRAKE_FADE_SPEED_MPS, 0.0f, 1.0f);
+    // const float ax_mps2_setpoint = pedal >= 0 ? MAX_AX_MPS2 * pedal : MAX_AX_MPS2 * pedal * brake_fade;
 
-    const T v_x_kmh                 = static_cast<T>(MPS_TO_KMH(static_cast<float>(v_x_mps)));
-    T       accel_request           = std::clamp((apps - PEDAL_DEADZONE) / (T(1.0) - PEDAL_DEADZONE), T(0.0), T(1.0));
-    T       regen_derate_factor     = std::clamp((v_x_kmh - MIN_SPEED_REGEN_KMH) / MIN_SPEED_REGEN_KMH, T(0), T(1));
-    T       brake_derate_factor     = std::clamp(T(5.0) * (T(1.0) - brake), T(0.0), T(1.0));
-    T       low_pedal_derate_factor = std::clamp((apps / PEDAL_DEADZONE), T(0.0), T(1.0));
+    const float v_x_kmh                 = MPS_TO_KMH(v_x_mps);
+    float       accel_request           = std::clamp((apps - PEDAL_DEADZONE) / (1.0f - PEDAL_DEADZONE), 0.0f, 1.0f);
+    float       regen_derate_factor     = std::clamp((v_x_kmh - MIN_SPEED_REGEN_KMH) / MIN_SPEED_REGEN_KMH, 0.0f, 1.0f);
+    float       brake_derate_factor     = std::clamp(5.0f * (1.0f - brake), 0.0f, 1.0f);
+    float       low_pedal_derate_factor = std::clamp((apps / PEDAL_DEADZONE), 0.0f, 1.0f);
 
     /**
      * With Regen enabled, we remap the acceleration pedal to enable one pedal driving:
@@ -56,7 +56,7 @@ template <Decimal T> AccelRequest<T> compute(T apps, T brake, T v_x_mps, bool re
 
     if (regen_enabled)
     {
-        T apps_remap = apps - REGEN_PEDAL_REGION;
+        float apps_remap = apps - REGEN_PEDAL_REGION;
 
         if (apps_remap < 0)
         {
@@ -83,20 +83,19 @@ template <Decimal T> AccelRequest<T> compute(T apps, T brake, T v_x_mps, bool re
         }
         else
         {
-            accel_request = (apps_remap - PEDAL_DEADZONE) / (T(1) - PEDAL_DEADZONE - REGEN_PEDAL_REGION);
+            accel_request = (apps_remap - PEDAL_DEADZONE) / (1.0f - PEDAL_DEADZONE - REGEN_PEDAL_REGION);
         }
     }
 
-    // While the driver brake, never request drive: the motors must not work against the mechanical brake (this also
+    // While the driver brakes, never request drive: the motors must not work against the mechanical brakes (this also
     // covers throttle and brake pressed together). Regen requests pass through.
     if (brake > BRAKE_ACTIVE_THRESHOLD)
     {
-        accel_request = std::min(accel_request, T(0));
+        accel_request = std::min(accel_request, 0.0f);
     }
 
     tv_debug_data.accel_req.accel_request = accel_request;
 
     return { accel_request, regen_derate_factor, brake_derate_factor, low_pedal_derate_factor };
 }
-template AccelRequest<tv_real> compute(tv_real apps, tv_real brake, tv_real v_x_mps, bool regen_enabled);
 } // namespace app::controls::reference::accel_request

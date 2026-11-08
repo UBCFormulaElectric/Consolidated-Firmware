@@ -6,7 +6,7 @@ namespace app::controls::actuation::speed_controller
 {
 // The car counts as stopped (speed controllers reset) while the estimated |v_x| and |v_y| are both below this. The
 // estimate is never exactly 0; at standstill the zero-speed update holds it within a few mm/s.
-static constexpr float STOPPED_SPEED_MPS = 0.05f;
+inline constexpr float STOPPED_SPEED_MPS = 0.05f;
 
 // actual velocity in INVRL is the motor rpm so no need to multiply by gear ratio.
 /**
@@ -27,15 +27,14 @@ static constexpr float STOPPED_SPEED_MPS = 0.05f;
  * @return per wheel motor torque request in Nm
  *
  * */
-template <Decimal T>
-[[nodiscard]] wheel_set<T> computeTorque(
-    const wheel_set<T> &motor_speed_request_radps,
-    const wheel_set<T> &motor_omega_radps,
-    const wheel_set<T> &fx_N,
-    const wheel_set<T> &radial_deflection_m,
-    const wheel_set<T> &my_Nm,
-    const wheel_set<T> &torque_max_Nm,
-    const wheel_set<T> &torque_min_Nm);
+[[nodiscard]] wheel_set<float> computeTorque(
+    const wheel_set<float> &motor_speed_request_radps,
+    const wheel_set<float> &motor_omega_radps,
+    const wheel_set<float> &fx_N,
+    const wheel_set<float> &radial_deflection_m,
+    const wheel_set<float> &my_Nm,
+    const wheel_set<float> &torque_max_Nm,
+    const wheel_set<float> &torque_min_Nm);
 
 void reset();
 } // namespace app::controls::actuation::speed_controller

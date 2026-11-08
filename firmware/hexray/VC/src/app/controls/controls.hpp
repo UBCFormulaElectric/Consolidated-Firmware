@@ -11,19 +11,19 @@
 
 namespace app::controls
 {
-template <Decimal T> struct ControlOutput
+struct ControlOutput
 {
-    wheel_set<T> kappas; // slip ratio setpoints
-    wheel_set<T> torque_max_Nm;
-    wheel_set<T> torque_min_Nm;
+    wheel_set<float> kappas; // slip ratio setpoints
+    wheel_set<float> torque_max_Nm;
+    wheel_set<float> torque_min_Nm;
 };
 
-template <Decimal T> struct ControlOutputAutonomous
+struct ControlOutputAutonomous
 {
-    wheel_set<T> kappas;
-    wheel_set<T> torque_max_Nm;
-    wheel_set<T> torque_min_Nm;
-    const T      steering_wheel_angle_rad = 0;
+    wheel_set<float> kappas;
+    wheel_set<float> torque_max_Nm;
+    wheel_set<float> torque_min_Nm;
+    const float      steering_wheel_angle_rad = 0;
 };
 
 struct ControlsConfig
@@ -37,15 +37,14 @@ struct ControlsConfig
  * @param state The current measured vehicle state, note that intent is in here as well
  * @return The per-wheel torque requests to achieve the desired accelerations, in Newton-meters
  */
-template <Decimal T> ControlOutput<T> update(const VehicleState<T> &state, const ControlsConfig config);
+ControlOutput update(const VehicleState &state, const ControlsConfig config);
 
 /**
  * This is the main entrypoint into the low level vehicle controls algorithm for autonomous
  * @param state The current measured vehicle state, note that intent is in here as well
  * @return
  */
-template <Decimal T>
-ControlOutputAutonomous<T> update_autonomous(const VehicleState<T> &state, const ControlsConfig config);
+ControlOutputAutonomous update_autonomous(const VehicleState &state, const ControlsConfig config);
 
 /**
  * Given the slip ratio setpoints, computes the motor speed setpoints that achieve them at the current vehicle speed
@@ -59,6 +58,5 @@ ControlOutputAutonomous<T> update_autonomous(const VehicleState<T> &state, const
  * angles and the brake pedal
  * @return per-wheel motor torque requests in Nm
  */
-template <Decimal T>
-wheel_set<T> kappa_update(const ControlOutput<T> &control, const VehicleState<T> &state, const ControlsConfig config);
+wheel_set<float> kappa_update(const ControlOutput &control, const VehicleState &state, const ControlsConfig config);
 } // namespace app::controls

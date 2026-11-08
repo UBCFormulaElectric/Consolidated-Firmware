@@ -13,19 +13,20 @@ namespace app::controls::actuation
  * @param max_axle_Nm upper limit for the sum of the two torques on each axle in Nm
  * @return the lowered per-wheel torque requests in Nm
  */
-template <Decimal T>
-wheel_set<T> limitAxleTorque(wheel_set<T> torque_Nm, const wheel_set<T> &torque_min_Nm, const T max_axle_Nm)
+inline wheel_set<float>
+    limitAxleTorque(wheel_set<float> torque_Nm, const wheel_set<float> &torque_min_Nm, const float max_axle_Nm)
 {
-    const auto limit_axle = [max_axle_Nm](T &left_Nm, T &right_Nm, const T min_left_Nm, const T min_right_Nm)
+    const auto limit_axle =
+        [max_axle_Nm](float &left_Nm, float &right_Nm, const float min_left_Nm, const float min_right_Nm)
     {
-        const T excess_Nm = left_Nm + right_Nm - max_axle_Nm;
-        if (excess_Nm <= T(0))
+        const float excess_Nm = left_Nm + right_Nm - max_axle_Nm;
+        if (excess_Nm <= 0.0f)
         {
             return;
         }
 
-        left_Nm -= excess_Nm / T(2.0);
-        right_Nm -= excess_Nm / T(2.0);
+        left_Nm -= excess_Nm / 2.0f;
+        right_Nm -= excess_Nm / 2.0f;
 
         if (left_Nm < min_left_Nm)
         {

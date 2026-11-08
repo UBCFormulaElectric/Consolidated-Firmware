@@ -85,12 +85,11 @@ template <DecimalOrDual T>
     // Combined-slip longitudinal force: F_x = G_xa * F_x0.
     return coefficients.g_xa * pure_fx_0;
 }
-template tv_real
-    TireModel::computeCombinedFx_N(float normal_load_N, float slip_angle_rad, const tv_real &slip_ratio) const;
-template DecimalDual<tv_real> TireModel::computeCombinedFx_N<DecimalDual<tv_real>>(
-    float                       normal_load_N,
-    float                       slip_angle_rad,
-    const DecimalDual<tv_real> &slip_ratio) const;
+template float TireModel::computeCombinedFx_N(float normal_load_N, float slip_angle_rad, const float &slip_ratio) const;
+template DecimalDual<float> TireModel::computeCombinedFx_N<DecimalDual<float>>(
+    float                     normal_load_N,
+    float                     slip_angle_rad,
+    const DecimalDual<float> &slip_ratio) const;
 
 template <DecimalOrDual T>
 [[nodiscard]] T TireModel::computeCombinedFy_N(const float fz_N, const float alpha_rad, const T &kappa) const
@@ -101,27 +100,25 @@ template <DecimalOrDual T>
     // Combined-slip lateral force: F_y = G_yk * F_y0 + S_vyk.
     return coefficients.g_yk * T(pure_fy_0) + coefficients.s_vyk;
 }
-template tv_real
-    TireModel::computeCombinedFy_N<tv_real>(float normal_load_N, float slip_angle_rad, const tv_real &slip_ratio) const;
-template DecimalDual<tv_real> TireModel::computeCombinedFy_N<DecimalDual<tv_real>>(
-    float                       normal_load_N,
-    float                       slip_angle_rad,
-    const DecimalDual<tv_real> &slip_ratio) const;
+template float
+    TireModel::computeCombinedFy_N<float>(float normal_load_N, float slip_angle_rad, const float &slip_ratio) const;
+template DecimalDual<float> TireModel::computeCombinedFy_N<DecimalDual<float>>(
+    float                     normal_load_N,
+    float                     slip_angle_rad,
+    const DecimalDual<float> &slip_ratio) const;
 
-template <Decimal T> T TireModel::effectiveRollingRadius_m(const float fz_N, const T v_x_mps) const
+float TireModel::effectiveRollingRadius_m(const float fz_N, const float v_x_mps) const
 {
     // MF 6.2 with dpi = 0 and linear vertical stiffness, so the normalized deflection rho_d = Fz / Fz0.
     // Free-rolling Omega * R0 ~= v_x is used in the centrifugal growth term.
-    const T     speed_ratio        = v_x_mps / static_cast<T>(rolling_radius_.LONGVL);
-    const T     r_omega            = static_cast<T>(R0) * (static_cast<T>(rolling_radius_.Q_RE0) +
-                                            static_cast<T>(rolling_radius_.Q_V1) * speed_ratio * speed_ratio);
+    const float speed_ratio        = v_x_mps / rolling_radius_.LONGVL;
+    const float r_omega            = R0 * (rolling_radius_.Q_RE0 + rolling_radius_.Q_V1 * speed_ratio * speed_ratio);
     const float nominal_deflection = FZ0 / rolling_radius_.VERTICAL_STIFFNESS;
     const float rho_d              = std::fmax(fz_N, 0.0f) / FZ0;
     const float load_term =
         rolling_radius_.DREFF * std::atan(rolling_radius_.BREFF * rho_d) + rolling_radius_.FREFF * rho_d;
-    return r_omega - static_cast<T>(nominal_deflection * load_term);
+    return r_omega - nominal_deflection * load_term;
 }
-template tv_real TireModel::effectiveRollingRadius_m(float fz_N, tv_real v_x_mps) const;
 
 template <DecimalOrDual T> T TireModel::computeMy_Nm(const float fz_N, const float v_x_mps, const T &fx_N) const
 {
@@ -164,9 +161,9 @@ template <DecimalOrDual T> T TireModel::computeMy_Nm(const float fz_N, const flo
 
     return T(-R0 * FZ0 * lambda_My * load_pressure_factor * direction) * bracket_term;
 }
-template tv_real TireModel::computeMy_Nm<tv_real>(float fz_N, float v_x_mps, const tv_real &fx_N) const;
-template DecimalDual<tv_real>
-    TireModel::computeMy_Nm<DecimalDual<tv_real>>(float fz_N, float v_x_mps, const DecimalDual<tv_real> &fx_N) const;
+template float TireModel::computeMy_Nm<float>(float fz_N, float v_x_mps, const float &fx_N) const;
+template DecimalDual<float>
+    TireModel::computeMy_Nm<DecimalDual<float>>(float fz_N, float v_x_mps, const DecimalDual<float> &fx_N) const;
 
 float TireModel::compute_radialDeflection_m(
     const float fz_N,

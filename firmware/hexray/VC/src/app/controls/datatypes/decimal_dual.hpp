@@ -2,15 +2,8 @@
 
 #include "util_decimal_dual.hpp" // Decimal, DecimalDual
 
-// Precision the torque-vectoring code is compiled for. Every template is instantiated for this one type only, so a
-// build contains either the float or the double version, never both. Firmware uses float; define TV_DOUBLE_PRECISION
-// (e.g. on the Simulink library target) to build the double version instead.
-#ifdef TV_DOUBLE_PRECISION
-using tv_real = double;
-#else
-using tv_real = float;
-#endif
-
+// The controls code runs in float (the Simulink wrapper converts its double signals at the boundary). Templates are
+// only used where a function also runs with dual numbers for the optimizer / EKF Jacobians.
 template <typename T>
 concept DecimalOrDual = std::same_as<T, float> || std::same_as<T, double> || std::same_as<T, DecimalDual<float>> ||
                         std::same_as<T, DecimalDual<double>>;

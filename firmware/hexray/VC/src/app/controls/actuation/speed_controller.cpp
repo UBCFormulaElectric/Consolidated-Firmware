@@ -51,24 +51,23 @@ static float calculateTireForceFeedback(const float fx_N, const float radial_def
     return -wheel_torque_Nm / GEAR_RATIO;
 }
 
-template <Decimal T>
-wheel_set<T> computeTorque(
-    const wheel_set<T> &motor_speed_request_radps,
-    const wheel_set<T> &motor_omega_radps,
-    const wheel_set<T> &fx_N,
-    const wheel_set<T> &radial_deflection_m,
-    const wheel_set<T> &my_Nm,
-    const wheel_set<T> &torque_max_Nm,
-    const wheel_set<T> &torque_min_Nm)
+wheel_set<float> computeTorque(
+    const wheel_set<float> &motor_speed_request_radps,
+    const wheel_set<float> &motor_omega_radps,
+    const wheel_set<float> &fx_N,
+    const wheel_set<float> &radial_deflection_m,
+    const wheel_set<float> &my_Nm,
+    const wheel_set<float> &torque_max_Nm,
+    const wheel_set<float> &torque_min_Nm)
 {
-    const wheel_set<T> tire_ffb_Nm = {
+    const wheel_set<float> tire_ffb_Nm = {
         .fl = calculateTireForceFeedback(fx_N.fl, radial_deflection_m.fl, my_Nm.fl),
         .fr = calculateTireForceFeedback(fx_N.fr, radial_deflection_m.fr, my_Nm.fr),
         .rl = calculateTireForceFeedback(fx_N.rl, radial_deflection_m.rl, my_Nm.rl),
         .rr = calculateTireForceFeedback(fx_N.rr, radial_deflection_m.rr, my_Nm.rr),
     };
 
-    const wheel_set<T> torque_Nm = {
+    const wheel_set<float> torque_Nm = {
         .fl = motorTorque(
             pid_fl, motor_speed_request_radps.fl, motor_omega_radps.fl, tire_ffb_Nm.fl, torque_max_Nm.fl,
             torque_min_Nm.fl),
@@ -89,14 +88,6 @@ wheel_set<T> computeTorque(
 
     return torque_Nm;
 }
-template wheel_set<tv_real> computeTorque(
-    const wheel_set<tv_real> &motor_speed_request_radps,
-    const wheel_set<tv_real> &motor_omega_radps,
-    const wheel_set<tv_real> &fx_N,
-    const wheel_set<tv_real> &radial_deflection_m,
-    const wheel_set<tv_real> &my_Nm,
-    const wheel_set<tv_real> &torque_max_Nm,
-    const wheel_set<tv_real> &torque_min_Nm);
 
 void reset()
 {
