@@ -226,6 +226,8 @@ elseif ("${TARGET}" STREQUAL "test")
 
     # MATLAB STATIC LIBRARY
     set(TV_ARCHIVE_OUTPUT_DIR "${CMAKE_CURRENT_BINARY_DIR}")
+    set(TV_CAN_INCLUDE_DIR "${CMAKE_CURRENT_BINARY_DIR}/app")
+    add_custom_target("hexray_VC_can_utils_header" DEPENDS "${TV_CAN_INCLUDE_DIR}/app_canUtils.hpp")
     add_subdirectory(src/app/controls)
 
 

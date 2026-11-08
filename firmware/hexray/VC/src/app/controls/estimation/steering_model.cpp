@@ -41,7 +41,7 @@ namespace app::controls::estimation::steering
      * Suspension Spreadsheet:
      * https://docs.google.com/spreadsheets/d/1gB3h8JgjsrMDLsJRusXe3zQUWp_cwrUp/edit?gid=2114943012#gid=2114943012
      */
-    
+
     // ISO 8855 (x forward, y left, z up): positive steering_wheel_angle_rad = left turn, and positive wheel angles turn
     // the wheels left. In a left turn the left wheel is the inner wheel.
     // TODO: Verify the steering angle sensor sign on the car matches this
@@ -50,6 +50,8 @@ namespace app::controls::estimation::steering
         return {
             .fl = inner_wheel_angle_rad(steering_wheel_angle_clamped_rad),
             .fr = outer_wheel_angle_rad(steering_wheel_angle_clamped_rad),
+            .rl = 0.0f,
+            .rr = 0.0f,
         };
     }
     else
@@ -57,6 +59,8 @@ namespace app::controls::estimation::steering
         return {
             .fl = outer_wheel_angle_rad(steering_wheel_angle_clamped_rad),
             .fr = inner_wheel_angle_rad(steering_wheel_angle_clamped_rad),
+            .rl = 0.0f,
+            .rr = 0.0f,
         };
     }
 }

@@ -2,7 +2,6 @@
 
 #ifdef TARGET_EMBEDDED
 #include "app_canUtils.hpp"
-#include "app_sbgEllipse.hpp"
 #endif
 
 #include "state_estimation/app_kalman_filter.hpp"

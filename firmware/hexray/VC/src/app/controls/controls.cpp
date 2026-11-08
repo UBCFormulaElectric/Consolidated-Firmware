@@ -92,7 +92,8 @@ namespace
         const auto motor_speed_radps = [](const float kappa, const float fz, const float v_x_mps)
         {
             const float v_regularized_mps = std::max(std::abs(v_x_mps), SLIP_REGULARIZATION_SPEED_MPS);
-            // Reverse is not a supported mode: never request backwards wheel rotation.
+            // Reverse is not comp legal but highkey would be useful for testing so we dont have to push the car
+            // could be integrated in a different manner though, not through the algorithm.
             const float wheel_surface_speed_mps = std::max(v_x_mps + kappa * v_regularized_mps, 0.0f);
             const float rolling_radius_m = estimation::tire_model.effectiveRollingRadius_m(fz, std::abs(v_x_mps));
             return GEAR_RATIO * wheel_surface_speed_mps / rolling_radius_m;
