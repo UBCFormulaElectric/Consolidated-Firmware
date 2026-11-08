@@ -314,7 +314,6 @@ void tasks_init()
 
     adcChipsInit();
     pwms_init();
-    hw::runtimeStat::init(htim7);
     fdcan1.init();
     fdcan2.init();
 

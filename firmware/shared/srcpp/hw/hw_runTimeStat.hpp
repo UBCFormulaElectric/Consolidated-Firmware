@@ -5,38 +5,21 @@
 #include <array>
 #include <cmsis_os.h>
 
-// added the below cuz imma force profiling at compiletime for now (may change)
-#if configUSE_TRACE_FACILITY != 1
-#error "configUSE_TRACE_FACILITY must be set to 1 in FreeRTOSConfig.h to use runTimeStat"
-#endif
-
-#if configGENERATE_RUN_TIME_STATS != 1
-#error "configGENERATE_RUN_TIME_STATS must be set to 1 in FreeRTOSConfig.h to use runTimeStat"
-#endif
-
 #include "hw_hal.hpp"
 #include "hw_rtosTaskHandler.hpp"
 #include "io_log.hpp"
 
-#if defined(STM32F412Rx)
-#include "stm32f4xx_hal_tim.h"
-#elif defined(STM32H562xx)
-#include "stm32h5xx_hal_tim.h"
-#elif defined(STM32H733xx)
-#include "stm32h7xx_hal_tim.h"
-#endif
+// When either FreeRTOS flag is off, monitor compiles down to an empty class that does no work
+#define HW_RUNTIME_STATS_ENABLED (configUSE_TRACE_FACILITY == 1 && configGENERATE_RUN_TIME_STATS == 1)
 
 namespace hw::runtimeStat
 {
-void init(TIM_HandleTypeDef &htim);
-void inc();
-
 template <size_t TaskCount> class monitor
 {
   public:
     struct TaskInfo
     {
-        const rtos::StaticTask &t;
+        const rtos::StaticTask &task;
         void (*cpu_usage_setter)(float);
         void (*cpu_usage_max_setter)(float);
         void (*stack_usage_max_setter)(float);
@@ -48,10 +31,11 @@ template <size_t TaskCount> class monitor
         void (*cpu_usage_max_setter)(float);
     };
 
+#if HW_RUNTIME_STATS_ENABLED
   private:
     struct TaskInfoInternal
     {
-        const rtos::StaticTask *t             = nullptr; // goood boyy
+        const rtos::StaticTask *task          = nullptr;
         void (*cpu_usage_setter)(float)       = nullptr;
         void (*cpu_usage_max_setter)(float)   = nullptr;
         void (*stack_usage_max_setter)(float) = nullptr;
@@ -75,7 +59,7 @@ template <size_t TaskCount> class monitor
         for (size_t i = 0; i < TaskCount; ++i)
         {
             _tasks_info[i] = {
-                .t                      = &tasks[i].t,
+                .task                   = &tasks[i].task,
                 .cpu_usage_setter       = tasks[i].cpu_usage_setter,
                 .cpu_usage_max_setter   = tasks[i].cpu_usage_max_setter,
                 .stack_usage_max_setter = tasks[i].stack_usage_max_setter,
@@ -108,11 +92,11 @@ template <size_t TaskCount> class monitor
             _prev_idle_runtime  = current_idle_time;
             for (size_t i = 0; i < TaskCount; ++i)
             {
-                if (_tasks_info[i].t == nullptr)
+                if (_tasks_info[i].task == nullptr)
                 {
                     continue;
                 }
-                const auto handle = static_cast<TaskHandle_t>(_tasks_info[i].t->id());
+                const auto handle = static_cast<TaskHandle_t>(_tasks_info[i].task->id());
                 if (handle != nullptr)
                 {
                     TaskStatus_t status;
@@ -152,12 +136,12 @@ template <size_t TaskCount> class monitor
         // check each registered task individually (preemptible O(1) runtime, preemptible stack check)
         for (size_t i = 0; i < TaskCount; ++i)
         {
-            if (_tasks_info[i].t == nullptr)
+            if (_tasks_info[i].task == nullptr)
             {
                 continue;
             }
 
-            const auto handle = static_cast<TaskHandle_t>(_tasks_info[i].t->id());
+            const auto handle = static_cast<TaskHandle_t>(_tasks_info[i].task->id());
             if (handle == nullptr)
             {
                 continue;
@@ -173,13 +157,12 @@ template <size_t TaskCount> class monitor
             if (delta_total > 0)
             {
                 const float task_cpu = (static_cast<float>(delta_task) / static_cast<float>(delta_total)) * 100.0f;
-                const float clamped_task_cpu = std::clamp(task_cpu, 0.0f, 100.0f);
 
                 if (_tasks_info[i].cpu_usage_setter != nullptr)
                 {
-                    _tasks_info[i].cpu_usage_setter(clamped_task_cpu);
+                    _tasks_info[i].cpu_usage_setter(task_cpu);
                 }
-                _max_task_cpu_usage[i] = std::max(_max_task_cpu_usage[i], clamped_task_cpu);
+                _max_task_cpu_usage[i] = std::max(_max_task_cpu_usage[i], task_cpu);
                 if (_tasks_info[i].cpu_usage_max_setter != nullptr)
                 {
                     _tasks_info[i].cpu_usage_max_setter(_max_task_cpu_usage[i]);
@@ -188,7 +171,7 @@ template <size_t TaskCount> class monitor
 
             // used preemptible high-water mark query
             const UBaseType_t free_words  = uxTaskGetStackHighWaterMark(handle);
-            const size_t      total_words = _tasks_info[i].t->stackSize();
+            const size_t      total_words = _tasks_info[i].task->stackSize();
             if (total_words > 0)
             {
                 float stack_usage = 0.0f;
@@ -206,5 +189,11 @@ template <size_t TaskCount> class monitor
             }
         }
     }
+#else
+  public:
+    constexpr monitor(const CpuInfoBroadcasters, const std::array<TaskInfo, TaskCount>) {}
+
+    void checkin() const {}
+#endif
 };
 } // namespace hw::runtimeStat

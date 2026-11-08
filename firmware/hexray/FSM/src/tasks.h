@@ -5,4 +5,3 @@
 
 CFUNC void       tasks_preInit(void);
 CFUNC NORET void tasks_init(void);
-CFUNC void       tasks_tim_callback(const TIM_HandleTypeDef *tim);

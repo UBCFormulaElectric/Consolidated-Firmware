@@ -281,7 +281,6 @@ void tasks_init()
     LOG_INFO("VC Reset!");
 
     osKernelInitialize();
-    hw::runtimeStat::init(htim7);
     fdcan1.init();
     invcan.init();
 
@@ -333,14 +332,4 @@ void tasks_init()
     VC_StartAllTasks();
     osKernelStart();
     forever {}
-}
-
-void tasks_tim_callback(const TIM_HandleTypeDef *tim)
-{
-#ifndef USE_CHIMERA
-    if (tim == &htim7)
-    {
-        hw::runtimeStat::inc();
-    }
-#endif
 }

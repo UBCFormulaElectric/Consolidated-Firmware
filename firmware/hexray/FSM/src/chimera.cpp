@@ -149,5 +149,3 @@ char USBD_PRODUCT_STRING_FS[] = "fsm";
     osKernelStart();
     forever {}
 }
-
-void tasks_tim_callback(const TIM_HandleTypeDef *tim) {}
