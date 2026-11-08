@@ -117,10 +117,6 @@ void jobs_run1kHz_tick()
 {
     io::can_tx::enqueueOtherPeriodicMsgs(io::time::getCurrentMs());
 }
-void jobs_runImu_tick()
-{
-    app::imus::broadcast();
-}
 void jobs_runBatteryMonitoring_tick()
 {
     LOG_IF_ERR(app::batteryMonitoring::update());
@@ -129,8 +125,9 @@ void jobs_runPowerMonitoring_tick()
 {
     LOG_IF_ERR(app::powerMonitoring::update());
 }
-void jobs_runSbgEllipse_tick()
+void jobs_runSensors_tick()
 {
+    app::imus::broadcast();
     io::sbgEllipse::handleLogs();
     app::sbgEllipse::broadcast();
 }

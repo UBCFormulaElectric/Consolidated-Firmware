@@ -29,39 +29,36 @@
 [[noreturn]] static void tasks_run1Hz(void *arg);
 [[noreturn]] static void tasks_run100Hz(void *arg);
 [[noreturn]] static void tasks_run1kHz(void *arg);
-[[noreturn]] static void tasks_runImu(void *arg);
 [[noreturn]] static void tasks_runCan1Tx(void *arg);
 [[noreturn]] static void tasks_runCan2Tx(void *arg);
 [[noreturn]] static void tasks_runCanRx(void *arg);
 [[noreturn]] static void tasks_batteryMonitoring(void *arg);
 [[noreturn]] static void tasks_powerMonitoring(void *arg);
-[[noreturn]] static void tasks_sbgEllipse(void *arg);
+[[noreturn]] static void tasks_sensors(void *arg);
 
 // Define the task with StaticTask Class
-constexpr size_t                                   TASK_COUNT = 9; // Batt Mon, Power Mon ADD
-static hw::rtos::StaticTask::StaticTaskStack<8096> Task100HzStack;
+constexpr size_t                                   TASK_COUNT = 8; // Batt Mon, Power Mon ADD
+static hw::rtos::StaticTask::StaticTaskStack<8192> Task100HzStack;
 static hw::rtos::StaticTask::StaticTaskStack<512>  Task1kHzStack;
 static hw::rtos::StaticTask::StaticTaskStack<512>  Task1HzStack;
-static hw::rtos::StaticTask::StaticTaskStack<512>  TaskImuStack;
 static hw::rtos::StaticTask::StaticTaskStack<512>  TaskCanRxStack;
 static hw::rtos::StaticTask::StaticTaskStack<512>  TaskCan1TxStack;
 static hw::rtos::StaticTask::StaticTaskStack<512>  TaskCan2TxStack;
 static hw::rtos::StaticTask::StaticTaskStack<1024> BatteryMonitoringStack;
 static hw::rtos::StaticTask::StaticTaskStack<512>  TaskPowerMonitoringStack;
-static hw::rtos::StaticTask::StaticTaskStack<4096> TaskSbgEllipseStack;
+static hw::rtos::StaticTask::StaticTaskStack<4096> TaskSensorsStack;
 
 static hw::rtos::StaticTask Task100Hz(osPriorityHigh, "Task100Hz", tasks_run100Hz, Task100HzStack);
 static hw::rtos::StaticTask Task1kHz(osPriorityRealtime, "Task1kHz", tasks_run1kHz, Task1kHzStack);
 static hw::rtos::StaticTask Task1Hz(osPriorityAboveNormal, "Task1Hz", tasks_run1Hz, Task1HzStack);
 static hw::rtos::StaticTask TaskCanRx(osPriorityNormal, "TaskCanRx", tasks_runCanRx, TaskCanRxStack);
-static hw::rtos::StaticTask TaskImu(osPriorityHigh, "TaskImu", tasks_runImu, TaskImuStack);
 static hw::rtos::StaticTask TaskCan1Tx(osPriorityNormal, "TaskCanTx", tasks_runCan1Tx, TaskCan1TxStack);
 static hw::rtos::StaticTask TaskCan2Tx(osPriorityHigh, "TaskCanTx", tasks_runCan2Tx, TaskCan2TxStack);
 static hw::rtos::StaticTask
     TaskBatteryMonitoring(osPriorityNormal, "TaskBatteryMonitoring", tasks_batteryMonitoring, BatteryMonitoringStack);
 static hw::rtos::StaticTask
     TaskPowerMonitoring(osPriorityNormal, "TaskPowerMonitoring", tasks_powerMonitoring, TaskPowerMonitoringStack);
-static hw::rtos::StaticTask TaskSbgEllipse(osPriorityNormal, "TaskSbgEllipse", tasks_sbgEllipse, TaskSbgEllipseStack);
+static hw::rtos::StaticTask TaskSensors(osPriorityHigh, "TaskSensors", tasks_sensors, TaskSensorsStack);
 
 static hw::runtimeStat::monitor<TASK_COUNT> runtimeMonitor{
     { app::can_tx::VC_CoreCpuUsage_set, app::can_tx::VC_CoreCpuUsageMax_set },
@@ -81,10 +78,8 @@ static hw::runtimeStat::monitor<TASK_COUNT> runtimeMonitor{
           { TaskPowerMonitoring, app::can_tx::VC_TaskRunPowerMonitoringCpuUsage_set,
             app::can_tx::VC_TaskRunPowerMonitoringCpuUsageMax_set,
             app::can_tx::VC_TaskRunPowerMonitoringStackUsage_set },
-          { TaskImu, app::can_tx::VC_TaskRunImuCpuUsage_set, app::can_tx::VC_TaskRunImuCpuUsageMax_set,
-            app::can_tx::VC_TaskRunImuStackUsage_set },
-          { TaskSbgEllipse, app::can_tx::VC_TaskRunSbgEllipseCpuUsage_set,
-            app::can_tx::VC_TaskRunSbgEllipseCpuUsageMax_set, app::can_tx::VC_TaskRunSbgEllipseStackUsage_set } },
+          { TaskSensors, app::can_tx::VC_TaskRunSensorsCpuUsage_set, app::can_tx::VC_TaskRunSensorsCpuUsageMax_set,
+            app::can_tx::VC_TaskRunSensorsStackUsage_set } },
         // Battery Monitoring...
     },
 };
@@ -138,21 +133,6 @@ void tasks_run1kHz(void *arg)
         jobs_run1kHz_tick();
         monitor.checkForTimeouts();
         watchdog1khz.checkIn();
-        start_ticks += period_ms;
-        osDelayUntil(start_ticks);
-    }
-}
-void tasks_runImu(void *arg)
-{
-    constexpr uint32_t      period_ms                = 10U;
-    constexpr uint32_t      watchdog_grace_period_ms = 2U;
-    hw::watchdog::instance &watchdogImu              = monitor.spawn_instance(period_ms, watchdog_grace_period_ms);
-
-    uint32_t start_ticks = osKernelGetTickCount();
-    forever
-    {
-        jobs_runImu_tick();
-        watchdogImu.checkIn();
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
     }
@@ -238,17 +218,17 @@ void tasks_runCanRx(void *arg)
         osDelayUntil(start_ticks);
     }
 }
-[[noreturn]] static void tasks_sbgEllipse(void *arg)
+[[noreturn]] static void tasks_sensors(void *arg)
 {
     static const TickType_t period_ms                = 10;
     constexpr uint32_t      watchdog_grace_period_ms = 2U;
-    hw::watchdog::instance &watchdogSbgEllipse       = monitor.spawn_instance(period_ms, watchdog_grace_period_ms);
+    hw::watchdog::instance &watchdogSensors          = monitor.spawn_instance(period_ms, watchdog_grace_period_ms);
 
     uint32_t start_ticks = osKernelGetTickCount();
     forever
     {
-        jobs_runSbgEllipse_tick();
-        watchdogSbgEllipse.checkIn();
+        jobs_runSensors_tick();
+        watchdogSensors.checkIn();
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
     }
@@ -259,13 +239,12 @@ static void VC_StartAllTasks()
     Task100Hz.start();
     Task1kHz.start();
     Task1Hz.start();
-    TaskImu.start();
     TaskCanRx.start();
     TaskCan1Tx.start();
     TaskCan2Tx.start();
     // TaskBatteryMonitoring.start();
     TaskPowerMonitoring.start();
-    TaskSbgEllipse.start();
+    TaskSensors.start();
 }
 
 void tasks_preInit()
