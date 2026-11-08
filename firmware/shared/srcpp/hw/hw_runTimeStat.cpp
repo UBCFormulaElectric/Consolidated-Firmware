@@ -9,7 +9,7 @@ void hw::runtimeStat::init([[maybe_unused]] TIM_HandleTypeDef &htim)
 
 void hw::runtimeStat::inc()
 {
-    // kept for backward compatibility with board timer callbacks
+    // kept for backward compatibility with board timer callbacks.
 }
 
 extern "C"
