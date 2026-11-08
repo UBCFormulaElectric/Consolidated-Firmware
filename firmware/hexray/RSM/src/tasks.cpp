@@ -197,6 +197,7 @@ void tasks_init()
 
     adcchipsInit();
     can1.init();
+    hw::runtimeStat::init(htim7);
     const ResetReason reason = hw::resetReason::get();
     app::can_tx::RSM_ResetReason_set(static_cast<app::can_utils::CanResetReason>(reason));
     if (reason == RESET_REASON_WATCHDOG)
@@ -232,6 +233,16 @@ void tasks_init()
     RSM_StartAllTasks();
     osKernelStart();
     forever {}
+}
+
+void tasks_tim_callback(const TIM_HandleTypeDef *tim)
+{
+#ifndef USE_CHIMERA
+    if (tim == &htim7)
+    {
+        hw::runtimeStat::inc();
+    }
+#endif
 }
 void tasks_handle_arr_rollover_callback(TIM_HandleTypeDef *htim)
 {

@@ -218,6 +218,7 @@ void tasks_init()
     // #endif
 
     fdcan1.init();
+    hw::runtimeStat::init(htim7);
 
     const ResetReason reason = hw::resetReason::get();
     app::can_tx::CRIT_ResetReason_set(static_cast<app::can_utils::CanResetReason>(reason));
@@ -248,4 +249,12 @@ void tasks_init()
     CRIT_StartAllTasks();
     osKernelStart();
     forever {}
+}
+
+void tasks_tim_callback(const TIM_HandleTypeDef *htim)
+{
+    if (htim == &htim7)
+    {
+        hw::runtimeStat::inc();
+    }
 }
