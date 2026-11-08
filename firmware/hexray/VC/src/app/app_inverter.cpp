@@ -6,7 +6,7 @@
 #include "app_canTx.hpp"
 #include "app_canRx.hpp"
 #include "app_canAlerts.hpp"
-#include "torque_vectoring/shared_datatypes/torque_limits.hpp"
+#include "controls/torque_limits.hpp"
 #include "io_log.hpp"
 #include <app_canUtils.hpp>
 
@@ -84,7 +84,7 @@ void inverter::inverter_enable_toggle(const bool fl, const bool fr, const bool r
 
 void inverter::set_torque_limit_negative(const float fl_Nm, const float fr_Nm, const float rl_Nm, const float rr_Nm)
 {
-    using tv::datatypes::torque_limits::TORQUE_REQUEST;
+    using controls::torque_limits::TORQUE_REQUEST;
 
     inverter_handle_FL.can_torque_limit_negative(TORQUE_REQUEST(fl_Nm));
     inverter_handle_FR.can_torque_limit_negative(TORQUE_REQUEST(fr_Nm));
@@ -94,7 +94,7 @@ void inverter::set_torque_limit_negative(const float fl_Nm, const float fr_Nm, c
 
 void inverter::set_torque_limit_positive(const float fl_Nm, const float fr_Nm, const float rl_Nm, const float rr_Nm)
 {
-    using tv::datatypes::torque_limits::TORQUE_REQUEST;
+    using controls::torque_limits::TORQUE_REQUEST;
 
     inverter_handle_FL.can_torque_limit_positive(TORQUE_REQUEST(fl_Nm));
     inverter_handle_FR.can_torque_limit_positive(TORQUE_REQUEST(fr_Nm));
@@ -104,7 +104,7 @@ void inverter::set_torque_limit_positive(const float fl_Nm, const float fr_Nm, c
 
 void inverter::send_torque(const float fl_Nm, const float fr_Nm, const float rl_Nm, const float rr_Nm)
 {
-    using tv::datatypes::torque_limits::TORQUE_REQUEST;
+    using controls::torque_limits::TORQUE_REQUEST;
 
     inverter_handle_FL.can_torque_setpoint(TORQUE_REQUEST(fl_Nm));
     inverter_handle_FR.can_torque_setpoint(TORQUE_REQUEST(fr_Nm));

@@ -226,7 +226,7 @@ elseif ("${TARGET}" STREQUAL "test")
 
     # MATLAB STATIC LIBRARY
     set(TV_ARCHIVE_OUTPUT_DIR "${CMAKE_CURRENT_BINARY_DIR}")
-    add_subdirectory(src/app/torque_vectoring)
+    add_subdirectory(src/app/controls)
 
 
     # MATPLOTLIB TESTING (only when matplotlib-cpp could be configured, see cmake/matplotlib.cmake)
@@ -234,8 +234,8 @@ elseif ("${TARGET}" STREQUAL "test")
         add_executable(test_controls)
         target_sources(test_controls PRIVATE
                 "${CMAKE_CURRENT_SOURCE_DIR}/plot_tests.cpp"
-                "${CMAKE_CURRENT_SOURCE_DIR}/src/app/torque_vectoring/estimation/tire_model.cpp"
-                "${CMAKE_CURRENT_SOURCE_DIR}/src/app/torque_vectoring/controllers/torque_allocator.cpp"
+                "${CMAKE_CURRENT_SOURCE_DIR}/src/app/controls/estimation/tire_model.cpp"
+                "${CMAKE_CURRENT_SOURCE_DIR}/src/app/controls/allocation/optimizer.cpp"
         )
         target_include_directories(test_controls PRIVATE
                 "${CMAKE_CURRENT_SOURCE_DIR}/src/app"

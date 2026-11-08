@@ -1,7 +1,7 @@
 // ReSharper disable CppTooWideScope
 #include "matplotlibcpp.h"
-#include "torque_vectoring/estimation/tire_model.hpp"
-#include "torque_vectoring/controllers/torque_allocator.hpp"
+#include "controls/estimation/tire_model.hpp"
+#include "controls/allocation/optimizer.hpp"
 
 #include <vector>
 #include <string>
@@ -31,7 +31,7 @@ static void plot_combined_fx()
         fxs.reserve(kappas.size());
         for (const double kappa : kappas)
         {
-            fxs.push_back(static_cast<double>(app::tv::estimation::tire_model.computeCombinedFx_N<tv_real>(
+            fxs.push_back(static_cast<double>(app::controls::estimation::tire_model.computeCombinedFx_N<tv_real>(
                 fz_N, alpha_rad, static_cast<tv_real>(kappa))));
         }
         std::stringstream ss;
@@ -69,7 +69,7 @@ static void plot_combined_fy()
         fys.reserve(alphas.size());
         for (const float alpha : alphas)
         {
-            fys.push_back(static_cast<double>(app::tv::estimation::tire_model.computeCombinedFy_N<tv_real>(
+            fys.push_back(static_cast<double>(app::controls::estimation::tire_model.computeCombinedFy_N<tv_real>(
                 fz_N, alpha, static_cast<tv_real>(kappa))));
         }
         std::stringstream ss;
@@ -87,7 +87,7 @@ static void plot_combined_fy()
 
 int main()
 {
-    // constexpr app::tv::shared_datatypes::VehicleState<double> state{
+    // constexpr app::controls::VehicleState<double> state{
     //     .v_x_mps        = 10,
     //     .v_y_mps        = 0,
     //     .yaw_rate_radps = 0,
@@ -96,7 +96,7 @@ int main()
     //     .apps           = 0.2,
     //     .delta          = 0,
     // };
-    // const auto [fl, fr, rl, rr] = app::tv::controllers::allocator::optimize(state, 10.0, 5.0);
+    // const auto [fl, fr, rl, rr] = app::controls::allocation::optimize(state, 10.0, 5.0);
     // std::cout << "Optimal slip found: " << fl << " " << fr << " " << rl << " " << rr << std::endl;
 
     // plot_combined_fx();
