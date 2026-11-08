@@ -11,7 +11,8 @@
 namespace
 {
 constexpr float   DISCHARGE_THRESHOLD_V = 5e-3f;
-// Effective duty with ADBMS task running is 
+// Effective duty with ADBMS task running is 49%
+
 constexpr uint8_t DUTY              = 0x08;
 
 uint32_t pwm_updated_ms = 0U;

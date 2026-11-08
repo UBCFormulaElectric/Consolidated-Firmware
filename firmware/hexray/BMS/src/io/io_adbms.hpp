@@ -96,7 +96,7 @@ struct __attribute__((packed)) CFGB
 
     uint8_t dcc_9_16; // discharge cell x
 
-    // dcto reads back the time left, so only whether it has run out is checked
+    // dcto reads back the time left
     bool operator==(const CFGB &other) const
     {
         return (dcto_0_5 == 0) == (other.dcto_0_5 == 0) && vuv_0_7 == other.vuv_0_7 && vuv_8_11 == other.vuv_8_11 &&
