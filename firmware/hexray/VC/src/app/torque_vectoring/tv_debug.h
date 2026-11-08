@@ -18,7 +18,7 @@ typedef struct
 {
     double r_ref;     // reference yaw rate (rad/s)
     double r_err;     // r_ref - r_meas (rad/s)
-    double r_dot_des; // yaw controller output (yaw moment request, Nm)
+    double mz_des_Nm; // yaw controller output: yaw moment request (Nm)
 } yrc_info;
 
 typedef struct
@@ -32,7 +32,16 @@ typedef struct
 typedef struct
 {
     double accel_request_percent;
+    double torque_max_Nm[4]; // per-motor torque limits for the speed controller (Nm)
+    double torque_min_Nm[4];
 } accel_request_info;
+
+typedef struct
+{
+    double speed_request_radps[4]; // motor speed setpoints (rad/s)
+    double tire_ffb_Nm[4];         // tire force feedforward (motor torque, Nm)
+    double desired_torque_Nm[4];   // speed controller output, before the brake and power limits (Nm)
+} speed_controller_info;
 
 typedef struct
 {
@@ -54,19 +63,21 @@ typedef struct
 
 typedef struct
 {
-    double desired_power_draw;
+    double desired_power_draw; // mechanical power of the speed controller torques (W)
+    double limited_power_draw; // mechanical power after the power limit and the torque clamp (W)
     double discharge_pl;
     double charge_pl;
 } power_limiting_info;
 
 typedef struct
 {
-    optimizer_info      optimizer;
-    yrc_info            yrc;
-    veh_state_info      veh_state;
-    veh_ekf_info        ekf_info;
-    accel_request_info  accel_req;
-    power_limiting_info plim;
+    optimizer_info        optimizer;
+    yrc_info              yrc;
+    veh_state_info        veh_state;
+    veh_ekf_info          ekf_info;
+    accel_request_info    accel_req;
+    power_limiting_info   plim;
+    speed_controller_info speed_ctrl;
 } tv_debug;
 
 #ifdef __cplusplus

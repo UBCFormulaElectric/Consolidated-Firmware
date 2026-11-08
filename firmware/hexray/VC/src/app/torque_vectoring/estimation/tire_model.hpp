@@ -1,8 +1,14 @@
 #pragma once
 #include "torque_vectoring/shared_datatypes/decimal_dual.hpp"
+#include "torque_vectoring/shared_datatypes/wheel_set.hpp"
+#include "util_units.hpp"
+#include <algorithm>
 
 namespace app::tv::estimation
 {
+using shared_datatypes::Pair;
+using shared_datatypes::wheel_set;
+
 class TireModel
 {
   public:
@@ -515,5 +521,83 @@ class HoosierTireModel : public TireModel
 };
 
 inline constexpr HoosierTireModel tire_model{};
+
+// The combined-slip Fx fit (rCx1 sits on its fit bound at 1.4) flips sign beyond |alpha| ~ 0.22 rad, which is
+// outside the measured data. Saturate the slip angle fed to the fit at the edge of its valid region.
+inline constexpr float FIT_MAX_ALPHA_RAD = 0.2f;
+
+/**
+ * Combined-slip tire forces at all four wheels, from the tire fit. The fit describes one physical tire, and the
+ * right-side tires are its mirror image. Using the fit unmirrored on both sides puts its ply-steer/conicity offsets
+ * (Fy ~ -20 N at alpha = 0) in the same direction on all four tires, which predicts a yaw moment the car does not have.
+ * So for the fr and rr tires the slip angle is mirrored into the fit and Fy is mirrored back. The slip angle fed to
+ * the fit is saturated to FIT_MAX_ALPHA_RAD.
+ * @param fz_N per-wheel normal loads in N
+ * @param alpha_rad per-wheel slip angles in the body's ISO frame
+ * @param kappa per-wheel slip ratios (plain or dual numbers)
+ * @return per-wheel {Fx, Fy} in N, Fy in the body's ISO frame (y left)
+ */
+template <DecimalOrDual T>
+[[nodiscard]] wheel_set<Pair<T>>
+    tireForces_N(const wheel_set<tv_real> &fz_N, const wheel_set<tv_real> &alpha_rad, const wheel_set<T> &kappa)
+{
+    const auto forces = [](const tv_real fz, const tv_real alpha, const T &k, const bool right_side) -> Pair<T>
+    {
+        const float fit_alpha =
+            std::clamp(static_cast<float>(right_side ? -alpha : alpha), -FIT_MAX_ALPHA_RAD, FIT_MAX_ALPHA_RAD);
+        const T fy = tire_model.computeCombinedFy_N<T>(static_cast<float>(fz), fit_alpha, k);
+        return { tire_model.computeCombinedFx_N<T>(static_cast<float>(fz), fit_alpha, k), right_side ? T(-fy) : fy };
+    };
+    return {
+        .fl = forces(fz_N.fl, alpha_rad.fl, kappa.fl, false),
+        .fr = forces(fz_N.fr, alpha_rad.fr, kappa.fr, true),
+        .rl = forces(fz_N.rl, alpha_rad.rl, kappa.rl, false),
+        .rr = forces(fz_N.rr, alpha_rad.rr, kappa.rr, true),
+    };
+}
+
+template <Decimal T>
+[[nodiscard]] wheel_set<T> tireMy_Nm(wheel_set<T> Fx_N, wheel_set<T> Fz_N, wheel_set<T> vx_wheel_mps)
+{
+    const auto M_y = [](const T fx, const T fz, const T v_x_mps) {
+        return app::tv::estimation::tire_model.computeMy_Nm<T>(static_cast<float>(fz), static_cast<float>(v_x_mps), fx);
+    };
+
+    return {
+        .fl = M_y(Fx_N.fl, Fz_N.fl, vx_wheel_mps.fl),
+        .fr = M_y(Fx_N.fr, Fz_N.fr, vx_wheel_mps.fr),
+        .rl = M_y(Fx_N.rl, Fz_N.rl, vx_wheel_mps.rl),
+        .rr = M_y(Fx_N.rr, Fz_N.rr, vx_wheel_mps.rr),
+    };
+}
+
+/**
+ * Estimates each tire's radial deflection for the tire force feedback's loaded radius
+ * @param fz_N per-wheel normal loads
+ * @param omega_radps measured motor speeds in rad/s
+ * @param tire_F_N per-wheel {Fx, Fy} from tireForces_N (Fy in the body's ISO frame)
+ * @return per-wheel radial deflection in m
+ */
+template <Decimal T>
+wheel_set<T> radial_deflection_estimate(
+    const wheel_set<T>       &Fz_N,
+    const wheel_set<T>       &omega_radps,
+    const wheel_set<Pair<T>> &tire_F_N)
+{
+    // omega_radps is motor speed; the vertical model's speed term needs wheel speed. The vertical model's Fy offset
+    // (Q_FYS1) is in the tire's own frame, so Fy is mirrored back for the right-side tires.
+    const auto deflection_m = [](const T fz, const T motor_omega, const Pair<T> &f, const bool right_side)
+    {
+        return static_cast<T>(app::tv::estimation::tire_model.compute_radialDeflection_m(
+            static_cast<float>(fz), static_cast<float>(motor_omega / static_cast<T>(GEAR_RATIO)),
+            static_cast<float>(f.x), static_cast<float>(right_side ? -f.y : f.y)));
+    };
+    return {
+        .fl = deflection_m(Fz_N.fl, omega_radps.fl, tire_F_N.fl, false),
+        .fr = deflection_m(Fz_N.fr, omega_radps.fr, tire_F_N.fr, true),
+        .rl = deflection_m(Fz_N.rl, omega_radps.rl, tire_F_N.rl, false),
+        .rr = deflection_m(Fz_N.rr, omega_radps.rr, tire_F_N.rr, true),
+    };
+}
 
 } // namespace app::tv::estimation

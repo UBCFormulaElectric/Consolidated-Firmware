@@ -42,7 +42,7 @@ namespace
     constexpr std::size_t  U_AX = 1;
     constexpr std::size_t  U_AY = 2;
 
-    constexpr float ESTIMATOR_DT_S        = 0.05f;                       // Matches the 100 Hz control task.
+    constexpr float ESTIMATOR_DT_S        = 0.01f;                       // Matches the 100 Hz control task.
     constexpr float ESTIMATOR_YAW_INERTIA = CAR_YAW_MOMENT_INERTIA_KGM2; // same yaw inertia as the controller
 
     [[nodiscard]] Filter::N_N processNoise()
@@ -52,7 +52,7 @@ namespace
 
     [[nodiscard]] Filter::M_M<GPS_DIM> gpsMeasNoise()
     {
-        return Filter::M_1<GPS_DIM>(0.01f, 0.01f).asDiagonal();
+        return Filter::M_1<GPS_DIM>(0.001f, 0.001f).asDiagonal();
     }
 
     [[nodiscard]] Filter::M_M<WHEEL_DIM> wheelspeedMeasNoise()
@@ -66,7 +66,7 @@ namespace
     {
         // Variance of each wheel's angular velocity, (rad/s)^2. Large on purpose: the model assumes free rolling, but
         // all four wheels are driven, so under drive/brake torque the measured speed includes slip (~5-10 % near peak).
-        return Filter::M_1<ZSPEED_DIM>(0.001f, 0.001f).asDiagonal();
+        return Filter::M_1<ZSPEED_DIM>(0.0001f, 0.01f).asDiagonal();
     }
 
     // Predict Step
@@ -187,15 +187,20 @@ namespace
     };
 
     // Zero-speed detection, separately for each axis.
-    //   v_x = 0: wheels stopped AND no longitudinal acceleration. The a_x check rejects a locked-wheel skid, where the
-    //            wheels read 0 but the car is still decelerating.
-    //   v_y = 0: wheels stopped AND no lateral acceleration AND no yaw rate. Rejects the car sliding sideways.
+    //   v_x = 0: wheels stopped AND no longitudinal acceleration AND accelerator released. The a_x check rejects a
+    //            locked-wheel skid, where the wheels read 0 but the car is still decelerating. The accelerator check
+    //            keeps the row off at a launch. The brake pedal is not checked, so the driver does not have to hold the
+    //            brake at standstill.
+    //   v_y = 0: no lateral acceleration AND no yaw rate, at any speed. With no lateral tire force and no yaw moment
+    //            the slip angles are ~0, so v_y is ~0 (e.g. driving or accelerating in a straight line). Rejects the
+    //            car sliding sideways, which needs lateral tire force. No pedal check.
     // Thresholds are sized for worst-case sensor noise (wheel speed sigma 0.5 rad/s, acceleration sigma 0.8 m/s^2 with
     // a 0.6 m/s^2 bias) so the checks still pass at standstill. A locked-wheel skid (a_x ~ -8 m/s^2) is still rejected.
     constexpr float    ZERO_SPEED_WHEEL_RADPS = 1.5f; // 3 sigma of wheel speed noise, ~0.35 m/s at the tire
     constexpr float    ZERO_SPEED_ACCEL_MPS2  = 2.0f; // bias + ~1.75 sigma of acceleration noise
     constexpr float    ZERO_SPEED_YAW_RADPS   = 0.1f;
-    constexpr uint32_t ZERO_SPEED_CONFIRM     = 4U; // consecutive cycles (200 ms at 20 Hz) before the row is used
+    constexpr float    ZERO_SPEED_MAX_APPS    = 0.02f; // accelerator pedal, 0..1
+    constexpr uint32_t ZERO_SPEED_CONFIRM     = 4U;    // consecutive cycles (40 ms at 100 Hz) before the row is used
 
     uint32_t vx_zero_cycles = 0U;
     uint32_t vy_zero_cycles = 0U;
@@ -222,10 +227,9 @@ namespace
     // Call once per estimate() cycle. Returns which axes are confirmed at zero velocity: {v_x, v_y}.
     [[nodiscard]] std::array<bool, ZSPEED_DIM> updateZeroSpeed()
     {
-        const bool stopped    = wheelsStopped();
-        const bool pedal_cond = zSpeedPedalCondition();
-        const bool vx_zero    = stopped && pedal_cond && std::abs(vehicle_state.a_x_mps2) < ZERO_SPEED_ACCEL_MPS2;
-        const bool vy_zero    = stopped && pedal_cond && std::abs(vehicle_state.a_y_mps2) < ZERO_SPEED_ACCEL_MPS2 &&
+        const bool vx_zero = wheelsStopped() && vehicle_state.apps < ZERO_SPEED_MAX_APPS &&
+                             std::abs(vehicle_state.a_x_mps2) < ZERO_SPEED_ACCEL_MPS2;
+        const bool vy_zero = std::abs(vehicle_state.a_y_mps2) < ZERO_SPEED_ACCEL_MPS2 &&
                              std::abs(vehicle_state.yaw_rate_radps) < ZERO_SPEED_YAW_RADPS;
 
         return { { confirm(vx_zero_cycles, vx_zero), confirm(vy_zero_cycles, vy_zero) } };
@@ -264,14 +268,15 @@ namespace VehicleStateEstimator
             .a_y_mps2       = meas.ay_mps2,
             .apps           = meas.apps,
             .brake          = meas.brake,
+            .charge_pl      = meas.charge_power_limit,
+            .discharge_pl   = meas.discharge_power_limit,
             .delta          = app::tv::estimation::steering::wheel_steer_angles(meas.delta),
             .omegas         = meas.omegas,
         };
 
         const auto wheelspeed_meas = WheelMeas(meas.omegas.fl, meas.omegas.fr, meas.omegas.rl, meas.omegas.rr);
 
-        // const auto gps_meas = Filter::M_1<GPS_DIM>(meas.gps_vx_mps, meas.gps_vy_mps);
-        auto gps_meas = GpsMeas::none(); // temporarily disabling for testing
+        auto gps_meas = GpsMeas::none();
 #ifdef TARGET_EMBEDDED
         if (meas.sbg_ekf_mode == app::can_utils::VcEkfStatus::POSITION)
         {

@@ -46,7 +46,7 @@ inline constexpr float DRIVER_MASS_KG           = 70.0f;  // Mass with driver (v
 inline constexpr float CAR_MASS_AT_CG_KG =
     CAR_MASS_CG_NO_DRIVER_KG + DRIVER_MASS_KG; // Mass with driver (verified with suspension team)
 // Estimated yaw moment of inertia about CG (TODO: Update with suspension team)
-inline constexpr float CAR_YAW_MOMENT_INERTIA_KGM2 = 400.0f;
+inline constexpr float CAR_YAW_MOMENT_INERTIA_KGM2 = 200.0f;
 
 inline constexpr float DIST_FRONT_AXLE_CG_m = 0.837f; // Distance from front axle to CG (parameter 'a')
 inline constexpr float DIST_REAR_AXLE_CG_m =
@@ -81,6 +81,8 @@ inline constexpr float MAX_BATTERY_TEMP = 45.0f; // TODO: Verify this is current
 inline constexpr float MIN_SPEED_REGEN_KMH = 5.0f;
 inline constexpr float REGEN_PEDAL_REGION  = 0.2f;
 inline constexpr float PEDAL_DEADZONE      = 0.1f;
+// Brake pedal (0..1) above which the driver is braking: no drive request and no net positive motor torque
+inline constexpr float BRAKE_ACTIVE_THRESHOLD = 0.05f;
 
 // =============================================================================
 // WHEEL AND STEERING PARAMETERS

@@ -22,6 +22,8 @@ template <Decimal T>
 shared_datatypes::wheel_set<T> limitPower(
     shared_datatypes::wheel_set<T> desired_omegas,
     shared_datatypes::wheel_set<T> desired_torques,
+    shared_datatypes::wheel_set<T> torque_max,
+    shared_datatypes::wheel_set<T> torque_min,
     T                              discharge_pl,
     T                              charge_pl);
 

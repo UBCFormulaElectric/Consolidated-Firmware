@@ -21,17 +21,14 @@ namespace
 {
     // ---- Optimizer tuning ----
     constexpr float W_FX = 2.5f;
-    constexpr float W_MZ = 15.0f;
-    constexpr float W_R  = 2000.0f;
+    constexpr float W_MZ = 5.0f;
+    constexpr float W_R  = 100.0f; // tuned with the yaw Kp on the driver_sim autocross lap (was 500)
 
     constexpr int MAX_ITER = 20;
     // Static bound on each wheel's slip target. The tire's Fx peak moves with slip angle (~0.09 at alpha = 0,
     // ~0.24 at alpha = 0.1), so this is a compromise: too low caps cornering force, too high lets straight-line
     // targets go past the peak (unstable wheel-speed loop, second cost basin, cycle-to-cycle jumps).
-    constexpr float SLIP_CLAMP = 0.4f;
-    // The combined-slip Fx fit (rCx1 sits on its fit bound at 1.4) flips sign beyond |alpha| ~ 0.22 rad, which is
-    // outside the measured data. Saturate the slip angle fed to the fit at the edge of its valid region.
-    constexpr float FIT_MAX_ALPHA_RAD = 0.2f;
+    constexpr float SLIP_CLAMP        = 0.4f;
     constexpr float NORMAL_MATRIX_EPS = 1e-6f; // Levenberg-Marquardt damping floor
     constexpr float STEP_TOLERANCE    = 1e-5f;
     constexpr float COST_TOLERANCE    = 1e-6f;
@@ -53,7 +50,7 @@ namespace
 } // namespace
 
 template <Decimal T>
-[[nodiscard]] wheel_set<T> optimize(const VehicleState<T> &state, const T ax_setpoint, const T omegadot_setpoint)
+[[nodiscard]] wheel_set<T> optimize(const VehicleState<T> &state, const T ax_setpoint, const T mz_setpoint_Nm)
 {
     // Low-speed safeguard:
     // torque_vectoring.cpp computes a single force-availability blend from vehicle speed and passes it
@@ -101,36 +98,17 @@ template <Decimal T>
     //
     // We keep all vectors/matrices fixed-size (4 decision variables, 2 residuals) so the optimizer
     // stays allocation-free and predictable on embedded targets.
-    const auto [fz_fl, fz_fr, fz_rl, fz_rr]             = state.est_Fz_N();
-    const auto [alpha_fl, alpha_fr, alpha_rl, alpha_rr] = state.alphas();
-    tv_debug_data.veh_state.alpha_rad[0] = alpha_fl, tv_debug_data.veh_state.alpha_rad[1] = alpha_fr;
-    tv_debug_data.veh_state.alpha_rad[2] = alpha_rl, tv_debug_data.veh_state.alpha_rad[3] = alpha_rr;
-    tv_debug_data.veh_state.fz_N[0] = fz_fl, tv_debug_data.veh_state.fz_N[1] = fz_fr;
-    tv_debug_data.veh_state.fz_N[2] = fz_rl, tv_debug_data.veh_state.fz_N[3] = fz_rr;
-    // The fit describes one physical tire, and the right-side tires are its mirror image. Using the fit unmirrored on
-    // both sides puts its ply-steer/conicity offsets (Fy ~ -20 N at alpha = 0) in the same direction on all four
-    // tires, which predicts a yaw moment the car does not have; the optimizer then "cancels" it with a real
-    // left/right Fx split and the car yaws in a straight line. Mirroring makes the offsets splay symmetrically.
-    const auto fitAlpha = [](const float alpha, const bool right_side)
-    { return std::clamp(right_side ? -alpha : alpha, -FIT_MAX_ALPHA_RAD, FIT_MAX_ALPHA_RAD); };
-    const auto tireForces = [&](const float fz, const float alpha, const DecimalDual<T> &k, const bool right_side)
-    {
-        const float fit_alpha = fitAlpha(alpha, right_side);
-        const float fy_sign   = right_side ? -1.0f : 1.0f;
-        return Pair<DecimalDual<T>>{
-            estimation::tire_model.computeCombinedFx_N<DecimalDual<T>>(fz, fit_alpha, k),
-            static_cast<T>(fy_sign) * estimation::tire_model.computeCombinedFy_N<DecimalDual<T>>(fz, fit_alpha, k),
-        };
-    };
+    const wheel_set<T> fz_N      = state.est_Fz_N();
+    const wheel_set<T> alpha_rad = state.alphas();
+    alpha_rad.copyTo(tv_debug_data.veh_state.alpha_rad);
+    fz_N.copyTo(tv_debug_data.veh_state.fz_N);
 
     const auto residualVector = [&](const DualVec4<T> &kappa) -> DualVec6<T>
     {
-        const wheel_set<Pair<DecimalDual<T>>> predicted_f{
-            tireForces(fz_fl, alpha_fl, kappa(0), false),
-            tireForces(fz_fr, alpha_fr, kappa(1), true),
-            tireForces(fz_rl, alpha_rl, kappa(2), false),
-            tireForces(fz_rr, alpha_rr, kappa(3), true),
-        };
+        // Mirrored for the right-side tires inside tireForces_N. Unmirrored, the optimizer would "cancel" the fit's
+        // offsets with a real left/right Fx split and the car would yaw in a straight line.
+        const wheel_set<Pair<DecimalDual<T>>> predicted_f = estimation::tireForces_N(
+            fz_N, alpha_rad, wheel_set<DecimalDual<T>>{ kappa(0), kappa(1), kappa(2), kappa(3) });
         const DecimalDual<T> sum_fx_over_1k =
             predicted_f.fl.x / 1000 + predicted_f.fr.x / 1000 + predicted_f.rl.x / 1000 + predicted_f.rr.x / 1000;
         const DecimalDual<T> predicted_mz = state.est_Mz_N(predicted_f);
@@ -138,7 +116,7 @@ template <Decimal T>
         return DualVec6<T>{
             SQRT_W_FX * (sum_fx_over_1k - static_cast<T>(CAR_MASS_AT_CG_KG) * ax_setpoint / 1000),
             // Express both tracked quantities in kilo-units so W_FX and W_MZ have comparable meaning.
-            SQRT_W_MZ * (predicted_mz / 1000 - omegadot_setpoint / 1000),
+            SQRT_W_MZ * (predicted_mz / 1000 - mz_setpoint_Nm / 1000),
             SQRT_W_R * kappa[0],
             SQRT_W_R * kappa[1],
             SQRT_W_R * kappa[2],
@@ -281,9 +259,9 @@ template <Decimal T>
                        .r_ax       = r_fx,
                        .r_Mz       = r_mz,
                        .fx_des_N   = CAR_MASS_AT_CG_KG * ax_setpoint,
-                       .mz_des_Nm  = omegadot_setpoint,
+                       .mz_des_Nm  = mz_setpoint_Nm,
                        .fx_pred_N  = (r_fx / SQRT_W_FX + CAR_MASS_AT_CG_KG * ax_setpoint / 1000) * 1000,
-                       .mz_pred_Nm = (r_mz / SQRT_W_MZ + omegadot_setpoint / 1000) * 1000,
+                       .mz_pred_Nm = (r_mz / SQRT_W_MZ + mz_setpoint_Nm / 1000) * 1000,
     };
 
     return {
@@ -294,6 +272,5 @@ template <Decimal T>
     };
 }
 
-template wheel_set<tv_real>
-    optimize(const VehicleState<tv_real> &state, tv_real ax_setpoint, tv_real omegadot_setpoint);
+template wheel_set<tv_real> optimize(const VehicleState<tv_real> &state, tv_real ax_setpoint, tv_real mz_setpoint_Nm);
 } // namespace app::tv::controllers::allocator

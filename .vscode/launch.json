@@ -735,6 +735,29 @@
       }
     },
     {
+      // Builds tv_controls_sim (cmake --build build_fw_test --target tv_controls_sim), then attaches to a running
+      // MATLAB so breakpoints in the torque vectoring code hit while Simulink runs it. Pick the MATLAB process.
+      // On Windows the build fails while MATLAB has the DLL loaded and the code changed: close the model first.
+      "name": "Debug Controls Sim: VC (attach to MATLAB)",
+      "type": "cppdbg",
+      "request": "attach",
+      "processId": "${command:pickProcess}",
+      "preLaunchTask": "Build Controls Sim: VC (Hexray)",
+      "windows": {
+        "program": "C:/Program Files/MATLAB/R2025b/bin/win64/MATLAB.exe",
+        "MIMode": "gdb",
+        "miDebuggerPath": "gdb.exe"
+      },
+      "linux": {
+        "program": "/usr/local/MATLAB/R2025b/bin/glnxa64/MATLAB",
+        "MIMode": "gdb"
+      },
+      "osx": {
+        "program": "/Applications/MATLAB_R2025b.app/bin/maca64/MATLAB",
+        "MIMode": "lldb"
+      }
+    },
+    {
       "name": "Debug Tests: Shared",
       "type": "cppdbg",
       "request": "launch",

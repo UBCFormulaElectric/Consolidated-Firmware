@@ -1,6 +1,7 @@
 #include "speed_controller.hpp"
 #include "torque_vectoring/controllers/controllers_config.hpp"
 #include "torque_vectoring/shared_datatypes/constants.hpp"
+#include "torque_vectoring/tv_debug.h"
 #include <algorithm>
 
 using namespace app::tv::shared_datatypes::vd_constants;
@@ -12,7 +13,7 @@ static PID pid_fr(PID_SPEED_config);
 static PID pid_rl(PID_SPEED_config);
 static PID pid_rr(PID_SPEED_config);
 
-static float wheelTorque(
+static float motorTorque(
     PID        &pid,
     const float speed_request_radps,
     const float omega_radps,
@@ -49,14 +50,22 @@ shared_datatypes::wheel_set<T> computeTorque(
         .rr = calculateTireForceFeedback(F_x_N.rr, radial_deflection_m.rr, M_y_Nm.rr),
     };
 
-    return { .fl = wheelTorque(
-                 pid_fl, speed_request_radps.fl, omega_radps.fl, tire_ffb_Nm.fl, torque_max_Nm.fl, torque_min_Nm.fl),
-             .fr = wheelTorque(
-                 pid_fr, speed_request_radps.fr, omega_radps.fr, tire_ffb_Nm.fr, torque_max_Nm.fr, torque_min_Nm.fr),
-             .rl = wheelTorque(
-                 pid_rl, speed_request_radps.rl, omega_radps.rl, tire_ffb_Nm.rl, torque_max_Nm.rl, torque_min_Nm.rl),
-             .rr = wheelTorque(
-                 pid_rr, speed_request_radps.rr, omega_radps.rr, tire_ffb_Nm.rr, torque_max_Nm.rr, torque_min_Nm.rr) };
+    const shared_datatypes::wheel_set<T> torque_Nm = {
+        .fl = motorTorque(
+            pid_fl, speed_request_radps.fl, omega_radps.fl, tire_ffb_Nm.fl, torque_max_Nm.fl, torque_min_Nm.fl),
+        .fr = motorTorque(
+            pid_fr, speed_request_radps.fr, omega_radps.fr, tire_ffb_Nm.fr, torque_max_Nm.fr, torque_min_Nm.fr),
+        .rl = motorTorque(
+            pid_rl, speed_request_radps.rl, omega_radps.rl, tire_ffb_Nm.rl, torque_max_Nm.rl, torque_min_Nm.rl),
+        .rr = motorTorque(
+            pid_rr, speed_request_radps.rr, omega_radps.rr, tire_ffb_Nm.rr, torque_max_Nm.rr, torque_min_Nm.rr),
+    };
+
+    speed_request_radps.copyTo(tv_debug_data.speed_ctrl.speed_request_radps);
+    tire_ffb_Nm.copyTo(tv_debug_data.speed_ctrl.tire_ffb_Nm);
+    torque_Nm.copyTo(tv_debug_data.speed_ctrl.desired_torque_Nm);
+
+    return torque_Nm;
 }
 template shared_datatypes::wheel_set<tv_real> computeTorque(
     const shared_datatypes::wheel_set<tv_real> &speed_request_radps,

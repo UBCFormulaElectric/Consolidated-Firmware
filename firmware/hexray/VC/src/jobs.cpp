@@ -135,8 +135,8 @@ void jobs_run100Hz_tick()
             .brake        = static_cast<float>(app::can_rx::FSM_FrontBrakePressure_get()),
             .gps_vx_mps   = app::sbgEllipse::bodyVelX(),
             .gps_vy_mps   = app::sbgEllipse::bodyVelY(),
-            .discharge_power_limit = static_cast<float>(app::can_rx::BMS_ChargePowerLimit_get()),
-            .charge_power_limit = static_cast<float>(app::can_rx::BMS_DischargePowerLimit_get()),
+            .discharge_power_limit = static_cast<float>(app::can_rx::BMS_DischargePowerLimit_get()),
+            .charge_power_limit = static_cast<float>(app::can_rx::BMS_ChargePowerLimit_get()),
             .sbg_ekf_mode = app::sbgEllipse::getEkfSolutionMode(),
         };
 

@@ -17,8 +17,20 @@ template <Decimal T> struct VehicleState
     T            a_y_mps2       = 0.0f;
     T            apps           = 0.0f;
     T            brake          = 0.0f; // brake pedal, 0..1
+    T            charge_pl      = 0.0f;
+    T            discharge_pl   = 0.0f;
     wheel_set<T> delta{};
     wheel_set<T> omegas{};
+
+    [[nodiscard]] wheel_set<T> motor_omegas() const
+    {
+        return {
+            .fl = omegas.fl * static_cast<tv_real>(GEAR_RATIO),
+            .fr = omegas.fr * static_cast<tv_real>(GEAR_RATIO),
+            .rl = omegas.rl * static_cast<tv_real>(GEAR_RATIO),
+            .rr = omegas.rr * static_cast<tv_real>(GEAR_RATIO),
+        };
+    }
 
     /**
      * @return vector of vy each in the frame of the respective tire

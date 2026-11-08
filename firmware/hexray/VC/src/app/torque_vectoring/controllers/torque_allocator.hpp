@@ -18,10 +18,13 @@ namespace allocator
 {
     /**
      * Run Gauss-Newton iterations to find optimal slip ratios.
+     * @param state current vehicle state
+     * @param ax_setpoint requested longitudinal acceleration in m/s^2
+     * @param mz_setpoint_Nm requested yaw moment in Nm (ISO 8855, positive = left), from the yaw rate controller
      * @return Per-wheel optimal slip ratios
      */
     template <Decimal T>
     [[nodiscard]] shared_datatypes::wheel_set<T>
-        optimize(const shared_datatypes::VehicleState<T> &state, T ax_setpoint, T omegadot_setpoint);
+        optimize(const shared_datatypes::VehicleState<T> &state, T ax_setpoint, T mz_setpoint_Nm);
 }; // namespace allocator
 } // namespace app::tv::controllers

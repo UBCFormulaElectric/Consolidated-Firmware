@@ -38,6 +38,19 @@ template <typename T> struct wheel_set
         }
         return T(0);
     }
+
+    /**
+     * Writes the values in fl, fr, rl, rr order into a plain array (e.g. a double[4] field of the C debug struct,
+     * which cannot be assigned from a braced list)
+     * @param out destination array
+     */
+    template <typename U> constexpr void copyTo(U (&out)[4]) const
+    {
+        out[0] = static_cast<U>(fl);
+        out[1] = static_cast<U>(fr);
+        out[2] = static_cast<U>(rl);
+        out[3] = static_cast<U>(rr);
+    }
 };
 
 template <DecimalOrDual T> struct wheel_set<Pair<T>>
