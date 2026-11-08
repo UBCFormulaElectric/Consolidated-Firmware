@@ -38,17 +38,17 @@
 [[noreturn]] static void tasks_sbgEllipse(void *arg);
 
 // Define the task with StaticTask Class
-constexpr size_t                                    TASK_COUNT = 7; // IMU, Batt Mon, Power Mon ADD
-static hw::rtos::StaticTask::StaticTaskStack<16192> Task100HzStack;
-static hw::rtos::StaticTask::StaticTaskStack<512>   Task1kHzStack;
-static hw::rtos::StaticTask::StaticTaskStack<512>   Task1HzStack;
-static hw::rtos::StaticTask::StaticTaskStack<512>   TaskImuStack;
-static hw::rtos::StaticTask::StaticTaskStack<512>   TaskCanRxStack;
-static hw::rtos::StaticTask::StaticTaskStack<512>   TaskCan1TxStack;
-static hw::rtos::StaticTask::StaticTaskStack<512>   TaskCan2TxStack;
-static hw::rtos::StaticTask::StaticTaskStack<1024>  BatteryMonitoringStack;
-static hw::rtos::StaticTask::StaticTaskStack<512>   TaskPowerMonitoringStack;
-static hw::rtos::StaticTask::StaticTaskStack<4096>  TaskSbgEllipseStack;
+constexpr size_t                                   TASK_COUNT = 9; // Batt Mon, Power Mon ADD
+static hw::rtos::StaticTask::StaticTaskStack<8096> Task100HzStack;
+static hw::rtos::StaticTask::StaticTaskStack<512>  Task1kHzStack;
+static hw::rtos::StaticTask::StaticTaskStack<512>  Task1HzStack;
+static hw::rtos::StaticTask::StaticTaskStack<512>  TaskImuStack;
+static hw::rtos::StaticTask::StaticTaskStack<512>  TaskCanRxStack;
+static hw::rtos::StaticTask::StaticTaskStack<512>  TaskCan1TxStack;
+static hw::rtos::StaticTask::StaticTaskStack<512>  TaskCan2TxStack;
+static hw::rtos::StaticTask::StaticTaskStack<1024> BatteryMonitoringStack;
+static hw::rtos::StaticTask::StaticTaskStack<512>  TaskPowerMonitoringStack;
+static hw::rtos::StaticTask::StaticTaskStack<4096> TaskSbgEllipseStack;
 
 static hw::rtos::StaticTask Task100Hz(osPriorityHigh, "Task100Hz", tasks_run100Hz, Task100HzStack);
 static hw::rtos::StaticTask Task1kHz(osPriorityRealtime, "Task1kHz", tasks_run1kHz, Task1kHzStack);
@@ -80,8 +80,12 @@ static hw::runtimeStat::monitor<TASK_COUNT> runtimeMonitor{
             app::can_tx::VC_TaskRunCan2TxStackUsage_set },
           { TaskPowerMonitoring, app::can_tx::VC_TaskRunPowerMonitoringCpuUsage_set,
             app::can_tx::VC_TaskRunPowerMonitoringCpuUsageMax_set,
-            app::can_tx::VC_TaskRunPowerMonitoringStackUsage_set } },
-        // Battery Monitoring and IMU...
+            app::can_tx::VC_TaskRunPowerMonitoringStackUsage_set },
+          { TaskImu, app::can_tx::VC_TaskRunImuCpuUsage_set, app::can_tx::VC_TaskRunImuCpuUsageMax_set,
+            app::can_tx::VC_TaskRunImuStackUsage_set },
+          { TaskSbgEllipse, app::can_tx::VC_TaskRunSbgEllipseCpuUsage_set,
+            app::can_tx::VC_TaskRunSbgEllipseCpuUsageMax_set, app::can_tx::VC_TaskRunSbgEllipseStackUsage_set } },
+        // Battery Monitoring...
     },
 };
 
@@ -94,7 +98,7 @@ void tasks_run1Hz(void *arg)
 {
     constexpr uint32_t      period_ms                = 1000U;
     constexpr uint32_t      watchdog_grace_period_ms = 50U;
-    hw::watchdog::instance &watchdog1hz              = monitor.spawn_instance(period_ms + watchdog_grace_period_ms);
+    hw::watchdog::instance &watchdog1hz              = monitor.spawn_instance(period_ms, watchdog_grace_period_ms);
 
     uint32_t start_ticks = osKernelGetTickCount();
     forever
@@ -111,7 +115,7 @@ void tasks_run100Hz(void *arg)
 {
     constexpr uint32_t      period_ms                = 10U;
     constexpr uint32_t      watchdog_grace_period_ms = 2U;
-    hw::watchdog::instance &watchdog100hz            = monitor.spawn_instance(period_ms + watchdog_grace_period_ms);
+    hw::watchdog::instance &watchdog100hz            = monitor.spawn_instance(period_ms, watchdog_grace_period_ms);
 
     uint32_t start_ticks = osKernelGetTickCount();
     forever
@@ -126,7 +130,7 @@ void tasks_run1kHz(void *arg)
 {
     constexpr uint32_t      period_ms                = 1U;
     constexpr uint32_t      watchdog_grace_period_ms = 1U;
-    hw::watchdog::instance &watchdog1khz             = monitor.spawn_instance(period_ms + watchdog_grace_period_ms);
+    hw::watchdog::instance &watchdog1khz             = monitor.spawn_instance(period_ms, watchdog_grace_period_ms);
 
     uint32_t start_ticks = osKernelGetTickCount();
     forever
@@ -140,14 +144,15 @@ void tasks_run1kHz(void *arg)
 }
 void tasks_runImu(void *arg)
 {
-    constexpr uint32_t period_ms = 10U;
-
-    jobs_initImu();
+    constexpr uint32_t      period_ms                = 10U;
+    constexpr uint32_t      watchdog_grace_period_ms = 2U;
+    hw::watchdog::instance &watchdogImu              = monitor.spawn_instance(period_ms, watchdog_grace_period_ms);
 
     uint32_t start_ticks = osKernelGetTickCount();
     forever
     {
         jobs_runImu_tick();
+        watchdogImu.checkIn();
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
     }
@@ -213,7 +218,7 @@ void tasks_runCanRx(void *arg)
     start_ticks                         = osKernelGetTickCount();
 
     app::batteryMonitoring::init();
-    for (;;)
+    forever
     {
         jobs_runBatteryMonitoring_tick();
         start_ticks += period_ms;
@@ -226,7 +231,7 @@ void tasks_runCanRx(void *arg)
     static uint32_t         start_ticks = 0;
     start_ticks                         = osKernelGetTickCount();
 
-    for (;;)
+    forever
     {
         jobs_runPowerMonitoring_tick();
         start_ticks += period_ms;
@@ -235,16 +240,15 @@ void tasks_runCanRx(void *arg)
 }
 [[noreturn]] static void tasks_sbgEllipse(void *arg)
 {
-    static const TickType_t period_ms   = 10;
-    static uint32_t         start_ticks = 0;
-    start_ticks                         = osKernelGetTickCount();
+    static const TickType_t period_ms                = 10;
+    constexpr uint32_t      watchdog_grace_period_ms = 2U;
+    hw::watchdog::instance &watchdogSbgEllipse       = monitor.spawn_instance(period_ms, watchdog_grace_period_ms);
 
-    // Init here (not jobs_init) so DMA reception is only armed once the
-    // scheduler is running and the stream buffer has a consumer.
-    app::sbgEllipse::init();
-    for (;;)
+    uint32_t start_ticks = osKernelGetTickCount();
+    forever
     {
         jobs_runSbgEllipse_tick();
+        watchdogSbgEllipse.checkIn();
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
     }
