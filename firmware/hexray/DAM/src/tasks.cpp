@@ -374,7 +374,6 @@ void tasks_init()
     osKernelInitialize();
 
     fdcan1.init();
-    hw::runtimeStat::init(htim7);
 
     const ResetReason reason = hw::resetReason::get();
     app::can_tx::DAM_ResetReason_set(static_cast<app::can_utils::CanResetReason>(reason));
@@ -411,14 +410,4 @@ void tasks_init()
     DAM_StartAllTasks();
     osKernelStart();
     forever {}
-}
-
-void tasks_tim_callback(const TIM_HandleTypeDef *tim)
-{
-#ifndef USE_CHIMERA
-    if (tim == &htim7)
-    {
-        hw::runtimeStat::inc();
-    }
-#endif
 }

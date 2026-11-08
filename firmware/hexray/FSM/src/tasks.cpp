@@ -214,7 +214,6 @@ void tasks_preInit()
     hw::can::fdcan1.init();
     adcChipsInit();
 
-    hw::runtimeStat::init(htim7);
     const ResetReason reason = hw::resetReason::get();
     app::can_tx::FSM_ResetReason_set(static_cast<app::can_utils::CanResetReason>(reason));
     if (reason == RESET_REASON_WATCHDOG)
@@ -250,14 +249,4 @@ void tasks_preInit()
     FSM_StartAllTasks();
     osKernelStart();
     forever {}
-}
-
-void tasks_tim_callback(const TIM_HandleTypeDef *tim)
-{
-#ifndef USE_CHIMERA
-    if (tim == &htim7)
-    {
-        hw::runtimeStat::inc();
-    }
-#endif
 }
