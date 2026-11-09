@@ -13,11 +13,11 @@ using namespace std;
 using namespace app::reorient;
 
 static ImuReadings imu_results = { .accelX = std::unexpected(ErrorCode::ERROR),
-                                    .accelY = std::unexpected(ErrorCode::ERROR),
-                                    .accelZ = std::unexpected(ErrorCode::ERROR),
-                                    .gyroX  = std::unexpected(ErrorCode::ERROR),
-                                    .gyroY  = std::unexpected(ErrorCode::ERROR),
-                                    .gyroZ  = std::unexpected(ErrorCode::ERROR) };
+                                   .accelY = std::unexpected(ErrorCode::ERROR),
+                                   .accelZ = std::unexpected(ErrorCode::ERROR),
+                                   .gyroX  = std::unexpected(ErrorCode::ERROR),
+                                   .gyroY  = std::unexpected(ErrorCode::ERROR),
+                                   .gyroZ  = std::unexpected(ErrorCode::ERROR) };
 
 result<void> imu1_init_ok = std::unexpected(ErrorCode::ERROR_INDETERMINATE);
 
