@@ -96,10 +96,11 @@ struct __attribute__((packed)) CFGB
 
     uint8_t dcc_9_16; // discharge cell x
 
-    // dcto reads back the time left, so it is left out of the check
+    // dcto reads back the time left
     bool operator==(const CFGB &other) const
     {
-        return vuv_0_7 == other.vuv_0_7 && vuv_8_11 == other.vuv_8_11 && vov_0_3 == other.vov_0_3 &&
+        return (dcto_0_5 == 0) == (other.dcto_0_5 == 0) && vuv_0_7 == other.vuv_0_7 && vuv_8_11 == other.vuv_8_11 &&
+               vov_0_3 == other.vov_0_3 &&
                vov_4_11 == other.vov_4_11 && dtrng == other.dtrng && dtmen == other.dtmen && dcc_1_8 == other.dcc_1_8 &&
                dcc_9_16 == other.dcc_9_16;
     }
@@ -209,8 +210,10 @@ static_assert(sizeof(AUXD) == REG_GROUP_SIZE);
 
 namespace write
 {
-    [[nodiscard]] result<void> configReg(const Segments<CFGA> &config_a, const Segments<CFGB> &config_b);
-    [[nodiscard]] result<void> pwmReg(const Segments<PWMA> &pwm_a, const Segments<PWMB> &pwm_b);
+    [[nodiscard]] result<void> configReg(const Segments<CFGA> &config_a);
+    [[nodiscard]] result<void> configReg(const Segments<CFGB> &config_b);
+    [[nodiscard]] result<void> pwmReg(const Segments<PWMA> &pwm_a);
+    [[nodiscard]] result<void> pwmReg(const Segments<PWMB> &pwm_b);
     [[nodiscard]] result<void> clearAllFlags();
     [[nodiscard]] result<void> clearCsFlags();
 } // namespace write

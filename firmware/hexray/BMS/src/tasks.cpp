@@ -166,8 +166,8 @@ void tasks_run1kHz(void *arg)
 void tasks_runAdbmsChain(void *arg)
 {
     constexpr uint32_t      period_ms                = 50U;
-    constexpr uint32_t      watchdog_grace_period_ms = 5U;
-    hw::watchdog::instance &watchdogAdbmsChain       = monitor.spawn_instance(period_ms + watchdog_grace_period_ms);
+    constexpr uint32_t      watchdog_grace_period_ms = 1000U;
+    hw::watchdog::instance &watchdogAdbmsChain      = monitor.spawn_instance(period_ms + watchdog_grace_period_ms);
 
     uint32_t start_ticks = osKernelGetTickCount();
     forever

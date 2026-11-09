@@ -4,18 +4,24 @@
 
 namespace io::adbms::write
 {
-result<void> configReg(const Segments<CFGA> &config_a, const Segments<CFGB> &config_b)
+result<void> configReg(const Segments<CFGA> &config_a)
 {
-    RETURN_IF_ERR_SILENT(reversible::writeRegGroup(WRCFGA, std::bit_cast<Segments<RegGroup>>(config_a)));
-    RETURN_IF_ERR_SILENT(reversible::writeRegGroup(WRCFGB, std::bit_cast<Segments<RegGroup>>(config_b)));
-    return {};
+    return reversible::writeRegGroup(WRCFGA, std::bit_cast<Segments<RegGroup>>(config_a));
 }
 
-result<void> pwmReg(const Segments<PWMA> &pwm_a, const Segments<PWMB> &pwm_b)
+result<void> configReg(const Segments<CFGB> &config_b)
 {
-    RETURN_IF_ERR_SILENT(reversible::writeRegGroup(WRPWMA, std::bit_cast<Segments<RegGroup>>(pwm_a)));
-    RETURN_IF_ERR_SILENT(reversible::writeRegGroup(WRPWMB, std::bit_cast<Segments<RegGroup>>(pwm_b)));
-    return {};
+    return reversible::writeRegGroup(WRCFGB, std::bit_cast<Segments<RegGroup>>(config_b));
+}
+
+result<void> pwmReg(const Segments<PWMA> &pwm_a)
+{
+    return reversible::writeRegGroup(WRPWMA, std::bit_cast<Segments<RegGroup>>(pwm_a));
+}
+
+result<void> pwmReg(const Segments<PWMB> &pwm_b)
+{
+    return reversible::writeRegGroup(WRPWMB, std::bit_cast<Segments<RegGroup>>(pwm_b));
 }
 
 result<void> clearAllFlags()

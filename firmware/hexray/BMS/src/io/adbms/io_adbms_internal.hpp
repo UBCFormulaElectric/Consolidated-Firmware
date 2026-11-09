@@ -54,6 +54,7 @@ inline constexpr uint16_t ADAX_BASE = 0x0410U;
 // ADCV and ADSV
 inline constexpr uint16_t RD   = 1U << 8; // redundant C + S ADC
 inline constexpr uint16_t CONT = 1U << 7; // continuous mode
+inline constexpr uint16_t DCP  = 1U << 4; // pwm discharge continues during a single shot
 inline constexpr uint16_t OW1 =
     1U << 1; // open wire on odd channels (C1, C3, ... in datasheet; even cell indices in code)
 inline constexpr uint16_t OW0 =

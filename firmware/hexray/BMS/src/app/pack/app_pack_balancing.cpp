@@ -10,8 +10,8 @@
 
 namespace
 {
-constexpr float   DISCHARGE_THRESHOLD_V = 5e-3f;
-constexpr uint8_t MAX_DUTY              = 0x0F;
+constexpr float   DISCHARGE_THRESHOLD_V = 10e-3f;
+constexpr uint8_t DUTY              = 0x07; // need to adjust so ITMP overtemp fault doesn't trigger
 
 uint32_t pwm_updated_ms = 0U;
 
@@ -65,7 +65,7 @@ io::adbms::PackCells<uint8_t> calculateDuty(
             if (delta < DISCHARGE_THRESHOLD_V)
                 continue;
 
-            duty[seg][cell] = MAX_DUTY;
+            duty[seg][cell] = DUTY;
         }
     }
     return duty;
