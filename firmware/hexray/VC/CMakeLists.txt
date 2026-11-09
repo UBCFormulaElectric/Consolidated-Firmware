@@ -242,6 +242,7 @@ elseif ("${TARGET}" STREQUAL "test")
         target_include_directories(test_controls PRIVATE
                 "${CMAKE_CURRENT_SOURCE_DIR}/src/app"
                 ${SHARED_UTIL_INCLUDE_DIR_CPP}
+                ${SHARED_IO_INCLUDE_DIR_CPP}
         )
         target_link_libraries(test_controls PRIVATE "matplotlib_cpp" "autodiff_interface")
         target_compile_options(test_controls PRIVATE /Zi /bigobj)

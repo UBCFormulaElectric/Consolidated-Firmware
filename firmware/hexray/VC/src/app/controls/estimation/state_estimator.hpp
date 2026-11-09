@@ -29,9 +29,9 @@ struct Measurements
     const app::can_utils::VcEkfStatus sbg_ekf_status;
 #else
     bool        enable_gps;
-    const float discharge_limit_W;
-    const float charge_limit_W;
 #endif
+    const float charge_limit_W;
+    const float discharge_limit_W;
 };
 
 namespace state_estimator

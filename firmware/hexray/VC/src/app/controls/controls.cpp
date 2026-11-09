@@ -220,8 +220,8 @@ extern "C" void update_matlab(
         .gps_vx_mps               = static_cast<float>(gps_vx_mps),
         .gps_vy_mps               = static_cast<float>(-gps_vy_mps),
         .enable_gps               = enable_gps,
-        .discharge_limit_W        = static_cast<float>(discharge_limit_W),
         .charge_limit_W           = static_cast<float>(charge_limit_W),
+        .discharge_limit_W        = static_cast<float>(discharge_limit_W),
     };
     const VehicleState state = estimation::state_estimator::estimate(meas);
 

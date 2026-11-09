@@ -77,7 +77,7 @@ void jobs_init()
     app::sbgEllipse::init();
 
     // imu
-    app::imus::init();
+    app::imu::init();
 }
 
 void jobs_run1Hz_tick() {}
@@ -113,57 +113,6 @@ void jobs_run100Hz_tick()
     // shdn
     app::shdnLoop::broadcast();
     app::shdnLast::broadcast();
-
-    // state estimator
-    // The estimator works in SI units: the IMU driver gives g and deg/s, the inverters give motor rpm and the FSM
-    // gives the steering wheel angle in deg, so convert here.
-    static std::size_t tick = 0;
-
-    if (tick++ % 5 == 0)
-    {
-        using app::controls::params::GRAVITY;
-
-        const app::controls::estimation::Measurements meas = {
-            .ax_mps2        = app::imu::getAccelX().value_or(0.0f) * GRAVITY,
-            .ay_mps2        = app::imu::getAccelY().value_or(0.0f) * GRAVITY,
-            .r_radps = DEG_TO_RAD(app::imu::getGyroZ().value_or(0.0f)),
-            .wheel_omega_radps   = {
-                .fl = MOTOR_RPM_TO_WHEEL_RADPS(static_cast<float>(app::can_rx::INVFL_ActualVelocity_get())),
-                .fr = MOTOR_RPM_TO_WHEEL_RADPS(static_cast<float>(app::can_rx::INVFR_ActualVelocity_get())),
-                .rl = MOTOR_RPM_TO_WHEEL_RADPS(static_cast<float>(app::can_rx::INVRL_ActualVelocity_get())),
-                .rr = MOTOR_RPM_TO_WHEEL_RADPS(static_cast<float>(app::can_rx::INVRR_ActualVelocity_get())),
-            },
-            .steering_wheel_angle_rad        = DEG_TO_RAD(app::can_rx::FSM_SteeringAngle_get()),
-            .apps         = app::can_rx::FSM_PappsMappedPedalPercentage_get(),
-            .brake        = static_cast<float>(app::can_rx::FSM_FrontBrakePressure_get()),
-            .gps_vx_mps   = app::sbgEllipse::bodyVelX(),
-            .gps_vy_mps   = app::sbgEllipse::bodyVelY(),
-            .discharge_limit_W = static_cast<float>(app::can_rx::BMS_DischargePowerLimit_get()),
-            .charge_limit_W = static_cast<float>(app::can_rx::BMS_ChargePowerLimit_get()),
-            .sbg_ekf_status = app::sbgEllipse::getEkfSolutionMode(),
-        };
-
-        const app::controls::VehicleState vehicle_state = app::controls::estimation::state_estimator::estimate(meas);
-
-        const veh_ekf_info &ekf = tv_debug_data.ekf_info;
-        app::can_tx::VC_EkfEstVx_set(vehicle_state.vx_mps);
-        app::can_tx::VC_EkfEstVy_set(vehicle_state.vy_mps);
-        app::can_tx::VC_EkfPredVx_set(static_cast<float>(ekf.pred_vx_mps));
-        app::can_tx::VC_EkfPredVy_set(static_cast<float>(ekf.pred_vy_mps));
-        app::can_tx::VC_EkfPredMotorRpmFL_set(
-            WHEEL_RADPS_TO_MOTOR_RPM(static_cast<float>(ekf.pred_wheel_omega_radps[0])));
-        app::can_tx::VC_EkfPredMotorRpmFR_set(
-            WHEEL_RADPS_TO_MOTOR_RPM(static_cast<float>(ekf.pred_wheel_omega_radps[1])));
-        app::can_tx::VC_EkfPredMotorRpmRL_set(
-            WHEEL_RADPS_TO_MOTOR_RPM(static_cast<float>(ekf.pred_wheel_omega_radps[2])));
-        app::can_tx::VC_EkfPredMotorRpmRR_set(
-            WHEEL_RADPS_TO_MOTOR_RPM(static_cast<float>(ekf.pred_wheel_omega_radps[3])));
-        app::can_tx::VC_EkfCovVxVx_set(static_cast<float>(ekf.covariance[0]));
-        app::can_tx::VC_EkfCovVxVy_set(static_cast<float>(ekf.covariance[1])); // P is symmetric: covariance[2] == [1]
-        app::can_tx::VC_EkfCovVyVy_set(static_cast<float>(ekf.covariance[3]));
-        app::can_tx::VC_EkfZeroVxActive_set(ekf.zero_vx_active > 0.5);
-        app::can_tx::VC_EkfZeroVyActive_set(ekf.zero_vy_active > 0.5);
-    }
 
     // pumps
     app::pumpControl::MonitorPumps();

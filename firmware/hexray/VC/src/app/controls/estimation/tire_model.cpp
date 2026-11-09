@@ -2,9 +2,11 @@
 
 #include "controls/params.hpp"
 #include "dual.hpp"
+#include "io_mathDual.hpp"
 #include <cmath>
 
 using namespace app::controls::params;
+using namespace io::math;
 
 namespace app::controls::estimation
 {
@@ -116,7 +118,7 @@ float TireModel::effectiveRollingRadius_m(const float fz_N, const float vx_mps) 
     const float nominal_deflection = FZ0 / rolling_radius_.VERTICAL_STIFFNESS;
     const float rho_d              = std::fmax(fz_N, 0.0f) / FZ0;
     const float load_term =
-        rolling_radius_.DREFF * std::atan(rolling_radius_.BREFF * rho_d) + rolling_radius_.FREFF * rho_d;
+        rolling_radius_.DREFF * fast::atan(rolling_radius_.BREFF * rho_d) + rolling_radius_.FREFF * rho_d;
     return r_omega - nominal_deflection * load_term;
 }
 
@@ -284,12 +286,10 @@ TireModel::PureFyMagicFormulaCoefficients
 
 template <DecimalOrDual T> T TireModel::computePureFx_N(const float fz, const T &kappa) const
 {
-    using std::sin, std::atan;
-
     const auto coefficients = pureFxMagicFormulaCoefficients<T>(fz, kappa);
     const T    u            = coefficients.b_x * coefficients.kappa_x;
-    const T    phi          = u - coefficients.e_x * (u - atan(u));
-    return coefficients.d_x * sin(coefficients.c_x * atan(phi)) + coefficients.s_vx;
+    const T    phi          = u - coefficients.e_x * (u - fast::atan(u));
+    return coefficients.d_x * fast::sin(coefficients.c_x * fast::atan(phi)) + coefficients.s_vx;
 }
 
 float TireModel::computePureFy_N(const float fz_N, const float alpha) const
@@ -299,9 +299,10 @@ float TireModel::computePureFy_N(const float fz_N, const float alpha) const
     // Pure-slip lateral force: F_y0.
     const float b_y_alpha_y = coefficients.b_y * coefficients.alpha_y;
 
-    return coefficients.d_y * std::sin(
-                                  coefficients.c_y *
-                                  std::atan(b_y_alpha_y - coefficients.e_y * (b_y_alpha_y - std::atan(b_y_alpha_y)))) +
+    return coefficients.d_y *
+               fast::sin(
+                   coefficients.c_y *
+                   fast::atan(b_y_alpha_y - coefficients.e_y * (b_y_alpha_y - fast::atan(b_y_alpha_y)))) +
            coefficients.s_vy;
 }
 
@@ -332,33 +333,24 @@ float TireModel::combinedFx_Exa(const float normalized_load_delta) const
 
 template <DecimalOrDual T> T TireModel::combinedFx_Bxa(const T &kappa) const
 {
-    using std::atan;
-    using std::cos;
-
     // MF 6.2 combined-slip stiffness B_xalpha with gamma = 0.
-    return T(fit_comb_fx_.rBx1) * cos(atan(T(fit_comb_fx_.rBx2) * kappa)) * T(scaling_factors_.LXAL);
+    return T(fit_comb_fx_.rBx1) * fast::cosatan(T(fit_comb_fx_.rBx2) * kappa) * T(scaling_factors_.LXAL);
 }
 
 template <DecimalOrDual T> T TireModel::combinedFx_Gxao(const CombinedFxMagicFormulaCoefficients<T> &coefficients) const
 {
-    using std::atan;
-    using std::cos;
-
     // MF 6.2 reference combined-slip reduction G_xalpha0.
     const T u   = coefficients.b_xa * coefficients.s_hxa;
-    const T phi = u - coefficients.e_xa * (u - atan(u));
-    return cos(coefficients.c_xa * atan(phi));
+    const T phi = u - coefficients.e_xa * (u - fast::atan(u));
+    return fast::cos(coefficients.c_xa * fast::atan(phi));
 }
 
 template <DecimalOrDual T> T TireModel::combinedFx_Gxa(const CombinedFxMagicFormulaCoefficients<T> &coefficients) const
 {
-    using std::atan;
-    using std::cos;
-
     // MF 6.2 combined-slip reduction G_xalpha with G_xalpha0 protected by a signed epsilon denominator.
     const T u         = coefficients.b_xa * coefficients.alpha_s;
-    const T phi       = u - coefficients.e_xa * (u - atan(u));
-    const T numerator = cos(coefficients.c_xa * atan(phi));
+    const T phi       = u - coefficients.e_xa * (u - fast::atan(u));
+    const T numerator = fast::cos(coefficients.c_xa * fast::atan(phi));
 
     return numerator / safeTemplateDenominator(coefficients.g_xao);
 }
@@ -416,7 +408,7 @@ float TireModel::combinedFy_Byk(const float slip_angle_rad) const
     // MF 6.2 combined-slip stiffness B_ykappa with gamma = 0.
     const float pacejka_alpha_rad = pacejkaSlipAngle(slip_angle_rad);
 
-    return fit_comb_fy_.rBy1 * std::cos(std::atan(fit_comb_fy_.rBy2 * (pacejka_alpha_rad - fit_comb_fy_.rBy3))) *
+    return fit_comb_fy_.rBy1 * fast::cosatan(fit_comb_fy_.rBy2 * (pacejka_alpha_rad - fit_comb_fy_.rBy3)) *
            scaling_factors_.LYKA;
 }
 
@@ -430,34 +422,30 @@ float TireModel::combinedFy_Dvyk(
 
     return pureFy_mu(normalized_load_delta) * normal_load_N *
            (fit_comb_fy_.rVy1 + fit_comb_fy_.rVy2 * normalized_load_delta) *
-           std::cos(std::atan(fit_comb_fy_.rVy4 * pacejka_alpha_rad));
+           fast::cosatan(fit_comb_fy_.rVy4 * pacejka_alpha_rad);
 }
 
 template <DecimalOrDual T> T TireModel::combinedFy_Svyk(const T &d_vyk, const T &slip_ratio) const
 {
-    using std::sin, std::atan;
     // MF 6.2 combined-slip lateral offset S_vykappa.
-    return d_vyk * sin(T(fit_comb_fy_.rVy5) * atan(T(fit_comb_fy_.rVy6) * slip_ratio)) * T(scaling_factors_.LVYKA);
+    return d_vyk * fast::sin(T(fit_comb_fy_.rVy5) * fast::atan(T(fit_comb_fy_.rVy6) * slip_ratio)) *
+           T(scaling_factors_.LVYKA);
 }
 
 template <DecimalOrDual T> T TireModel::combinedFy_Gyko(const CombinedFyMagicFormulaCoefficients<T> &coefficients) const
 {
-    using std::cos, std::atan;
-
     // MF 6.2 reference combined-slip reduction G_ykappa0.
     const T u   = coefficients.b_yk * coefficients.s_hyk;
-    const T phi = u - coefficients.e_yk * (u - atan(u));
-    return cos(coefficients.c_yk * atan(phi));
+    const T phi = u - coefficients.e_yk * (u - fast::atan(u));
+    return fast::cos(coefficients.c_yk * fast::atan(phi));
 }
 
 template <DecimalOrDual T> T TireModel::combinedFy_Gyk(const CombinedFyMagicFormulaCoefficients<T> &coefficients) const
 {
-    using std::cos, std::atan;
-
     // MF 6.2 combined-slip reduction G_ykappa with G_ykappa0 protected by a signed epsilon denominator.
     const T u         = coefficients.b_yk * coefficients.kappa_s;
-    const T phi       = u - coefficients.e_yk * (u - atan(u));
-    const T numerator = cos(coefficients.c_yk * atan(phi));
+    const T phi       = u - coefficients.e_yk * (u - fast::atan(u));
+    const T numerator = fast::cos(coefficients.c_yk * fast::atan(phi));
 
     return numerator / safeTemplateDenominator(coefficients.g_yko);
 }
@@ -611,15 +599,12 @@ float TireModel::pureFy_E(const float normalized_load_delta, const float alpha_y
 
 float TireModel::pureFy_K(const float normal_load_N) const
 {
-    using std::atan;
-    using std::sin;
-
     // MF 6.2 pure-slip cornering stiffness K_yalpha. gamma- and pressure-only terms are inactive at gamma = 0, dpi = 0.
     const float reference_normal_load_N = referenceNormalLoad_N();
     const float denominator             = safeSignedDenominator(fit_pure_fy_.p_Ky2 * reference_normal_load_N);
 
-    return fit_pure_fy_.p_Ky1 * reference_normal_load_N * sin(fit_pure_fy_.p_Ky4 * atan(normal_load_N / denominator)) *
-           scaling_factors_.LKY;
+    return fit_pure_fy_.p_Ky1 * reference_normal_load_N *
+           fast::sin(fit_pure_fy_.p_Ky4 * fast::atan(normal_load_N / denominator)) * scaling_factors_.LKY;
 }
 
 float TireModel::pureFy_B(const float cornering_stiffness, const float shape_factor, const float peak_factor)
