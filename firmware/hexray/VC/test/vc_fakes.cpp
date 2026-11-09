@@ -449,4 +449,4 @@ namespace pcm
     }
 } // namespace pcm
 } // namespace io
-const io::semaphore pwr_pump_i2c_bus_lock{ false };
+const io::semaphore::Semaphore pwr_pump_i2c_bus_lock{ false };
