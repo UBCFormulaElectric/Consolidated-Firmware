@@ -26,6 +26,10 @@
 #include "hw_resetReason.hpp"
 #include "hw_runTimeStat.hpp"
 
+#ifdef VC_GYRO_FILTER_BENCH
+#include "bench/gyro_filter_bench.hpp"
+#endif
+
 [[noreturn]] static void tasks_run1Hz(void *arg);
 [[noreturn]] static void tasks_run100Hz(void *arg);
 [[noreturn]] static void tasks_run1kHz(void *arg);
@@ -266,6 +270,9 @@ static void VC_StartAllTasks()
     // TaskBatteryMonitoring.start();
     TaskPowerMonitoring.start();
     TaskSbgEllipse.start();
+#ifdef VC_GYRO_FILTER_BENCH
+    bench::gyro_filter::start();
+#endif
 }
 
 void tasks_preInit()

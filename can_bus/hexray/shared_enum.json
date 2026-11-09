@@ -50,5 +50,13 @@
     "TV": 1,
     "LAUNCH": 2,
     "COUNT": 3
+  },
+  "GyroBenchMode": {
+    "GYRO_BENCH_LIVE": 0,
+    "GYRO_BENCH_SINE": 1,
+    "GYRO_BENCH_CHIRP": 2,
+    "GYRO_BENCH_STEP": 3,
+    "GYRO_BENCH_IMPULSE": 4,
+    "GYRO_BENCH_NOISE": 5
   }
 }
