@@ -1,4 +1,4 @@
-import React, { memo, useRef } from "react";
+import React, { memo, useEffect, useRef } from "react";
 
 import { useSyncedGraph } from "@/components/SyncedGraphContainer";
 import { SignalDataStoreProvider } from "@/lib/contexts/signalStores/SignalStoreContext";
@@ -11,6 +11,12 @@ const MockSignalStoreProvider = memo(({ children }: { children: React.ReactNode 
     if (!mockSignalStore.current) {
         mockSignalStore.current = new MockSignalStore(updateWithTimestamp);
     }
+
+    useEffect(() => {
+        const store = mockSignalStore.current;
+        store.start();
+        return () => store.stop();
+    }, []);
 
     return <SignalDataStoreProvider signalStore={mockSignalStore}>{children}</SignalDataStoreProvider>;
 });
