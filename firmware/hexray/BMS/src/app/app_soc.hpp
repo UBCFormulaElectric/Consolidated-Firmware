@@ -10,9 +10,9 @@ namespace app::soc
 {
 struct SocBuffer
 {
-    uint32_t                    updated_ms = 0U;
-    app::pack::Reading          max{};
-    app::pack::Reading          min{};
+    uint32_t                                              updated_ms = 0U;
+    app::pack::Reading                                    max{};
+    app::pack::Reading                                    min{};
     io::adbms::PackCells<std::expected<float, ErrorCode>> soc{};
 };
 

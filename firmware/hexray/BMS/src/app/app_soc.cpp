@@ -16,18 +16,22 @@ namespace
 {
 constexpr size_t P30B_SOC_N  = 21U;
 constexpr size_t P30B_TEMP_N = 4U;
+// static yawrate 
 
+// void estimate(float yaw_rate) {
+//     yawrate = yaw_rate;
+
+//     runekf
+// }
 // Capacity of a single cell in ampere-seconds (Ah * 3600), not of a 4P group
 constexpr float P30B_CAP_AS = 10800.000000f;
 
 constexpr std::array<float, P30B_SOC_N> P30B_SOC_BP = {
-    { 0.0000f, 0.0500f, 0.1000f, 0.1500f, 0.2000f, 0.2500f, 0.3000f, 0.3500f, 0.4000f, 0.4500f, 0.5000f, 0.5500f,
-      0.6000f, 0.6500f, 0.7000f, 0.7500f, 0.8000f, 0.8500f, 0.9000f, 0.9500f, 1.0000f }
+    { 0.0000f, 0.0500f, 0.1000f, 0.1500f, 0.2000f, 0.2500f, 0.3000f, 0.3500f, 0.4000f, 0.4500f, 0.5000f,
+      0.5500f, 0.6000f, 0.6500f, 0.7000f, 0.7500f, 0.8000f, 0.8500f, 0.9000f, 0.9500f, 1.0000f }
 };
 
-constexpr std::array<float, P30B_TEMP_N> P30B_TEMP_BP_C = {
-    { 10.00f, 23.00f, 35.00f, 45.00f }
-};
+constexpr std::array<float, P30B_TEMP_N> P30B_TEMP_BP_C = { { 10.00f, 23.00f, 35.00f, 45.00f } };
 
 using P30BTable = std::array<std::array<float, P30B_TEMP_N>, P30B_SOC_N>;
 
@@ -108,52 +112,52 @@ constexpr P30BTable P30B_R0_DIS_OHM = { {
 
 // RC branch resistance of one cell while discharging, in ohms.
 constexpr P30BTable P30B_R1_DIS_OHM = { {
-    { { 0.25501617f, 0.15832715f,       0.15887515f, 1723712.76189689f } }, // bad fit
-    { { 0.25501617f, 0.15832715f,       0.15887515f, 1723712.76189689f } }, // bad fit
+    { { 0.25501617f, 0.15832715f, 0.15887515f, 1723712.76189689f } },       // bad fit
+    { { 0.25501617f, 0.15832715f, 0.15887515f, 1723712.76189689f } },       // bad fit
     { { 0.12435599f, 0.10125000f, 8772007.78175694f, 1079585.57379464f } }, // bad fit
-    { { 0.02929333f, 0.03280582f,       0.03189375f,  226265.23958991f } }, // bad fit
-    { { 0.01586070f, 0.01644790f,       0.01693767f,       0.01715000f } },
-    { { 0.01422540f, 0.01219556f,       0.01301786f,       0.01428958f } },
-    { { 0.01507530f, 0.01069766f,       0.01044258f,       0.00960000f } },
-    { { 0.01351077f, 0.01165544f,       0.01054033f,       0.01046190f } },
-    { { 0.01257407f, 0.01153422f,       0.00994473f,       0.00883411f } },
-    { { 0.01250000f, 0.01190476f,       0.01081490f,       0.00945000f } },
-    { { 0.01286250f, 0.01145833f,       0.01114082f,       0.00987181f } },
-    { { 0.01300317f, 0.01157824f,       0.01200500f,       0.01095252f } },
-    { { 0.01211876f, 0.01098500f,       0.01134452f,       0.01029000f } },
-    { { 0.01143333f, 0.01086339f,       0.01146953f,       0.01005020f } },
-    { { 0.01130265f, 0.01013917f,       0.00911681f,       0.00857500f } },
-    { { 0.01188536f, 0.01024000f,       0.00920220f,       0.00923771f } },
-    { { 0.01300317f, 0.01130265f,       0.01049260f,       0.01029000f } },
-    { { 0.01250000f, 0.01181580f,       0.01134452f,       0.01066667f } },
-    { { 0.01000417f, 0.00946512f,       0.00885542f,       0.00853333f } },
-    { { 0.00793035f, 0.00744394f,       0.00714286f,       0.00647467f } },
-    { { 0.00793035f, 0.00744394f,       0.00714286f,       0.00647467f } },
+    { { 0.02929333f, 0.03280582f, 0.03189375f, 226265.23958991f } },        // bad fit
+    { { 0.01586070f, 0.01644790f, 0.01693767f, 0.01715000f } },
+    { { 0.01422540f, 0.01219556f, 0.01301786f, 0.01428958f } },
+    { { 0.01507530f, 0.01069766f, 0.01044258f, 0.00960000f } },
+    { { 0.01351077f, 0.01165544f, 0.01054033f, 0.01046190f } },
+    { { 0.01257407f, 0.01153422f, 0.00994473f, 0.00883411f } },
+    { { 0.01250000f, 0.01190476f, 0.01081490f, 0.00945000f } },
+    { { 0.01286250f, 0.01145833f, 0.01114082f, 0.00987181f } },
+    { { 0.01300317f, 0.01157824f, 0.01200500f, 0.01095252f } },
+    { { 0.01211876f, 0.01098500f, 0.01134452f, 0.01029000f } },
+    { { 0.01143333f, 0.01086339f, 0.01146953f, 0.01005020f } },
+    { { 0.01130265f, 0.01013917f, 0.00911681f, 0.00857500f } },
+    { { 0.01188536f, 0.01024000f, 0.00920220f, 0.00923771f } },
+    { { 0.01300317f, 0.01130265f, 0.01049260f, 0.01029000f } },
+    { { 0.01250000f, 0.01181580f, 0.01134452f, 0.01066667f } },
+    { { 0.01000417f, 0.00946512f, 0.00885542f, 0.00853333f } },
+    { { 0.00793035f, 0.00744394f, 0.00714286f, 0.00647467f } },
+    { { 0.00793035f, 0.00744394f, 0.00714286f, 0.00647467f } },
 } };
 
 // RC branch time constant of one cell while discharging, in seconds.
 constexpr P30BTable P30B_TAU1_DIS_S = { {
-    { { 30.51133733f, 30.66089373f,          65.98486785f,  894272663.74314451f } }, // bad fit
-    { { 30.51133733f, 30.66089373f,          65.98486785f,  894272663.74314451f } }, // bad fit
+    { { 30.51133733f, 30.66089373f, 65.98486785f, 894272663.74314451f } },           // bad fit
+    { { 30.51133733f, 30.66089373f, 65.98486785f, 894272663.74314451f } },           // bad fit
     { { 28.97967789f, 24.66303462f, 11318785970.07135963f, 2453602231.18314409f } }, // bad fit
-    { { 38.11494687f, 60.24635791f,          84.90187016f,  914204893.76948404f } }, // bad fit
-    { { 17.46666335f, 35.43178459f,          50.39028822f,         64.87159195f } },
-    { { 13.58106366f, 22.63299846f,          39.79079143f,         58.19019522f } },
-    { { 11.92848837f, 20.08683828f,          32.01283740f,         34.76059497f } },
-    { { 23.69699636f, 15.96281797f,          17.12481575f,         16.15406563f } },
-    { { 27.82616432f, 27.36279264f,          20.71028955f,         18.43915194f } },
-    { { 19.57615189f, 28.03673252f,          26.01377645f,         24.66303462f } },
-    { { 17.86940293f, 19.57615189f,          24.06649415f,         21.67572580f } },
-    { { 17.38029748f, 21.61584858f,          29.72013412f,         29.33182797f } },
-    { { 19.79825777f, 20.59699077f,          30.10834473f,         29.72013412f } },
-    { { 17.86940293f, 27.55538335f,          39.23226389f,         35.87915009f } },
-    { { 18.46390358f, 23.39487665f,          25.44253550f,         29.72013412f } },
-    { { 16.34516968f, 21.27643145f,          21.48858984f,         29.26121629f } },
-    { { 17.38029748f, 18.46390358f,          22.87210480f,         29.72013412f } },
-    { { 19.57615189f, 25.25918085f,          30.10834473f,         34.76059497f } },
-    { { 17.86940293f, 23.31026209f,          28.34295403f,         34.76059497f } },
-    { { 12.04313898f, 22.97170887f,          28.03673252f,         28.45776931f } },
-    { { 12.04313898f, 22.97170887f,          28.03673252f,         28.45776931f } },
+    { { 38.11494687f, 60.24635791f, 84.90187016f, 914204893.76948404f } },           // bad fit
+    { { 17.46666335f, 35.43178459f, 50.39028822f, 64.87159195f } },
+    { { 13.58106366f, 22.63299846f, 39.79079143f, 58.19019522f } },
+    { { 11.92848837f, 20.08683828f, 32.01283740f, 34.76059497f } },
+    { { 23.69699636f, 15.96281797f, 17.12481575f, 16.15406563f } },
+    { { 27.82616432f, 27.36279264f, 20.71028955f, 18.43915194f } },
+    { { 19.57615189f, 28.03673252f, 26.01377645f, 24.66303462f } },
+    { { 17.86940293f, 19.57615189f, 24.06649415f, 21.67572580f } },
+    { { 17.38029748f, 21.61584858f, 29.72013412f, 29.33182797f } },
+    { { 19.79825777f, 20.59699077f, 30.10834473f, 29.72013412f } },
+    { { 17.86940293f, 27.55538335f, 39.23226389f, 35.87915009f } },
+    { { 18.46390358f, 23.39487665f, 25.44253550f, 29.72013412f } },
+    { { 16.34516968f, 21.27643145f, 21.48858984f, 29.26121629f } },
+    { { 17.38029748f, 18.46390358f, 22.87210480f, 29.72013412f } },
+    { { 19.57615189f, 25.25918085f, 30.10834473f, 34.76059497f } },
+    { { 17.86940293f, 23.31026209f, 28.34295403f, 34.76059497f } },
+    { { 12.04313898f, 22.97170887f, 28.03673252f, 28.45776931f } },
+    { { 12.04313898f, 22.97170887f, 28.03673252f, 28.45776931f } },
 } };
 
 // Series resistance of one cell while charging, in ohms.
@@ -183,147 +187,162 @@ constexpr P30BTable P30B_R0_CHG_OHM = { {
 
 // RC branch resistance of one cell while charging, in ohms.
 constexpr P30BTable P30B_R1_CHG_OHM = { {
-    { { 0.01620974f, 0.01751338f,      0.01427077f, 0.01221719f } },
-    { { 0.01620974f, 0.01751338f,      0.01427077f, 0.01221719f } },
-    { { 0.00691096f, 0.00844185f,      0.00780201f, 0.00816548f } },
-    { { 0.00857500f, 0.00944808f,      0.00873422f, 0.00886637f } },
-    { { 0.01056873f, 0.01250000f,      0.01143167f, 0.01109167f } },
-    { { 0.01127856f, 0.01215297f,      0.01056873f, 0.01003135f } },
-    { { 0.01240211f, 0.01152299f,      0.01148897f, 0.01109167f } },
-    { { 0.01418528f, 0.01283632f,      0.01215000f, 0.01280000f } },
-    { { 0.01351015f, 0.01165091f,      0.01081333f, 0.01046603f } },
-    { { 0.01261006f, 0.01049260f,      0.01029000f, 0.00979857f } },
-    { { 0.01195539f, 0.01046624f,      0.00946717f, 0.00879359f } },
-    { { 0.01143333f, 0.01014095f,      0.00952381f, 0.00885542f } },
-    { { 0.01194667f, 0.01012500f,      0.00952381f, 0.00960000f } },
-    { { 0.02255692f, 0.01152299f,      0.01109167f, 0.00962971f } },
-    { { 0.01951560f, 0.01386667f,      0.01150568f, 0.01022741f } },
+    { { 0.01620974f, 0.01751338f, 0.01427077f, 0.01221719f } },
+    { { 0.01620974f, 0.01751338f, 0.01427077f, 0.01221719f } },
+    { { 0.00691096f, 0.00844185f, 0.00780201f, 0.00816548f } },
+    { { 0.00857500f, 0.00944808f, 0.00873422f, 0.00886637f } },
+    { { 0.01056873f, 0.01250000f, 0.01143167f, 0.01109167f } },
+    { { 0.01127856f, 0.01215297f, 0.01056873f, 0.01003135f } },
+    { { 0.01240211f, 0.01152299f, 0.01148897f, 0.01109167f } },
+    { { 0.01418528f, 0.01283632f, 0.01215000f, 0.01280000f } },
+    { { 0.01351015f, 0.01165091f, 0.01081333f, 0.01046603f } },
+    { { 0.01261006f, 0.01049260f, 0.01029000f, 0.00979857f } },
+    { { 0.01195539f, 0.01046624f, 0.00946717f, 0.00879359f } },
+    { { 0.01143333f, 0.01014095f, 0.00952381f, 0.00885542f } },
+    { { 0.01194667f, 0.01012500f, 0.00952381f, 0.00960000f } },
+    { { 0.02255692f, 0.01152299f, 0.01109167f, 0.00962971f } },
+    { { 0.01951560f, 0.01386667f, 0.01150568f, 0.01022741f } },
     { { 0.01997612f, 0.01663750f, 226897.65965426f, 0.01129361f } }, // bad fit
-    { { 0.01854019f, 0.01354788f,      0.01208112f, 0.01147500f } },
-    { { 0.01361177f, 0.00904018f,      0.00780201f, 0.00791498f } },
-    { { 0.01361177f, 0.00945000f,      0.00885542f, 0.00818833f } },
-    { { 0.02007114f, 0.01562478f,      0.02063464f, 0.02475818f } },
-    { { 0.02007114f, 0.01562478f,      0.02063464f, 0.02475818f } },
+    { { 0.01854019f, 0.01354788f, 0.01208112f, 0.01147500f } },
+    { { 0.01361177f, 0.00904018f, 0.00780201f, 0.00791498f } },
+    { { 0.01361177f, 0.00945000f, 0.00885542f, 0.00818833f } },
+    { { 0.02007114f, 0.01562478f, 0.02063464f, 0.02475818f } },
+    { { 0.02007114f, 0.01562478f, 0.02063464f, 0.02475818f } },
 } };
 
 // RC branch time constant of one cell while charging, in seconds.
 constexpr P30BTable P30B_TAU1_CHG_S = { {
-    { {  8.87165295f, 12.86953810f,        15.99760120f, 17.60612858f } },
-    { {  8.87165295f, 12.86953810f,        15.99760120f, 17.60612858f } },
-    { { 19.96903649f, 23.88285926f,        22.32019685f, 21.76125456f } },
-    { { 29.72013412f, 37.27671435f,        32.52194339f, 39.07266895f } },
-    { { 28.55491327f, 44.81420118f,        42.30319257f, 49.83288655f } },
-    { { 21.10664896f, 31.66030274f,        28.55491327f, 31.09611078f } },
-    { { 20.24215670f, 22.52600345f,        25.92940848f, 31.40173602f } },
-    { { 23.74093145f, 23.64866498f,        24.66303462f, 34.76059497f } },
-    { { 18.11369152f, 20.79120253f,        23.46952883f, 24.02919660f } },
-    { { 18.96256110f, 22.87210480f,        29.72013412f, 32.74590996f } },
-    { { 18.72369955f, 25.33863874f,        26.22142295f, 26.35118177f } },
-    { { 17.86940293f, 26.11018876f,        28.03673252f, 28.34295403f } },
-    { { 21.27643145f, 24.66303462f,        28.03673252f, 34.76059497f } },
-    { { 37.40908149f, 22.52600345f,        31.40173602f, 30.17891850f } },
-    { { 19.30714042f, 34.76059497f,        32.24195100f, 33.75347224f } },
+    { { 8.87165295f, 12.86953810f, 15.99760120f, 17.60612858f } },
+    { { 8.87165295f, 12.86953810f, 15.99760120f, 17.60612858f } },
+    { { 19.96903649f, 23.88285926f, 22.32019685f, 21.76125456f } },
+    { { 29.72013412f, 37.27671435f, 32.52194339f, 39.07266895f } },
+    { { 28.55491327f, 44.81420118f, 42.30319257f, 49.83288655f } },
+    { { 21.10664896f, 31.66030274f, 28.55491327f, 31.09611078f } },
+    { { 20.24215670f, 22.52600345f, 25.92940848f, 31.40173602f } },
+    { { 23.74093145f, 23.64866498f, 24.66303462f, 34.76059497f } },
+    { { 18.11369152f, 20.79120253f, 23.46952883f, 24.02919660f } },
+    { { 18.96256110f, 22.87210480f, 29.72013412f, 32.74590996f } },
+    { { 18.72369955f, 25.33863874f, 26.22142295f, 26.35118177f } },
+    { { 17.86940293f, 26.11018876f, 28.03673252f, 28.34295403f } },
+    { { 21.27643145f, 24.66303462f, 28.03673252f, 34.76059497f } },
+    { { 37.40908149f, 22.52600345f, 31.40173602f, 30.17891850f } },
+    { { 19.30714042f, 34.76059497f, 32.24195100f, 33.75347224f } },
     { { 20.26613977f, 22.12462197f, 916761456.07631612f, 33.84504642f } }, // bad fit
-    { { 16.39974519f, 16.84140447f,        18.14299484f, 24.66303462f } },
-    { { 15.05662094f, 15.90814866f,        22.32019685f, 30.28085308f } },
-    { { 13.83125590f, 24.66303462f,        28.34295403f, 28.71032962f } },
-    { { 19.84500334f, 27.69980701f,        50.28894551f, 73.45802012f } },
-    { { 19.84500334f, 27.69980701f,        50.28894551f, 73.45802012f } },
+    { { 16.39974519f, 16.84140447f, 18.14299484f, 24.66303462f } },
+    { { 15.05662094f, 15.90814866f, 22.32019685f, 30.28085308f } },
+    { { 13.83125590f, 24.66303462f, 28.34295403f, 28.71032962f } },
+    { { 19.84500334f, 27.69980701f, 50.28894551f, 73.45802012f } },
+    { { 19.84500334f, 27.69980701f, 50.28894551f, 73.45802012f } },
 } };
 
 // STATES: SOC, V1          parameters in state vector
-// MEASUREMENTS: V_term     what filter predicts  
+// MEASUREMENTS: V_term     what filter predicts
 // INPUTS: I, T, dt         what filter uses to predict
 using Ekf = app::state_estimation::ekf<float, 2U, 1U, 3U>;
 
-struct PackData {    
-    app::pack::VoltageBuffer       voltage_buffer{};
-    app::pack::TemperatureBuffer   temp_buffer{};
-    app::pack::OpenWireCheckBuffer owc_buffer{};
+struct PackData
+{
+    app::pack::VoltageBuffer            voltage_buffer{};
+    app::pack::TemperatureBuffer        temp_buffer{};
+    app::pack::OpenWireCheckBuffer      cadc_owc_buffer{};
+    app::pack::OpenWireCheckBuffer      sadc_owc_buffer{};
+    app::pack::ThermOpenWireCheckBuffer therm_owc_buffer{};
 };
 
-app::soc::SocBuffer soc_buffer{};
+app::soc::SocBuffer                      soc_buffer{};
 io::adbms::PackCells<std::optional<Ekf>> filters{};
-uint32_t last_voltage_ms = 0U;
-float charge_out_as  = 0.0f; // A*s out of one cell since last voltage reading
+uint32_t                                 last_voltage_ms = 0U;
+float                                    charge_out_as   = 0.0f; // A*s out of one cell since last voltage reading
 
 } // namespace
 
 namespace app::soc
 {
 
-void init() {
+void init()
+{
     filters = {};
 }
-    
+
 void update()
 {
     PackData d{};
     {
         const io::semaphore::unique_semaphore lock{ pack::buffer_lock };
-        d.voltage_buffer = pack::voltage_buffer;
-        d.temp_buffer = pack::temp_buffer;
-        d.owc_buffer = pack::owc_buffer;
+        d.voltage_buffer   = pack::voltage_buffer;
+        d.temp_buffer      = pack::temp_buffer;
+        d.cadc_owc_buffer  = pack::cadc_owc_buffer;
+        d.sadc_owc_buffer  = pack::sadc_owc_buffer;
+        d.therm_owc_buffer = pack::therm_owc_buffer;
     }
 
-    // Negative value indicates charging current (need to change); converted for dischnage = + / charge = - 
+    // Negative value indicates charging current (need to change); converted for dischnage = + / charge = -
     // Coulomb count every 100 Hz tick (charge = cell current × 0.01 s) so the filter step uses the average current
     charge_out_as += -ts::getCurrent() / static_cast<float>(pack::CELLS_IN_PARALLEL);
-    if (d.voltage_buffer.updated_ms == last_voltage_ms) return;
+    if (d.voltage_buffer.updated_ms == last_voltage_ms)
+        return;
 
-    const float dt = static_cast<float> (d.voltage_buffer.updated_ms - last_voltage_ms) * 1e-3f;
-    const float I = charge_out_as / dt;
+    const float dt  = static_cast<float>(d.voltage_buffer.updated_ms - last_voltage_ms) * 1e-3f;
+    const float I   = charge_out_as / dt;
     last_voltage_ms = 0U;
-    charge_out_as = 0;
+    charge_out_as   = 0;
 
-    pack::Reading max { .value = std::numeric_limits<float>::min() };
-    pack::Reading min { .value = std::numeric_limits<float>::max() };
+    pack::Reading max{ .value = std::numeric_limits<float>::min() };
+    pack::Reading min{ .value = std::numeric_limits<float>::max() };
 
-    for (size_t seg = 0U; seg < io::adbms::NUM_SEGMENTS; ++seg) {
-        for (size_t cell = 0U; cell < io::adbms::CELLS_PER_SEGMENT; ++cell) {
-            const result<float> &voltage = d.voltage_buffer.voltages[seg][cell];
-            const result<float> &temp = d.temp_buffer.temperatures[seg][cell];
-            const bool owc_ok = d.owc_buffer.cells_owc_ok[seg][cell];
+    for (size_t seg = 0U; seg < io::adbms::NUM_SEGMENTS; ++seg)
+    {
+        for (size_t cell = 0U; cell < io::adbms::CELLS_PER_SEGMENT; ++cell)
+        {
+            const result<float> &v = d.voltage_buffer.voltages[seg][cell];
+            const result<float> &t = d.temp_buffer.temperatures[seg][cell];
+            const bool           cell_owc_ok =
+                d.cadc_owc_buffer.cells_owc_ok[seg][cell] && d.sadc_owc_buffer.cells_owc_ok[seg][cell];
+            const bool therm_owc_ok  = d.therm_owc_buffer.therms_owc_ok[seg][cell];
+            const bool voltage_valid = v.has_value() && cell_owc_ok;
+            const bool temp_valid    = t.has_value() && therm_owc_ok;
 
-            const bool           voltage_valid  = voltage.has_value() && owc_ok;
-            const float          T        = temp.has_value() ? *temp : 23.0f;
+            const float voltage = *v;
+            const float temp    = *t;
 
-            // Initialization: the first good sample seeds SOC by OCV lookup, which assumes the cell is at rest
-            // (contactors are open at boot). x0 = [SOC0, 0].
+            // First good sample sets SOC by OCV lookup, which assumes the cell is at rest
             std::optional<Ekf> &filter = filters[seg][cell];
-            if (!filter.has_value()) {
-                if (!measured) {
-                    soc_buffer.soc[seg][cell] = std::unexpected(ErrorCode::STALE_VALUE);
+            if (!filter.has_value())
+            {
+                if (!voltage_valid || !temp_valid)
+                {
+                    soc_buffer.soc[seg][cell] = std::unexpected(ErrorCode::INVALID_READING);
                     continue;
                 }
-                //filter.emplace()
+                // filter.emplace()
             }
-            
+
             const Ekf::U_1 u(I, T, dt);
             filter->predict(u);
-            if (measured) filter->update(u, Ekf::M_1(*voltage));
+            if (voltage_valid)
+                filter->update(u, Ekf::M_1(*voltage));
 
-            const float SOC = filter->state()(0);
+            const float SOC           = filter->state()(0);
             soc_buffer.soc[seg][cell] = SOC;
-    
-            if (SOC > max.value) {
-                max = { SOC, static_cast<uint8_t>(seg), static_cast<uint8_t>(cell)};
+
+            if (SOC > max.value)
+            {
+                max = { SOC, static_cast<uint8_t>(seg), static_cast<uint8_t>(cell) };
             }
-            if (SOC < min.value) {
-                min = { SOC, static_cast<uint8_t>(seg), static_cast<uint8_t>(cell)};
+            if (SOC < min.value)
+            {
+                min = { SOC, static_cast<uint8_t>(seg), static_cast<uint8_t>(cell) };
             }
         }
     }
 
-    if (max.value >= min.value) {
+    if (max.value >= min.value)
+    {
         soc_buffer.max = max;
         soc_buffer.min = min;
     }
     soc_buffer.updated_ms = d.voltage_buffer.updated_ms;
 }
 
-void broadcast()
-{
-
-}
+void broadcast() {}
 } // namespace app::soc

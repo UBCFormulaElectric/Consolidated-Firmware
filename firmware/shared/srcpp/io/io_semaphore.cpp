@@ -7,8 +7,7 @@ namespace io::semaphore
 {
 #ifdef TARGET_EMBEDDED
 
-Semaphore::Semaphore(const bool priority_inheritance_protocol_on, const uint32_t sysview_id)
-  : _sysview_id(sysview_id)
+Semaphore::Semaphore(const bool priority_inheritance_protocol_on, const uint32_t sysview_id) : _sysview_id(sysview_id)
 {
     if (priority_inheritance_protocol_on)
     {

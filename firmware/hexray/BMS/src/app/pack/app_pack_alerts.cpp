@@ -48,7 +48,7 @@ constexpr float    T_CHARGE_INFO_OT           = 40.0f;
 
 constexpr uint32_t V_STALE_MS    = 500;
 constexpr uint32_t DIAG_STALE_MS = 3000;
-constexpr uint32_t OWC_STALE_MS = BALANCE_PERIOD_MS + SETTLE_MS + std::max(COWC_PERIOD_MS, SOWC_PERIOD_MS);
+constexpr uint32_t OWC_STALE_MS  = BALANCE_PERIOD_MS + SETTLE_MS + std::max(COWC_PERIOD_MS, SOWC_PERIOD_MS);
 
 struct AlertData
 {
@@ -70,8 +70,7 @@ template <size_t BITS, size_t SEGMENTS> bool anyClear(const std::array<std::bits
 template <size_t N> bool anyInvalid(const io::adbms::Segments<std::array<result<float>, N>> &readings)
 {
     return std::ranges::any_of(
-        readings,
-        [](const std::array<result<float>, N> &segment)
+        readings, [](const std::array<result<float>, N> &segment)
         { return std::ranges::any_of(segment, [](const result<float> &reading) { return !reading; }); });
 }
 
@@ -118,7 +117,8 @@ bool isHealthFault(const AlertData &s)
 bool isItmpOverTempFault(const AlertData &s)
 {
     return s.supply.updated_ms != 0U &&
-           std::ranges::any_of(s.supply.itmp, [](const result<float> &itmp) { return itmp && *itmp > T_FAULT_ITMP_OT; });
+           std::ranges::any_of(
+               s.supply.itmp, [](const result<float> &itmp) { return itmp && *itmp > T_FAULT_ITMP_OT; });
 }
 
 // Warning conditions

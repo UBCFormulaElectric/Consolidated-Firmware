@@ -12,10 +12,10 @@ namespace app::pack
 {
 
 inline constexpr int32_t CELLS_IN_PARALLEL = 4U;
-    
-using PackCellFlags    = std::array<std::bitset<io::adbms::CELLS_PER_SEGMENT>, io::adbms::NUM_SEGMENTS>;
-using PackThermFlags   = std::array<std::bitset<io::adbms::THERMISTORS_PER_SEGMENT>, io::adbms::NUM_SEGMENTS>;
-using SegmentFlags     = std::bitset<io::adbms::NUM_SEGMENTS>;
+
+using PackCellFlags  = std::array<std::bitset<io::adbms::CELLS_PER_SEGMENT>, io::adbms::NUM_SEGMENTS>;
+using PackThermFlags = std::array<std::bitset<io::adbms::THERMISTORS_PER_SEGMENT>, io::adbms::NUM_SEGMENTS>;
+using SegmentFlags   = std::bitset<io::adbms::NUM_SEGMENTS>;
 
 struct Reading
 {
@@ -67,31 +67,31 @@ struct SupplyBuffer
 
 struct DiagnosticBuffer
 {
-    uint32_t     updated_ms = 0U;
-    PackCellFlags    ov_ok{};
-    PackCellFlags    uv_ok{};
-    SegmentFlags therm_shdn_ok{};
-    SegmentFlags self_test_ok{};
-    SegmentFlags supply_ok{};
+    uint32_t      updated_ms = 0U;
+    PackCellFlags ov_ok{};
+    PackCellFlags uv_ok{};
+    SegmentFlags  therm_shdn_ok{};
+    SegmentFlags  self_test_ok{};
+    SegmentFlags  supply_ok{};
 };
 
 struct BalancingBuffer
 {
-    bool balancing_enabled = false;
+    bool                          balancing_enabled = false;
     io::adbms::PackCells<uint8_t> pwm{};
-    
-    uint32_t updated_ms = 0U;
+
+    uint32_t                            updated_ms = 0U;
     io::adbms::PackCells<result<float>> voltages{};
 };
 
-inline VoltageBuffer            voltage_buffer{};
-inline TemperatureBuffer        temp_buffer{};
-inline OpenWireCheckBuffer      cadc_owc_buffer{};
-inline OpenWireCheckBuffer      sadc_owc_buffer{};
-inline ThermOpenWireCheckBuffer therm_owc_buffer{};
-inline SupplyBuffer             supply_buffer{};
-inline DiagnosticBuffer         diag_buffer{};
-inline BalancingBuffer          balance_buffer{};
+inline VoltageBuffer                  voltage_buffer{};
+inline TemperatureBuffer              temp_buffer{};
+inline OpenWireCheckBuffer            cadc_owc_buffer{};
+inline OpenWireCheckBuffer            sadc_owc_buffer{};
+inline ThermOpenWireCheckBuffer       therm_owc_buffer{};
+inline SupplyBuffer                   supply_buffer{};
+inline DiagnosticBuffer               diag_buffer{};
+inline BalancingBuffer                balance_buffer{};
 inline const io::semaphore::Semaphore buffer_lock{ true };
 
 namespace alerts

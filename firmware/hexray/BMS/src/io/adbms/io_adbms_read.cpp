@@ -35,18 +35,17 @@ constexpr size_t THERM_LUT_SIZE   = 299;
 constexpr float  THERM_VREF2_V    = 3.0f;
 constexpr float  THERM_R_SERIES   = 10e3f;
 // Thermistor datasheet (NTCS0603E3103JMT); worst case error of +- 2degC
-constexpr float  THERM_R_NOMINAL  = 10e3f;
-constexpr float  THERM_T_NOMINAL  = 298.15f;
-constexpr float  THERM_BETA       = 3610.0f;
-constexpr float  KELVIN_OFFSET    = 273.15f;
-
+constexpr float THERM_R_NOMINAL = 10e3f;
+constexpr float THERM_T_NOMINAL = 298.15f;
+constexpr float THERM_BETA      = 3610.0f;
+constexpr float KELVIN_OFFSET   = 273.15f;
 
 constexpr std::array<float, THERM_LUT_SIZE> THERM_LUT = []
 {
     std::array<float, THERM_LUT_SIZE> lut{};
     for (size_t i = 0; i < THERM_LUT_SIZE; i++)
     {
-        const float voltage    = static_cast<float>(i + 1) * THERM_LUT_STEP_V;
+        const float voltage = static_cast<float>(i + 1) * THERM_LUT_STEP_V;
         // Voltage divider equation: 10k resistor (highside) and 10k thermistor (lowside)
         const float resistance = THERM_R_SERIES * voltage / (THERM_VREF2_V - voltage);
         // Beta equation: 1/T = 1/T0 + ln(R/R0)/B in Kelvin
@@ -63,19 +62,27 @@ result<void> configReg(Segments<result<CFGA>> &config_a, Segments<result<CFGB>> 
     Segments<result<RegGroup>> config_regs;
 
     RETURN_IF_ERR_SILENT(reversible::readRegGroup(RDCFGA, config_regs));
-    for (size_t seg = 0; seg < NUM_SEGMENTS; seg++) {
-        if (!config_regs[seg]) {
+    for (size_t seg = 0; seg < NUM_SEGMENTS; seg++)
+    {
+        if (!config_regs[seg])
+        {
             config_a[seg] = std::unexpected(config_regs[seg].error());
-        } else {
+        }
+        else
+        {
             config_a[seg] = std::bit_cast<CFGA>(*config_regs[seg]);
         }
     }
 
     RETURN_IF_ERR_SILENT(reversible::readRegGroup(RDCFGB, config_regs));
-     for (size_t seg = 0; seg < NUM_SEGMENTS; seg++) {
-        if (!config_regs[seg]) {
+    for (size_t seg = 0; seg < NUM_SEGMENTS; seg++)
+    {
+        if (!config_regs[seg])
+        {
             config_b[seg] = std::unexpected(config_regs[seg].error());
-        } else {
+        }
+        else
+        {
             config_b[seg] = std::bit_cast<CFGB>(*config_regs[seg]);
         }
     }
@@ -88,19 +95,27 @@ result<void> pwmReg(Segments<result<PWMA>> &pwm_a, Segments<result<PWMB>> &pwm_b
     Segments<result<RegGroup>> pwm_regs;
 
     RETURN_IF_ERR_SILENT(reversible::readRegGroup(RDPWMA, pwm_regs));
-    for (size_t seg = 0; seg < NUM_SEGMENTS; seg++) {
-        if (!pwm_regs[seg]) {
+    for (size_t seg = 0; seg < NUM_SEGMENTS; seg++)
+    {
+        if (!pwm_regs[seg])
+        {
             pwm_a[seg] = std::unexpected(pwm_regs[seg].error());
-        } else {
+        }
+        else
+        {
             pwm_a[seg] = std::bit_cast<PWMA>(*pwm_regs[seg]);
         }
     }
 
     RETURN_IF_ERR_SILENT(reversible::readRegGroup(RDPWMB, pwm_regs));
-    for (size_t seg = 0; seg < NUM_SEGMENTS; seg++) {
-        if (!pwm_regs[seg]) {
+    for (size_t seg = 0; seg < NUM_SEGMENTS; seg++)
+    {
+        if (!pwm_regs[seg])
+        {
             pwm_b[seg] = std::unexpected(pwm_regs[seg].error());
-        } else {
+        }
+        else
+        {
             pwm_b[seg] = std::bit_cast<PWMB>(*pwm_regs[seg]);
         }
     }
@@ -125,7 +140,6 @@ result<void> cAdc(const bool redundant, app::pack::VoltageBuffer &voltage_buffer
     {
         if (const result<void> res = reversible::readRegGroup(RDSTATC, stat_c_regs); !res)
             status = res;
-        
     }
 
     app::pack::Reading max{ .value = std::numeric_limits<float>::lowest() };
@@ -167,14 +181,15 @@ result<void> cAdc(const bool redundant, app::pack::VoltageBuffer &voltage_buffer
                     voltage_buffer.voltages[seg][cell] = std::unexpected(ErrorCode::MISMATCH);
                     continue;
                 }
-
             }
 
-            const float voltage = static_cast<float>(raw) * ADC_LSB_V + ADC_OFFSET_V;
+            const float voltage                = static_cast<float>(raw) * ADC_LSB_V + ADC_OFFSET_V;
             voltage_buffer.voltages[seg][cell] = voltage;
 
-            if (voltage > max.value) max = { voltage, static_cast<uint8_t>(seg), static_cast<uint8_t>(cell) };
-            if (voltage < min.value) min = { voltage, static_cast<uint8_t>(seg), static_cast<uint8_t>(cell) };
+            if (voltage > max.value)
+                max = { voltage, static_cast<uint8_t>(seg), static_cast<uint8_t>(cell) };
+            if (voltage < min.value)
+                min = { voltage, static_cast<uint8_t>(seg), static_cast<uint8_t>(cell) };
         }
     }
 
@@ -237,11 +252,13 @@ result<void> sAdc(app::pack::VoltageBuffer &voltage_buffer)
                 continue;
             }
 
-            const float voltage = static_cast<float>(raw) * ADC_LSB_V + ADC_OFFSET_V;
+            const float voltage                = static_cast<float>(raw) * ADC_LSB_V + ADC_OFFSET_V;
             voltage_buffer.voltages[seg][cell] = voltage;
 
-            if (voltage > max.value) max = { voltage, static_cast<uint8_t>(seg), static_cast<uint8_t>(cell) };
-            if (voltage < min.value) min = { voltage, static_cast<uint8_t>(seg), static_cast<uint8_t>(cell) };
+            if (voltage > max.value)
+                max = { voltage, static_cast<uint8_t>(seg), static_cast<uint8_t>(cell) };
+            if (voltage < min.value)
+                min = { voltage, static_cast<uint8_t>(seg), static_cast<uint8_t>(cell) };
         }
     }
 
@@ -267,7 +284,8 @@ result<void> sAdc(app::pack::VoltageBuffer &voltage_buffer)
     return status;
 }
 
-result<void> xAdcTherm(const ThermistorMux mux, app::pack::TemperatureBuffer &temp_buffer, PackTherms<result<float>> &voltages)
+result<void>
+    xAdcTherm(const ThermistorMux mux, app::pack::TemperatureBuffer &temp_buffer, PackTherms<result<float>> &voltages)
 {
     std::array<Segments<result<RegGroup>>, RDAUX.size()> gpio_regs;
 
@@ -277,7 +295,7 @@ result<void> xAdcTherm(const ThermistorMux mux, app::pack::TemperatureBuffer &te
         if (const result<void> res = reversible::readRegGroup(RDAUX[group], gpio_regs[group]); !res)
             status = res;
     }
-    
+
     const size_t first_therm = mux == ThermistorMux::THERM_0_7 ? 0 : THERM_GPIOS_PER_SEGMENT;
 
     for (size_t seg = 0; seg < NUM_SEGMENTS; seg++)
@@ -307,7 +325,6 @@ result<void> xAdcTherm(const ThermistorMux mux, app::pack::TemperatureBuffer &te
             const float voltage  = static_cast<float>(raw) * ADC_LSB_V + ADC_OFFSET_V;
             voltages[seg][therm] = voltage;
 
-            
             const long lut_index = std::lround(voltage / THERM_LUT_STEP_V) - 1;
             // LUT is used if voltage is between 0.01 to 2.99V (inclusive)
             if (lut_index < 0 || lut_index >= static_cast<long>(THERM_LUT_SIZE))
@@ -345,7 +362,8 @@ result<void> xAdcTherm(const ThermistorMux mux, app::pack::TemperatureBuffer &te
     return status;
 }
 
-result<void> xAdcSupply(app::pack::SupplyBuffer &supply_buffer) {
+result<void> xAdcSupply(app::pack::SupplyBuffer &supply_buffer)
+{
     Segments<result<RegGroup>> stat_a_regs;
     Segments<result<RegGroup>> stat_b_regs;
     Segments<result<RegGroup>> aux_d_regs;
@@ -403,7 +421,7 @@ result<void> xAdcSupply(app::pack::SupplyBuffer &supply_buffer) {
     return status;
 }
 
-result<void> flags(app::pack::DiagnosticBuffer &diag_buffer )
+result<void> flags(app::pack::DiagnosticBuffer &diag_buffer)
 {
     Segments<result<RegGroup>> stat_c_regs;
     Segments<result<RegGroup>> stat_d_regs;
@@ -431,7 +449,7 @@ result<void> flags(app::pack::DiagnosticBuffer &diag_buffer )
 
         if (stat_c_regs[seg])
         {
-            const STATC stat_c = std::bit_cast<STATC>(*stat_c_regs[seg]);
+            const STATC stat_c             = std::bit_cast<STATC>(*stat_c_regs[seg]);
             diag_buffer.therm_shdn_ok[seg] = !stat_c.thsd;
             diag_buffer.self_test_ok[seg] =
                 !(stat_c.ced || stat_c.cmed || stat_c.sed || stat_c.smed || stat_c.tmodchk || stat_c.oscchk);

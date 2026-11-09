@@ -69,7 +69,7 @@ void MonitorPumps()
         }
         {
             const io::semaphore::unique_semaphore lock{ pwr_pump_i2c_bus_lock };
-            const float                percentage =
+            const float                           percentage =
                 static_cast<float>(ramp_timer_rr.getElapsedTime()) / static_cast<float>(RAMP_DURATION_MS);
             const auto percentage_u8 = static_cast<uint8_t>(percentage * MAX_PUMP_VALUE);
             LOG_IF_ERR(rr_pump.setPercentage(percentage_u8));

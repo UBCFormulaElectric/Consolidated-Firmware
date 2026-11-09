@@ -35,45 +35,37 @@ template <io::adbms::OpenWireParity> result<void> sowcOnEntry();
 template <io::adbms::OpenWireParity> void         sowcOnTick();
 result<void>                                      sowcOnExit();
 
-const app::Fsm::State measure_state{"CONTINUOUS REDUNDANT PRIMARY VOLTAGE MEASUREMENTS; CONTINUOUS SECONDARY VOLTAGE MEASUREMENTS", 
-                                    measureOnEntry,
-                                    measureOnTick, 
-                                    nullptr};
+const app::Fsm::State measure_state{
+    "CONTINUOUS REDUNDANT PRIMARY VOLTAGE MEASUREMENTS; CONTINUOUS SECONDARY VOLTAGE MEASUREMENTS", measureOnEntry,
+    measureOnTick, nullptr
+};
 const app::Fsm::State balance_a_state{ "CONTINUOUS PRIMARY VOLTAGE MEASUREMENTS; THERM_0_7 TEMP MEASUREMENTS; BALANCE",
                                        balanceOnEntry<io::adbms::ThermistorMux::THERM_0_7>,
-                                       balanceOnTick<io::adbms::ThermistorMux::THERM_0_7>,
-                                       nullptr };
+                                       balanceOnTick<io::adbms::ThermistorMux::THERM_0_7>, nullptr };
 const app::Fsm::State balance_b_state{ "CONTINUOUS PRIMARY VOLTAGE MEASUREMENTS; THERM_8_13 TEMP MEASUREMENTS; "
                                        "THERM OPEN WIRE CHECK; BALANCE",
                                        balanceOnEntry<io::adbms::ThermistorMux::THERM_8_13>,
-                                       balanceOnTick<io::adbms::ThermistorMux::THERM_8_13>,
-                                       tempOnExit };
+                                       balanceOnTick<io::adbms::ThermistorMux::THERM_8_13>, tempOnExit };
 const app::Fsm::State temp_a_state{ "CONTINUOUS REDUNDANT PRIMARY VOLTAGE MEASUREMENTS; THERM_0_7 TEMP MEASUREMENTS; "
                                     "DIAGNOSTICS",
                                     tempOnEntry<io::adbms::ThermistorMux::THERM_0_7>,
-                                    tempOnTick<io::adbms::ThermistorMux::THERM_0_7>, 
-                                    nullptr };
+                                    tempOnTick<io::adbms::ThermistorMux::THERM_0_7>, nullptr };
 const app::Fsm::State temp_b_state{ "CONTINUOUS REDUNDANT PRIMARY VOLTAGE MEASUREMENTS; THERM_8_13 TEMP MEASUREMENTS; "
                                     "THERM OPEN WIRE CHECK; DIAGNOSTICS",
                                     tempOnEntry<io::adbms::ThermistorMux::THERM_8_13>,
-                                    tempOnTick<io::adbms::ThermistorMux::THERM_8_13>, 
-                                    tempOnExit };
+                                    tempOnTick<io::adbms::ThermistorMux::THERM_8_13>, tempOnExit };
 const app::Fsm::State cowc_a_state{ "CONTINUOUS SECONDARY VOLTAGE MEASUREMENTS; ODD CELL PRIMARY OPEN WIRE CHECK",
                                     cowcOnEntry<io::adbms::OpenWireParity::ODD>,
-                                    cowcOnTick<io::adbms::OpenWireParity::ODD>, 
-                                    nullptr };
+                                    cowcOnTick<io::adbms::OpenWireParity::ODD>, nullptr };
 const app::Fsm::State cowc_b_state{ "CONTINUOUS SECONDARY VOLTAGE MEASUREMENTS; EVEN CELL PRIMARY OPEN WIRE CHECK",
                                     cowcOnEntry<io::adbms::OpenWireParity::EVEN>,
-                                    cowcOnTick<io::adbms::OpenWireParity::EVEN>, 
-                                    cowcOnExit };
+                                    cowcOnTick<io::adbms::OpenWireParity::EVEN>, cowcOnExit };
 const app::Fsm::State sowc_a_state{ "CONTINUOUS PRIMARY VOLTAGE MEASUREMENTS; ODD CELL SECONDARY OPEN WIRE CHECK",
                                     sowcOnEntry<io::adbms::OpenWireParity::ODD>,
-                                    sowcOnTick<io::adbms::OpenWireParity::ODD>, 
-                                    nullptr };
+                                    sowcOnTick<io::adbms::OpenWireParity::ODD>, nullptr };
 const app::Fsm::State sowc_b_state{ "CONTINUOUS PRIMARY VOLTAGE MEASUREMENTS; EVEN CELL SECONDARY OPEN WIRE CHECK",
                                     sowcOnEntry<io::adbms::OpenWireParity::EVEN>,
-                                    sowcOnTick<io::adbms::OpenWireParity::EVEN>,    
-                                    sowcOnExit };
+                                    sowcOnTick<io::adbms::OpenWireParity::EVEN>, sowcOnExit };
 
 app::Fsm fsm;
 
@@ -321,7 +313,7 @@ template <io::adbms::OpenWireParity owc_parity> result<void> cowcOnEntry()
     RETURN_IF_ERR(app::pack::config::setSegmentConfig(io::adbms::ThermistorMux::THERM_0_7));
     RETURN_IF_ERR(app::pack::config::checkSegmentConfig());
     RETURN_IF_ERR(io::adbms::command::startSadc(true, io::adbms::OpenWireParity::NONE)); // CONT on
-    RETURN_IF_ERR(io::adbms::command::startCadc(false, false, owc_parity));             // CONT off, RD off
+    RETURN_IF_ERR(io::adbms::command::startCadc(false, false, owc_parity));              // CONT off, RD off
     return {};
 }
 
@@ -377,7 +369,7 @@ template <io::adbms::OpenWireParity owc_parity> result<void> sowcOnEntry()
     RETURN_IF_ERR(app::pack::config::setSegmentConfig(io::adbms::ThermistorMux::THERM_0_7));
     RETURN_IF_ERR(app::pack::config::checkSegmentConfig());
     RETURN_IF_ERR(io::adbms::command::startCadc(true, false, io::adbms::OpenWireParity::NONE)); // CONT on, RD off
-    RETURN_IF_ERR(io::adbms::command::startSadc(false, owc_parity));                           // CONT off
+    RETURN_IF_ERR(io::adbms::command::startSadc(false, owc_parity));                            // CONT off
     return {};
 }
 
