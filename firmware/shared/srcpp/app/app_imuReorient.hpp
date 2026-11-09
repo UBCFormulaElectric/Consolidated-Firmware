@@ -8,7 +8,7 @@ namespace app::reorient
 using namespace std;
 using Rotation = array<array<float, 3>, 3>;
 
-struct imu_reorient
+struct ImuReorient
 {
     // IMU manufacturer biases
     const float x_bias;
@@ -20,7 +20,7 @@ struct imu_reorient
 
     Rotation R;
 
-    imu_reorient(
+    ImuReorient(
         const float x_bias_in     = 0.0f,
         const float y_bias_in     = 0.0f,
         const float z_bias_in     = 0.0f,
@@ -63,7 +63,7 @@ struct imu_reorient
     }
 };
 
-struct imu_readings
+struct ImuReadings
 {
     result<float> accelX;
     result<float> accelY;
@@ -80,5 +80,5 @@ struct imu_readings
     }
 };
 
-imu_readings apply(imu_reorient &reorient, imu_readings &imu);
+ImuReadings apply(ImuReorient &reorient, ImuReadings &imu);
 } // namespace app::reorient

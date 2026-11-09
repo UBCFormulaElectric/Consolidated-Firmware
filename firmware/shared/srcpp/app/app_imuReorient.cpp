@@ -6,9 +6,9 @@
 using namespace std;
 namespace app::reorient
 {
-imu_readings apply(imu_reorient &reorient, imu_readings &imu)
+ImuReadings apply(ImuReorient &reorient, ImuReadings &imu)
 {
-    imu_readings imu_results;
+    ImuReadings imu_results;
     if (!imu.hasFault())
     {
         const float x     = imu.accelX.value() - reorient.x_bias;
