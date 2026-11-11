@@ -7,15 +7,12 @@
 #include "app_states.hpp"
 #include "app_bspdwarning.hpp"
 
-#include "torque_vectoring/datatypes/torque_limits.hpp"
-
 #include "io_log.hpp"
 #include "io_pcm.hpp"
 
 using namespace app::can_utils;
 using namespace app::inverter;
 using namespace app::powerManager;
-using namespace app::tv::datatypes::torque_limits;
 
 static constexpr Efuses<EfuseConfig> power_manager_state = {
     .front_efuse     = { true, 0, 5 },    // front

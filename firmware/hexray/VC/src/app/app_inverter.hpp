@@ -5,6 +5,10 @@
 
 namespace app::inverter
 {
+inline constexpr float MAX_TORQUE_REQUEST_Nm = 15.5f;  // Safety limit (actual max is 21 Nm)
+inline constexpr float MAX_REGEN_TORQUE_Nm   = -15.0f; // Maximum regenerative braking torque
+inline constexpr float NO_TORQUE_Nm          = 0.0f;
+
 enum FaultHandlerState : uint8_t
 {
     INV_FAULT_RETRY,

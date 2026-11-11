@@ -6,7 +6,6 @@
 #include "app_canTx.hpp"
 #include "app_canRx.hpp"
 #include "app_canAlerts.hpp"
-#include "torque_vectoring/datatypes/torque_limits.hpp"
 #include "io_log.hpp"
 #include <app_canUtils.hpp>
 
@@ -14,6 +13,15 @@ using namespace app::can_utils;
 namespace app
 {
 static State *state_to_recover_after_fault;
+
+/**
+ * DD5-14-10-POW motors accept percentage of nominal torque, not absolute torque.
+ * 100% = 9.8 Nm nominal torque.
+ */
+static constexpr int16_t TORQUE_REQUEST(const float torque)
+{
+    return static_cast<int16_t>((torque / 9.8f) * 1000.0f);
+}
 
 constexpr app::inverter::Handle inverter_handle_FL{
     can_tx::VC_INVFLbEnable_set,
@@ -84,8 +92,6 @@ void inverter::inverter_enable_toggle(const bool fl, const bool fr, const bool r
 
 void inverter::set_torque_limit_negative(const float fl_Nm, const float fr_Nm, const float rl_Nm, const float rr_Nm)
 {
-    using tv::datatypes::torque_limits::TORQUE_REQUEST;
-
     inverter_handle_FL.can_torque_limit_negative(TORQUE_REQUEST(fl_Nm));
     inverter_handle_FR.can_torque_limit_negative(TORQUE_REQUEST(fr_Nm));
     inverter_handle_RL.can_torque_limit_negative(TORQUE_REQUEST(rl_Nm));
@@ -94,8 +100,6 @@ void inverter::set_torque_limit_negative(const float fl_Nm, const float fr_Nm, c
 
 void inverter::set_torque_limit_positive(const float fl_Nm, const float fr_Nm, const float rl_Nm, const float rr_Nm)
 {
-    using tv::datatypes::torque_limits::TORQUE_REQUEST;
-
     inverter_handle_FL.can_torque_limit_positive(TORQUE_REQUEST(fl_Nm));
     inverter_handle_FR.can_torque_limit_positive(TORQUE_REQUEST(fr_Nm));
     inverter_handle_RL.can_torque_limit_positive(TORQUE_REQUEST(rl_Nm));
@@ -104,8 +108,6 @@ void inverter::set_torque_limit_positive(const float fl_Nm, const float fr_Nm, c
 
 void inverter::send_torque(const float fl_Nm, const float fr_Nm, const float rl_Nm, const float rr_Nm)
 {
-    using tv::datatypes::torque_limits::TORQUE_REQUEST;
-
     inverter_handle_FL.can_torque_setpoint(TORQUE_REQUEST(fl_Nm));
     inverter_handle_FR.can_torque_setpoint(TORQUE_REQUEST(fr_Nm));
     inverter_handle_RL.can_torque_setpoint(TORQUE_REQUEST(rl_Nm));
