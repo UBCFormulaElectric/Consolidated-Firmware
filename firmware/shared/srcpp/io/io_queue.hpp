@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cmsis_os2.h>
+#include <cstddef>
 #ifdef TARGET_EMBEDDED
 #include "cmsis_os.h"
 #elif TARGET_TEST
@@ -80,6 +82,16 @@ template <typename T, size_t QUEUE_SIZE> class queue
         q.push(msg);
 #endif
         return {};
+    }
+
+    [[nodiscard]] result<uint32_t> getSize(void)
+    {
+#ifdef TARGET_EMBEDDED
+        assert(queue_id != nullptr);
+        return osMessageQueueGetCount(this->queue_id);
+#elif TARGET_TESt
+        q.size();
+#endif
     }
 
     /**

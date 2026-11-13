@@ -68,7 +68,7 @@ class FileSystem
      * @param size size in question
      * @return FileSystemError status
      */
-    std::expected<void, FileSystemError> read(uint32_t fd, std::span<uint8_t> buf, std::size_t size);
+    std::expected<void, FileSystemError> read(const uint32_t fd, std::span<uint8_t> buf, std::size_t size);
 
     /**
      * writes to file descriptor for some size into the buffer
@@ -77,7 +77,7 @@ class FileSystem
      * @param size size in question
      * @return FileSystemError status
      */
-    std::expected<void, FileSystemError> write(uint32_t fd, std::span<uint8_t> buf, std::size_t size);
+    std::expected<void, FileSystemError> write(const uint32_t fd, std::span<uint8_t> buf, std::size_t size);
 
     /**
      * Reads metadata from a file
@@ -86,7 +86,7 @@ class FileSystem
      * @param num_read actual bytes read
      * @return FileSystemError status
      */
-    std::expected<void, FileSystemError> readMetadata(uint32_t fd, std::span<uint8_t> buf, uint32_t &num_read);
+    std::expected<void, FileSystemError> readMetadata(const uint32_t fd, std::span<uint8_t> buf, uint32_t &num_read);
 
     /**
      * Writes metadata to a file
@@ -94,21 +94,29 @@ class FileSystem
      * @param buf source buffer
      * @return FileSystemError status
      */
-    std::expected<void, FileSystemError> writeMetadata(uint32_t fd, std::span<const uint8_t> buf);
+    std::expected<void, FileSystemError> writeMetadata(const uint32_t fd, std::span<const uint8_t> buf);
 
     /**
      * Closes file given file descriptor
      * @param fd file descriptor in question
      * @return FileSystemError status
      */
-    std::expected<void, FileSystemError> close(uint32_t fd);
+    std::expected<void, FileSystemError> close(const uint32_t fd);
 
     /**
      * Do the concrete write operation to the hardware
      * @param fd on this file descriptor
      * @return FileSystemError status
      */
-    std::expected<void, FileSystemError> sync(uint32_t fd);
+    std::expected<void, FileSystemError> sync(const uint32_t fd);
+
+    /**
+     * Get the size of file based on the fd
+     * @param fd desired file descriptor
+     * @return FileSystemError status or file size
+     */
+
+    std::expected<uint32_t, FileSystemError> get_size(const uint32_t fd);
 
   private:
     bool mount_failed = false;

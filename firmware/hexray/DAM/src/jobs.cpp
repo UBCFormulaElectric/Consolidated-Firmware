@@ -164,10 +164,7 @@ void jobs_runLogging_tick()
     io::canLogging::EncodeBuf buf;
     const size_t              n = io::canLogging::encode(msg.value(), buf);
 
-    if (const auto err = fs.write(app::sd::getLogFd(), { buf.data(), n }, n); !err)
-    {
-        LOG_ERROR("Log write failed: %d", static_cast<int>(err.error()));
-    }
+    app::sd::write({ buf.data(), n}, n);
 }
 
 void jobs_runTelem_tick() {}

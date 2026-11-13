@@ -17,20 +17,23 @@ namespace app::sd
 {
 namespace
 {
-    constexpr const char *DEFAULT_LOG_PATH = "/boot.bin"; // Fallback path
-    std::array<char, 48>  LOG_PATH_BUF{};
-    uint32_t              log_fd   = 0;
-    bool                  log_open = false;
-    std::atomic<bool>     metadata_update_requested{ false };
-    std::atomic<bool>     sync_requested{ false };
+    constexpr const char  *DEFAULT_LOG_PATH = "/boot.bin"; // Fallback path
+    constexpr const size_t MAX_FILE_SIZE    = 1048576U;    // 1MB file size
+    std::array<char, 48>   LOG_PATH_BUF{};
+    uint32_t               log_fd          = 0;
+    uint32_t               file_index      = 0;
+    uint32_t               curr_boot_count = 0;
+    bool                   log_open        = false;
+    std::atomic<bool>      metadata_update_requested{ false };
+    std::atomic<bool>      sync_requested{ false };
 
-    [[nodiscard]] uint32_t makeBootFilenameHash(uint32_t boot_num) noexcept
+    [[nodiscard]] uint32_t makeBootFilenameHash(uint32_t boot_num, uint32_t index) noexcept
     {
         const auto now_ms = io::time::getCurrentMs();
         char       scratch[32]{};
         const auto len = std::snprintf(
-            scratch, sizeof(scratch), "%lu_%lu", static_cast<unsigned long>(boot_num),
-            static_cast<unsigned long>(now_ms));
+            scratch, sizeof(scratch), "%lu_%lu_%lu", static_cast<unsigned long>(boot_num),
+            static_cast<unsigned long>(now_ms), static_cast<unsigned long>(index));
         if (len < 0)
             return 0u;
         return app::crc32::finalize(app::crc32::update(app::crc32::init(), scratch, static_cast<size_t>(len)));
@@ -56,8 +59,9 @@ std::expected<void, io::FileSystem::FileSystemError> init_fs()
     const char *log_path = DEFAULT_LOG_PATH;
     if (const auto boot_num = app::bootcount::update(fs); boot_num) // update bootcount
     {
-        const auto filename_hash = makeBootFilenameHash(static_cast<uint32_t>(boot_num.value()));
+        const auto filename_hash = makeBootFilenameHash(static_cast<uint32_t>(boot_num.value()), file_index);
         log_path                 = formatBootFilename(static_cast<uint32_t>(boot_num.value()), filename_hash);
+        curr_boot_count          = boot_num.value();
     }
     else
     {
@@ -178,5 +182,42 @@ uint32_t getLogFd()
 bool isLogOpen()
 {
     return log_open;
+}
+
+std::expected<void, io::FileSystem::FileSystemError> write(const std::span<uint8_t> buf, const size_t size)
+{
+    auto file_size = fs.get_size(getLogFd());
+    if (not file_size)
+        return std::unexpected(file_size.error());
+
+    if (file_size.value() + size > MAX_FILE_SIZE)
+    {
+        file_index++;
+        const char *log_path = DEFAULT_LOG_PATH;
+
+        if (const auto result = fs.close(getLogFd()); !result)
+        {
+            LOG_ERROR("Log close failed : %d", static_cast<int>(result.error()));
+        }
+
+        const auto filename_hash = makeBootFilenameHash(static_cast<uint32_t>(curr_boot_count), file_index);
+        log_path                 = formatBootFilename(static_cast<uint32_t>(curr_boot_count), filename_hash);
+
+        if (const auto result = fs.open(log_path); result.has_value()) // filename: boot_{boot_num}_{hash}.bin
+        {
+            log_fd = result.value();
+        }
+        else
+        {
+            return std::unexpected(result.error());
+        }
+    }
+
+    if (const auto err = fs.write(log_fd, buf, size); !err)
+    {
+        LOG_ERROR("Log write failed: %d", static_cast<int>(err.error()));
+    }
+
+    return {};
 }
 } // namespace app::sd

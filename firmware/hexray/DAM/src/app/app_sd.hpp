@@ -39,4 +39,6 @@ uint32_t getLogFd();
  * Returns true if the log file is currently open.
  */
 bool isLogOpen();
+
+result<io::FileSystem::FileSystemError> write(const std::span<uint8_t> buf, const size_t size);
 } // namespace app::sd
