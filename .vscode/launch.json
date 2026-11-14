@@ -276,11 +276,11 @@
     {
       "name": "Debug Embedded: CRIT (Hexray)",
       "cwd": "${workspaceRoot}",
-      "executable": "build_fw_dev/firmware/hexray/CRIT/hexray_CRIT.hex",
+      "executable": "${command:cmake.buildDirectory}/firmware/hexray/CRIT/hexray_CRIT.hex",
       "symbolFiles": [
         // This order matters, or RTT won't work! (app has to be last)
-        "build_fw_dev/firmware/hexray/CRIT/hexray_CRIT_boot.elf",
-        "build_fw_dev/firmware/hexray/CRIT/hexray_CRIT_app.elf"
+        "${command:cmake.buildDirectory}/firmware/hexray/CRIT/hexray_CRIT_boot.elf",
+        "${command:cmake.buildDirectory}/firmware/hexray/CRIT/hexray_CRIT_app.elf"
       ],
       "preLaunchTask": "Build Embedded: CRIT (Hexray)",
       // cortex configurations
@@ -318,11 +318,11 @@
     {
       "name": "Debug Embedded: VC (Hexray)",
       "cwd": "${workspaceRoot}",
-      "executable": "build_fw_dev/firmware/hexray/VC/hexray_VC.hex",
+      "executable": "${command:cmake.buildDirectory}/firmware/hexray/VC/hexray_VC.hex",
       "symbolFiles": [
         // This order matters, or RTT won't work! (app has to be last)
-        "build_fw_dev/firmware/hexray/VC/hexray_VC_boot.elf",
-        "build_fw_dev/firmware/hexray/VC/hexray_VC_app.elf"
+        "${command:cmake.buildDirectory}/firmware/hexray/VC/hexray_VC_boot.elf",
+        "${command:cmake.buildDirectory}/firmware/hexray/VC/hexray_VC_app.elf"
       ],
       "preLaunchTask": "Build Embedded: VC (Hexray)",
       // cortex configurations
@@ -361,11 +361,11 @@
    
       "name": "Debug Embedded: BMS (Hexray)",
       "cwd": "${workspaceRoot}",
-      "executable": "build_fw_dev/firmware/hexray/BMS/hexray_BMS.hex",
+      "executable": "${command:cmake.buildDirectory}/firmware/hexray/BMS/hexray_BMS.hex",
       "symbolFiles": [
         // This order matters, or RTT won't work! (app has to be last)
-        "build_fw_dev/firmware/hexray/BMS/hexray_BMS_boot.elf",
-        "build_fw_dev/firmware/hexray/BMS/hexray_BMS_app.elf"
+        "${command:cmake.buildDirectory}/firmware/hexray/BMS/hexray_BMS_boot.elf",
+        "${command:cmake.buildDirectory}/firmware/hexray/BMS/hexray_BMS_app.elf"
       ],
       "preLaunchTask": "Build Embedded: BMS (Hexray)",
       // cortex configurations
@@ -403,11 +403,11 @@
     {
       "name": "Debug Embedded: FSM (Hexray)",
       "cwd": "${workspaceRoot}",
-      "executable": "build_fw_dev/firmware/hexray/FSM/hexray_FSM.hex",
+      "executable": "${command:cmake.buildDirectory}/firmware/hexray/FSM/hexray_FSM.hex",
       "symbolFiles": [
         // This order matters, or RTT won't work! (app has to be last)
-        "build_fw_dev/firmware/hexray/FSM/hexray_FSM_boot.elf",
-        "build_fw_dev/firmware/hexray/FSM/hexray_FSM_app.elf"
+        "${command:cmake.buildDirectory}/firmware/hexray/FSM/hexray_FSM_boot.elf",
+        "${command:cmake.buildDirectory}/firmware/hexray/FSM/hexray_FSM_app.elf"
       ],
       "preLaunchTask": "Build Embedded: FSM (Hexray)",
       // cortex configurations
@@ -445,11 +445,11 @@
     {
       "name": "Debug Embedded: DAM (Hexray)",
       "cwd": "${workspaceRoot}",
-      "executable": "build_fw_dev/firmware/hexray/DAM/hexray_DAM.hex",
+      "executable": "${command:cmake.buildDirectory}/firmware/hexray/DAM/hexray_DAM.hex",
       "symbolFiles": [
         // This order matters, or RTT won't work! (app has to be last)
-        "build_fw_dev/firmware/hexray/DAM/hexray_DAM_boot.elf",
-        "build_fw_dev/firmware/hexray/DAM/hexray_DAM_app.elf"
+        "${command:cmake.buildDirectory}/firmware/hexray/DAM/hexray_DAM_boot.elf",
+        "${command:cmake.buildDirectory}/firmware/hexray/DAM/hexray_DAM_app.elf"
       ],
       "preLaunchTask": "Build Embedded: DAM (Hexray)",
       // cortex configurations
@@ -487,11 +487,11 @@
     {
       "name": "Debug Embedded: RSM (Hexray)",
       "cwd": "${workspaceRoot}",
-      "executable": "build_fw_dev/firmware/hexray/RSM/hexray_RSM.hex",
+      "executable": "${command:cmake.buildDirectory}/firmware/hexray/RSM/hexray_RSM.hex",
       "symbolFiles": [
         // This order matters, or RTT won't work! (app has to be last)
-        "build_fw_dev/firmware/hexray/RSM/hexray_RSM_boot.elf",
-        "build_fw_dev/firmware/hexray/RSM/hexray_RSM_app.elf"
+        "${command:cmake.buildDirectory}/firmware/hexray/RSM/hexray_RSM_boot.elf",
+        "${command:cmake.buildDirectory}/firmware/hexray/RSM/hexray_RSM_app.elf"
       ],
       "preLaunchTask": "Build Embedded: RSM (Hexray)",
       // cortex configurations
@@ -530,9 +530,9 @@
       "name": "Debug Embedded: SSM",
       "cwd": "${workspaceRoot}",
       // binary config
-      "executable": "build_fw_dev/firmware/dev/SSM/ssm.elf",
+      "executable": "${command:cmake.buildDirectory}/firmware/dev/SSM/ssm.elf",
       "symbolFiles": [
-        "build_fw_dev/firmware/dev/SSM/ssm.elf"
+        "${command:cmake.buildDirectory}/firmware/dev/SSM/ssm.elf"
       ],
       "preLaunchTask": "Build Embedded: SSM",
       // cortex configurations
@@ -570,10 +570,10 @@
     {
       "name": "Debug Embedded: h7dev",
       "cwd": "${workspaceRoot}",
-      "executable": "build_fw_dev/firmware/dev/h7dev/h7dev.hex",
+      "executable": "${command:cmake.buildDirectory}/firmware/dev/h7dev/h7dev.hex",
       "symbolFiles": [
-        "build_fw_dev/firmware/dev/h7dev/h7dev_boot.elf",
-        "build_fw_dev/firmware/dev/h7dev/h7dev_app.elf"
+        "${command:cmake.buildDirectory}/firmware/dev/h7dev/h7dev_boot.elf",
+        "${command:cmake.buildDirectory}/firmware/dev/h7dev/h7dev_app.elf"
       ],
       "preLaunchTask": "Build Embedded: h7dev",
       // cortex configurations
@@ -611,10 +611,10 @@
     {
       "name": "Debug Embedded: h5dev",
       "cwd": "${workspaceRoot}",
-      "executable": "build_fw_dev/firmware/dev/h5dev/h5dev.hex",
+      "executable": "${command:cmake.buildDirectory}/firmware/dev/h5dev/h5dev.hex",
       "symbolFiles": [
-        "build_fw_dev/firmware/dev/h5dev/h5dev_boot.elf",
-        "build_fw_dev/firmware/dev/h5dev/h5dev_app.elf",
+        "${command:cmake.buildDirectory}/firmware/dev/h5dev/h5dev_boot.elf",
+        "${command:cmake.buildDirectory}/firmware/dev/h5dev/h5dev_app.elf",
       ],
       "preLaunchTask": "Build Embedded: h5dev",
       // cortex configurations

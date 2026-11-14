@@ -1,7 +1,5 @@
 #include "hw_cordic.hpp"
 
-#include <cstddef>
-
 #include "hw_hal.hpp"
 
 #include "main.h"
@@ -35,44 +33,22 @@
 
 namespace hw::cordic
 {
-static constexpr uint32_t CORDIC_TIMEOUT = 10;
-
-static result<uint32_t> nbWriteFromInputSize(const std::size_t input_size)
+result<void> init()
 {
-    switch (input_size)
-    {
-        case 1:
-            return CORDIC_NBWRITE_1;
-        case 2:
-            return CORDIC_NBWRITE_2;
-        default:
-            return std::unexpected(ErrorCode::INVALID_ARGS);
-    }
-}
-
-result<int32_t> calculate(const uint32_t func, const uint32_t scale, std::span<const int32_t> args)
-{
-    const auto nbwrite = nbWriteFromInputSize(args.size());
-    if (not nbwrite)
-    {
-        return std::unexpected(nbwrite.error());
-    }
-
+    // Function, scale and number of arguments are set again by calculate() these are only defaults
     CORDIC_ConfigTypeDef config;
 
-    config.Function  = func;
-    config.Scale     = scale;
+    config.Function  = CORDIC_FUNCTION_SINE;
+    config.Scale     = CORDIC_SCALE_0;
     config.InSize    = CORDIC_INSIZE_32BITS;
     config.OutSize   = CORDIC_OUTSIZE_32BITS;
     config.NbRead    = CORDIC_NBREAD_1;
-    config.NbWrite   = nbwrite.value();
-    config.Precision = CORDIC_PRECISION_15CYCLES;
+    config.NbWrite   = CORDIC_NBWRITE_1;
+    config.Precision = PRECISION;
 
-    RETURN_IF_ERR(hw::utils::convertHalStatus(HAL_CORDIC_Configure(&hcordic, &config)));
+    // The HAL wrote CSR so make the next calculate() write it again
+    current_csr = 0U;
 
-    int32_t result = 0;
-    RETURN_IF_ERR(
-        hw::utils::convertHalStatus(HAL_CORDIC_CalculateZO(&hcordic, args.data(), &result, 1, CORDIC_TIMEOUT)));
-    return result;
+    return hw::utils::convertHalStatus(HAL_CORDIC_Configure(&hcordic, &config));
 }
 }; // namespace hw::cordic
