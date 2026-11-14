@@ -33,17 +33,17 @@ class VCImuTest : public VCBaseTest
 //     ASSERT_FLOAT_EQ(4.0f, app::can_tx::VC_Imu1GyroX_get());
 //     ASSERT_FLOAT_EQ(5.0f, app::can_tx::VC_Imu1GyroY_get());
 //     ASSERT_FLOAT_EQ(6.0f, app::can_tx::VC_Imu1GyroZ_get());
-// }
+// }    
 
 // IMU REORIENTATION
 TEST_F(VCImuTest, Imu1_Accel_Gyro_Test)
 {
-    io::imus::IMU1.set_AccelX(0.2f + 0.04f);
-    io::imus::IMU1.set_AccelY(0.1f + 0.01f);
-    io::imus::IMU1.set_AccelZ(0.97468f - 0.01f);
-    io::imus::IMU1.set_GyroRoll(0.2f + 0.63f);
-    io::imus::IMU1.set_GyroPitch(0.1f - 0.4f);
-    io::imus::IMU1.set_GyroYaw(0.97468f - 0.26f);
+    io::imus::IMU1.set_AccelX(-0.05f);
+    io::imus::IMU1.set_AccelY(0.0f);
+    io::imus::IMU1.set_AccelZ(0.99f);
+    io::imus::IMU1.set_GyroRoll(0.0f);
+    io::imus::IMU1.set_GyroPitch(0.0f);
+    io::imus::IMU1.set_GyroYaw(0.0f);
 
     LetTimePass(1);
 
@@ -51,12 +51,17 @@ TEST_F(VCImuTest, Imu1_Accel_Gyro_Test)
 
     LetTimePass(1);
 
-    ASSERT_FLOAT_EQ(0.0f, app::can_tx::VC_Imu1AccelX_get());
-    ASSERT_FLOAT_EQ(0.0f, app::can_tx::VC_Imu1AccelY_get());
-    ASSERT_FLOAT_EQ(1.0f, app::can_tx::VC_Imu1AccelZ_get());
-    ASSERT_FLOAT_EQ(0.0, app::can_tx::VC_Imu1GyroX_get());
-    ASSERT_FLOAT_EQ(0.0f, app::can_tx::VC_Imu1GyroY_get());
-    ASSERT_FLOAT_EQ(1.0f, app::can_tx::VC_Imu1GyroZ_get());
+    // Bias-corrected accel is (-0.10, 0, 1.00). The rotation puts all of it on z
+    // and preserves its magnitude: sqrt(0.10^2 + 1.00^2) = sqrt(1.01).
+    // Bias-corrected gyro is (0, 0.4, 0.26), rotated by beta = atan(0.1).
+    constexpr float tol = 1e-5f;
+
+    EXPECT_NEAR(0.0f,      app::can_tx::VC_Imu1AccelX_get(), tol);
+    EXPECT_NEAR(0.0f,      app::can_tx::VC_Imu1AccelY_get(), tol);
+    EXPECT_NEAR(1.004988f, app::can_tx::VC_Imu1AccelZ_get(), tol);
+    EXPECT_NEAR(0.025871f, app::can_tx::VC_Imu1GyroX_get(),  tol);
+    EXPECT_NEAR(0.4f,      app::can_tx::VC_Imu1GyroY_get(),  tol);
+    EXPECT_NEAR(0.258710f, app::can_tx::VC_Imu1GyroZ_get(),  tol);
 }
 
 // ERROR
