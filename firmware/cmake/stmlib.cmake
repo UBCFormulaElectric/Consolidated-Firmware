@@ -179,6 +179,9 @@ function(stm32f412rx_cube_library
     if ("${WATCHDOG}" STREQUAL "OFF")
         target_compile_definitions(${HAL_LIB_NAME} PUBLIC WATCHDOG_DISABLED)
     endif ()
+    if ("${CPU_MON}" STREQUAL "ON")
+        target_compile_definitions(${HAL_LIB_NAME} PUBLIC RUN_TIMES_STATS)
+    endif ()
     target_compile_definitions(${HAL_LIB_NAME}
             PUBLIC
             USE_HAL_DRIVER
@@ -293,6 +296,9 @@ function(stm32h733xx_cube_library
 
     if ("${WATCHDOG}" STREQUAL "OFF")
         target_compile_definitions(${HAL_LIB_NAME} PUBLIC WATCHDOG_DISABLED)
+    endif ()
+    if ("${CPU_MON}" STREQUAL "ON")
+        target_compile_definitions(${HAL_LIB_NAME} PUBLIC RUN_TIMES_STATS)
     endif ()
     target_compile_definitions(${HAL_LIB_NAME}
             PUBLIC
@@ -409,6 +415,9 @@ function(stm32h562xx_cube_library
 
     if ("${WATCHDOG}" STREQUAL "OFF")
         target_compile_definitions(${HAL_LIB_NAME} PUBLIC WATCHDOG_DISABLED)
+    endif ()
+    if ("${CPU_MON}" STREQUAL "ON")
+        target_compile_definitions(${HAL_LIB_NAME} PUBLIC RUN_TIMES_STATS)
     endif ()
     target_compile_definitions(${HAL_LIB_NAME}
             PUBLIC

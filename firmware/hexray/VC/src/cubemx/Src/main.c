@@ -47,6 +47,8 @@ ADC_HandleTypeDef hadc2;
 DMA_HandleTypeDef hdma_adc1;
 DMA_HandleTypeDef hdma_adc2;
 
+CORDIC_HandleTypeDef hcordic;
+
 FDCAN_HandleTypeDef hfdcan1;
 FDCAN_HandleTypeDef hfdcan3;
 
@@ -91,6 +93,7 @@ static void MX_TIM3_Init(void);
 static void MX_FMAC_Init(void);
 static void MX_IWDG1_Init(void);
 static void MX_TIM7_Init(void);
+static void MX_CORDIC_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -109,6 +112,11 @@ int main(void)
     /* USER CODE BEGIN 1 */
     tasks_preInit();
     /* USER CODE END 1 */
+
+    /* Enable the CPU Cache */
+
+    /* Enable I-Cache---------------------------------------------------------*/
+    SCB_EnableICache();
 
     /* MCU Configuration--------------------------------------------------------*/
 
@@ -146,6 +154,7 @@ int main(void)
     MX_FMAC_Init();
     MX_IWDG1_Init();
     MX_TIM7_Init();
+    MX_CORDIC_Init();
     /* USER CODE BEGIN 2 */
     HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_RESET);
     ;
@@ -456,6 +465,30 @@ static void MX_ADC2_Init(void)
     /* USER CODE BEGIN ADC2_Init 2 */
 
     /* USER CODE END ADC2_Init 2 */
+}
+
+/**
+ * @brief CORDIC Initialization Function
+ * @param None
+ * @retval None
+ */
+static void MX_CORDIC_Init(void)
+{
+    /* USER CODE BEGIN CORDIC_Init 0 */
+
+    /* USER CODE END CORDIC_Init 0 */
+
+    /* USER CODE BEGIN CORDIC_Init 1 */
+
+    /* USER CODE END CORDIC_Init 1 */
+    hcordic.Instance = CORDIC;
+    if (HAL_CORDIC_Init(&hcordic) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /* USER CODE BEGIN CORDIC_Init 2 */
+
+    /* USER CODE END CORDIC_Init 2 */
 }
 
 /**

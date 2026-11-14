@@ -1,6 +1,7 @@
-import { BACKEND_URL, DEBUG } from "@/lib/SignalConfig";
+import { DEBUG } from "@/lib/SignalConfig";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Socket } from "socket.io-client";
+import { ENDPOINTS } from "@/lib/api/endpoints";
 
 export function useSubscribers(socket: Socket, pruneSignalData: (name: string) => void, clearAllData: () => void) {
     const signalSubscriberCount = useRef<Record<string, number>>({});
@@ -55,7 +56,7 @@ export function useSubscribers(socket: Socket, pruneSignalData: (name: string) =
             }
 
             const sid = socket.id;
-            fetch(`${BACKEND_URL}/api/v1/subscribe`, {
+            fetch(ENDPOINTS.subscribe, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ sid, signal: name }),
@@ -114,7 +115,7 @@ export function useSubscribers(socket: Socket, pruneSignalData: (name: string) =
                     setTick((t) => t + 1);
                     if (socket.connected && socket.id) {
                         const sid = socket.id;
-                        fetch(`${BACKEND_URL}/unsubscribe`, {
+                        fetch(ENDPOINTS.unsubscribe, {
                             method: "POST",
                             headers: { "Content-Type": "application/json" },
                             body: JSON.stringify({ sid, signal: name }),
@@ -155,7 +156,7 @@ export function useSubscribers(socket: Socket, pruneSignalData: (name: string) =
         const sid = socket.id;
         // Batch over active signals
         activeSignals.forEach((sig) => {
-            fetch(`${BACKEND_URL}/unsubscribe`, {
+            fetch(ENDPOINTS.unsubscribe, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ sid, signal: sig }),
@@ -175,7 +176,7 @@ export function useSubscribers(socket: Socket, pruneSignalData: (name: string) =
             // On fresh connect, backend has no state; clear any revive flags
             revivedFromPending.current = {};
             names.forEach((name) => {
-                fetch(`${BACKEND_URL}/api/v1/subscribe`, {
+                fetch(ENDPOINTS.subscribe, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ sid, signal: name }),

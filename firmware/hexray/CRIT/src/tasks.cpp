@@ -88,13 +88,14 @@ void tasks_run1Hz(void *arg)
 {
     constexpr uint32_t      period_ms                = 1000U;
     constexpr uint32_t      watchdog_grace_period_ms = 50U;
-    hw::watchdog::instance &watchdog1hz              = monitor.spawn_instance(period_ms + watchdog_grace_period_ms);
+    hw::watchdog::instance &watchdog1hz              = monitor.spawn_instance(period_ms, watchdog_grace_period_ms);
 
     uint32_t start_ticks = osKernelGetTickCount();
     forever
     {
         jobs_run1Hz_tick();
 
+        runtimeMonitor.checkin();
         watchdog1hz.checkIn();
         start_ticks += period_ms;
         io::time::delayUntil(start_ticks);
@@ -105,7 +106,7 @@ void tasks_run100Hz(void *arg)
 {
     constexpr uint32_t      period_ms                = 10U;
     constexpr uint32_t      watchdog_grace_period_ms = 5U;
-    hw::watchdog::instance &watchdog100hz            = monitor.spawn_instance(period_ms + watchdog_grace_period_ms);
+    hw::watchdog::instance &watchdog100hz            = monitor.spawn_instance(period_ms, watchdog_grace_period_ms);
 
     uint32_t start_ticks = osKernelGetTickCount();
     forever
@@ -122,7 +123,7 @@ void tasks_run10Hz(void *arg)
 {
     constexpr uint32_t      period_ms                = 100U;
     constexpr uint32_t      watchdog_grace_period_ms = 50U;
-    hw::watchdog::instance &watchdog10hz             = monitor.spawn_instance(period_ms + watchdog_grace_period_ms);
+    hw::watchdog::instance &watchdog10hz             = monitor.spawn_instance(period_ms, watchdog_grace_period_ms);
 
     uint32_t start_ticks = osKernelGetTickCount();
     forever
@@ -139,7 +140,7 @@ void tasks_run1kHz(void *arg)
 {
     constexpr uint32_t      period_ms                = 1U;
     constexpr uint32_t      watchdog_grace_period_ms = 1U;
-    hw::watchdog::instance &watchdog1khz             = monitor.spawn_instance(period_ms + watchdog_grace_period_ms);
+    hw::watchdog::instance &watchdog1khz             = monitor.spawn_instance(period_ms, watchdog_grace_period_ms);
 
     uint32_t start_ticks = osKernelGetTickCount();
     forever
