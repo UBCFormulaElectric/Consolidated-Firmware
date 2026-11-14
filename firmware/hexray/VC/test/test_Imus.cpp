@@ -33,7 +33,7 @@ class VCImuTest : public VCBaseTest
 //     ASSERT_FLOAT_EQ(4.0f, app::can_tx::VC_Imu1GyroX_get());
 //     ASSERT_FLOAT_EQ(5.0f, app::can_tx::VC_Imu1GyroY_get());
 //     ASSERT_FLOAT_EQ(6.0f, app::can_tx::VC_Imu1GyroZ_get());
-// }    
+// }
 
 // IMU REORIENTATION
 TEST_F(VCImuTest, Imu1_Accel_Gyro_Test)
@@ -56,12 +56,12 @@ TEST_F(VCImuTest, Imu1_Accel_Gyro_Test)
     // Bias-corrected gyro is (0, 0.4, 0.26), rotated by beta = atan(0.1).
     constexpr float tol = 1e-5f;
 
-    EXPECT_NEAR(0.0f,      app::can_tx::VC_Imu1AccelX_get(), tol);
-    EXPECT_NEAR(0.0f,      app::can_tx::VC_Imu1AccelY_get(), tol);
+    EXPECT_NEAR(0.0f, app::can_tx::VC_Imu1AccelX_get(), tol);
+    EXPECT_NEAR(0.0f, app::can_tx::VC_Imu1AccelY_get(), tol);
     EXPECT_NEAR(1.004988f, app::can_tx::VC_Imu1AccelZ_get(), tol);
-    EXPECT_NEAR(0.025871f, app::can_tx::VC_Imu1GyroX_get(),  tol);
-    EXPECT_NEAR(0.4f,      app::can_tx::VC_Imu1GyroY_get(),  tol);
-    EXPECT_NEAR(0.258710f, app::can_tx::VC_Imu1GyroZ_get(),  tol);
+    EXPECT_NEAR(0.025871f, app::can_tx::VC_Imu1GyroX_get(), tol);
+    EXPECT_NEAR(0.4f, app::can_tx::VC_Imu1GyroY_get(), tol);
+    EXPECT_NEAR(0.258710f, app::can_tx::VC_Imu1GyroZ_get(), tol);
 }
 
 // ERROR
