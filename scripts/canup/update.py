@@ -18,6 +18,7 @@ from rich.progress import Progress, TextColumn, BarColumn, DownloadColumn
 import boards
 import bootloader
 import can_router
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 console = Console()
 status = console.status("Status")
@@ -115,19 +116,21 @@ def update(
         live.console.log(
             f"Updating firmware for boards: [blue bold]{', '.join(board.name for board in configs)}"
         )
-        for b_idx, bootload_board in enumerate(bootloaders):
-            # TODO do this in parallel
-            progress.update(
-                task_id=steps_task,
-                total=0,
-                completed=0,
-                description=f"Starting update for {bootload_board.board.name}",
-            )
-            status.update(
-                f"Updating board [yellow]{b_idx + 1}/{num_boards}[/]: [blue bold]{bootload_board.board.name}"
-            )
-            bootload_board.update()
-            live.console.log(f"[green]{bootload_board.board.name} updated successfully")
+        # Flash every board in parallel, one worker thread per board. This is safe because each
+        # session only receives from its own queue (see can_router.py) and the bus is a ThreadSafeBus.
+        # Leaving the with block waits for every board to finish.
+        with ThreadPoolExecutor(max_workers=len(bootloaders)) as pool:
+            status.update(f"Updating {num_boards} boards in parallel")
+            # submit() starts each board's update() on a worker and returns a Future for its result.
+            # Map each Future back to its session so we know which board finished.
+            futures = {pool.submit(bootload_board.update): bootload_board for bootload_board in bootloaders }
+            # as_completed() yields each Future as its board finishes, in whatever order that happens.
+            for future in as_completed(futures):
+                bootload_board = futures[future]
+                # Re-raises any exception from that board's update() here on the main thread.
+                # Boards already running keep going until they finish; the error is raised after.
+                future.result()
+                live.console.log(f"[green]{bootload_board.board.name} updated successfully")
         progress.remove_task(steps_task)
         live.console.log(
             f"[bold green]Firmware update successfully ({num_boards} board{'s' if num_boards > 1 else ''} updated)"
@@ -230,7 +233,7 @@ if __name__ == "__main__":
         "output_mode": 1,
     }
 
-    with can.interface.Bus(
+    with can.ThreadSafeBus(
         interface=args.bus,
         channel=args.channel,
         fd=args.fd,
