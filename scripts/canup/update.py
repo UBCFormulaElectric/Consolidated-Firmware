@@ -17,6 +17,7 @@ from rich.progress import Progress, TextColumn, BarColumn, DownloadColumn
 
 import boards
 import bootloader
+import can_router
 
 console = Console()
 status = console.status("Status")
@@ -67,7 +68,7 @@ def all_goto_app(live: Live, bootloaders: List[bootloader.Bootloader]):
 
 
 def update(
-    bus: can.Bus, configs: List[boards.Board], build_dir: str, is_fd: bool, only: bool
+    bus: can.Bus, configs: List[boards.Board], build_dir: str, is_fd: bool, only: bool, router: can_router.CanRouter
 ) -> None:
     """Update and handle UI."""
     num_boards = len(configs)
@@ -84,6 +85,7 @@ def update(
             ),
             ih=intelhex.IntelHex(os.path.join(build_dir, board.path)),
             is_fd=is_fd,
+            rx_queue=router.queue_for(board)
         )
         for board in configs
     ]
@@ -102,6 +104,7 @@ def update(
             ),
             ih=intelhex.IntelHex(os.path.join(build_dir, board.path)),
             is_fd=is_fd,
+            rx_queue=router.queue_for(board)
         )
         for board in boards_to_bootload
     ]
@@ -132,7 +135,7 @@ def update(
         all_goto_app(live, hexray_bootloaders)
 
 
-def erase(bus: can.Bus, configs: List[boards.Board], is_fd: bool) -> None:
+def erase(bus: can.Bus, configs: List[boards.Board], is_fd: bool, router: can_router.CanRouter) -> None:
     """Erase and handle UI."""
     # push all boards into bootloader
     num_boards = len(configs)
@@ -148,6 +151,7 @@ def erase(bus: can.Bus, configs: List[boards.Board], is_fd: bool) -> None:
                 completed=completed,
             ),
             is_fd=is_fd,
+            rx_queue=router.queue_for(board)
         )
         for board in configs
     ]
@@ -235,9 +239,11 @@ if __name__ == "__main__":
         app_name=None,
         **(fdcan_args if args.fd else {}),
     ) as bus:
-        if args.erase:
-            erase(bus=bus, configs=c, is_fd=args.fd)
-        else:
-            update(
-                bus=bus, configs=c, build_dir=args.build, is_fd=args.fd, only=args.only
-            )
+        router = can_router.CanRouter(c + boards.hexray_boards)
+        with can.Notifier(bus, [router]):
+            if args.erase:
+                erase(bus=bus, configs=c, is_fd=args.fd, router=router)
+            else:
+                update(
+                    bus=bus, configs=c, build_dir=args.build, is_fd=args.fd, only=args.only, router=router
+                )

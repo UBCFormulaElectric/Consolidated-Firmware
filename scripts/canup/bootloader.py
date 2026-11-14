@@ -11,6 +11,7 @@ import can
 import time
 import intelhex
 import threading
+import queue
 
 import boards
 
@@ -45,22 +46,25 @@ MIN_PROG_SIZE_BYTES = 32
 
 class Bootloader:
     bus: can.Bus
-    ih: intelhex.IntelHex
+    ih: Optional[intelhex.IntelHex]
     board: boards.Board
     timeout: int
     ui_callback: Callable
     is_fd: bool
+    rx_queue: queue.Queue[can.Message]
 
     def __init__(
         self,
         bus: can.Bus,
+        rx_queue: queue.Queue[can.Message],
         board: boards.Board,
         ui_callback: Callable,
-        ih: intelhex.IntelHex = None,
+        ih: Optional[intelhex.IntelHex] = None,
         timeout: int = 1,
         is_fd: bool = False,
     ) -> None:
         self.bus: can.Bus = bus
+        self.rx_queue: queue.Queue[can.Message] = rx_queue
         self.ih: intelhex.IntelHex = ih
         self.board: boards.Board = board
         self.timeout: int = timeout
@@ -440,9 +444,10 @@ class Bootloader:
 
         start = time.time()
         while time.time() - start < timeout:
-            rx_msg: can.Message = self.bus.recv(timeout=1)
-            if rx_msg is None:
-                continue
+            try:
+                rx_msg = self.rx_queue.get(timeout=1) # rx_queue.get rasises exception queue.Empty unlike bus.recv so we try catch the call
+            except queue.Empty:
+                continue 
             if validator(rx_msg):
                 return rx_msg
         return None
