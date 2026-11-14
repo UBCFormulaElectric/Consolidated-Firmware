@@ -31,6 +31,10 @@ extern "C"
 }
 #endif
 #define configUSE_TRACE_FACILITY 1
+#ifdef RUN_TIMES_STATS
 #define configGENERATE_RUN_TIME_STATS 1
+#else
+#define configGENERATE_RUN_TIME_STATS 0
+#endif
 #define portCONFIGURE_TIMER_FOR_RUN_TIME_STATS configureTimerForRunTimeStats
 #define portGET_RUN_TIME_COUNTER_VALUE getRunTimeCounterValue
