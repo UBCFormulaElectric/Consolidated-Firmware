@@ -88,32 +88,15 @@ mod tests {
     use super::*;
 
     #[test]
-    fn telem_mark_event_becomes_marker_item() {
+    fn telem_mark_count_signal_exists() {
         let can_db = load_can_database().expect("CAN DB should load for tests");
-        let telem_mark_message = can_db
+        let found = can_db
             .get_all_msgs()
             .expect("Messages should load")
             .into_iter()
-            .find(|msg| msg.name.ends_with("TelemMarkEvent"))
-            .expect("TelemMarkEvent should exist in configured CAN DB");
-
-        let decoded_items = decode_items_from_payload(
-            &can_db,
-            CanPayload {
-                can_id: telem_mark_message.id,
-                can_timestamp: 1_000,
-                payload: vec![],
-            },
-        );
-
-        assert_eq!(decoded_items.len(), 1);
-        match &decoded_items[0] {
-            DecodedItem::Marker(marker) => {
-                assert!(marker.name.ends_with("TelemMarkEvent"));
-                assert_eq!(marker.timestamp, 1_000);
-            }
-            DecodedItem::Signal(_) => panic!("Expected zero-signal TelemMarkEvent to decode as Marker"),
-        }
+            .flat_map(|msg| msg.signals)
+            .any(|signal| signal.name == "CRIT_Info_TelemMarkEvent_Count");
+        assert!(found, "CRIT_Info_TelemMarkEvent_Count should exist in configured CAN DB");
     }
 
     #[test]

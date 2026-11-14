@@ -1,4 +1,4 @@
-import React, { memo, useRef } from "react";
+import React, { memo, useEffect, useRef } from "react";
 
 import { useSyncedGraph } from "@/components/SyncedGraphContainer";
 import { SignalDataStoreProvider } from "@/lib/contexts/signalStores/SignalStoreContext";
@@ -15,6 +15,12 @@ const LiveSignalStoreProvider = memo(({ children }: { children: React.ReactNode 
     if (!liveSignalStore.current) {
         liveSignalStore.current = new LiveSignalStore(updateWithTimestamp, subscribeToSignalMutation.mutate, unsubscribeFromSignalMutation.mutate);
     }
+
+    useEffect(() => {
+        const store = liveSignalStore.current;
+        store.attach();
+        return () => store.detach();
+    }, []);
 
     return <SignalDataStoreProvider signalStore={liveSignalStore}>{children}</SignalDataStoreProvider>;
 });

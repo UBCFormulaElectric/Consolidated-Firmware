@@ -33,6 +33,10 @@
     "StackOverflow": {
       "id": 956,
       "description": "An RTOS task stack overflowed on the previous boot cycle."
+    },
+    "TelemMarkEvent": {
+      "id": 957,
+      "description": "A telemetry marker event. Denotes that the driver pressed the TELEM button on the dashboard."
     }
 },
   "warnings": {},

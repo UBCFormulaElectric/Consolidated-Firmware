@@ -1,9 +1,9 @@
 "use client";
 
 import { useSyncedGraph } from "@/components/SyncedGraphContainer";
-import { ChartLayout } from "@/components/widgets/CanvasChartTypes";
-import render, { CHART_PADDING, render_empty } from "@/components/widgets/render";
-import { useSignalDataStores } from "@/lib/contexts/signalStores/SignalStoreContext";
+import { ChartLayout, LODAwareEnumSeries } from "@/components/widgets/CanvasChartTypes";
+import render, { CHART_PADDING, render_empty, render_loading } from "@/components/widgets/render";
+import { useSignalDataStores, useSignalStoreLoading } from "@/lib/contexts/signalStores/SignalStoreContext";
 import { useTimezone } from "@/lib/contexts/TimezoneContext";
 import { useCanvasHover } from "@/lib/hooks/useCanvasHover";
 import { useCanvasRenderLoop } from "@/lib/hooks/useCanvasRenderLoop";
@@ -12,20 +12,21 @@ import { EnumTimelineWidgetData } from "@/lib/types/Widget";
 import { useRef } from "react";
 
 // TODO(evan): This can probably be merged into NumericalCanvasChart w some type magic.
-export default function EnumCanvasChart({ id, options, signals, hoveredSignal, onHoverTimestampChange }: EnumTimelineWidgetData) {
+export default function EnumCanvasChart({ id, options, signals, hoveredSignal, onHoverTimestampChange, name }: EnumTimelineWidgetData) {
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
     const layoutRef = useRef<ChartLayout | null>(null);
-    const { globalTimeRangeRef, hoverXRef, XToTime } = useSyncedGraph();
+    const { globalTimeRangeRef, hoverXRef, XToTime, highlightedAlertRef } = useSyncedGraph();
     const { timezone } = useTimezone();
 
     const { height, timeTickCount } = options;
     const canvasHeight = Math.max(height, CHART_PADDING.top + 30 + signals.length * 40 + Math.max(0, signals.length - 1) * 40 + CHART_PADDING.bottom);
 
     const chartData = useSignalDataStores(signals);
+    const isLoadingRef = useSignalStoreLoading();
 
     useCanvasRenderLoop(canvasRef, canvasHeight, (context, cssWidth) => {
-        if (!globalTimeRangeRef.current) {
-            render_empty(context, cssWidth, canvasHeight);
+        if (!globalTimeRangeRef.current || (chartData.current as LODAwareEnumSeries[]).every((series) => series.lods.every((lod) => lod.timestamps.length === 0))) {
+            (isLoadingRef?.current ? render_loading : render_empty)(context, cssWidth, canvasHeight);
             return;
         }
 
@@ -38,6 +39,7 @@ export default function EnumCanvasChart({ id, options, signals, hoveredSignal, o
             layoutRef,
             {
                 type: "enumTimeline",
+                name: name,
                 signals,
                 options,
                 data: chartData.current,
@@ -51,7 +53,8 @@ export default function EnumCanvasChart({ id, options, signals, hoveredSignal, o
                 max: XToTime(cssWidth - CHART_PADDING.right),
             },
             getVisibleTelemetryMarkers(XToTime(CHART_PADDING.left), XToTime(cssWidth - CHART_PADDING.right)),
-            timezone
+            timezone,
+            highlightedAlertRef.current
         );
     });
 

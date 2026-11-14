@@ -38,6 +38,7 @@ type WidgetType = WidgetSchema["type"];
 
 export type BaseWidgetRenderer = {
     id: string;
+    name: string;
     hoveredSignal?: RefObject<string | null>;
     onHoverTimestampChange?: (timestamp: number | null) => void;
 };

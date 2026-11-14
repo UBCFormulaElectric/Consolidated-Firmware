@@ -84,7 +84,7 @@ const FormatSDCardButton = (props: FormatSDCardButtonProps) => {
                     options={[
                         {
                             label: "Okay",
-                            style: "default",
+                            style: "positive",
                             onClick: () => {
                                 formatSDCardMutation.reset();
                             },

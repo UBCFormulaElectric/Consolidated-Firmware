@@ -5,10 +5,18 @@ import { SignalMetadata } from "@/lib/types/Signal";
 import { createContext, ReactNode, RefObject, useContext, useEffect, useRef } from "react";
 
 const SignalDataStoreContext = createContext<RefObject<SignalStore> | null>(null);
+const SignalStoreLoadingContext = createContext<RefObject<boolean> | null>(null);
 
-function SignalDataStoreProvider({ children, signalStore }: { children: ReactNode; signalStore: RefObject<SignalStore> }) {
-    return <SignalDataStoreContext.Provider value={signalStore}>{children}</SignalDataStoreContext.Provider>;
+function SignalDataStoreProvider({ children, signalStore, isLoadingRef = null }: { children: ReactNode; signalStore: RefObject<SignalStore>; isLoadingRef?: RefObject<boolean> | null }) {
+    return (
+        <SignalDataStoreContext.Provider value={signalStore}>
+            <SignalStoreLoadingContext.Provider value={isLoadingRef}>{children}</SignalStoreLoadingContext.Provider>
+        </SignalDataStoreContext.Provider>
+    );
 }
+
+// Null for stores that never fetch (live, mock); read `.current` per frame in render loops.
+const useSignalStoreLoading = () => useContext(SignalStoreLoadingContext);
 
 const useSignalDataStore = <T extends SignalMetadata>(signal: T) => {
     const context = useContext(SignalDataStoreContext);
@@ -85,4 +93,4 @@ const useAlertStore = (): RefObject<SignalStore> => {
     return context;
 };
 
-export { SignalDataStoreProvider, useAlertStore, useSignalDataStore, useSignalDataStores };
+export { SignalDataStoreProvider, useAlertStore, useSignalDataStore, useSignalDataStores, useSignalStoreLoading };

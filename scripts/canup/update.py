@@ -66,7 +66,9 @@ def all_goto_app(live: Live, bootloaders: List[bootloader.Bootloader]):
     )
 
 
-def update(bus: can.Bus, configs: List[boards.Board], build_dir: str, is_fd: bool) -> None:
+def update(
+    bus: can.Bus, configs: List[boards.Board], build_dir: str, is_fd: bool, only: bool
+) -> None:
     """Update and handle UI."""
     num_boards = len(configs)
     steps_task = progress.add_task("Steps")
@@ -86,6 +88,8 @@ def update(bus: can.Bus, configs: List[boards.Board], build_dir: str, is_fd: boo
         for board in configs
     ]
 
+    boards_to_bootload = configs if only else boards.hexray_boards
+
     hexray_bootloaders = [
         bootloader.Bootloader(
             bus=bus,
@@ -99,7 +103,7 @@ def update(bus: can.Bus, configs: List[boards.Board], build_dir: str, is_fd: boo
             ih=intelhex.IntelHex(os.path.join(build_dir, board.path)),
             is_fd=is_fd,
         )
-        for board in boards.hexray_boards
+        for board in boards_to_bootload
     ]
 
     with Live(Group(status, progress), transient=True) as live:
@@ -173,9 +177,7 @@ def erase(bus: can.Bus, configs: List[boards.Board], is_fd: bool) -> None:
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--bus", type=str, default="vector", help="python-can bus type")
-    parser.add_argument(
-        "--channel", type=str, default="0", help="python-can channel"
-    )
+    parser.add_argument("--channel", type=str, default="0", help="python-can channel")
     parser.add_argument(
         "--bit_rate", type=int, default=1000000, help="CAN bus bit rate"
     )
@@ -194,6 +196,11 @@ if __name__ == "__main__":
     )
     parser.add_argument("--erase", action="store_true", help="Erase app code")
     parser.add_argument("--fd", action="store_true", help="Use FD mode")
+    parser.add_argument(
+        "--only",
+        action="store_true",
+        help="Only flash a single ECU. ONLY USED FOR DEVELOPMENT AND TESTING, NOT ON CAR OR BUCK",
+    )
     parser.add_argument(
         "--data_bitrate", type=int, default=1000000, help="CAN FD data bitrate"
     )
@@ -226,9 +233,11 @@ if __name__ == "__main__":
         bitrate=args.bit_rate,
         data_bitrate=args.data_bitrate,
         app_name=None,
-        **(fdcan_args if args.fd else {})
+        **(fdcan_args if args.fd else {}),
     ) as bus:
         if args.erase:
             erase(bus=bus, configs=c, is_fd=args.fd)
         else:
-            update(bus=bus, configs=c, build_dir=args.build, is_fd=args.fd)
+            update(
+                bus=bus, configs=c, build_dir=args.build, is_fd=args.fd, only=args.only
+            )
