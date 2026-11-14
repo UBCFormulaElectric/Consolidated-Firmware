@@ -53,13 +53,47 @@ struct ImuReorient
         const float sin_beta  = sin(beta);
         const float sin_gamma = sin(gamma);
 
-        R = {
-            { { { cos_beta * cos_gamma, sin_alpha * sin_beta * cos_gamma - cos_alpha * sin_gamma,
-                  cos_alpha * sin_beta * cos_gamma + sin_alpha * sin_gamma } },
-              { { cos_beta * sin_gamma, sin_alpha * sin_beta * sin_gamma + cos_alpha * cos_gamma,
-                  cos_alpha * sin_beta * sin_gamma - sin_alpha * cos_gamma } },
-              { { -sin_beta, sin_alpha * cos_beta, cos_alpha * cos_beta } } }
-        }; // rotation matrix R = Rz(gamma) * Ry(beta) * Rx(alpha)
+        R = { { { { cos_beta * cos_gamma, sin_alpha * sin_beta * cos_gamma - cos_alpha * sin_gamma,
+                    cos_alpha * sin_beta * cos_gamma + sin_alpha * sin_gamma } },
+                { { cos_beta * sin_gamma, sin_alpha * sin_beta * sin_gamma + cos_alpha * cos_gamma,
+                    cos_alpha * sin_beta * sin_gamma - sin_alpha * cos_gamma } },
+                { { -sin_beta, sin_alpha * cos_beta, cos_alpha * cos_beta } } } };
+        /*
+         * Rotation matrix R: maps IMU (sensor) frame -> vehicle frame.
+         *
+         * Inputs
+         *   x_mean, y_mean, z_mean : average accelerometer reading while the vehicle
+         *                            is stationary.
+         *   xy_ratio               : y/x ratio as the car accelerates straight.
+         *   *_bias                 : manufacturer offsets, subtracted from the means first.
+         *
+         * Idea
+         * 1: roll correction, rotate about x by alpha to zero the y component
+         *     alpha = atan2(gy, gz)
+         *     Rx(alpha) * g_s = (gx, 0, h),   where h = hypot(gy, gz)
+         *
+         * 2: pitch correction, rotate about y by beta to zero the x component
+         *     beta  = -atan2(gx, h)
+         *     Ry(beta) * (gx, 0, h) = (0, 0, |g|)
+         *
+         * 3: yaw correction, rotate about z by gamma to align the horizontal
+         *     reference direction with the vehicle's x axis
+         *     gamma = -atan(xy_ratio)
+         *     (does not affect the z axis, so gravity alignment from steps 1-2 remains)
+         *
+         * Combined (apply x-rotation first, z-rotation last):
+         *
+         *     R = Rz(gamma) * Ry(beta) * Rx(alpha)
+         *
+         *         | 1    0     0   |        |  cb  0  sb |        | cg  -sg  0 |
+         *   Rx =  | 0   ca   -sa   |  Ry =  |  0   1  0  |  Rz =  | sg   cg  0 |
+         *         | 0   sa    ca   |        | -sb  0  cb |        | 0    0   1 |
+         *
+         *   (ca = cos(alpha), sa = sin(alpha), etc.)
+         *
+         * R is a pure rotation (orthonormal, det = +1), so its inverse is its
+         * transpose and it preserves vector magnitudes.
+         */
     }
 };
 
