@@ -66,19 +66,19 @@ IF ("${TARGET}" STREQUAL "binary")
     )
     # Autodiff library: contains header only apis to automatically compute derrivatives of functions 
     CPMAddPackage(
-        NAME AUTO_DIFF
-        GITHUB_REPOSITORY autodiff/autodiff
-        GIT_TAG 2e2f3a2b16afcd9c04e76c8a689e9fd23ff78679
-        GIT_SHALLOW TRUE
-        DOWNLOAD_ONLY TRUE
+            NAME AUTO_DIFF
+            GITHUB_REPOSITORY autodiff/autodiff
+            GIT_TAG 2e2f3a2b16afcd9c04e76c8a689e9fd23ff78679
+            GIT_SHALLOW TRUE
+            DOWNLOAD_ONLY TRUE
     )
     # Eigen Library: provides support for matrices and matrix algebra 
     CPMAddPackage(
-        NAME EIGEN
-        GIT_REPOSITORY https://gitlab.com/libeigen/eigen
-        GIT_TAG 3147391d946bb4b6c68edd901f2add6ac1f31f8c
-        GIT_SHALLOW TRUE
-        DOWNLOAD_ONLY TRUE
+            NAME EIGEN
+            GIT_REPOSITORY https://gitlab.com/libeigen/eigen
+            GIT_TAG 3147391d946bb4b6c68edd901f2add6ac1f31f8c
+            GIT_SHALLOW TRUE
+            DOWNLOAD_ONLY TRUE
     )
 ELSEIF ("${TARGET}" STREQUAL "test")
     # Fetch GoogleTest for unit testing.
@@ -90,29 +90,37 @@ ELSEIF ("${TARGET}" STREQUAL "test")
     )
     # Autodiff library: contains header only apis to automatically compute derrivatives of functions
     CPMAddPackage(
-        NAME AUTO_DIFF
-        GITHUB_REPOSITORY autodiff/autodiff
-        GIT_TAG 2e2f3a2b16afcd9c04e76c8a689e9fd23ff78679
-        GIT_SHALLOW TRUE
-        DOWNLOAD_ONLY TRUE
+            NAME AUTO_DIFF
+            GITHUB_REPOSITORY autodiff/autodiff
+            GIT_TAG 2e2f3a2b16afcd9c04e76c8a689e9fd23ff78679
+            GIT_SHALLOW TRUE
+            DOWNLOAD_ONLY TRUE
     )
     # Eigen Library: provides support for matrices and matrix algebra
     CPMAddPackage(
-        NAME EIGEN
-        GIT_REPOSITORY https://gitlab.com/libeigen/eigen
-        GIT_TAG 3147391d946bb4b6c68edd901f2add6ac1f31f8c
-        GIT_SHALLOW TRUE
-        DOWNLOAD_ONLY TRUE
+            NAME EIGEN
+            GIT_REPOSITORY https://gitlab.com/libeigen/eigen
+            GIT_TAG 3147391d946bb4b6c68edd901f2add6ac1f31f8c
+            GIT_SHALLOW TRUE
+            DOWNLOAD_ONLY TRUE
     )
 
     # pybind 11: library for creating python bindings for C++ code
     CPMAddPackage(
-        NAME pybind11
-        GIT_REPOSITORY https://github.com/pybind/pybind11.git
-        VERSION 3.0.2
-        DOWNLOAD_ONLY TRUE
+            NAME pybind11
+            GIT_REPOSITORY https://github.com/pybind/pybind11.git
+            VERSION 3.0.2
+            DOWNLOAD_ONLY TRUE
     )
     add_subdirectory(${pybind11_SOURCE_DIR} ${pybind11_BINARY_DIR})
+
+    CPMAddPackage(
+            NAME matplotlibcpp
+            GITHUB_REPOSITORY lava/matplotlib-cpp
+            GIT_TAG ef0383f1315d32e0156335e10b82e90b334f6d9f
+            GIT_SHALLOW TRUE
+            DOWNLOAD_ONLY TRUE
+    )
 ENDIF ()
 
 # protobufs

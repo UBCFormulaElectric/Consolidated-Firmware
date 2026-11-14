@@ -1,0 +1,63 @@
+#pragma once
+#include "app_canUtils.hpp"
+#include "controls/params.hpp"
+#include "controls/datatypes/vehicle_state.hpp"
+#include "controls/datatypes/wheel_set.hpp"
+#include "controls/actuation/speed_controller.hpp"
+#include "controls/actuation/power_limit.hpp"
+#include "controls/controls_debug.h"
+#include "controls/estimation/tire_model.hpp"
+#include <algorithm>
+#include <cmath>
+
+namespace app::controls
+{
+struct ControlOutput
+{
+    wheel_set<float> kappas; // slip ratio setpoints
+    wheel_set<float> torque_max_Nm;
+    wheel_set<float> torque_min_Nm;
+};
+
+struct ControlOutputAutonomous
+{
+    wheel_set<float> kappas;
+    wheel_set<float> torque_max_Nm;
+    wheel_set<float> torque_min_Nm;
+    const float      steering_wheel_angle_rad = 0;
+};
+
+struct ControlsConfig
+{
+    bool regen_enabled = false;
+    can_utils::DriveMode drive_mode = can_utils::DriveMode::VANILLA;
+};
+
+/**
+ * This is the main entrypoint into the low level vehicle controls algorithm
+ * @param state The current measured vehicle state, note that intent is in here as well
+ * @return The per-wheel torque requests to achieve the desired accelerations, in Newton-meters
+ */
+ControlOutput update(const VehicleState &state, const ControlsConfig config);
+
+/**
+ * This is the main entrypoint into the low level vehicle controls algorithm for autonomous
+ * @param state The current measured vehicle state, note that intent is in here as well
+ * @return
+ */
+ControlOutputAutonomous updateAutonomous(const VehicleState &state, const ControlsConfig config);
+
+/**
+ * Given the slip ratio setpoints, computes the motor speed setpoints that achieve them at the current vehicle speed
+ * and runs the per-wheel speed controller (with the tire force feedforward) to track them, then applies the battery
+ * power limits. The speed controllers are reset while the car is stopped. While the driver brakes, the net motor
+ * torque is limited to 0 or less.
+ * @param control slip ratio setpoints (kappa = (wheel_speed - wheel_ground_speed) / wheel_ground_speed) and per-wheel
+ * torque limits in Nm, from update()
+ * @param state current vehicle state: estimated v_x / v_y in m/s and yaw rate (wheel speeds over ground, slip angles),
+ * body accelerations in m/s^2 (ISO 8855, y left) for the wheel loads' load transfer, measured wheel speeds, steer
+ * angles and the brake pedal
+ * @return per-wheel motor torque requests in Nm
+ */
+wheel_set<float> kappaUpdate(const ControlOutput &control, const VehicleState &state, const ControlsConfig config);
+} // namespace app::controls

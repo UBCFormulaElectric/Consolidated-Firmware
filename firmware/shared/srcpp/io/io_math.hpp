@@ -10,6 +10,13 @@
 #include "util_units.hpp"
 #endif
 
+/**
+ * Note:
+ *
+ * In order to use this you need CORDIC to be enabled on your MCU. If it is disabled
+ * This will not work. Currently can only be used in a single task.
+ */
+
 #ifdef TARGET_EMBEDDED
 namespace io::math
 {

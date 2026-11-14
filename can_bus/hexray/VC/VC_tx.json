@@ -261,48 +261,96 @@
       "log_cycle_time": 1000
     }
   },
-  "VehicleDynamics": {
+  "VehicleStateEstimator": {
     "msg_id": 510,
-    "cycle_time": 100,
-    "description": "Vehicle dynamics info",
+    "cycle_time": 20,
+    "description": "Vehicle State Estimator runtime information",
     "signals": {
-      "RegenEnabled": {
+      "EkfEstVx": {
+        "resolution": 0.01,
+        "signed": true,
+        "min": -10,
+        "max": 60,
+        "unit": "m/s"
+      },
+      "EkfEstVy": {
+        "resolution": 0.01,
+        "signed": true,
+        "min": -20,
+        "max": 20,
+        "unit": "m/s"
+      },
+      "EkfPredVx": {
+        "resolution": 0.01,
+        "signed": true,
+        "min": -10,
+        "max": 60,
+        "unit": "m/s"
+      },
+      "EkfPredVy": {
+        "resolution": 0.01,
+        "signed": true,
+        "min": -20,
+        "max": 20,
+        "unit": "m/s"
+      },
+      "EkfPredMotorRpmFL": {
+        "resolution": 0.5,
+        "signed": true,
+        "min": -1000,
+        "max": 25000,
+        "unit": "rpm"
+      },
+      "EkfPredMotorRpmFR": {
+        "resolution": 0.5,
+        "signed": true,
+        "min": -1000,
+        "max": 25000,
+        "unit": "rpm"
+      },
+      "EkfPredMotorRpmRL": {
+        "resolution": 0.5,
+        "signed": true,
+        "min": -1000,
+        "max": 25000,
+        "unit": "rpm"
+      },
+      "EkfPredMotorRpmRR": {
+        "resolution": 0.5,
+        "signed": true,
+        "min": -1000,
+        "max": 25000,
+        "unit": "rpm"
+      },
+      "EkfCovVxVx": {
+        "resolution": 0.001,
+        "min": 0,
+        "max": 100,
+        "unit": "(m/s)^2"
+      },
+      "EkfCovVxVy": {
+        "resolution": 0.001,
+        "signed": true,
+        "min": -100,
+        "max": 100,
+        "unit": "(m/s)^2"
+      },
+      "EkfCovVyVy": {
+        "resolution": 0.001,
+        "min": 0,
+        "max": 100,
+        "unit": "(m/s)^2"
+      },
+      "EkfZeroVxActive": {
         "bits": 1
       },
-      "TorqueVectoringEnabled": {
+      "EkfZeroVyActive": {
         "bits": 1
-      },
-      "VehicleVelocity": {
-        "bits": 8
-      },
-      "ReferenceYawRate": {
-        "min": -100,
-        "max": 100,
-        "resolution": 0.1,
-        "signed": true
-      },
-      "CorrectionYawRate": {
-        "min": -100,
-        "max": 100,
-        "resolution": 0.1,
-        "signed": true
-      },
-      "FrontYawMoment": {
-        "min": -100,
-        "max": 100,
-        "resolution": 0.1,
-        "signed": true
-      },
-      "RearYawMoment": {
-        "min": -100,
-        "max": 100,
-        "resolution": 0.1,
-        "signed": true
       }
     },
     "data_capture": {
-      "telem_cycle_time": 1000,
-      "log_cycle_time": 1000
+      "telem_cycle_time": 50,
+      "log_cycle_time": 50
     }
   },
   "IMU1": {
