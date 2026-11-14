@@ -5,6 +5,7 @@ import { DRAGGABLE_TYPES } from "@/lib/constants";
 import { canWidgetAcceptSignal, SignalDragItem, SignalDropResult, WidgetData, WidgetDragItem } from "@/lib/types/Widget";
 import { RefObject, useEffect, useLayoutEffect, useRef } from "react";
 import { useDragLayer, useDrop, XYCoord } from "react-dnd";
+import LayoutManager from "./LayoutManager";
 import { Widget } from "./widgets/Widget";
 import { useWidgetManager } from "./widgets/WidgetManagerContext";
 
@@ -168,11 +169,16 @@ function DataDashboard(props: { emptyMessage: string }) {
             aria-labelledby="charts-heading"
             className="w-full h-fit"
         >
-            <div className="mb-6 flex items-baseline gap-2 border-b border-gray-200 px-6 pt-5 pb-2">
-                <h2 id="charts-heading" className="text-xs font-semibold tracking-wide text-gray-600 uppercase">
-                    Charts
-                </h2>
-                {widgets.length > 0 && <span className="text-xs text-gray-500">{widgets.length}</span>}
+            <div className="mb-6 flex justify-between border-b border-gray-200 px-6 pt-5 pb-2">
+                <div className="flex items-baseline gap-2">
+                    <h2 id="charts-heading" className="text-xs font-semibold tracking-wide text-gray-600 uppercase">
+                        Charts
+                    </h2>
+                    {widgets.length > 0 && <span className="text-xs text-gray-500">{widgets.length}</span>}
+                </div>
+                <div>
+                    <LayoutManager />
+                </div>
             </div>
             {widgets.length === 0 ? (
                 <div className="mx-6 flex flex-col items-center gap-4 rounded-lg border border-dashed border-gray-300 px-6 py-12 text-sm text-gray-500">
