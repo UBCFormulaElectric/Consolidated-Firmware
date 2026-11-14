@@ -1,4 +1,5 @@
 #pragma once
+#include "app_canUtils.hpp"
 #include "controls/params.hpp"
 #include "controls/datatypes/vehicle_state.hpp"
 #include "controls/datatypes/wheel_set.hpp"
@@ -28,8 +29,8 @@ struct ControlOutputAutonomous
 
 struct ControlsConfig
 {
-    // TODO: add other controls related configs here like drive mode
     bool regen_enabled = false;
+    can_utils::DriveMode drive_mode = can_utils::DriveMode::VANILLA;
 };
 
 /**

@@ -41,7 +41,8 @@ ControlOutput update(const VehicleState &state, const ControlsConfig config)
     // const float low_speed_blend   = velocityBlend(vehicle_speed_mps);
 
     // ReSharper disable once CppUseStructuredBinding
-    const wheel_set<float> kappas = allocation::optimize(state, accel_request.normalized * MAX_AX_mps2, mz_setpoint_Nm);
+    const wheel_set<float> kappas = allocation::optimize(
+        state, accel_request.normalized * MAX_AX_mps2, mz_setpoint_Nm, allocation::weightsFor(config.drive_mode));
 
     //------------------------------------- POWER LIMITER -----------------------------------//
     // TODO: slip_ratio_opt -> slipRatioToWheelAngularVelocity() -> power limiter -> torque request
@@ -225,7 +226,7 @@ extern "C" void update_matlab(
     };
     const VehicleState state = estimation::state_estimator::estimate(meas);
 
-    const ControlsConfig config = { .regen_enabled = false };
+    const ControlsConfig config = { .regen_enabled = false, .drive_mode = app::can_utils::DriveMode::TV };
 
     // High level controller and optimizer: slip ratio setpoints and torque limits
     if (tick++ % 5 == 0)

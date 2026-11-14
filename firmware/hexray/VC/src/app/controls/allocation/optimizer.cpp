@@ -19,10 +19,9 @@ namespace app::controls::allocation
 {
 namespace
 {
-    // ---- Optimizer tuning ----
-    constexpr float W_FX = 2.5f;
-    constexpr float W_MZ = 5.0f;
-    constexpr float W_R  = 100.0f; // tuned with the yaw Kp on the driver_sim autocross lap (was 500)
+    const OptimizerWeights TV_WEIGHTS{ 2.5f, 5.0f, 100.0f };
+    const OptimizerWeights VANILLA_WEIGHTS{ 2.5f, 0.0f, 100.0f };
+    const OptimizerWeights LAUNCH_WEIGHTS{ 2.5f, 0.5f, 10.0f };
 
     constexpr int MAX_ITER = 20;
     // Static bound on each wheel's slip target. The tire's Fx peak moves with slip angle (~0.09 at alpha = 0,
@@ -49,8 +48,26 @@ namespace
     using DualVec4 = Eigen::Matrix<DecimalDual<float>, 4, 1>;
 } // namespace
 
-[[nodiscard]] wheel_set<float>
-    optimize(const VehicleState &state, const float ax_setpoint_mps2, const float mz_setpoint_Nm)
+const OptimizerWeights &weightsFor(const can_utils::DriveMode drive_mode)
+{
+    switch (drive_mode)
+    {
+        case can_utils::DriveMode::TV:
+            return TV_WEIGHTS;
+        case can_utils::DriveMode::LAUNCH:
+            return LAUNCH_WEIGHTS;
+        case can_utils::DriveMode::VANILLA:
+        case can_utils::DriveMode::COUNT:
+        default:
+            return VANILLA_WEIGHTS;
+    }
+}
+
+[[nodiscard]] wheel_set<float> optimize(
+    const VehicleState     &state,
+    const float             ax_setpoint_mps2,
+    const float             mz_setpoint_Nm,
+    const OptimizerWeights &weights)
 {
     // Low-speed safeguard:
     // torque_vectoring.cpp computes a single force-availability blend from vehicle speed and passes it
@@ -64,10 +81,10 @@ namespace
     //     return { .fl = 0.0f, .fr = 0.0f, .rl = 0.0f, .rr = 0.0f };
     // }
 
-    static const float SQRT_W_FX      = std::sqrt(W_FX);
-    static const float SQRT_W_MZ      = std::sqrt(W_MZ);
-    static const float SQRT_W_R       = std::sqrt(W_R);
-    static Vec4        previous_kappa = Vec4::Zero(); // warm start for the next cycle
+    const float SQRT_W_FX             = weights.sqrt_w_fx;
+    const float SQRT_W_MZ             = weights.sqrt_w_mz;
+    const float SQRT_W_R              = weights.sqrt_w_r;
+    static Vec4 previous_kappa        = Vec4::Zero(); // warm start for the next cycle
 
     // const wheel_set<float> blended_des_f_x{
     //     .fl = low_speed_blend * des_f_x.fl,
