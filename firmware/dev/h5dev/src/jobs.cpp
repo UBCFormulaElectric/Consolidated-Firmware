@@ -57,16 +57,16 @@ void jobs_run100Hz_tick()
 
     // LOG_INFO("CURRENT: %d", (int)(current * 100000));
     SEGGER_SYSVIEW_MarkStart(1U);
-    const auto ccos_result = io::math::ccos(angle);
+    const float ccos_result = io::math::fast::cos(angle);
     SEGGER_SYSVIEW_MarkStop(1U);
     SEGGER_SYSVIEW_MarkStart(2U);
     const float libc_cos_result = std::cosf(angle);
     SEGGER_SYSVIEW_MarkStop(2U);
-    float cos_diff = std::abs(ccos_result.value_or(0.0f) - libc_cos_result);
+    float cos_diff = std::abs(ccos_result - libc_cos_result);
 
-    const auto  csin_result     = io::math::csin(angle);
+    const float csin_result     = io::math::fast::sin(angle);
     const float libc_sin_result = std::sinf(angle);
-    float       sin_diff        = std::abs(csin_result.value_or(0.0f) - libc_sin_result);
+    float       sin_diff        = std::abs(csin_result - libc_sin_result);
 
     angle += M_PI_F / 180.0f;
 
