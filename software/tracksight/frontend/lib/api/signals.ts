@@ -1,6 +1,7 @@
 import { IS_MOCK } from "@/lib/constants";
 import { getMockSignalCatalog } from "@/lib/mock/catalog";
 import { SignalMetadata, SignalType } from "@/lib/types/Signal";
+import { ENDPOINTS } from "@/lib/api/endpoints";
 
 export const getSignalType = (signal: Omit<SignalMetadata, "type">): SignalMetadata["type"] => {
     if ("enum_signal" in signal && signal["enum_signal"] !== null) {
@@ -12,12 +13,12 @@ export const getSignalType = (signal: Omit<SignalMetadata, "type">): SignalMetad
     }
 };
 
-const fetchSignalMetadata = async (apiBaseUrl: string): Promise<SignalMetadata[]> => {
+const fetchSignalMetadata = async (): Promise<SignalMetadata[]> => {
     // the frontend-only mock has no backend to ask
     if (IS_MOCK) return getMockSignalCatalog();
 
     try {
-        const response = await fetch(`${apiBaseUrl}/api/v1/signal/metadata`, {
+        const response = await fetch(ENDPOINTS.signalMetadata, {
             cache: "force-cache",
         });
 

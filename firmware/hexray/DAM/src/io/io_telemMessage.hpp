@@ -11,8 +11,9 @@ namespace io::telemMessage
 
 enum class TelemMessageIds : uint8_t
 {
-    CAN = 1,
-    NTP = 2,
+    CAN      = 1,
+    NTP      = 2,
+    BOOTINFO = 3,
 };
 
 struct [[gnu::packed]] Header
@@ -58,11 +59,17 @@ struct [[gnu::packed]] TelemCanMsg : TelemMessage
     explicit TelemCanMsg(const io::CanMsg &rx_msg, uint64_t time_offset);
 };
 
+struct [[gnu::packed]] BootInfo : TelemMessage
+{
+    uint32_t hash;
+    explicit BootInfo(uint32_t boot_hash);
+};
+
 struct [[gnu::packed]] NTPMsg : TelemMessage
 {
     NTPMsg();
 };
 
-using TelemQueueEntry = std::variant<TelemCanMsg, NTPMsg>;
+using TelemQueueEntry = std::variant<TelemCanMsg, NTPMsg, BootInfo>;
 
 } // namespace io::telemMessage

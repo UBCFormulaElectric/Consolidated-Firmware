@@ -146,7 +146,7 @@ pub async fn get_signals(
         //             This behaviour mimicks what we do for live data, where we also
         //             return all alerts always.
         if signal == "alert" {
-            format!(r#"
+            return format!(r#"
                 import "date"
                 from(bucket: "{}")
                 |> range(start: {tile_start_str}, stop: date.add(d: {tile_duration_ms}ms, to: {tile_start_str}))
@@ -157,9 +157,9 @@ pub async fn get_signals(
                 |> aggregateWindow(every: {resolution_ms}ms, fn: max, createEmpty: false)"#,
                 &CONFIG.influxdb_bucket,
                 &CONFIG.influxdb_measurement
-            )
+            );
         } else {
-            format!(r#"
+            return format!(r#"
                 import "date"
                 from(bucket: "{}")
                 |> range(start: {tile_start_str}, stop: date.add(d: {tile_duration_ms}ms, to: {tile_start_str}))
@@ -170,8 +170,8 @@ pub async fn get_signals(
                 |> aggregateWindow(every: {resolution_ms}ms, fn: {agg}, createEmpty: false)"#, 
                 &CONFIG.influxdb_bucket, 
                 &CONFIG.influxdb_measurement
-            )
-        }
+            );
+        };
     };
     
     // track current time in ms to prevent caching currently written tiles
@@ -264,3 +264,4 @@ pub async fn get_signals(
 
     return Ok((result, resolution_ms));
 }
+

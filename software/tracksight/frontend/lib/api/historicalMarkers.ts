@@ -1,8 +1,9 @@
 import { HistoricalSignalSource } from "@/lib/api/historicalSignals";
-import { API_BASE_URL, IS_MOCK } from "@/lib/constants";
+import { IS_MOCK } from "@/lib/constants";
 import { buildMockHistoricalMarkers } from "@/lib/mock/historical";
 
 import { TelemetryMarker } from "@/lib/telemetryMarkers";
+import { ENDPOINTS } from "@/lib/api/endpoints";
 
 function toIsoUtcSeconds(timestampMs: number): string {
     return new Date(timestampMs).toISOString().slice(0, 19) + "Z";
@@ -23,7 +24,7 @@ export async function fetchHistoricalMarkers(startUtcMs: number, endUtcMs: numbe
 
     const start = toIsoUtcSeconds(startUtcMs);
     const end = toIsoUtcSeconds(endUtcMs);
-    const url = `${API_BASE_URL}/api/v1/signal/markers/${start}/${end}?source=${encodeURIComponent(JSON.stringify(source))}`;
+    const url = `${ENDPOINTS.signalMarkers(start, end)}?source=${encodeURIComponent(JSON.stringify(source))}`;
 
     const response = await fetch(url, {
         cache: "no-store",

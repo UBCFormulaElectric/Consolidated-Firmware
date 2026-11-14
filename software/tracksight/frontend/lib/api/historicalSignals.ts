@@ -1,6 +1,7 @@
-import { API_BASE_URL, IS_MOCK } from "@/lib/constants";
+import { IS_MOCK } from "@/lib/constants";
 import { buildMockHistoricalPayload, waitForMockHistoricalSignal } from "@/lib/mock/historical";
 import { SignalType } from "../types/Signal";
+import { ENDPOINTS } from "@/lib/api/endpoints";
 
 type HistoricalSignalRow = {
     timestamp: string;
@@ -45,7 +46,7 @@ export async function fetchHistoricalSignal(params: { signalName: string; signal
     const start = toIsoUtcSeconds(startUtcMs);
     const end = toIsoUtcSeconds(endUtcMs);
     const agg = signalType === SignalType.NUMERICAL ? "mean" : "first";
-    const url = `${API_BASE_URL}/api/v1/signal/tiles/${encodeURIComponent(signalName)}/${start}/${end}?agg=${agg}&source=${encodeURIComponent(JSON.stringify(source))}`;
+    const url = `${ENDPOINTS.signalTiles(encodeURIComponent(signalName), start, end)}?agg=${agg}&source=${encodeURIComponent(JSON.stringify(source))}`;
 
     let payloadText: string;
     if (IS_MOCK) {
