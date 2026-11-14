@@ -25,8 +25,9 @@ pub const CRC32_CALC: Crc<u32> = Crc::<u32>::new(&CRC_32_ISO_HDLC);
  * Incoming messages from DAM to backend
  */
 pub enum TelemetryIncomingMessage {
-    Can { body: CanPayload },
-    NTP,
+    Can { body: CanPayload }, // Incoming signals from the car
+    NTP, // DAM requests for NTP t1 and t2
+    BootInfo { boot_hash: u32 },
 }
 
 impl TelemetryIncomingMessage {
@@ -37,6 +38,7 @@ impl TelemetryIncomingMessage {
 
     pub const CAN_BYTE: u8 = 0x01;
     pub const NTP_BYTE: u8 = 0x02;
+    pub const BOOT_INFO_BYTE: u8 = 0x03;
 }
 
 /**
@@ -59,10 +61,12 @@ pub enum TelemetryOutgoingMessage {
         // let the handler actually send the appropriate t2 when sending packet
         t1: Duration,
     },
+    BootInfoRequest, // No body needed, just send an empty message to request boot info from DAM
 }
 
 impl TelemetryOutgoingMessage {
     pub const MAGIC: [u8; 2] = [0xcc, 0x33];
     pub const NTP_RESPONSE_BYTE: u8 = 0x01;
     pub const NTP_TRIGGER_BYTE: u8 = 0x02;
+    pub const BOOT_INFO_REQUEST_BYTE: u8 = 0x03;
 }

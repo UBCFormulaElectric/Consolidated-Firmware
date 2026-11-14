@@ -85,20 +85,19 @@ void jobs_init()
 void jobs_initLogFs()
 {
     app::sd::initLogFs();
+
+    const auto push_result = telem_tx_queue.push(io::telemMessage::BootInfo{ app::sd::getBootHash() });
+    if (!push_result)
+    {
+        LOG_ERROR("jobs_initLogFs: Failed to enqueue Boot Info: %d", static_cast<int>(push_result.error()));
+        return;
+    }
+
+    LOG_INFO("jobs_initLogFs: Boot Info enqueued");
 }
 
 void jobs_run1Hz_tick()
 {
-    // DEBUG: re-send the bootup frame once, ~5s after boot, to test whether a delayed
-    // copy survives the telem path when the boot-time copy (sent in jobs_init) doesn't.
-    // After hexray, pls use the boot hash/bootid message as a true identifier
-    static uint32_t seconds_since_boot = 0;
-    if (++seconds_since_boot == 5U)
-    {
-        LOG_INFO("debug: re-sending DAM_Bootup at t=%lus", static_cast<unsigned long>(seconds_since_boot));
-        io::can_tx::DAM_Bootup_sendAperiodic();
-    }
-
     {
         static uint32_t last_telem_tx_overflow = 0;
         const uint32_t  overflow               = telem_tx_queue.get_overflowCount();
