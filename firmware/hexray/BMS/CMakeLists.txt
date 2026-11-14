@@ -186,7 +186,7 @@ elseif ("${TARGET}" STREQUAL "test")
             "${INCLUDE_DIRS}"
     )
 
-    add_compile_definitions("hexray_BMS_test" PRIVATE STM32H763Rx)
+    add_compile_definitions("hexray_BMS_test" PRIVATE STM32H733Rx)
 
     # JSONCAN
     jsoncan_library_cpp(BMS hexray "${CMAKE_CURRENT_BINARY_DIR}")

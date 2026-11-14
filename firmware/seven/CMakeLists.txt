@@ -8,7 +8,6 @@ if ("${TARGET}" STREQUAL "binary")
     add_custom_target(seven_hexes)
     add_dependencies(seven_hexes
             seven_BMS_app.hex
-            seven_CRIT_app.hex
             seven_DAM_app.hex
             seven_FSM_app.hex
             seven_RSM_app.hex

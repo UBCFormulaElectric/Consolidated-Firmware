@@ -64,7 +64,7 @@ State poll(bool precharge_for_charging)
 #else // take semaphore to get voltage and calculate threshold V
     float threshold_voltage;
     {
-        io::unique_semaphore s{ shared_lock }; // why not semaphore give / take?
+        io::unique_semaphore s{ shared_lock };
         threshold_voltage = app::segments::shared::getPackVoltage().value() * PRECHARGE_ACC_V_THRESHOLD;
     }
 #endif
@@ -96,7 +96,7 @@ State poll(bool precharge_for_charging)
     }
 
     // if limit exceeded, CAN alert
-    precharge_limit_exceeded = (num_precharge_failures >= MAX_PRECHARGE_ATTEMPTS);
+    precharge_limit_exceeded = (num_precharge_failures >= MAX_PRECHARGE_ATTEMPTS); //Where is this defined?
     app::can_alerts::infos::CriticalPrechargeFailure_set(precharge_limit_exceeded);
 
     // Fault handle
@@ -113,7 +113,7 @@ State poll(bool precharge_for_charging)
         return State::SUCCESS;
     }
 
-    return State::RUNNING
+    return State::RUNNING;
 }
 
 // check if limit exceeded

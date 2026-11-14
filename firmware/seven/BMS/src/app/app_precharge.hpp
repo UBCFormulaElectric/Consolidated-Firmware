@@ -1,6 +1,3 @@
-// Why not just include <cstdint> ??
-
-// new precharge hpp
 #pragma once
 
 #include <cstdint>

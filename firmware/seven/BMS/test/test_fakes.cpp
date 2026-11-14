@@ -1,48 +1,76 @@
 #include "test_fakes.hpp"
 
-#include <gtest/gtest.h>
 
-
-#include "io_tractiveSystem.hpp"
-#include "io_time.hpp"
-
+#include "app_tractiveSystem.hpp"
 #include "app_segments.hpp"
+#include "io_irs.hpp"
 
-// //fakes.cpp
-// io::ts::getVoltage(){
-//     return ts_voltage;
-// }
+namespace app
+{
 
-// io::ts::setVoltage(){
-//     ts_voltage = v
-// }
+namespace ts
+{
+    static float voltage = 0.0f;
 
-//getters
-const float app::segments::shared::getPackVoltage().value(){
-    return packVoltage
+    float getVoltage()
+    {
+        return voltage;
+    }
 }
 
-const float ts_voltage{
-    return app::ts::getVoltage();
+namespace segments
+{
+namespace shared
+{
+    static result<float> packVoltage = 600.0f;
+
+    result<float> getPackVoltage(){
+        return packVoltage;
+    }
+}
 }
 
-const bool {
-    return (io::irs::negativeState() == app::can_utils::ContactorState::CONTACTOR_STATE_OPEN);
 }
 
-//setters
-const float set_pack_voltage(float voltage){
-    
+namespace io
+{
+
+namespace irs
+{
+    static auto negative_state  = app::can_utils::ContactorState::CONTACTOR_STATE_OPEN;
+
+    app::can_utils::ContactorState negativeState()
+    {
+        return negative_state;
+    }
+}
 }
 
-const float set_ts_voltage(float voltage){
-    
-}
 
-const bool set_air_negative(bool air_negative_state){
-}
+namespace fakes
+{
+namespace irs
+{
+    void setNegativeState(const app::can_utils::ContactorState state)
+    {
+        io::irs::negative_state = state;
+    }
+} // namespace irs
 
+namespace ts
+{
+    void setTsVoltage(const float tsVoltage)
+    {
+        app::ts::voltage = tsVoltage;
+    }
+} // namespace ts
 
+namespace segments
+{
+    void setPackVoltage(const float packVoltage)
+    {
+        app::segments::shared::packVoltage = result<packVoltage>;
+    }
+} // namespace segments
 
-    const bool is_air_negative_open = (io::irs::negativeState() == app::can_utils::ContactorState::CONTACTOR_STATE_OPEN);
-
+} // namespace fakes

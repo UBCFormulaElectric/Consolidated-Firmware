@@ -1,8 +1,6 @@
 message("")
 message("⚙️ Configuring BMS (Seven)")
 
-# QUESTION: Where is SHARED_xxx_INCLUDE_DIR defined?
-
 # Cmake Configuration to glob cubemx source code
 # TODO: Add project specific and shared sources used in project
 file(GLOB CUBEMX_SRCS CONFIGURE_DEPENDS "${CMAKE_INCLUDE_CURRENT_DIR}/src/cubemx/Src/*.c")
@@ -168,7 +166,7 @@ if ("${TARGET}" STREQUAL "binary")
     endif ()
 
 elseif ("${TARGET}" STREQUAL "test")
-    file(GLOB_RECURSE TEST_SRCS CONFIGURE_DEPENDS "")
+    file(GLOB_RECURSE TEST_SRCS CONFIGURE_DEPENDS "CMAKE_CURRENT_SOURCE_DIR/test/*.cpp")
     set(FAKE_SRCS
     )
     set(SRCS ${APP_SRCS} ${APP_SHARED_SRCS} ${JOBS_SRC} ${TEST_SRCS} ${FAKE_SRCS})
