@@ -3,7 +3,7 @@
 
 void hw::runtimeStat::init([[maybe_unused]] TIM_HandleTypeDef &htim)
 {
-    // kept backward compatibility with board startup calls.
+    // kept backward compatibility with board startup calls
     // hardware timer interrupts are not required cuz DWT cycle counter exists
 }
 
