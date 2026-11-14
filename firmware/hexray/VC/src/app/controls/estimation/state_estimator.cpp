@@ -273,17 +273,10 @@ namespace state_estimator
             meas.wheel_omega_radps.fl, meas.wheel_omega_radps.fr, meas.wheel_omega_radps.rl, meas.wheel_omega_radps.rr);
 
         auto gps_meas = GpsMeas::none();
-#ifdef TARGET_EMBEDDED
-        if (meas.sbg_ekf_status == app::can_utils::VcEkfStatus::POSITION)
-        {
-            gps_meas = GpsMeas(meas.gps_vx_mps, meas.gps_vy_mps);
-        }
-#else
         if (meas.enable_gps)
         {
             gps_meas = GpsMeas(meas.gps_vx_mps, meas.gps_vy_mps);
         }
-#endif
         const auto [vx_zero, vy_zero]         = updateZeroSpeed();
         auto zerospeed_meas                   = ZspeedMeas(0.0f, 0.0f);
         zerospeed_meas.valid[0]               = vx_zero;
