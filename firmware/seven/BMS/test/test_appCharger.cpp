@@ -1,0 +1,132 @@
+#include "app_charger.hpp"
+#include "test_fakes.hpp"
+#include "test_BMSBase.hpp"
+#include "app_canRx.hpp"
+#include "app_canTx.hpp"
+
+using namespace app::can_utils;
+using namespace app::states;
+
+class AppChargerTest : public BMSBaseTest
+{
+  protected:
+    void EnterChargeStateClean()
+    {
+        fakes::irs::setNegativeState(ContactorState::CONTACTOR_STATE_CLOSED);
+        fakes::charger::setConnectionStatus(ChargerConnectedType::CHARGER_CONNECTED_WALL);
+
+        app::can_rx::Debug_StartCharging_update(true);
+
+        // Clear all Elcon faults.
+        app::can_rx::Elcon_HardwareFailure_update(false);
+        app::can_rx::Elcon_ChargerOverTemperature_update(false);
+        app::can_rx::Elcon_InputVoltageError_update(false);
+        app::can_rx::Elcon_ChargingDisabled_update(false);
+        app::can_rx::Elcon_CommunicationTimeout_update(false);
+
+        // Set arbitrary charge measurements
+        app::can_rx::Elcon_OutputCurrent_update(5.0f);
+        app::can_rx::Elcon_OutputVoltage_update(400.0f);
+
+        // Reset fake EVSE inputs so tests cannot affect each other
+        fakes::charger::setCPDutyCycle(0.0f);
+        fakes::charger::setCPFrequency(0.0f);
+
+        fakes::adbms::setCellVoltage(0, 0, 3.8f);
+
+        app::StateMachine::set_current_state(&charge_state);
+    }
+};
+
+// =============================================================================
+// getOutputCurrent() tests
+// =============================================================================
+
+TEST_F(AppChargerTest, getOutputCurrent_returns_elcon_value) 
+{
+        app::can_rx::Elcon_OutputCurrent_update(10.0f);
+
+        const float output_current = app::charger::getOutputCurrent();
+
+        EXPECT_FLOAT_EQ(output_current, 10.0f);
+}
+
+// =============================================================================
+// getFaultStatus() tests
+// =============================================================================
+
+TEST_F(AppChargerTest, get_fault_status_returns_all_elcon_fault_signals)
+{
+    app::can_rx::Elcon_HardwareFailure_update(true);
+    app::can_rx::Elcon_ChargerOverTemperature_update(false);
+    app::can_rx::Elcon_InputVoltageError_update(true);
+    app::can_rx::Elcon_ChargingDisabled_update(false);
+    app::can_rx::Elcon_CommunicationTimeout_update(true);
+
+    const app::charger::ElconFaultStatus fault_status = app::charger::getFaultStatus();
+
+    EXPECT_TRUE(fault_status.hardware_failure);
+    EXPECT_FALSE(fault_status.over_temperature);
+    EXPECT_TRUE(fault_status.input_voltage_fault);
+    EXPECT_FALSE(fault_status.charging_disabled);
+    EXPECT_TRUE(fault_status.comm_timeout);
+}
+
+TEST_F(AppChargerTest, fault_status_is_false_when_no_faults_are_active)
+{
+    ClearElconFaults();
+
+    const app::charger::ElconFaultStatus fault_status = app::charger::getFaultStatus();
+
+    EXPECT_FALSE(static_cast<bool>(fault_status));
+}
+
+TEST_F(AppChargerTest, getFaultStatus_returns_true_when_any_faults_are_active) 
+{
+        ClearElconFaults();
+        app::can_rx::Elcon_HardwareFailure_update(true);
+
+        const app::charger::ElconFaultStatus fault_status = app::charger::getFaultStatus();
+
+        EXPECT_TRUE(static_cast<bool>(fault_status));
+}
+
+// =============================================================================
+// setChargingConfig
+// =============================================================================
+
+TEST_F(AppChargerTest, setChargingConfig_updates_can_tx_signals) 
+{
+    // Arbitrarily chosen values for testing
+    app::charger::ElconChargingConfig command;
+    command.max_voltage_v = 400.0f;
+    command.max_current_a = 8.0f;
+    command.stop_charging = true;
+
+    app::charger::setChargingConfig(command);
+
+    EXPECT_FLOAT_EQ(app::can_tx::BMS_MaxChargingVoltage_get(), 400.0f);
+    EXPECT_FLOAT_EQ(app::can_tx::BMS_MaxChargingCurrent_get(), 8.0f);
+    EXPECT_FALSE(app::can_tx::BMS_StopCharging_get());
+}
+
+TEST_F(AppChargerTest, setChargingConfig_writes_stop_charging_cmd) 
+{
+    app::charger::ElconChargingConfig command;
+    command.max_voltage_v = 0.0f;
+    command.max_current_a = 0.0f;
+    command.stop_charging = true;
+
+    app::charger::setChargingConfig(command);
+
+    EXPECT_FLOAT_EQ(app::can_tx::BMS_MaxChargingVoltage_get(), 0.0f);
+    EXPECT_FLOAT_EQ(app::can_tx::BMS_MaxChargingCurrent_get(), 0.0f);
+    EXPECT_TRUE(app::can_tx::BMS_StopCharging_get());
+}
+
+
+
+
+
+
+
