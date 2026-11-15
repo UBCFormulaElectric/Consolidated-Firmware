@@ -28,6 +28,7 @@ progress = Progress(
     DownloadColumn(),
 )
 
+MAX_UPDATE_ATTEMPTS = 3 # first attempt + 2 retries
 
 def all_goto_bootloader(live: Live, bootloaders: List[bootloader.Bootloader]):
     live.console.log("Putting all boards into bootloader mode")
@@ -66,6 +67,21 @@ def all_goto_app(live: Live, bootloaders: List[bootloader.Bootloader]):
     live.console.log(
         f"[bold green]All boards pushed out of bootloader mode successfully"
     )
+
+def update_with_retries(session: bootloader.Bootloader, live: Live) -> None:
+    """
+    Run one board's update, retrying on failure. Raises the last error if every reattempt fails. 
+    """
+    for attempt in range(1, MAX_UPDATE_ATTEMPTS + 1): 
+        session.clear_rx_queue()
+        try:
+            session.update()
+            return
+        except (RuntimeError, TimeoutError) as e:
+            live.console.log(f"[yellow]{session.board.name} attempt {attempt}/{MAX_UPDATE_ATTEMPTS} failed: {e}")
+            if attempt == MAX_UPDATE_ATTEMPTS:
+                raise
+
 
 
 def update(
@@ -123,7 +139,7 @@ def update(
             status.update(f"Updating {num_boards} boards in parallel")
             # submit() starts each board's update() on a worker and returns a Future for its result.
             # Map each Future back to its session so we know which board finished.
-            futures = {pool.submit(bootload_board.update): bootload_board for bootload_board in bootloaders }
+            futures = {pool.submit(update_with_retries, bootload_board, live): bootload_board for bootload_board in bootloaders }
             # as_completed() yields each Future as its board finishes, in whatever order that happens.
             for future in as_completed(futures):
                 bootload_board = futures[future]

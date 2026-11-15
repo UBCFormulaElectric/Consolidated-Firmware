@@ -472,6 +472,20 @@ class Bootloader:
             if validator(rx_msg):
                 return rx_msg
         return None
+    
+    def clear_rx_queue(self) -> None:
+        """
+        Discard any messages left in this board's queue so a retry doesn't see replies from the failed attempt.
+        """
+        while True:
+            try:
+                # don't use self.rx_queue.queue.clear() because it reaches into the queue's internal list and skips 
+                # its lock while Notifier thread could be putting a message in at that same moment and nothing critically
+                # would happen but nowait is safer. queue.clear skips the queue's "bookkeeping" which could cause 
+                # unexpected behavior.
+                self.rx_queue.get_nowait()
+            except queue.Empty:
+                return
 
     def size_bytes(self) -> int:
         """
