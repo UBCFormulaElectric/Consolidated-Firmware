@@ -67,7 +67,6 @@ static hw::rtos::StaticTask
     TaskTelemParse(osPriorityBelowNormal, "TaskTelemParse", tasks_runTelemParse, TaskTelemParseStack);
 static hw::rtos::StaticTask TaskTelemTx(osPriorityBelowNormal, "TaskTelemTx", tasks_runTelemTx, TaskTelemTxStack);
 
-#if 0 // disabled
 static hw::runtimeStat::monitor<TASK_COUNT> runtimeMonitor{
     { app::can_tx::DAM_CoreCpuUsage_set, app::can_tx::DAM_CoreCpuUsageMax_set },
     {
@@ -91,7 +90,6 @@ static hw::runtimeStat::monitor<TASK_COUNT> runtimeMonitor{
             app::can_tx::DAM_TaskRunTelemParseCpuUsageMax_set, app::can_tx::DAM_TaskRunTelemParseStackUsage_set } },
     },
 };
-#endif
 
 static hw::watchdog::monitor<TASK_COUNT> monitor{
     hiwdg,
@@ -102,14 +100,14 @@ void tasks_run1Hz(void *arg)
 {
     constexpr uint32_t      period_ms                = 1000U;
     constexpr uint32_t      watchdog_grace_period_ms = 50U;
-    hw::watchdog::instance &watchdog1hz              = monitor.spawn_instance(period_ms + watchdog_grace_period_ms);
+    hw::watchdog::instance &watchdog1hz              = monitor.spawn_instance(period_ms, watchdog_grace_period_ms);
 
     uint32_t start_ticks = osKernelGetTickCount();
     forever
     {
         jobs_run1Hz_tick();
 
-        // runtimeMonitor.checkin();
+        runtimeMonitor.checkin();
         watchdog1hz.checkIn();
 
         start_ticks += period_ms;
@@ -121,7 +119,7 @@ void tasks_run1Hz(void *arg)
 {
     constexpr uint32_t      period_ms                = 10U;
     constexpr uint32_t      watchdog_grace_period_ms = 2U;
-    hw::watchdog::instance &watchdog100hz            = monitor.spawn_instance(period_ms + watchdog_grace_period_ms);
+    hw::watchdog::instance &watchdog100hz            = monitor.spawn_instance(period_ms, watchdog_grace_period_ms);
 
     uint32_t start_ticks = osKernelGetTickCount();
     forever
@@ -138,7 +136,7 @@ void tasks_run1kHz(void *arg)
 {
     constexpr uint32_t      period_ms                = 1U;
     constexpr uint32_t      watchdog_grace_period_ms = 1U;
-    hw::watchdog::instance &watchdog1khz             = monitor.spawn_instance(period_ms + watchdog_grace_period_ms);
+    hw::watchdog::instance &watchdog1khz             = monitor.spawn_instance(period_ms, watchdog_grace_period_ms);
 
     uint32_t start_ticks = osKernelGetTickCount();
     forever

@@ -57,7 +57,7 @@ void            xPortSysTickHandler(void);
 #define CMSIS_device_header "stm32h5xx.h"
 #endif /* CMSIS_device_header */
 
-#define configENABLE_FPU 0
+#define configENABLE_FPU 1
 #define configENABLE_MPU 0
 
 #define configUSE_PREEMPTION 1

@@ -1,5 +1,6 @@
 import { HistoricalSignalSource } from "@/lib/api/historicalSignals";
-import { API_BASE_URL, IS_MOCK } from "@/lib/constants";
+import { IS_MOCK } from "@/lib/constants";
+import { ENDPOINTS } from "@/lib/api/endpoints";
 
 export type HistoricalSession = {
     id: string;
@@ -71,10 +72,10 @@ function toHistoricalSession(startUtcMs: number, endUtcMs: number, timeZone: str
     };
 }
 
-// Backend returns paired session boundaries as [startMs, endMs | null] tuples,
+// Backend returns session boundaries as [bootHash, startMs, endMs | null] tuples,
 // with millisecond values encoded as strings. A null end marks the most recent
 // session that is still ongoing (no later boot event observed yet).
-type SessionBoundaryPair = [string, string | null];
+type SessionBoundaryPair = [string, string, string | null];
 
 function parseSessionPayload(payloadText: string): SessionBoundaryPair[] {
     const parsed = JSON.parse(payloadText) as unknown;
@@ -86,7 +87,7 @@ function parseSessionPayload(payloadText: string): SessionBoundaryPair[] {
 }
 
 function pairsToSessions(pairs: SessionBoundaryPair[], timeZone: string): HistoricalSession[] {
-    return pairs.map(([startStr, endStr]) => {
+    return pairs.map(([, startStr, endStr]) => {
         const startUtcMs = Number(startStr);
         // An ongoing session (null end) runs up to "now" so it stays selectable.
         const endUtcMs = endStr !== null ? Number(endStr) : Date.now();
@@ -111,7 +112,7 @@ function buildMockSessionPairs(startUtcMs: number, endUtcMs: number): SessionBou
             [23, 120],
         ]) {
             const start = dayStart + hour * 60 * 60 * 1000;
-            if (start >= startUtcMs && start < endUtcMs) pairs.push([String(start), String(start + durationMinutes * 60000)]);
+            if (start >= startUtcMs && start < endUtcMs) pairs.push([`mock-${start}`, String(start), String(start + durationMinutes * 60000)]);
         }
     }
 
@@ -125,7 +126,7 @@ export async function fetchHistoricalSessionsForRange(startUtcMs: number, endUtc
 
     const start = toIsoUtcSeconds(startUtcMs);
     const end = toIsoUtcSeconds(endUtcMs);
-    const url = `${API_BASE_URL}/api/v1/signal/sessions/${start}/${end}?source=${encodeURIComponent(JSON.stringify(source))}`;
+    const url = `${ENDPOINTS.signalSessions(start, end)}?source=${encodeURIComponent(JSON.stringify(source))}`;
 
     const response = await fetch(url, {
         cache: "no-store",

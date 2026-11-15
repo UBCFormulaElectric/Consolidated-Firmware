@@ -16,7 +16,8 @@
         "TARGET": "binary",
         "USE_COMMIT_INFO": "ON",
         "BOOTLOAD": "ON",
-        "WATCHDOG": "ON"
+        "WATCHDOG": "ON",
+        "CPU_MON": "ON"
       },
       "binaryDir": "build_fw_dev"
     },
@@ -31,7 +32,8 @@
         "TARGET": "binary",
         "USE_COMMIT_INFO": "ON",
         "BOOTLOAD": "ON",
-        "WATCHDOG": "ON"
+        "WATCHDOG": "ON",
+        "CPU_MON": "ON"
       },
       "binaryDir": "build_fw_deploy"
     },

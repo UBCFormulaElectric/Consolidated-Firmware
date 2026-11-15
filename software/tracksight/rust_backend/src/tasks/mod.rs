@@ -7,7 +7,7 @@ pub mod can_data_handler;
 
 use std::{collections::HashSet, time::Duration};
 
-use tokio::{select, sync::{broadcast, mpsc}, time::sleep};
+use tokio::{select, sync::mpsc, time::sleep};
 
 use crate::{utils::red, vprintln};
 
@@ -23,8 +23,6 @@ pub const MAX_CHANNEL_BUFFER_SIZE: usize = 32768;
 // but it was cool so idk
 
 pub const TASK_RESTART_DELAY_MS: u64 = 1000;
-
-pub type ShutdownReceiver = broadcast::Receiver<()>;
 
 /**
  * Tasks to health check
