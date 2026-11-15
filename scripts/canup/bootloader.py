@@ -44,7 +44,7 @@ BOOT_STATUS_NO_APP = 2
 MIN_PROG_SIZE_BYTES = 32
 
 # limits for bootloader
-MAX_COMMAND_TRIES = 10 # for start update, goto_bootloader and goto_app
+MAX_COMMAND_TRIES = 5 # for start update, goto_bootloader and goto_app
 MAX_ERASE_TRIES = 3 # for each sector
 ERASE_TIMEOUT_S = 5 # how long to wait for each sector's reply
 

@@ -132,6 +132,7 @@ def update(
         live.console.log(
             f"Updating firmware for boards: [blue bold]{', '.join(board.name for board in configs)}"
         )
+        failed_boards = []
         # Flash every board in parallel, one worker thread per board. This is safe because each
         # session only receives from its own queue (see can_router.py) and the bus is a ThreadSafeBus.
         # Leaving the with block waits for every board to finish.
@@ -144,14 +145,24 @@ def update(
             for future in as_completed(futures):
                 bootload_board = futures[future]
                 # Re-raises any exception from that board's update() here on the main thread.
-                # Boards already running keep going until they finish; the error is raised after.
-                future.result()
-                live.console.log(f"[green]{bootload_board.board.name} updated successfully")
+                # Boards already running keep going until they finish. Collect boards that failed every attempt which stay in bootloader.
+                # The rest go to their app code.
+                try:
+                    future.result()
+                    live.console.log(f"[green]{bootload_board.board.name} updated successfully")
+                except (RuntimeError, TimeoutError) as e:
+                    failed_boards.append(bootload_board.board)
+                    live.console.log(f"[red]{bootload_board.board.name} failed after {MAX_UPDATE_ATTEMPTS} attempts: {e}")
         progress.remove_task(steps_task)
-        live.console.log(
-            f"[bold green]Firmware update successfully ({num_boards} board{'s' if num_boards > 1 else ''} updated)"
-        )
-        all_goto_app(live, hexray_bootloaders)
+        if not failed_boards:
+            live.console.log(
+                f"[bold green]Firmware update successfully ({num_boards} board{'s' if num_boards > 1 else ''} updated)"
+            )
+        app_sessions = [session for session in hexray_bootloaders if session.board not in failed_boards]
+        all_goto_app(live, app_sessions)
+        if failed_boards:
+            names = ", ".join(board.name for board in failed_boards)
+            raise RuntimeError(f"Update failed for {names}. They are still in bootloader; rerun CANup to reflash them.")
 
 
 def erase(bus: can.Bus, configs: List[boards.Board], is_fd: bool, router: can_router.CanRouter) -> None:
