@@ -14,6 +14,8 @@ import intelhex
 from rich.console import Console, Group
 from rich.live import Live
 from rich.progress import Progress, TextColumn, BarColumn, DownloadColumn
+from rich.progress import TaskID
+from typing import Callable
 
 import boards
 import bootloader
@@ -82,6 +84,11 @@ def update_with_retries(session: bootloader.Bootloader, live: Live) -> None:
             if attempt == MAX_UPDATE_ATTEMPTS:
                 raise
 
+def make_ui_callback(task_id: TaskID, board_name:str) -> Callable[[str, int, int], None]:
+    def callback(description, total, completed):
+        progress.update(task_id=task_id, description=f"{board_name}: {description}", total=total, completed=completed)
+    return callback
+
 
 
 def update(
@@ -89,17 +96,12 @@ def update(
 ) -> None:
     """Update and handle UI."""
     num_boards = len(configs)
-    steps_task = progress.add_task("Steps")
+    board_tasks = {board: progress.add_task(board.name, total=None) for board in configs}
     bootloaders: List[bootloader.Bootloader] = [
         bootloader.Bootloader(
             bus=bus,
             board=board,
-            ui_callback=lambda description, total, completed: progress.update(
-                task_id=steps_task,
-                total=total,
-                description=description,
-                completed=completed,
-            ),
+            ui_callback=make_ui_callback(board_tasks[board], board.name),
             ih=intelhex.IntelHex(os.path.join(build_dir, board.path)),
             is_fd=is_fd,
             rx_queue=router.queue_for(board)
@@ -113,12 +115,7 @@ def update(
         bootloader.Bootloader(
             bus=bus,
             board=board,
-            ui_callback=lambda description, total, completed: progress.update(
-                task_id=steps_task,
-                total=total,
-                description=description,
-                completed=completed,
-            ),
+            ui_callback=lambda *args: None, # *args accepts any num of args and lambda ignores all
             ih=intelhex.IntelHex(os.path.join(build_dir, board.path)),
             is_fd=is_fd,
             rx_queue=router.queue_for(board)
@@ -144,16 +141,20 @@ def update(
             # as_completed() yields each Future as its board finishes, in whatever order that happens.
             for future in as_completed(futures):
                 bootload_board = futures[future]
+                task_id = board_tasks[bootload_board.board]
                 # Re-raises any exception from that board's update() here on the main thread.
                 # Boards already running keep going until they finish. Collect boards that failed every attempt which stay in bootloader.
                 # The rest go to their app code.
                 try:
                     future.result()
                     live.console.log(f"[green]{bootload_board.board.name} updated successfully")
+                    progress.update(task_id, description=f"[green]{bootload_board.board.name}: done")
                 except (RuntimeError, TimeoutError) as e:
                     failed_boards.append(bootload_board.board)
                     live.console.log(f"[red]{bootload_board.board.name} failed after {MAX_UPDATE_ATTEMPTS} attempts: {e}")
-        progress.remove_task(steps_task)
+                    progress.update(task_id, description=f"[red]{bootload_board.board.name}: failed")
+        for task_id in board_tasks.values():
+            progress.remove_task(task_id)
         if not failed_boards:
             live.console.log(
                 f"[bold green]Firmware update successfully ({num_boards} board{'s' if num_boards > 1 else ''} updated)"
