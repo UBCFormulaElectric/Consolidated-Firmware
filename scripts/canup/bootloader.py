@@ -11,6 +11,7 @@ import can
 import time
 import intelhex
 import threading
+import queue
 
 import boards
 
@@ -42,25 +43,33 @@ BOOT_STATUS_NO_APP = 2
 # The minimum amount of data the microcontroller can program at a time.
 MIN_PROG_SIZE_BYTES = 32
 
+# limits for bootloader
+MAX_COMMAND_TRIES = 5 # for start update, goto_bootloader and goto_app
+MAX_ERASE_TRIES = 3 # for each sector
+ERASE_TIMEOUT_S = 5 # how long to wait for each sector's reply
+
 
 class Bootloader:
     bus: can.Bus
-    ih: intelhex.IntelHex
+    ih: Optional[intelhex.IntelHex]
     board: boards.Board
     timeout: int
     ui_callback: Callable
     is_fd: bool
+    rx_queue: queue.Queue[can.Message]
 
     def __init__(
         self,
         bus: can.Bus,
+        rx_queue: queue.Queue[can.Message],
         board: boards.Board,
         ui_callback: Callable,
-        ih: intelhex.IntelHex = None,
+        ih: Optional[intelhex.IntelHex] = None,
         timeout: int = 1,
         is_fd: bool = False,
     ) -> None:
         self.bus: can.Bus = bus
+        self.rx_queue: queue.Queue[can.Message] = rx_queue
         self.ih: intelhex.IntelHex = ih
         self.board: boards.Board = board
         self.timeout: int = timeout
@@ -73,6 +82,7 @@ class Bootloader:
         :throws: TimeoutError if the boards do not respond
         :return: True when the bootloader acknowledges the command.
         """
+        tries: int = 0
         while True:
             self.bus.send(
                 can.Message(
@@ -97,11 +107,13 @@ class Bootloader:
                 is not None
             ):
                 return True
-            if not retry:
+            tries += 1
+            if not retry or tries >= MAX_COMMAND_TRIES:
                 return False
             time.sleep(retry_delay)
 
     def goto_app(self, retry: bool = False, retry_delay: float = 0.5) -> bool:
+        tries: int = 0
         while True:
             self.bus.send(
                 can.Message(
@@ -120,7 +132,8 @@ class Bootloader:
                 is not None
             ):
                 return True
-            if not retry:
+            tries += 1
+            if not retry or tries >= MAX_COMMAND_TRIES:
                 return False
             time.sleep(retry_delay)
 
@@ -150,6 +163,7 @@ class Bootloader:
         expected_block_num = (end_addr - start_addr) // CAN_FRAME_SIZE_BYTES
         # convert expected_block_num to a little endian byte array
         expected_block_num_bytes = expected_block_num.to_bytes(4, byteorder="little")
+        tries: int = 0
         while True:
             self.bus.send(
                 can.Message(
@@ -161,7 +175,8 @@ class Bootloader:
             )
             if self._await_can_msg(validator=_validator, timeout=self.timeout) is not None:
                 return True
-            if not retry:
+            tries += 1
+            if not retry or tries >= MAX_COMMAND_TRIES:
                 return False
             time.sleep(retry_delay)
 
@@ -176,14 +191,15 @@ class Bootloader:
 
         """
 
-        def _validator(msg: can.Message):
-            """Validate that we've received the "erase complete" msg."""
-            return (
-                True
-                if msg.arbitration_id
-                == (self.board.boot_id_range_start | ERASE_SECTOR_COMPLETE_CAN_ID_LOWBITS)
-                else None
-            )
+        def _validator(msg: can.Message) -> bool | None:
+            """Validate that we've received either an erase complete or erased failed msg."""
+            complete_id = self.board.boot_id_range_start | ERASE_SECTOR_COMPLETE_CAN_ID_LOWBITS
+            failed_id = self.board.boot_id_range_start | ERASE_SECTOR_FAILED_ID_LOWBITS
+
+            if msg.arbitration_id in (complete_id, failed_id):
+                return True
+            return None
+            
 
         erase_size = sum([sector.size for sector in sectors])
         erase_progress = 0
@@ -195,6 +211,7 @@ class Bootloader:
             if sector.write_protect:
                 raise RuntimeError(f"Attempted to write to a readonly memory sector!{sectors}")
 
+            tries: int = 0
             while True:
                 self.bus.send(
                     can.Message(
@@ -205,9 +222,16 @@ class Bootloader:
                         is_fd=self.is_fd,
                     )
                 )
-                if self._await_can_msg(validator=_validator, timeout=self.timeout):
-                    break
-
+                reply = self._await_can_msg(validator=_validator, timeout=ERASE_TIMEOUT_S)
+                if reply is None:
+                    tries += 1
+                    if tries >= MAX_ERASE_TRIES:
+                        return False
+                    continue # resend the erase for this sector
+                if reply.arbitration_id == (self.board.boot_id_range_start | ERASE_SECTOR_FAILED_ID_LOWBITS):
+                    return False
+                break
+            
             erase_progress += sector.size
 
         if self.ui_callback:
@@ -252,47 +276,48 @@ class Bootloader:
                     raise RuntimeError(f"Received unexpected message with id {can_msg.arbitration_id} during programming")
         listen_thread = threading.Thread(target=listener, args=(stop_listener,))
         listen_thread.start()
+        try:
+            # TODO: Check if binary is aligned to 64 bytes and ensure ending bytes are sent
+            block = 0
+            last_block = (end_addr - start_addr) // CAN_FRAME_SIZE_BYTES
+            tries_left = 10
+            while not done:
+                while block <= last_block:
+                    # check if we need to go back
+                    if jump_back_block is not None:
+                        block = jump_back_block
+                        jump_back_block = None
+                    if self.ui_callback and block % 128 == 0: # update ui only every little while
+                        self.ui_callback(
+                            "Programming data", self.size_bytes(), block * CAN_FRAME_SIZE_BYTES
+                        )
 
-        # TODO: Check if binary is aligned to 64 bytes and ensure ending bytes are sent
-        block = 0
-        last_block = (end_addr - start_addr) // CAN_FRAME_SIZE_BYTES
-        tries_left = 10
-        while not done:
-            while block <= last_block:
-                # check if we need to go back
+                    data = [self.ih[start_addr + block * CAN_FRAME_SIZE_BYTES + j] for j in range(0, CAN_FRAME_SIZE_BYTES)]
+                    wire_block_num = block << 4
+                    while True:
+                        try:
+                            self.bus.send(
+                                can.Message(
+                                    arbitration_id=self.board.boot_id_range_start | wire_block_num | PROGRAM_CAN_ID_LOWBITS,
+                                    data=data,
+                                    is_extended_id=True,
+                                    is_fd=self.is_fd,
+                                )
+                            )
+                            break
+                        except can.interfaces.vector.exceptions.VectorOperationError:
+                            pass
+                    block += 1
+                time.sleep(0.1)
                 if jump_back_block is not None:
                     block = jump_back_block
                     jump_back_block = None
-                if self.ui_callback and block % 128 == 0: # update ui only every little while
-                    self.ui_callback(
-                        "Programming data", self.size_bytes(), block * CAN_FRAME_SIZE_BYTES
-                    )
-
-                data = [self.ih[start_addr + block * CAN_FRAME_SIZE_BYTES + j] for j in range(0, CAN_FRAME_SIZE_BYTES)]
-                wire_block_num = block << 4
-                while True:
-                    try:
-                        self.bus.send(
-                            can.Message(
-                                arbitration_id=self.board.boot_id_range_start | wire_block_num | PROGRAM_CAN_ID_LOWBITS,
-                                data=data,
-                                is_extended_id=True,
-                                is_fd=self.is_fd,
-                            )
-                        )
-                        break
-                    except can.interfaces.vector.exceptions.VectorOperationError:
-                        pass
-                block += 1
-            time.sleep(0.1)
-            if jump_back_block is not None:
-                block = jump_back_block
-                jump_back_block = None
-            if tries_left <= 0:
-                break # inshallah
-            tries_left -= 1
-        stop_listener.set()
-        listen_thread.join()
+                if tries_left <= 0:
+                    break # inshallah
+                tries_left -= 1
+        finally:
+            stop_listener.set()
+            listen_thread.join()
 
         if self.ui_callback:
             self.ui_callback("Programming data", self.size_bytes(), self.size_bytes())
@@ -430,7 +455,7 @@ class Bootloader:
         time.sleep(0.5)
 
     def _await_can_msg(
-        self, validator=Callable[[can.Message], Optional[bool]], timeout: int = 5
+        self, validator: Callable[[can.Message], Optional[bool]], timeout: int = 5
     ) -> Optional[can.Message]:
         """
         Helper function to await a CAN msg response within a timeout, with a validator function.
@@ -440,12 +465,27 @@ class Bootloader:
 
         start = time.time()
         while time.time() - start < timeout:
-            rx_msg: can.Message = self.bus.recv(timeout=1)
-            if rx_msg is None:
-                continue
+            try:
+                rx_msg = self.rx_queue.get(timeout=1) # rx_queue.get rasises exception queue.Empty unlike bus.recv so we try catch the call
+            except queue.Empty:
+                continue 
             if validator(rx_msg):
                 return rx_msg
         return None
+    
+    def clear_rx_queue(self) -> None:
+        """
+        Discard any messages left in this board's queue so a retry doesn't see replies from the failed attempt.
+        """
+        while True:
+            try:
+                # don't use self.rx_queue.queue.clear() because it reaches into the queue's internal list and skips 
+                # its lock while Notifier thread could be putting a message in at that same moment and nothing critically
+                # would happen but nowait is safer. queue.clear skips the queue's "bookkeeping" which could cause 
+                # unexpected behavior.
+                self.rx_queue.get_nowait()
+            except queue.Empty:
+                return
 
     def size_bytes(self) -> int:
         """
