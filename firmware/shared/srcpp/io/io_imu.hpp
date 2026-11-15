@@ -33,7 +33,7 @@ enum class GyroScale : uint8_t
     GYRO_DPS_250 = 0x0U,
     GYRO_DPS_500,
     GYRO_DPS_1000,
-    GYRO_DPS_1250,
+    GYRO_DPS_2000,
 };
 
 enum class AccelScale : uint8_t

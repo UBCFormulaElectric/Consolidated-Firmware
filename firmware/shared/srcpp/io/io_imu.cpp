@@ -67,18 +67,18 @@ struct __attribute__((packed)) FifoEn
 {
     uint8_t RSVD : 3          = 0; // [2:0]
     uint8_t ACCEL_FIFO_EN : 1 = 0; // [3] Write Accel data to FIFO
-    uint8_t XG_FIFO_EN : 1    = 0; // [4] Write Gyro X data to FIFO
+    uint8_t ZG_FIFO_EN : 1    = 0; // [4] Write Gyro Z data to FIFO
     uint8_t YG_FIFO_EN : 1    = 0; // [5] Write Gyro Y data to FIFO
-    uint8_t ZG_FIFO_EN : 1    = 0; // [6] Write Gyro Z data to FIFO
+    uint8_t XG_FIFO_EN : 1    = 0; // [6] Write Gyro X data to FIFO
     uint8_t TEMP_FIFO_EN : 1  = 0; // [7] Write Temp data to FIFO
 };
 
 // Register 55: INT_PIN_CFG
 struct __attribute__((packed)) IntPinConfig
 {
-    uint8_t RSVD : 2         = 0; // [3:0]
-    uint8_t FSYNC_EN : 1     = 0; // [4] 1=enable, 0=diable fsync
-    uint8_t FSYNC_ACTL : 1   = 0; // [5] 1=Active Low, 0=Active High
+    uint8_t RSVD : 2         = 0; // [1:0] Reserved, bit 0 must be 0
+    uint8_t FSYNC_EN : 1     = 0; // [2] FSYNC_INT_MODE_EN: 1=FSYNC pin triggers an interrupt
+    uint8_t FSYNC_ACTL : 1   = 0; // [3] FSYNC_INT_LEVEL: 1=Active Low, 0=Active High
     uint8_t INT_RD_CLEAR : 1 = 1; // [4] 1=Clear on any read, 0=Clear on Status Read
     uint8_t LATCH_INT_EN : 1 = 1; // [5] 1=Latch until clear, 0=50us pulse
     uint8_t OPEN : 1         = 0; // [6] 1=Open Drain, 0=Push-Pull
@@ -90,11 +90,13 @@ struct __attribute__((packed)) IntEnable
 {
     uint8_t DATA_RDY_INT_EN : 1   = 1; // [0] Data Ready Interrupt
     uint8_t RSVD : 1              = 0; // [1]
-    uint8_t GDRIVE_INT_EN : 1     = 0; // [3] Gyroscope drive system ready interrupt
-    uint8_t RSVD2 : 1             = 0; // [4]
-    uint8_t FIFO_OFLOW_INT_EN : 1 = 0; // [5] FIFO Overflow Interrupt
-    uint8_t WOM_INT_EN : 2        = 0; // [7:6]
+    uint8_t GDRIVE_INT_EN : 1     = 0; // [2] Gyroscope drive system ready interrupt
+    uint8_t RSVD2 : 1             = 0; // [3]
+    uint8_t FIFO_OFLOW_INT_EN : 1 = 0; // [4] FIFO Overflow Interrupt
+    uint8_t WOM_INT_EN : 3        = 0; // [7:5] 0b111=Enable WoM, 0b000=Disable
 };
+
+static_assert(sizeof(FifoEn) == 1 && sizeof(IntPinConfig) == 1 && sizeof(IntEnable) == 1);
 
 // Register 106: USER_CTRL
 struct __attribute__((packed)) UserCtrl
@@ -251,7 +253,7 @@ static constexpr float gyro_sensitivity = []
             return 65.5f;
         case GyroScale::GYRO_DPS_1000:
             return 32.8f;
-        case GyroScale::GYRO_DPS_1250:
+        case GyroScale::GYRO_DPS_2000:
             return 16.4f;
         default:
             return 131.0f;
