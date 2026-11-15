@@ -6,24 +6,34 @@
 #endif
 
 #include "hw_utils.hpp"
+#include <array>
 #include <cassert>
+#include <cmath>
 
 namespace hw::fmac
 {
 
 namespace
 {
-    constexpr int16_t floatToQ1Point5(float x)
+    /** Round to nearest and saturate to [-1, 1); NaN maps to 0. */
+    int16_t floatToQ15(const float x)
     {
-        return static_cast<int16_t>(x * 32768.0f);
+        const float scaled = x * 32768.0f;
+        if (std::isnan(scaled))
+            return 0;
+        if (scaled >= 32767.0f)
+            return INT16_MAX;
+        if (scaled <= -32768.0f)
+            return INT16_MIN;
+        return static_cast<int16_t>(std::lrint(scaled));
     }
-    constexpr float q1Point5ToFloat(int16_t x)
+    constexpr float q15ToFloat(const int16_t x)
     {
         return static_cast<float>(x) / 32768.0f;
     }
 
-    // HAL_MAX_DELAY is 0xFFFFFFFF (wait forever). Use a finite timeout (ms) so we can tune on hardware.
-    inline constexpr uint32_t kPollFilterDataTimeoutMs = 100;
+    // An output takes roughly P + Q FMAC clocks, so this only trips if the filter has stalled.
+    constexpr uint32_t kMaxOutputPollIterations = 1000;
 
     // IIR filter limits from FMAC reference manual (RM0481)
     constexpr uint8_t IIR_MIN_B_TAPS = 2;  // P min
@@ -32,6 +42,8 @@ namespace
     constexpr uint8_t IIR_MAX_A_TAPS = 63; // Q max
     constexpr uint8_t IIR_MIN_GAIN   = 0;  // R min (gain = 2^R)
     constexpr uint8_t IIR_MAX_GAIN   = 7;  // R max
+
+    constexpr std::array<int16_t, IIR_MAX_B_TAPS> kZeroHistory{};
 } // namespace
 
 result<void> FmacIir::init(std::span<const int16_t> coefB, std::span<const int16_t> coefA, uint8_t gainExponent)
@@ -74,32 +86,34 @@ result<void> FmacIir::init(std::span<const int16_t> coefB, std::span<const int16
         .R                 = gainExponent,
     };
 
+    // FilterConfig refuses to run while a filter is active; FilterStop also resets the buffer pointers and flags.
+    if ((m_handle.Instance->PARAM & FMAC_PARAM_START) != 0U)
+        RETURN_IF_ERR(stop());
+
     RETURN_IF_ERR(hw::utils::convertHalStatus(HAL_FMAC_FilterConfig(&m_handle, &filterConfig)));
+    // Preload the history (not the coefficients, which FilterConfig already loaded into X2) with zeros:
+    // P - 1 past inputs, so the first written sample completes a P-tap window and produces y[0], and Q past outputs.
     RETURN_IF_ERR(hw::utils::convertHalStatus(HAL_FMAC_FilterPreload(
-        &m_handle, const_cast<int16_t *>(coefB.data()), numBTaps, const_cast<int16_t *>(coefA.data()), numATaps)));
-    RETURN_IF_ERR(hw::utils::convertHalStatus(HAL_FMAC_FilterStart(&m_handle, &m_outputSample, &m_outputSize)));
+        &m_handle, const_cast<int16_t *>(kZeroHistory.data()), static_cast<uint8_t>(numBTaps - 1),
+        const_cast<int16_t *>(kZeroHistory.data()), numATaps)));
+    // No output buffer is registered with the HAL; process() reads RDATA directly.
+    RETURN_IF_ERR(hw::utils::convertHalStatus(HAL_FMAC_FilterStart(&m_handle, nullptr, nullptr)));
     return {};
-}
-
-result<void> FmacIir::pushSample(int16_t sample_q15)
-{
-    uint16_t size = 1;
-    return hw::utils::convertHalStatus(HAL_FMAC_AppendFilterData(&m_handle, &sample_q15, &size));
-}
-
-result<int16_t> FmacIir::popSample()
-{
-    RETURN_IF_ERR(hw::utils::convertHalStatus(HAL_FMAC_PollFilterData(&m_handle, kPollFilterDataTimeoutMs)));
-    return m_outputSample;
 }
 
 result<float> FmacIir::process(const float sample)
 {
-    RETURN_IF_ERR(pushSample(floatToQ1Point5(sample)));
-    auto out_q15 = popSample();
-    if (!out_q15)
-        return std::unexpected(out_q15.error());
-    return q1Point5ToFloat(out_q15.value());
+    FMAC_TypeDef *const fmac = m_handle.Instance;
+    if ((fmac->PARAM & FMAC_PARAM_START) == 0U)
+        return std::unexpected(ErrorCode::ERROR);
+
+    fmac->WDATA = static_cast<uint16_t>(floatToQ15(sample));
+    for (uint32_t i = 0; i < kMaxOutputPollIterations; ++i)
+    {
+        if ((fmac->SR & FMAC_SR_YEMPTY) == 0U)
+            return q15ToFloat(static_cast<int16_t>(fmac->RDATA & FMAC_RDATA_RDATA));
+    }
+    return std::unexpected(ErrorCode::TIMEOUT);
 }
 
 result<void> FmacIir::stop()
