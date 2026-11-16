@@ -1,11 +1,14 @@
 #include "app_pack.hpp"
 #include "app_pack_internal.hpp"
+#include "app_canTx.hpp"
 
 #include <algorithm>
+#include <app_canUtils.hpp>
 #include <array>
+#include <cassert>
+#include <cstddef>
+#include <cstdint>
 #include <span>
-
-#include "app_canTx.hpp"
 
 using io::adbms::CELLS_PER_SEGMENT;
 using io::adbms::NUM_SEGMENTS;
@@ -13,94 +16,135 @@ using io::adbms::THERMISTORS_PER_SEGMENT;
 
 namespace
 {
+namespace can_tx    = app::can_tx;
+namespace can_utils = app::can_utils;
 
 constexpr float INVALID_VOLTAGE = -0.1f;
 constexpr float INVALID_TEMP    = -40.0f;
 
-template <typename T, size_t SEGS, size_t PER_SEG = CELLS_PER_SEGMENT> class SegmentBroadcaster
+// The backing CAN objects must contain a contiguous sequence of actual T
+// objects. sizeof alone cannot prove this; see note below.
+template <typename T, size_t SEGS_PER_MSG, size_t VALUES_PER_SEG> class ArrayBroadcaster
 {
-    // Only the msgs holding populated segments, segments past NUM_SEGMENTS are never written
-    static constexpr size_t NUM_MSGS = (NUM_SEGMENTS + SEGS - 1) / SEGS;
-
-    std::array<T *, NUM_MSGS> _msgs;
+    static constexpr size_t    MSG_COUNT = (NUM_SEGMENTS + SEGS_PER_MSG - 1) / SEGS_PER_MSG;
+    std::array<T *, MSG_COUNT> messages_;
 
   public:
-    template <typename... CanMsgs> explicit SegmentBroadcaster(CanMsgs &...can_msgs)
+    template <typename... Messages>
+    explicit ArrayBroadcaster(Messages &...messages) : messages_{ { reinterpret_cast<T *>(&messages)... } }
     {
-        static_assert(SEGS * sizeof...(CanMsgs) >= NUM_SEGMENTS);
-        static_assert(((sizeof(CanMsgs) == SEGS * PER_SEG * sizeof(T)) && ...));
-
-        const std::array<T *, sizeof...(CanMsgs)> msgs{ { reinterpret_cast<T *>(&can_msgs)... } };
-        std::copy_n(msgs.begin(), NUM_MSGS, _msgs.begin());
+        static_assert(sizeof...(Messages) == MSG_COUNT);
+        static_assert(((sizeof(Messages) == SEGS_PER_MSG * VALUES_PER_SEG * sizeof(T)) && ...));
     }
 
-    std::span<T, PER_SEG> operator[](const size_t seg) const
+    std::span<T, VALUES_PER_SEG> operator[](size_t segment) const
     {
-        return std::span<T, PER_SEG>{ _msgs[seg / SEGS] + seg % SEGS * PER_SEG, PER_SEG };
+        assert(segment < NUM_SEGMENTS);
+
+        const size_t msg   = segment / SEGS_PER_MSG;
+        const size_t first = (segment % SEGS_PER_MSG) * VALUES_PER_SEG;
+
+        return std::span<T, VALUES_PER_SEG>{ messages_[msg] + first, VALUES_PER_SEG };
     }
 };
 
-SegmentBroadcaster<float, 2> cell_voltage_setters(
-    app::can_tx::BMS_CellVoltages_Seg0_Seg1_getData(),
-    app::can_tx::BMS_CellVoltages_Seg2_Seg3_getData(),
-    app::can_tx::BMS_CellVoltages_Seg4_Seg5_getData(),
-    app::can_tx::BMS_CellVoltages_Seg6_Seg7_getData(),
-    app::can_tx::BMS_CellVoltages_Seg8_Seg9_getData());
-SegmentBroadcaster<app::can_utils::ErrorCode, 5> cell_voltage_error_setters(
-    app::can_tx::BMS_CellVoltageErrors_Seg0_Seg4_getData(),
-    app::can_tx::BMS_CellVoltageErrors_Seg5_Seg9_getData());
+template <typename T, size_t SEGS_PER_MSG> using CellBroadcaster = ArrayBroadcaster<T, SEGS_PER_MSG, CELLS_PER_SEGMENT>;
 
-SegmentBroadcaster<float, 2, THERMISTORS_PER_SEGMENT> cell_temperature_setters(
-    app::can_tx::BMS_CellTemps_Seg0_Seg1_getData(),
-    app::can_tx::BMS_CellTemps_Seg2_Seg3_getData(),
-    app::can_tx::BMS_CellTemps_Seg4_Seg5_getData(),
-    app::can_tx::BMS_CellTemps_Seg6_Seg7_getData(),
-    app::can_tx::BMS_CellTemps_Seg8_Seg9_getData());
-SegmentBroadcaster<app::can_utils::ErrorCode, 5, THERMISTORS_PER_SEGMENT> cell_temperature_error_setters(
-    app::can_tx::BMS_CellTempErrors_Seg0_Seg4_getData(),
-    app::can_tx::BMS_CellTempErrors_Seg5_Seg9_getData());
-SegmentBroadcaster<float, 2, THERMISTORS_PER_SEGMENT> therm_voltage_setters(
-    app::can_tx::BMS_ThermVoltages_Seg0_Seg1_getData(),
-    app::can_tx::BMS_ThermVoltages_Seg2_Seg3_getData(),
-    app::can_tx::BMS_ThermVoltages_Seg4_Seg5_getData(),
-    app::can_tx::BMS_ThermVoltages_Seg6_Seg7_getData(),
-    app::can_tx::BMS_ThermVoltages_Seg8_Seg9_getData());
+template <typename T, size_t SEGS_PER_MSG>
+using ThermBroadcaster = ArrayBroadcaster<T, SEGS_PER_MSG, THERMISTORS_PER_SEGMENT>;
 
-SegmentBroadcaster<float, 10, 1> segment_vmv_setters(app::can_tx::BMS_SegmentVmv_getData());
-SegmentBroadcaster<float, 10, 1> segment_vpv_setters(app::can_tx::BMS_SegmentVpv_getData());
-SegmentBroadcaster<float, 10, 1> segment_vref_setters(app::can_tx::BMS_SegmentVref_getData());
-SegmentBroadcaster<float, 10, 1> segment_itmp_setters(app::can_tx::BMS_SegmentItmp_getData());
-SegmentBroadcaster<float, 10, 1> segment_va_setters(app::can_tx::BMS_SegmentVa_getData());
-SegmentBroadcaster<float, 10, 1> segment_vd_setters(app::can_tx::BMS_SegmentVd_getData());
-SegmentBroadcaster<float, 10, 1> segment_vres_setters(app::can_tx::BMS_SegmentVres_getData());
-SegmentBroadcaster<app::can_utils::ErrorCode, 10, 1>
-    segment_vmv_error_setters(app::can_tx::BMS_SegmentVmvErrors_getData());
-SegmentBroadcaster<app::can_utils::ErrorCode, 10, 1>
-    segment_vpv_error_setters(app::can_tx::BMS_SegmentVpvErrors_getData());
-SegmentBroadcaster<app::can_utils::ErrorCode, 10, 1>
-    segment_vref_error_setters(app::can_tx::BMS_SegmentVrefErrors_getData());
-SegmentBroadcaster<app::can_utils::ErrorCode, 10, 1>
-    segment_itmp_error_setters(app::can_tx::BMS_SegmentItmpErrors_getData());
-SegmentBroadcaster<app::can_utils::ErrorCode, 10, 1>
-    segment_va_error_setters(app::can_tx::BMS_SegmentVaErrors_getData());
-SegmentBroadcaster<app::can_utils::ErrorCode, 10, 1>
-    segment_vd_error_setters(app::can_tx::BMS_SegmentVdErrors_getData());
-SegmentBroadcaster<app::can_utils::ErrorCode, 10, 1>
-    segment_vres_error_setters(app::can_tx::BMS_SegmentVresErrors_getData());
+// One value per battery segment, so access is values[seg], not values[seg][0].
+template <typename T> class SegmentValues
+{
+    T *values_;
 
-SegmentBroadcaster<uint8_t, 5> cell_pwm_duty_setters(
-    app::can_tx::BMS_CellPwmDuty_Seg0_Seg4_getData(),
-    app::can_tx::BMS_CellPwmDuty_Seg5_Seg9_getData());
+  public:
+    template <typename Message> explicit SegmentValues(Message &message) : values_(reinterpret_cast<T *>(&message))
+    {
+        static_assert(sizeof(Message) == NUM_SEGMENTS * sizeof(T));
+    }
 
-SegmentBroadcaster<bool, 10> cadc_owc_ok_setters(app::can_tx::BMS_CadcCellOpenWireCheckOk_getData());
-SegmentBroadcaster<bool, 10> sadc_owc_ok_setters(app::can_tx::BMS_SadcCellOpenWireCheckOk_getData());
-SegmentBroadcaster<bool, 10, THERMISTORS_PER_SEGMENT>
-                                therm_owc_ok_setters(app::can_tx::BMS_ThermistorOpenWireCheckOk_getData());
-SegmentBroadcaster<bool, 10>    cell_ov_ok_setters(app::can_tx::BMS_CellOverVoltageOk_getData());
-SegmentBroadcaster<bool, 10>    cell_uv_ok_setters(app::can_tx::BMS_CellUnderVoltageOk_getData());
-SegmentBroadcaster<bool, 10, 1> segment_therm_shdn_ok_setters(app::can_tx::BMS_SegmentThermShutdownOk_getData());
-SegmentBroadcaster<bool, 10, 1> segment_self_test_ok_setters(app::can_tx::BMS_SegmentSelfTestOk_getData());
-SegmentBroadcaster<bool, 10, 1> segment_supply_ok_setters(app::can_tx::BMS_SegmentSupplyOk_getData());
+    T &operator[](size_t segment) const
+    {
+        assert(segment < NUM_SEGMENTS);
+        return values_[segment];
+    }
+};
+
+struct CellBroadcastData
+{
+    CellBroadcaster<float, 2> cell_voltage_setters{ app::can_tx::BMS_CellVoltages_Seg0_Seg1_getData(),
+                                                    app::can_tx::BMS_CellVoltages_Seg2_Seg3_getData(),
+                                                    app::can_tx::BMS_CellVoltages_Seg4_Seg5_getData(),
+                                                    app::can_tx::BMS_CellVoltages_Seg6_Seg7_getData(),
+                                                    app::can_tx::BMS_CellVoltages_Seg8_Seg9_getData() };
+
+    CellBroadcaster<app::can_utils::ErrorCode, 5> cell_voltage_error_setters{
+        app::can_tx::BMS_CellVoltageErrors_Seg0_Seg4_getData(), app::can_tx::BMS_CellVoltageErrors_Seg5_Seg9_getData()
+    };
+};
+
+struct TemperatureBroadcastData
+{
+    ThermBroadcaster<float, 2> cell_temperature_setters{ app::can_tx::BMS_CellTemps_Seg0_Seg1_getData(),
+                                                         app::can_tx::BMS_CellTemps_Seg2_Seg3_getData(),
+                                                         app::can_tx::BMS_CellTemps_Seg4_Seg5_getData(),
+                                                         app::can_tx::BMS_CellTemps_Seg6_Seg7_getData(),
+                                                         app::can_tx::BMS_CellTemps_Seg8_Seg9_getData() };
+
+    ThermBroadcaster<app::can_utils::ErrorCode, 5> cell_temperature_error_setters{
+        app::can_tx::BMS_CellTempErrors_Seg0_Seg4_getData(), app::can_tx::BMS_CellTempErrors_Seg5_Seg9_getData()
+    };
+
+    ThermBroadcaster<float, 2> them_voltage_setters{ app::can_tx::BMS_ThermVoltages_Seg0_Seg1_getData(),
+                                                     app::can_tx::BMS_ThermVoltages_Seg2_Seg3_getData(),
+                                                     app::can_tx::BMS_ThermVoltages_Seg4_Seg5_getData(),
+                                                     app::can_tx::BMS_ThermVoltages_Seg6_Seg7_getData(),
+                                                     app::can_tx::BMS_ThermVoltages_Seg8_Seg9_getData() };
+};
+
+struct SupplyBroadcastData
+{
+    SegmentValues<float>                     segment_vmv_setters{ app::can_tx::BMS_SegmentVmv_getData() };
+    SegmentValues<float>                     segment_vpv_setters{ app::can_tx::BMS_SegmentVpv_getData() };
+    SegmentValues<float>                     segment_vref_setters{ app::can_tx::BMS_SegmentVref_getData() };
+    SegmentValues<float>                     segment_itmp_setters{ app::can_tx::BMS_SegmentItmp_getData() };
+    SegmentValues<float>                     segment_va_setters{ app::can_tx::BMS_SegmentVa_getData() };
+    SegmentValues<float>                     segment_vd_setters{ app::can_tx::BMS_SegmentVd_getData() };
+    SegmentValues<float>                     segment_vres_setters{ app::can_tx::BMS_SegmentVres_getData() };
+    SegmentValues<app::can_utils::ErrorCode> segment_vmv_error_setters{ app::can_tx::BMS_SegmentVmvErrors_getData() };
+    SegmentValues<app::can_utils::ErrorCode> segment_vpv_error_setters{ app::can_tx::BMS_SegmentVpvErrors_getData() };
+    SegmentValues<app::can_utils::ErrorCode> segment_vref_error_setters{ app::can_tx::BMS_SegmentVrefErrors_getData() };
+    SegmentValues<app::can_utils::ErrorCode> segment_itmp_error_setters{ app::can_tx::BMS_SegmentItmpErrors_getData() };
+    SegmentValues<app::can_utils::ErrorCode> segment_va_error_setters{ app::can_tx::BMS_SegmentVaErrors_getData() };
+    SegmentValues<app::can_utils::ErrorCode> segment_vd_error_setters{ app::can_tx::BMS_SegmentVdErrors_getData() };
+    SegmentValues<app::can_utils::ErrorCode> segment_vres_error_setters{ app::can_tx::BMS_SegmentVresErrors_getData() };
+};
+
+struct DiagnosticBroadcastData
+{
+    CellBroadcaster<bool, 10>  cadc_owc_ok_setters{ app::can_tx::BMS_CadcCellOpenWireCheckOk_getData() };
+    CellBroadcaster<bool, 10>  sadc_owc_ok_setters{ app::can_tx::BMS_SadcCellOpenWireCheckOk_getData() };
+    CellBroadcaster<bool, 10>  cell_ov_ok_setters{ app::can_tx::BMS_CellOverVoltageOk_getData() };
+    CellBroadcaster<bool, 10>  cell_uv_ok_setters{ app::can_tx::BMS_CellUnderVoltageOk_getData() };
+    ThermBroadcaster<bool, 10> therm_owc_ok_setters{ app::can_tx::BMS_ThermistorOpenWireCheckOk_getData() };
+    SegmentValues<bool>        segment_therm_shdn_ok_setters{ app::can_tx::BMS_SegmentThermShutdownOk_getData() };
+    SegmentValues<bool>        segment_self_test_ok_setters{ app::can_tx::BMS_SegmentSelfTestOk_getData() };
+    SegmentValues<bool>        segment_supply_ok_setters{ app::can_tx::BMS_SegmentSupplyOk_getData() };
+};
+
+struct BalancingBroadcastData
+{
+    CellBroadcaster<uint8_t, 5> cell_pwm_duty_setters{ app::can_tx::BMS_CellPwmDuty_Seg0_Seg4_getData(),
+                                                       app::can_tx::BMS_CellPwmDuty_Seg5_Seg9_getData() };
+};
+
+BalancingBroadcastData   balancing_broadcast;
+DiagnosticBroadcastData  diagnostic_broadcast;
+CellBroadcastData        cell_broadcast;
+SupplyBroadcastData      supply_broadcast;
+TemperatureBroadcastData temp_broadcast;
+
 } // namespace
 
 namespace app::pack::broadcast
@@ -113,8 +157,8 @@ void cellVoltages(const VoltageBuffer &stats)
         {
             const result<float> &voltage = stats.voltages[seg][cell];
 
-            cell_voltage_setters[seg][cell] = std::clamp(voltage.value_or(INVALID_VOLTAGE), -0.1f, 5.0f);
-            cell_voltage_error_setters[seg][cell] =
+            cell_broadcast.cell_voltage_setters[seg][cell] = std::clamp(voltage.value_or(INVALID_VOLTAGE), -0.1f, 5.0f);
+            cell_broadcast.cell_voltage_error_setters[seg][cell] =
                 voltage ? can_utils::ErrorCode::NO_ERROR : static_cast<can_utils::ErrorCode>(voltage.error());
         }
     }
@@ -135,8 +179,9 @@ void cellTemps(const TemperatureBuffer &stats)
         {
             const result<float> &temp = stats.temperatures[seg][therm];
 
-            cell_temperature_setters[seg][therm] = std::clamp(temp.value_or(INVALID_TEMP), -40.0f, 125.0f);
-            cell_temperature_error_setters[seg][therm] =
+            temp_broadcast.cell_temperature_setters[seg][therm] =
+                std::clamp(temp.value_or(INVALID_TEMP), -40.0f, 125.0f);
+            temp_broadcast.cell_temperature_error_setters[seg][therm] =
                 temp ? can_utils::ErrorCode::NO_ERROR : static_cast<can_utils::ErrorCode>(temp.error());
         }
     }
@@ -154,7 +199,8 @@ void thermVoltages(const io::adbms::PackTherms<result<float>> &voltages)
     for (uint8_t seg = 0; seg < NUM_SEGMENTS; seg++)
     {
         for (uint8_t therm = 0; therm < THERMISTORS_PER_SEGMENT; therm++)
-            therm_voltage_setters[seg][therm] = std::clamp(voltages[seg][therm].value_or(INVALID_VOLTAGE), -0.1f, 5.0f);
+            temp_broadcast.them_voltage_setters[seg][therm] =
+                std::clamp(voltages[seg][therm].value_or(INVALID_VOLTAGE), -0.1f, 5.0f);
     }
 }
 
@@ -163,7 +209,7 @@ void cadcOpenWire(const OpenWireCheckBuffer &owc)
     for (uint8_t seg = 0; seg < NUM_SEGMENTS; seg++)
     {
         for (uint8_t cell = 0; cell < CELLS_PER_SEGMENT; cell++)
-            cadc_owc_ok_setters[seg][cell] = owc.cells_owc_ok[seg][cell];
+            diagnostic_broadcast.cadc_owc_ok_setters[seg][cell] = owc.cells_owc_ok[seg][cell];
     }
 }
 
@@ -172,7 +218,7 @@ void sadcOpenWire(const OpenWireCheckBuffer &owc)
     for (uint8_t seg = 0; seg < NUM_SEGMENTS; seg++)
     {
         for (uint8_t cell = 0; cell < CELLS_PER_SEGMENT; cell++)
-            sadc_owc_ok_setters[seg][cell] = owc.cells_owc_ok[seg][cell];
+            diagnostic_broadcast.sadc_owc_ok_setters[seg][cell] = owc.cells_owc_ok[seg][cell];
     }
 }
 
@@ -181,7 +227,7 @@ void thermOpenWire(const ThermOpenWireCheckBuffer &owc)
     for (uint8_t seg = 0; seg < NUM_SEGMENTS; seg++)
     {
         for (uint8_t therm = 0; therm < THERMISTORS_PER_SEGMENT; therm++)
-            therm_owc_ok_setters[seg][therm] = owc.therms_owc_ok[seg][therm];
+            diagnostic_broadcast.therm_owc_ok_setters[seg][therm] = owc.therms_owc_ok[seg][therm];
     }
 }
 
@@ -191,12 +237,12 @@ void adbmsFlags(const DiagnosticBuffer &diag)
     {
         for (uint8_t cell = 0; cell < CELLS_PER_SEGMENT; cell++)
         {
-            cell_ov_ok_setters[seg][cell] = diag.ov_ok[seg][cell];
-            cell_uv_ok_setters[seg][cell] = diag.uv_ok[seg][cell];
+            diagnostic_broadcast.cell_ov_ok_setters[seg][cell] = diag.ov_ok[seg][cell];
+            diagnostic_broadcast.cell_uv_ok_setters[seg][cell] = diag.uv_ok[seg][cell];
         }
-        segment_therm_shdn_ok_setters[seg][0] = diag.therm_shdn_ok[seg];
-        segment_self_test_ok_setters[seg][0]  = diag.self_test_ok[seg];
-        segment_supply_ok_setters[seg][0]     = diag.supply_ok[seg];
+        diagnostic_broadcast.segment_therm_shdn_ok_setters[seg] = diag.therm_shdn_ok[seg];
+        diagnostic_broadcast.segment_self_test_ok_setters[seg]  = diag.self_test_ok[seg];
+        diagnostic_broadcast.segment_supply_ok_setters[seg]     = diag.supply_ok[seg];
     }
 }
 
@@ -204,33 +250,36 @@ void adbmsSupply(const SupplyBuffer &supply)
 {
     for (uint8_t seg = 0; seg < NUM_SEGMENTS; seg++)
     {
-        segment_vmv_setters[seg][0]  = std::clamp(supply.vmv[seg].value_or(INVALID_VOLTAGE), -1.0f, 5.0f);
-        segment_vpv_setters[seg][0]  = std::clamp(supply.vpv[seg].value_or(INVALID_VOLTAGE), -0.1f, 65.0f);
-        segment_vref_setters[seg][0] = std::clamp(supply.vref[seg].value_or(INVALID_VOLTAGE), -0.1f, 5.0f);
-        segment_itmp_setters[seg][0] = std::clamp(supply.itmp[seg].value_or(INVALID_TEMP), -40.0f, 150.0f);
-        segment_va_setters[seg][0]   = std::clamp(supply.va[seg].value_or(INVALID_VOLTAGE), -0.1f, 7.0f);
-        segment_vd_setters[seg][0]   = std::clamp(supply.vd[seg].value_or(INVALID_VOLTAGE), -0.1f, 5.0f);
-        segment_vres_setters[seg][0] = std::clamp(supply.vres[seg].value_or(INVALID_VOLTAGE), -0.1f, 5.0f);
+        supply_broadcast.segment_vmv_setters[seg] = std::clamp(supply.vmv[seg].value_or(INVALID_VOLTAGE), -1.0f, 5.0f);
+        supply_broadcast.segment_vpv_setters[seg] = std::clamp(supply.vpv[seg].value_or(INVALID_VOLTAGE), -0.1f, 65.0f);
+        supply_broadcast.segment_vref_setters[seg] =
+            std::clamp(supply.vref[seg].value_or(INVALID_VOLTAGE), -0.1f, 5.0f);
+        supply_broadcast.segment_itmp_setters[seg] =
+            std::clamp(supply.itmp[seg].value_or(INVALID_TEMP), -40.0f, 150.0f);
+        supply_broadcast.segment_va_setters[seg] = std::clamp(supply.va[seg].value_or(INVALID_VOLTAGE), -0.1f, 7.0f);
+        supply_broadcast.segment_vd_setters[seg] = std::clamp(supply.vd[seg].value_or(INVALID_VOLTAGE), -0.1f, 5.0f);
+        supply_broadcast.segment_vres_setters[seg] =
+            std::clamp(supply.vres[seg].value_or(INVALID_VOLTAGE), -0.1f, 5.0f);
 
-        segment_vmv_error_setters[seg][0]  = supply.vmv[seg]
-                                                 ? can_utils::ErrorCode::NO_ERROR
-                                                 : static_cast<can_utils::ErrorCode>(supply.vmv[seg].error());
-        segment_vpv_error_setters[seg][0]  = supply.vpv[seg]
-                                                 ? can_utils::ErrorCode::NO_ERROR
-                                                 : static_cast<can_utils::ErrorCode>(supply.vpv[seg].error());
-        segment_vref_error_setters[seg][0] = supply.vref[seg]
-                                                 ? can_utils::ErrorCode::NO_ERROR
-                                                 : static_cast<can_utils::ErrorCode>(supply.vref[seg].error());
-        segment_itmp_error_setters[seg][0] = supply.itmp[seg]
-                                                 ? can_utils::ErrorCode::NO_ERROR
-                                                 : static_cast<can_utils::ErrorCode>(supply.itmp[seg].error());
-        segment_va_error_setters[seg][0] =
+        supply_broadcast.segment_vmv_error_setters[seg] =
+            supply.vmv[seg] ? can_utils::ErrorCode::NO_ERROR
+                            : static_cast<can_utils::ErrorCode>(supply.vmv[seg].error());
+        supply_broadcast.segment_vpv_error_setters[seg] =
+            supply.vpv[seg] ? can_utils::ErrorCode::NO_ERROR
+                            : static_cast<can_utils::ErrorCode>(supply.vpv[seg].error());
+        supply_broadcast.segment_vref_error_setters[seg] =
+            supply.vref[seg] ? can_utils::ErrorCode::NO_ERROR
+                             : static_cast<can_utils::ErrorCode>(supply.vref[seg].error());
+        supply_broadcast.segment_itmp_error_setters[seg] =
+            supply.itmp[seg] ? can_utils::ErrorCode::NO_ERROR
+                             : static_cast<can_utils::ErrorCode>(supply.itmp[seg].error());
+        supply_broadcast.segment_va_error_setters[seg] =
             supply.va[seg] ? can_utils::ErrorCode::NO_ERROR : static_cast<can_utils::ErrorCode>(supply.va[seg].error());
-        segment_vd_error_setters[seg][0] =
+        supply_broadcast.segment_vd_error_setters[seg] =
             supply.vd[seg] ? can_utils::ErrorCode::NO_ERROR : static_cast<can_utils::ErrorCode>(supply.vd[seg].error());
-        segment_vres_error_setters[seg][0] = supply.vres[seg]
-                                                 ? can_utils::ErrorCode::NO_ERROR
-                                                 : static_cast<can_utils::ErrorCode>(supply.vres[seg].error());
+        supply_broadcast.segment_vres_error_setters[seg] =
+            supply.vres[seg] ? can_utils::ErrorCode::NO_ERROR
+                             : static_cast<can_utils::ErrorCode>(supply.vres[seg].error());
     }
 }
 
@@ -239,7 +288,7 @@ void balancing(const io::adbms::PackCells<uint8_t> &duty)
     for (uint8_t seg = 0; seg < NUM_SEGMENTS; seg++)
     {
         for (uint8_t cell = 0; cell < CELLS_PER_SEGMENT; cell++)
-            cell_pwm_duty_setters[seg][cell] = duty[seg][cell];
+            balancing_broadcast.cell_pwm_duty_setters[seg][cell] = duty[seg][cell];
     }
 }
 } // namespace app::pack::broadcast

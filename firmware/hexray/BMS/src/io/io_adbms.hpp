@@ -100,9 +100,8 @@ struct __attribute__((packed)) CFGB
     bool operator==(const CFGB &other) const
     {
         return (dcto_0_5 == 0) == (other.dcto_0_5 == 0) && vuv_0_7 == other.vuv_0_7 && vuv_8_11 == other.vuv_8_11 &&
-               vov_0_3 == other.vov_0_3 &&
-               vov_4_11 == other.vov_4_11 && dtrng == other.dtrng && dtmen == other.dtmen && dcc_1_8 == other.dcc_1_8 &&
-               dcc_9_16 == other.dcc_9_16;
+               vov_0_3 == other.vov_0_3 && vov_4_11 == other.vov_4_11 && dtrng == other.dtrng && dtmen == other.dtmen &&
+               dcc_1_8 == other.dcc_1_8 && dcc_9_16 == other.dcc_9_16;
     }
 };
 static_assert(sizeof(CFGB) == REG_GROUP_SIZE);
