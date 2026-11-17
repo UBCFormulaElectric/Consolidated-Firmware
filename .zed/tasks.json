@@ -16,44 +16,52 @@
     "command": "cmake --build build_fw_dev --target clean && cmake --build build_fw_test --target clean"
   },
   {
-    "label": "Build Embedded Quintuna",
-    "command": "cmake --build build_fw_dev --target quintuna_BMS.hex quintuna_VC.hex quintuna_CRIT.hex quintuna_RSM.hex quintuna_FSM.hex quintuna_DAM.hex can_bus_load_quintuna"
+    "label": "Build Embedded Seven",
+    "command": "cmake --build build_fw_dev --target seven_BMS_app.hex seven_DAM_app.hex seven_FSM_app.hex seven_RSM_app.hex seven_VC_app.hex"
+  },
+  {
+    "label": "Build Embedded: BMS (Seven)",
+    "command": "cmake --build build_fw_dev --target seven_BMS.hex"
+  },
+  {
+    "label": "Build Chimera: BMS (Seven)",
+    "command": "cmake --build build_fw_dev --target seven_BMS_chimera.elf"
+  },
+  {
+    "label": "Build Embedded: DAM (Seven)",
+    "command": "cmake --build build_fw_dev --target seven_DAM.hex"
+  },
+  {
+    "label": "Build Chimera: DAM (Seven)",
+    "command": "cmake --build build_fw_dev --target seven_DAM_chimera.elf"
+  },
+  {
+    "label": "Build Embedded: FSM (Seven)",
+    "command": "cmake --build build_fw_dev --target seven_FSM.hex"
+  },
+  {
+    "label": "Build Chimera: FSM (Seven)",
+    "command": "cmake --build build_fw_dev --target seven_FSM_chimera.elf"
+  },
+  {
+    "label": "Build Embedded: RSM (Seven)",
+    "command": "cmake --build build_fw_dev --target seven_RSM.hex"
+  },
+  {
+    "label": "Build Chimera: RSM (Seven)",
+    "command": "cmake --build build_fw_dev --target seven_RSM_chimera.elf"
+  },
+  {
+    "label": "Build Embedded: VC (Seven)",
+    "command": "cmake --build build_fw_dev --target seven_VC.hex"
+  },
+  {
+    "label": "Build Chimera: VC (Seven)",
+    "command": "cmake --build build_fw_dev --target seven_VC_chimera.elf"
   },
   {
     "label": "Build Embedded Hexray",
     "command": "cmake --build build_fw_dev --target hexray_CRIT_app.hex hexray_DAM_app.hex hexray_FSM_app.hex hexray_RSM_app.hex"
-  },
-  {
-    "label": "Build Embedded: VCR (Quintuna)",
-    "command": "cmake --build build_fw_dev --target quintuna_VCR_app.elf"
-  },
-  {
-    "label": "Build Embedded: BMS (Quintuna)",
-    "command": "cmake --build build_fw_dev --target quintuna_BMS.hex"
-  },
-  {
-    "label": "Build Embedded: VC (Quintuna)",
-    "command": "cmake --build build_fw_dev --target quintuna_VC.hex"
-  },
-  {
-    "label": "Build Embedded: CRIT (Quintuna)",
-    "command": "cmake --build build_fw_dev --target quintuna_CRIT.hex"
-  },
-  {
-    "label": "Build Embedded: DAM (Quintuna)",
-    "command": "cmake --build build_fw_dev --target quintuna_DAM.hex"
-  },
-  {
-    "label": "Build Embedded: RSM (Quintuna)",
-    "command": "cmake --build build_fw_dev --target quintuna_RSM.hex"
-  },
-  {
-    "label": "Build Embedded: FSM (Quintuna)",
-    "command": "cmake --build build_fw_dev --target quintuna_FSM.hex"
-  },
-  {
-    "label": "Build Embedded: PCM (Quintuna)",
-    "command": "cmake --build build_fw_dev --target quintuna_PCM_app.elf"
   },
   {
     "label": "Build Embedded: h7dev",
@@ -116,20 +124,24 @@
     "command": "cmake --build build_fw_dev --target hexray_VC_chimera.elf"
   },
   {
-    "label": "Build Tests: CRIT (Quintuna)",
-    "command": "cmake --build build_fw_test --target quintuna_CRIT_test"
+    "label": "Build Tests: BMS (Seven)",
+    "command": "cmake --build build_fw_test --target seven_BMS_test"
   },
   {
-    "label": "Build Tests: VC (Quintuna)",
-    "command": "cmake --build build_fw_test --target quintuna_VC_test"
+    "label": "Build Tests: DAM (Seven)",
+    "command": "cmake --build build_fw_test --target seven_DAM_test"
   },
   {
-    "label": "Build Tests: BMS (Quintuna)",
-    "command": "cmake --build build_fw_test --target quintuna_BMS_test"
+    "label": "Build Tests: FSM (Seven)",
+    "command": "cmake --build build_fw_test --target seven_FSM_test"
   },
   {
-    "label": "Run Tests: BMS (Quintuna)",
-    "command": "./build_fw_test/firmware/quintuna/BMS/quintuna_BMS_test"
+    "label": "Build Tests: RSM (Seven)",
+    "command": "cmake --build build_fw_test --target seven_RSM_test"
+  },
+  {
+    "label": "Build Tests: VC (Seven)",
+    "command": "cmake --build build_fw_test --target seven_VC_test"
   },
   {
     "label": "Build Tests: BMS (Hexray)",
@@ -166,10 +178,6 @@
   {
     "label": "Build Tests: JSON CAN intergation",
     "command": "cmake --build build_fw_test --target jsoncan_test"
-  },
-  {
-    "label": "CAN Bus Load: Quintuna",
-    "command": "cmake --build build_fw_dev --target can_bus_load_quintuna"
   },
   {
     "label": "Run Telem Backend",

@@ -8,6 +8,7 @@ DEVICE="STM32H733VG"
 SPEED="4000"
 PORT="2331"
 BUILD_CMD=""
+FLASH_FILE=""
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -27,6 +28,10 @@ while [[ $# -gt 0 ]]; do
       BUILD_CMD="$2"
       shift 2
       ;;
+    --flash)
+      FLASH_FILE="$2"
+      shift 2
+      ;;
     *)
       echo "Unknown option: $1"
       exit 1
@@ -38,6 +43,15 @@ done
 if [[ -n "$BUILD_CMD" ]]; then
   echo "==> Running build: $BUILD_CMD"
   eval "$BUILD_CMD"
+fi
+
+# 2. Flash the freshly built image (otherwise GDB just attaches to whatever is already on the chip)
+if [[ -n "$FLASH_FILE" ]]; then
+  echo "==> Flashing $FLASH_FILE"
+  printf 'h\nloadfile "%s"\nr\ng\nqc\n' "$(realpath "$FLASH_FILE")" >/tmp/jlink_flash.jlink
+  JLinkExe -device "$DEVICE" -if SWD -speed "$SPEED" -autoconnect 1 -NoGui 1 -ExitOnError 1 \
+    -CommandFile /tmp/jlink_flash.jlink >/tmp/jlink_flash.log 2>&1 ||
+    { echo "Error: flash failed, see /tmp/jlink_flash.log"; exit 1; }
 fi
 
 PID_FILE="/tmp/jlink_gdbserver.pid"
