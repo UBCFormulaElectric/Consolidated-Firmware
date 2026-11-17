@@ -16,7 +16,7 @@ inline constexpr float         PRECHARGE_RC_S  = PRECHARGE_RESISTOR_OHMS * PRECH
 inline constexpr std::uint32_t PRECHARGE_RC_MS = static_cast<std::uint32_t>(PRECHARGE_RC_S * 1000.0f);
 
 // 2.7 RC ≈ 93% charged
-inline constexpr float PRECHARGE_COMPLETION_MS_F = PRECHARGE_RC_S * 1000.0f * 2.7f; // RC curve (VERIFY)
+inline constexpr float PRECHARGE_COMPLETION_MS_F = PRECHARGE_RC_S * 1000.0f * 2.7f; // Based on RC curve
 
 // Arbitrary values. Verify in testing
 inline constexpr std::uint32_t PRECHARGE_COMPLETION_LOWER_BOUND =
@@ -40,7 +40,6 @@ enum class State
     COOLDOWN,
 };
 
-// API (TO DO: CONFIRM)
 void  init();
 void  restart();
 State poll(bool precharge_for_charging);

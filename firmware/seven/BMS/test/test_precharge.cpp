@@ -9,35 +9,7 @@
 using namespace app::can_utils;
 using namespace app::precharge;
 
-/*
-Getters in precharge: 
-
-// ts voltage
-app::ts::getVoltage();
-
-// pack voltage
-app::segments::shared::getPackVoltage().value();
-
-// air -
-io::irs::negativeState() == app::can_utils::ContactorState::CONTACTOR_STATE_OPEN)
-
-//precharge for charging
-set_precharge_for_charging{
-
-}
-
-
-
-- precharge failure state based on timings
-
-- fake accumulator voltage and ts voltage
-- feed into precharge functions
-
-- takes in as inputs : Air condiiton, accumulator and ts voltage
-
-- set TS voltage, use same getter to set
-
-*/
+//TO DO: CAN messages + JSON config
 
 class BmsPrechargeTest : public EcuTestBase
 {
@@ -61,7 +33,6 @@ class BmsPrechargeTest : public EcuTestBase
 
 
 //note: expected timing is 2700 ms base on RC curve. Lower bound timer is 50% of this, upper bound is 50% of this.
-//tests use +- 500s above upper bound and lower bound timer for logic.
 
 // not charging, upper bound timer expires (EXPIRED), Vts < Vthreshold (Vpack * 0.9) - FAILED
 TEST_F(BmsPrechargeTest, not_charging_ts_voltage_rising_slowly)
@@ -83,7 +54,7 @@ TEST_F(BmsPrechargeTest, charging_ts_voltage_rising_slowly)
     ASSERT_EQ(poll(true), State::FAILED);
 }
 
-//precharge not for charging, ts voltage rising too quickly (lower bound timer RUNNING), FAILED
+//precharge not for charging, ts voltage rising too quickly (lower bound timer RUNNING) - FAILED
 TEST_F(BmsPrechargeTest, not_charging_ts_voltage_rising_quickly)
 {
     StartOfPrecharge(false);
@@ -93,7 +64,7 @@ TEST_F(BmsPrechargeTest, not_charging_ts_voltage_rising_quickly)
     ASSERT_EQ(poll(false), State::FAILED);
 }
 
-//precharge for charging, ts voltage rising too quickly (lower bound timer RUNNING), SUCCESS
+//precharge for charging, ts voltage rising too quickly (lower bound timer RUNNING) - SUCCESS
 TEST_F(BmsPrechargeTest, charging_ts_voltage_rising_quickly)
 {
     StartOfPrecharge(false);
@@ -105,7 +76,7 @@ TEST_F(BmsPrechargeTest, charging_ts_voltage_rising_quickly)
 
 
 
-//AIR negative open, FAILED
+//AIR negative open - FAILED
 TEST_F(BmsPrechargeTest, air_negative_open)
 {
     StartOfPrecharge(false);
@@ -114,7 +85,7 @@ TEST_F(BmsPrechargeTest, air_negative_open)
     ASSERT_EQ(poll(false), State::FAILED);
 }
 
-//ts voltage < threshold voltage, lower bound timer hasn't expired, RUNNING
+//ts voltage < threshold voltage, lower bound timer hasn't expired - RUNNING
 TEST_F(BmsPrechargeTest, ts_under_threshold_and_running_lower_timer)
 {
     StartOfPrecharge(false);
@@ -124,7 +95,7 @@ TEST_F(BmsPrechargeTest, ts_under_threshold_and_running_lower_timer)
     ASSERT_EQ(poll(false), State::RUNNING);
 }
 
-//ts voltage < threshold voltage, upper bound timer hasn't expired, RUNNING
+//ts voltage < threshold voltage, upper bound timer hasn't expired - RUNNING
 TEST_F(BmsPrechargeTest, ts_under_threshold_and_running_upper_timer)
 {
     StartOfPrecharge(false);
@@ -134,7 +105,7 @@ TEST_F(BmsPrechargeTest, ts_under_threshold_and_running_upper_timer)
     ASSERT_EQ(poll(false), State::RUNNING);
 }
 
-// not charge, ts voltage > threshold voltage, low bound < timer < upper bound, SUCCESS
+// not charge, ts voltage > threshold voltage, low bound < timer < upper bound - SUCCESS
 TEST_F(BmsPrechargeTest, ts_>_threshold_and_running_upper_timer)
 {
     StartOfPrecharge(false);
@@ -144,8 +115,7 @@ TEST_F(BmsPrechargeTest, ts_>_threshold_and_running_upper_timer)
     ASSERT_EQ(poll(false), State::SUCCESS);
 }
 
-//TO DO: Critical Failure Tests
-
+// Upper bound passed 5 times, goes into crit failure - FAILED_CRITICAL
 TEST_F(BmsPrechargeTest, critical_failure)
 {
     StartOfPrecharge(false);
@@ -153,34 +123,5 @@ TEST_F(BmsPrechargeTest, critical_failure)
     LetTimePass(PRECHARGE_COMPLETION_UPPER_BOUND * 5 + 2000);
     ASSERT_EQ(poll(false), State::FAILED_CRITICAL);
 }
-
-
-
-/*
-float ts_voltage 
-
-//bms/io
-io::ts::getVoltage(){
-
-}
-
-//fakes.cpp
-io::ts::getVoltage(){
-    return ts_voltage;
-}
-
-io::ts::setVoltage(){
-    ts_voltage = v
-}
-
-
-//tests
-io::ts::setVoltage(400)
-
-runTime()
-
-*/
-
-
 
 

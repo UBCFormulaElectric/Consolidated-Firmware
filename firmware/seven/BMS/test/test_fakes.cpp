@@ -1,6 +1,5 @@
 #include "test_fakes.hpp"
 
-
 #include "app_tractiveSystem.hpp"
 #include "app_segments.hpp"
 #include "io_irs.hpp"
