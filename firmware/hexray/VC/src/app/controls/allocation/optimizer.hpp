@@ -39,9 +39,6 @@ struct OptimizerWeights
  * @param mz_setpoint_Nm requested yaw moment in Nm (ISO 8855, positive = left), from the yaw rate controller
  * @return Per-wheel optimal slip ratios
  */
-[[nodiscard]] wheel_set<float> optimize(
-    const VehicleState     &state,
-    float                   ax_setpoint_mps2,
-    float                   mz_setpoint_Nm,
-    const OptimizerWeights &weights);
+[[nodiscard]] wheel_set<float>
+    optimize(const VehicleState &state, float ax_setpoint_mps2, float mz_setpoint_Nm, const OptimizerWeights &weights);
 } // namespace app::controls::allocation

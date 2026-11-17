@@ -81,10 +81,10 @@ const OptimizerWeights &weightsFor(const can_utils::DriveMode drive_mode)
     //     return { .fl = 0.0f, .fr = 0.0f, .rl = 0.0f, .rr = 0.0f };
     // }
 
-    const float SQRT_W_FX             = weights.sqrt_w_fx;
-    const float SQRT_W_MZ             = weights.sqrt_w_mz;
-    const float SQRT_W_R              = weights.sqrt_w_r;
-    static Vec4 previous_kappa        = Vec4::Zero(); // warm start for the next cycle
+    const float SQRT_W_FX      = weights.sqrt_w_fx;
+    const float SQRT_W_MZ      = weights.sqrt_w_mz;
+    const float SQRT_W_R       = weights.sqrt_w_r;
+    static Vec4 previous_kappa = Vec4::Zero(); // warm start for the next cycle
 
     // const wheel_set<float> blended_des_f_x{
     //     .fl = low_speed_blend * des_f_x.fl,
