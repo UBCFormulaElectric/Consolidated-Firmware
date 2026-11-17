@@ -8,7 +8,7 @@
 #include "io_efuse.hpp"
 #endif
 
-namespace app::imus
+namespace app::imu
 {
 struct VCImuResults
 {
@@ -37,4 +37,4 @@ result<float> getGyroY();
 result<float> getGyroZ();
 bool          initSuccess();
 // TODO: transformation matrix to reorient IMU to vehicle body frame (do for FSM and RSM as well)
-} // namespace app::imus
+} // namespace app::imu

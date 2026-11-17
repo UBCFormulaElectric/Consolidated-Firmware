@@ -28,7 +28,14 @@
 #include "io_sbgEllipse.hpp"
 #include "io_pcm.hpp"
 
+#include "controls/params.hpp"
+#include "controls/torque_limits.hpp"
+#include "controls/controls.hpp"
+#include "controls/estimation/state_estimator.hpp"
+#include "controls/controls_debug.h"
+
 #include <util_errorCodes.hpp>
+#include "util_units.hpp"
 
 static void fdcan_tx(const JsonCanMsg &tx_msg)
 {
@@ -70,7 +77,7 @@ void jobs_init()
     app::sbgEllipse::init();
 
     // imu
-    app::imus::init();
+    app::imu::init();
 }
 
 void jobs_run1Hz_tick() {}
@@ -119,7 +126,7 @@ void jobs_run1kHz_tick()
 }
 void jobs_runImu_tick()
 {
-    app::imus::broadcast();
+    app::imu::broadcast();
 }
 void jobs_runBatteryMonitoring_tick()
 {

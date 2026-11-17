@@ -5,7 +5,7 @@
 #include "app_canTx.hpp"
 #include "app_imuReorient.hpp"
 
-namespace app::imus
+namespace app::imu
 {
 using namespace app::can_alerts;
 using namespace io::imus;
@@ -109,4 +109,4 @@ bool initSuccess()
 {
     return imu1_init_ok.has_value();
 }
-} // namespace app::imus
+} // namespace app::imu

@@ -3,7 +3,12 @@
 
 namespace io::imus
 {
-imu IMU1(imu1, ImuFilterConfig{ .enable_gyro_dlpf = true, .gyro_dlpf_cutoff = GyroDlpfConfig::BW_20HZ_NOISE_31HZ });
+imu IMU1(
+    imu1,
+    ImuFilterConfig{ .enable_accel_dlpf = true,
+                     .enable_gyro_dlpf  = true,
+                     .accel_dlpf_cutoff = AccelDlpfConfig::BW_10HZ_NOISE_16HZ,
+                     .gyro_dlpf_cutoff  = GyroDlpfConfig::BW_10HZ_NOISE_16HZ });
 imu IMU2(imu2, ImuFilterConfig{ .enable_gyro_dlpf = true, .gyro_dlpf_cutoff = GyroDlpfConfig::BW_20HZ_NOISE_31HZ });
 imu IMU3(imu3, ImuFilterConfig{ .enable_gyro_dlpf = true, .gyro_dlpf_cutoff = GyroDlpfConfig::BW_20HZ_NOISE_31HZ });
 
