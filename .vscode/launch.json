@@ -721,6 +721,20 @@
       }
     },
     {
+      "name": "Debug Tests: RSM (Seven)",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceRoot}/build_fw_test/firmware/seven/RSM/seven_RSM_test",
+      "cwd": "${workspaceRoot}",
+      "preLaunchTask": "Build Tests: RSM (Seven)",
+      "linux": {
+        "MIMode": "gdb"
+      },
+      "osx": {
+        "MIMode": "lldb"
+      }
+    },
+    {
       "name": "Debug Tests: VC (Hexray)",
       "type": "cppdbg",
       "request": "launch",
