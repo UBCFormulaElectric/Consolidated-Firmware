@@ -1,3 +1,4 @@
+set(JLINK_DEVICE "STM32H743VI") # J-Link device for the <image>_flash and <image>_debug targets (firmware/cmake/embedded.cmake)
 message("")
 message("⚙️ Configuring VC (Seven)")
 

@@ -1,3 +1,4 @@
+set(JLINK_DEVICE "STM32H733VG") # J-Link device for the <image>_flash and <image>_debug targets (firmware/cmake/embedded.cmake)
 message("")
 message("⚙️ Configuring BMS (Hexray)")
 

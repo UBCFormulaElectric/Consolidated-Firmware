@@ -1,0 +1,14 @@
+# clangd config shared by every editor that runs clangd (Zed, VS Code, CLion, ...).
+# Do NOT pass --compile-commands-dir to clangd: that flag overrides the per-path rules below.
+
+# Default: firmware sources are indexed with the embedded (arm-none-eabi) build.
+# Generate it with: cmake --preset "FW Dev Ninja"
+CompileFlags:
+  CompilationDatabase: build_fw_dev
+---
+# Host unit tests (gtest) are only in the host build.
+# Generate it with: cmake --preset "FW Test Ninja"
+If:
+  PathMatch: ['.*/test/.*', '.*/test_[^/]*']
+CompileFlags:
+  CompilationDatabase: build_fw_test
