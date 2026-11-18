@@ -1,3 +1,4 @@
+#include "app_pack.hpp"
 #include "app_states.hpp"
 #include "io_irs.hpp"
 #include "app_canTx.hpp"
@@ -5,7 +6,6 @@
 #include "app_tractiveSystem.hpp"
 #include "app_timer.hpp"
 #include "io_semaphore.hpp"
-#include "app_segments.hpp"
 
 constexpr float    TS_UNDERVOLTAGE_DELTA_V           = 20.0f;
 constexpr float    TS_UNDERVOLTAGE_IMMEDIATE_DELTA_V = 50.0f;
@@ -29,8 +29,8 @@ namespace driveState
     {
         result<float> pack_voltage;
         {
-            io::unique_semaphore s{ shared_lock };
-            pack_voltage = app::segments::shared::getPackVoltage();
+            const io::semaphore::unique_semaphore s{ app::pack::buffer_lock };
+            pack_voltage = app::pack::voltage_buffer.pack_voltage;
         }
         if (pack_voltage)
         {

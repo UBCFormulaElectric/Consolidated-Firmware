@@ -24,17 +24,14 @@
 #include "hw_pwms.hpp"
 #include "hw_runTimeStat.hpp"
 
-constexpr size_t         TASK_COUNT = 10;
+constexpr size_t         TASK_COUNT = 7;
 [[noreturn]] static void tasks_run1Hz(void *arg);
 [[noreturn]] static void tasks_run100Hz(void *arg);
 [[noreturn]] static void tasks_run1kHz(void *arg);
 [[noreturn]] static void tasks_runVehicleCanTx(void *arg);
 [[noreturn]] static void tasks_runChargerCanTx(void *arg);
 [[noreturn]] static void tasks_runCanRx(void *arg);
-[[noreturn]] static void tasks_runAdbmsVoltages(void *arg);
-[[noreturn]] static void tasks_runAdbmsConfigs(void *arg);
-[[noreturn]] static void tasks_runAdbmsAux(void *arg);
-[[noreturn]] static void tasks_runAdbmsCellOwc(void *arg);
+[[noreturn]] static void tasks_runAdbmsChain(void *arg);
 
 static hw::rtos::StaticTask::StaticTaskStack<512>      Task1kHzStack;
 static hw::rtos::StaticTask::StaticTaskStack<512>      Task1HzStack;
@@ -42,10 +39,7 @@ static hw::rtos::StaticTask::StaticTaskStack<1024 * 6> Task100HzStack;
 static hw::rtos::StaticTask::StaticTaskStack<512>      TaskCanRxStack;
 static hw::rtos::StaticTask::StaticTaskStack<512>      TaskVehicleCanTxStack;
 static hw::rtos::StaticTask::StaticTaskStack<512>      TaskChargerCanTxStack;
-static hw::rtos::StaticTask::StaticTaskStack<1024 * 3> TaskAdbmsVoltagesStack;
-static hw::rtos::StaticTask::StaticTaskStack<1024 * 3> TaskAdbmsConfigsStack;
-static hw::rtos::StaticTask::StaticTaskStack<1024 * 3> TaskAdbmsAuxStack;
-static hw::rtos::StaticTask::StaticTaskStack<1024 * 3> TaskAdbmsCellOwcStack;
+static hw::rtos::StaticTask::StaticTaskStack<1024 * 5> TaskAdbmsChainStack;
 
 static hw::rtos::StaticTask Task1kHz(osPriorityRealtime, "Task1kHz", tasks_run1kHz, Task1kHzStack);
 static hw::rtos::StaticTask Task1Hz(osPriorityAboveNormal, "Task1Hz", tasks_run1Hz, Task1HzStack);
@@ -56,19 +50,13 @@ static hw::rtos::StaticTask
 static hw::rtos::StaticTask
     TaskChargerCanTx(osPriorityBelowNormal, "TaskChargerCanTx", tasks_runChargerCanTx, TaskChargerCanTxStack);
 static hw::rtos::StaticTask
-    TaskAdbmsVoltages(osPriorityNormal, "TaskAdbmsVoltages", tasks_runAdbmsVoltages, TaskAdbmsVoltagesStack);
-static hw::rtos::StaticTask
-    TaskAdbmsConfigs(osPriorityHigh, "TaskAdbmsConfigs", tasks_runAdbmsConfigs, TaskAdbmsConfigsStack);
-static hw::rtos::StaticTask TaskAdbmsAux(osPriorityNormal, "TaskAdbmsAux", tasks_runAdbmsAux, TaskAdbmsAuxStack);
-static hw::rtos::StaticTask
-    TaskAdbmsCellOwc(osPriorityNormal, "TaskAdbmsCellOwc", tasks_runAdbmsCellOwc, TaskAdbmsCellOwcStack);
+    TaskAdbmsChain(osPriorityNormal, "TaskAdbmsChain", tasks_runAdbmsChain, TaskAdbmsChainStack);
 
-static hw::runtimeStat::monitor<8> runtimeMonitor{ {
+static hw::runtimeStat::monitor<6> runtimeMonitor{ {
                                                        app::can_tx::BMS_CoreCpuUsage_set,
                                                        app::can_tx::BMS_CoreCpuUsageMax_set,
                                                    },
-                                                   { {
-                                                       {
+                                                   { { {
                                                            Task1kHz,
                                                            app::can_tx::BMS_TaskRun1kHzCpuUsage_set,
                                                            app::can_tx::BMS_TaskRun1kHzCpuUsageMax_set,
@@ -99,24 +87,11 @@ static hw::runtimeStat::monitor<8> runtimeMonitor{ {
                                                            app::can_tx::BMS_TaskRunCanTxStackUsage_set,
                                                        },
                                                        {
-                                                           TaskAdbmsVoltages,
-                                                           app::can_tx::BMS_TaskRunAdbmsVoltagesCpuUsage_set,
-                                                           app::can_tx::BMS_TaskRunAdbmsVoltagesCpuUsageMax_set,
-                                                           app::can_tx::BMS_TaskRunAdbmsVoltagesStackUsage_set,
-                                                       },
-                                                       {
-                                                           TaskAdbmsConfigs,
-                                                           app::can_tx::BMS_TaskRunAdbmsConfigsCpuUsage_set,
-                                                           app::can_tx::BMS_TaskRunAdbmsConfigsCpuUsageMax_set,
-                                                           app::can_tx::BMS_TaskRunAdbmsConfigsStackUsage_set,
-                                                       },
-                                                       {
-                                                           TaskAdbmsAux,
-                                                           app::can_tx::BMS_TaskRunAdbmsAuxCpuUsage_set,
-                                                           app::can_tx::BMS_TaskRunAdbmsAuxCpuUsageMax_set,
-                                                           app::can_tx::BMS_TaskRunAdbmsAuxStackUsage_set,
-                                                       },
-                                                   } } };
+                                                           TaskAdbmsChain,
+                                                           app::can_tx::BMS_TaskRunAdbmsChainCpuUsage_set,
+                                                           app::can_tx::BMS_TaskRunAdbmsChainCpuUsageMax_set,
+                                                           app::can_tx::BMS_TaskRunAdbmsChainStackUsage_set,
+                                                       } } } };
 
 static hw::watchdog::monitor<TASK_COUNT> monitor{
     hiwdg1,
@@ -169,6 +144,22 @@ void tasks_run1kHz(void *arg)
         jobs_run1kHz_tick();
         watchdog1khz.checkIn();
         monitor.checkForTimeouts();
+        start_ticks += period_ms;
+        osDelayUntil(start_ticks);
+    }
+}
+
+void tasks_runAdbmsChain(void *arg)
+{
+    constexpr uint32_t      period_ms                = 50U;
+    constexpr uint32_t      watchdog_grace_period_ms = 1000U;
+    hw::watchdog::instance &watchdogAdbmsChain       = monitor.spawn_instance(period_ms, watchdog_grace_period_ms);
+
+    uint32_t start_ticks = osKernelGetTickCount();
+    forever
+    {
+        jobs_runAdbmsChain_tick();
+        watchdogAdbmsChain.checkIn();
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
     }
@@ -227,58 +218,6 @@ void tasks_runCanRx(void *arg)
     }
 }
 
-void tasks_runAdbmsVoltages(void *arg)
-{
-    const uint32_t period_ms   = 500U;
-    uint32_t       start_ticks = osKernelGetTickCount();
-
-    forever
-    {
-        jobs_runAdbmsVoltages_tick();
-        start_ticks += period_ms;
-        osDelayUntil(start_ticks);
-    }
-}
-
-void tasks_runAdbmsConfigs(void *arg)
-{
-    constexpr uint32_t period_ms   = 100U;
-    uint32_t           start_ticks = osKernelGetTickCount();
-
-    forever
-    {
-        jobs_runAdbmsConfigs_tick();
-        start_ticks += period_ms;
-        osDelayUntil(start_ticks);
-    }
-}
-
-void tasks_runAdbmsAux(void *arg)
-{
-    const uint32_t period_ms   = 1200U;
-    uint32_t       start_ticks = osKernelGetTickCount();
-
-    forever
-    {
-        jobs_runAdbmsAux_tick();
-        start_ticks += period_ms;
-        osDelayUntil(start_ticks);
-    }
-}
-
-void tasks_runAdbmsCellOwc(void *arg)
-{
-    const uint32_t period_ms   = 1000U;
-    uint32_t       start_ticks = osKernelGetTickCount();
-
-    forever
-    {
-        jobs_runAdbmsCellOwc_tick();
-        start_ticks += period_ms;
-        osDelayUntil(start_ticks);
-    }
-}
-
 void BMS_StartAllTasks()
 {
     Task1kHz.start();
@@ -287,10 +226,7 @@ void BMS_StartAllTasks()
     TaskCanRx.start();
     TaskVehicleCanTx.start();
     TaskChargerCanTx.start();
-    TaskAdbmsVoltages.start();
-    TaskAdbmsConfigs.start();
-    TaskAdbmsAux.start();
-    TaskAdbmsCellOwc.start();
+    TaskAdbmsChain.start();
 }
 
 void tasks_preInit()

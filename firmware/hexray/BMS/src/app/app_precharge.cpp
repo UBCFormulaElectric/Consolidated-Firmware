@@ -5,7 +5,7 @@
 #include "app_timer.hpp"
 #include "app_tractiveSystem.hpp"
 #include "app_canAlerts.hpp"
-#include "app_segments.hpp"
+#include "app_pack.hpp"
 #include "io_irs.hpp"
 #include "io_semaphore.hpp"
 
@@ -57,16 +57,13 @@ State poll(bool precharge_for_charging)
 
     const float ts_voltage = app::ts::getVoltage();
 
-#ifdef TARGET_HV_SUPPLY
-#define HV_SUPPLY_VOLTAGE (588.0f)
-    const float threshold_voltage = HV_SUPPLY_VOLTAGE * PRECHARGE_ACC_V_THRESHOLD;
-#else
-    float threshold_voltage;
+    result<float> pack_voltage;
     {
-        io::unique_semaphore s{ shared_lock };
-        threshold_voltage = app::segments::shared::getPackVoltage().value() * PRECHARGE_ACC_V_THRESHOLD;
+        const io::semaphore::unique_semaphore s{ app::pack::buffer_lock };
+        pack_voltage = app::pack::voltage_buffer.pack_voltage;
     }
-#endif
+
+    const float threshold_voltage = pack_voltage.value_or(0.0f) * PRECHARGE_ACC_V_THRESHOLD;
 
     const bool is_air_negative_open =
         (io::irs::negativeState() == app::can_utils::ContactorState::CONTACTOR_STATE_OPEN);
@@ -84,7 +81,7 @@ State poll(bool precharge_for_charging)
     bool has_precharge_fault =
         precharge_for_charging ? is_ts_rising_slowly : (is_ts_rising_slowly || is_ts_rising_quickly);
 
-    has_precharge_fault = has_precharge_fault || is_air_negative_open;
+    has_precharge_fault = has_precharge_fault || is_air_negative_open || !pack_voltage;
 
     if (has_precharge_fault)
     {
