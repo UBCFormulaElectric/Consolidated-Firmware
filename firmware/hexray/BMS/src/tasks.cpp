@@ -52,12 +52,11 @@ static hw::rtos::StaticTask
 static hw::rtos::StaticTask
     TaskAdbmsChain(osPriorityNormal, "TaskAdbmsChain", tasks_runAdbmsChain, TaskAdbmsChainStack);
 
-static hw::runtimeStat::monitor<8> runtimeMonitor{ {
+static hw::runtimeStat::monitor<6> runtimeMonitor{ {
                                                        app::can_tx::BMS_CoreCpuUsage_set,
                                                        app::can_tx::BMS_CoreCpuUsageMax_set,
                                                    },
-                                                   { {
-                                                       {
+                                                   { { {
                                                            Task1kHz,
                                                            app::can_tx::BMS_TaskRun1kHzCpuUsage_set,
                                                            app::can_tx::BMS_TaskRun1kHzCpuUsageMax_set,
@@ -88,24 +87,11 @@ static hw::runtimeStat::monitor<8> runtimeMonitor{ {
                                                            app::can_tx::BMS_TaskRunCanTxStackUsage_set,
                                                        },
                                                        {
-                                                           TaskAdbmsVoltages,
-                                                           app::can_tx::BMS_TaskRunAdbmsVoltagesCpuUsage_set,
-                                                           app::can_tx::BMS_TaskRunAdbmsVoltagesCpuUsageMax_set,
-                                                           app::can_tx::BMS_TaskRunAdbmsVoltagesStackUsage_set,
-                                                       },
-                                                       {
-                                                           TaskAdbmsConfigs,
-                                                           app::can_tx::BMS_TaskRunAdbmsConfigsCpuUsage_set,
-                                                           app::can_tx::BMS_TaskRunAdbmsConfigsCpuUsageMax_set,
-                                                           app::can_tx::BMS_TaskRunAdbmsConfigsStackUsage_set,
-                                                       },
-                                                       {
-                                                           TaskAdbmsAux,
-                                                           app::can_tx::BMS_TaskRunAdbmsAuxCpuUsage_set,
-                                                           app::can_tx::BMS_TaskRunAdbmsAuxCpuUsageMax_set,
-                                                           app::can_tx::BMS_TaskRunAdbmsAuxStackUsage_set,
-                                                       },
-                                                   } } };
+                                                           TaskAdbmsChain,
+                                                           app::can_tx::BMS_TaskRunAdbmsChainCpuUsage_set,
+                                                           app::can_tx::BMS_TaskRunAdbmsChainCpuUsageMax_set,
+                                                           app::can_tx::BMS_TaskRunAdbmsChainStackUsage_set,
+                                                       } } } };
 
 static hw::watchdog::monitor<TASK_COUNT> monitor{
     hiwdg1,

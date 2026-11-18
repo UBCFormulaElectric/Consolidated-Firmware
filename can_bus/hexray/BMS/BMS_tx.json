@@ -7721,55 +7721,19 @@
         "max": 100,
         "unit": "%"
       },
-      "TaskRunAdbmsVoltagesCpuUsageMax": {
+      "TaskRunAdbmsChainCpuUsageMax": {
         "resolution": 0.1,
         "min": 0,
         "max": 100,
         "unit": "%"
       },
-      "TaskRunAdbmsVoltagesCpuUsage": {
+      "TaskRunAdbmsChainCpuUsage": {
         "resolution": 0.1,
         "min": 0,
         "max": 100,
         "unit": "%"
       },
-      "TaskRunAdbmsVoltagesStackUsage": {
-        "resolution": 0.1,
-        "min": 0,
-        "max": 100,
-        "unit": "%"
-      },
-      "TaskRunAdbmsAuxCpuUsageMax": {
-        "resolution": 0.1,
-        "min": 0,
-        "max": 100,
-        "unit": "%"
-      },
-      "TaskRunAdbmsAuxCpuUsage": {
-        "resolution": 0.1,
-        "min": 0,
-        "max": 100,
-        "unit": "%"
-      },
-      "TaskRunAdbmsAuxStackUsage": {
-        "resolution": 0.1,
-        "min": 0,
-        "max": 100,
-        "unit": "%"
-      },
-      "TaskRunAdbmsConfigsCpuUsageMax": {
-        "resolution": 0.1,
-        "min": 0,
-        "max": 100,
-        "unit": "%"
-      },
-      "TaskRunAdbmsConfigsCpuUsage": {
-        "resolution": 0.1,
-        "min": 0,
-        "max": 100,
-        "unit": "%"
-      },
-      "TaskRunAdbmsConfigsStackUsage": {
+      "TaskRunAdbmsChainStackUsage": {
         "resolution": 0.1,
         "min": 0,
         "max": 100,
