@@ -149,7 +149,7 @@ TemperatureBroadcastData temp_broadcast;
 
 namespace app::pack::broadcast
 {
-void cellVoltages(const VoltageBuffer &stats)
+void cellVoltages(const io::adbms::VoltageBuffer &stats)
 {
     for (uint8_t seg = 0; seg < NUM_SEGMENTS; seg++)
     {
@@ -171,7 +171,7 @@ void cellVoltages(const VoltageBuffer &stats)
     can_tx::BMS_MaxCellVoltageCell_set(stats.max.index);
 }
 
-void cellTemps(const TemperatureBuffer &stats)
+void cellTemps(const io::adbms::TemperatureBuffer &stats)
 {
     for (uint8_t seg = 0; seg < NUM_SEGMENTS; seg++)
     {
@@ -231,7 +231,7 @@ void thermOpenWire(const ThermOpenWireCheckBuffer &owc)
     }
 }
 
-void adbmsFlags(const DiagnosticBuffer &diag)
+void adbmsFlags(const io::adbms::DiagnosticBuffer &diag)
 {
     for (uint8_t seg = 0; seg < NUM_SEGMENTS; seg++)
     {
@@ -246,7 +246,7 @@ void adbmsFlags(const DiagnosticBuffer &diag)
     }
 }
 
-void adbmsSupply(const SupplyBuffer &supply)
+void adbmsSupply(const io::adbms::SupplyBuffer &supply)
 {
     for (uint8_t seg = 0; seg < NUM_SEGMENTS; seg++)
     {

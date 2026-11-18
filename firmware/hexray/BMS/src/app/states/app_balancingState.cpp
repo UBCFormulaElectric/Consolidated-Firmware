@@ -22,12 +22,9 @@ namespace balancingState
             io::irs::negativeState() == app::can_utils::ContactorState::CONTACTOR_STATE_CLOSED;
 
         if (!balancing_enabled || irs_negative_closed)
-        {
             app::StateMachine::set_next_state(&app::states::init_state);
-            return;
-        }
-
-        app::pack::balancing::tick();
+        else
+            app::pack::balancing::tick();
     }
 
     static void balancingStateRunOnExit()

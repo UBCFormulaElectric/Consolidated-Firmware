@@ -17,8 +17,8 @@ uint32_t pwm_updated_ms = 0U;
 
 io::adbms::PackCells<uint8_t> calculateDuty(
     const app::pack::BalancingBuffer &balance_buffer,
-    const app::pack::PackCellFlags   &cadc_owc_ok,
-    const app::pack::PackCellFlags   &sadc_owc_ok)
+    const io::adbms::PackCellFlags   &cadc_owc_ok,
+    const io::adbms::PackCellFlags   &sadc_owc_ok)
 {
     io::adbms::PackCells<uint8_t> duty{};
 

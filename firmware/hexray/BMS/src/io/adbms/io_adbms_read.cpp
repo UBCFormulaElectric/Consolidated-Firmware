@@ -1,6 +1,5 @@
 #include "io_adbms.hpp"
 #include "io_adbms_internal.hpp"
-#include "app_pack.hpp"
 #include "io_time.hpp"
 
 #include <algorithm>
@@ -123,7 +122,7 @@ result<void> pwmReg(Segments<result<PWMA>> &pwm_a, Segments<result<PWMB>> &pwm_b
     return {};
 }
 
-result<void> cAdc(const bool redundant, app::pack::VoltageBuffer &voltage_buffer)
+result<void> cAdc(const bool redundant, VoltageBuffer &voltage_buffer)
 {
     std::array<Segments<result<RegGroup>>, RDCV.size()> cell_regs;
     Segments<result<RegGroup>>                          stat_c_regs{};
@@ -142,8 +141,8 @@ result<void> cAdc(const bool redundant, app::pack::VoltageBuffer &voltage_buffer
             status = res;
     }
 
-    app::pack::Reading max{ .value = std::numeric_limits<float>::lowest() };
-    app::pack::Reading min{ .value = std::numeric_limits<float>::max() };
+    Reading max{ .value = std::numeric_limits<float>::lowest() };
+    Reading min{ .value = std::numeric_limits<float>::max() };
 
     for (size_t seg = 0; seg < NUM_SEGMENTS; seg++)
     {
@@ -215,7 +214,7 @@ result<void> cAdc(const bool redundant, app::pack::VoltageBuffer &voltage_buffer
     return status;
 }
 
-result<void> sAdc(app::pack::VoltageBuffer &voltage_buffer)
+result<void> sAdc(VoltageBuffer &voltage_buffer)
 {
     std::array<Segments<result<RegGroup>>, RDSV.size()> regs;
 
@@ -227,8 +226,8 @@ result<void> sAdc(app::pack::VoltageBuffer &voltage_buffer)
             status = res;
     }
 
-    app::pack::Reading max{ .value = std::numeric_limits<float>::lowest() };
-    app::pack::Reading min{ .value = std::numeric_limits<float>::max() };
+    Reading max{ .value = std::numeric_limits<float>::lowest() };
+    Reading min{ .value = std::numeric_limits<float>::max() };
 
     for (size_t seg = 0; seg < NUM_SEGMENTS; seg++)
     {
@@ -284,8 +283,7 @@ result<void> sAdc(app::pack::VoltageBuffer &voltage_buffer)
     return status;
 }
 
-result<void>
-    xAdcTherm(const ThermistorMux mux, app::pack::TemperatureBuffer &temp_buffer, PackTherms<result<float>> &voltages)
+result<void> xAdcTherm(const ThermistorMux mux, TemperatureBuffer &temp_buffer, PackTherms<result<float>> &voltages)
 {
     std::array<Segments<result<RegGroup>>, RDAUX.size()> gpio_regs;
 
@@ -334,8 +332,8 @@ result<void>
         }
     }
 
-    app::pack::Reading max{ .value = std::numeric_limits<float>::lowest() };
-    app::pack::Reading min{ .value = std::numeric_limits<float>::max() };
+    Reading max{ .value = std::numeric_limits<float>::lowest() };
+    Reading min{ .value = std::numeric_limits<float>::max() };
 
     for (size_t seg = 0; seg < NUM_SEGMENTS; seg++)
     {
@@ -362,7 +360,7 @@ result<void>
     return status;
 }
 
-result<void> xAdcSupply(app::pack::SupplyBuffer &supply_buffer)
+result<void> xAdcSupply(SupplyBuffer &supply_buffer)
 {
     Segments<result<RegGroup>> stat_a_regs;
     Segments<result<RegGroup>> stat_b_regs;
@@ -421,7 +419,7 @@ result<void> xAdcSupply(app::pack::SupplyBuffer &supply_buffer)
     return status;
 }
 
-result<void> flags(app::pack::DiagnosticBuffer &diag_buffer)
+result<void> flags(DiagnosticBuffer &diag_buffer)
 {
     Segments<result<RegGroup>> stat_c_regs;
     Segments<result<RegGroup>> stat_d_regs;

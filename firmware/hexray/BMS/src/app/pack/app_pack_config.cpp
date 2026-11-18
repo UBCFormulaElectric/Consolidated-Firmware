@@ -51,10 +51,10 @@ constexpr io::adbms::Segments<io::adbms::CFGB> createConfigB()
     return config;
 }
 
-io::adbms::Segments<io::adbms::CFGA>           config_a = createConfigA();
-constexpr io::adbms::Segments<io::adbms::CFGB> config_b = createConfigB();
-io::adbms::Segments<io::adbms::PWMA>           pwm_a{};
-io::adbms::Segments<io::adbms::PWMB>           pwm_b{};
+io::adbms::Segments<io::adbms::CFGA>           config_a = createConfigA(); // Ref on, IIR filter, GPIO9 = therm mux
+constexpr io::adbms::Segments<io::adbms::CFGB> config_b = createConfigB(); // UV/OV comparator thresholds, DCC off
+io::adbms::Segments<io::adbms::PWMA>           pwm_a{};                    // Balancing PWM duty for cells 1-12
+io::adbms::Segments<io::adbms::PWMB>           pwm_b{};                    // Balancing PWM duty for cells 13-14
 } // namespace
 
 namespace app::pack::config

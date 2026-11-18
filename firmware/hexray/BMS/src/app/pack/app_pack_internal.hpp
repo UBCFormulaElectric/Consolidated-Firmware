@@ -33,14 +33,14 @@ namespace owc
 
 namespace broadcast
 {
-    void cellVoltages(const VoltageBuffer &stats);
-    void cellTemps(const TemperatureBuffer &stats);
+    void cellVoltages(const io::adbms::VoltageBuffer &stats);
+    void cellTemps(const io::adbms::TemperatureBuffer &stats);
     void thermVoltages(const io::adbms::PackTherms<result<float>> &voltages);
     void cadcOpenWire(const OpenWireCheckBuffer &owc);
     void sadcOpenWire(const OpenWireCheckBuffer &owc);
     void thermOpenWire(const ThermOpenWireCheckBuffer &owc);
-    void adbmsFlags(const DiagnosticBuffer &diag);
-    void adbmsSupply(const SupplyBuffer &supply);
+    void adbmsFlags(const io::adbms::DiagnosticBuffer &diag);
+    void adbmsSupply(const io::adbms::SupplyBuffer &supply);
     void balancing(const io::adbms::PackCells<uint8_t> &duty);
 } // namespace broadcast
 

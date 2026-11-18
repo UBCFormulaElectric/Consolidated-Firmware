@@ -46,15 +46,19 @@
       "id": 455,
       "description": "The C-ADC or S-ADC open wire check found an open cell voltage sense line."
     },
-    "HealthError": {
+    "DiagnosticError": {
       "id": 450,
-      "description": "The ADBMS reported an OV/UV comparator, thermal shutdown, self test or supply fault, or its diagnostic or open wire results stopped updating."
+      "description": "The ADBMS reported an OV/UV comparator, thermal shutdown, self test or supply fault."
+    },
+    "StaleData": {
+      "id": 465,
+      "description": "The ADBMS diagnostic or open wire results stopped updating."
     },
     "TESTFAULT": {
       "id": 460,
       "description": "For unit testing only. Never raise this fault in firmware."
     },
-    "CellVoltageInvalid": {
+    "CellVoltageInvalidStale": {
       "id": 456,
       "description": "One or more cell voltage readings failed, disagree between the C-ADC and S-ADC, or stopped updating."
     },

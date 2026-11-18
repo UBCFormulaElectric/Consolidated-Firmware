@@ -3,18 +3,10 @@
 #include "util_errorCodes.hpp"
 
 #include <array>
+#include <bitset>
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
-
-// Forward declared since app_pack.hpp includes this header
-namespace app::pack
-{
-struct VoltageBuffer;
-struct TemperatureBuffer;
-struct SupplyBuffer;
-struct DiagnosticBuffer;
-} // namespace app::pack
 
 namespace io::adbms
 {
@@ -32,6 +24,10 @@ template <typename T> using SegmentTherms = std::array<T, THERMISTORS_PER_SEGMEN
 template <typename T> using PackCells     = Segments<SegmentCells<T>>;
 template <typename T> using PackTherms    = Segments<SegmentTherms<T>>;
 
+using PackCellFlags  = Segments<std::bitset<CELLS_PER_SEGMENT>>;
+using PackThermFlags = Segments<std::bitset<THERMISTORS_PER_SEGMENT>>;
+using SegmentFlags   = std::bitset<NUM_SEGMENTS>;
+
 enum class OpenWireParity
 {
     ODD,
@@ -48,12 +44,12 @@ enum class ThermistorMux
 struct __attribute__((packed)) CFGA
 {
     uint8_t cth : 3; // C-ADC vs. S-ADC comparison voltage threshold
-    uint8_t : 4;
+    uint8_t rsvd_0 : 4;
     uint8_t ref_on : 1; // reference powered up, enables REFUP state
 
     uint8_t flag_d; // asserts flags in Status Reg C for latent fault detection (pg. 70)
 
-    uint8_t : 3;
+    uint8_t rsvd_1 : 3;
     uint8_t owa : 3;     // open wire soak times
     uint8_t owrng : 1;   // soak time range
     uint8_t soak_on : 1; // enables soak on AUX ADCs
@@ -61,13 +57,13 @@ struct __attribute__((packed)) CFGA
     uint8_t gpio_1_8; // GPIOx pin control
 
     uint8_t gpio_9_10 : 2; // GPIOx pin control
-    uint8_t : 6;
+    uint8_t rsvd_2 : 6;
 
     uint8_t fc : 3;      // IIR filter parameter, see table 21
     uint8_t comm_bk : 1; // communication break, propagation communication prevention
     uint8_t mute_st : 1; // 1 = mute is active, discharging disabled
     uint8_t snap_st : 1; // 1 = snapshot is activated, result registers are frozen
-    uint8_t : 2;
+    uint8_t rsvd_3 : 2;
 
     // mute_st and snap_st are read only, so left out of check
     bool operator==(const CFGA &other) const
@@ -158,7 +154,7 @@ struct __attribute__((packed)) STATC
     uint16_t csflt;
 
     uint8_t ct_6_10 : 5;
-    uint8_t : 3;
+    uint8_t rsvd_0 : 3;
     uint8_t cts : 2;
     uint8_t ct_0_5 : 6;
 
@@ -185,17 +181,17 @@ static_assert(sizeof(STATC) == REG_GROUP_SIZE);
 struct __attribute__((packed)) STATD
 {
     uint32_t covuv;
-    uint8_t : 8;
-    uint8_t oc_cntr;
+    uint8_t  rsvd_0;
+    uint8_t  oc_cntr;
 };
 static_assert(sizeof(STATD) == REG_GROUP_SIZE);
 
 struct __attribute__((packed)) STATE
 {
-    uint32_t : 32;
+    uint32_t rsvd_0;
     uint16_t gpi : 10;
-    uint8_t : 2;
-    uint8_t rev : 4;
+    uint8_t  rsvd_1 : 2;
+    uint8_t  rev : 4;
 };
 static_assert(sizeof(STATE) == REG_GROUP_SIZE);
 
@@ -206,6 +202,52 @@ struct __attribute__((packed)) AUXD
     int16_t vpv;
 };
 static_assert(sizeof(AUXD) == REG_GROUP_SIZE);
+
+struct Reading
+{
+    float   value   = 0.0f;
+    uint8_t segment = 0U;
+    uint8_t index   = 0U;
+};
+
+struct VoltageBuffer
+{
+    uint32_t                 updated_ms = 0U;
+    Reading                  max{};
+    Reading                  min{};
+    PackCells<result<float>> voltages{};
+    result<float>            pack_voltage = std::unexpected(ErrorCode::STALE_VALUE);
+};
+
+struct TemperatureBuffer
+{
+    uint32_t                  updated_ms = 0U;
+    Reading                   max{};
+    Reading                   min{};
+    PackTherms<result<float>> temperatures{};
+};
+
+struct SupplyBuffer
+{
+    uint32_t                updated_ms = 0U;
+    Segments<result<float>> vmv{};
+    Segments<result<float>> vpv{};
+    Segments<result<float>> vref{};
+    Segments<result<float>> itmp{};
+    Segments<result<float>> va{};
+    Segments<result<float>> vd{};
+    Segments<result<float>> vres{};
+};
+
+struct DiagnosticBuffer
+{
+    uint32_t      updated_ms = 0U;
+    PackCellFlags ov_ok{};
+    PackCellFlags uv_ok{};
+    SegmentFlags  therm_shdn_ok{};
+    SegmentFlags  self_test_ok{};
+    SegmentFlags  supply_ok{};
+};
 
 namespace write
 {
@@ -221,12 +263,12 @@ namespace read
 {
     [[nodiscard]] result<void> configReg(Segments<result<CFGA>> &config_a, Segments<result<CFGB>> &config_b);
     [[nodiscard]] result<void> pwmReg(Segments<result<PWMA>> &pwm_a, Segments<result<PWMB>> &pwm_b);
-    [[nodiscard]] result<void> cAdc(bool redundant, app::pack::VoltageBuffer &voltage_buffer);
-    [[nodiscard]] result<void> sAdc(app::pack::VoltageBuffer &voltage_buffer);
+    [[nodiscard]] result<void> cAdc(bool redundant, VoltageBuffer &voltage_buffer);
+    [[nodiscard]] result<void> sAdc(VoltageBuffer &voltage_buffer);
     [[nodiscard]] result<void>
-        xAdcTherm(ThermistorMux mux, app::pack::TemperatureBuffer &temp_buffer, PackTherms<result<float>> &voltages);
-    [[nodiscard]] result<void> xAdcSupply(app::pack::SupplyBuffer &supply_buffer);
-    [[nodiscard]] result<void> flags(app::pack::DiagnosticBuffer &diag_buffer);
+        xAdcTherm(ThermistorMux mux, TemperatureBuffer &temp_buffer, PackTherms<result<float>> &voltages);
+    [[nodiscard]] result<void> xAdcSupply(SupplyBuffer &supply_buffer);
+    [[nodiscard]] result<void> flags(DiagnosticBuffer &diag_buffer);
 } // namespace read
 
 namespace command

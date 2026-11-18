@@ -52,18 +52,18 @@ constexpr uint32_t OWC_STALE_MS  = BALANCE_PERIOD_MS + SETTLE_MS + std::max(COWC
 
 struct AlertData
 {
-    uint32_t                            now_ms   = 0U;
-    bool                                charging = false;
-    app::pack::VoltageBuffer            voltages{}; 
-    app::pack::TemperatureBuffer        temps{}; 
-    app::pack::OpenWireCheckBuffer      cadc_owc{}; 
-    app::pack::OpenWireCheckBuffer      sadc_owc{}; 
-    app::pack::ThermOpenWireCheckBuffer therm_owc{}; 
-    app::pack::DiagnosticBuffer         diag{};
-    app::pack::SupplyBuffer             supply{};
+    uint32_t                            now_ms   = 0U;    // Reference time to determine stale data
+    bool                                charging = false; // Selects tighter charge temp thresholds
+    io::adbms::VoltageBuffer            voltages{};       // Cell UV/OV, imbalance, invalid/stale voltage
+    io::adbms::TemperatureBuffer        temps{};          // Cell OT/UT, invalid temp
+    app::pack::OpenWireCheckBuffer      cadc_owc{};       // Cell open wire for CADC, if stale leads to stale fault
+    app::pack::OpenWireCheckBuffer      sadc_owc{};       // Cell open wire for SADC, if stale leads to stale fault
+    app::pack::ThermOpenWireCheckBuffer therm_owc{};      // Thermistor open wire, if stale leads to stale fault
+    io::adbms::DiagnosticBuffer         diag{};           // Diag fault: OV/UV comparators, thermal shdn, self test, supply
+    io::adbms::SupplyBuffer             supply{};         // ADBMS die OT
 };
 
-template <size_t BITS, size_t SEGMENTS> bool anyClear(const std::array<std::bitset<BITS>, SEGMENTS> &flags)
+template <size_t BITS, size_t SEGMENTS> bool anyNotOk(const std::array<std::bitset<BITS>, SEGMENTS> &flags)
 {
     return std::ranges::any_of(flags, [](const std::bitset<BITS> &segment) { return !segment.all(); });
 }
@@ -81,7 +81,7 @@ bool isStale(const uint32_t updated_ms, const uint32_t stale_ms, const uint32_t 
 }
 
 // Fault conditions
-bool isVoltInvalidFault(const AlertData &ad)
+bool isVoltInvalidStaleFault(const AlertData &ad)
 {
     return isStale(ad.voltages.updated_ms, V_STALE_MS, ad.now_ms) || anyInvalid(ad.voltages.voltages);
 }
@@ -101,18 +101,22 @@ bool isOverTempFault(const AlertData &ad)
 // Both C-ADC and S-ADC open wire checks must pass
 bool isCellOpenWireFault(const AlertData &ad)
 {
-    return (ad.cadc_owc.updated_ms != 0U && anyClear(ad.cadc_owc.cells_owc_ok)) ||
-           (ad.sadc_owc.updated_ms != 0U && anyClear(ad.sadc_owc.cells_owc_ok));
+    return (ad.cadc_owc.updated_ms != 0U && anyNotOk(ad.cadc_owc.cells_owc_ok)) ||
+           (ad.sadc_owc.updated_ms != 0U && anyNotOk(ad.sadc_owc.cells_owc_ok));
 }
-// OV/UV comparators, thermal shutdown, self test, supply, and stale diagnostic or open wire results
-bool isHealthFault(const AlertData &ad)
+// OV/UV comparators, thermal shutdown, self test, supply
+bool isDiagFault(const AlertData &ad)
+{
+    return anyNotOk(ad.diag.ov_ok) || anyNotOk(ad.diag.uv_ok) || !ad.diag.therm_shdn_ok.all() ||
+           !ad.diag.self_test_ok.all() || !ad.diag.supply_ok.all();
+}
+// Diagnostic or open wire results stopped updating
+bool isStaleFault(const AlertData &ad)
 {
     return isStale(ad.diag.updated_ms, DIAG_STALE_MS, ad.now_ms) ||
            isStale(ad.cadc_owc.updated_ms, OWC_STALE_MS, ad.now_ms) ||
            isStale(ad.sadc_owc.updated_ms, OWC_STALE_MS, ad.now_ms) ||
-           isStale(ad.therm_owc.updated_ms, DIAG_STALE_MS, ad.now_ms) || anyClear(ad.diag.ov_ok) ||
-           anyClear(ad.diag.uv_ok) || !ad.diag.therm_shdn_ok.all() || !ad.diag.self_test_ok.all() ||
-           !ad.diag.supply_ok.all();
+           isStale(ad.therm_owc.updated_ms, DIAG_STALE_MS, ad.now_ms);
 }
 bool isItmpOverTempFault(const AlertData &ad)
 {
@@ -162,7 +166,7 @@ bool isOverTempInfo(const AlertData &ad)
 }
 bool isThermOpenWireInfo(const AlertData &ad)
 {
-    return ad.therm_owc.updated_ms != 0U && anyClear(ad.therm_owc.therms_owc_ok);
+    return ad.therm_owc.updated_ms != 0U && anyNotOk(ad.therm_owc.therms_owc_ok);
 }
 bool isTempInvalidInfo(const AlertData &ad)
 {
@@ -173,24 +177,25 @@ bool isCellImbalanceInfo(const AlertData &ad)
     return ad.voltages.updated_ms != 0U && ad.voltages.max.value - ad.voltages.min.value > V_INFO_IMBALANCE;
 }
 
-struct Entry
+struct Alert
 {
     bool (*condition)(const AlertData &);
     void (*setter)(bool);
     Timer timer;
 };
 
-std::array<Entry, 7> fault_entries = { {
-    { &isVoltInvalidFault, &app::can_alerts::faults::CellVoltageInvalid_set, Timer{ FAULT_V_DEBOUNCE_MS } },
+std::array<Alert, 8> fault_alerts = { {
+    { &isVoltInvalidStaleFault, &app::can_alerts::faults::CellVoltageInvalidStale_set, Timer{ FAULT_V_DEBOUNCE_MS } },
     { &isUnderVoltageFault, &app::can_alerts::faults::CellUndervoltage_set, Timer{ FAULT_V_DEBOUNCE_MS } },
     { &isOverVoltageFault, &app::can_alerts::faults::CellOvervoltage_set, Timer{ FAULT_V_DEBOUNCE_MS } },
     { &isOverTempFault, &app::can_alerts::faults::CellOvertemp_set, Timer{ FAULT_T_DEBOUNCE_MS } },
     { &isCellOpenWireFault, &app::can_alerts::faults::CellOpenWire_set, Timer{ FAULT_OWC_DEBOUNCE_MS } },
-    { &isHealthFault, &app::can_alerts::faults::HealthError_set, Timer{ FAULT_HEALTH_DEBOUNCE_MS } },
+    { &isDiagFault, &app::can_alerts::faults::DiagnosticError_set, Timer{ FAULT_HEALTH_DEBOUNCE_MS } },
+    { &isStaleFault, &app::can_alerts::faults::StaleData_set, Timer{ FAULT_HEALTH_DEBOUNCE_MS } },
     { &isItmpOverTempFault, &app::can_alerts::faults::ItmpOvertemp_set, Timer{ FAULT_T_DEBOUNCE_MS } },
 } };
 
-std::array<Entry, 5> warning_entries = { {
+std::array<Alert, 5> warning_alerts = { {
     { &isUnderVoltageWarn, &app::can_alerts::warnings::CellUnderVoltage_set, Timer{ WARN_DEBOUNCE_MS } },
     { &isOverVoltageWarn, &app::can_alerts::warnings::CellOverVoltage_set, Timer{ WARN_DEBOUNCE_MS } },
     { &isOverTempWarn, &app::can_alerts::warnings::CellOverTemp_set, Timer{ WARN_DEBOUNCE_MS } },
@@ -198,7 +203,7 @@ std::array<Entry, 5> warning_entries = { {
     { &isItmpOverTempWarn, &app::can_alerts::warnings::ItmpOverTemp_set, Timer{ WARN_DEBOUNCE_MS } },
 } };
 
-std::array<Entry, 6> info_entries = { {
+std::array<Alert, 6> info_alerts = { {
     { &isUnderVoltageInfo, &app::can_alerts::infos::CellUnderVoltage_set, Timer{ INFO_DEBOUNCE_MS } },
     { &isOverVoltageInfo, &app::can_alerts::infos::CellOverVoltage_set, Timer{ INFO_DEBOUNCE_MS } },
     { &isOverTempInfo, &app::can_alerts::infos::CellOverTemp_set, Timer{ INFO_DEBOUNCE_MS } },
@@ -207,10 +212,10 @@ std::array<Entry, 6> info_entries = { {
     { &isCellImbalanceInfo, &app::can_alerts::infos::CellImbalance_set, Timer{ INFO_IMBALANCE_DEBOUNCE_MS } },
 } };
 
-template <size_t N> bool runEntries(std::array<Entry, N> &entries, const AlertData &ad)
+template <size_t N> bool checkAlerts(std::array<Alert, N> &alerts, const AlertData &ad)
 {
     bool any_fired = false;
-    for (auto &[condition, setter, timer] : entries)
+    for (auto &[condition, setter, timer] : alerts)
     {
         const bool fired = timer.runIfCondition(condition(ad)) == Timer::TimerState::EXPIRED;
         setter(fired);
@@ -219,9 +224,9 @@ template <size_t N> bool runEntries(std::array<Entry, N> &entries, const AlertDa
     return any_fired;
 }
 
-template <size_t N> void stopEntries(std::array<Entry, N> &entries)
+template <size_t N> void stopAlerts(std::array<Alert, N> &alerts)
 {
-    for (auto &[_c, _s, timer] : entries)
+    for (auto &[_c, _s, timer] : alerts)
         timer.stop();
 }
 } // namespace
@@ -230,9 +235,9 @@ namespace app::pack::alerts
 {
 void init()
 {
-    stopEntries(fault_entries);
-    stopEntries(warning_entries);
-    stopEntries(info_entries);
+    stopAlerts(fault_alerts);
+    stopAlerts(warning_alerts);
+    stopAlerts(info_alerts);
 }
 
 bool tick()
@@ -251,9 +256,9 @@ bool tick()
     }
     ad.charging = app::StateMachine::get_current_state() == &app::states::charge_state;
 
-    const bool fault_active = runEntries(fault_entries, ad);
-    runEntries(warning_entries, ad);
-    runEntries(info_entries, ad);
+    const bool fault_active = checkAlerts(fault_alerts, ad);
+    checkAlerts(warning_alerts, ad);
+    checkAlerts(info_alerts, ad);
     return fault_active;
 }
 } // namespace app::pack::alerts
