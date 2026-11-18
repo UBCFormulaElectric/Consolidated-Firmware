@@ -96,7 +96,7 @@ enum class AccelDlpfConfig : uint8_t
  */
 struct ImuFilterConfig
 {
-    bool            enable_accel_dlpf = false;
+    bool            enable_accel_dlpf = true;
     bool            enable_gyro_dlpf  = false;
     AccelDlpfConfig accel_dlpf_cutoff = AccelDlpfConfig::BW_44HZ_NOISE_62HZ;
     GyroDlpfConfig  gyro_dlpf_cutoff  = GyroDlpfConfig::BW_41HZ_NOISE_59HZ;

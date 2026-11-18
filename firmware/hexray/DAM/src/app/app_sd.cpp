@@ -19,8 +19,9 @@ namespace
 {
     constexpr const char *DEFAULT_LOG_PATH = "/boot.bin"; // Fallback path
     std::array<char, 48>  LOG_PATH_BUF{};
-    uint32_t              log_fd   = 0;
-    bool                  log_open = false;
+    uint32_t              log_fd    = 0;
+    std::atomic<uint32_t> boot_hash = 0;
+    bool                  log_open  = false;
     std::atomic<bool>     metadata_update_requested{ false };
     std::atomic<bool>     sync_requested{ false };
 
@@ -57,6 +58,7 @@ std::expected<void, io::FileSystem::FileSystemError> init_fs()
     if (const auto boot_num = app::bootcount::update(fs); boot_num) // update bootcount
     {
         const auto filename_hash = makeBootFilenameHash(static_cast<uint32_t>(boot_num.value()));
+        boot_hash                = filename_hash;
         log_path                 = formatBootFilename(static_cast<uint32_t>(boot_num.value()), filename_hash);
     }
     else
@@ -173,6 +175,11 @@ void service()
 uint32_t getLogFd()
 {
     return log_fd;
+}
+
+uint32_t getBootHash()
+{
+    return boot_hash.load();
 }
 
 bool isLogOpen()
