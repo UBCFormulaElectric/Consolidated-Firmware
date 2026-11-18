@@ -59,8 +59,8 @@ struct AlertData
     app::pack::OpenWireCheckBuffer      cadc_owc{};       // Cell open wire for CADC, if stale leads to stale fault
     app::pack::OpenWireCheckBuffer      sadc_owc{};       // Cell open wire for SADC, if stale leads to stale fault
     app::pack::ThermOpenWireCheckBuffer therm_owc{};      // Thermistor open wire, if stale leads to stale fault
-    io::adbms::DiagnosticBuffer         diag{};           // Diag fault: OV/UV comparators, thermal shdn, self test, supply
-    io::adbms::SupplyBuffer             supply{};         // ADBMS die OT
+    io::adbms::DiagnosticBuffer         diag{};   // Diag fault: OV/UV comparators, thermal shdn, self test, supply
+    io::adbms::SupplyBuffer             supply{}; // ADBMS die OT
 };
 
 template <size_t BITS, size_t SEGMENTS> bool anyNotOk(const std::array<std::bitset<BITS>, SEGMENTS> &flags)
@@ -147,7 +147,8 @@ bool isUnderTempWarn(const AlertData &ad)
 bool isItmpOverTempWarn(const AlertData &ad)
 {
     return ad.supply.updated_ms != 0U &&
-           std::ranges::any_of(ad.supply.itmp, [](const result<float> &itmp) { return itmp && *itmp > T_WARN_ITMP_OT; });
+           std::ranges::any_of(
+               ad.supply.itmp, [](const result<float> &itmp) { return itmp && *itmp > T_WARN_ITMP_OT; });
 }
 
 // Info conditions

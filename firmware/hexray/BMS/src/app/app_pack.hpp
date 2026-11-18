@@ -55,7 +55,7 @@ namespace balancing
 
 namespace sequence
 {
-    void init(); // Reset readings and start in MEASURE state 
+    void init(); // Reset readings and start in MEASURE state
     void tick(); // Run ADBMS state machine, updates buffers above
 } // namespace sequence
 
