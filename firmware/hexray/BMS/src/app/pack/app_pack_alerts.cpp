@@ -17,16 +17,16 @@ namespace
 using app::Timer;
 
 // Fault thresholds
-constexpr uint32_t FAULT_V_DEBOUNCE_MS      = 1000;
-constexpr uint32_t FAULT_T_DEBOUNCE_MS      = 3000;
-constexpr uint32_t FAULT_OWC_DEBOUNCE_MS    = 5000;
-constexpr uint32_t FAULT_HEALTH_DEBOUNCE_MS = 3000;
+constexpr uint32_t FAULT_V_DEBOUNCE_MS      = 1000U;
+constexpr uint32_t FAULT_T_DEBOUNCE_MS      = 3000U;
+constexpr uint32_t FAULT_OWC_DEBOUNCE_MS    = 5000U;
+constexpr uint32_t FAULT_HEALTH_DEBOUNCE_MS = 3000U;
 constexpr float    T_FAULT_OT               = 55.0f;
 constexpr float    T_CHARGE_FAULT_OT        = 45.0f;
 constexpr float    T_FAULT_ITMP_OT          = 105.0f;
 
 // Warning thresholds
-constexpr uint32_t WARN_DEBOUNCE_MS = 1000;
+constexpr uint32_t WARN_DEBOUNCE_MS = 1000U;
 constexpr float    V_WARN_UV        = 2.7f;
 constexpr float    V_WARN_OV        = 4.18f;
 constexpr float    T_WARN_OT        = 50.0f;
@@ -36,10 +36,10 @@ constexpr float    T_CHARGE_WARN_UT = 5.0f;
 constexpr float    T_WARN_ITMP_OT   = 95.0f;
 
 // Info thresholds
-constexpr uint32_t INFO_DEBOUNCE_MS           = 100;
-constexpr uint32_t INFO_OWC_DEBOUNCE_MS       = 5000;
-constexpr uint32_t INFO_IMBALANCE_DEBOUNCE_MS = 5000;
-constexpr uint32_t INFO_T_INVALID_DEBOUNCE_MS = 3000;
+constexpr uint32_t INFO_DEBOUNCE_MS           = 100U;
+constexpr uint32_t INFO_OWC_DEBOUNCE_MS       = 5000U;
+constexpr uint32_t INFO_IMBALANCE_DEBOUNCE_MS = 5000U;
+constexpr uint32_t INFO_T_INVALID_DEBOUNCE_MS = 3000U;
 constexpr float    V_INFO_UV                  = 2.8f;
 constexpr float    V_INFO_OV                  = 4.15f;
 constexpr float    V_INFO_IMBALANCE           = 0.1f;
@@ -54,11 +54,11 @@ struct AlertData
 {
     uint32_t                            now_ms   = 0U;
     bool                                charging = false;
-    app::pack::VoltageBuffer            voltages{};
-    app::pack::TemperatureBuffer        temps{};
-    app::pack::OpenWireCheckBuffer      cadc_owc{};
-    app::pack::OpenWireCheckBuffer      sadc_owc{};
-    app::pack::ThermOpenWireCheckBuffer therm_owc{};
+    app::pack::VoltageBuffer            voltages{}; 
+    app::pack::TemperatureBuffer        temps{}; 
+    app::pack::OpenWireCheckBuffer      cadc_owc{}; 
+    app::pack::OpenWireCheckBuffer      sadc_owc{}; 
+    app::pack::ThermOpenWireCheckBuffer therm_owc{}; 
     app::pack::DiagnosticBuffer         diag{};
     app::pack::SupplyBuffer             supply{};
 };
@@ -81,96 +81,96 @@ bool isStale(const uint32_t updated_ms, const uint32_t stale_ms, const uint32_t 
 }
 
 // Fault conditions
-bool isVoltInvalidFault(const AlertData &s)
+bool isVoltInvalidFault(const AlertData &ad)
 {
-    return isStale(s.voltages.updated_ms, V_STALE_MS, s.now_ms) || anyInvalid(s.voltages.voltages);
+    return isStale(ad.voltages.updated_ms, V_STALE_MS, ad.now_ms) || anyInvalid(ad.voltages.voltages);
 }
-bool isUnderVoltageFault(const AlertData &s)
+bool isUnderVoltageFault(const AlertData &ad)
 {
-    return s.voltages.updated_ms != 0U && s.voltages.min.value < V_FAULT_UV;
+    return ad.voltages.updated_ms != 0U && ad.voltages.min.value < V_FAULT_UV;
 }
-bool isOverVoltageFault(const AlertData &s)
+bool isOverVoltageFault(const AlertData &ad)
 {
-    return s.voltages.updated_ms != 0U && s.voltages.max.value > V_FAULT_OV;
+    return ad.voltages.updated_ms != 0U && ad.voltages.max.value > V_FAULT_OV;
 }
-bool isOverTempFault(const AlertData &s)
+bool isOverTempFault(const AlertData &ad)
 {
-    return s.temps.updated_ms != 0U &&
-           s.temps.max.value > (s.charging ? std::min(T_FAULT_OT, T_CHARGE_FAULT_OT) : T_FAULT_OT);
+    return ad.temps.updated_ms != 0U &&
+           ad.temps.max.value > (ad.charging ? std::min(T_FAULT_OT, T_CHARGE_FAULT_OT) : T_FAULT_OT);
 }
 // Both C-ADC and S-ADC open wire checks must pass
-bool isCellOpenWireFault(const AlertData &s)
+bool isCellOpenWireFault(const AlertData &ad)
 {
-    return (s.cadc_owc.updated_ms != 0U && anyClear(s.cadc_owc.cells_owc_ok)) ||
-           (s.sadc_owc.updated_ms != 0U && anyClear(s.sadc_owc.cells_owc_ok));
+    return (ad.cadc_owc.updated_ms != 0U && anyClear(ad.cadc_owc.cells_owc_ok)) ||
+           (ad.sadc_owc.updated_ms != 0U && anyClear(ad.sadc_owc.cells_owc_ok));
 }
 // OV/UV comparators, thermal shutdown, self test, supply, and stale diagnostic or open wire results
-bool isHealthFault(const AlertData &s)
+bool isHealthFault(const AlertData &ad)
 {
-    return isStale(s.diag.updated_ms, DIAG_STALE_MS, s.now_ms) ||
-           isStale(s.cadc_owc.updated_ms, OWC_STALE_MS, s.now_ms) ||
-           isStale(s.sadc_owc.updated_ms, OWC_STALE_MS, s.now_ms) ||
-           isStale(s.therm_owc.updated_ms, DIAG_STALE_MS, s.now_ms) || anyClear(s.diag.ov_ok) ||
-           anyClear(s.diag.uv_ok) || !s.diag.therm_shdn_ok.all() || !s.diag.self_test_ok.all() ||
-           !s.diag.supply_ok.all();
+    return isStale(ad.diag.updated_ms, DIAG_STALE_MS, ad.now_ms) ||
+           isStale(ad.cadc_owc.updated_ms, OWC_STALE_MS, ad.now_ms) ||
+           isStale(ad.sadc_owc.updated_ms, OWC_STALE_MS, ad.now_ms) ||
+           isStale(ad.therm_owc.updated_ms, DIAG_STALE_MS, ad.now_ms) || anyClear(ad.diag.ov_ok) ||
+           anyClear(ad.diag.uv_ok) || !ad.diag.therm_shdn_ok.all() || !ad.diag.self_test_ok.all() ||
+           !ad.diag.supply_ok.all();
 }
-bool isItmpOverTempFault(const AlertData &s)
+bool isItmpOverTempFault(const AlertData &ad)
 {
-    return s.supply.updated_ms != 0U &&
+    return ad.supply.updated_ms != 0U &&
            std::ranges::any_of(
-               s.supply.itmp, [](const result<float> &itmp) { return itmp && *itmp > T_FAULT_ITMP_OT; });
+               ad.supply.itmp, [](const result<float> &itmp) { return itmp && *itmp > T_FAULT_ITMP_OT; });
 }
 
 // Warning conditions
-bool isUnderVoltageWarn(const AlertData &s)
+bool isUnderVoltageWarn(const AlertData &ad)
 {
-    return s.voltages.updated_ms != 0U && s.voltages.min.value < V_WARN_UV;
+    return ad.voltages.updated_ms != 0U && ad.voltages.min.value < V_WARN_UV;
 }
-bool isOverVoltageWarn(const AlertData &s)
+bool isOverVoltageWarn(const AlertData &ad)
 {
-    return s.voltages.updated_ms != 0U && s.voltages.max.value > V_WARN_OV;
+    return ad.voltages.updated_ms != 0U && ad.voltages.max.value > V_WARN_OV;
 }
-bool isOverTempWarn(const AlertData &s)
+bool isOverTempWarn(const AlertData &ad)
 {
-    return s.temps.updated_ms != 0U &&
-           s.temps.max.value > (s.charging ? std::min(T_WARN_OT, T_CHARGE_WARN_OT) : T_WARN_OT);
+    return ad.temps.updated_ms != 0U &&
+           ad.temps.max.value > (ad.charging ? std::min(T_WARN_OT, T_CHARGE_WARN_OT) : T_WARN_OT);
 }
-bool isUnderTempWarn(const AlertData &s)
+bool isUnderTempWarn(const AlertData &ad)
 {
-    return s.temps.updated_ms != 0U &&
-           s.temps.min.value < (s.charging ? std::max(T_WARN_UT, T_CHARGE_WARN_UT) : T_WARN_UT);
+    return ad.temps.updated_ms != 0U &&
+           ad.temps.min.value < (ad.charging ? std::max(T_WARN_UT, T_CHARGE_WARN_UT) : T_WARN_UT);
 }
-bool isItmpOverTempWarn(const AlertData &s)
+bool isItmpOverTempWarn(const AlertData &ad)
 {
-    return s.supply.updated_ms != 0U &&
-           std::ranges::any_of(s.supply.itmp, [](const result<float> &itmp) { return itmp && *itmp > T_WARN_ITMP_OT; });
+    return ad.supply.updated_ms != 0U &&
+           std::ranges::any_of(ad.supply.itmp, [](const result<float> &itmp) { return itmp && *itmp > T_WARN_ITMP_OT; });
 }
 
 // Info conditions
-bool isUnderVoltageInfo(const AlertData &s)
+bool isUnderVoltageInfo(const AlertData &ad)
 {
-    return s.voltages.updated_ms != 0U && s.voltages.min.value < V_INFO_UV;
+    return ad.voltages.updated_ms != 0U && ad.voltages.min.value < V_INFO_UV;
 }
-bool isOverVoltageInfo(const AlertData &s)
+bool isOverVoltageInfo(const AlertData &ad)
 {
-    return s.voltages.updated_ms != 0U && s.voltages.max.value > V_INFO_OV;
+    return ad.voltages.updated_ms != 0U && ad.voltages.max.value > V_INFO_OV;
 }
-bool isOverTempInfo(const AlertData &s)
+bool isOverTempInfo(const AlertData &ad)
 {
-    return s.temps.updated_ms != 0U &&
-           s.temps.max.value > (s.charging ? std::min(T_INFO_OT, T_CHARGE_INFO_OT) : T_INFO_OT);
+    return ad.temps.updated_ms != 0U &&
+           ad.temps.max.value > (ad.charging ? std::min(T_INFO_OT, T_CHARGE_INFO_OT) : T_INFO_OT);
 }
-bool isThermOpenWireInfo(const AlertData &s)
+bool isThermOpenWireInfo(const AlertData &ad)
 {
-    return s.therm_owc.updated_ms != 0U && anyClear(s.therm_owc.therms_owc_ok);
+    return ad.therm_owc.updated_ms != 0U && anyClear(ad.therm_owc.therms_owc_ok);
 }
-bool isTempInvalidInfo(const AlertData &s)
+bool isTempInvalidInfo(const AlertData &ad)
 {
-    return s.temps.updated_ms != 0U && anyInvalid(s.temps.temperatures);
+    return ad.temps.updated_ms != 0U && anyInvalid(ad.temps.temperatures);
 }
-bool isCellImbalanceInfo(const AlertData &s)
+bool isCellImbalanceInfo(const AlertData &ad)
 {
-    return s.voltages.updated_ms != 0U && s.voltages.max.value - s.voltages.min.value > V_INFO_IMBALANCE;
+    return ad.voltages.updated_ms != 0U && ad.voltages.max.value - ad.voltages.min.value > V_INFO_IMBALANCE;
 }
 
 struct Entry
@@ -207,12 +207,12 @@ std::array<Entry, 6> info_entries = { {
     { &isCellImbalanceInfo, &app::can_alerts::infos::CellImbalance_set, Timer{ INFO_IMBALANCE_DEBOUNCE_MS } },
 } };
 
-template <size_t N> bool runEntries(std::array<Entry, N> &entries, const AlertData &s)
+template <size_t N> bool runEntries(std::array<Entry, N> &entries, const AlertData &ad)
 {
     bool any_fired = false;
     for (auto &[condition, setter, timer] : entries)
     {
-        const bool fired = timer.runIfCondition(condition(s)) == Timer::TimerState::EXPIRED;
+        const bool fired = timer.runIfCondition(condition(ad)) == Timer::TimerState::EXPIRED;
         setter(fired);
         any_fired = any_fired || fired;
     }
@@ -237,23 +237,23 @@ void init()
 
 bool tick()
 {
-    AlertData s{};
+    AlertData ad{};
     {
         const io::semaphore::unique_semaphore lock{ buffer_lock };
-        s.voltages  = voltage_buffer;
-        s.temps     = temp_buffer;
-        s.cadc_owc  = cadc_owc_buffer;
-        s.sadc_owc  = sadc_owc_buffer;
-        s.therm_owc = therm_owc_buffer;
-        s.diag      = diag_buffer;
-        s.supply    = supply_buffer;
-        s.now_ms    = io::time::getCurrentMs();
+        ad.voltages  = voltage_buffer;
+        ad.temps     = temp_buffer;
+        ad.cadc_owc  = cadc_owc_buffer;
+        ad.sadc_owc  = sadc_owc_buffer;
+        ad.therm_owc = therm_owc_buffer;
+        ad.diag      = diag_buffer;
+        ad.supply    = supply_buffer;
+        ad.now_ms    = io::time::getCurrentMs();
     }
-    s.charging = app::StateMachine::get_current_state() == &app::states::charge_state;
+    ad.charging = app::StateMachine::get_current_state() == &app::states::charge_state;
 
-    const bool fault_active = runEntries(fault_entries, s);
-    runEntries(warning_entries, s);
-    runEntries(info_entries, s);
+    const bool fault_active = runEntries(fault_entries, ad);
+    runEntries(warning_entries, ad);
+    runEntries(info_entries, ad);
     return fault_active;
 }
 } // namespace app::pack::alerts
