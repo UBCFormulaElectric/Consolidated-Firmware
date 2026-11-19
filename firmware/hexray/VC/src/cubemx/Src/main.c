@@ -203,13 +203,13 @@ void SystemClock_Config(void)
     RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_ON;
     RCC_OscInitStruct.PLL.PLLSource  = RCC_PLLSOURCE_HSE;
     RCC_OscInitStruct.PLL.PLLM       = 1;
-    RCC_OscInitStruct.PLL.PLLN       = 31;
+    RCC_OscInitStruct.PLL.PLLN       = 65;
     RCC_OscInitStruct.PLL.PLLP       = 1;
     RCC_OscInitStruct.PLL.PLLQ       = 1;
     RCC_OscInitStruct.PLL.PLLR       = 2;
     RCC_OscInitStruct.PLL.PLLRGE     = RCC_PLL1VCIRANGE_3;
     RCC_OscInitStruct.PLL.PLLVCOSEL  = RCC_PLL1VCOWIDE;
-    RCC_OscInitStruct.PLL.PLLFRACN   = 2048;
+    RCC_OscInitStruct.PLL.PLLFRACN   = 0;
     if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
     {
         Error_Handler();
@@ -221,7 +221,7 @@ void SystemClock_Config(void)
                                   RCC_CLOCKTYPE_PCLK2 | RCC_CLOCKTYPE_D3PCLK1 | RCC_CLOCKTYPE_D1PCLK1;
     RCC_ClkInitStruct.SYSCLKSource   = RCC_SYSCLKSOURCE_PLLCLK;
     RCC_ClkInitStruct.SYSCLKDivider  = RCC_SYSCLK_DIV1;
-    RCC_ClkInitStruct.AHBCLKDivider  = RCC_HCLK_DIV1;
+    RCC_ClkInitStruct.AHBCLKDivider  = RCC_HCLK_DIV2;
     RCC_ClkInitStruct.APB3CLKDivider = RCC_APB3_DIV2;
     RCC_ClkInitStruct.APB1CLKDivider = RCC_APB1_DIV2;
     RCC_ClkInitStruct.APB2CLKDivider = RCC_APB2_DIV2;
@@ -632,7 +632,7 @@ static void MX_I2C4_Init(void)
 
     /* USER CODE END I2C4_Init 1 */
     hi2c4.Instance              = I2C4;
-    hi2c4.Init.Timing           = 0x20A0A3F6;
+    hi2c4.Init.Timing           = 0x20A0ACFE;
     hi2c4.Init.OwnAddress1      = 0;
     hi2c4.Init.AddressingMode   = I2C_ADDRESSINGMODE_7BIT;
     hi2c4.Init.DualAddressMode  = I2C_DUALADDRESS_DISABLE;
@@ -678,7 +678,7 @@ static void MX_I2C5_Init(void)
 
     /* USER CODE END I2C5_Init 1 */
     hi2c5.Instance              = I2C5;
-    hi2c5.Init.Timing           = 0x20A0A3F6;
+    hi2c5.Init.Timing           = 0x20A0ACFE;
     hi2c5.Init.OwnAddress1      = 0;
     hi2c5.Init.AddressingMode   = I2C_ADDRESSINGMODE_7BIT;
     hi2c5.Init.DualAddressMode  = I2C_DUALADDRESS_DISABLE;
