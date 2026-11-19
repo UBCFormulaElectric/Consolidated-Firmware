@@ -17,6 +17,7 @@ extern const Screen shdn_screen;
 extern const Screen alerts_screen;
 extern const Screen brightness_screen;
 extern const Screen drive_modes_screen;
+extern const Screen inv_error_screen;
 
 /**
  * @brief Initalize all screens, and starting init screen.
