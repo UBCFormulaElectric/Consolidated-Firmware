@@ -74,12 +74,12 @@ extern "C"
 
 /* Private defines -----------------------------------------------------------*/
 #define IWDG_RESET_FREQUENCY 5
+#define SBG_ELLIPSE_GPS_BAUD_RATE 460800
+#define TIM3_PRESCALER 260
+#define ADC_FREQUENCY 1000
 #define IWDG_PRESCALER 4
 #define LSI_FREQUENCY 32000
-#define SBG_ELLIPSE_GPS_BAUD_RATE 460800
-#define TIMx_FREQUENCY 250000000
-#define TIM3_PRESCALER 250
-#define ADC_FREQUENCY 1000
+#define TIMx_FREQUENCY 260000000
 #define IMU_CS1_Pin GPIO_PIN_2
 #define IMU_CS1_GPIO_Port GPIOE
 #define IMU_CS2_Pin GPIO_PIN_3
