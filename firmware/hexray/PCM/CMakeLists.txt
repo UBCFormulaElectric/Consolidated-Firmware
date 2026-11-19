@@ -1,3 +1,4 @@
+set(JLINK_DEVICE "STM32F412RG") # J-Link device for the <image>_flash and <image>_debug targets (firmware/cmake/embedded.cmake)
 message("")
 message("⚙️ Configuring PCM (Hexray)")
 
@@ -49,6 +50,8 @@ if ("${TARGET}" STREQUAL "binary")
             "${LINKER_SCRIPT}"
             "${ARM_CORE}"
     )
+    # No bootloader: flash the app hex.
+    embedded_jlink_targets("hexray_PCM" "hexray_PCM_app.hex" "${CMAKE_CURRENT_BINARY_DIR}/hexray_PCM_app.hex")
 
     set(STM32_HAL_SRCS
             "stm32f4xx_hal_cortex.c"

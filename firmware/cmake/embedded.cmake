@@ -218,4 +218,95 @@ function(embedded_image
             DEPENDS ${GENERATE_IMAGE_SCRIPT} ${APP_HEX_PATH} ${BOOT_HEX_PATH}
     )
     add_dependencies(${IMAGE_HEX} ${APP_HEX_TARGET} ${BOOT_HEX_TARGET})
+
+    embedded_jlink_targets(${IMAGE_NAME} ${IMAGE_HEX} ${IMAGE_HEX_PATH})
+endfunction()
+
+# ===== J-Link flash / debug targets =====
+# For the command line and for editors that debug through a GDB server (for example Zed's GDB adapter):
+#   cmake --build build_fw_dev --target hexray_VC_flash   # build hexray_VC.hex and flash it
+#   cmake --build build_fw_dev --target hexray_VC_debug   # flash, halt the core at reset, start the J-Link GDB server on port 2331
+#   cmake --build build_fw_dev --target jlink_stop        # stop the J-Link GDB server
+# A board makes these targets by setting JLINK_DEVICE (for example STM32H733VG) in its CMakeLists.txt.
+# The image that is flashed is the full .hex (bootloader + app + app metadata), so the bootloader's CRC check passes.
+message("  🔃 Registered embedded_jlink_targets() function")
+find_program(JLINK_COMMANDER NAMES JLink.exe JLinkExe HINTS /opt/SEGGER/JLink /Applications/SEGGER/JLink)
+if (NOT JLINK_COMMANDER AND CMAKE_HOST_WIN32)
+    # The default Windows install folder has the version in its name (for example JLink_V798i).
+    file(GLOB JLINK_INSTALL_DIRS LIST_DIRECTORIES true "$ENV{ProgramFiles}/SEGGER/JLink*")
+    list(SORT JLINK_INSTALL_DIRS ORDER DESCENDING)
+    find_program(JLINK_COMMANDER NAMES JLink.exe HINTS ${JLINK_INSTALL_DIRS})
+endif ()
+# The J-Link scripts are bash scripts. On Windows use Git's bash: "bash" on the Windows PATH is WSL.
+if (CMAKE_HOST_WIN32)
+    find_program(GIT_EXECUTABLE_FOR_BASH git)
+    set(JLINK_BASH_HINTS "$ENV{ProgramFiles}/Git/bin")
+    if (GIT_EXECUTABLE_FOR_BASH)
+        get_filename_component(GIT_EXECUTABLE_DIR "${GIT_EXECUTABLE_FOR_BASH}" DIRECTORY)
+        list(PREPEND JLINK_BASH_HINTS "${GIT_EXECUTABLE_DIR}/../bin" "${GIT_EXECUTABLE_DIR}/../../bin")
+    endif ()
+    find_program(JLINK_BASH bash HINTS ${JLINK_BASH_HINTS} NO_DEFAULT_PATH)
+else ()
+    find_program(JLINK_BASH bash)
+endif ()
+if (JLINK_COMMANDER AND JLINK_BASH)
+    message("  ℹ️ J-Link Commander: ${JLINK_COMMANDER}")
+else ()
+    message("  ⚠️ J-Link Commander or bash not found: the *_flash and *_debug targets will fail")
+endif ()
+
+if (NOT TARGET jlink_stop)
+    add_custom_target(jlink_stop
+            COMMAND "${JLINK_BASH}" "${SCRIPTS_DIR}/debugging/stop_jlink.sh"
+            USES_TERMINAL VERBATIM
+    )
+endif ()
+
+function(embedded_jlink_targets NAME HEX_TARGET HEX_PATH)
+    if (NOT JLINK_DEVICE)
+        return()
+    endif ()
+
+    if (JLINK_COMMANDER AND JLINK_BASH)
+        # _flash: flash, reset, and run the firmware.
+        set(FLASH_SCRIPT "${CMAKE_CURRENT_BINARY_DIR}/${NAME}_flash.jlink")
+        file(WRITE "${FLASH_SCRIPT}" "r\nh\nloadfile \"${HEX_PATH}\"\nr\ng\nexit\n")
+        # _debug: flash, then reset and keep the core halted at the reset vector (no "g").
+        # The GDB server starts with -nohalt, so the core stays halted until GDB attaches. GDB then always stops at
+        # Reset_Handler, not at the random location where a running core would be halted.
+        set(DEBUG_FLASH_SCRIPT "${CMAKE_CURRENT_BINARY_DIR}/${NAME}_debug.jlink")
+        file(WRITE "${DEBUG_FLASH_SCRIPT}" "r\nh\nloadfile \"${HEX_PATH}\"\nr\nexit\n")
+        # Stop the GDB server first, so it does not hold the probe.
+        set(FLASH_COMMANDS
+                COMMAND "${JLINK_BASH}" "${SCRIPTS_DIR}/debugging/stop_jlink.sh"
+                COMMAND "${JLINK_COMMANDER}" -device ${JLINK_DEVICE} -if SWD -speed 4000 -autoconnect 1 -NoGui 1
+                -ExitOnError 1 -CommandFile "${FLASH_SCRIPT}"
+        )
+        set(DEBUG_COMMANDS
+                COMMAND "${JLINK_BASH}" "${SCRIPTS_DIR}/debugging/stop_jlink.sh"
+                COMMAND "${JLINK_COMMANDER}" -device ${JLINK_DEVICE} -if SWD -speed 4000 -autoconnect 1 -NoGui 1
+                -ExitOnError 1 -CommandFile "${DEBUG_FLASH_SCRIPT}"
+                COMMAND "${JLINK_BASH}" "${SCRIPTS_DIR}/debugging/start_jlink.sh" --device ${JLINK_DEVICE}
+        )
+    else ()
+        set(FLASH_COMMANDS
+                COMMAND ${CMAKE_COMMAND} -E echo "J-Link Commander or bash not found. Install the SEGGER J-Link software (and Git on Windows), then configure again."
+                COMMAND ${CMAKE_COMMAND} -E false
+        )
+        set(DEBUG_COMMANDS ${FLASH_COMMANDS})
+    endif ()
+
+    add_custom_target(${NAME}_flash
+            ${FLASH_COMMANDS}
+            COMMENT "[J-Link] Flashing ${HEX_PATH} to ${JLINK_DEVICE}"
+            USES_TERMINAL VERBATIM
+    )
+    add_dependencies(${NAME}_flash ${HEX_TARGET})
+
+    add_custom_target(${NAME}_debug
+            ${DEBUG_COMMANDS}
+            COMMENT "[J-Link] Flashing ${HEX_PATH} (core held in reset) and starting the GDB server for ${JLINK_DEVICE} on port 2331"
+            USES_TERMINAL VERBATIM
+    )
+    add_dependencies(${NAME}_debug ${HEX_TARGET})
 endfunction()

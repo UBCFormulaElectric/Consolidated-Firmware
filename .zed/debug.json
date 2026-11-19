@@ -1,5 +1,4 @@
 [
-  // Python Debug Configurations (Debugpy)
   {
     "label": "Debug Pytest",
     "adapter": "Debugpy",
@@ -14,44 +13,25 @@
     "label": "Debug JSON CAN (module)",
     "adapter": "Debugpy",
     "request": "launch",
-    "module": "scripts.code_generation.jsoncan.generate_can_from_json",
+    "module": "jsoncan.generate_can_from_json",
     "args": [
       "--board",
       "VC",
       "--can_data_dir",
-      "$ZED_WORKTREE_ROOT/can_bus/quintuna",
+      "$ZED_WORKTREE_ROOT/can_bus/hexray",
       "--output_dir",
-      "temp",
-      "--dbc_output"
+      "$ZED_WORKTREE_ROOT/tmp/jsoncan",
+      "--dbc_output",
+      "$ZED_WORKTREE_ROOT/tmp/jsoncan/hexray.dbc"
     ],
-    "cwd": "$ZED_WORKTREE_ROOT"
+    "cwd": "$ZED_WORKTREE_ROOT/scripts/code_generation"
   },
   {
     "label": "Debug Telem Backend",
     "adapter": "Debugpy",
     "request": "launch",
-    "program": "$ZED_WORKTREE_ROOT/software/tracksight/live_data/app/app.py",
+    "program": "$ZED_WORKTREE_ROOT/software/tracksight/backend/app/app.py",
     "cwd": "$ZED_WORKTREE_ROOT"
-  },
-
-  // Embedded Chimera Targets (J-Link / Cortex)
-  {
-    "label": "Debug Chimera: VC (Hexray)",
-    "adapter": "GDB",
-    "request": "attach",
-    "program": "$ZED_WORKTREE_ROOT/build_fw_dev/firmware/hexray/VC/hexray_VC_chimera.elf",
-    "target": ":2331",
-    "cwd": "$ZED_WORKTREE_ROOT",
-    "build": {
-      "command": "bash",
-      "args": [
-        "scripts/debugging/start_jlink.sh",
-        "--device",
-        "STM32H733VG",
-        "--build",
-        "cmake --build build_fw_dev --target hexray_VC_chimera.elf"
-      ]
-    }
   },
   {
     "label": "Debug Chimera: BMS (Hexray)",
@@ -61,67 +41,12 @@
     "target": ":2331",
     "cwd": "$ZED_WORKTREE_ROOT",
     "build": {
-      "command": "bash",
+      "command": "cmake",
       "args": [
-        "scripts/debugging/start_jlink.sh",
-        "--device",
-        "STM32H733VG",
         "--build",
-        "cmake --build build_fw_dev --target hexray_BMS_chimera.elf"
-      ]
-    }
-  },
-  {
-    "label": "Debug Chimera: FSM (Hexray)",
-    "adapter": "GDB",
-    "request": "attach",
-    "program": "$ZED_WORKTREE_ROOT/build_fw_dev/firmware/hexray/FSM/hexray_FSM_chimera.elf",
-    "target": ":2331",
-    "cwd": "$ZED_WORKTREE_ROOT",
-    "build": {
-      "command": "bash",
-      "args": [
-        "scripts/debugging/start_jlink.sh",
-        "--device",
-        "STM32H562RI",
-        "--build",
-        "cmake --build build_fw_dev --target hexray_FSM_chimera.elf"
-      ]
-    }
-  },
-  {
-    "label": "Debug Chimera: DAM (Hexray)",
-    "adapter": "GDB",
-    "request": "attach",
-    "program": "$ZED_WORKTREE_ROOT/build_fw_dev/firmware/hexray/DAM/hexray_DAM_chimera.elf",
-    "target": ":2331",
-    "cwd": "$ZED_WORKTREE_ROOT",
-    "build": {
-      "command": "bash",
-      "args": [
-        "scripts/debugging/start_jlink.sh",
-        "--device",
-        "STM32H562RI",
-        "--build",
-        "cmake --build build_fw_dev --target hexray_DAM_chimera.elf"
-      ]
-    }
-  },
-  {
-    "label": "Debug Chimera: RSM (Hexray)",
-    "adapter": "GDB",
-    "request": "attach",
-    "program": "$ZED_WORKTREE_ROOT/build_fw_dev/firmware/hexray/RSM/hexray_RSM_chimera.elf",
-    "target": ":2331",
-    "cwd": "$ZED_WORKTREE_ROOT",
-    "build": {
-      "command": "bash",
-      "args": [
-        "scripts/debugging/start_jlink.sh",
-        "--device",
-        "STM32H562RI",
-        "--build",
-        "cmake --build build_fw_dev --target hexray_RSM_chimera.elf"
+        "build_fw_dev",
+        "--target",
+        "hexray_BMS_chimera_debug"
       ]
     }
   },
@@ -133,51 +58,165 @@
     "target": ":2331",
     "cwd": "$ZED_WORKTREE_ROOT",
     "build": {
-      "command": "bash",
+      "command": "cmake",
       "args": [
-        "scripts/debugging/start_jlink.sh",
-        "--device",
-        "STM32H562RI",
         "--build",
-        "cmake --build build_fw_dev --target hexray_CRIT_chimera.elf"
-      ]
-    }
-  },
-
-  // Embedded Hexray Targets (J-Link / Cortex)
-  {
-    "label": "Debug Embedded: CRIT (Hexray)",
-    "adapter": "GDB",
-    "request": "attach",
-    "program": "$ZED_WORKTREE_ROOT/build_fw_dev/firmware/hexray/CRIT/hexray_CRIT_app.elf",
-    "target": ":2331",
-    "cwd": "$ZED_WORKTREE_ROOT",
-    "build": {
-      "command": "bash",
-      "args": [
-        "scripts/debugging/start_jlink.sh",
-        "--device",
-        "STM32H562RI",
-        "--build",
-        "cmake --build build_fw_dev --target hexray_CRIT.hex"
+        "build_fw_dev",
+        "--target",
+        "hexray_CRIT_chimera_debug"
       ]
     }
   },
   {
-    "label": "Debug Embedded: VC (Hexray)",
+    "label": "Debug Chimera: DAM (Hexray)",
     "adapter": "GDB",
     "request": "attach",
-    "program": "$ZED_WORKTREE_ROOT/build_fw_dev/firmware/hexray/VC/hexray_VC_app.elf",
+    "program": "$ZED_WORKTREE_ROOT/build_fw_dev/firmware/hexray/DAM/hexray_DAM_chimera.elf",
     "target": ":2331",
     "cwd": "$ZED_WORKTREE_ROOT",
     "build": {
-      "command": "bash",
+      "command": "cmake",
       "args": [
-        "scripts/debugging/start_jlink.sh",
-        "--device",
-        "STM32H733VG",
         "--build",
-        "cmake --build build_fw_dev --target hexray_VC.hex"
+        "build_fw_dev",
+        "--target",
+        "hexray_DAM_chimera_debug"
+      ]
+    }
+  },
+  {
+    "label": "Debug Chimera: FSM (Hexray)",
+    "adapter": "GDB",
+    "request": "attach",
+    "program": "$ZED_WORKTREE_ROOT/build_fw_dev/firmware/hexray/FSM/hexray_FSM_chimera.elf",
+    "target": ":2331",
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "build": {
+      "command": "cmake",
+      "args": [
+        "--build",
+        "build_fw_dev",
+        "--target",
+        "hexray_FSM_chimera_debug"
+      ]
+    }
+  },
+  {
+    "label": "Debug Chimera: RSM (Hexray)",
+    "adapter": "GDB",
+    "request": "attach",
+    "program": "$ZED_WORKTREE_ROOT/build_fw_dev/firmware/hexray/RSM/hexray_RSM_chimera.elf",
+    "target": ":2331",
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "build": {
+      "command": "cmake",
+      "args": [
+        "--build",
+        "build_fw_dev",
+        "--target",
+        "hexray_RSM_chimera_debug"
+      ]
+    }
+  },
+  {
+    "label": "Debug Chimera: VC (Hexray)",
+    "adapter": "GDB",
+    "request": "attach",
+    "program": "$ZED_WORKTREE_ROOT/build_fw_dev/firmware/hexray/VC/hexray_VC_chimera.elf",
+    "target": ":2331",
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "build": {
+      "command": "cmake",
+      "args": [
+        "--build",
+        "build_fw_dev",
+        "--target",
+        "hexray_VC_chimera_debug"
+      ]
+    }
+  },
+  {
+    "label": "Debug Chimera: BMS (Seven)",
+    "adapter": "GDB",
+    "request": "attach",
+    "program": "$ZED_WORKTREE_ROOT/build_fw_dev/firmware/seven/BMS/seven_BMS_chimera.elf",
+    "target": ":2331",
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "build": {
+      "command": "cmake",
+      "args": [
+        "--build",
+        "build_fw_dev",
+        "--target",
+        "seven_BMS_chimera_debug"
+      ]
+    }
+  },
+  {
+    "label": "Debug Chimera: DAM (Seven)",
+    "adapter": "GDB",
+    "request": "attach",
+    "program": "$ZED_WORKTREE_ROOT/build_fw_dev/firmware/seven/DAM/seven_DAM_chimera.elf",
+    "target": ":2331",
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "build": {
+      "command": "cmake",
+      "args": [
+        "--build",
+        "build_fw_dev",
+        "--target",
+        "seven_DAM_chimera_debug"
+      ]
+    }
+  },
+  {
+    "label": "Debug Chimera: FSM (Seven)",
+    "adapter": "GDB",
+    "request": "attach",
+    "program": "$ZED_WORKTREE_ROOT/build_fw_dev/firmware/seven/FSM/seven_FSM_chimera.elf",
+    "target": ":2331",
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "build": {
+      "command": "cmake",
+      "args": [
+        "--build",
+        "build_fw_dev",
+        "--target",
+        "seven_FSM_chimera_debug"
+      ]
+    }
+  },
+  {
+    "label": "Debug Chimera: RSM (Seven)",
+    "adapter": "GDB",
+    "request": "attach",
+    "program": "$ZED_WORKTREE_ROOT/build_fw_dev/firmware/seven/RSM/seven_RSM_chimera.elf",
+    "target": ":2331",
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "build": {
+      "command": "cmake",
+      "args": [
+        "--build",
+        "build_fw_dev",
+        "--target",
+        "seven_RSM_chimera_debug"
+      ]
+    }
+  },
+  {
+    "label": "Debug Chimera: VC (Seven)",
+    "adapter": "GDB",
+    "request": "attach",
+    "program": "$ZED_WORKTREE_ROOT/build_fw_dev/firmware/seven/VC/seven_VC_chimera.elf",
+    "target": ":2331",
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "build": {
+      "command": "cmake",
+      "args": [
+        "--build",
+        "build_fw_dev",
+        "--target",
+        "seven_VC_chimera_debug"
       ]
     }
   },
@@ -189,31 +228,29 @@
     "target": ":2331",
     "cwd": "$ZED_WORKTREE_ROOT",
     "build": {
-      "command": "bash",
+      "command": "cmake",
       "args": [
-        "scripts/debugging/start_jlink.sh",
-        "--device",
-        "STM32H733VG",
         "--build",
-        "cmake --build build_fw_dev --target hexray_BMS.hex"
+        "build_fw_dev",
+        "--target",
+        "hexray_BMS_debug"
       ]
     }
   },
   {
-    "label": "Debug Embedded: FSM (Hexray)",
+    "label": "Debug Embedded: CRIT (Hexray)",
     "adapter": "GDB",
     "request": "attach",
-    "program": "$ZED_WORKTREE_ROOT/build_fw_dev/firmware/hexray/FSM/hexray_FSM_app.elf",
+    "program": "$ZED_WORKTREE_ROOT/build_fw_dev/firmware/hexray/CRIT/hexray_CRIT_app.elf",
     "target": ":2331",
     "cwd": "$ZED_WORKTREE_ROOT",
     "build": {
-      "command": "bash",
+      "command": "cmake",
       "args": [
-        "scripts/debugging/start_jlink.sh",
-        "--device",
-        "STM32H562RI",
         "--build",
-        "cmake --build build_fw_dev --target hexray_FSM.hex"
+        "build_fw_dev",
+        "--target",
+        "hexray_CRIT_debug"
       ]
     }
   },
@@ -225,13 +262,46 @@
     "target": ":2331",
     "cwd": "$ZED_WORKTREE_ROOT",
     "build": {
-      "command": "bash",
+      "command": "cmake",
       "args": [
-        "scripts/debugging/start_jlink.sh",
-        "--device",
-        "STM32H562RI",
         "--build",
-        "cmake --build build_fw_dev --target hexray_DAM.hex"
+        "build_fw_dev",
+        "--target",
+        "hexray_DAM_debug"
+      ]
+    }
+  },
+  {
+    "label": "Debug Embedded: FSM (Hexray)",
+    "adapter": "GDB",
+    "request": "attach",
+    "program": "$ZED_WORKTREE_ROOT/build_fw_dev/firmware/hexray/FSM/hexray_FSM_app.elf",
+    "target": ":2331",
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "build": {
+      "command": "cmake",
+      "args": [
+        "--build",
+        "build_fw_dev",
+        "--target",
+        "hexray_FSM_debug"
+      ]
+    }
+  },
+  {
+    "label": "Debug Embedded: PCM (Hexray)",
+    "adapter": "GDB",
+    "request": "attach",
+    "program": "$ZED_WORKTREE_ROOT/build_fw_dev/firmware/hexray/PCM/hexray_PCM_app.elf",
+    "target": ":2331",
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "build": {
+      "command": "cmake",
+      "args": [
+        "--build",
+        "build_fw_dev",
+        "--target",
+        "hexray_PCM_debug"
       ]
     }
   },
@@ -243,179 +313,114 @@
     "target": ":2331",
     "cwd": "$ZED_WORKTREE_ROOT",
     "build": {
-      "command": "bash",
+      "command": "cmake",
       "args": [
-        "scripts/debugging/start_jlink.sh",
-        "--device",
-        "STM32H562RI",
         "--build",
-        "cmake --build build_fw_dev --target hexray_RSM.hex"
-      ]
-    }
-  },
-
-  // Embedded Quintuna Targets (J-Link / Cortex)
-  {
-    "label": "Debug Embedded: VC (Quintuna)",
-    "adapter": "GDB",
-    "request": "attach",
-    "program": "$ZED_WORKTREE_ROOT/build_fw_dev/firmware/quintuna/VC/quintuna_VC_app.elf",
-    "target": ":2331",
-    "cwd": "$ZED_WORKTREE_ROOT",
-    "build": {
-      "command": "bash",
-      "args": [
-        "scripts/debugging/start_jlink.sh",
-        "--device",
-        "STM32H733VG",
-        "--build",
-        "cmake --build build_fw_dev --target quintuna_VC.hex"
+        "build_fw_dev",
+        "--target",
+        "hexray_RSM_debug"
       ]
     }
   },
   {
-    "label": "Debug Embedded: DAM (Quintuna)",
+    "label": "Debug Embedded: VC (Hexray)",
     "adapter": "GDB",
     "request": "attach",
-    "program": "$ZED_WORKTREE_ROOT/build_fw_dev/firmware/quintuna/DAM/quintuna_DAM_app.elf",
+    "program": "$ZED_WORKTREE_ROOT/build_fw_dev/firmware/hexray/VC/hexray_VC_app.elf",
     "target": ":2331",
     "cwd": "$ZED_WORKTREE_ROOT",
     "build": {
-      "command": "bash",
+      "command": "cmake",
       "args": [
-        "scripts/debugging/start_jlink.sh",
-        "--device",
-        "STM32H733VG",
         "--build",
-        "cmake --build build_fw_dev --target quintuna_DAM.hex"
+        "build_fw_dev",
+        "--target",
+        "hexray_VC_debug"
       ]
     }
   },
   {
-    "label": "Debug Embedded: FSM (Quintuna)",
+    "label": "Debug Embedded: BMS (Seven)",
     "adapter": "GDB",
     "request": "attach",
-    "program": "$ZED_WORKTREE_ROOT/build_fw_dev/firmware/quintuna/FSM/quintuna_FSM_app.elf",
+    "program": "$ZED_WORKTREE_ROOT/build_fw_dev/firmware/seven/BMS/seven_BMS_app.elf",
     "target": ":2331",
     "cwd": "$ZED_WORKTREE_ROOT",
     "build": {
-      "command": "bash",
+      "command": "cmake",
       "args": [
-        "scripts/debugging/start_jlink.sh",
-        "--device",
-        "STM32F412RG",
         "--build",
-        "cmake --build build_fw_dev --target quintuna_FSM.hex"
+        "build_fw_dev",
+        "--target",
+        "seven_BMS_debug"
       ]
     }
   },
   {
-    "label": "Debug Embedded: RSM (Quintuna)",
+    "label": "Debug Embedded: DAM (Seven)",
     "adapter": "GDB",
     "request": "attach",
-    "program": "$ZED_WORKTREE_ROOT/build_fw_dev/firmware/quintuna/RSM/quintuna_RSM_app.elf",
+    "program": "$ZED_WORKTREE_ROOT/build_fw_dev/firmware/seven/DAM/seven_DAM_app.elf",
     "target": ":2331",
     "cwd": "$ZED_WORKTREE_ROOT",
     "build": {
-      "command": "bash",
+      "command": "cmake",
       "args": [
-        "scripts/debugging/start_jlink.sh",
-        "--device",
-        "STM32F412RG",
         "--build",
-        "cmake --build build_fw_dev --target quintuna_RSM.hex"
+        "build_fw_dev",
+        "--target",
+        "seven_DAM_debug"
       ]
     }
   },
   {
-    "label": "Debug Embedded: CRIT (Quintuna)",
+    "label": "Debug Embedded: FSM (Seven)",
     "adapter": "GDB",
     "request": "attach",
-    "program": "$ZED_WORKTREE_ROOT/build_fw_dev/firmware/quintuna/CRIT/quintuna_CRIT_app.elf",
+    "program": "$ZED_WORKTREE_ROOT/build_fw_dev/firmware/seven/FSM/seven_FSM_app.elf",
     "target": ":2331",
     "cwd": "$ZED_WORKTREE_ROOT",
     "build": {
-      "command": "bash",
+      "command": "cmake",
       "args": [
-        "scripts/debugging/start_jlink.sh",
-        "--device",
-        "STM32F412RG",
         "--build",
-        "cmake --build build_fw_dev --target quintuna_CRIT.hex"
+        "build_fw_dev",
+        "--target",
+        "seven_FSM_debug"
       ]
     }
   },
   {
-    "label": "Debug Embedded: BMS (Quintuna)",
+    "label": "Debug Embedded: RSM (Seven)",
     "adapter": "GDB",
     "request": "attach",
-    "program": "$ZED_WORKTREE_ROOT/build_fw_dev/firmware/quintuna/BMS/quintuna_BMS_app.elf",
+    "program": "$ZED_WORKTREE_ROOT/build_fw_dev/firmware/seven/RSM/seven_RSM_app.elf",
     "target": ":2331",
     "cwd": "$ZED_WORKTREE_ROOT",
     "build": {
-      "command": "bash",
+      "command": "cmake",
       "args": [
-        "scripts/debugging/start_jlink.sh",
-        "--device",
-        "STM32H733VG",
         "--build",
-        "cmake --build build_fw_dev --target quintuna_BMS.hex"
+        "build_fw_dev",
+        "--target",
+        "seven_RSM_debug"
       ]
     }
   },
   {
-    "label": "Debug Embedded: VCR (Quintuna)",
+    "label": "Debug Embedded: VC (Seven)",
     "adapter": "GDB",
     "request": "attach",
-    "program": "$ZED_WORKTREE_ROOT/build_fw_dev/firmware/quintuna/VCR/quintuna_VCR_app.elf",
+    "program": "$ZED_WORKTREE_ROOT/build_fw_dev/firmware/seven/VC/seven_VC_app.elf",
     "target": ":2331",
     "cwd": "$ZED_WORKTREE_ROOT",
     "build": {
-      "command": "bash",
+      "command": "cmake",
       "args": [
-        "scripts/debugging/start_jlink.sh",
-        "--device",
-        "STM32H733VG",
         "--build",
-        "cmake --build build_fw_dev --target quintuna_VCR_app.elf"
-      ]
-    }
-  },
-  {
-    "label": "Debug Embedded: PCM (Quintuna)",
-    "adapter": "GDB",
-    "request": "attach",
-    "program": "$ZED_WORKTREE_ROOT/build_fw_dev/firmware/quintuna/PCM/quintuna_PCM_app.elf",
-    "target": ":2331",
-    "cwd": "$ZED_WORKTREE_ROOT",
-    "build": {
-      "command": "bash",
-      "args": [
-        "scripts/debugging/start_jlink.sh",
-        "--device",
-        "STM32F412RG",
-        "--build",
-        "cmake --build build_fw_dev --target quintuna_PCM_app.elf"
-      ]
-    }
-  },
-
-  // Embedded Dev Boards (J-Link / Cortex)
-  {
-    "label": "Debug Embedded: SSM",
-    "adapter": "GDB",
-    "request": "attach",
-    "program": "$ZED_WORKTREE_ROOT/build_fw_dev/firmware/dev/SSM/ssm.elf",
-    "target": ":2331",
-    "cwd": "$ZED_WORKTREE_ROOT",
-    "build": {
-      "command": "bash",
-      "args": [
-        "scripts/debugging/start_jlink.sh",
-        "--device",
-        "STM32F412RG",
-        "--build",
-        "cmake --build build_fw_dev --target ssm.hex"
+        "build_fw_dev",
+        "--target",
+        "seven_VC_debug"
       ]
     }
   },
@@ -427,13 +432,12 @@
     "target": ":2331",
     "cwd": "$ZED_WORKTREE_ROOT",
     "build": {
-      "command": "bash",
+      "command": "cmake",
       "args": [
-        "scripts/debugging/start_jlink.sh",
-        "--device",
-        "STM32H733VG",
         "--build",
-        "cmake --build build_fw_dev --target h7dev.hex"
+        "build_fw_dev",
+        "--target",
+        "h7dev_debug"
       ]
     }
   },
@@ -445,41 +449,14 @@
     "target": ":2331",
     "cwd": "$ZED_WORKTREE_ROOT",
     "build": {
-      "command": "bash",
+      "command": "cmake",
       "args": [
-        "scripts/debugging/start_jlink.sh",
-        "--device",
-        "STM32H562RI",
         "--build",
-        "cmake --build build_fw_dev --target h5dev.hex"
+        "build_fw_dev",
+        "--target",
+        "h5dev_debug"
       ]
     }
-  },
-
-  // Native C++ Tests (Host GDB)
-  {
-    "label": "Debug Tests: VC (Quintuna)",
-    "adapter": "GDB",
-    "request": "launch",
-    "program": "$ZED_WORKTREE_ROOT/build_fw_test/firmware/quintuna/VC/quintuna_VC_test",
-    "cwd": "$ZED_WORKTREE_ROOT",
-    "build": "Build Tests: VC (Quintuna)"
-  },
-  {
-    "label": "Debug Tests: CRIT (Quintuna)",
-    "adapter": "GDB",
-    "request": "launch",
-    "program": "$ZED_WORKTREE_ROOT/build_fw_test/firmware/quintuna/CRIT/quintuna_CRIT_test",
-    "cwd": "$ZED_WORKTREE_ROOT",
-    "build": "Build Tests: CRIT (Quintuna)"
-  },
-  {
-    "label": "Debug Tests: BMS (Quintuna)",
-    "adapter": "GDB",
-    "request": "launch",
-    "program": "$ZED_WORKTREE_ROOT/build_fw_test/firmware/quintuna/BMS/quintuna_BMS_test",
-    "cwd": "$ZED_WORKTREE_ROOT",
-    "build": "Build Tests: BMS (Quintuna)"
   },
   {
     "label": "Debug Tests: BMS (Hexray)",
@@ -530,6 +507,46 @@
     "build": "Build Tests: VC (Hexray)"
   },
   {
+    "label": "Debug Tests: BMS (Seven)",
+    "adapter": "GDB",
+    "request": "launch",
+    "program": "$ZED_WORKTREE_ROOT/build_fw_test/firmware/seven/BMS/seven_BMS_test",
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "build": "Build Tests: BMS (Seven)"
+  },
+  {
+    "label": "Debug Tests: DAM (Seven)",
+    "adapter": "GDB",
+    "request": "launch",
+    "program": "$ZED_WORKTREE_ROOT/build_fw_test/firmware/seven/DAM/seven_DAM_test",
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "build": "Build Tests: DAM (Seven)"
+  },
+  {
+    "label": "Debug Tests: FSM (Seven)",
+    "adapter": "GDB",
+    "request": "launch",
+    "program": "$ZED_WORKTREE_ROOT/build_fw_test/firmware/seven/FSM/seven_FSM_test",
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "build": "Build Tests: FSM (Seven)"
+  },
+  {
+    "label": "Debug Tests: RSM (Seven)",
+    "adapter": "GDB",
+    "request": "launch",
+    "program": "$ZED_WORKTREE_ROOT/build_fw_test/firmware/seven/RSM/seven_RSM_test",
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "build": "Build Tests: RSM (Seven)"
+  },
+  {
+    "label": "Debug Tests: VC (Seven)",
+    "adapter": "GDB",
+    "request": "launch",
+    "program": "$ZED_WORKTREE_ROOT/build_fw_test/firmware/seven/VC/seven_VC_test",
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "build": "Build Tests: VC (Seven)"
+  },
+  {
     "label": "Debug Tests: Shared",
     "adapter": "GDB",
     "request": "launch",
@@ -543,14 +560,22 @@
     "request": "launch",
     "program": "$ZED_WORKTREE_ROOT/build_fw_test/firmware/shared/shared_test_cpp",
     "cwd": "$ZED_WORKTREE_ROOT",
-    "build": "Build Tests: Shared"
+    "build": "Build Tests: Shared C++"
   },
   {
     "label": "Debug Tests: JSON CAN integration",
     "adapter": "GDB",
     "request": "launch",
-    "program": "$ZED_WORKTREE_ROOT/build_fw_test/scripts/code_generation/jsoncan/test/integration/jsoncan_test",
+    "program": "$ZED_WORKTREE_ROOT/build_fw_test/scripts/code_generation/jsoncan-rust/integration/jsoncan_test",
     "cwd": "$ZED_WORKTREE_ROOT",
     "build": "Build Tests: JSON CAN integration"
+  },
+  {
+    "label": "Debug Tests: Fakegen",
+    "adapter": "GDB",
+    "request": "launch",
+    "program": "$ZED_WORKTREE_ROOT/build_fw_test/scripts/code_generation/fakegen/fakegen_test",
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "build": "Build Tests: Fakegen"
   }
 ]

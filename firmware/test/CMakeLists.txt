@@ -91,4 +91,11 @@ function(compile_gtest_executable
     target_link_libraries(${TEST_EXECUTABLE_NAME} PRIVATE gtest_main)
     add_test(NAME ${TEST_EXECUTABLE_NAME}
             COMMAND ${TEST_EXECUTABLE_NAME})
+    # Build and run in one step: cmake --build build_fw_test --target run_<test>
+    add_custom_target(run_${TEST_EXECUTABLE_NAME}
+            COMMAND ${TEST_EXECUTABLE_NAME}
+            WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+            USES_TERMINAL VERBATIM
+    )
+    add_dependencies(run_${TEST_EXECUTABLE_NAME} ${TEST_EXECUTABLE_NAME})
 endfunction()

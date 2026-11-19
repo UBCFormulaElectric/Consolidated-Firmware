@@ -58,6 +58,19 @@ IF (FIX_FORMATTING)
             WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
     )
 ENDIF ()
+# Format on demand: cmake --build <build dir> --target fix_formatting
+add_custom_target(fix_formatting
+        COMMAND ${PYTHON_COMMAND} ${FIX_FORMATTING_SCRIPT}
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+        USES_TERMINAL VERBATIM
+)
+
+# Run the telemetry backend with the build's Python: cmake --build <build dir> --target run_telem_backend
+add_custom_target(run_telem_backend
+        COMMAND ${PYTHON_COMMAND} software/tracksight/backend/app/app.py
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+        USES_TERMINAL VERBATIM
+)
 
 # ======== Code Time ========
 option(PLATFORM "The platform to build for, either \"firmware\" or \"dimos\"" "firmware")

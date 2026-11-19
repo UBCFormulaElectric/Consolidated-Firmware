@@ -1,37 +1,30 @@
+// Machine-specific settings go in your USER settings (zed: open settings), because project settings override them:
+//   GDB with DAP support, for the GDB debug configs:
+//     Linux:   "dap": { "GDB": { "binary": "gdb-multiarch" } }
+//     macOS:   "dap": { "GDB": { "binary": "arm-none-eabi-gdb" } }
+//     Windows: "dap": { "GDB": { "binary": "C:/msys64/ucrt64/bin/gdb-multiarch.exe" } }
+//              (MSYS2: pacman -S mingw-w64-ucrt-x86_64-gdb-multiarch. The Arm toolchain GDB cannot do DAP on Windows.)
+// Tasks: Zed runs them in PowerShell on Windows (terminal.shell does not change that) and in bash/zsh elsewhere,
+// and has no per-OS task commands. So every task is "cmake --build <dir> --target <target>". The build defines the
+// extra targets: fix_formatting, run_telem_backend (CMakeLists.txt), run_<test> (firmware/test/CMakeLists.txt),
+// <image>_flash, <image>_debug and jlink_stop (firmware/cmake/embedded.cmake).
 {
   "debugger": {
     "dock": "bottom",
     "save_breakpoints": true,
     "button": true
   },
-  "dap": {
-    "GDB": {
-      "binary": "gdb",
-      "args": ["-i", "dap"]
-    }
-  },
   "lsp": {
     "clangd": {
       "binary": {
         "arguments": [
-          "--compile-commands-dir=build_fw_dev",
-          "--query-driver=/usr/local/bin/arm-none-eabi-gcc"
+          // /.clangd picks build_fw_dev or build_fw_test for each file. Do not add --compile-commands-dir: it overrides that.
+          // "**": on Windows, compile_commands.json has 8.3 short compiler paths (AR10B2~1.EXE) that a narrower glob misses.
+          "--query-driver=**"
         ]
       },
       "initialization_options": {
         "fallbackFlags": ["-std=c++23"]
-      }
-    },
-    "json-language-server": {
-      "settings": {
-        "json": {
-          "schemas": [
-            {
-              "fileMatch": ["/can_bus/json/**/*tx.json"],
-              "url": "./can_bus/json/schema_tx.json"
-            }
-          ]
-        }
       }
     }
   }

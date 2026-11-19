@@ -11,4 +11,9 @@ if [[ -f "$PID_FILE" ]]; then
 fi
 
 pkill -f "JLinkGDBServer" 2>/dev/null || true
+if [[ "$OSTYPE" == msys* || "$OSTYPE" == cygwin* ]]; then
+  # Windows (Git Bash / MSYS2)
+  taskkill //F //IM JLinkGDBServerCL.exe >/dev/null 2>&1 || true
+  rm -f "$DEV_FILE"
+fi
 echo "==> J-Link GDB Server stopped."
