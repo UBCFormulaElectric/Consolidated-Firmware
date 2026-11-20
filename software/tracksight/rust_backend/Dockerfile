@@ -1,4 +1,4 @@
-FROM rust:1.92.0 AS builder
+FROM rust:1.95.0 AS builder
 
 # Backend binary set up
 WORKDIR /backend
