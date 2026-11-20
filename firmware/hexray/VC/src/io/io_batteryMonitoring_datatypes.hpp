@@ -2,10 +2,14 @@
 #pragma once
 #include <array>
 
-// Commands for voltages
-/**
- * @brief The commands for reading the voltages of the 4 cells
- */
+// TEMPORARY...
+inline constexpr uint16_t REG_LOWER      = 0x3E;
+inline constexpr uint16_t REG_UPPER      = 0x3F;
+inline constexpr uint16_t REG_DATA       = 0x40;
+inline constexpr uint16_t REG_CHECKSUM   = 0x60;
+inline constexpr uint16_t REG_DATALENGTH = 0x61;
+inline constexpr uint8_t  SUBCOMMAND_BYTES = 4;
+
 enum class CellReading : uint8_t
 {
     CELL1 = 0x14,
@@ -13,16 +17,146 @@ enum class CellReading : uint8_t
     CELL3 = 0x1A,
     CELL4 = 0x1C
 };
-/**
- * @brief
- * PACK voltage is cell stack state
- * LOAD voltage is after the FETS (don't rlly have this year), reading this confirms voltage is delivered past the IC
- */
+
 enum class SystemReading : uint8_t
 {
     PACK_V = 0x36,
     LOAD_V = 0x38
 };
+
+inline constexpr uint16_t CMD_GETCURRENT = 0x3A;
+inline constexpr uint16_t CMD_TEMPERATURE_IC = 0x68;
+
+// ---------------------------
+
+// Important for communication in regards to subcommands
+namespace Communications
+{
+inline constexpr uint16_t REG_LOWER      = 0x3E;
+inline constexpr uint16_t REG_UPPER      = 0x3F;
+inline constexpr uint16_t REG_DATA       = 0x40;
+inline constexpr uint16_t REG_CHECKSUM   = 0x60;
+inline constexpr uint16_t REG_DATALENGTH = 0x61;
+inline constexpr uint8_t  SUBCOMMAND_BYTES = 4;
+} // namespace Communications
+
+// Messages to the IC can be send/requested by either direct COMMANDs or SUBCOMMANDs
+/**
+ * @brief The two types of messages
+ */
+enum class Action : uint16_t
+{
+    COMMAND, 
+    SUBCOMMAND
+};
+struct Address
+{
+    Action action;
+    uint16_t code;
+};
+
+// Voltage Readings
+struct cellReading : Address
+{
+};
+inline constexpr cellReading CELL1_V = { { Action::COMMAND, 0x14 } };
+inline constexpr cellReading CELL2_V = { { Action::COMMAND, 0x16 } };
+inline constexpr cellReading CELL3_V = { { Action::COMMAND, 0x1A } };
+inline constexpr cellReading CELL4_V = { { Action::COMMAND, 0x1C } };
+
+struct systemReading : Address
+{
+};
+inline constexpr systemReading PACK_V = { { Action::COMMAND, 0x36 } };
+inline constexpr systemReading LOAD_V = { { Action::COMMAND, 0x38 } };
+
+inline constexpr Address CURRENT_A = { Action::COMMAND, 0x3A };
+inline constexpr Address DIE_TEMPERATURE_C = { Action::COMMAND, 0x68 };
+
+// Initialization requirements
+union ControlStatus
+{
+    static constexpr Address CONTROL_STATUS = { Action::COMMAND, 0x00 };
+    struct __attribute__((packed))
+    {
+        uint16_t RSVD2 : 8;
+        uint16_t LD_ON : 1;
+        uint16_t LD_TIMEOUT : 1;
+        uint16_t DEEPSLEEP : 1;
+        uint16_t RSVD1 : 5;
+    } bits;
+    uint16_t raw_value;
+    static_assert(sizeof(bits) == sizeof(raw_value));
+};
+union BatteryStatus
+{
+    static constexpr Address BATTERY_STATUS = { Action::COMMAND, 0x12 };
+    struct __attribute__((packed))
+    {
+        uint16_t CFGUPDATE : 1;
+        uint16_t PCHG_MODE : 1;
+        uint16_t SLEEP_EN : 1;
+        uint16_t POR : 1;
+        uint16_t WD : 1;
+        uint16_t COW_CHECK : 1;
+        uint16_t OTPW : 1;
+        uint16_t OTPB : 1;
+        uint16_t SEC0 : 1;
+        uint16_t SEC1 : 1;
+        uint16_t SS : 1;
+        uint16_t FUSE : 1;
+        uint16_t PF : 1;
+        uint16_t SDM : 1;
+        uint16_t RSVD : 1;
+        uint16_t SLEEP : 1;
+    } bits;
+    uint16_t raw_value;
+    static_assert(sizeof(bits) == sizeof(raw_value));
+};
+inline constexpr Address EXIT_DEEPSLEEP = { Action::SUBCOMMAND, 0x000E };
+inline constexpr Address EXIT_SLEEP = { Action::SUBCOMMAND, 0x009A };
+inline constexpr Address CONFIG_UPDATE = { Action::SUBCOMMAND, 0x0090 };
+inline constexpr Address CONFIG_EXIT = { Action::SUBCOMMAND, 0x0092 };
+
+// Internal Configurations
+inline constexpr Address MODE_VCELL = { Action::SUBCOMMAND, 0x9304 };
+
+// Protections Firing
+union SafetyStatusA
+{
+    static inline constexpr Address ADDR = { Action::COMMAND, 0x03 };
+    struct __attribute__((packed))
+    {
+        uint8_t RSVD : 2; // Reserved
+        uint8_t CUV : 1; // Cell undervoltage
+        uint8_t COV : 1; // Cell overvoltage
+        uint8_t OCC : 1; // Overcurrent in charge
+        uint8_t OCD1 : 1; // Overcurrent in discharge 1
+        uint8_t OCD2 : 1; // Overcurrent in discharge 2
+        uint8_t SCD : 1; // Short circuit in discharge
+    } bits;    // Debounced alerts
+    uint8_t raw_status;
+    static_assert(sizeof(bits) == sizeof(raw_status));
+};
+union SafetyStatusB
+{
+    static inline constexpr Address ADDR = { Action::COMMAND, 0x05 };
+    struct __attribute__((packed))
+    {
+        uint8_t UTC : 1; // Undertemperature in Charge
+        uint8_t UTD : 1; // Undertemperature in Discharge
+        uint8_t UTINT : 1; // Internal Die Undertemperature
+        uint8_t RSVD : 1; // Reserved
+        uint8_t OTC : 1; // Internal Die Overtemperature
+        uint8_t OTD : 1; // Overtemperature in Discharge
+        uint8_t OTINT : 1; // Internal Die Overtemperature
+        uint8_t OTF : 1; // FET Overtemperature
+    } bits;
+    uint8_t raw_status;
+    static_assert(sizeof(bits) == sizeof(raw_status));
+};
+
+// inline constexpr Address SAFETYSTATUS_C = { Action::COMMAND, 0x07 };
 
 // Balancing cell bitmask
 enum class CellBalance_BitMask : uint16_t
@@ -53,14 +187,6 @@ inline constexpr uint16_t COMM_TYPE = 0x9239;
 // Vcell Mode
 inline constexpr uint16_t VCELL_MODE = 0x9304;
 
-// command/subcommand addresses
-inline constexpr uint16_t REG_LOWER      = 0x3E;
-inline constexpr uint16_t REG_UPPER      = 0x3F;
-inline constexpr uint16_t REG_DATA       = 0x40;
-inline constexpr uint16_t REG_CHECKSUM   = 0x60;
-inline constexpr uint16_t REG_DATALENGTH = 0x61;
-
-inline constexpr uint8_t  SUBCOMMAND_BYTES = 4;
 inline constexpr uint32_t RETRIES          = 20;
 
 // DEEPSLEEP/SLEEP Checks
@@ -77,15 +203,11 @@ inline constexpr uint16_t EXIT_CFGUPDATE       = 0x0092;
 // CC and Digital Filters
 inline constexpr uint16_t SUBCMD_RESETCHARGEACCUM = 0x0082;
 
-// Current
-inline constexpr uint16_t CMD_GETCURRENT = 0x3A;
-
 // Charge
 inline constexpr uint16_t SUBCMD_DASTATUS5            = 0x0075;
 inline constexpr uint16_t SUBCMD_GET_INEGRATED_CHARGE = 0x0076;
 
 // Cell Balancing
-inline constexpr uint16_t CMD_TEMPERATURE_IC          = 0x68;
 inline constexpr uint16_t BALANCE_CFG                 = 0x9335;
 inline constexpr uint16_t MIN_CELL_TEMP               = 0x9336;
 inline constexpr uint16_t MAX_CELL_TEMP               = 0x9337;
@@ -172,76 +294,6 @@ union AlertStatus
     uint16_t raw_value;
     static_assert(sizeof(bits) == sizeof(raw_value));
 };
-
-union BatteryStatus
-{
-    struct __attribute__((packed))
-    {
-        uint16_t CFGUPDATE : 1;
-        uint16_t PCHG_MODE : 1;
-        uint16_t SLEEP_EN : 1;
-        uint16_t POR : 1;
-        uint16_t WD : 1;
-        uint16_t COW_CHECK : 1;
-        uint16_t OTPW : 1;
-        uint16_t OTPB : 1;
-        uint16_t SEC0 : 1;
-        uint16_t SEC1 : 1;
-        uint16_t SS : 1;
-        uint16_t FUSE : 1;
-        uint16_t PF : 1;
-        uint16_t SDM : 1;
-        uint16_t RSVD : 1;
-        uint16_t SLEEP : 1;
-    } bits;
-    uint16_t raw_value;
-    static_assert(sizeof(bits) == sizeof(raw_value));
-};
-
-union ControlStatus
-{
-    struct __attribute__((packed))
-    {
-        uint16_t RSVD2 : 8;
-        uint16_t LD_ON : 1;
-        uint16_t LD_TIMEOUT : 1;
-        uint16_t DEEPSLEEP : 1;
-        uint16_t RSVD1 : 5;
-    } bits;
-    uint16_t raw_value;
-    static_assert(sizeof(bits) == sizeof(raw_value));
-};
-union SafetyStatusA
-{
-    struct __attribute__((packed))
-    {
-        uint8_t RSVD : 2; // Reserved
-        uint8_t CUV : 1;  // Cell undervoltage
-        uint8_t COV : 1;  // Cell overvoltage
-        uint8_t OCC : 1;  // Overcurrent in charge
-        uint8_t OCD1 : 1; // Overcurrent in discharge 1
-        uint8_t OCD2 : 1; // Overcurrent in discharge 2
-        uint8_t SCD : 1;  // Short Circuit in Discharge
-    } bits;               // alerts associated with the battery chip
-    uint8_t raw_status;
-    static_assert(sizeof(bits) == sizeof(raw_status));
-};
-union SafetyStatusB
-{
-    struct __attribute__((packed))
-    {
-        uint8_t UTC : 1;
-        uint8_t UTD : 1;
-        uint8_t UTINT : 1;
-        uint8_t RSVD : 1;
-        uint8_t OTC : 1;
-        uint8_t OTD : 1;
-        uint8_t OTINT : 1; // Internal Die Overtemperature
-        uint8_t OTF : 1;
-    } bits;
-    uint8_t raw_status;
-    static_assert(sizeof(bits) == sizeof(raw_status));
-};
 union CUV
 {
     typedef struct __attribute__((packed))
@@ -267,4 +319,5 @@ union COV
         uint16_t reserved[11];  // Bytes 10-31
     } bytes;
     std::array<uint8_t, 32> snapshot_overvoltages;
+
 };
