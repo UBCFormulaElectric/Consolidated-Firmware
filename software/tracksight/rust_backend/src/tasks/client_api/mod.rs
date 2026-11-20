@@ -7,6 +7,8 @@ pub mod subtable_clients;
 pub mod transmit_api_handler;
 pub mod signal_metadata;
 
+mod lttb;
+
 use crate::tasks::{
     client_api::{signal_tile::SignalTileCache, subtable_clients::Clients},
     telem_message::TelemetryOutgoingMessage,

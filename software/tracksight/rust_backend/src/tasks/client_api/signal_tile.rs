@@ -13,13 +13,16 @@ use moka::future::Cache;
 use serde::Serialize;
 use tokio::{select, time::sleep};
 
-use crate::{config::CONFIG, dprintln, tasks::can_data::influx_util::InfluxSignalSource};
+use crate::config::CONFIG;
+use crate::dprintln;
+use crate::tasks::can_data::influx_util::InfluxSignalSource;
+use crate::tasks::client_api::lttb::{LttbPoint, lttb};
 use crate::tasks::client_api::INFLUX_QUERY_TIMEOUT_MS;
 
 /**
  * The row for each signal value returned from InfluxDB
  */
-#[derive(Debug, Serialize, FromDataPoint, Default)]
+#[derive(Debug, Serialize, FromDataPoint, Default, Clone)]
 pub struct InfluxSignalRow {
     // rename influx field names to match with frontend names
     #[serde(rename = "timestamp")]
@@ -31,6 +34,16 @@ pub struct InfluxSignalRow {
     source: String, // source of data, see `InfluxSignalSource`
 }
 
+impl LttbPoint for InfluxSignalRow {
+    fn x(&self) -> f64 {
+        self.time.timestamp_millis() as f64
+    }
+
+    fn y(&self) -> f64 {
+        self.value
+    }
+}
+
 // time interval [a, b] -> bucket sizes/resolution based on max points, round to finer resolution (round down)
 // resolution -> tiles (based on predefined buckets (# of points) per tile, hence tilewidth)
 // with each tile, check cache
@@ -40,6 +53,10 @@ pub struct InfluxSignalRow {
  * This also dictates API latency for fresh data, i.e. cache misses
  */
 const WINDOW_SIZE: u64 = 256;
+/**
+ * Factor in which to oversample before downsampling
+ */
+const OVER_SAMPLE_FACTOR: u64 = 4;
 /**
  * Number of points per tile, each point being 16 bytes 
  * This dictates size of cache, as well as performance of fetching missed tiles
@@ -86,19 +103,28 @@ pub struct SignalTilePoint {
  * For resolutions too small or too large, round to smallest or largest resolution respectively
  * Otherwise, always round down to nearest resolution
  */
-const RESOLUTIONS_MS: [u64; 10] = [10, 20, 50, 100, 500, 1000, 10000, 60000, 600000, 3600000];
-fn round_resolution_ms(res_ms: f64) -> u64 {
-    if res_ms < RESOLUTIONS_MS[0] as f64 {
-        return RESOLUTIONS_MS[0];
-    }
+const RESOLUTIONS_MS: [u64; 11] = [
+    1, 
+    10, 
+    20, 
+    50, 
+    100, 
+    500, 
+    1_000, // 1 second
+    10_000, // 10 seconds
+    60_000, // 1 minute
+    600_000, // 30 minutes
+    3_600_000 // 1 hour
+];
 
-    for i in 1..RESOLUTIONS_MS.len() {
-        if res_ms < RESOLUTIONS_MS[i] as f64 {
-            return RESOLUTIONS_MS[i-1];
-        }
-    }
+fn choose_resolution(range: u64) -> u64 {
+    let desired_res = range / (OVER_SAMPLE_FACTOR * WINDOW_SIZE);
 
-    return RESOLUTIONS_MS[RESOLUTIONS_MS.len() - 1];
+    RESOLUTIONS_MS
+        .iter()
+        .find(|&resolution| resolution >= &desired_res)
+        .unwrap_or(RESOLUTIONS_MS.last().unwrap())
+        .clone()
 }
 
 /**
@@ -112,11 +138,11 @@ pub async fn get_signals(
     signal_tile_cache: SignalTileCache, 
     signal: String,
     start: DateTime<Utc>,
-    end: DateTime<Utc>,
-    agg: String
+    end: DateTime<Utc>
 ) -> Result<(Vec<InfluxSignalRow>, u64), (StatusCode, String)> {
     // resolution in seconds
-    let resolution_ms = round_resolution_ms((end - start).as_seconds_f64() * 1000.0 / (WINDOW_SIZE as f64));
+    let range_ms = (end - start).num_milliseconds() as u64;
+    let resolution_ms = choose_resolution(range_ms);
     let tile_duration_ms = TILE_SIZE * resolution_ms;
     
     // get tiles
@@ -167,7 +193,7 @@ pub async fn get_signals(
                 |> filter(fn: (r) => r["signal_name"] == "{signal}")
                 |> filter(fn: (r) => r["source"] == "{source_str}")
                 |> toFloat()
-                |> aggregateWindow(every: {resolution_ms}ms, fn: {agg}, createEmpty: false)"#, 
+                |> aggregateWindow(every: {resolution_ms}ms, fn: mean, createEmpty: false)"#, 
                 &CONFIG.influxdb_bucket, 
                 &CONFIG.influxdb_measurement
             );
@@ -228,12 +254,15 @@ pub async fn get_signals(
                         Some(Query::new(tile_query_str))
                     ).await?;
 
+                    // perform downsampling
+                    let downsampled_rows = lttb(&signal_rows, TILE_SIZE as usize);
+                    
                     // If fetch success, insert into cache
                     if tile_end_ms < curr_time_ms {
                         // tile is in the past, insert into cache
                         cache_clone.insert(
                             tile_key, 
-                            signal_rows.iter().map(|row| SignalTilePoint {
+                            downsampled_rows.into_iter().map(|row| SignalTilePoint {
                                 time_utc_ms: row.time.timestamp_millis(),
                                 value: row.value,
                                 signal_name: row.signal_name.clone(),
