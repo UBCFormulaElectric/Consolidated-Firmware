@@ -160,7 +160,7 @@ async fn signal_tiles(
         _ => InfluxSignalSource::Radio,
     };
     
-    match get_signals(state.influx_client, source_enum, state.signal_tile_cache.clone(), signal, start_utc, end_utc, agg.unwrap_or_else(|| "max".into())).await {
+    match get_signals(state.influx_client, source_enum, state.signal_tile_cache.clone(), signal, start_utc, end_utc).await {
         Ok((rows, resolution_ms)) => {
             dprintln!("Querying signals took {}ms", start_time.elapsed().unwrap().as_millis());
             
