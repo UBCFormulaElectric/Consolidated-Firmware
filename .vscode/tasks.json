@@ -101,6 +101,24 @@
       ]
     },
     {
+      "label": "Build Embedded: BMS (Seven)",
+      "group": "build",
+      "type": "cmake",
+      "command": "build",
+      "targets": [
+        "seven_BMS_app.hex"
+      ]
+    },
+    {
+      "label": "Build Tests: BMS (Seven)",
+      "group": "build",
+      "type": "cmake",
+      "command": "build",
+      "targets": [
+        "seven_BMS_test"
+      ]
+    },
+    {
       "label": "Build Chimera: BMS (Hexray)",
       "group": "build",
       "type": "cmake",
