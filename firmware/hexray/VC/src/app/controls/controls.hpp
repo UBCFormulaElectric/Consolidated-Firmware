@@ -39,14 +39,14 @@ struct ControlsConfig
  * @param state The current measured vehicle state, note that intent is in here as well
  * @return The per-wheel torque requests to achieve the desired accelerations, in Newton-meters
  */
-ControlOutput update(const VehicleState &state, const ControlsConfig config);
+ControlOutput update(const VehicleState &state, const ControlsConfig &config);
 
 /**
  * This is the main entrypoint into the low level vehicle controls algorithm for autonomous
  * @param state The current measured vehicle state, note that intent is in here as well
  * @return
  */
-ControlOutputAutonomous updateAutonomous(const VehicleState &state, const ControlsConfig config);
+ControlOutputAutonomous updateAutonomous(const VehicleState &state, const ControlsConfig &config);
 
 /**
  * Given the slip ratio setpoints, computes the motor speed setpoints that achieve them at the current vehicle speed
@@ -60,5 +60,5 @@ ControlOutputAutonomous updateAutonomous(const VehicleState &state, const Contro
  * angles and the brake pedal
  * @return per-wheel motor torque requests in Nm
  */
-wheel_set<float> kappaUpdate(const ControlOutput &control, const VehicleState &state, const ControlsConfig config);
+wheel_set<float> kappaUpdate(const ControlOutput &control, const VehicleState &state, const ControlsConfig &config);
 } // namespace app::controls

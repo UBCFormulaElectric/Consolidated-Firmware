@@ -19,7 +19,7 @@ namespace app::controls
 using namespace params;
 using namespace torque_limits;
 
-ControlOutput update(const VehicleState &state, const ControlsConfig config)
+ControlOutput update(const VehicleState &state, const ControlsConfig &config)
 {
     //------------------------------------- REFERENCE ----------------------------------------//
 
@@ -61,7 +61,7 @@ ControlOutput update(const VehicleState &state, const ControlsConfig config)
     return { kappas, torque_max_Nm, torque_min_Nm };
 }
 
-ControlOutputAutonomous updateAutonomous(const VehicleState &state, const ControlsConfig config)
+ControlOutputAutonomous updateAutonomous(const VehicleState &state, const ControlsConfig &config)
 {
     (void)state;
     (void)config;
@@ -109,7 +109,7 @@ namespace
     }
 } // namespace
 
-wheel_set<float> kappaUpdate(const ControlOutput &control, const VehicleState &state, const ControlsConfig config)
+wheel_set<float> kappaUpdate(const ControlOutput &control, const VehicleState &state, const ControlsConfig &config)
 {
     // Stopped: nothing to track, so the integrators must not wind up (e.g. against the brakes at standstill)
     const auto stopped_speed_mps = actuation::speed_controller::STOPPED_SPEED_mps;

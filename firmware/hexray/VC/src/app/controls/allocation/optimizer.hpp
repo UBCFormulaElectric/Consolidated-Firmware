@@ -24,5 +24,5 @@ namespace app::controls::allocation
  * @return Per-wheel optimal slip ratios
  */
 [[nodiscard]] wheel_set<float>
-    optimize(const VehicleState &state, float ax_setpoint_mps2, float mz_setpoint_Nm, const ControlsConfig config);
+    optimize(const VehicleState &state, float ax_setpoint_mps2, float mz_setpoint_Nm, const ControlsConfig &config);
 } // namespace app::controls::allocation
