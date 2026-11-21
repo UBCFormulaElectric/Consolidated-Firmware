@@ -18,29 +18,6 @@ static RSMImuResults imu_results = { .accel_x_res = std::unexpected(ErrorCode::E
                                      .gyro_z_res  = std::unexpected(ErrorCode::ERROR),
                                     };
 
-static constexpr float accel_limit_g = 5.0f;
-static constexpr float gyro_limit_degs = 250.0f;
-
-/// @brief Checks if imu reading is a valid number(isfinite) and if it is within a limit
-/// @param imu_val 
-/// @param limit 
-/// @return 
-static result<float> validate_val(const result<float> imu_val, const float limit)
-{
-    if (!imu_val.has_value()) {
-        return imu_val;
-    }
-    else if(!std::isfinite(*imu_val)) {
-        return std::unexpected(ErrorCode::INVALID_READING);
-    }
-    else if(std::fabs(*imu_val) > limit) {
-        return std::unexpected(ErrorCode::OUT_OF_RANGE);
-    }
-    else {
-        return imu_val;
-    }
-}
-
 void init()
 {
     auto ec = io::imus::init();
@@ -49,12 +26,8 @@ void init()
 
 void broadcast()
 {
-    imu_results = { validate_val(imu_rear.getAccelX(), accel_limit_g),
-                    validate_val(imu_rear.getAccelY(), accel_limit_g),
-                    validate_val(imu_rear.getAccelZ(), accel_limit_g),
-                    validate_val(imu_rear.getGyroX(),  gyro_limit_degs),
-                    validate_val(imu_rear.getGyroY(),  gyro_limit_degs),
-                    validate_val(imu_rear.getGyroZ(),  gyro_limit_degs) };
+    imu_results = { imu_rear.getAccelX(), imu_rear.getAccelY(), imu_rear.getAccelZ(),
+                    imu_rear.getGyroX(),  imu_rear.getGyroY(),  imu_rear.getGyroZ() };
 
     can_tx::RSM_AccelX_set(imu_results.accel_x_res.value_or(0.0f));
     can_tx::RSM_AccelY_set(imu_results.accel_y_res.value_or(0.0f));
