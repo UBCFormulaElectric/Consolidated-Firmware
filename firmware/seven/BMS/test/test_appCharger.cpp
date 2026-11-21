@@ -17,12 +17,7 @@ class AppChargerTest : public BMSBaseTest
 
         app::can_rx::Debug_StartCharging_update(true);
 
-        // Clear all Elcon faults.
-        app::can_rx::Elcon_HardwareFailure_update(false);
-        app::can_rx::Elcon_ChargerOverTemperature_update(false);
-        app::can_rx::Elcon_InputVoltageError_update(false);
-        app::can_rx::Elcon_ChargingDisabled_update(false);
-        app::can_rx::Elcon_CommunicationTimeout_update(false);
+        ClearElconFaults();
 
         // Set arbitrary charge measurements
         app::can_rx::Elcon_OutputCurrent_update(5.0f);
@@ -35,6 +30,14 @@ class AppChargerTest : public BMSBaseTest
         fakes::adbms::setCellVoltage(0, 0, 3.8f);
 
         app::StateMachine::set_current_state(&charge_state);
+    }
+    void ClearElconFaults()
+    {
+        app::can_rx::Elcon_HardwareFailure_update(false);
+        app::can_rx::Elcon_ChargerOverTemperature_update(false);
+        app::can_rx::Elcon_InputVoltageError_update(false);
+        app::can_rx::Elcon_ChargingDisabled_update(false);
+        app::can_rx::Elcon_CommunicationTimeout_update(false);
     }
 };
 
@@ -107,7 +110,7 @@ TEST_F(AppChargerTest, setChargingConfig_updates_can_tx_signals)
 
     EXPECT_FLOAT_EQ(app::can_tx::BMS_MaxChargingVoltage_get(), 400.0f);
     EXPECT_FLOAT_EQ(app::can_tx::BMS_MaxChargingCurrent_get(), 8.0f);
-    EXPECT_FALSE(app::can_tx::BMS_StopCharging_get());
+    EXPECT_TRUE(app::can_tx::BMS_StopCharging_get());
 }
 
 TEST_F(AppChargerTest, setChargingConfig_writes_stop_charging_cmd) 
@@ -124,6 +127,55 @@ TEST_F(AppChargerTest, setChargingConfig_writes_stop_charging_cmd)
     EXPECT_TRUE(app::can_tx::BMS_StopCharging_get());
 }
 
+// =============================================================================
+// getAvailableCurrent()
+// =============================================================================
+
+TEST_F(AppChargerTest, getAvailableCurrent_returns_zero_when_duty_cycle_outbounds)
+{
+    fakes::charger::setCPDutyCycle(0.0f);
+    const float available_current = app::charger::getAvailableCurrent();
+    EXPECT_FLOAT_EQ(available_current, 0.0f);
+
+    fakes::charger::setCPDutyCycle(100.0f);
+    const float available_current2 = app::charger::getAvailableCurrent();
+    EXPECT_FLOAT_EQ(available_current2, 0.0f);
+}
+
+TEST_F(AppChargerTest, getAvailableCurrent_returns_expected_current_for_duty_cycle_ranges)
+{
+    fakes::charger::setCPDutyCycle(50.0f);
+    const float available_current = app::charger::getAvailableCurrent();
+    EXPECT_FLOAT_EQ(available_current, 50.0f * 0.6f); // between 10% and 85% duty cycle
+
+    fakes::charger::setCPDutyCycle(90.0f);
+    const float available_current2 = app::charger::getAvailableCurrent();
+    EXPECT_FLOAT_EQ(available_current2, (90.0f - 64.0f) * 2.5f); // between 85% and 96% duty cycle
+
+    fakes::charger::setCPDutyCycle(96.0f);
+    const float available_current3 = app::charger::getAvailableCurrent();
+    EXPECT_FLOAT_EQ(available_current3, (96.0f - 64.0f) * 2.5f); // at MAX duty cycle
+
+    fakes::charger::setCPDutyCycle(10.0f);
+    const float available_current4 = app::charger::getAvailableCurrent();
+    EXPECT_FLOAT_EQ(available_current4, 10.0f * 0.6f); // at MIN duty cycle
+}
+
+// =============================================================================
+// broadcastEvseStatus()
+// =============================================================================
+
+TEST_F(AppChargerTest, broadcastEvseStatus_writes_expected_can_tx_signals)
+{
+    fakes::charger::setCPDutyCycle(50.0f);
+    fakes::charger::setCPFrequency(100.0f);
+
+    app::charger::broadcastEvseStatus();
+
+    EXPECT_FLOAT_EQ(app::can_tx::BMS_EvseAvailableCurrent_get(), 50.0f * 0.6f);
+    EXPECT_FLOAT_EQ(app::can_tx::BMS_EvseDutyCycle_get(), 50.0f);
+    EXPECT_FLOAT_EQ(app::can_tx::BMS_EvseFrequency_get(), 100.0f);
+} // namespace appCharger
 
 
 

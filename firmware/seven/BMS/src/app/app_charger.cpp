@@ -40,7 +40,7 @@ void setChargingConfig(const ElconChargingConfig &cmd)
 
 float getAvailableCurrent()
 {
-    const float evse_duty_cycle = io::charger::getCPDutyCycle();
+    const float evse_duty_cycle = io::charger::getCPDutyCycle() * 100.0f;
 
     if (evse_duty_cycle >= EVSE_DUTY_CYCLE_MIN && evse_duty_cycle <= EVSE_DUTY_CYCLE_MID) 
     {
