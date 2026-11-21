@@ -79,7 +79,7 @@ namespace
     const VehicleState  &state,
     const float          ax_setpoint_mps2,
     const float          mz_setpoint_Nm,
-    const ControlsConfig config)
+    const ControlsConfig &config)
 {
     // Low-speed safeguard:
     // torque_vectoring.cpp computes a single force-availability blend from vehicle speed and passes it
