@@ -183,10 +183,3 @@ TEST_F(AppChargerTest, broadcastEvseStatus_reports_zero_current_for_invalid_valu
     EXPECT_FLOAT_EQ(app::can_tx::BMS_EvseAvailableCurrent_get(), 0.0f);
     EXPECT_FLOAT_EQ(app::can_tx::BMS_EvseDutyCycle_get(), 0.0f);
 }
-
-
-
-
-
-
-

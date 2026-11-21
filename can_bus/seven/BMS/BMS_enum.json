@@ -1,0 +1,7 @@
+{
+  "ChargerConnectedType": {
+    "CHARGER_DISCONNECTED": 0,
+    "CHARGER_CONNECTED_EVSE": 1,
+    "CHARGER_CONNECTED_WALL": 2
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "forwarders": [],
+  "buses": [
+    {
+      "name": "charger",
+      "nodes": ["BMS", "Elcon"],
+      "bus_speed": 500,
+      "modes": ["DEFAULT", "DEBUG"],
+      "default_mode": "DEFAULT"
+    }
+  ]
+}
