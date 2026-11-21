@@ -27,7 +27,7 @@ namespace initState
     {
         const bool irs_negative_closed =
             io::irs::negativeState() == app::can_utils::ContactorState::CONTACTOR_STATE_CLOSED;
-        const bool ts_discharged          = app::ts::getVoltage() < TS_DISCHARGED_THRESHOLD_V;
+        const bool ts_discharged          = (app::ts::getVoltage() < TS_DISCHARGED_THRESHOLD_V);
         const bool cell_balancing_enabled = app::can_rx::Debug_CellBalancing_Request_get();
         // const bool ts_discharged = true;
 
