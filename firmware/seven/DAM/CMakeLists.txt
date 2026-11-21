@@ -43,6 +43,25 @@ set(IO_INCLUDE_DIRS
         "${SHARED_IO_INCLUDE_DIR}" "${SHARED_IO_INCLUDE_DIR_CPP}"
 )
 
+# TODO: Temporary workaround until seven's CAN JSON is complete. JSONCAN codegen (app_canTx/Rx/Utils/Alerts,
+#  io_canTx) is not run for the test target, so these sources are left out of it: they use the generated CAN code
+#  directly, or need mocks in test/damMocks.cpp (io::FileSystem, ntpButton, estop nodes), which itself uses it.
+#  Delete these lists and the matching lines in the test section once JSONCAN is re-enabled there.
+set(APP_SRCS_NEEDING_CAN
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/app/app_buzzer.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/app/app_heartbeatMonitors.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/app/app_telemRx.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/app/app_button.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/app/app_sd.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/app/app_damShdnLoop.cpp"
+)
+set(TEST_SRCS_NEEDING_CAN
+        "${CMAKE_CURRENT_SOURCE_DIR}/test/damMocks.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/test/test_app_buzzer.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/test/test_app_telemRx.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/test/test_app_sd.cpp"
+)
+
 # HW layer resources (shared + project specific HW code)
 file(GLOB_RECURSE HW_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.cpp")
 set(HW_SHARED_SRCS
@@ -174,13 +193,19 @@ if ("${TARGET}" STREQUAL "binary")
 
 elseif ("${TARGET}" STREQUAL "test")
     file(GLOB_RECURSE TEST_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp")
+    # TODO: Workaround, see APP_SRCS_NEEDING_CAN above
+    list(REMOVE_ITEM APP_SRCS ${APP_SRCS_NEEDING_CAN})
+    list(REMOVE_ITEM TEST_SRCS ${TEST_SRCS_NEEDING_CAN})
+    # Only used by app_sd.cpp, and needs the io::FileSystem mock in damMocks.cpp
+    list(REMOVE_ITEM APP_SHARED_SRCS "${SHARED_APP_INCLUDE_DIR_CPP}/app_bootcount.cpp")
     set(FAKE_SRCS
             "${SHARED_FAKES_DIR_CPP}/io_time.cpp"
     )
-    set(IO_TEST_SRCS
-            "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_telemMessage.cpp"
-    )
-    set(SRCS ${APP_SRCS} ${APP_SHARED_SRCS} ${TEST_SRCS} ${FAKE_SRCS} ${IO_TEST_SRCS})
+    # TODO: Workaround, restore with JSONCAN (io_canMsg.hpp includes the generated app_canUtils.hpp)
+    # set(IO_TEST_SRCS
+    #         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_telemMessage.cpp"
+    # )
+    set(SRCS ${APP_SRCS} ${APP_SHARED_SRCS} ${TEST_SRCS} ${FAKE_SRCS})
     set(INCLUDE_DIRS
             ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${HW_INCLUDE_DIRS}
             ${SHARED_FAKES_DIR_CPP} ${SYSTEM_INCLUDE_DIRS}
@@ -194,8 +219,8 @@ elseif ("${TARGET}" STREQUAL "test")
 
     add_compile_definitions("seven_DAM_test" PRIVATE STM32H562Rx)
 
-    # JSONCAN
-    jsoncan_library_cpp(DAM seven "${CMAKE_CURRENT_BINARY_DIR}")
+    # TODO: Workaround, re-enable once can_bus/seven is complete
+    # jsoncan_library_cpp(DAM seven "${CMAKE_CURRENT_BINARY_DIR}")
 
     # CommitInfo
     commit_info_library(
@@ -204,6 +229,6 @@ elseif ("${TARGET}" STREQUAL "test")
             "${CMAKE_CURRENT_BINARY_DIR}/app"
     )
 
-    target_link_libraries("seven_DAM_test" PRIVATE "seven_DAM_commit_info" "seven_DAM_jsoncan")
+    target_link_libraries("seven_DAM_test" PRIVATE "seven_DAM_commit_info")
     target_compile_definitions("seven_DAM_test" PRIVATE STM32H562xx)
 endif ()
