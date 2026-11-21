@@ -9,7 +9,7 @@
 constexpr int   NUM_OF_IMD_CONDITIONS   = 6;
 constexpr float IMD_FREQUENCY_TOLERANCE = 2.0;
 // Frequencies are ordered to match the IMD condition enum values.
-constexpr float IMD_FREQUENCY_LOOKUP[]  = {
+constexpr float IMD_FREQUENCY_LOOKUP[] = {
     0.0f,  // IMD_CONDITION_SHORT_CIRCUIT
     10.0f, // IMD_CONDITION_NORMAL
     20.0f, // IMD_CONDITION_UNDERVOLTAGE_DETECTED
@@ -34,7 +34,7 @@ static float getIdealPwmFrequency(const app::can_utils::ImdConditionName conditi
 
 /**
  * Convert the given PWM frequency to an IMD condition name. Note the PWM
- * frequency won't be exact so we must do some approximation.
+ * frequency3 won't be exact so we must do some approximation.
  * @param frequency: The PWM frequency to convert to an IMD condition name
  * @return The IMD condition corresponding to the given PWM frequency
  */
@@ -43,11 +43,11 @@ static app::can_utils::ImdConditionName estimateConditionName(const float freque
     app::can_utils::ImdConditionName condition_name = app::can_utils::ImdConditionName::IMD_CONDITION_INVALID;
     for (int i = 0; i < NUM_OF_IMD_CONDITIONS; i++)
     {
-        app::can_utils::ImdConditionName condition   = static_cast<app::can_utils::ImdConditionName>(i);
-        const float                      ideal       = getIdealPwmFrequency(condition);
+        app::can_utils::ImdConditionName condition = static_cast<app::can_utils::ImdConditionName>(i);
+        const float                      ideal     = getIdealPwmFrequency(condition);
         // Accept frequencies within 2Hz of the ideal value, including the bounds.
-        const float                      lower_bound = fmaxf(0.0f, ideal - IMD_FREQUENCY_TOLERANCE);
-        const float                      upper_bound = ideal + IMD_FREQUENCY_TOLERANCE;
+        const float lower_bound = fmaxf(0.0f, ideal - IMD_FREQUENCY_TOLERANCE);
+        const float upper_bound = ideal + IMD_FREQUENCY_TOLERANCE;
 
         if (frequency >= lower_bound && frequency <= upper_bound)
         {
@@ -200,4 +200,4 @@ void broadcast()
         break;
     }
 }
-}
+} // namespace app::imd

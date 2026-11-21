@@ -1,0 +1,74 @@
+{
+  "faults_id": 401,
+  "warnings_id": 402,
+  "faults_counts_id": 403,
+  "warnings_counts_id": 404,
+  "warnings": {
+    "CellUnderVoltage": {
+      "id": 446,
+      "description": "Cell is undervoltage"
+    },
+    "CellOverVoltage": {
+      "id": 447,
+      "description": "Cell is overvoltage"
+    },
+    "CellOverTemp": {
+      "id": 448,
+      "description": "Cell is overtemp"
+    },
+    "TsOvercurrent": {
+      "id": 451,
+      "description": "Tractive system overcurrent detected"
+    }
+  },
+  "faults": {
+    "CellUndervoltage": {
+      "id": 452,
+      "description": "Cell is critically undervoltage"
+    },
+    "CellOvervoltage": {
+      "id": 453,
+      "description": "Cell is critically overvoltage"
+    },
+    "CellOvertemp": {
+      "id": 454,
+      "description": "Cell is critically overtemp"
+    },
+    "CellOpenWire": {
+      "id": 455,
+      "description": "Open wire detected on cell voltage sense line"
+    },
+    "HealthError": {
+      "id": 450,
+      "description": "Errorcode raised in ADBMS code"
+    },
+    "TESTFAULT": {
+      "id": 460,
+      "description": "FOR UNIT TESTING ONLY DO NOT EVER EVER THROW"
+    }
+  },
+  "info_id": 405,
+  "info_counts_id": 406,
+  "info": {
+    "StackOverflow": {
+      "id": 461,
+      "description": "An RTOS task stack overflowed on the previous boot cycle"
+    },
+    "CriticalPrechargeFailure": {
+      "id": 462,
+      "description": "Precharge failed >3x"
+    },
+    "WatchdogTimeout": {
+      "id": 463,
+      "description": "Watchdog timeout detected"
+    },
+    "MissingVCHeartbeat": {
+      "id": 464,
+      "description": "Missing VC heartbeat signal"
+    },
+    "ThermOpenWire": {
+      "id": 957,
+      "description": "Open wire detected on a thermistor sense line"
+    }
+  }
+}

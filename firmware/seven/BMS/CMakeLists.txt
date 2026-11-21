@@ -3,30 +3,34 @@ message("⚙️ Configuring BMS (Seven)")
 
 # Cmake Configuration to glob cubemx source code
 # TODO: Add project specific and shared sources used in project
-file(GLOB CUBEMX_SRCS CONFIGURE_DEPENDS "")
-set(CUBEMX_INCLUDE_DIRS "")
+file(GLOB CUBEMX_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/*.c")
+set(CUBEMX_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc")
 
 # Task and Job level source file glob
 # TODO: Add project specific and shared sources used in project
-set(JOBS_SRC "")
-set(TASKS_SRC "")
+set(JOBS_SRC "${CMAKE_CURRENT_SOURCE_DIR}/src/jobs.cpp")
+set(TASKS_SRC "${CMAKE_CURRENT_SOURCE_DIR}/src/tasks.cpp")
 set(SYSTEM_SRCS ${JOBS_SRC} ${TASKS_SRC})
-set(SYSTEM_INCLUDE_DIRS "" "")
+set(SYSTEM_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src" "${CMAKE_CURRENT_SOURCE_DIR}/boot")
 
 # APP layer resources (shared + project specific APP code)
 # TODO: Add project specific and shared sources used in project
-file(GLOB_RECURSE APP_SRCS CONFIGURE_DEPENDS "")
-set(APP_SHARED_SRCS
+file(GLOB_RECURSE APP_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/app/*.cpp")
+set(APP_INCLUDE_DIRS 
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/app"
 )
-set(APP_INCLUDE_DIRS
+set(APP_SHARED_SRCS
 )
 
 # IO layer resources (shared + project specific IO code)
 # TODO: Add project specific and shared sources used in project
-file(GLOB_RECURSE IO_SRCS CONFIGURE_DEPENDS "")
+file(GLOB_RECURSE IO_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/io/*.cpp")
 set(IO_SHARED_SRCS
+        "${SHARED_IO_INCLUDE_DIR_CPP}/io_time.cpp"
 )
-set(IO_INCLUDE_DIRS
+set(IO_INCLUDE_DIRS 
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/io"
+        "${SHARED_IO_INCLUDE_DIR}" "${SHARED_IO_INCLUDE_DIR_CPP}"
 )
 
 # IO layer resources (shared + project specific HW code)
@@ -66,7 +70,8 @@ if ("${TARGET}" STREQUAL "binary")
     #TODO: Add necessary HAL source if require new driver
     set(STM32_HAL_SRCS
             "stm32h7xx_hal.c"
-            "stm32h7xx_hal_rcc.c"
+            "stm32h7xx_hal_rcc.c"+
+
             "stm32h7xx_hal_rcc_ex.c"
             "stm32h7xx_hal_pwr_ex.c"
             "stm32h7xx_hal_cortex.c"
@@ -153,8 +158,11 @@ if ("${TARGET}" STREQUAL "binary")
     endif ()
 
 elseif ("${TARGET}" STREQUAL "test")
-    file(GLOB_RECURSE TEST_SRCS CONFIGURE_DEPENDS "")
+    file(GLOB_RECURSE TEST_SRCS CONFIGURE_DEPENDS 
+        "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp"
+    )
     set(FAKE_SRCS
+        "${SHARED_FAKES_DIR_CPP}/io_time.cpp"
     )
     set(SRCS ${APP_SRCS} ${APP_SHARED_SRCS} ${JOBS_SRC} ${TEST_SRCS} ${FAKE_SRCS})
     set(INCLUDE_DIRS

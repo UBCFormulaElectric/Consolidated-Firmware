@@ -92,12 +92,30 @@
       ]
     },
     {
+      "label": "Build Embedded: BMS (seven)",
+      "group": "build",
+      "type": "cmake",
+      "command": "build",
+      "targets": [
+        "seven_BMS.hex"
+      ]
+    },
+    {
       "label": "Build Tests: BMS (Hexray)",
       "group": "build",
       "type": "cmake",
       "command": "build",
       "targets": [
         "hexray_BMS_test"
+      ]
+    },
+     {
+      "label": "Build Tests: BMS (Seven)",
+      "group": "build",
+      "type": "cmake",
+      "command": "build",
+      "targets": [
+        "seven_BMS_test"
       ]
     },
     {
