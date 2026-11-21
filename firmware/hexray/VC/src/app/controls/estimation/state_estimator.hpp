@@ -1,5 +1,9 @@
 #pragma once
 
+#ifdef TARGET_EMBEDDED
+#include "app_canUtils.hpp"
+#endif
+
 #include "state_estimation/app_kalman_filter.hpp"
 #include "controls/controls.hpp"
 #include "controls/datatypes/wheel_set.hpp"
@@ -21,9 +25,13 @@ struct Measurements
     const float            brake; // brake pedal, 0..1
     const float            gps_vx_mps;
     const float            gps_vy_mps;
-    const bool             enable_gps;
-    const float            charge_limit_W;
-    const float            discharge_limit_W;
+#ifdef TARGET_EMBEDDED
+    const app::can_utils::VcEkfStatus sbg_ekf_status;
+#else
+    bool enable_gps;
+#endif
+    const float charge_limit_W;
+    const float discharge_limit_W;
 };
 
 namespace state_estimator

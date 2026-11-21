@@ -3,10 +3,11 @@
 
 namespace app::controlsConfig
 {
-controls::ControlsConfig fromCan()
+controls::ControlsConfig getConfig()
 {
     return {
-        .regen_enabled = false,
+        .regen_enabled = can_rx::CRIT_RegenSwitch_get() == can_utils::SwitchState::ON,
+        .tv_enabled    = can_rx::CRIT_TorqueVectoringSwitch_get() == can_utils::SwitchState::ON,
         .drive_mode    = can_rx::CRIT_DriveMode_get(),
     };
 }

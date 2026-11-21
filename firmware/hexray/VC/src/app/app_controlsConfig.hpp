@@ -3,5 +3,5 @@
 
 namespace app::controlsConfig
 {
-[[nodiscard]] controls::ControlsConfig fromCan();
+[[nodiscard]] controls::ControlsConfig getConfig();
 } // namespace app::controlsConfig

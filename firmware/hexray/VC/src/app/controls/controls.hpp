@@ -30,6 +30,7 @@ struct ControlOutputAutonomous
 struct ControlsConfig
 {
     bool                 regen_enabled = false;
+    bool                 tv_enabled    = false;
     can_utils::DriveMode drive_mode    = can_utils::DriveMode::VANILLA;
 };
 

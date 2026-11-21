@@ -1,8 +1,6 @@
 #pragma once
 
-#include <cmath>
-
-#include "app_canUtils.hpp"
+#include "controls/controls.hpp"
 #include "controls/datatypes/vehicle_state.hpp"
 #include "controls/datatypes/wheel_set.hpp"
 
@@ -18,20 +16,6 @@
  */
 namespace app::controls::allocation
 {
-struct OptimizerWeights
-{
-    float sqrt_w_fx;
-    float sqrt_w_mz;
-    float sqrt_w_r;
-
-    OptimizerWeights(const float w_fx, const float w_mz, const float w_r)
-      : sqrt_w_fx(std::sqrt(w_fx)), sqrt_w_mz(std::sqrt(w_mz)), sqrt_w_r(std::sqrt(w_r))
-    {
-    }
-};
-
-[[nodiscard]] const OptimizerWeights &weightsFor(can_utils::DriveMode drive_mode);
-
 /**
  * Run Gauss-Newton iterations to find optimal slip ratios.
  * @param state current vehicle state
@@ -40,5 +24,5 @@ struct OptimizerWeights
  * @return Per-wheel optimal slip ratios
  */
 [[nodiscard]] wheel_set<float>
-    optimize(const VehicleState &state, float ax_setpoint_mps2, float mz_setpoint_Nm, const OptimizerWeights &weights);
+    optimize(const VehicleState &state, float ax_setpoint_mps2, float mz_setpoint_Nm, const ControlsConfig config);
 } // namespace app::controls::allocation
