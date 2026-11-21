@@ -5,8 +5,9 @@
 
 #ifndef USE_CHIMERA
 #include "io_bootHandler.hpp"
-#include "bootloader_DAM.hpp"
 #include "io_canQueues.hpp"
+
+inline constexpr uint32_t board_highbits = 0x0C000000;
 
 namespace
 {

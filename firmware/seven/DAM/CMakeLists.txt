@@ -169,10 +169,9 @@ if ("${TARGET}" STREQUAL "binary")
     if ("${BOOTLOAD}" STREQUAL "ON")
         target_compile_definitions("seven_DAM_app.elf" PRIVATE BOOTLOAD)
 
-        file(GLOB BOOT_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/boot/*.cpp")
-        file(GLOB BOOT_CUBEMX_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Src/*.c")
-        set(BOOT_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/boot" "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Inc")
-        no_checks("${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Src/syscalls.c")
+        file(GLOB BOOT_SRCS CONFIGURE_DEPENDS "")
+        file(GLOB BOOT_CUBEMX_SRCS CONFIGURE_DEPENDS "")
+        set(BOOT_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/boot")
         stm32h5_boot_binary(
                 "seven_DAM_boot"
                 "${BOOT_SRCS}"
