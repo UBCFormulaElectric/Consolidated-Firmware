@@ -1,57 +1,85 @@
 message("")
 message("⚙️ Configuring DAM (Seven)")
 
-# Cmake Configuration to glob cubemx source code
-# TODO: Add project specific and shared sources used in project
-file(GLOB CUBEMX_SRCS CONFIGURE_DEPENDS "")
-set(CUBEMX_INCLUDE_DIRS "")
+file(GLOB CUBEMX_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/*.c")
+set(CUBEMX_INCLUDE_DIRS
+        "${CMAKE_CURRENT_SOURCE_DIR}/src"
+        "${SHARED_HW_INCLUDE_DIR_CPP}"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc"
+        "${CMAKE_CURRENT_SOURCE_DIR}/boot"
+)
 
-# Task and Job level source file glob
-# TODO: Add project specific and shared sources used in project
-set(JOBS_SRC "")
-set(TASKS_SRC "")
+set(JOBS_SRC "${CMAKE_CURRENT_SOURCE_DIR}/src/jobs.cpp")
+set(TASKS_SRC "${CMAKE_CURRENT_SOURCE_DIR}/src/tasks.cpp")
 set(SYSTEM_SRCS ${JOBS_SRC} ${TASKS_SRC})
-set(SYSTEM_INCLUDE_DIRS "" "")
+set(SYSTEM_INCLUDE_DIRS
+        "${CMAKE_CURRENT_SOURCE_DIR}/src"
+        "${CMAKE_CURRENT_SOURCE_DIR}/boot"
+)
 
 # APP layer resources (shared + project specific APP code)
-# TODO: Add project specific and shared sources used in project
-file(GLOB_RECURSE APP_SRCS CONFIGURE_DEPENDS "")
+file(GLOB_RECURSE APP_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/app/*.cpp")
 set(APP_SHARED_SRCS
+        "${SHARED_APP_INCLUDE_DIR_CPP}/app_bootcount.cpp"
+        "${SHARED_APP_INCLUDE_DIR_CPP}/app_timer.cpp"
+        "${SHARED_APP_INCLUDE_DIR_CPP}/app_crc32.cpp"
+        "${SHARED_APP_INCLUDE_DIR_CPP}/app_crc8.cpp"
 )
 set(APP_INCLUDE_DIRS
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/app"
+        "${SHARED_APP_INCLUDE_DIR}" "${SHARED_APP_INCLUDE_DIR_CPP}"
 )
 
 # IO layer resources (shared + project specific IO code)
-# TODO: Add project specific and shared sources used in project
-file(GLOB_RECURSE IO_SRCS CONFIGURE_DEPENDS "")
+file(GLOB_RECURSE IO_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/io/*.cpp")
 set(IO_SHARED_SRCS
+        "${SHARED_IO_INCLUDE_DIR_CPP}/io_time.cpp"
+        "${SHARED_IO_INCLUDE_DIR_CPP}/io_filesystem.cpp"
+        "${SHARED_IO_INCLUDE_DIR_CPP}/io_canLogging.cpp"
+        "${SHARED_IO_INCLUDE_DIR_CPP}/io_shdnLoopNode.cpp"
 )
 set(IO_INCLUDE_DIRS
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/io"
+        "${SHARED_IO_INCLUDE_DIR}" "${SHARED_IO_INCLUDE_DIR_CPP}"
 )
 
-# IO layer resources (shared + project specific HW code)
-# TODO: Add project specific and shared sources used in project
-file(GLOB_RECURSE HW_SRCS CONFIGURE_DEPENDS "")
+# HW layer resources (shared + project specific HW code)
+file(GLOB_RECURSE HW_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.cpp")
 set(HW_SHARED_SRCS
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_crc.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_error.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_sd.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_usb.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_can_hx.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_uart.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_hardFaultHandler.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_pwmOutput.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_resetReason.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_bootup.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_runTimeStat.cpp"
 )
 set(HW_INCLUDE_DIRS
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"
+        "${SHARED_HW_INCLUDE_DIR}" "${SHARED_HW_INCLUDE_DIR_CPP}"
 )
 
 # Chimera sources
-# TODO: Add project specific and shared sources used in project
 set(CHIMERA_SRCS
+        ${HW_SRCS}
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_error.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_sd.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_usb.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_can_hx.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_uart.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_hardFaultHandler.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_pwmOutput.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/chimera.cpp"
 )
-set(CHIMERA_INCLUDE_DIRS
-)
+set(CHIMERA_INCLUDE_DIRS ${HW_INCLUDE_DIRS} ${IO_INCLUDE_DIRS})
 
 if ("${TARGET}" STREQUAL "binary")
-    set(ARM_CORE "cm7")
-
-    if ("${BOOTLOAD}" STREQUAL "ON")
-        set(LINKER_SCRIPT "${LINKER_DIR}/stm32h562vgtx/stm32h562vgtx_app.ld")
-    else ()
-        set(LINKER_SCRIPT "${LINKER_DIR}/stm32h562vgtx/stm32h562vgtx_app_only.ld")
-    endif ()
+    set(ARM_CORE "cm33")
+    set(LINKER_SCRIPT "${LINKER_DIR}/stm32h562ritx/stm32h562ritx_app.ld")
     set(SRCS ${APP_SRCS} ${APP_SHARED_SRCS} ${IO_SRCS} ${IO_SHARED_SRCS} ${HW_SRCS} ${HW_SHARED_SRCS} ${SYSTEM_SRCS})
     set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${HW_INCLUDE_DIRS} ${SHARED_UTIL_INCLUDE_DIR} ${SYSTEM_INCLUDE_DIRS} ${CUBEMX_INCLUDE_DIRS})
 
@@ -63,55 +91,47 @@ if ("${TARGET}" STREQUAL "binary")
             "${ARM_CORE}"
     )
 
-    #TODO: Add necessary HAL source if require new driver
     set(STM32_HAL_SRCS
             "stm32h5xx_hal.c"
             "stm32h5xx_hal_rcc.c"
             "stm32h5xx_hal_rcc_ex.c"
+            "stm32h5xx_hal_pwr.c"
             "stm32h5xx_hal_pwr_ex.c"
             "stm32h5xx_hal_cortex.c"
             "stm32h5xx_hal_exti.c"
             "stm32h5xx_hal_tim.c"
-            "stm32h5xx_hal_gpio.c"
-            "stm32h5xx_hal_adc.c"
-            "stm32h5xx_hal_dma.c"
-            "stm32h5xx_hal_iwdg.c"
-
-            "stm32h5xx_hal_adc_ex.c"
             "stm32h5xx_hal_tim_ex.c"
-            "stm32h5xx_hal_dma_ex.c"
-
-            "stm32h5xx_hal_crc.c"
-            "stm32h5xx_hal_crc_ex.c"
+            "stm32h5xx_hal_uart.c"
+            "stm32h5xx_hal_uart_ex.c"
+            "stm32h5xx_hal_rtc.c"
+            "stm32h5xx_hal_gpio.c"
             "stm32h5xx_hal_fdcan.c"
-            "stm32h5xx_hal_spi.c"
-            "stm32h5xx_hal_spi_ex.c"
-
-            "stm32h5xx_hal_sd.c"
-            "stm32h5xx_hal_sd_ex.c"
-            "stm32h5xx_ll_sdmmc.c"
-
             "stm32h5xx_hal_pcd.c"
-            "stm32h5xx_hal_pcd_ex.c"
+            "stm32h5xx_hal_sd.c"
+            "stm32h5xx_hal_crc.c"
+            "stm32h5xx_ll_sdmmc.c"
             "stm32h5xx_ll_usb.c"
-
-            "stm32h5xx_hal_i2c.c"
+            "stm32h5xx_hal_pcd_ex.c"
+            "stm32h5xx_hal_crc_ex.c"
+            "stm32h5xx_hal_rtc_ex.c"
+            "stm32h5xx_hal_iwdg.c"
+            "stm32h5xx_hal_dma.c"
+            "stm32h5xx_hal_dma_ex.c"
     )
-
-    set(CUBEMX_INCLUDES ${CUBEMX_INCLUDE_DIRS} ${SYSTEM_INCLUDE_DIRS} ${HW_INCLUDE_DIRS})
+    set(CUBEMX_INCLUDE_DIRS_ ${CUBEMX_INCLUDE_DIRS} ${SYSTEM_INCLUDE_DIRS})
     stm32h562xx_cube_library(
             "seven_DAM_stm32"
             "${STM32_HAL_SRCS}"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/DAM.ioc"
             "${CUBEMX_SRCS}"
-            "${CUBEMX_INCLUDES}"
+            "${CUBEMX_INCLUDE_DIRS_}"
             TRUE
             "${ARM_CORE}"
     )
 
     # JSONCAN
+    # TODO: can_bus/seven does not exist yet, so building seven_DAM_app / seven_DAM_chimera fails at codegen
     jsoncan_embedded_library_cpp(DAM seven "${CMAKE_CURRENT_BINARY_DIR}" ${ARM_CORE})
-
 
     # CommitInfo
     commit_info_library(
@@ -120,21 +140,21 @@ if ("${TARGET}" STREQUAL "binary")
             "${CMAKE_CURRENT_BINARY_DIR}/app"
     )
 
-    target_link_libraries("seven_DAM_app.elf" PRIVATE "seven_DAM_stm32" "seven_DAM_jsoncan" "seven_DAM_commit_info" "m")
+    target_link_libraries("seven_DAM_app.elf" PRIVATE "seven_DAM_stm32" "seven_DAM_commit_info" "seven_DAM_jsoncan" "m" "logfs_cm7")
     target_compile_definitions("seven_DAM_app.elf" PRIVATE DAM)
 
-    add_chimera_stm32h7("seven_DAM_chimera" "${CHIMERA_SRCS}" "${CHIMERA_INCLUDE_DIRS}" "seven_chimera_v2_proto_cm7")
+    # TODO: No seven chimera proto exists yet; reuse hexray's DAM proto (its TSIM net names are simply unused)
+    add_chimera_stm32h5("seven_DAM_chimera" "${CHIMERA_SRCS}" "${CHIMERA_INCLUDE_DIRS}" "hexray_chimera_v2_proto_cm33")
     target_link_libraries("seven_DAM_chimera.elf" PRIVATE "seven_DAM_stm32")
 
     if ("${BOOTLOAD}" STREQUAL "ON")
         target_compile_definitions("seven_DAM_app.elf" PRIVATE BOOTLOAD)
-        # TODO: Add project specific and shared sources used in project for bootloader
 
-        file(GLOB BOOT_SRCS CONFIGURE_DEPENDS "")
-        file(GLOB BOOT_CUBEMX_SRCS CONFIGURE_DEPENDS "")
-        set(BOOT_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/boot" "")
-        no_checks("")
-        stm32h7_boot_binary(
+        file(GLOB BOOT_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/boot/*.cpp")
+        file(GLOB BOOT_CUBEMX_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Src/*.c")
+        set(BOOT_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/boot" "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Inc")
+        no_checks("${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Src/syscalls.c")
+        stm32h5_boot_binary(
                 "seven_DAM_boot"
                 "${BOOT_SRCS}"
                 "${BOOT_CUBEMX_SRCS}"
@@ -153,13 +173,18 @@ if ("${TARGET}" STREQUAL "binary")
     endif ()
 
 elseif ("${TARGET}" STREQUAL "test")
-    file(GLOB_RECURSE TEST_SRCS CONFIGURE_DEPENDS "")
+    file(GLOB_RECURSE TEST_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp")
     set(FAKE_SRCS
+            "${SHARED_FAKES_DIR_CPP}/io_time.cpp"
     )
-    set(SRCS ${APP_SRCS} ${APP_SHARED_SRCS} ${JOBS_SRC} ${TEST_SRCS} ${FAKE_SRCS})
+    set(IO_TEST_SRCS
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_telemMessage.cpp"
+    )
+    set(SRCS ${APP_SRCS} ${APP_SHARED_SRCS} ${TEST_SRCS} ${FAKE_SRCS} ${IO_TEST_SRCS})
     set(INCLUDE_DIRS
-            "${CMAKE_CURRENT_SOURCE_DIR}/test"
-            ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${TEST_INCLUDE_DIRS} ${SYSTEM_INCLUDE_DIRS} ${SHARED_UTIL_INCLUDE_DIR_CPP} ${SHARED_FAKES_DIR}
+            ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${HW_INCLUDE_DIRS}
+            ${SHARED_FAKES_DIR_CPP} ${SYSTEM_INCLUDE_DIRS}
+            ${SHARED_UTIL_INCLUDE_DIR_CPP} ${CUBEMX_INCLUDE_DIRS}
     )
     compile_gtest_executable(
             "seven_DAM_test"
@@ -167,7 +192,7 @@ elseif ("${TARGET}" STREQUAL "test")
             "${INCLUDE_DIRS}"
     )
 
-    add_compile_definitions("seven_DAM_test" PRIVATE stm32h562Rx)
+    add_compile_definitions("seven_DAM_test" PRIVATE STM32H562Rx)
 
     # JSONCAN
     jsoncan_library_cpp(DAM seven "${CMAKE_CURRENT_BINARY_DIR}")
@@ -179,14 +204,6 @@ elseif ("${TARGET}" STREQUAL "test")
             "${CMAKE_CURRENT_BINARY_DIR}/app"
     )
 
-    # FakeIO
-    set(HEADERS_TO_FAKE
-    )
-    create_fake_library(
-            "seven_DAM_fakes"
-            "${HEADERS_TO_FAKE}"
-    )
-
-    target_link_libraries("seven_DAM_test" PRIVATE "seven_DAM_jsoncan" "seven_DAM_fakes" "seven_DAM_commit_info")
-    target_compile_definitions("seven_DAM_test" PRIVATE stm32h562xx)
-endif()
+    target_link_libraries("seven_DAM_test" PRIVATE "seven_DAM_commit_info" "seven_DAM_jsoncan")
+    target_compile_definitions("seven_DAM_test" PRIVATE STM32H562xx)
+endif ()
