@@ -50,6 +50,12 @@ namespace StateMachine
      */
     void tick100Hz();
 
+
+    /**
+    * Skip current state and move onto next tick
+    */
+    void skip_current_state();
+
 #ifdef TARGET_TEST
     /**
      * Set the current state of the state machine (for testing purposes only)

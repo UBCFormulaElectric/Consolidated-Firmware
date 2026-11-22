@@ -79,11 +79,16 @@ void jobs_run100Hz_tick()
     if (app::can_alerts::AnyBoardHasFault())
     {
         app::StateMachine::set_next_state(&app::states::fault_state);
+        app::StateMachine::skip_current_state();
+    } 
+    else
+    {
+        app::StateMachine::tick100Hz();
     }
 
-    app::StateMachine::tick100Hz();
-
     if (app::StateMachine::get_current_state() == &app::states::inverterOn_state ||
+        app::StateMachine::get_current_state() == &app::states::bmsOn_state ||
+        app::StateMachine::get_current_state() == &app::states::pcmOn_state ||
         app::StateMachine::get_current_state() == &app::states::hvInit_state ||
         app::StateMachine::get_current_state() == &app::states::hv_state ||
         app::StateMachine::get_current_state() == &app::states::drive_state ||

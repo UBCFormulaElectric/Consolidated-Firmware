@@ -115,6 +115,10 @@ namespace StateMachine
     {
         next_state = in_next_state;
     }
+
+    void skip_current_state(){
+        runTickFunction(nullptr);
+    }
 #ifdef TARGET_TEST
     void set_current_state(const State *const in_state)
     {
