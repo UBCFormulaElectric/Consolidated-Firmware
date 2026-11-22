@@ -1,5 +1,6 @@
 #pragma once
 
+#include "controls/controls.hpp"
 #include "controls/datatypes/vehicle_state.hpp"
 #include "controls/datatypes/wheel_set.hpp"
 
@@ -22,5 +23,6 @@ namespace app::controls::allocation
  * @param mz_setpoint_Nm requested yaw moment in Nm (ISO 8855, positive = left), from the yaw rate controller
  * @return Per-wheel optimal slip ratios
  */
-[[nodiscard]] wheel_set<float> optimize(const VehicleState &state, float ax_setpoint_mps2, float mz_setpoint_Nm);
+[[nodiscard]] wheel_set<float>
+    optimize(const VehicleState &state, float ax_setpoint_mps2, float mz_setpoint_Nm, const ControlsConfig &config);
 } // namespace app::controls::allocation

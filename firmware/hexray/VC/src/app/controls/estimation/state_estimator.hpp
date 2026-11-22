@@ -28,7 +28,7 @@ struct Measurements
 #ifdef TARGET_EMBEDDED
     const app::can_utils::VcEkfStatus sbg_ekf_status;
 #else
-    bool        enable_gps;
+    bool enable_gps;
 #endif
     const float charge_limit_W;
     const float discharge_limit_W;

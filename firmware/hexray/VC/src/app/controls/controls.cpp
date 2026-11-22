@@ -19,7 +19,7 @@ namespace app::controls
 using namespace params;
 using namespace torque_limits;
 
-ControlOutput update(const VehicleState &state, const ControlsConfig config)
+ControlOutput update(const VehicleState &state, const ControlsConfig &config)
 {
     //------------------------------------- REFERENCE ----------------------------------------//
 
@@ -41,7 +41,8 @@ ControlOutput update(const VehicleState &state, const ControlsConfig config)
     // const float low_speed_blend   = velocityBlend(vehicle_speed_mps);
 
     // ReSharper disable once CppUseStructuredBinding
-    const wheel_set<float> kappas = allocation::optimize(state, accel_request.normalized * MAX_AX_mps2, mz_setpoint_Nm);
+    const wheel_set<float> kappas =
+        allocation::optimize(state, accel_request.normalized * MAX_AX_mps2, mz_setpoint_Nm, config);
 
     //------------------------------------- POWER LIMITER -----------------------------------//
     // TODO: slip_ratio_opt -> slipRatioToWheelAngularVelocity() -> power limiter -> torque request
@@ -60,7 +61,7 @@ ControlOutput update(const VehicleState &state, const ControlsConfig config)
     return { kappas, torque_max_Nm, torque_min_Nm };
 }
 
-ControlOutputAutonomous updateAutonomous(const VehicleState &state, const ControlsConfig config)
+ControlOutputAutonomous updateAutonomous(const VehicleState &state, const ControlsConfig &config)
 {
     (void)state;
     (void)config;
@@ -108,7 +109,7 @@ namespace
     }
 } // namespace
 
-wheel_set<float> kappaUpdate(const ControlOutput &control, const VehicleState &state, const ControlsConfig config)
+wheel_set<float> kappaUpdate(const ControlOutput &control, const VehicleState &state, const ControlsConfig &config)
 {
     // Stopped: nothing to track, so the integrators must not wind up (e.g. against the brakes at standstill)
     const auto stopped_speed_mps = actuation::speed_controller::STOPPED_SPEED_mps;
@@ -225,7 +226,11 @@ extern "C" void update_matlab(
     };
     const VehicleState state = estimation::state_estimator::estimate(meas);
 
-    const ControlsConfig config = { .regen_enabled = false };
+    const ControlsConfig config = {
+        .regen_enabled = false,
+        .tv_enabled    = true,
+        .drive_mode    = app::can_utils::DriveMode::TRACK,
+    };
 
     // High level controller and optimizer: slip ratio setpoints and torque limits
     if (tick++ % 5 == 0)
