@@ -59,7 +59,48 @@
       "telem_cycle_time": 1000,
       "log_cycle_time" : 1000
     }
+  },
+  "TractiveSystem": {
+    "msg_id": 413,
+    "cycle_time": 10,
+    "description": "BMS Tractive System Data",
+    "signals": {
+      "TractiveSystemVoltage": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 600,
+        "unit": "V"
+      },
+      "TractiveSystemCurrent": {
+        "resolution": 0.1,
+        "signed": true,
+        "min": -300,
+        "max": 300,
+        "unit": "A"
+      },
+      "TractiveSystemPower": {
+        "resolution": 0.1,
+        "signed": true,
+        "min": -100,
+        "max": 100,
+        "unit": "kW"
+      },
+      "AvailablePower": {
+        "resolution": 1,
+        "min": 0,
+        "max": 100000,
+        "unit": "W"
+      },
+      "CurrentSensorOk": {
+        "bits": 1
+      },
+      "VoltageSensorOk": {
+        "bits": 1
+      }
+    },
+    "data_capture": {
+      "telem_cycle_time": 100,
+      "log_cycle_time": 100
+    }
   }
-
-
 }

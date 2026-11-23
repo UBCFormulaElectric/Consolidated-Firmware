@@ -23,14 +23,15 @@ float getCurrent()
     const float low_res_current   = io::ts::getCurrentLowResolution();
     const float high_res_current  = io::ts::getCurrentHighResolution();
 
-    // Use low res measurement to determine whether the high res sensor is within 
+    // Use low res measurement to determine whether the low res sensor is within 
     // its valid ±70 A range. If it is, we use the high res measurement instead
-    if (IS_IN_RANGE(-HIGH_RES_MAX_CURRENT_READING, HIGH_RES_MAX_CURRENT_READING, low_res_current))
+    if (low_res_current >= -HIGH_RES_MAX_CURRENT_READING &&
+        low_res_current <= HIGH_RES_MAX_CURRENT_READING)
     {
         return high_res_current;
     }
-    return low_res_current;
 
+    return low_res_current;
 }
 
 void broadcast()
@@ -54,7 +55,7 @@ void broadcast()
         overcurrent_warning_timer.runIfCondition(current_out_of_range);
 
     const bool ts_overcurrent_warning = 
-        overcurrent_timer_state == Timer::TimerState::RUNNING;    // might need fix to check for expired state instead?  
+        overcurrent_timer_state == Timer::TimerState::EXPIRED;    // might need fix to check for expired state instead?  
 
 
     // Broadcast all diagnostics over CAN 
@@ -64,6 +65,5 @@ void broadcast()
     app::can_tx::BMS_VoltageSensorOk_set(ts_voltage_sns_diag_state);
     app::can_tx::BMS_CurrentSensorOk_set(ts_current_sns_diag_state);
     app::can_alerts::warnings::TsOvercurrent_set(ts_overcurrent_warning);
-
 }
 } // namespace app::ts
