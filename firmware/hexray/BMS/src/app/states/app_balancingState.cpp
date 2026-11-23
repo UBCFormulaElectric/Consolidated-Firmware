@@ -15,18 +15,17 @@ namespace balancingState
         app::can_tx::BMS_State_set(app::can_utils::BmsState::BMS_BALANCING_STATE);
     }
 
-static void balancingStateRunOnTick100Hz()
-{
-    const bool balancing_enabled = app::can_rx::Debug_CellBalancing_Request_get();
-    const bool irs_negative_closed =
-        io::irs::negativeState() == app::can_utils::ContactorState::CONTACTOR_STATE_CLOSED;
+    static void balancingStateRunOnTick100Hz()
+    {
+        const bool balancing_enabled = app::can_rx::Debug_CellBalancing_Request_get();
+        const bool irs_negative_closed =
+            io::irs::negativeState() == app::can_utils::ContactorState::CONTACTOR_STATE_CLOSED;
 
-    if (balancing_enabled && !irs_negative_closed)
-        app::pack::balancing::tick();
-    else
-        app::StateMachine::set_next_state(&app::states::init_state);
-    
-}
+        if (balancing_enabled && !irs_negative_closed)
+            app::pack::balancing::tick();
+        else
+            app::StateMachine::set_next_state(&app::states::init_state);
+    }
 
     static void balancingStateRunOnExit()
     {
