@@ -4,6 +4,7 @@
 
 namespace
 {
+// Values were derived from LTSpice model of OWC circuit
 constexpr float OWC_V_LOW  = 1.0f;
 constexpr float OWC_V_HIGH = 4.6f;
 
