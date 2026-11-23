@@ -63,7 +63,7 @@ State poll(bool precharge_for_charging)
         pack_voltage = app::pack::voltage_buffer.pack_voltage;
     }
 
-    const float threshold_voltage = pack_voltage.value_or(0.0f) * PRECHARGE_ACC_V_THRESHOLD;
+    const float threshold_voltage = pack_voltage.value_or(MAX_PACK_V) * PRECHARGE_ACC_V_THRESHOLD;
 
     const bool is_air_negative_open =
         (io::irs::negativeState() == app::can_utils::ContactorState::CONTACTOR_STATE_OPEN);
