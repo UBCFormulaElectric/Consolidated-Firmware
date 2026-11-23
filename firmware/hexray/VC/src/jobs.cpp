@@ -68,8 +68,9 @@ void jobs_init()
 
     // gps
     app::sbgEllipse::init();
-
-    // imu
+}
+void jobs_initImu()
+{
     app::imus::init();
 }
 
