@@ -114,7 +114,7 @@ result<void> checkSegmentConfig()
             LOG_WARN("Config readback failed on seg %u: %s", static_cast<unsigned>(seg), error_code_to_string(error));
             return std::unexpected(error);
         }
-        if (*readback_a[seg] != config_a[seg] || *readback_b[seg] != config_b[seg])
+        if (readback_a[seg].value() != config_a[seg] || readback_b[seg].value() != config_b[seg])
         {
             LOG_WARN("Config mismatch on seg %u", static_cast<unsigned>(seg));
             return std::unexpected(ErrorCode::MISMATCH);
@@ -138,7 +138,7 @@ result<void> checkPWMConfig()
             LOG_WARN("PWM readback failed on seg %u: %s", static_cast<unsigned>(seg), error_code_to_string(error));
             return std::unexpected(error);
         }
-        if (*readback_a[seg] != pwm_a[seg] || *readback_b[seg] != pwm_b[seg])
+        if (readback_a[seg].value() != pwm_a[seg] || readback_b[seg].value() != pwm_b[seg])
         {
             LOG_WARN("PWM mismatch on seg %u", static_cast<unsigned>(seg));
             return std::unexpected(ErrorCode::MISMATCH);

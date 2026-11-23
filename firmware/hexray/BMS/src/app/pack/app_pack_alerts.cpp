@@ -113,7 +113,7 @@ struct AlertData
     {
         return supply.updated_ms != 0U &&
                std::ranges::any_of(
-                   supply.itmp, [](const result<float> &itmp) { return itmp && *itmp > T_FAULT_ITMP_OT; });
+                   supply.itmp, [](const result<float> &itmp) { return itmp && itmp.value() > T_FAULT_ITMP_OT; });
     }
 
     // Warning conditions
@@ -133,7 +133,7 @@ struct AlertData
     {
         return supply.updated_ms != 0U &&
                std::ranges::any_of(
-                   supply.itmp, [](const result<float> &itmp) { return itmp && *itmp > T_WARN_ITMP_OT; });
+                   supply.itmp, [](const result<float> &itmp) { return itmp && itmp.value() > T_WARN_ITMP_OT; });
     }
 
     // Info conditions

@@ -69,7 +69,7 @@ result<void> configReg(Segments<result<CFGA>> &config_a, Segments<result<CFGB>> 
         }
         else
         {
-            config_a[seg] = std::bit_cast<CFGA>(*config_regs[seg]);
+            config_a[seg] = std::bit_cast<CFGA>(config_regs[seg].value());
         }
     }
 
@@ -82,7 +82,7 @@ result<void> configReg(Segments<result<CFGA>> &config_a, Segments<result<CFGB>> 
         }
         else
         {
-            config_b[seg] = std::bit_cast<CFGB>(*config_regs[seg]);
+            config_b[seg] = std::bit_cast<CFGB>(config_regs[seg].value());
         }
     }
 
@@ -102,7 +102,7 @@ result<void> pwmReg(Segments<result<PWMA>> &pwm_a, Segments<result<PWMB>> &pwm_b
         }
         else
         {
-            pwm_a[seg] = std::bit_cast<PWMA>(*pwm_regs[seg]);
+            pwm_a[seg] = std::bit_cast<PWMA>(pwm_regs[seg].value());
         }
     }
 
@@ -115,7 +115,7 @@ result<void> pwmReg(Segments<result<PWMA>> &pwm_a, Segments<result<PWMB>> &pwm_b
         }
         else
         {
-            pwm_b[seg] = std::bit_cast<PWMB>(*pwm_regs[seg]);
+            pwm_b[seg] = std::bit_cast<PWMB>(pwm_regs[seg].value());
         }
     }
 
@@ -158,7 +158,8 @@ result<void> cAdc(const bool redundant, VoltageBuffer &voltage_buffer)
             }
 
             // ADBMS stores data in little endian
-            const int16_t raw = std::bit_cast<std::array<int16_t, CELLS_PER_GROUP>>(*reg)[cell % CELLS_PER_GROUP];
+            const int16_t raw =
+                std::bit_cast<std::array<int16_t, CELLS_PER_GROUP>>(reg.value())[cell % CELLS_PER_GROUP];
 
             if (raw == ADC_DEFAULT)
             {
@@ -175,7 +176,7 @@ result<void> cAdc(const bool redundant, VoltageBuffer &voltage_buffer)
                     voltage_buffer.voltages[seg][cell] = std::unexpected(stat_c.error());
                     continue;
                 }
-                if ((std::bit_cast<STATC>(*stat_c).csflt >> cell) & 1U)
+                if ((std::bit_cast<STATC>(stat_c.value()).csflt >> cell) & 1U)
                 {
                     voltage_buffer.voltages[seg][cell] = std::unexpected(ErrorCode::MISMATCH);
                     continue;
@@ -205,7 +206,7 @@ result<void> cAdc(const bool redundant, VoltageBuffer &voltage_buffer)
         for (const result<float> &voltage : segment)
         {
             if (pack_voltage)
-                pack_voltage = voltage ? *pack_voltage + *voltage : voltage;
+                pack_voltage = voltage ? pack_voltage.value() + voltage.value() : voltage;
         }
     }
     voltage_buffer.pack_voltage = pack_voltage;
@@ -243,7 +244,8 @@ result<void> sAdc(VoltageBuffer &voltage_buffer)
             }
 
             // ADBMS stores data in little endian
-            const int16_t raw = std::bit_cast<std::array<int16_t, CELLS_PER_GROUP>>(*reg)[cell % CELLS_PER_GROUP];
+            const int16_t raw =
+                std::bit_cast<std::array<int16_t, CELLS_PER_GROUP>>(reg.value())[cell % CELLS_PER_GROUP];
 
             if (raw == ADC_DEFAULT)
             {
@@ -274,7 +276,7 @@ result<void> sAdc(VoltageBuffer &voltage_buffer)
         for (const result<float> &voltage : segment)
         {
             if (pack_voltage)
-                pack_voltage = voltage ? *pack_voltage + *voltage : voltage;
+                pack_voltage = voltage ? pack_voltage.value() + voltage.value() : voltage;
         }
     }
     voltage_buffer.pack_voltage = pack_voltage;
@@ -311,7 +313,8 @@ result<void> xAdcTherm(const ThermistorMux mux, TemperatureBuffer &temp_buffer, 
             }
 
             // ADBMS stores data in little endian
-            const int16_t raw = std::bit_cast<std::array<int16_t, GPIOS_PER_GROUP>>(*reg)[gpio % GPIOS_PER_GROUP];
+            const int16_t raw =
+                std::bit_cast<std::array<int16_t, GPIOS_PER_GROUP>>(reg.value())[gpio % GPIOS_PER_GROUP];
 
             if (raw == ADC_DEFAULT)
             {
@@ -383,7 +386,7 @@ result<void> xAdcSupply(SupplyBuffer &supply_buffer)
         }
         else
         {
-            const STATA stat_a      = std::bit_cast<STATA>(*stat_a_regs[seg]);
+            const STATA stat_a      = std::bit_cast<STATA>(stat_a_regs[seg].value());
             supply_buffer.vref[seg] = static_cast<float>(stat_a.vref2) * ADC_LSB_V + ADC_OFFSET_V;
             supply_buffer.itmp[seg] = static_cast<float>(stat_a.itmp) * ITMP_LSB_C + ITMP_OFFSET_C;
         }
@@ -396,7 +399,7 @@ result<void> xAdcSupply(SupplyBuffer &supply_buffer)
         }
         else
         {
-            const STATB stat_b      = std::bit_cast<STATB>(*stat_b_regs[seg]);
+            const STATB stat_b      = std::bit_cast<STATB>(stat_b_regs[seg].value());
             supply_buffer.vd[seg]   = static_cast<float>(stat_b.vd) * ADC_LSB_V + ADC_OFFSET_V;
             supply_buffer.va[seg]   = static_cast<float>(stat_b.va) * ADC_LSB_V + ADC_OFFSET_V;
             supply_buffer.vres[seg] = static_cast<float>(stat_b.vres) * ADC_LSB_V + ADC_OFFSET_V;
@@ -409,7 +412,7 @@ result<void> xAdcSupply(SupplyBuffer &supply_buffer)
         }
         else
         {
-            const AUXD aux_d       = std::bit_cast<AUXD>(*aux_d_regs[seg]);
+            const AUXD aux_d       = std::bit_cast<AUXD>(aux_d_regs[seg].value());
             supply_buffer.vmv[seg] = static_cast<float>(aux_d.vmv) * ADC_LSB_V + ADC_OFFSET_V;
             supply_buffer.vpv[seg] = static_cast<float>(aux_d.vpv) * VPV_LSB_V + VPV_OFFSET_V;
         }
@@ -437,7 +440,7 @@ result<void> flags(DiagnosticBuffer &diag_buffer)
     {
         if (stat_d_regs[seg])
         {
-            const STATD stat_d = std::bit_cast<STATD>(*stat_d_regs[seg]);
+            const STATD stat_d = std::bit_cast<STATD>(stat_d_regs[seg].value());
             for (size_t cell = 0; cell < CELLS_PER_SEGMENT; cell++)
             {
                 diag_buffer.uv_ok[seg][cell] = !((stat_d.covuv >> (2 * cell)) & 1U);
@@ -447,7 +450,7 @@ result<void> flags(DiagnosticBuffer &diag_buffer)
 
         if (stat_c_regs[seg])
         {
-            const STATC stat_c             = std::bit_cast<STATC>(*stat_c_regs[seg]);
+            const STATC stat_c             = std::bit_cast<STATC>(stat_c_regs[seg].value());
             diag_buffer.therm_shdn_ok[seg] = !stat_c.thsd;
             diag_buffer.self_test_ok[seg] =
                 !(stat_c.ced || stat_c.cmed || stat_c.sed || stat_c.smed || stat_c.tmodchk || stat_c.oscchk);

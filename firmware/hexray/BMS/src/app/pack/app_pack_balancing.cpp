@@ -32,8 +32,8 @@ io::adbms::PackCells<uint8_t> calculateDuty(
         for (uint8_t cell = 0; cell < io::adbms::CELLS_PER_SEGMENT; cell++)
         {
             const result<float> &volts = balance_buffer.voltages[seg][cell];
-            if (volts && cadc_owc_ok[seg][cell] && sadc_owc_ok[seg][cell] && *volts > V_FAULT_UV)
-                min_cell_v = std::min(min_cell_v, *volts);
+            if (volts && cadc_owc_ok[seg][cell] && sadc_owc_ok[seg][cell] && volts.value() > V_FAULT_UV)
+                min_cell_v = std::min(min_cell_v, volts.value());
         }
     }
 
@@ -57,11 +57,11 @@ io::adbms::PackCells<uint8_t> calculateDuty(
                 continue;
 
             // Cell undervoltage disables balancing
-            if (*volts <= V_FAULT_UV)
+            if (volts.value() <= V_FAULT_UV)
                 continue;
 
             // Threshold value met disables balancing
-            const float delta = *volts - target;
+            const float delta = volts.value() - target;
             if (delta < DISCHARGE_THRESHOLD_V)
                 continue;
 

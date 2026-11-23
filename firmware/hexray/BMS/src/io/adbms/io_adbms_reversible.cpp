@@ -17,7 +17,7 @@ result<void> poll(const uint16_t cmd)
         return std::unexpected(rx_res.error());
 
     // Poll value changes depending on number of segments actively connected; first 2 * NUM_SEGMENTS bits are ignored
-    if ((*rx_res & POLL_STATUS_READY) == POLL_STATUS_READY)
+    if ((rx_res.value() & POLL_STATUS_READY) == POLL_STATUS_READY)
         return {};
     return std::unexpected(ErrorCode::POLL_INVALID);
 }
