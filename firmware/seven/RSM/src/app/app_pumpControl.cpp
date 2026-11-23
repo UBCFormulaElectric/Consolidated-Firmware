@@ -15,8 +15,8 @@ void monitorPumps()
 
 void broadcast()
 {
-    const result<uint8_t> percentage = rl_pump.getPercentage();
-    const bool percentage_validity = percentage.has_value() && percentage.value() <= 100;
+    const result<uint8_t> percentage          = rl_pump.getPercentage();
+    const bool            percentage_validity = percentage.has_value() && percentage.value() <= 100;
 
     can_tx::RSM_RearLeftPumpPercentage_set(percentage.value_or(0));
     can_tx::RSM_RearLeftPumpPercentageValid_set(percentage_validity);

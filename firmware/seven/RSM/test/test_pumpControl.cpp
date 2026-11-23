@@ -24,7 +24,7 @@ TEST_F(RSMPumpTest, OutOfRangePercentageTest)
 
     LetTimePass(100);
 
-    //The RSM_tx.json has 100 as the max of RSM_RearLeftPumpPercentage_get(), so any value above 100 is clamped
+    // The RSM_tx.json has 100 as the max of RSM_RearLeftPumpPercentage_get(), so any value above 100 is clamped
     EXPECT_EQ(100, app::can_tx::RSM_RearLeftPumpPercentage_get());
     EXPECT_FALSE(app::can_tx::RSM_RearLeftPumpPercentageValid_get());
 }

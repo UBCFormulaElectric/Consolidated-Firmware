@@ -9,9 +9,9 @@
 #include "app_pumpControl.hpp"
 #include "app_canUtils.hpp"
 #include "app_canTx.hpp"
-//#include "app_heartbeatMonitors.hpp"
+// #include "app_heartbeatMonitors.hpp"
 #include "app_commitInfo.hpp"
-//#include "app_rsmShdnLoop.hpp"
+// #include "app_rsmShdnLoop.hpp"
 
 #include "io_canQueues.hpp"
 #include "io_brakeLight.hpp"
@@ -54,10 +54,10 @@ void jobs_run100Hz_tick()
     app::pumpControl::broadcast();
     app::pumpControl::monitorPumps();
 
-    //rsm_shdnLoop.broadcast();
+    // rsm_shdnLoop.broadcast();
 
-    //hb_monitor.checkIn();
-    //hb_monitor.broadcastFaults();
+    // hb_monitor.checkIn();
+    // hb_monitor.broadcastFaults();
 
     io::can_tx::enqueue100HzMsgs();
 }

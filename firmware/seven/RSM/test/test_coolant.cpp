@@ -22,7 +22,7 @@ TEST_F(RSMCoolantTest, upperOutOfRange)
     fakes::io::coolant::setFlowRate(35);
     LetTimePass(100);
 
-    //APP layer clamps to 30
+    // APP layer clamps to 30
     EXPECT_EQ(30, app::can_tx::RSM_CoolantFlowRate_get());
     EXPECT_TRUE(app::can_tx::RSM_Info_FlowRateOutOfRange_get());
 }
@@ -32,7 +32,7 @@ TEST_F(RSMCoolantTest, lowerOutOfRange)
     fakes::io::coolant::setFlowRate(-5);
     LetTimePass(100);
 
-    //APP layer clamps to 1
+    // APP layer clamps to 1
     EXPECT_EQ(1, app::can_tx::RSM_CoolantFlowRate_get());
     EXPECT_TRUE(app::can_tx::RSM_Info_FlowRateOutOfRange_get());
 }
@@ -47,5 +47,3 @@ TEST_F(RSMCoolantTest, out2inRange)
     EXPECT_EQ(15, app::can_tx::RSM_CoolantFlowRate_get());
     EXPECT_FALSE(app::can_tx::RSM_Info_FlowRateOutOfRange_get());
 }
-
-

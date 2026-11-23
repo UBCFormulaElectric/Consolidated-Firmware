@@ -13,13 +13,14 @@ void broadcast()
 
     const float left_travel  = io::suspension::getRLTravel();
     const float right_travel = io::suspension::getRRTravel();
-    
-    const bool left_travel_Valid = 
-        (std::isfinite(left_travel) && (left_travel >= suspension_min) && (left_travel <= suspension_max) && io::suspension::RL_OCSC());
 
-    const bool right_travel_Valid = 
-        (std::isfinite(right_travel) && (right_travel >= suspension_min) && (right_travel <= suspension_max) && io::suspension::RR_OCSC());
-    
+    const bool left_travel_Valid =
+        (std::isfinite(left_travel) && (left_travel >= suspension_min) && (left_travel <= suspension_max) &&
+         io::suspension::RL_OCSC());
+
+    const bool right_travel_Valid =
+        (std::isfinite(right_travel) && (right_travel >= suspension_min) && (right_travel <= suspension_max) &&
+         io::suspension::RR_OCSC());
 
     can_alerts::infos::RearRightSuspension_OCSC_set(io::suspension::RR_OCSC());
     can_alerts::infos::RearLeftSuspension_OCSC_set(io::suspension::RL_OCSC());

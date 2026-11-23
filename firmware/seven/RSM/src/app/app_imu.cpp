@@ -10,13 +10,14 @@ using namespace io::imus;
 
 namespace app::imu
 {
-static RSMImuResults imu_results = { .accel_x_res = std::unexpected(ErrorCode::ERROR),
-                                     .accel_y_res = std::unexpected(ErrorCode::ERROR),
-                                     .accel_z_res = std::unexpected(ErrorCode::ERROR),
-                                     .gyro_x_res  = std::unexpected(ErrorCode::ERROR),
-                                     .gyro_y_res  = std::unexpected(ErrorCode::ERROR),
-                                     .gyro_z_res  = std::unexpected(ErrorCode::ERROR),
-                                    };
+static RSMImuResults imu_results = {
+    .accel_x_res = std::unexpected(ErrorCode::ERROR),
+    .accel_y_res = std::unexpected(ErrorCode::ERROR),
+    .accel_z_res = std::unexpected(ErrorCode::ERROR),
+    .gyro_x_res  = std::unexpected(ErrorCode::ERROR),
+    .gyro_y_res  = std::unexpected(ErrorCode::ERROR),
+    .gyro_z_res  = std::unexpected(ErrorCode::ERROR),
+};
 
 void init()
 {
@@ -37,4 +38,4 @@ void broadcast()
     can_tx::RSM_GyroZ_set(imu_results.gyro_z_res.value_or(0.0f));
     can_alerts::infos::ImuDataBad_set(imu_results.hasFault());
 }
-}
+} // namespace app::imu

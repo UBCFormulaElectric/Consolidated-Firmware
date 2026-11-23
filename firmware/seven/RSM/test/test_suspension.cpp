@@ -22,7 +22,8 @@ TEST_F(RSMSuspensionTest, SuspensionTest)
     EXPECT_TRUE(app::can_tx::RSM_Info_RearRightSuspension_OCSC_get());
 }
 
-TEST_F(RSMSuspensionTest, SuspensionUpperOutOfRange) {
+TEST_F(RSMSuspensionTest, SuspensionUpperOutOfRange)
+{
     fakes::io::suspension::setRLTravel(11);
     fakes::io::suspension::setRRTravel(5);
     fakes::io::suspension::setRL_OCSC(true);
@@ -36,7 +37,8 @@ TEST_F(RSMSuspensionTest, SuspensionUpperOutOfRange) {
     EXPECT_TRUE(app::can_tx::RSM_Info_RearRightSuspension_OCSC_get());
 }
 
-TEST_F(RSMSuspensionTest, SuspensionLowerOutOfRange) {
+TEST_F(RSMSuspensionTest, SuspensionLowerOutOfRange)
+{
     fakes::io::suspension::setRLTravel(10);
     fakes::io::suspension::setRRTravel(-10.5);
     fakes::io::suspension::setRL_OCSC(true);
@@ -48,10 +50,10 @@ TEST_F(RSMSuspensionTest, SuspensionLowerOutOfRange) {
     EXPECT_EQ(0, app::can_tx::RSM_RearRightSuspensionTravel_get());
     EXPECT_TRUE(app::can_tx::RSM_Info_RearLeftSuspension_OCSC_get());
     EXPECT_TRUE(app::can_tx::RSM_Info_RearRightSuspension_OCSC_get());
-
 }
 
-TEST_F(RSMSuspensionTest, SuspensionInvalidToValid) {
+TEST_F(RSMSuspensionTest, SuspensionInvalidToValid)
+{
     fakes::io::suspension::setRLTravel(5);
     fakes::io::suspension::setRRTravel(-10.5);
     fakes::io::suspension::setRL_OCSC(true);
@@ -70,10 +72,10 @@ TEST_F(RSMSuspensionTest, SuspensionInvalidToValid) {
     EXPECT_EQ(5, app::can_tx::RSM_RearRightSuspensionTravel_get());
     EXPECT_TRUE(app::can_tx::RSM_Info_RearLeftSuspension_OCSC_get());
     EXPECT_TRUE(app::can_tx::RSM_Info_RearRightSuspension_OCSC_get());
-
 }
 
-TEST_F(RSMSuspensionTest, SuspensionTravelPinOpen) {
+TEST_F(RSMSuspensionTest, SuspensionTravelPinOpen)
+{
     fakes::io::suspension::setRLTravel(10);
     fakes::io::suspension::setRRTravel(-10.5);
     fakes::io::suspension::setRL_OCSC(false);
@@ -85,5 +87,4 @@ TEST_F(RSMSuspensionTest, SuspensionTravelPinOpen) {
     EXPECT_EQ(0, app::can_tx::RSM_RearRightSuspensionTravel_get());
     EXPECT_FALSE(app::can_tx::RSM_Info_RearLeftSuspension_OCSC_get());
     EXPECT_TRUE(app::can_tx::RSM_Info_RearRightSuspension_OCSC_get());
-
 }
