@@ -61,6 +61,8 @@ IWDG_HandleTypeDef hiwdg1;
 
 SPI_HandleTypeDef hspi1;
 SPI_HandleTypeDef hspi2;
+DMA_HandleTypeDef hdma_spi1_rx;
+DMA_HandleTypeDef hdma_spi1_tx;
 
 TIM_HandleTypeDef htim3;
 TIM_HandleTypeDef htim7;
@@ -1007,12 +1009,18 @@ static void MX_DMA_Init(void)
     __HAL_RCC_DMA1_CLK_ENABLE();
 
     /* DMA interrupt init */
+    /* DMA1_Stream0_IRQn interrupt configuration */
+    HAL_NVIC_SetPriority(DMA1_Stream0_IRQn, 5, 0);
+    HAL_NVIC_EnableIRQ(DMA1_Stream0_IRQn);
     /* DMA1_Stream1_IRQn interrupt configuration */
     HAL_NVIC_SetPriority(DMA1_Stream1_IRQn, 5, 0);
     HAL_NVIC_EnableIRQ(DMA1_Stream1_IRQn);
     /* DMA1_Stream2_IRQn interrupt configuration */
     HAL_NVIC_SetPriority(DMA1_Stream2_IRQn, 5, 0);
     HAL_NVIC_EnableIRQ(DMA1_Stream2_IRQn);
+    /* DMA1_Stream3_IRQn interrupt configuration */
+    HAL_NVIC_SetPriority(DMA1_Stream3_IRQn, 5, 0);
+    HAL_NVIC_EnableIRQ(DMA1_Stream3_IRQn);
     /* DMA1_Stream5_IRQn interrupt configuration */
     HAL_NVIC_SetPriority(DMA1_Stream5_IRQn, 5, 0);
     HAL_NVIC_EnableIRQ(DMA1_Stream5_IRQn);
