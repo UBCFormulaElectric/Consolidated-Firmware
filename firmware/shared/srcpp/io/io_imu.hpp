@@ -7,7 +7,8 @@
 #include <cstdint>
 #endif
 /**
- * IMU Datasheet: https://invensense.tdk.com/wp-content/uploads/2021/11/DS-000409-IAM-20680HP-v1.2-Typ.pdf
+ * IMU Datasheet:
+ * https://product.tdk.com/system/files/dam/doc/product/sensor/mortion-inertial/imu/data_sheet/ds-000409-iam-20680hp.pdf
  */
 
 /**
