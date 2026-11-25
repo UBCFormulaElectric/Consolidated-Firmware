@@ -214,7 +214,7 @@ pub async fn get_signals(
         let cache_fetch = signal_tile_cache.get(&tile_key).await;
         match cache_fetch {
             Some(cached_tile) => {
-                dprintln!("Cache hit! Tile starting at {} with res {}", 
+                dprintln!("[signal_tile] Cache hit! Tile starting at {} with res {}", 
                     tile_start.to_rfc3339_opts(chrono::SecondsFormat::Millis, true), 
                     resolution_ms
                 );
@@ -223,7 +223,7 @@ pub async fn get_signals(
                     // Just a sanity check, otherwise something has gone very wrong with the timestamp
                     let time_utc = DateTime::from_timestamp_millis(point.time_utc_ms);
                     if time_utc.is_none() {
-                        eprintln!("Invalid time in cache for tile starting at {} with res {}, skipping point with time {}", 
+                        eprintln!("[signal_tile] Invalid time in cache for tile starting at {} with res {}, skipping point with time {}", 
                             tile_start.to_rfc3339_opts(chrono::SecondsFormat::Millis, true), 
                             resolution_ms,
                             point.time_utc_ms
@@ -240,7 +240,7 @@ pub async fn get_signals(
                 tile_queries.push(Box::pin(ready(Ok(signal_rows))));
             }
             None => {
-                dprintln!("Cache miss! Fetching tile starting at {} with res {}", 
+                dprintln!("[signal_tile] Cache miss! Fetching tile starting at {} with res {}", 
                     tile_start.to_rfc3339_opts(chrono::SecondsFormat::Millis, true), 
                     resolution_ms
                 );
@@ -256,6 +256,7 @@ pub async fn get_signals(
 
                     // perform downsampling
                     let downsampled_rows = lttb(&signal_rows, TILE_SIZE as usize);
+                    dprintln!("[signal_tile] Fetched {} rows, downsampled to {}", signal_rows.len(), downsampled_rows.len());
                     
                     // If fetch success, insert into cache
                     if tile_end_ms < curr_time_ms {

@@ -387,7 +387,6 @@ async fn signal_sessions_hash(
             data = from(bucket: "{}")
                 |> range(start: time(v: "{start_utc}"), stop: time(v: "{end_utc}"))
                 |> filter(fn: (r) => r["_measurement"] == "{}")
-                |> filter(fn: (r) => r["signal_name"] == "DAM_Alive")
                 |> filter(fn: (r) => r["source"] == "{source_str}")
                 |> filter(fn: (r) => exists r["boot_hash"])
                 |> group(columns: ["boot_hash"])
