@@ -7,16 +7,20 @@ Main driver script used to update code over the CAN bus.
 
 import argparse
 import os
-from typing import List
+from typing import List, Optional
 
 import can
 import intelhex
 from rich.console import Console, Group
 from rich.live import Live
 from rich.progress import Progress, TextColumn, BarColumn, DownloadColumn
+from rich.progress import TaskID
+from typing import Callable
 
 import boards
 import bootloader
+import can_router
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 console = Console()
 status = console.status("Status")
@@ -26,11 +30,17 @@ progress = Progress(
     DownloadColumn(),
 )
 
+MAX_UPDATE_ATTEMPTS = 3 # first attempt + 2 retries
 
-def all_goto_bootloader(live: Live, bootloaders: List[bootloader.Bootloader]):
+def all_goto_bootloader(live: Live, bootloaders: List[bootloader.Bootloader]) -> List[boards.Board]:
+    """
+    Put every board into bootloader mode. Tries every board even if one fails.
+
+    :return: Boards that did not enter bootloader mode.
+    """
     live.console.log("Putting all boards into bootloader mode")
-    # first put everybody into bootloader mode
     bootload_task = progress.add_task("Jump to Bootloader")
+    failed: List[boards.Board] = []
     for b_idx, bootload_board in enumerate(bootloaders):
         progress.update(
             task_id=bootload_task,
@@ -39,16 +49,23 @@ def all_goto_bootloader(live: Live, bootloaders: List[bootloader.Bootloader]):
             description=f"Putting {bootload_board.board.name} into bootloader mode",
         )
         if not bootload_board.goto_bootloader(retry=True):
-            raise TimeoutError(
-                f"Failed to send bootloader command to {bootload_board.board.name}"
-            )
+            failed.append(bootload_board.board)
+            live.console.log(f"[red]{bootload_board.board.name} did not enter bootloader mode")
     progress.remove_task(bootload_task)
-    live.console.log(f"[bold green]All boards pushed into bootloader mode successfully")
+    if not failed:
+        live.console.log(f"[bold green]All boards pushed into bootloader mode successfully")
+    return failed
 
 
-def all_goto_app(live: Live, bootloaders: List[bootloader.Bootloader]):
+def all_goto_app(live: Live, bootloaders: List[bootloader.Bootloader]) -> List[boards.Board]:
+    """
+    Send every board to its app. Tries every board even if one fails.
+
+    :return: Boards that did not start their app.
+    """
     live.console.log("Pushing all boards out of bootloader mode")
     app_task = progress.add_task("Jump to App")
+    failed: List[boards.Board] = []
     for b_idx, bootload_board in enumerate(bootloaders):
         progress.update(
             task_id=app_task,
@@ -57,33 +74,55 @@ def all_goto_app(live: Live, bootloaders: List[bootloader.Bootloader]):
             description=f"Putting {bootload_board.board.name} into application mode",
         )
         if not bootload_board.goto_app(retry=True):
-            raise TimeoutError(
-                f"Failed to send application command to {bootload_board.board.name}"
-            )
+            failed.append(bootload_board.board)
+            live.console.log(f"[red]{bootload_board.board.name} did not start its app")
     progress.remove_task(app_task)
-    live.console.log(
-        f"[bold green]All boards pushed out of bootloader mode successfully"
-    )
+    if not failed:
+        live.console.log(
+            f"[bold green]All boards pushed out of bootloader mode successfully"
+        )
+    return failed
+
+def update_with_retries(session: bootloader.Bootloader, live: Live) -> None:
+    """
+    Run one board's update, retrying on failure. Raises the last error if every reattempt fails. 
+    """
+    for attempt in range(1, MAX_UPDATE_ATTEMPTS + 1):
+        session.clear_rx_queue()
+        try:
+            # A board's bootloader can reset and fall back to its app, which ignores bootloader commands.
+            # Push it back into bootloader mode before retrying (also clears a stuck update state).
+            if attempt > 1 and not session.goto_bootloader(retry=True):
+                raise TimeoutError(f"Bootloader for {session.board.name} did not re-enter bootloader mode")
+            session.update()
+            return
+        except (RuntimeError, TimeoutError, can.CanError) as e:
+            live.console.log(f"[yellow]{session.board.name} attempt {attempt}/{MAX_UPDATE_ATTEMPTS} failed: {e}")
+            if attempt == MAX_UPDATE_ATTEMPTS:
+                raise
+
+def make_ui_callback(task_id: TaskID, board_name:str) -> Callable[[str, int, int], None]:
+    def callback(description, total, completed):
+        progress.update(task_id=task_id, description=f"{board_name}: {description}", total=total, completed=completed)
+    return callback
+
 
 
 def update(
-    bus: can.Bus, configs: List[boards.Board], build_dir: str, is_fd: bool, only: bool
+    bus: can.Bus, configs: List[boards.Board], build_dir: str, is_fd: bool, only: bool, router: can_router.CanRouter,
+    max_workers: Optional[int] = None,
 ) -> None:
     """Update and handle UI."""
     num_boards = len(configs)
-    steps_task = progress.add_task("Steps")
+    board_tasks = {board: progress.add_task(board.name, total=None) for board in configs}
     bootloaders: List[bootloader.Bootloader] = [
         bootloader.Bootloader(
             bus=bus,
             board=board,
-            ui_callback=lambda description, total, completed: progress.update(
-                task_id=steps_task,
-                total=total,
-                description=description,
-                completed=completed,
-            ),
+            ui_callback=make_ui_callback(board_tasks[board], board.name),
             ih=intelhex.IntelHex(os.path.join(build_dir, board.path)),
             is_fd=is_fd,
+            rx_queue=router.queue_for(board)
         )
         for board in configs
     ]
@@ -94,45 +133,77 @@ def update(
         bootloader.Bootloader(
             bus=bus,
             board=board,
-            ui_callback=lambda description, total, completed: progress.update(
-                task_id=steps_task,
-                total=total,
-                description=description,
-                completed=completed,
-            ),
+            ui_callback=lambda *args: None, # *args accepts any num of args and lambda ignores all
             ih=intelhex.IntelHex(os.path.join(build_dir, board.path)),
             is_fd=is_fd,
+            rx_queue=router.queue_for(board)
         )
         for board in boards_to_bootload
     ]
 
     with Live(Group(status, progress), transient=True) as live:
-        all_goto_bootloader(live, hexray_bootloaders)
+        # Boards that never reached bootloader mode are skipped: they aren't flashed or sent to app.
+        not_in_bootloader = all_goto_bootloader(live, hexray_bootloaders)
+        flash_sessions = [session for session in bootloaders if session.board not in not_in_bootloader]
+        for board in configs:
+            if board in not_in_bootloader:
+                progress.update(board_tasks[board], description=f"[red]{board.name}: skipped, not in bootloader")
 
         live.console.log(
-            f"Updating firmware for boards: [blue bold]{', '.join(board.name for board in configs)}"
+            f"Updating firmware for boards: [blue bold]{', '.join(session.board.name for session in flash_sessions)}"
         )
-        for b_idx, bootload_board in enumerate(bootloaders):
-            # TODO do this in parallel
-            progress.update(
-                task_id=steps_task,
-                total=0,
-                completed=0,
-                description=f"Starting update for {bootload_board.board.name}",
+        failed_boards = []
+        # Flash every board in parallel, one worker thread per board. This is safe because each
+        # session only receives from its own queue (see can_router.py) and the bus is a ThreadSafeBus.
+        # Leaving the with block waits for every board to finish.
+        # max_workers caps how many boards program at once, to limit bus load. Default: all of them.
+        with ThreadPoolExecutor(max_workers=max_workers or max(len(flash_sessions), 1)) as pool:
+            status.update(f"Updating {len(flash_sessions)} boards in parallel")
+            # submit() starts each board's update() on a worker and returns a Future for its result.
+            # Map each Future back to its session so we know which board finished.
+            futures = {pool.submit(update_with_retries, bootload_board, live): bootload_board for bootload_board in flash_sessions}
+            # as_completed() yields each Future as its board finishes, in whatever order that happens.
+            for future in as_completed(futures):
+                bootload_board = futures[future]
+                task_id = board_tasks[bootload_board.board]
+                # Re-raises any exception from that board's update() here on the main thread.
+                # Boards already running keep going until they finish. Collect boards that failed every attempt which stay in bootloader.
+                # The rest go to their app code.
+                try:
+                    future.result()
+                    live.console.log(f"[green]{bootload_board.board.name} updated successfully")
+                    progress.update(task_id, description=f"[green]{bootload_board.board.name}: done")
+                except (RuntimeError, TimeoutError, can.CanError) as e:
+                    failed_boards.append(bootload_board.board)
+                    live.console.log(f"[red]{bootload_board.board.name} failed after {MAX_UPDATE_ATTEMPTS} attempts: {e}")
+                    progress.update(task_id, description=f"[red]{bootload_board.board.name}: failed")
+        for task_id in board_tasks.values():
+            progress.remove_task(task_id)
+        skipped_boards = [board for board in configs if board in not_in_bootloader]
+        if not failed_boards and not skipped_boards:
+            live.console.log(
+                f"[bold green]Firmware update successfully ({num_boards} board{'s' if num_boards > 1 else ''} updated)"
             )
-            status.update(
-                f"Updating board [yellow]{b_idx + 1}/{num_boards}[/]: [blue bold]{bootload_board.board.name}"
-            )
-            bootload_board.update()
-            live.console.log(f"[green]{bootload_board.board.name} updated successfully")
-        progress.remove_task(steps_task)
-        live.console.log(
-            f"[bold green]Firmware update successfully ({num_boards} board{'s' if num_boards > 1 else ''} updated)"
-        )
-        all_goto_app(live, hexray_bootloaders)
+        app_sessions = [
+            session
+            for session in hexray_bootloaders
+            if session.board not in failed_boards and session.board not in not_in_bootloader
+        ]
+        app_failed_boards = all_goto_app(live, app_sessions)
+
+        # Report every problem together at the end, so one board can't hide another.
+        problems = []
+        if skipped_boards:
+            problems.append(f"not updated, never entered bootloader: {', '.join(b.name for b in skipped_boards)}")
+        if failed_boards:
+            problems.append(f"update failed, still in bootloader: {', '.join(b.name for b in failed_boards)}")
+        if app_failed_boards:
+            problems.append(f"did not start their app: {', '.join(b.name for b in app_failed_boards)}")
+        if problems:
+            raise RuntimeError("; ".join(problems) + ". Rerun CANup to retry these boards.")
 
 
-def erase(bus: can.Bus, configs: List[boards.Board], is_fd: bool) -> None:
+def erase(bus: can.Bus, configs: List[boards.Board], is_fd: bool, router: can_router.CanRouter) -> None:
     """Erase and handle UI."""
     # push all boards into bootloader
     num_boards = len(configs)
@@ -148,12 +219,17 @@ def erase(bus: can.Bus, configs: List[boards.Board], is_fd: bool) -> None:
                 completed=completed,
             ),
             is_fd=is_fd,
+            rx_queue=router.queue_for(board)
         )
         for board in configs
     ]
 
     with Live(Group(status, progress), transient=True) as live:
-        all_goto_bootloader(live, bootloaders)
+        not_in_bootloader = all_goto_bootloader(live, bootloaders)
+        if not_in_bootloader:
+            raise TimeoutError(
+                f"Failed to put {', '.join(b.name for b in not_in_bootloader)} into bootloader mode"
+            )
 
         live.console.log(
             f"Erasing with config: [blue bold]{', '.join(board.name for board in configs)}"
@@ -204,6 +280,12 @@ if __name__ == "__main__":
     parser.add_argument(
         "--data_bitrate", type=int, default=1000000, help="CAN FD data bitrate"
     )
+    parser.add_argument(
+        "--max_workers",
+        type=int,
+        default=None,
+        help="Max boards to program at once (default: all). Lower it if the bus is overloaded.",
+    )
     args = parser.parse_args()
 
     # Load config and binary.
@@ -226,7 +308,7 @@ if __name__ == "__main__":
         "output_mode": 1,
     }
 
-    with can.interface.Bus(
+    with can.ThreadSafeBus(
         interface=args.bus,
         channel=args.channel,
         fd=args.fd,
@@ -235,9 +317,12 @@ if __name__ == "__main__":
         app_name=None,
         **(fdcan_args if args.fd else {}),
     ) as bus:
-        if args.erase:
-            erase(bus=bus, configs=c, is_fd=args.fd)
-        else:
-            update(
-                bus=bus, configs=c, build_dir=args.build, is_fd=args.fd, only=args.only
-            )
+        router = can_router.CanRouter(c + boards.hexray_boards)
+        with can.Notifier(bus, [router]):
+            if args.erase:
+                erase(bus=bus, configs=c, is_fd=args.fd, router=router)
+            else:
+                update(
+                    bus=bus, configs=c, build_dir=args.build, is_fd=args.fd, only=args.only, router=router,
+                    max_workers=args.max_workers,
+                )
