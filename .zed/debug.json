@@ -19,7 +19,7 @@
       "--board",
       "VC",
       "--can_data_dir",
-      "$ZED_WORKTREE_ROOT/can_bus/quintuna",
+      "$ZED_WORKTREE_ROOT/can_bus/hexray", // seven later
       "--output_dir",
       "temp",
       "--dbc_output"
@@ -266,12 +266,12 @@
     }
   },
 
-  // Embedded Quintuna Targets (J-Link / Cortex)
+  // Embedded Seven Targets (J-Link / Cortex)
   {
-    "label": "Debug Embedded: VC (Quintuna)",
+    "label": "Debug Embedded: VC (Seven)",
     "adapter": "GDB",
     "request": "attach",
-    "program": "$ZED_WORKTREE_ROOT/build_fw_dev/firmware/quintuna/VC/quintuna_VC_app.elf",
+    "program": "$ZED_WORKTREE_ROOT/build_fw_dev/firmware/seven/VC/seven_VC_app.elf",
     "target": ":2331",
     "cwd": "$ZED_WORKTREE_ROOT",
     "build": {
@@ -281,15 +281,17 @@
         "--device",
         "STM32H733VG",
         "--build",
-        "cmake --build build_fw_dev --target quintuna_VC.hex"
+        "cmake --build build_fw_dev --target seven_VC.hex",
+        "--flash",
+        "build_fw_dev/firmware/seven/VC/seven_VC.hex"       
       ]
     }
   },
   {
-    "label": "Debug Embedded: DAM (Quintuna)",
+    "label": "Debug Embedded: DAM (Seven)",
     "adapter": "GDB",
     "request": "attach",
-    "program": "$ZED_WORKTREE_ROOT/build_fw_dev/firmware/quintuna/DAM/quintuna_DAM_app.elf",
+    "program": "$ZED_WORKTREE_ROOT/build_fw_dev/firmware/seven/DAM/seven_DAM_app.elf",
     "target": ":2331",
     "cwd": "$ZED_WORKTREE_ROOT",
     "build": {
@@ -299,15 +301,17 @@
         "--device",
         "STM32H733VG",
         "--build",
-        "cmake --build build_fw_dev --target quintuna_DAM.hex"
+        "cmake --build build_fw_dev --target seven_DAM.hex",
+        "--flash",
+        "build_fw_dev/firmware/seven/DAM/seven_DAM.hex"  
       ]
     }
   },
   {
-    "label": "Debug Embedded: FSM (Quintuna)",
+    "label": "Debug Embedded: FSM (Seven)",
     "adapter": "GDB",
     "request": "attach",
-    "program": "$ZED_WORKTREE_ROOT/build_fw_dev/firmware/quintuna/FSM/quintuna_FSM_app.elf",
+    "program": "$ZED_WORKTREE_ROOT/build_fw_dev/firmware/seven/FSM/seven_FSM_app.elf",
     "target": ":2331",
     "cwd": "$ZED_WORKTREE_ROOT",
     "build": {
@@ -317,15 +321,17 @@
         "--device",
         "STM32F412RG",
         "--build",
-        "cmake --build build_fw_dev --target quintuna_FSM.hex"
+        "cmake --build build_fw_dev --target seven_FSM.hex",
+        "--flash",
+        "build_fw_dev/firmware/seven/FSM/seven_FSM.hex"  
       ]
     }
   },
   {
-    "label": "Debug Embedded: RSM (Quintuna)",
+    "label": "Debug Embedded: RSM (Seven)",
     "adapter": "GDB",
     "request": "attach",
-    "program": "$ZED_WORKTREE_ROOT/build_fw_dev/firmware/quintuna/RSM/quintuna_RSM_app.elf",
+    "program": "$ZED_WORKTREE_ROOT/build_fw_dev/firmware/seven/RSM/seven_RSM_app.elf",
     "target": ":2331",
     "cwd": "$ZED_WORKTREE_ROOT",
     "build": {
@@ -335,15 +341,17 @@
         "--device",
         "STM32F412RG",
         "--build",
-        "cmake --build build_fw_dev --target quintuna_RSM.hex"
+        "cmake --build build_fw_dev --target seven_RSM.hex",
+        "--flash",
+        "build_fw_dev/firmware/seven/RSM/seven_RSM.hex"  
       ]
     }
   },
   {
-    "label": "Debug Embedded: CRIT (Quintuna)",
+    "label": "Debug Embedded: CRIT (Seven)",
     "adapter": "GDB",
     "request": "attach",
-    "program": "$ZED_WORKTREE_ROOT/build_fw_dev/firmware/quintuna/CRIT/quintuna_CRIT_app.elf",
+    "program": "$ZED_WORKTREE_ROOT/build_fw_dev/firmware/seven/CRIT/seven_CRIT_app.elf",
     "target": ":2331",
     "cwd": "$ZED_WORKTREE_ROOT",
     "build": {
@@ -353,15 +361,17 @@
         "--device",
         "STM32F412RG",
         "--build",
-        "cmake --build build_fw_dev --target quintuna_CRIT.hex"
+        "cmake --build build_fw_dev --target seven_CRIT.hex",
+        "--flash",
+        "build_fw_dev/firmware/seven/CRIT/seven_CRIT.hex"  
       ]
     }
   },
   {
-    "label": "Debug Embedded: BMS (Quintuna)",
+    "label": "Debug Embedded: BMS (Seven)",
     "adapter": "GDB",
     "request": "attach",
-    "program": "$ZED_WORKTREE_ROOT/build_fw_dev/firmware/quintuna/BMS/quintuna_BMS_app.elf",
+    "program": "$ZED_WORKTREE_ROOT/build_fw_dev/firmware/seven/BMS/seven_BMS_app.elf",
     "target": ":2331",
     "cwd": "$ZED_WORKTREE_ROOT",
     "build": {
@@ -371,15 +381,17 @@
         "--device",
         "STM32H733VG",
         "--build",
-        "cmake --build build_fw_dev --target quintuna_BMS.hex"
+        "cmake --build build_fw_dev --target seven_BMS.hex",
+        "--flash",
+        "build_fw_dev/firmware/seven/BMS/seven_BMS.hex"  
       ]
     }
   },
   {
-    "label": "Debug Embedded: VCR (Quintuna)",
+    "label": "Debug Embedded: VCR (Seven)",
     "adapter": "GDB",
     "request": "attach",
-    "program": "$ZED_WORKTREE_ROOT/build_fw_dev/firmware/quintuna/VCR/quintuna_VCR_app.elf",
+    "program": "$ZED_WORKTREE_ROOT/build_fw_dev/firmware/seven/VCR/seven_VCR_app.elf",
     "target": ":2331",
     "cwd": "$ZED_WORKTREE_ROOT",
     "build": {
@@ -389,15 +401,15 @@
         "--device",
         "STM32H733VG",
         "--build",
-        "cmake --build build_fw_dev --target quintuna_VCR_app.elf"
+        "cmake --build build_fw_dev --target seven_VCR_app.elf"
       ]
     }
   },
   {
-    "label": "Debug Embedded: PCM (Quintuna)",
+    "label": "Debug Embedded: PCM (Seven)",
     "adapter": "GDB",
     "request": "attach",
-    "program": "$ZED_WORKTREE_ROOT/build_fw_dev/firmware/quintuna/PCM/quintuna_PCM_app.elf",
+    "program": "$ZED_WORKTREE_ROOT/build_fw_dev/firmware/seven/PCM/seven_PCM_app.elf",
     "target": ":2331",
     "cwd": "$ZED_WORKTREE_ROOT",
     "build": {
@@ -407,7 +419,7 @@
         "--device",
         "STM32F412RG",
         "--build",
-        "cmake --build build_fw_dev --target quintuna_PCM_app.elf"
+        "cmake --build build_fw_dev --target seven_PCM_app.elf"
       ]
     }
   },
@@ -470,28 +482,28 @@
 
   // Native C++ Tests (Host GDB)
   {
-    "label": "Debug Tests: VC (Quintuna)",
+    "label": "Debug Tests: VC (Seven)",
     "adapter": "GDB",
     "request": "launch",
-    "program": "$ZED_WORKTREE_ROOT/build_fw_test/firmware/quintuna/VC/quintuna_VC_test",
+    "program": "$ZED_WORKTREE_ROOT/build_fw_test/firmware/seven/VC/seven_VC_test",
     "cwd": "$ZED_WORKTREE_ROOT",
-    "build": "Build Tests: VC (Quintuna)"
+    "build": "Build Tests: VC (Seven)"
   },
   {
-    "label": "Debug Tests: CRIT (Quintuna)",
+    "label": "Debug Tests: CRIT (Seven)",
     "adapter": "GDB",
     "request": "launch",
-    "program": "$ZED_WORKTREE_ROOT/build_fw_test/firmware/quintuna/CRIT/quintuna_CRIT_test",
+    "program": "$ZED_WORKTREE_ROOT/build_fw_test/firmware/seven/CRIT/seven_CRIT_test",
     "cwd": "$ZED_WORKTREE_ROOT",
-    "build": "Build Tests: CRIT (Quintuna)"
+    "build": "Build Tests: CRIT (Seven)"
   },
   {
-    "label": "Debug Tests: BMS (Quintuna)",
+    "label": "Debug Tests: BMS (Seven)",
     "adapter": "GDB",
     "request": "launch",
-    "program": "$ZED_WORKTREE_ROOT/build_fw_test/firmware/quintuna/BMS/quintuna_BMS_test",
+    "program": "$ZED_WORKTREE_ROOT/build_fw_test/firmware/seven/BMS/seven_BMS_test",
     "cwd": "$ZED_WORKTREE_ROOT",
-    "build": "Build Tests: BMS (Quintuna)"
+    "build": "Build Tests: BMS (Seven)"
   },
   {
     "label": "Debug Tests: BMS (Hexray)",
