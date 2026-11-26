@@ -160,9 +160,14 @@ async fn signal_tiles(
         _ => InfluxSignalSource::Radio,
     };
     
-    match get_signals(state.influx_client, source_enum, state.signal_tile_cache.clone(), signal, start_utc, end_utc).await {
+    match get_signals(state.influx_client, source_enum, state.signal_tile_cache.clone(), signal.clone(), start_utc, end_utc).await {
         Ok((rows, resolution_ms)) => {
-            dprintln!("Querying signals took {}ms", start_time.elapsed().unwrap().as_millis());
+            dprintln!("Request for {} from {} to {} too took {}ms", 
+                signal,
+                start_utc.to_rfc3339_opts(chrono::SecondsFormat::Millis, true), 
+                end_utc.to_rfc3339_opts(chrono::SecondsFormat::Millis, true),
+                start_time.elapsed().unwrap().as_millis()
+            );
             
             let total_size: usize = state.signal_tile_cache.iter().map(|(key, value)| {
                 mem::size_of_val(&key) + mem::size_of_val(&value)
