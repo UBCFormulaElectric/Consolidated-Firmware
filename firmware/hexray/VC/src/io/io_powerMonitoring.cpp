@@ -39,23 +39,23 @@ namespace io::powerMonitoring
 {
 static result<void> read_register(const uint16_t reg, const std::span<uint8_t> data)
 {
-    const io::unique_semaphore lock{ pwr_pump_i2c_bus_lock };
-    auto                       result = util::retry([&]() { return pwr_mon.memoryRead(reg, data); }, 5);
+    const io::semaphore::unique_semaphore lock{ pwr_pump_i2c_bus_lock };
+    auto                                  result = util::retry([&]() { return pwr_mon.memoryRead(reg, data); }, 5);
     return result;
 }
 
 static result<void> write_register(const uint16_t reg, const std::span<const uint8_t> data)
 {
-    const io::unique_semaphore lock{ pwr_pump_i2c_bus_lock };
-    auto                       result = util::retry([&]() { return pwr_mon.memoryWrite(reg, data); }, 5);
+    const io::semaphore::unique_semaphore lock{ pwr_pump_i2c_bus_lock };
+    auto                                  result = util::retry([&]() { return pwr_mon.memoryWrite(reg, data); }, 5);
     return result;
 }
 
 result<void> refresh()
 {
-    constexpr uint8_t          cmd = REG_REFRESH;
-    const io::unique_semaphore lock{ pwr_pump_i2c_bus_lock };
-    auto                       result = util::retry([&]() { return pwr_mon.transmit(std::span{ &cmd, 1 }); }, 3);
+    constexpr uint8_t                     cmd = REG_REFRESH;
+    const io::semaphore::unique_semaphore lock{ pwr_pump_i2c_bus_lock };
+    auto result = util::retry([&]() { return pwr_mon.transmit(std::span{ &cmd, 1 }); }, 3);
     return result;
 }
 
@@ -63,7 +63,7 @@ result<void> init()
 {
     // 1) Check if peripheral is ready
     {
-        const io::unique_semaphore lock{ pwr_pump_i2c_bus_lock };
+        const io::semaphore::unique_semaphore lock{ pwr_pump_i2c_bus_lock };
         RETURN_IF_ERR(util::retry([&]() { return pwr_mon.isTargetReady(); }, 5));
     }
 

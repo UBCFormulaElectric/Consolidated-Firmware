@@ -74,13 +74,15 @@ class BMSBaseTest : public EcuTestBase
         app::can_tx::BMS_Fault_CellOvervoltage_set(false);
         app::can_tx::BMS_Fault_CellUndervoltage_set(false);
         app::can_tx::BMS_Fault_CellOvertemp_set(false);
-        app::can_tx::BMS_Fault_HealthError_set(false);
+        app::can_tx::BMS_Fault_DiagnosticError_set(false);
+        app::can_tx::BMS_Fault_StaleData_set(false);
 
         app::can_tx::BMS_Fault_CellOvervoltage_Count_set(0);
         app::can_tx::BMS_Fault_CellOpenWire_Count_set(0);
         app::can_tx::BMS_Fault_CellUndervoltage_Count_set(0);
         app::can_tx::BMS_Fault_CellOvertemp_Count_set(0);
-        app::can_tx::BMS_Fault_HealthError_Count_set(0);
+        app::can_tx::BMS_Fault_DiagnosticError_Count_set(0);
+        app::can_tx::BMS_Fault_StaleData_Count_set(0);
     }
 
     void SetImdCondition(const app::can_utils::ImdConditionName condition_name)

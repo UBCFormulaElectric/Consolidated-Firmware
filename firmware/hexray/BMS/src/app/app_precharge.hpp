@@ -26,8 +26,8 @@ inline constexpr std::uint32_t PRECHARGE_COOLDOWN_MS      = 1000U;
 inline constexpr std::uint32_t PRECHARGE_LATCH_TIMEOUT_MS = 3000U;
 
 // When TS reaches this fraction of ACC, AIR+ engages; must be ≥ 90% (EV.6.6.1)
-inline constexpr float        PRECHARGE_ACC_V_THRESHOLD = 0.90f;
-inline constexpr std::uint8_t MAX_PRECHARGE_ATTEMPTS    = 3U;
+inline constexpr float PRECHARGE_ACC_V_THRESHOLD = 0.90f;
+inline constexpr float MAX_PACK_V                = 588.0f; // 140 cells * 4.2 V
 
 // State
 enum class State
