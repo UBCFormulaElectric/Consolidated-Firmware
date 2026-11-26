@@ -47,6 +47,8 @@ MIN_PROG_SIZE_BYTES = 32
 MAX_COMMAND_TRIES = 5 # for start update, goto_bootloader and goto_app
 MAX_ERASE_TRIES = 3 # for each sector
 ERASE_TIMEOUT_S = 5 # how long to wait for each sector's reply
+SEND_TIMEOUT_S = 2 # how long to keep retrying a send while the adapter's transmit queue is full
+SEND_RETRY_DELAY_S = 0.001 # pause between send retries, so a full queue doesn't busy-spin and starve other threads
 
 
 class Bootloader:
@@ -84,7 +86,7 @@ class Bootloader:
         """
         tries: int = 0
         while True:
-            self.bus.send(
+            self._send(
                 can.Message(
                     arbitration_id=(
                         self.board.boot_id_range_start | GO_TO_BOOT_CAN_ID_LOWBITS
@@ -92,8 +94,7 @@ class Bootloader:
                     data=[],
                     is_extended_id=True,
                     is_fd=self.is_fd,
-                ),
-                timeout=10,
+                )
             )
             if (
                 self._await_can_msg(
@@ -108,6 +109,7 @@ class Bootloader:
             ):
                 return True
             tries += 1
+            self._log(f"no bootloader status after GO_TO_BOOT (try {tries}/{MAX_COMMAND_TRIES})")
             if not retry or tries >= MAX_COMMAND_TRIES:
                 return False
             time.sleep(retry_delay)
@@ -115,14 +117,13 @@ class Bootloader:
     def goto_app(self, retry: bool = False, retry_delay: float = 0.5) -> bool:
         tries: int = 0
         while True:
-            self.bus.send(
+            self._send(
                 can.Message(
                     arbitration_id=self.board.boot_id_range_start | GO_TO_APP_LOWBITS,
                     data=[],
                     is_extended_id=True,
                     is_fd=self.is_fd,
-                ),
-                timeout=10,
+                )
             )
             if (
                 self._await_can_msg(
@@ -133,6 +134,7 @@ class Bootloader:
             ):
                 return True
             tries += 1
+            self._log(f"app did not start after GO_TO_APP (try {tries}/{MAX_COMMAND_TRIES})")
             if not retry or tries >= MAX_COMMAND_TRIES:
                 return False
             time.sleep(retry_delay)
@@ -165,7 +167,7 @@ class Bootloader:
         expected_block_num_bytes = expected_block_num.to_bytes(4, byteorder="little")
         tries: int = 0
         while True:
-            self.bus.send(
+            self._send(
                 can.Message(
                     arbitration_id=self.board.boot_id_range_start | START_UPDATE_ID_LOWBITS,
                     data=expected_block_num_bytes,
@@ -176,6 +178,7 @@ class Bootloader:
             if self._await_can_msg(validator=_validator, timeout=self.timeout) is not None:
                 return True
             tries += 1
+            self._log(f"no UPDATE_ACK after START_UPDATE (try {tries}/{MAX_COMMAND_TRIES})")
             if not retry or tries >= MAX_COMMAND_TRIES:
                 return False
             time.sleep(retry_delay)
@@ -213,7 +216,7 @@ class Bootloader:
 
             tries: int = 0
             while True:
-                self.bus.send(
+                self._send(
                     can.Message(
                         arbitration_id=self.board.boot_id_range_start
                         | ERASE_SECTOR_CAN_ID_LOWBITS,
@@ -225,10 +228,12 @@ class Bootloader:
                 reply = self._await_can_msg(validator=_validator, timeout=ERASE_TIMEOUT_S)
                 if reply is None:
                     tries += 1
+                    self._log(f"no reply to erase of sector {sector.id} (try {tries}/{MAX_ERASE_TRIES})")
                     if tries >= MAX_ERASE_TRIES:
                         return False
                     continue # resend the erase for this sector
                 if reply.arbitration_id == (self.board.boot_id_range_start | ERASE_SECTOR_FAILED_ID_LOWBITS):
+                    self._log(f"bootloader reported ERASE_SECTOR_FAILED for sector {sector.id}")
                     return False
                 break
             
@@ -271,7 +276,7 @@ class Bootloader:
                     assert can_msg.dlc == 4, f"Expected 4 bytes in PROGRAM_ID_FAILED message, got {can_msg.dlc}"
                     # TODO maybe better struct unpacking :sob:
                     jump_back_block = (k[3] << 24) | (k[2] << 16) | (k[1] << 8) | k[0]
-                    print(f"jumpback received to {jump_back_block}")
+                    self._log(f"jumpback received to {jump_back_block}")
                 else:
                     raise RuntimeError(f"Received unexpected message with id {can_msg.arbitration_id} during programming")
         listen_thread = threading.Thread(target=listener, args=(stop_listener,))
@@ -294,25 +299,21 @@ class Bootloader:
 
                     data = [self.ih[start_addr + block * CAN_FRAME_SIZE_BYTES + j] for j in range(0, CAN_FRAME_SIZE_BYTES)]
                     wire_block_num = block << 4
-                    while True:
-                        try:
-                            self.bus.send(
-                                can.Message(
-                                    arbitration_id=self.board.boot_id_range_start | wire_block_num | PROGRAM_CAN_ID_LOWBITS,
-                                    data=data,
-                                    is_extended_id=True,
-                                    is_fd=self.is_fd,
-                                )
-                            )
-                            break
-                        except can.interfaces.vector.exceptions.VectorOperationError:
-                            pass
+                    self._send(
+                        can.Message(
+                            arbitration_id=self.board.boot_id_range_start | wire_block_num | PROGRAM_CAN_ID_LOWBITS,
+                            data=data,
+                            is_extended_id=True,
+                            is_fd=self.is_fd,
+                        )
+                    )
                     block += 1
                 time.sleep(0.1)
                 if jump_back_block is not None:
                     block = jump_back_block
                     jump_back_block = None
                 if tries_left <= 0:
+                    self._log("no PROGRAM_DONE received, moving on to verify")
                     break # inshallah
                 tries_left -= 1
         finally:
@@ -346,7 +347,7 @@ class Bootloader:
                 else None
             )
 
-        self.bus.send(
+        self._send(
             can.Message(
                 arbitration_id=self.board.boot_id_range_start | VERIFY_CAN_ID_LOWBITS,
                 data=[],
@@ -453,6 +454,29 @@ class Bootloader:
 
         self.ui_callback("Verifying erase", erase_size, erase_size)
         time.sleep(0.5)
+
+    def _log(self, message: str) -> None:
+        """Print a message tagged with this board's name. rich's Live display keeps it above the progress bars."""
+        print(f"{self.board.name}: {message}")
+
+    def _send(self, msg: can.Message) -> None:
+        """
+        Send a message, retrying while the CAN adapter's transmit queue is full.
+        With several boards programming in parallel the queue can fill faster than the bus drains it.
+
+        :throws: TimeoutError if the message still can't be queued after SEND_TIMEOUT_S.
+        """
+        start = time.time()
+        while True:
+            try:
+                self.bus.send(msg)
+                return
+            except can.CanOperationError as e:  # e.g. Vector XL_ERR_QUEUE_IS_FULL
+                if time.time() - start >= SEND_TIMEOUT_S:
+                    raise TimeoutError(
+                        f"Could not send to {self.board.name} for {SEND_TIMEOUT_S}s, CAN transmit queue stayed full: {e}"
+                    ) from e
+                time.sleep(SEND_RETRY_DELAY_S)
 
     def _await_can_msg(
         self, validator: Callable[[can.Message], Optional[bool]], timeout: int = 5
