@@ -16,7 +16,7 @@ export function TimezoneSelector() {
     return (
         <Popover open={open} onOpenChange={setOpen}>
             <PopoverTrigger asChild>
-                <button type="button" className="flex items-center gap-2 rounded border border-black bg-white py-1.5 pl-3 pr-2 text-left transition-colors hover:cursor-pointer hover:border-black/75">
+                <button type="button" className="flex items-center gap-2 rounded border border-black bg-white py-1.5 pl-3 pr-2 h-8 text-left transition-colors hover:cursor-pointer hover:border-black/75">
                     <span className="flex items-center gap-1.5 text-[0.6rem] font-semibold uppercase tracking-wide text-gray-500">
                         <Globe className="size-3" />
                         Timezone

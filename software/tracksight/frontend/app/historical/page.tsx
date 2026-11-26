@@ -9,6 +9,7 @@ import HistoricalSelectionModal from "@/components/historical/HistoricalSelectio
 import { DisplayControlProvider } from "@/components/PausePlayControl";
 import SyncedGraphContainer, { TimeRange } from "@/components/SyncedGraphContainer";
 import AlertTimeline from "@/components/widgets/AlertTimeline";
+import { WidgetLayout } from "@/components/widgets/WidgetLayoutContext";
 import { useWidgetManager, WidgetManager } from "@/components/widgets/WidgetManagerContext";
 import { fetchHistoricalMarkers } from "@/lib/api/historicalMarkers";
 import { HistoricalSignalSource } from "@/lib/api/historicalSignals";
@@ -20,7 +21,6 @@ import { createMockCharts } from "@/lib/mock/charts";
 import { readMockParam } from "@/lib/mock/config";
 import { clearRemoteTelemetryMarkers, setRemoteTelemetryMarkers } from "@/lib/telemetryMarkers";
 
-const HISTORIC_WIDGET_STORAGE_KEY = "tracksight_historic_widgets_config_v1";
 const HISTORIC_VIEWPORT_LOCK_STORAGE_KEY = "tracksight_historic_viewport_lock_state_v1";
 
 const expandViewportFetchRange = (range: TimeRange, bounds: TimeRange): TimeRange => {
@@ -111,7 +111,9 @@ export default function Historical() {
             <DisplayControlProvider defaultViewportLocked={false} viewportLockStorageKey={HISTORIC_VIEWPORT_LOCK_STORAGE_KEY}>
                 <div className="flex h-screen flex-col overflow-hidden pt-16">
                     <div className="relative min-h-0 w-full flex-1">
-                        <WidgetManager storageKey={HISTORIC_WIDGET_STORAGE_KEY}>{selectedRange ? <HistoricContent selectedRange={selectedRange} selectedSource={source} /> : <div className="mx-4 grid h-full place-items-center text-gray-500">No historical session selected.</div>}</WidgetManager>
+                        <WidgetLayout pageKey="historical">
+                            <WidgetManager>{selectedRange ? <HistoricContent selectedRange={selectedRange} selectedSource={source} /> : <div className="mx-4 grid h-full place-items-center text-gray-500">No historical session selected.</div>}</WidgetManager>
+                        </WidgetLayout>
                     </div>
                 </div>
 

@@ -2,7 +2,6 @@ import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 
 import SDCardDumpPage from "@/components/sdCard/SDCardDumpPage";
 import { getQueryClient } from "@/lib/contexts/getQueryClient";
-import { ToastProvider } from "@/lib/contexts/ToastContext";
 import { listSDCardsQueryOptions } from "@/lib/hooks/useListSDCards";
 import { sdCardFilesQueryOptions } from "@/lib/hooks/useSDCardFiles";
 
@@ -22,9 +21,7 @@ export default async function SDDumpPage() {
             <span className="text-sm text-gray-500">Select an SD card and files to dump their contents to the database.</span>
 
             <HydrationBoundary state={dehydrate(queryClient)}>
-                <ToastProvider>
-                    <SDCardDumpPage initialSelectedSDCard={sdCards?.[0] ?? null} />
-                </ToastProvider>
+                <SDCardDumpPage initialSelectedSDCard={sdCards?.[0] ?? null} />
             </HydrationBoundary>
         </div>
     );
