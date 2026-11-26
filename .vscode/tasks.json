@@ -164,6 +164,15 @@
       ]
     },
     {
+      "label": "Build Tests: DAM (Seven)",
+      "group": "build",
+      "type": "cmake",
+      "command": "build",
+      "targets": [
+        "seven_DAM_test"
+      ]
+    },
+    {
       "label": "Build Embedded: FSM (Hexray)",
       "group": "build",
       "type": "cmake",
