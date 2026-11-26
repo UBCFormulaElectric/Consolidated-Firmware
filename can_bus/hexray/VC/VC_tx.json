@@ -1306,5 +1306,51 @@
       "telem_cycle_time": 1000,
       "log_cycle_time": 1000
     }
+  },
+  "GyroFilterBench": {
+    "msg_id": 512,
+    "cycle_time": null,
+    "description": "Gyro Z filter bench: filter input and the output of each filter library filter, from the same 50 Hz tick. Only sent by VC builds with VC_GYRO_FILTER_BENCH",
+    "signals": {
+      "GyroBenchCounter": {
+        "bits": 8
+      },
+      "GyroBenchMode": {
+        "enum": "GyroBenchMode"
+      },
+      "GyroBenchCutoff": {
+        "resolution": 0.5,
+        "min": 0,
+        "max": 24.5,
+        "unit": "Hz"
+      },
+      "GyroZIn": {
+        "resolution": 0.01,
+        "min": -250,
+        "max": 250,
+        "unit": "deg/s"
+      },
+      "GyroZEma": {
+        "resolution": 0.01,
+        "min": -250,
+        "max": 250,
+        "unit": "deg/s"
+      },
+      "GyroZButterworth": {
+        "resolution": 0.01,
+        "min": -250,
+        "max": 250,
+        "unit": "deg/s"
+      },
+      "GyroZBiquad": {
+        "resolution": 0.01,
+        "min": -250,
+        "max": 250,
+        "unit": "deg/s"
+      }
+    },
+    "data_capture": {
+      "log_cycle_time": 20
+    }
   }
 }

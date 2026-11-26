@@ -102,5 +102,33 @@
         "max": 20
       }
     }
+  },
+  "GyroFilterBenchCmd": {
+    "msg_id": 1008,
+    "cycle_time": null,
+    "description": "Selects the VC gyro Z filter bench input (only used by VC builds with VC_GYRO_FILTER_BENCH)",
+    "signals": {
+      "GyroBenchMode": {
+        "enum": "GyroBenchMode"
+      },
+      "GyroBenchFrequency": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 25,
+        "unit": "Hz"
+      },
+      "GyroBenchAmplitude": {
+        "resolution": 1,
+        "min": 0,
+        "max": 200,
+        "unit": "deg/s"
+      },
+      "GyroBenchCutoff": {
+        "resolution": 0.5,
+        "min": 0,
+        "max": 24.5,
+        "unit": "Hz"
+      }
+    }
   }
 }

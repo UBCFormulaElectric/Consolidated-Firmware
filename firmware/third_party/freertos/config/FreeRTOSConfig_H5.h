@@ -57,6 +57,9 @@ void            xPortSysTickHandler(void);
 #define CMSIS_device_header "stm32h5xx.h"
 #endif /* CMSIS_device_header */
 
+// Must be 1: we build with -mfloat-abi=hard. With 0, the CM33 PendSV handler never saves s16-s31, and since it runs no
+// FPU instruction the lazily-stacked s0-s15 are never saved either, so a preempted task can resume with another task's
+// float registers.
 #define configENABLE_FPU 1
 #define configENABLE_MPU 0
 
