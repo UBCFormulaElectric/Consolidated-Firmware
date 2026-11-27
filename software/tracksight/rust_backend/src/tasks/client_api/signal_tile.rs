@@ -6,7 +6,7 @@
 use std::{cmp::max, pin::Pin, sync::{Arc, LazyLock}, time::{Duration, SystemTime, UNIX_EPOCH}};
 
 use axum::http::StatusCode;
-use chrono::{DateTime, FixedOffset, Utc};
+use chrono::{DateTime, FixedOffset, SecondsFormat::Millis, Utc};
 use futures::future::{ready, try_join_all};
 use influxdb2::{FromDataPoint, RequestError, models::Query};
 use moka::future::Cache;
@@ -23,7 +23,7 @@ use crate::tasks::client_api::INFLUX_QUERY_TIMEOUT_MS;
  * To limit queries flooding InfluxDB
  */
 pub static INFLUX_QUERY_SEMAPHORE: LazyLock<Arc<Semaphore>> =
-    LazyLock::new(|| Arc::new(Semaphore::new(4)));
+    LazyLock::new(|| Arc::new(Semaphore::new(16)));
 
 /**
  * The row for each signal value returned from InfluxDB
@@ -69,7 +69,7 @@ const OVER_SAMPLE_FACTOR: u64 = 2;
  * 
  * NOTE(evan): This is mirrored in the frontend in the lodLevels.ts fiel, so if you change this, change that too!
  */
-const TILE_SIZE: u64 = 512; 
+const TILE_SIZE: u64 = 1024; 
 /**
  * LRU cache size
  * This determines the absolute max size in memory
@@ -126,9 +126,8 @@ fn choose_resolution(range: u64) -> u64 {
 
     RESOLUTIONS_MS
         .iter()
-        .rev()
-        .find(|&resolution| resolution <= &desired_res)
-        .unwrap_or(RESOLUTIONS_MS.first().unwrap())
+        .find(|&resolution| resolution >= &desired_res)
+        .unwrap_or(RESOLUTIONS_MS.last().unwrap())
         .clone()
 }
 
@@ -147,8 +146,8 @@ pub async fn get_signals(
 ) -> Result<(Vec<InfluxSignalRow>, u64), (StatusCode, String)> {
     dprintln!("[signal_tile] Request for {} from {} to {}", 
         signal, 
-        start.to_rfc3339_opts(chrono::SecondsFormat::Millis, true), 
-        end.to_rfc3339_opts(chrono::SecondsFormat::Millis, true)
+        start.to_rfc3339_opts(Millis, true), 
+        end.to_rfc3339_opts(Millis, true)
     );
     // resolution in seconds
     let range_ms = (end - start).num_milliseconds() as u64;
@@ -174,7 +173,16 @@ pub async fn get_signals(
     let source_str = source.to_string();
     
     let get_tile_query = |tile_start: &DateTime<Utc>| -> String {
-        let tile_start_str = tile_start.to_rfc3339_opts(chrono::SecondsFormat::Millis, true);
+        let tile_start_str = tile_start
+            .to_rfc3339_opts(
+                Millis, 
+                true
+            );
+        let tile_end_str = (*tile_start + Duration::from_millis(tile_duration_ms))
+            .to_rfc3339_opts(
+                Millis,
+                 true
+            );
 
         // NOTE(evan): Just return all alerts in the tile if requested so we don't
         //             have to spam 100 requests to fetch all alerts in a window.
@@ -185,12 +193,11 @@ pub async fn get_signals(
             return format!(r#"
                 import "date"
                 from(bucket: "{}")
-                |> range(start: {tile_start_str}, stop: date.add(d: {tile_duration_ms}ms, to: {tile_start_str}))
+                |> range(start: {tile_start_str}, stop: {tile_end_str})
                 |> filter(fn: (r) => r["_measurement"] == "{}")
                 |> filter(fn: (r) => r["source"] == "{source_str}")
                 |> filter(fn: (r) => r["signal_type"] == "alert")
                 |> group(columns: ["signal_name"])
-                |> toFloat()
                 |> aggregateWindow(every: {resolution_ms}ms, fn: max, createEmpty: false)"#,
                 &CONFIG.influxdb_bucket,
                 &CONFIG.influxdb_measurement
@@ -206,11 +213,10 @@ pub async fn get_signals(
             return format!(r#"
                 import "date"
                 from(bucket: "{}")
-                |> range(start: {tile_start_str}, stop: date.add(d: {tile_duration_ms}ms, to: {tile_start_str}))
+                |> range(start: {tile_start_str}, stop: {tile_end_str})
                 |> filter(fn: (r) => r["_measurement"] == "{}")
                 |> filter(fn: (r) => r["signal_name"] == "{signal}")
                 |> filter(fn: (r) => r["source"] == "{source_str}")
-                |> toFloat()
                 |> aggregateWindow(every: {}ms, fn: mean, createEmpty: false)"#, 
                 &CONFIG.influxdb_bucket, 
                 &CONFIG.influxdb_measurement,
@@ -234,7 +240,7 @@ pub async fn get_signals(
         match cache_fetch {
             Some(cached_tile) => {
                 dprintln!("[signal_tile] Cache hit! Tile starting at {} with res {}", 
-                    tile_start.to_rfc3339_opts(chrono::SecondsFormat::Millis, true), 
+                    tile_start.to_rfc3339_opts(Millis, true), 
                     resolution_ms
                 );
                 // Don't need to asynchronize the transformation process unless tile sizes are super large like 10k
@@ -243,7 +249,7 @@ pub async fn get_signals(
                     let time_utc = DateTime::from_timestamp_millis(point.time_utc_ms);
                     if time_utc.is_none() {
                         eprintln!("[signal_tile] Invalid time in cache for tile starting at {} with res {}, skipping point with time {}", 
-                            tile_start.to_rfc3339_opts(chrono::SecondsFormat::Millis, true), 
+                            tile_start.to_rfc3339_opts(Millis, true), 
                             resolution_ms,
                             point.time_utc_ms
                         );
@@ -260,7 +266,7 @@ pub async fn get_signals(
             }
             None => {
                 dprintln!("[signal_tile] Cache miss! Fetching tile starting at {} with res {}", 
-                    tile_start.to_rfc3339_opts(chrono::SecondsFormat::Millis, true), 
+                    tile_start.to_rfc3339_opts(Millis, true), 
                     resolution_ms
                 );
                 let signal_clone = signal.clone();
