@@ -40,13 +40,12 @@ function parseHistoricalPayload(payloadText: string): SignalTilesResponse {
     return parsed as SignalTilesResponse;
 }
 
-export async function fetchHistoricalSignal(params: { signalName: string; signalType: SignalType; startUtcMs: number; endUtcMs: number; source: HistoricalSignalSource }): Promise<HistoricalSignalResult> {
-    const { signalName, signalType, startUtcMs, endUtcMs, source } = params;
+export async function fetchHistoricalSignal(params: { signalName: string; startUtcMs: number; endUtcMs: number; source: HistoricalSignalSource }): Promise<HistoricalSignalResult> {
+    const { signalName, startUtcMs, endUtcMs, source } = params;
 
     const start = toIsoUtcSeconds(startUtcMs);
     const end = toIsoUtcSeconds(endUtcMs);
-    const agg = signalType === SignalType.NUMERICAL ? "mean" : "first";
-    const url = `${ENDPOINTS.signalTiles(encodeURIComponent(signalName), start, end)}?agg=${agg}&source=${encodeURIComponent(JSON.stringify(source))}`;
+    const url = `${ENDPOINTS.signalTiles(encodeURIComponent(signalName), start, end)}?source=${encodeURIComponent(JSON.stringify(source))}`;
 
     let payloadText: string;
     if (IS_MOCK) {

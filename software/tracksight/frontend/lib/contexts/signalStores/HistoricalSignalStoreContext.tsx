@@ -88,7 +88,6 @@ export const HistoricalSignalStoreProvider = memo(function HistoricalSignalStore
                 track(
                     fetchHistoricalSignal({
                         signalName: "alert",
-                        signalType: SignalType.ALERT,
                         startUtcMs,
                         endUtcMs,
                         source,
@@ -106,7 +105,6 @@ export const HistoricalSignalStoreProvider = memo(function HistoricalSignalStore
                             startUtcMs,
                             endUtcMs,
                             source,
-                            signalType: signal.type,
                         })
                     ),
                 }))

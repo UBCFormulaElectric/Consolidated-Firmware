@@ -124,7 +124,6 @@ async fn metadata(Query(SignalNameParam { mut name } ): Query<SignalNameParam>, 
 #[derive(Debug, Deserialize)]
 struct SourceQuery {
     pub source: Option<String>,
-    pub agg: Option<String>,
 }
 
 /**
@@ -135,7 +134,7 @@ struct SourceQuery {
  */
 async fn signal_tiles(
     Path((signal, start, end)): Path<(String, String, String)>, 
-    Query(SourceQuery{ source, agg }): Query<SourceQuery>,
+    Query(SourceQuery{ source}): Query<SourceQuery>,
     State(state): State<AppState>
 ) -> impl IntoResponse {
     // todo optionally check if signal name is valid
