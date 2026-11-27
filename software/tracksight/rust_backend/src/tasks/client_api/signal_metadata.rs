@@ -57,38 +57,10 @@ pub fn get_all_signal_metadatas(can_db: &CanDatabase, filter: Option<Regex>) -> 
         ).collect::<Vec<_>>()
     };
 
-    let mut c: HashMap<String, SignalMetadata> = can_db.get_all_msgs()
+    can_db.get_all_msgs()
         .unwrap_or_default()
         .iter()
         .filter(|msg| filter.is_none() || filter.as_ref().unwrap().is_match(&msg.name))
         .flat_map(flat_map)
-        .collect();
-
-    c.insert("sine_500millisecond".into(), SignalMetadata {
-        name: "sine_500millisecond".into(),
-        min_val: 0.0,
-        max_val: 100.0,
-        unit: None,
-        enum_signal: None,
-        tx_node: "BMS".into(),
-        cycle_time_ms: Some(500),
-        id: 0xFFFF,
-        msg_name: "BMS_sine_gen".into(),
-        signal_type: CanSignalType::Numerical,
-    });
-
-    c.insert("sine_1second".into(), SignalMetadata {
-        name: "sine_1second".into(),
-        min_val: 0.0,
-        max_val: 100.0,
-        unit: None,
-        enum_signal: None,
-        tx_node: "BMS".into(),
-        cycle_time_ms: Some(1000),
-        id: 0xFFFE,
-        msg_name: "BMS_sine_gen".into(),
-        signal_type: CanSignalType::Numerical,
-    });
-
-    return c;
+        .collect()
 }
