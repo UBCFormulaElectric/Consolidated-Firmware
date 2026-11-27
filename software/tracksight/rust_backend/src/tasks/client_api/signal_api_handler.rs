@@ -124,7 +124,6 @@ async fn metadata(Query(SignalNameParam { mut name } ): Query<SignalNameParam>, 
 #[derive(Debug, Deserialize)]
 struct SourceQuery {
     pub source: Option<String>,
-    pub agg: Option<String>,
 }
 
 /**
@@ -135,7 +134,7 @@ struct SourceQuery {
  */
 async fn signal_tiles(
     Path((signal, start, end)): Path<(String, String, String)>, 
-    Query(SourceQuery{ source, agg }): Query<SourceQuery>,
+    Query(SourceQuery{ source}): Query<SourceQuery>,
     State(state): State<AppState>
 ) -> impl IntoResponse {
     // todo optionally check if signal name is valid
@@ -160,9 +159,14 @@ async fn signal_tiles(
         _ => InfluxSignalSource::Radio,
     };
     
-    match get_signals(state.influx_client, source_enum, state.signal_tile_cache.clone(), signal, start_utc, end_utc, agg.unwrap_or_else(|| "max".into())).await {
+    match get_signals(state.influx_client, source_enum, state.signal_tile_cache.clone(), signal.clone(), start_utc, end_utc).await {
         Ok((rows, resolution_ms)) => {
-            dprintln!("Querying signals took {}ms", start_time.elapsed().unwrap().as_millis());
+            dprintln!("Request for {} from {} to {} too took {}ms", 
+                signal,
+                start_utc.to_rfc3339_opts(chrono::SecondsFormat::Millis, true), 
+                end_utc.to_rfc3339_opts(chrono::SecondsFormat::Millis, true),
+                start_time.elapsed().unwrap().as_millis()
+            );
             
             let total_size: usize = state.signal_tile_cache.iter().map(|(key, value)| {
                 mem::size_of_val(&key) + mem::size_of_val(&value)
@@ -387,7 +391,6 @@ async fn signal_sessions_hash(
             data = from(bucket: "{}")
                 |> range(start: time(v: "{start_utc}"), stop: time(v: "{end_utc}"))
                 |> filter(fn: (r) => r["_measurement"] == "{}")
-                |> filter(fn: (r) => r["signal_name"] == "DAM_Alive")
                 |> filter(fn: (r) => r["source"] == "{source_str}")
                 |> filter(fn: (r) => exists r["boot_hash"])
                 |> group(columns: ["boot_hash"])

@@ -1,6 +1,9 @@
+use std::println;
 use std::sync::Arc;
 use std::time::Duration;
 use axum::Router;
+use axum::http::StatusCode;
+use axum::routing::get;
 use moka::future::Cache;
 use tokio::select;
 use tokio::sync::{RwLock, broadcast};
@@ -102,6 +105,7 @@ pub async fn run_api_handler(
         .nest("/api/v2/", get_signal_router_v2())
         .nest("/api/v1/", get_sd_router())
         .nest("/api/v1/", get_transmit_router())
+        .merge(get_health_router())
         .with_state(app_state)
         .layer(cors)
         .into_make_service();
@@ -122,4 +126,13 @@ pub async fn run_api_handler(
         }
     }
     vprintln!("{}", yellow("API handler task ended."));
+}
+
+fn get_health_router() -> Router<AppState> {
+    async fn health_check() -> (StatusCode, String) {
+        (StatusCode::OK, "ok".to_string().into())
+    }
+
+    Router::new()
+        .route("/health", get(health_check))
 }

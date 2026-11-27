@@ -25,7 +25,7 @@ pub fn green(str: impl AsRef<str>) -> String {
 }
 
 fn format_color(str: impl AsRef<str>, color: &str) -> String {
-    format!("\x1b[{color}{}\x1b[{NON}", str.as_ref())
+    return format!("\x1b[{color}{}\x1b[{NON}", str.as_ref())
 }
 
 /*
