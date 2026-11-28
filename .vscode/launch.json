@@ -665,6 +665,20 @@
       }
     },
     {
+      "name": "Debug Tests: BMS (Seven)",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceRoot}/build_fw_test/firmware/seven/BMS/seven_BMS_test",
+      "cwd": "${workspaceRoot}",
+      "preLaunchTask": "Build Tests: BMS (Seven)",
+      "linux": {
+        "MIMode": "gdb"
+      },
+      "osx": {
+        "MIMode": "lldb"
+      }
+    },
+    {
       "name": "Debug Tests: CRIT (Hexray)",
       "type": "cppdbg",
       "request": "launch",

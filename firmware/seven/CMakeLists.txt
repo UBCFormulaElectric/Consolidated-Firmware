@@ -14,3 +14,5 @@ if ("${TARGET}" STREQUAL "binary")
             seven_VC_app.hex
     )
 endif ()
+
+

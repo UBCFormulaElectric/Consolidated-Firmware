@@ -1,0 +1,38 @@
+{
+  "forwarders": [
+    {
+      "forwarder": "BMS",
+      "bus1": "FDCAN",
+      "bus2" : "charger"
+    }
+  ],
+  "buses": [
+    {
+      "name": "FDCAN",
+      "nodes": [
+        "BMS"
+      ],
+      "bus_speed": 1000,
+      "modes": [
+        "DEFAULT",
+        "DEBUG"
+      ],
+      "default_mode": "DEFAULT",
+      "fd": true
+    },
+    {
+      "name": "charger",
+      "nodes": [
+        "BMS"
+      ],
+      "bus_speed": 500,
+      "modes": [
+        "DEFAULT",
+        "DEBUG"
+      ],
+      "default_mode": "DEFAULT"
+    }
+  ],
+  "loggers": [
+  ]
+}
