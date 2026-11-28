@@ -5,5 +5,7 @@
 
 void jobs_run100Hz_tick()
 {
+    app::irs::updateNegativeOpenDebounce();
+    
     app::irs::broadcast();
 }

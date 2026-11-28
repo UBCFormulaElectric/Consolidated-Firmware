@@ -10,6 +10,8 @@ namespace app::irs
  */
 bool negativeOpenedDebounced();
 
+void updateNegativeOpenDebounce();
+
 /**
  *  @brief Broadcast IRs status over CAN.
  */

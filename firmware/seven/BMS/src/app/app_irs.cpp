@@ -12,16 +12,42 @@ static app::Timer negative_opened_debounce_timer{ N_DEBOUNCE_PERIOD_MS };
 
 namespace app::irs
 {
-bool negativeOpenedDebounced()
+// bool negativeOpenedDebounced()
+// {
+//     const bool negative_opened = io::irs::negativeState() == app::can_utils::ContactorState::CONTACTOR_STATE_OPEN;
+//     return negative_opened_debounce_timer.runIfCondition(negative_opened) == app::Timer::TimerState::EXPIRED;
+// }
+
+//restart the debounce timer on each opening
+static bool was_negative_open = false; 
+static bool negative_open_debounced = false;
+
+void updateNegativeOpenDebounce()
 {
-    const bool negative_opened = io::irs::negativeState() == app::can_utils::ContactorState::CONTACTOR_STATE_OPEN;
-    return negative_opened_debounce_timer.runIfCondition(negative_opened) == app::Timer::TimerState::EXPIRED;
+    const bool is_open = io::irs::negativeState() == app::can_utils::ContactorState::CONTACTOR_STATE_OPEN;
+
+    // Start a fresh timer on the first open reading of each opening
+    if (is_open && !was_negative_open)
+    {
+        negative_opened_debounce_timer.restart();
+    }
+
+    // A reading other than open resets the timer for the next opening
+    negative_open_debounced =
+        negative_opened_debounce_timer.runIfCondition(is_open) == app::Timer::TimerState::EXPIRED;
+
+    was_negative_open = is_open;
 }
 
-void negativeOpenedDebounceTimerRestart()
+bool negativeOpenedDebounced()
 {
-     negative_opened_debounce_timer.restart();
- }
+    return negative_open_debounced;
+}
+
+// void negativeOpenedDebounceTimerRestart()
+// {
+//      negative_opened_debounce_timer.restart();
+//  }
 
 void broadcast()
 {
