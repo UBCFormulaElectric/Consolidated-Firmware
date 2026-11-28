@@ -14,6 +14,7 @@ void updateNegativeOpenDebounce();
 
 /**
  *  @brief Broadcast IRs status over CAN.
+ * 
  */
 void broadcast();
 } // namespace app::irs

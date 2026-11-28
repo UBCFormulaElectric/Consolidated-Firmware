@@ -18,8 +18,8 @@ namespace app::irs
 //     return negative_opened_debounce_timer.runIfCondition(negative_opened) == app::Timer::TimerState::EXPIRED;
 // }
 
-//restart the debounce timer on each opening
-static bool was_negative_open = false; 
+// restart the debounce timer on each opening
+static bool was_negative_open       = false;
 static bool negative_open_debounced = false;
 
 void updateNegativeOpenDebounce()
