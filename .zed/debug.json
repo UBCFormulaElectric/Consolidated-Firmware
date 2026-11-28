@@ -159,7 +159,9 @@
         "--device",
         "STM32H562RI",
         "--build",
-        "cmake --build build_fw_dev --target hexray_CRIT.hex"
+        "cmake --build build_fw_dev --target hexray_CRIT.hex",
+        "--flash",
+        "build_fw_dev/firmware/hexray/CRIT/hexray_CRIT.hex"   
       ]
     }
   },
@@ -177,7 +179,9 @@
         "--device",
         "STM32H733VG",
         "--build",
-        "cmake --build build_fw_dev --target hexray_VC.hex"
+        "cmake --build build_fw_dev --target hexray_VC.hex",
+        "--flash",
+        "build_fw_dev/firmware/hexray/VC/hexray_VC.hex"
       ]
     }
   },
@@ -195,7 +199,9 @@
         "--device",
         "STM32H733VG",
         "--build",
-        "cmake --build build_fw_dev --target hexray_BMS.hex"
+        "cmake --build build_fw_dev --target hexray_BMS.hex",
+        "--flash",
+        "build_fw_dev/firmware/hexray/BMS/hexray_BMS.hex"
       ]
     }
   },
@@ -213,7 +219,9 @@
         "--device",
         "STM32H562RI",
         "--build",
-        "cmake --build build_fw_dev --target hexray_FSM.hex"
+        "cmake --build build_fw_dev --target hexray_FSM.hex",
+        "--flash",
+        "build_fw_dev/firmware/hexray/FSM/hexray_FSM.hex"
       ]
     }
   },
@@ -231,7 +239,9 @@
         "--device",
         "STM32H562RI",
         "--build",
-        "cmake --build build_fw_dev --target hexray_DAM.hex"
+        "cmake --build build_fw_dev --target hexray_DAM.hex",
+        "--flash",
+        "build_fw_dev/firmware/hexray/DAM/hexray_DAM.hex"
       ]
     }
   },
@@ -249,7 +259,9 @@
         "--device",
         "STM32H562RI",
         "--build",
-        "cmake --build build_fw_dev --target hexray_RSM.hex"
+        "cmake --build build_fw_dev --target hexray_RSM.hex",
+        "--flash",
+        "build_fw_dev/firmware/hexray/RSM/hexray_RSM.hex"
       ]
     }
   },
